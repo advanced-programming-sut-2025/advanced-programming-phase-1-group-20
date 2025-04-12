@@ -4,27 +4,40 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum LoginRegisterMenuCommands implements Command {
-    Login("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(–stay-logged-in)?\\s*$"),
-    RegisterUser("^\\s*register\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(\\S+)\\s+-n\\s+(\\S+)\\s+-e" +
-            "\\s+(\\S+)\\s+-g\\s+(\\S+)\\s*$"),
-    PickSecurityQuestion("^pick\\s+question-q\\s+(\\S+)\\s+-a(\\S+)\\s+(-c\\S+)$"),
-    ForgotPass("^forget\\s+password\\s+-u\\s+(\\S+)$"),
-    AnswerSecurityQuestion("^answer\\s+-a\\s+(\\S+)$");
-    private final String regex;
+    Login(Pattern.compile("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(–stay-logged-in)?\\s*$")),
+    RegisterUser(Pattern.compile("^\\s*register\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(\\S+)\\s+-n\\s+(\\S+)\\s+-e" +
+            "\\s+(\\S+)\\s+-g\\s+(\\S+)\\s*$")),
+    PickSecurityQuestion(Pattern.compile("^pick\\s+question-q\\s+(\\S+)\\s+-a(\\S+)\\s+(-c\\S+)$")),
+    ForgotPass(Pattern.compile("^forget\\s+password\\s+-u\\s+(\\S+)$")),
+    AnswerSecurityQuestion(Pattern.compile("^answer\\s+-a\\s+(\\S+)$")),
+    None(null);
+    private final Pattern pattern;
 
-    LoginRegisterMenuCommands(String regex) {
-        this.regex = regex;
+
+
+    LoginRegisterMenuCommands(Pattern pattern) {
+        this.pattern = pattern;
     }
 
-    @Override
-    public String getRegex() {
-        return regex;
-    }
+
 
     @Override
+    public Pattern getPattern() {
+        return this.pattern;
+    }
+
     public boolean matches(String input) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
-        return matcher.matches();
+        return this.pattern.matcher(input).matches();
+    }
+
+
+    public static LoginRegisterMenuCommands getCommand(String input) {
+        input = input.trim();
+        for (LoginRegisterMenuCommands command : values()) {
+            if (command != None && command.matches(input)) {
+                return command;
+            }
+        }
+        return None;
     }
 }

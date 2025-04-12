@@ -4,24 +4,36 @@ import models.App;
 import models.Result;
 import models.User;
 import models.enums.ProfileMenuCommands;
+import views.AppView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ProfileMenuController {
+public class ProfileMenuController implements Controller {
+    private AppView appView;
+    private User user;
+    public ProfileMenuController(AppView appView , User user) {
+        this.appView = appView;
+        this.user = user;
+    }
+    @Override
+    public void update(String input) {
+        ProfileMenuCommands command = ProfileMenuCommands.getCommand(input);
+        String[] args = command.parseInput(input);
+        switch (command) {
+            case ChangeUsername -> changeUsername(args);
+            case ChangeNickname -> changeNickname(args);
+            case ChangePassword -> changePassword(args);
+            case ChangeEmail -> changeEmail(args);
+            case None -> Result.error("Invalid input");
 
-    public Result changeUsername(String input) {
-        Pattern pattern = Pattern.compile(ProfileMenuCommands.ChangeUsername.getRegex());
-        Matcher matcher = pattern.matcher(input);
-
-        if (!matcher.find()) {
-            return Result.error("invalid input");
         }
+    }
 
-        String newUsername = matcher.group(1);
-
+    public Result changeUsername(String[] args) {
+        String newUsername = args[0];
         if (!checkUsername(newUsername)) {
             return Result.error("invalid username format");
         }
@@ -39,15 +51,9 @@ public class ProfileMenuController {
         return Result.success("username changed successfully");
     }
 
-    public Result changePassword(String input) {
-        Pattern pattern = Pattern.compile(ProfileMenuCommands.ChangePassword.getRegex());
-        Matcher matcher = pattern.matcher(input);
-        if (!matcher.find()) {
-            return Result.error("invalid input");
-        }
-
-        String newPassword = matcher.group(1);
-        String oldPasswordInput = matcher.group(2);
+    public Result changePassword(String[] args) {
+        String newPassword = args[0];
+        String oldPasswordInput = args[1];
         User user = App.getLoggedInUser();
         if (!oldPasswordInput.equals(user.getPassword())) {
             return Result.error("invalid old password");
@@ -65,13 +71,8 @@ public class ProfileMenuController {
         return Result.success("password changed successfully");
     }
 
-    public Result changeEmail(String input) {
-        Pattern pattern = Pattern.compile(ProfileMenuCommands.ChangeEmail.getRegex());
-        Matcher matcher = pattern.matcher(input);
-        if (!matcher.find()) {
-            return Result.error("invalid input");
-        }
-        String newEmail = matcher.group(1);
+    public Result changeEmail(String[] args) {
+        String newEmail = args[0];
 
         if (!checkEmail(newEmail)) {
             return Result.error("invalid email format");
@@ -114,15 +115,9 @@ public class ProfileMenuController {
     }
 
 
-    public Result changeNickname(String input) {
-        Pattern pattern = Pattern.compile(ProfileMenuCommands.ChangeNickname.getRegex());
-        Matcher matcher = pattern.matcher(input);
+    public Result changeNickname(String[] args) {
 
-        if (!matcher.find()) {
-            return Result.error("invalid input");
-        }
-
-        String newNickname = matcher.group(1);
+        String newNickname = args[0];
         User user = App.getLoggedInUser();
         user.setNickname(newNickname);
 

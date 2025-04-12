@@ -5,6 +5,7 @@ import models.Result;
 import models.User;
 import models.enums.Gender;
 import models.enums.LoginRegisterMenuCommands;
+import views.AppView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,21 +13,37 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LoginRegisterMenuController {
-    public Result registerUser(String input) {
-        Pattern pattern = Pattern.compile(LoginRegisterMenuCommands.RegisterUser.getRegex());
-        Matcher matcher = pattern.matcher(input);
+public class LoginRegisterMenuController implements Controller {
+    private AppView appView;
+    private User user;
 
-        if (!matcher.find()) {
-            return Result.error("invalid input");
+    public LoginRegisterMenuController(AppView appView , User user) {
+        this.appView = appView;
+        this.user = user;
+    }
+
+
+    @Override
+    public void update(String input) {
+        LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
+        String[] args = command.parseInput(input);
+        switch (command) {
+            case RegisterUser -> registerUser(args);
+            case Login -> login(args);
+            case ForgotPass -> forgotPassword(args);
+            case PickSecurityQuestion -> pickSecurityQuestion(args , user);
+            case AnswerSecurityQuestion -> answerSecurityQuestion(args , user.getUsername());
+            case None -> Result.error("Invalid input");
         }
+    }
+    public Result registerUser(String[] args) {
 
-        String username = matcher.group(1);
-        String password = matcher.group(2);
-        String passwordConfirm = matcher.group(3);
-        String nickname = matcher.group(4);
-        String email = matcher.group(5);
-        String genderString = matcher.group(6);
+        String username = args[0];
+        String password = args[1];
+        String passwordConfirm = args[2];
+        String nickname = args[3];
+        String email = args[4];
+        String genderString = args[5];
 
         if (App.getUser(username) != null) {
             return Result.error("username already taken");
@@ -59,7 +76,7 @@ public class LoginRegisterMenuController {
         }
         Gender gender = Gender.getGenderByName(genderString);
         User newUser = new User(username, password, email, nickname, gender);
-
+        user = newUser;
         App.addUser(newUser);
 
         return Result.success("user registered successfully");
@@ -177,17 +194,10 @@ public class LoginRegisterMenuController {
         return new String(array);
     }
 
-    public Result login(String input) {
-        Pattern pattern = Pattern.compile(LoginRegisterMenuCommands.Login.getRegex());
-        Matcher matcher = pattern.matcher(input);
-
-        if (!matcher.matches()) {
-            return Result.error("invalid input");
-        }
-
-        String username = matcher.group(1);
-        String password = matcher.group(2);
-        String stayLoggedInStr = matcher.group(3);
+    public Result login(String[] args) {
+        String username = args[0];
+        String password = args[1];
+        String stayLoggedInStr = args[2];
         boolean stayLoggedIn = !stayLoggedInStr.isEmpty();
 
         User user = App.getUser(username);
@@ -212,16 +222,11 @@ public class LoginRegisterMenuController {
         return Result.success("logged out");
     }
 
-    public Result pickSecurityQuestion(String input, User user) {
-        Pattern pattern = Pattern.compile(LoginRegisterMenuCommands.PickSecurityQuestion.getRegex());
-        Matcher matcher = pattern.matcher(input);
-        if (!matcher.matches()) {
-            return Result.error("invalid input");
-        }
+    public Result pickSecurityQuestion(String[] args, User user) {
 
-        String questionNumberStr = matcher.group(1);
-        String answer = matcher.group(2);
-        String answerConfirm = matcher.group(3);
+        String questionNumberStr = args[0];
+        String answer = args[1];
+        String answerConfirm = args[2];
         int questionNumber = Integer.parseInt(questionNumberStr) - 1;
 
         if (!answer.equals(answerConfirm)) {
@@ -234,14 +239,8 @@ public class LoginRegisterMenuController {
         return Result.success("security question added successfully");
     }
 
-    public Result forgotPassword(String input) {
-        Pattern pattern = Pattern.compile(LoginRegisterMenuCommands.ForgotPass.getRegex());
-        Matcher matcher = pattern.matcher(input);
-        if (!matcher.matches()) {
-            return Result.error("invalid input");
-        }
-
-        String username = matcher.group(1);
+    public Result forgotPassword(String[] args) {
+        String username = args[0];
         User user = App.getUser(username);
         if (user == null) {
             return Result.error("user not found");
@@ -250,19 +249,14 @@ public class LoginRegisterMenuController {
         return Result.success(username);
     }
 
-    public Result answerSecurityQuestion(String input, String username) {
+    public Result answerSecurityQuestion(String[] args, String username) {
         User user = App.getUser(username);
-
-        Pattern pattern = Pattern.compile(LoginRegisterMenuCommands.AnswerSecurityQuestion.getRegex());
-        Matcher matcher = pattern.matcher(input);
-        if (!matcher.matches()) {
-            return Result.error("invalid input");
-        }
-        String answer = matcher.group(1);
+        String answer = args[0];
         if (!answer.equals(user.getSecurityAnswer())) {
             return Result.error("the answer is not correct");
         }
 
         return Result.success("your password is " + user.getPassword());
     }
+
 }

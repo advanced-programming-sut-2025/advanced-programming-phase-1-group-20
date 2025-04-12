@@ -1,30 +1,39 @@
 package models.enums;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum ProfileMenuCommands implements Command {
-    ChangeUsername("^change\\s+username\\s+-u\\s+(\\S+)$"),
-    ChangeNickname("^change\\s+nickname\\s+-n\\s+(\\S+)$"),
-    ChangePassword("^change\\s+password\\s+-p\\s+(\\S+)\\s+-o(\\S+)$"),
-    ChangeEmail("^change\\s+email\\s+-e\\s+(\\S+)$");
+    ChangeUsername(Pattern.compile("^change\\s+username\\s+-u\\s+(\\S+)$")),
+    ChangeNickname(Pattern.compile("^change\\s+nickname\\s+-n\\s+(\\S+)$")),
+    ChangePassword(Pattern.compile("^change\\s+password\\s+-p\\s+(\\S+)\\s+-o(\\S+)$")),
+    ChangeEmail(Pattern.compile("^change\\s+email\\s+-e\\s+(\\S+)$")),
+    None(null);
 
-    private final String regex;
+    private final Pattern pattern;
 
-    ProfileMenuCommands(String regex) {
-        this.regex = regex;
+    ProfileMenuCommands(Pattern pattern) {
+        this.pattern = pattern;
     }
 
 
     @Override
-    public String getRegex() {
-        return regex;
+    public Pattern getPattern() {
+        return this.pattern;
     }
 
     @Override
     public boolean matches(String input) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(input);
-        return matcher.matches();
+        return this.pattern.matcher(input).matches();
+    }
+
+
+    public static ProfileMenuCommands getCommand(String input) {
+        input = input.trim();
+        for (ProfileMenuCommands command : values()) {
+            if (command != None && command.matches(input)) {
+                return command;
+            }
+        }
+        return None;
     }
 }
