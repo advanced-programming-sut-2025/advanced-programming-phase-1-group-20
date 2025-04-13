@@ -7,20 +7,20 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 public class GameClock {
-    private LocalDateTime currentTime; // زمان فعلی
-    private Seasons season; // فصل فعلی
-    private Weather weatherToday; // وضعیت آب‌وهوای امروز
-    private Weather weatherTomorrow; // وضعیت آب‌وهوای فردا
-    private final Map<Seasons, List<Weather>> weatherMap; // مپ فصل‌ها به وضعیت‌های ممکن
-    private final int daysPerSeason = 28; // تعداد روزهای هر فصل
+    private LocalDateTime currentTime;
+    private Seasons season;
+    private Weather weatherToday;
+    private Weather weatherTomorrow;
+    private final Map<Seasons, List<Weather>> weatherMap;
+    private final int daysPerSeason = 28;
 
     public GameClock() {
-        this.currentTime = LocalDateTime.of(2025, 1, 1, 0, 0); // شروع زمان بازی از روز اول
+        this.currentTime = LocalDateTime.of(2025, 1, 1, 0, 0);
         this.weatherMap = new HashMap<>();
         initialWeatherMap();
-        updateSeason(); // محاسبه فصل فعلی
-        updateWeatherToday(); // به‌روزرسانی وضعیت امروز
-        updateWeatherTomorrow(); // به‌روزرسانی وضعیت فردا
+        updateSeason();
+        updateWeatherToday();
+        updateWeatherTomorrow();
     }
 
     private void initialWeatherMap() {
@@ -32,21 +32,21 @@ public class GameClock {
 
     public void advanceTime(int hours, int minutes) {
         this.currentTime = this.currentTime.plusHours(hours).plusMinutes(minutes);
-        updateSeason(); // به‌روزرسانی فصل بر اساس زمان
+        updateSeason();
     }
 
     public void cheatThor(){}
 
     public void advanceDays(int days) {
         this.currentTime = this.currentTime.plusDays(days);
-        updateSeason(); // به‌روزرسانی فصل
-        updateWeatherToday(); // به‌روزرسانی وضعیت امروز
-        updateWeatherTomorrow(); // به‌روزرسانی وضعیت فردا
+        updateSeason();
+        updateWeatherToday();
+        updateWeatherTomorrow();
     }
 
     private void updateSeason() {
         int totalDays = currentTime.getDayOfYear();
-        int seasonIndex = ((totalDays - 1) / daysPerSeason) % Seasons.values().length; // محاسبه فصل فعلی
+        int seasonIndex = ((totalDays - 1) / daysPerSeason) % Seasons.values().length;
         this.season = Seasons.values()[seasonIndex];
     }
 
