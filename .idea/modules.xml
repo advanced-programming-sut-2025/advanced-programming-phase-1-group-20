@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/advanced-programming-phase-1-group-20.iml" filepath="$PROJECT_DIR$/.idea/advanced-programming-phase-1-group-20.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/Stardew Valley.iml" filepath="$PROJECT_DIR$/Stardew Valley.iml" />
+>>>>>>> master
     </modules>
   </component>
 </project>
