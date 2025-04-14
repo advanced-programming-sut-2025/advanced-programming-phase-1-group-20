@@ -1,4 +1,4 @@
-package models.enums;
+package models.enums.PlayerEnums;
 
 import models.Tool;
 

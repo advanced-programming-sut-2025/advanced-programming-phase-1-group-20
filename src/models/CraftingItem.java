@@ -9,7 +9,7 @@ public class CraftingItem extends Item{
     private Sources source;
     private int sellPrice;
     public CraftingItem(String name , HashMap<Item , Integer> ingredients, Sources source, int sellPrice){
-        super(name, );
+        super(name, sellPrice);
         this.ingredients = ingredients;
         this.source = source;
         this.sellPrice = sellPrice;

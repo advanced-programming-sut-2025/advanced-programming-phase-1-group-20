@@ -69,6 +69,7 @@ public enum Markets {
         String[] menu = new String[] {};
         return new Market(items , startHour,endHour,menu);
     }
+
     private static Market createStarDropSaloon() {
         HashMap<Item, Integer> items = new HashMap<>();
 
@@ -84,7 +85,7 @@ public enum Markets {
         Item spaghetti = (Item) new CookingItem(CookingItems.spaghetti);
         spaghetti.setPrice(240);
         items.put(spaghetti,-1);
-        Item bread = (Item) new CookingItem(CookingItems.bread);
+        Item bread = new CookingItem(CookingItems.bread);
         bread.setPrice(120);
         items.put(bread,-1);
         Item salad = (Item) new CookingItem(CookingItems.Salad);

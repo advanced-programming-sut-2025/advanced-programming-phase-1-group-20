@@ -1,10 +1,10 @@
 package models;
 
-public class Animal extends Item{
+public class Animal {
     private String name;
     private int price;
     public Animal(String name , int price) {
-        super(name, );
+        this.name = name;
         this.price = price;
     }
 

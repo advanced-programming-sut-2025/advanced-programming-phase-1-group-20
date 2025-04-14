@@ -1,6 +1,6 @@
 package models;
 
-import models.enums.Skills;
+import models.enums.PlayerEnums.Skills;
 import models.enums.TileType;
 
 import java.util.ArrayList;

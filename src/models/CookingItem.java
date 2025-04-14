@@ -1,6 +1,6 @@
 package models;
 
-import models.enums.Skills;
+import models.enums.PlayerEnums.Skills;
 
 import java.util.HashMap;
 
@@ -10,7 +10,7 @@ public class CookingItem extends Item{
     private Skill source;
     private int sellPrice;
     public CookingItem(String name , HashMap<Item , Integer> ingredients, HashMap<Skills, Integer> buffer, Skill source, int sellPrice){
-        super(name, );
+        super(name, sellPrice);
         this.ingredients = ingredients;
         this.buffer = buffer;
         this.source = source;

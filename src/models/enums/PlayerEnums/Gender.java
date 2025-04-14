@@ -1,4 +1,4 @@
-package models.enums;
+package models.enums.PlayerEnums;
 
 public enum Gender {
     Male("male"), Female("female");

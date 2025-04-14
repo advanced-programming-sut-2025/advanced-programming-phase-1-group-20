@@ -3,7 +3,7 @@ package controllers;
 import models.App;
 import models.Result;
 import models.User;
-import models.enums.Gender;
+import models.enums.PlayerEnums.Gender;
 import models.enums.commands.LoginRegisterMenuCommands;
 import views.AppView;
 

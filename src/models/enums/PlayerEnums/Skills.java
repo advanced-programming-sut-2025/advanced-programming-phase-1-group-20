@@ -1,8 +1,6 @@
-package models.enums;
+package models.enums.PlayerEnums;
 
 import models.Skill;
-
-import java.util.List;
 
 public enum Skills {
     HARVESTING("harvest", 5),
