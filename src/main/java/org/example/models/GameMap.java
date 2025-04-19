@@ -3,7 +3,7 @@ package org.example.models;
 import org.example.models.enums.Types.TileType;
 
 public class GameMap {
-    private TileType[][] map;
+    private static TileType[][] map;
 
     public GameMap() {
         initializeMap();
