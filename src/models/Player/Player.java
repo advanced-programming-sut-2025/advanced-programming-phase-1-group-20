@@ -2,7 +2,8 @@ package models.Player;
 
 import models.*;
 import models.enums.PlayerEnums.Skills;
-import models.enums.TileType;
+import models.enums.Types.TileType;
+import models.enums.Types.TileType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public class Player extends Mob {
         this.user = user;
         skills = new ArrayList<Skill>();
         //adding skills:
-        Skills.HARVESTING.addSkill(skills);
+//        Skills.HARVESTING.addSkill();
     }
 
     //decreasing energy:
@@ -32,9 +33,9 @@ public class Player extends Mob {
 
     public void fishingRod(GameMap gMap , int x , int y){
         //checking the Tile around.
-        Tile tile = gMap.getTile(x+1,y);
+        TileType tile = gMap.getTile(x+1,y);
         //etc
-        if(tile == Tile.WATER){
+        if(tile == TileType.WATER){
             //implementing func.
         }
     }
