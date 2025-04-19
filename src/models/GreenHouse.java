@@ -23,6 +23,4 @@ public class GreenHouse {
     public void removePlant(Plant plant) {
         greenHousePlants.remove(plant);
     }
-
-
 }

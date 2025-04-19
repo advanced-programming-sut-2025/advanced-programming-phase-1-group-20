@@ -9,7 +9,7 @@ public enum Tools {
     SEYTHE("Seythe" , 2),
     SHEAR("Shear" , 4),
     MILK_PAIL("milk pail" , 4),
-    FISHING_POLE("fishing pole" , 8),
+    FISHING_ROD("fishing rod" , 8),
     WATERING_CAN("watering can" , 5); //other tools
 
     private final String name;

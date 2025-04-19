@@ -186,9 +186,8 @@ public class ProfileMenuController implements Controller {
         userInfo.append("Username: ").append(user.getUsername()).append("\n");
         userInfo.append("Nickname: ").append(user.getNickname()).append("\n");
         userInfo.append("Most Money Earned: ").append(user.getMostEarnedMoney()).append("\n");
-        userInfo.append("Game Played: ").append(user.getGamesPlayed()).append("\n\n");
+        userInfo.append("Games Played: ").append(user.getGamesPlayed()).append("\n\n");
 
         return Result.success(userInfo.toString());
     }
-
 }

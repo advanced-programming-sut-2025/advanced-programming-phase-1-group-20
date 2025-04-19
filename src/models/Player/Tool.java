@@ -2,13 +2,12 @@ package models.Player;
 
 import models.Item;
 import models.enums.Types.ToolType;
-import models.enums.Tools;
+
 
 public class Tool extends Item {
     int level = 0;
     int energyCost;
     private ToolType type;
-    private Tools tool;
     private int health;
 
     public Tool(String name , int energyCost){
