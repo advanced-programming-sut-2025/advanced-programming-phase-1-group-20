@@ -9,6 +9,10 @@ public class GameMap {
         initializeMap();
     }
 
+    public static TileType getTile(int x, int y) {
+        return map[x][y];
+    }
+
     private void initializeMap() {
         //initializing the wanted map:
 
@@ -22,10 +26,6 @@ public class GameMap {
 
     public void changeTile(TileType tile, int x, int y) {
         map[x][y] = tile;
-    }
-
-    public TileType getTile(int x, int y) {
-        return map[x][y];
     }
 
 

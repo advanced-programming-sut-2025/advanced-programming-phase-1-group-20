@@ -66,5 +66,12 @@ public class Player extends Mob {
     public void showArtisanItems() {
     }
 
-
+    public void move(int x, int y) {
+        //checking the Tile around.
+        TileType tile = GameMap.getTile(x + 1, y);
+        //etc
+        if (tile == TileType.WATER) {
+            //implementing func.
+        }
+    }
 }
