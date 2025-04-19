@@ -44,10 +44,7 @@ public class Date {
             return;
         }
 
-        // Add the hours
         this.hour += hours;
-
-        // Handle hour overflow - advance days if needed
         while (this.hour >= 22) {
             this.hour -= 13;
             advanceDays(1);
@@ -139,8 +136,6 @@ public class Date {
     }
 
     public void displayDayOfWeek() {
-        // Calculate the day of week (0-6 representing Sunday-Saturday)
-        // This is a simplified version where we start with day 1 of Spring as Monday
         int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
         int dayOfWeek = (totalDays % 7); // 0 is Sunday, 1 is Monday, etc.
 
