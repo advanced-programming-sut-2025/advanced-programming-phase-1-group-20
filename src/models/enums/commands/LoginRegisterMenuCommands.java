@@ -13,12 +13,9 @@ public enum LoginRegisterMenuCommands implements Command {
     private final Pattern pattern;
 
 
-
     LoginRegisterMenuCommands(Pattern pattern) {
         this.pattern = pattern;
     }
-
-
 
     @Override
     public Pattern getPattern() {

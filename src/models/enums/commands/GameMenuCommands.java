@@ -3,7 +3,7 @@ package models.enums.commands;
 import java.util.regex.Pattern;
 
 public enum GameMenuCommands implements Command {
-    //implementing game commands:
+    ShowTime(Pattern.compile("^time$")),
     None(null);
 
     private final Pattern pattern;

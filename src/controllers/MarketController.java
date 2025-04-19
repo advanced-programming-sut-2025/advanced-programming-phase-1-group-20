@@ -1,6 +1,6 @@
 package controllers;
 
-import models.GameClock;
+import models.Date;
 import models.GameMap;
 import models.Player.Player;
 import models.Result;
@@ -10,12 +10,12 @@ import views.AppView;
 public class MarketController implements Controller {
     private AppView appView;
     private Player player;
-    private GameClock gameClock;
+    private Date gameClock;
     private GameMap gMap;
     public MarketController(AppView appView, Player player) {
         this.appView = appView;
         this.player = player;
-        this.gameClock = new GameClock();
+        this.gameClock = new Date();
         this.gMap = new GameMap();
     }
 
