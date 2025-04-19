@@ -48,8 +48,8 @@ public class Date {
         this.hour += hours;
 
         // Handle hour overflow - advance days if needed
-        while (this.hour >= 24) {
-            this.hour -= 24;
+        while (this.hour >= 22) {
+            this.hour -= 13;
             advanceDays(1);
         }
     }
