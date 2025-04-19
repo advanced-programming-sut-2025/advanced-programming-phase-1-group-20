@@ -1,6 +1,6 @@
 package org.example.models.enums.Types;
 
-import models.enums.Seasons;
+import org.example.models.enums.Seasons;
 
 public enum ForagingType {
     CommonMushroom("Common Mushroom", "", Seasons.SPRING, 40, 38, true),

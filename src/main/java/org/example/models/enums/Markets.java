@@ -1,9 +1,11 @@
 package org.example.models.enums;
 
-import models.Items.ArtisanItem;
-import models.Items.CookingItem;
-import models.enums.ArtisanItems;
-import models.enums.Types.ForagingType;
+import org.example.models.Foraging;
+import org.example.models.Item;
+import org.example.models.Items.ArtisanItem;
+import org.example.models.Items.CookingItem;
+import org.example.models.Market;
+import org.example.models.enums.Types.ForagingType;
 
 import java.util.HashMap;
 
