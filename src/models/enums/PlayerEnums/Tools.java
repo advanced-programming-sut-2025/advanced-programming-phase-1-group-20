@@ -3,14 +3,14 @@ package models.enums.PlayerEnums;
 import models.Player.Tool;
 
 public enum Tools {
-    HOE_NORMAL("hoe" , 5),
-    PICK_AXE_NORMAL("pick axe" , 5),
-    AXE_NORMAL("axe" , 5),
+    HOE("hoe" , 5),
+    PICK_AXE("pick axe" , 5),
+    AXE("axe" , 5),
     SEYTHE("Seythe" , 2),
     SHEAR("Shear" , 4),
     MILK_PAIL("milk pail" , 4),
-    FISHING_POLE_NORMAL("fishing pole" , 8),
-    WATERING_CAN_NORMAL("watering can" , 5); //other tools
+    FISHING_POLE("fishing pole" , 8),
+    WATERING_CAN("watering can" , 5); //other tools
 
     private final String name;
     private final int energyCost;
