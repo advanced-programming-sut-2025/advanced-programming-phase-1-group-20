@@ -1,6 +1,8 @@
 package models.enums;
 
 import models.*;
+import models.Items.ArtisanItem;
+import models.Items.CookingItem;
 import models.enums.Types.ForagingType;
 
 import java.util.HashMap;

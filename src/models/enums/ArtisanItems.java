@@ -1,9 +1,7 @@
 package models.enums;
 
-import models.ArtisanItem;
+import models.Items.ArtisanItem;
 import models.Item;
-
-import java.util.HashMap;
 
 public enum ArtisanItems {
     HONEY("Honey", 75, 96, Ingredients.Honey.getIngridents(), 350),

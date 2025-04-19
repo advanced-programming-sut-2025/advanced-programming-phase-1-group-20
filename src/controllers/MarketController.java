@@ -2,7 +2,7 @@ package controllers;
 
 import models.GameClock;
 import models.GameMap;
-import models.Player;
+import models.Player.Player;
 import models.Result;
 import models.enums.commands.MainMenuCommands;
 import views.AppView;

@@ -1,6 +1,6 @@
 package models.enums;
 
-import models.CraftingItem;
+import models.Items.CraftingItem;
 import models.Item;
 
 import java.util.HashMap;

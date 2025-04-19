@@ -1,7 +1,7 @@
 package views;
 
 import controllers.GameMenuController;
-import models.Player;
+import models.Player.Player;
 import models.User;
 
 public class GameMenu implements AppMenu{

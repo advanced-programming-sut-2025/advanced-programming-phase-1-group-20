@@ -2,7 +2,7 @@ package views;
 
 
 import controllers.MarketController;
-import models.Player;
+import models.Player.Player;
 
 public class MarketMenu implements AppMenu {
     private AppView appView;

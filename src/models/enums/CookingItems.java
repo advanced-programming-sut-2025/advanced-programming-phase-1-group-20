@@ -1,7 +1,6 @@
 package models.enums;
 
 import models.Item;
-import models.Skill;
 
 public enum CookingItems {
     Friedegg("Fried Egg" , Ingredients.Friedegg.getIngridents() , 50,35),

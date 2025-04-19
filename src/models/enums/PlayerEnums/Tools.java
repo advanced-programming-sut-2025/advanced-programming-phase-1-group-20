@@ -1,6 +1,6 @@
 package models.enums.PlayerEnums;
 
-import models.Tool;
+import models.Player.Tool;
 
 public enum Tools {
     HOE_NORMAL("hoe" , 5),

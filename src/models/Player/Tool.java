@@ -1,9 +1,10 @@
-package models;
+package models.Player;
 
+import models.Item;
 import models.enums.Types.ToolType;
 import models.enums.Tools;
 
-public class Tool extends Item{
+public class Tool extends Item {
     int level = 0;
     int energyCost;
     private ToolType type;

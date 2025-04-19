@@ -1,6 +1,6 @@
 package models.enums.PlayerEnums;
 
-import models.Skill;
+import models.Player.Skill;
 
 public enum Skills {
     HARVESTING("harvest", 5),

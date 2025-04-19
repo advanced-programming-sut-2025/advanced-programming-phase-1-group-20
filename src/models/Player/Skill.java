@@ -1,4 +1,4 @@
-package models;
+package models.Player;
 
 public class Skill {
     private int units;

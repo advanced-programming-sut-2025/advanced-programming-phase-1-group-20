@@ -1,10 +1,11 @@
-package models;
+package models.Items;
 
+import models.Item;
 import models.enums.Sources;
 
 import java.util.HashMap;
 
-public class CraftingItem extends Item{
+public class CraftingItem extends Item {
     private HashMap<Item , Integer> ingredients;
     private Sources source;
     private int sellPrice;

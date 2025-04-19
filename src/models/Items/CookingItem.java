@@ -1,10 +1,12 @@
-package models;
+package models.Items;
 
+import models.Item;
+import models.Player.Skill;
 import models.enums.PlayerEnums.Skills;
 
 import java.util.HashMap;
 
-public class CookingItem extends Item{
+public class CookingItem extends Item {
     private HashMap<Item , Integer> ingredients;
     private HashMap<Skills, Integer> buffer;
     private Skill source;

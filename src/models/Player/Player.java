@@ -1,5 +1,6 @@
-package models;
+package models.Player;
 
+import models.*;
 import models.enums.PlayerEnums.Skills;
 import models.enums.TileType;
 
