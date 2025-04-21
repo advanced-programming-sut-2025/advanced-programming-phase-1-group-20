@@ -21,6 +21,7 @@ public class MainMenuController implements Controller {
         switch (command) {
             //implementing cases:
             case None -> Result.error("Invalid input");
+            // TODO: implement the commands
         }
     }
 
