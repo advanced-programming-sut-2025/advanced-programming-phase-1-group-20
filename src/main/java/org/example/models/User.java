@@ -103,4 +103,6 @@ public class User {
     public Gender getGender() {
         return this.gender;
     }
+
+    // TODO: add the inventory methods & the methods for saving the users and the games they are playing
 }

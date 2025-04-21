@@ -5,6 +5,7 @@ import org.example.models.Cage;
 public enum Cages {
     NORMAL_CAGE(4, 1),
     ; // other cages...
+    // TODO: add other cages
     private final int capacity;
     private final int productPerDay;
 

@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class App {
+
+    // TODO: add the saving methods
     // static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
     private static User loggedInUser;

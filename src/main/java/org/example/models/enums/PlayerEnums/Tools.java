@@ -6,11 +6,12 @@ public enum Tools {
     HOE("hoe", 5),
     PICK_AXE("pick axe", 5),
     AXE("axe", 5),
-    SEYTHE("Seythe", 2),
+    SCYTHE("Scythe", 2),
     SHEAR("Shear", 4),
     MILK_PAIL("milk pail", 4),
     FISHING_ROD("fishing rod", 8),
-    WATERING_CAN("watering can", 5); //other tools
+    WATERING_CAN("watering can", 5);
+    // TODO: add needed tools -> Kasra
 
     private final String name;
     private final int energyCost;

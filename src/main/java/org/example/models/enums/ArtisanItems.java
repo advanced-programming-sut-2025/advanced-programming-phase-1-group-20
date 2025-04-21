@@ -46,7 +46,7 @@ public enum ArtisanItems {
         return energyCost;
     }
 
-    public int getProccessingTime() {
+    public int getProcessingTime() {
         return proccessingTime;
     }
 

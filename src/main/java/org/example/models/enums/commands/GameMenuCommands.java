@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public enum GameMenuCommands implements Command {
     ShowTime(Pattern.compile("^time$")),
     None(null);
-
+    // TODO: add other commands
     private final Pattern pattern;
 
     GameMenuCommands(Pattern pattern) {

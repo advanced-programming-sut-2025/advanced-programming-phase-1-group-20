@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Date {
     private final Map<Seasons, List<Weather>> weatherMap;
@@ -78,11 +79,14 @@ public class Date {
     }
 
     private void updateWeatherToday() {
-
+        Seasons currentSeason = Seasons.values()[this.season];
+        List<Weather> possibleWeather = this.weatherMap.get(currentSeason);
+        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
+        this.weatherToday = possibleWeather.get(randomIndex);
     }
 
     private void updateWeatherTomorrow() {
-
+        //TODO: implement this method
     }
 
     // changing the day

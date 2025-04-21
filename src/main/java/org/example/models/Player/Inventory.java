@@ -1,6 +1,6 @@
 package org.example.models.Player;
 
-import models.Item;
+import org.example.models.Item;
 
 import java.util.HashMap;
 import java.util.Map;

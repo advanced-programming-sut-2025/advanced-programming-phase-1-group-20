@@ -44,5 +44,6 @@ public class GameMenuController implements Controller {
         gameClock.displayClock();
     }
 
+    //TODO: implement needed methods -> Kasra -> time and tools
 
 }

@@ -4,7 +4,7 @@ import org.example.models.Player.Skill;
 
 public enum Skills {
     HARVESTING("harvest", 5),
-    ;//other skills
+    ; // TODO: add other skills
     private final int adderUnit;
     private final String name;
 
