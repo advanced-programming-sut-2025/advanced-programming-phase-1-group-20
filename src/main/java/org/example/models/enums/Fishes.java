@@ -3,7 +3,7 @@ package org.example.models.enums;
 import org.example.models.Fish;
 
 public enum Fishes {
-    SALAMON("salamon", 75, Seasons.AUTUMN),
+    SALMON("salmon", 75, Seasons.AUTUMN),
     ;//other types
     private String name;
     private int price;
