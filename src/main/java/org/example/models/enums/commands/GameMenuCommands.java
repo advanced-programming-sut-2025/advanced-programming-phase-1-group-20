@@ -4,8 +4,21 @@ import java.util.regex.Pattern;
 
 public enum GameMenuCommands implements Command {
     ShowTime(Pattern.compile("^time$")),
+    ShowDate(Pattern.compile("^date$")),
+    ShowDateTime(Pattern.compile("^clock$")),
+    SaveGame(Pattern.compile("^save$")),
+    AdvanceTime(Pattern.compile("^advance\\s+time\\s+(\\d+)$")),
+    Move(Pattern.compile("^move\\s+(\\d+)\\s+(\\d+)$")),
+    DayOfWeek(Pattern.compile("^day\\s+of\\s+week$")),
+    ShowInventory(Pattern.compile("^inventory$")),
+    ShowLocation(Pattern.compile("^location$")),
+    ShowEnergy(Pattern.compile("^energy$")),
+    ShowMap(Pattern.compile("^map$")),
+    AutoSave(Pattern.compile("^autosave$")),
+
+    // TODO: add more commands
     None(null);
-    // TODO: add other commands
+
     private final Pattern pattern;
 
     GameMenuCommands(Pattern pattern) {
@@ -29,6 +42,6 @@ public enum GameMenuCommands implements Command {
 
     @Override
     public boolean matches(String input) {
-        return pattern.matcher(input).matches();
+        return pattern != null && pattern.matcher(input).matches();
     }
 }

@@ -129,6 +129,11 @@ public class Date {
     }
 
     public void displayDayOfWeek() {
+        int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
+        int dayOfWeek = (totalDays % 7); // 0 is Sunday, 1 is Monday, etc...
 
+        String[] dayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        System.out.println("Day of the week: " + dayNames[dayOfWeek]);
     }
+
 }
