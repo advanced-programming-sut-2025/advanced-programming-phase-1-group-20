@@ -11,16 +11,27 @@ public class AppView {
     private Scanner scanner;
 
     public AppView() {
-        this.currentMenu = new LoginRegisterMenu(this);
-        scanner = new Scanner(System.in);
-    }
+        // Initialize the App to load saved data
+        App.initialize();
 
+        scanner = new Scanner(System.in);
+
+        // Check for auto-login
+        boolean autoLoginSuccessful = org.example.models.utils.AutoLoginUtil.checkAndPerformAutoLogin(this);
+
+        // If auto-login fails, show the login/register menu
+        if (!autoLoginSuccessful) {
+            this.currentMenu = new LoginRegisterMenu(this);
+        }
+    }
 
     public void appStart() {
         while (scanner.hasNextLine()) {
             String input = scanner.nextLine();
             update(input);
             if (exit) {
+                // Save data before exiting
+                App.saveData();
                 break;
             }
         }
@@ -30,9 +41,13 @@ public class AppView {
         this.currentMenu.updateMenu(input);
     }
 
-
     public void navigateMenu(AppMenu menu) {
         this.currentMenu = menu;
     }
 
+    public void exit() {
+        // Save data before exiting
+        App.saveData();
+        this.exit = true;
+    }
 }

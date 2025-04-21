@@ -1,13 +1,16 @@
 package org.example.models;
 
 import org.example.models.enums.PlayerEnums.Gender;
+import org.example.models.utils.PasswordUtils;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
-public class User {
+public class User implements Serializable {
     private final Gender gender;
     private String username;
-    private String password;
+    private String password; // This will store the hashed password
     private String email;
     private String nickname;
     private boolean stayLoggedIn;
@@ -19,10 +22,12 @@ public class User {
 
     public User(String username, String password, String email, String nickname, Gender gender) {
         this.username = username;
-        this.password = password;
+        // Hash the password before storing it
+        this.password = PasswordUtils.hashPassword(password);
         this.email = email;
         this.nickname = nickname;
         this.gender = gender;
+        this.inventory = new ArrayList<>();
     }
 
     public String getUsername() {
@@ -34,11 +39,16 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return password; // Returns the hashed password
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public boolean verifyPassword(String plainPassword) {
+        return PasswordUtils.verifyPassword(plainPassword, this.password);
+    }
+
+    public void setPassword(String newPassword) {
+        // Hash the new password before storing
+        this.password = PasswordUtils.hashPassword(newPassword);
     }
 
     public String getEmail() {
@@ -104,5 +114,25 @@ public class User {
         return this.gender;
     }
 
-    // TODO: add the inventory methods & the methods for saving the users and the games they are playing
+    public List<Item> getInventory() {
+        if (inventory == null) {
+            inventory = new ArrayList<>();
+        }
+        return inventory;
+    }
+
+    public void addToInventory(Item item) {
+        if (inventory == null) {
+            inventory = new ArrayList<>();
+        }
+        inventory.add(item);
+    }
+
+    public void removeFromInventory(Item item) {
+        if (inventory != null) {
+            inventory.remove(item);
+        }
+    }
+
+    // TODO: add the methods for saving and loading the user data
 }

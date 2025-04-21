@@ -29,7 +29,6 @@ public class ProfileMenuController implements Controller {
             case ChangePassword -> changePassword(args);
             case ChangeEmail -> changeEmail(args);
             case None -> Result.error("Invalid input");
-
         }
     }
 
@@ -49,6 +48,9 @@ public class ProfileMenuController implements Controller {
 
         user.setUsername(newUsername);
 
+        // Save changes to user data
+        App.saveData();
+
         return Result.success("username changed successfully");
     }
 
@@ -56,12 +58,14 @@ public class ProfileMenuController implements Controller {
         String newPassword = args[0];
         String oldPasswordInput = args[1];
         User user = App.getLoggedInUser();
-        if (!oldPasswordInput.equals(user.getPassword())) {
+
+        // Verify the old password
+        if (!user.verifyPassword(oldPasswordInput)) {
             return Result.error("invalid old password");
         }
 
         if (newPassword.equals(oldPasswordInput)) {
-            return Result.error("the old password should be different from the current one");
+            return Result.error("the new password should be different from the current one");
         }
 
         if (!checkPasswordStrength(newPassword).success()) {
@@ -69,6 +73,10 @@ public class ProfileMenuController implements Controller {
         }
 
         user.setPassword(newPassword);
+
+        // Save changes to user data
+        App.saveData();
+
         return Result.success("password changed successfully");
     }
 
@@ -86,6 +94,9 @@ public class ProfileMenuController implements Controller {
         User user = App.getLoggedInUser();
         user.setEmail(newEmail);
 
+        // Save changes to user data
+        App.saveData();
+
         return Result.success("email changed successfully");
     }
 
@@ -97,7 +108,6 @@ public class ProfileMenuController implements Controller {
         }
         return false;
     }
-
 
     private boolean checkEmail(String email) {
         // email validation pattern
@@ -115,16 +125,16 @@ public class ProfileMenuController implements Controller {
         return email.indexOf('@') == email.lastIndexOf('@');
     }
 
-
     public Result changeNickname(String[] args) {
-
         String newNickname = args[0];
         User user = App.getLoggedInUser();
         user.setNickname(newNickname);
 
+        // Save changes to user data
+        App.saveData();
+
         return Result.success("nickname changed successfully");
     }
-
 
     private Result checkPasswordStrength(String password) {
         // At least 8 characters
@@ -170,7 +180,6 @@ public class ProfileMenuController implements Controller {
 
             return Result.error(reason.toString());
         }
-
 
         return Result.success("");
     }

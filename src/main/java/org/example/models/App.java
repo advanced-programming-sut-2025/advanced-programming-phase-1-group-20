@@ -1,5 +1,7 @@
 package org.example.models;
 
+import org.example.models.utils.FileStorage;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +13,31 @@ public class App {
     private static Map<String, User> users = new HashMap<>();
     private static User loggedInUser;
     private static Map<Integer, String> securityQuestions = new HashMap<>();
+    private static boolean dataLoaded = false;
 
     //    private static List<Game> allGames;
+
+
+    public static void initialize() {
+        if (!dataLoaded) {
+            // Load users from file storage
+            users = FileStorage.loadUsers();
+
+            // Add security questions
+            addSecurityQuestion();
+
+            dataLoaded = true;
+        }
+    }
+
+    public static void saveData() {
+        FileStorage.saveUsers(users);
+    }
+
     public static void addUser(User user) {
         users.put(user.getUsername(), user);
+        // Save data whenever a user is added
+        saveData();
     }
 
     public static User getLoggedInUser() {
@@ -57,4 +80,6 @@ public class App {
     public static List<String> getSecurityQuestions() {
         return (List<String>) securityQuestions.values();
     }
+
+
 }

@@ -18,6 +18,4 @@ public class Game {
     public Date getDate() {
         return date;
     }
-
-    public
 }

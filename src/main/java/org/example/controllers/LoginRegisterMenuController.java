@@ -5,6 +5,7 @@ import org.example.models.Result;
 import org.example.models.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
+import org.example.models.utils.PasswordUtils;
 import org.example.views.AppView;
 
 import java.util.ArrayList;
@@ -19,8 +20,10 @@ public class LoginRegisterMenuController implements Controller {
     public LoginRegisterMenuController(AppView appView, User user) {
         this.appView = appView;
         this.user = user;
-    }
 
+        // Initialize the App to load saved data
+        App.initialize();
+    }
 
     @Override
     public void update(String input) {
@@ -37,7 +40,6 @@ public class LoginRegisterMenuController implements Controller {
     }
 
     public Result registerUser(String[] args) {
-
         String username = args[0];
         String password = args[1];
         String passwordConfirm = args[2];
@@ -132,7 +134,6 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error(reason.toString());
         }
 
-
         return Result.success("");
     }
 
@@ -206,24 +207,42 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("user not found");
         }
 
-        if (!user.getPassword().equals(password)) {
+        // Use password verification instead of direct comparison
+        if (!user.verifyPassword(password)) {
             return Result.error("wrong password");
         }
 
         user.setStayLoggedIn(stayLoggedIn);
         App.setLoggedInUser(user);
 
+        // Handle auto-login if stay logged in is selected
+        if (stayLoggedIn) {
+            org.example.models.utils.AutoLoginUtil.saveAutoLogin(username);
+        } else {
+            org.example.models.utils.AutoLoginUtil.clearAutoLogin();
+        }
+
+        // Save changes to user data
+        App.saveData();
+
         return Result.success("logged in successfully");
     }
 
     public Result logout() {
-        App.setLoggedInUser(null);
+        // Clear auto-login when logging out
+        org.example.models.utils.AutoLoginUtil.clearAutoLogin();
 
+        User user = App.getLoggedInUser();
+        if (user != null) {
+            user.setStayLoggedIn(false);
+            App.saveData();
+        }
+
+        App.setLoggedInUser(null);
         return Result.success("logged out");
     }
 
     public Result pickSecurityQuestion(String[] args, User user) {
-
         String questionNumberStr = args[0];
         String answer = args[1];
         String answerConfirm = args[2];
@@ -235,6 +254,9 @@ public class LoginRegisterMenuController implements Controller {
 
         user.setSecurityAnswer(answer);
         user.setSecurityQuestionIndex(questionNumber);
+
+        // Save changes to user data
+        App.saveData();
 
         return Result.success("security question added successfully");
     }
@@ -256,7 +278,13 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("the answer is not correct");
         }
 
-        return Result.success("your password is " + user.getPassword());
-    }
+        // Since we can't return the hashed password, we need to generate a new one
+        String newPassword = generateRandomPassword();
+        user.setPassword(newPassword);
 
+        // Save changes to user data
+        App.saveData();
+
+        return Result.success("your new password is " + newPassword);
+    }
 }
