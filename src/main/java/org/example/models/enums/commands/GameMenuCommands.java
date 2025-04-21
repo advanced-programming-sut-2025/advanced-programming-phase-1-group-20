@@ -7,7 +7,8 @@ public enum GameMenuCommands implements Command {
     ShowDate(Pattern.compile("^date$")),
     ShowDateTime(Pattern.compile("^clock$")),
     SaveGame(Pattern.compile("^save$")),
-    AdvanceTime(Pattern.compile("^advance\\s+time\\s+(\\d+)$")),
+    AdvanceTime(Pattern.compile("^cheat\\s+advance\\s+time\\s+(\\d+)$")), // cheat command
+    AdvanceDate(Pattern.compile("^cheat\\s+advance\\s+date\\s+(\\d+)$")), // cheat command
     Move(Pattern.compile("^move\\s+(\\d+)\\s+(\\d+)$")),
     DayOfWeek(Pattern.compile("^day\\s+of\\s+week$")),
     ShowInventory(Pattern.compile("^inventory$")),

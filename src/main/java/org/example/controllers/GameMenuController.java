@@ -27,6 +27,10 @@ public class GameMenuController implements Controller {
         switch (command) {
             //implementing methods:
             case ShowTime -> showTime();
+            case ShowDate -> showDate();
+            case ShowDateTime -> showDateTime();
+            case AdvanceTime -> advanceTime(args);
+            case AdvanceDate -> advanceDate(args);
             case None -> Result.error("Invalid command");
         }
     }
@@ -43,6 +47,17 @@ public class GameMenuController implements Controller {
     public void showDateTime() {
         gameClock.displayClock();
     }
+
+    public void advanceTime(String[] args) {
+        int hours = Integer.parseInt(args[0]);
+        gameClock.advanceTime(hours);
+    }
+
+    public void advanceDate(String[] args) {
+        int days = Integer.parseInt(args[0]);
+        gameClock.advanceDays(days);
+    }
+
 
     //TODO: implement needed methods -> Kasra -> time and tools
 
