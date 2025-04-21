@@ -2,6 +2,7 @@ package org.example.models;
 
 import org.example.models.enums.Types.TileType;
 
+// TODO: map making
 public class GameMap {
     private static TileType[][] map;
 

@@ -11,7 +11,7 @@ public class Game {
 
     public Game(List<Player> players) {
         this.players = players;
-        this.currentPlayer = players.get(0); // Set the first player as the current player\
+        this.currentPlayer = players.get(0); // Set the first player as the current player
         this.date = new Date();
     }
 
