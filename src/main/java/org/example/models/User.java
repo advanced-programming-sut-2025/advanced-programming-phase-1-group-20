@@ -3,14 +3,18 @@ package org.example.models;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.utils.PasswordUtils;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private final Gender gender;
     private String username;
-    private String password; // This will store the hashed password
+    private String password; // This stores the hashed password
     private String email;
     private String nickname;
     private boolean stayLoggedIn;
@@ -28,6 +32,8 @@ public class User implements Serializable {
         this.nickname = nickname;
         this.gender = gender;
         this.inventory = new ArrayList<>();
+        this.mostEarnedMoney = 0;
+        this.gamesPlayed = 0;
     }
 
     public String getUsername() {
@@ -42,13 +48,18 @@ public class User implements Serializable {
         return password; // Returns the hashed password
     }
 
+
     public boolean verifyPassword(String plainPassword) {
         return PasswordUtils.verifyPassword(plainPassword, this.password);
     }
 
     public void setPassword(String newPassword) {
-        // Hash the new password before storing
         this.password = PasswordUtils.hashPassword(newPassword);
+    }
+
+
+    public void setPasswordHash(String passwordHash) {
+        this.password = passwordHash;
     }
 
     public String getEmail() {
@@ -133,6 +144,4 @@ public class User implements Serializable {
             inventory.remove(item);
         }
     }
-
-    // TODO: add the methods for saving and loading the user data
 }

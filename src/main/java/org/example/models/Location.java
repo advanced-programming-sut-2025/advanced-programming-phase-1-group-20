@@ -7,7 +7,7 @@ public class Location {
     int yAxis;
     TileType tile;
 
-    Location(int xAxis, int yAxis, TileType tile) {
+    public Location(int xAxis, int yAxis, TileType tile) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.tile = tile;
