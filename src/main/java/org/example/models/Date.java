@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Date {
     private final Map<Seasons, List<Weather>> weatherMap;
@@ -53,7 +52,6 @@ public class Date {
 
     public void cheatThor(Location location) {
         System.out.println("Thor has struck the location");
-        // implementing the lightning
     }
 
 
@@ -65,12 +63,11 @@ public class Date {
 
         this.day += days;
 
-        // Handle day overflow - advance seasons if needed
+
         while (this.day > daysPerSeason) {
             this.day -= daysPerSeason;
             this.season = (this.season + 1) % 4;
 
-            // If we've completed a full year cycle
             if (this.season == 0) {
                 this.year++;
             }
@@ -81,24 +78,16 @@ public class Date {
     }
 
     private void updateWeatherToday() {
-        Seasons currentSeason = Seasons.values()[this.season];
-        List<Weather> possibleWeather = weatherMap.get(currentSeason);
-        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
-        this.weatherToday = possibleWeather.get(randomIndex);
+
     }
 
     private void updateWeatherTomorrow() {
-        Seasons currentSeason = Seasons.values()[this.season];
-        List<Weather> possibleWeather = weatherMap.get(currentSeason);
-        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
-        this.weatherTomorrow = possibleWeather.get(randomIndex);
+
     }
 
     // changing the day
     public void goTomorrow() {
-        advanceDays(1);
-        this.weatherToday = weatherTomorrow;
-        updateWeatherTomorrow();
+
     }
 
     public int getDay() {
@@ -136,10 +125,6 @@ public class Date {
     }
 
     public void displayDayOfWeek() {
-        int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
-        int dayOfWeek = (totalDays % 7); // 0 is Sunday, 1 is Monday, etc.
 
-        String[] dayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-        System.out.println("Day of the week: " + dayNames[dayOfWeek]);
     }
 }
