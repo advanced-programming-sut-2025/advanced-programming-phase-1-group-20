@@ -10,5 +10,18 @@
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
+  },
+  "kasri": {
+    "gender": "Male",
+    "username": "kasri",
+    "password": "q/ROPZPOnHcf0kS5XzdCO+8sqMU7R3+JMcoXQkhIq20\u003d",
+    "email": "kasri@gmail.com",
+    "nickname": "kasri",
+    "stayLoggedIn": true,
+    "securityQuestionIndex": 2,
+    "securityAnswer": "blackfield",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
   }
 }
