@@ -1,13 +1,9 @@
 package org.example.models.enums;
 
-import org.example.models.Item;
-import org.example.models.Location;
-import org.example.models.Mob;
-import org.example.models.NPC;
+import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 public enum Npcs {

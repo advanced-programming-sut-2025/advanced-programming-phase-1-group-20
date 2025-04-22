@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.entities;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.Items;
 
 public class Item {
     String name;

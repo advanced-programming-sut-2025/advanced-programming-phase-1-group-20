@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.entities.animal;
 
 import org.example.models.enums.Cages;
 

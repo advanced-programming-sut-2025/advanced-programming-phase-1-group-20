@@ -1,7 +1,7 @@
 package org.example.views;
 
 import org.example.controllers.LoginRegisterMenuController;
-import org.example.models.User;
+import org.example.models.entities.User;
 
 public class LoginRegisterMenu implements AppMenu {
     private AppView appView;

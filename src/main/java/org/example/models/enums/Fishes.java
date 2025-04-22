@@ -1,6 +1,6 @@
 package org.example.models.enums;
 
-import org.example.models.Fish;
+import org.example.models.entities.animal.Fish;
 
 public enum Fishes {
     SALMON("salmon", 75, Seasons.AUTUMN),

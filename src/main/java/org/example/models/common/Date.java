@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.common;
 
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Weather;

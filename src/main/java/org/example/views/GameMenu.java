@@ -2,7 +2,7 @@ package org.example.views;
 
 import org.example.controllers.GameMenuController;
 import org.example.models.Player.Player;
-import org.example.models.User;
+import org.example.models.entities.User;
 
 public class GameMenu implements AppMenu {
     private AppView appView;

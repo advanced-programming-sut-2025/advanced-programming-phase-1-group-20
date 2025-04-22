@@ -1,7 +1,7 @@
 package org.example.models.utils;
 
 import org.example.models.App;
-import org.example.models.User;
+import org.example.models.entities.User;
 import org.example.views.AppView;
 import org.example.views.MainMenu;
 
@@ -10,17 +10,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-/**
- * Utility class to handle auto-login functionality
- */
 public class AutoLoginUtil {
     private static final String AUTO_LOGIN_FILE = "autologin.txt";
 
-    /**
-     * Saves the username of the user who selected "stay logged in"
-     *
-     * @param username The username to save
-     */
+
     public static void saveAutoLogin(String username) {
         try (FileWriter writer = new FileWriter(AUTO_LOGIN_FILE)) {
             writer.write(username);
@@ -29,9 +22,6 @@ public class AutoLoginUtil {
         }
     }
 
-    /**
-     * Clears the auto-login file
-     */
     public static void clearAutoLogin() {
         File file = new File(AUTO_LOGIN_FILE);
         if (file.exists()) {
@@ -39,12 +29,7 @@ public class AutoLoginUtil {
         }
     }
 
-    /**
-     * Checks if there's a user saved for auto-login and logs them in
-     *
-     * @param appView The AppView instance to navigate to the main menu
-     * @return true if auto-login was successful, false otherwise
-     */
+
     public static boolean checkAndPerformAutoLogin(AppView appView) {
         File file = new File(AUTO_LOGIN_FILE);
         if (!file.exists()) {

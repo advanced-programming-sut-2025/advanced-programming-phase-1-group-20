@@ -1,7 +1,7 @@
 package org.example.views;
 
 import org.example.controllers.ProfileMenuController;
-import org.example.models.User;
+import org.example.models.entities.User;
 
 public class ProfileMenu implements AppMenu {
     private AppView appView;

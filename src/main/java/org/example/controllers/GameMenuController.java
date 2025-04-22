@@ -1,9 +1,9 @@
 package org.example.controllers;
 
-import org.example.models.Date;
-import org.example.models.GameMap;
+import org.example.models.common.Date;
+import org.example.models.common.GameMap;
 import org.example.models.Player.Player;
-import org.example.models.Result;
+import org.example.models.common.Result;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
 

@@ -1,5 +1,7 @@
-package org.example.models;
+package org.example.models.entities;
 
+import org.example.models.Items.Item;
+import org.example.models.common.Location;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.TileType;
 
@@ -41,7 +43,7 @@ public class Plant extends Item {
 
 
     public void showPlant() {
-        System.out.println("Name: " + this.name);
+        System.out.println("Name: " + this.getName());
         System.out.println("Source: " + this.source);
         System.out.printf("Stages: ");
         for(int i = 0; i < this.stage.length ; i++){
@@ -55,7 +57,7 @@ public class Plant extends Item {
         System.out.println(this.totalHarvest);
         System.out.println(this.oneTimeHarvest);
         System.out.println("Regrowth time: ");
-        System.out.println("Base Sell Price: " + this.price);
+        System.out.println("Base Sell Price: " + this.getPrice());
         System.out.println("Is Edible: " + this.edible);
         System.out.println("Base Energy: " + this.energyGet);
         System.out.println("Base Health: " + this.healthGet);

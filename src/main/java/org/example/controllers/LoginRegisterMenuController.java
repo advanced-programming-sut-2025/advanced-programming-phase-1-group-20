@@ -1,11 +1,10 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Result;
-import org.example.models.User;
+import org.example.models.common.Result;
+import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
-import org.example.models.utils.PasswordUtils;
 import org.example.views.AppView;
 
 import java.util.ArrayList;

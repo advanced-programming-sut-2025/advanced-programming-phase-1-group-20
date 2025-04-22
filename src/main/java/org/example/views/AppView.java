@@ -1,7 +1,7 @@
 package org.example.views;
 
 import org.example.models.App;
-import org.example.models.Game;
+import org.example.models.entities.Game;
 //import org.example.models.utils.GameSaveManager;
 
 import java.util.Scanner;

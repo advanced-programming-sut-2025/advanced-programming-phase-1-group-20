@@ -1,5 +1,7 @@
 package org.example.models;
 
+import org.example.models.Items.Item;
+
 import java.util.HashMap;
 
 public class Market {

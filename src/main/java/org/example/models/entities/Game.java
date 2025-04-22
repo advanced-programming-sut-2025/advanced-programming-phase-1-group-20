@@ -1,6 +1,7 @@
-package org.example.models;
+package org.example.models.entities;
 
 import org.example.models.Player.Player;
+import org.example.models.common.Date;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package org.example.models.enums;
 
-import org.example.models.Foraging;
-import org.example.models.Item;
+import org.example.models.Items.Foraging;
+import org.example.models.Items.Item;
 import org.example.models.Items.ArtisanItem;
 import org.example.models.Items.CookingItem;
 import org.example.models.Market;
