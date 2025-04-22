@@ -2,7 +2,7 @@ package org.example.views;
 
 import org.example.models.App;
 import org.example.models.Game;
-import org.example.models.utils.GameSaveManager;
+//import org.example.models.utils.GameSaveManager;
 
 import java.util.Scanner;
 
@@ -66,9 +66,9 @@ public class AppView {
         App.saveData();
 
         // Save the current game if one exists
-        if (currentGame != null) {
-            currentGame.saveGame();
-        }
+//        if (currentGame != null) {
+//            currentGame.saveGame();
+//        }
     }
 
     public void exit() {
@@ -79,8 +79,8 @@ public class AppView {
 
 
     public void autoSave() {
-        if (currentGame != null) {
-            currentGame.saveGame();
-        }
+//        if (currentGame != null) {
+//            currentGame.saveGame();
+//        }
     }
 }
