@@ -3,7 +3,6 @@ package org.example.views;
 import org.example.models.App;
 import org.example.models.entities.Game;
 import org.example.models.common.Result;
-import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
 
 import java.util.Scanner;

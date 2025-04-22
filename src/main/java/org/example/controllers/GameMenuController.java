@@ -79,6 +79,6 @@ public class GameMenuController implements Controller {
     }
 
 
-    //TODO: implement needed methods -> Kasra -> time and tools
+    // TODO: implement needed methods -> Kasra -> time and tools
     // TODO: implement showing map
 }

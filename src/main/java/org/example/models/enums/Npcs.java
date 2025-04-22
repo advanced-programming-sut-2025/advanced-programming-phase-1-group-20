@@ -32,5 +32,4 @@ public enum Npcs {
         this.description = description;
         this.favoriteItems = favoriteItems;
     }
-
 }

@@ -94,7 +94,9 @@ public class Date {
 
     // changing the day
     public void goTomorrow() {
-
+        advanceDays(1);
+        this.weatherToday = weatherTomorrow;
+        updateWeatherTomorrow();
     }
 
     public int getDay() {

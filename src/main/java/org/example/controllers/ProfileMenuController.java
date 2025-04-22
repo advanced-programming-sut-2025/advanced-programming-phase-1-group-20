@@ -51,7 +51,6 @@ public class ProfileMenuController implements Controller {
 
         user.setUsername(newUsername);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("username changed successfully");
@@ -62,7 +61,6 @@ public class ProfileMenuController implements Controller {
         String oldPasswordInput = args[1];
         User user = App.getLoggedInUser();
 
-        // Verify the old password
         if (!user.verifyPassword(oldPasswordInput)) {
             return Result.error("invalid old password");
         }
@@ -77,7 +75,6 @@ public class ProfileMenuController implements Controller {
 
         user.setPassword(newPassword);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("password changed successfully");
@@ -97,7 +94,6 @@ public class ProfileMenuController implements Controller {
         User user = App.getLoggedInUser();
         user.setEmail(newEmail);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("email changed successfully");
@@ -140,10 +136,8 @@ public class ProfileMenuController implements Controller {
     }
 
     private Result checkPasswordStrength(String password) {
-        // At least 8 characters
         boolean validLength = password.length() > 8;
 
-        // Check for at least one lowercase, one uppercase, one digit, and one special character
         boolean hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
         String specialChars = "!#$%^&*()=+{}[]|\\:;'\"<>?";
 

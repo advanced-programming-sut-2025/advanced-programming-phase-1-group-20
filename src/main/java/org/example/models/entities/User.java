@@ -15,7 +15,7 @@ public class User implements Serializable {
 
     private final Gender gender;
     private String username;
-    private String password; // This stores the hashed password
+    private String password;
     private String email;
     private String nickname;
     private boolean stayLoggedIn;
