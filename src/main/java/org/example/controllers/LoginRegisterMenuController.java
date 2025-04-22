@@ -26,7 +26,7 @@ public class LoginRegisterMenuController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -39,6 +39,9 @@ public class LoginRegisterMenuController implements Controller {
             case AnswerSecurityQuestion -> result = answerSecurityQuestion(args, tempUsername);
             case None -> result = Result.error("Invalid input");
         }
+
+        appView.handleResult(result, command);
+        return result;
     }
 
     public Result registerUser(String[] args) {
@@ -195,7 +198,11 @@ public class LoginRegisterMenuController implements Controller {
         String username = args[0];
         String password = args[1];
         String stayLoggedInStr = args[2];
-        boolean stayLoggedIn = !stayLoggedInStr.isEmpty();
+        boolean stayLoggedIn = true;
+        if (stayLoggedInStr == null || stayLoggedInStr.isEmpty()) {
+            stayLoggedIn = false;
+        }
+
 
         User user = App.getUser(username);
 

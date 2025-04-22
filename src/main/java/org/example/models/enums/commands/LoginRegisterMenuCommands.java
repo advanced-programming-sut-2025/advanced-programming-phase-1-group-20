@@ -3,7 +3,7 @@ package org.example.models.enums.commands;
 import java.util.regex.Pattern;
 
 public enum LoginRegisterMenuCommands implements Command {
-    Login(Pattern.compile("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(–stay-logged-in)?\\s*$")),
+    Login(Pattern.compile("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s*(–stay-logged-in)?\\s*$")),
     RegisterUser(Pattern.compile("^\\s*register\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(\\S+)\\s+-n\\s+(\\S+)\\s+-e" +
             "\\s+(\\S+)\\s+-g\\s+(\\S+)\\s*$")),
     PickSecurityQuestion(Pattern.compile("^\\s*pick\\s+question\\s+-q\\s+(\\d+)\\s+-a\\s+(\\S+)\\s+-c\\s+(\\S+)\\s*$")),

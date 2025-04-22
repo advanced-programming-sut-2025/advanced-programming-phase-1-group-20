@@ -21,11 +21,12 @@ public class MarketController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         MainMenuCommands command = MainMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         switch (command) {
             case None -> Result.error("Invalid input");
         }
+        return Result.success("Command executed successfully");
     }
 }

@@ -20,16 +20,19 @@ public class ProfileMenuController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         ProfileMenuCommands command = ProfileMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
+        Result result = null;
         switch (command) {
-            case ChangeUsername -> changeUsername(args);
-            case ChangeNickname -> changeNickname(args);
-            case ChangePassword -> changePassword(args);
-            case ChangeEmail -> changeEmail(args);
+            case ChangeUsername -> result =changeUsername(args);
+            case ChangeNickname -> result = changeNickname(args);
+            case ChangePassword -> result=  changePassword(args);
+            case ChangeEmail -> result = changeEmail(args);
             case None -> Result.error("Invalid input");
         }
+        appView.handleResult(result, command);
+        return result;
     }
 
     public Result changeUsername(String[] args) {

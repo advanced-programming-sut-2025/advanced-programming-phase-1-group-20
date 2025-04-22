@@ -21,7 +21,7 @@ public class GameMenuController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         GameMenuCommands command = GameMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -50,6 +50,9 @@ public class GameMenuController implements Controller {
             }
             case None -> Result.error("Invalid command");
         }
+        appView.handleResult(result, command);
+
+        return result;
     }
 
     //implementing methods:

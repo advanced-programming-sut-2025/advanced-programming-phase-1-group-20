@@ -23,4 +23,8 @@ public class Game {
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
 }

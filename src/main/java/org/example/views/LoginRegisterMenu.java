@@ -25,7 +25,8 @@ public class LoginRegisterMenu implements AppMenu {
         controller.update(input);
     }
 
-    public void handleResult(Result result, LoginRegisterMenuCommands command) {
+    @Override
+    public void handleResult(Result result, Object command) {
         if (result == null) return;
 
         if (result.success()) {
@@ -58,7 +59,7 @@ public class LoginRegisterMenu implements AppMenu {
                 System.out.println(result.message());
             }
         } else {
-            System.out.println(result.message());
+            System.out.println("Error: " + result.message());
         }
     }
 

@@ -15,7 +15,7 @@ public class MainMenuController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         MainMenuCommands command = MainMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         switch (command) {
@@ -23,6 +23,7 @@ public class MainMenuController implements Controller {
             case None -> Result.error("Invalid input");
             // TODO: implement the commands
         }
+        return Result.success("Command executed successfully");
     }
 
     //implementing methods
