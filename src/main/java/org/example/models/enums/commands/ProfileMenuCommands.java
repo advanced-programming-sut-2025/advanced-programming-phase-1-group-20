@@ -7,6 +7,8 @@ public enum ProfileMenuCommands implements Command {
     ChangeNickname(Pattern.compile("^change\\s+nickname\\s+-n\\s+(\\S+)$")),
     ChangePassword(Pattern.compile("^change\\s+password\\s+-p\\s+(\\S+)\\s+-o(\\S+)$")),
     ChangeEmail(Pattern.compile("^change\\s+email\\s+-e\\s+(\\S+)$")),
+    GoToMain(Pattern.compile("^go\\s+to\\s+main$")),
+    ShowUserInfo(Pattern.compile("^show\\s+user\\s+info$")),
     None(null);
 
     private final Pattern pattern;

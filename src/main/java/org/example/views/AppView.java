@@ -1,8 +1,8 @@
 package org.example.views;
 
 import org.example.models.App;
-import org.example.models.entities.Game;
 import org.example.models.common.Result;
+import org.example.models.entities.Game;
 import org.example.models.utils.AutoLoginUtil;
 
 import java.util.Scanner;
@@ -15,7 +15,6 @@ public class AppView {
     private Game currentGame;
 
     public AppView() {
-        // Initialize the App to load saved user data
         App.initialize();
 
         scanner = new Scanner(System.in);
@@ -30,7 +29,6 @@ public class AppView {
 
     public void appStart() {
         while (!exit) {
-            // Get user input
             String input = scanner.nextLine();
 
             update(input);
@@ -54,12 +52,12 @@ public class AppView {
         currentMenu.handleResult(result, command);
     }
 
-    public void setCurrentGame(Game game) {
-        this.currentGame = game;
-    }
-
     public Game getCurrentGame() {
         return this.currentGame;
+    }
+
+    public void setCurrentGame(Game game) {
+        this.currentGame = game;
     }
 
     private void saveAllData() {

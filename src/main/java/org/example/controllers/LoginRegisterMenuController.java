@@ -17,6 +17,7 @@ public class LoginRegisterMenuController implements Controller {
     private AppView appView;
     private User user;
     private String tempUsername;
+
     public LoginRegisterMenuController(AppView appView, User user) {
         this.appView = appView;
         this.user = user;
@@ -244,8 +245,8 @@ public class LoginRegisterMenuController implements Controller {
 
     public Result pickSecurityQuestion(String[] args, User user) {
         String questionNumberStr = args[0];
-        String answer = args[1];
-        String answerConfirm = args[2];
+        String answer = args[1].trim();
+        String answerConfirm = args[2].trim();
         int questionNumber = Integer.parseInt(questionNumberStr) - 1;
 
         if (!answer.equals(answerConfirm)) {

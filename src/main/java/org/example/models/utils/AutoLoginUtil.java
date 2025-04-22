@@ -3,7 +3,7 @@ package org.example.models.utils;
 import org.example.models.App;
 import org.example.models.entities.User;
 import org.example.views.AppView;
-import org.example.views.MainMenu;
+import org.example.views.ProfileMenu;
 
 import java.io.File;
 import java.io.FileReader;
@@ -48,7 +48,7 @@ public class AutoLoginUtil {
 
             if (user != null && user.isStayLoggedIn()) {
                 App.setLoggedInUser(user);
-                appView.navigateMenu(new MainMenu(appView, user));
+                appView.navigateMenu(new ProfileMenu(appView, user));
                 return true;
             }
         } catch (IOException e) {

@@ -25,10 +25,11 @@ public class ProfileMenuController implements Controller {
         String[] args = command.parseInput(input);
         Result result = null;
         switch (command) {
-            case ChangeUsername -> result =changeUsername(args);
+            case ChangeUsername -> result = changeUsername(args);
             case ChangeNickname -> result = changeNickname(args);
-            case ChangePassword -> result=  changePassword(args);
+            case ChangePassword -> result = changePassword(args);
             case ChangeEmail -> result = changeEmail(args);
+            case ShowUserInfo -> result = showUserInfo();
             case None -> Result.error("Invalid input");
         }
         appView.handleResult(result, command);
