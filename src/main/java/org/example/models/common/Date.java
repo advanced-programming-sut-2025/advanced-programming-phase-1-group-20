@@ -24,7 +24,6 @@ public class Date {
         this.season = 1; // spring
         this.year = 1;
         this.hour = 9; // 9 AM
-
         this.weatherMap = new HashMap<>();
         initialWeatherMap();
         updateWeatherToday();
@@ -147,5 +146,9 @@ public class Date {
 
     public void displayWeatherForecast() {
         System.out.println("Weather forecast for tomorrow: " + weatherTomorrow.toString());
+    }
+
+    public void setWeatherTomorrow(Weather weather) {
+        this.weatherTomorrow = weather;
     }
 }
