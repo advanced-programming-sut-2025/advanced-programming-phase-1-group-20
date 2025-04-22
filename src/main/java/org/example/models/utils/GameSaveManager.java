@@ -2,7 +2,7 @@ package org.example.models.utils;
 
 import org.example.models.common.Date;
 import org.example.models.entities.Game;
-import org.example.models.common.GameMap;
+import org.example.models.GameMap;
 import org.example.models.Player.Player;
 
 import java.io.*;
@@ -13,32 +13,32 @@ import java.util.Map;
 public class GameSaveManager {
     private static final String GAME_SAVE_FILE = "game_save.dat";
 
-    public static boolean saveGameState(Game game) {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(GAME_SAVE_FILE))) {
-            // Create a map to hold all game state data
-            Map<String, Object> gameState = new HashMap<>();
-
-            // Save game date
-            gameState.put("date", game.getDate());
-
-            // Save current player
-            gameState.put("currentPlayer", game.getCurrentPlayer());
-
-            // Save all players
-            gameState.put("players", game.getPlayers());
-
-            // Save game map state
-            gameState.put("gameMap", GameMap.getMapState());
-
-            // Save the entire game state map
-            out.writeObject(gameState);
-
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
+//    public static boolean saveGameState(Game game) {
+//        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(GAME_SAVE_FILE))) {
+//            // Create a map to hold all game state data
+//            Map<String, Object> gameState = new HashMap<>();
+//
+//            // Save game date
+//            gameState.put("date", game.getDate());
+//
+//            // Save current player
+//            gameState.put("currentPlayer", game.getCurrentPlayer());
+//
+//            // Save all players
+//            gameState.put("players", game.getPlayers());
+//
+//            // Save game map state
+//            gameState.put("gameMap", GameMap.getMapState());
+//
+//            // Save the entire game state map
+//            out.writeObject(gameState);
+//
+//            return true;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
 //    public static Game loadGameState() {
 //        File file = new File(GAME_SAVE_FILE);
