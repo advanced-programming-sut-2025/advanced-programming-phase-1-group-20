@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.MapDetails;
 
 import org.example.models.enums.Types.TileType;
 

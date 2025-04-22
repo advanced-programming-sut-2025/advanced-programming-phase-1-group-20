@@ -1,6 +1,6 @@
 package org.example.models.Player;
 
-import org.example.models.GameMap;
+import org.example.models.MapDetails.GameMap;
 import org.example.models.entities.Mob;
 import org.example.models.entities.NPC;
 import org.example.models.entities.User;

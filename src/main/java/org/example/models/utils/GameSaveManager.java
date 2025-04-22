@@ -1,14 +1,6 @@
 package org.example.models.utils;
 
-import org.example.models.common.Date;
-import org.example.models.entities.Game;
-import org.example.models.GameMap;
-import org.example.models.Player.Player;
-
-import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
 
 public class GameSaveManager {
     private static final String GAME_SAVE_FILE = "game_save.dat";
