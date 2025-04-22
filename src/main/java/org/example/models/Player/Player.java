@@ -1,9 +1,9 @@
 package org.example.models.Player;
 
-import org.example.models.GameMap;
-import org.example.models.Mob;
-import org.example.models.NPC;
-import org.example.models.User;
+import org.example.models.common.GameMap;
+import org.example.models.entities.Mob;
+import org.example.models.entities.NPC;
+import org.example.models.entities.User;
 import org.example.models.enums.Types.TileType;
 
 import java.util.ArrayList;

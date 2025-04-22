@@ -1,5 +1,6 @@
-package org.example.models;
+package org.example.models.entities;
 
+import org.example.models.Items.Item;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.utils.PasswordUtils;
 

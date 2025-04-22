@@ -1,10 +1,10 @@
-package org.example.models;
+package org.example.models.common;
 
 import org.example.models.enums.Types.TileType;
 
 public class Location {
-    int xAxis;
-    int yAxis;
+    public int xAxis;
+    public int yAxis;
     TileType tile;
 
     public Location(int xAxis, int yAxis, TileType tile) {

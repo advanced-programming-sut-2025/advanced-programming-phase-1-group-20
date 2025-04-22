@@ -1,5 +1,7 @@
 package org.example.models;
 
+import org.example.models.common.Location;
+import org.example.models.entities.Plant;
 import org.example.models.enums.Weather;
 
 import java.util.ArrayList;

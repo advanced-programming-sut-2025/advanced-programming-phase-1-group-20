@@ -3,7 +3,7 @@ package org.example.models.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import org.example.models.User;
+import org.example.models.entities.User;
 
 import java.io.File;
 import java.io.FileReader;

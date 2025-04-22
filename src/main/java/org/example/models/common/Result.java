@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.common;
 
 // this method is completed
 public record Result(boolean success, String message) {

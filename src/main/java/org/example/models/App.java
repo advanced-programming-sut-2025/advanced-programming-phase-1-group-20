@@ -1,5 +1,6 @@
 package org.example.models;
 
+import org.example.models.entities.User;
 import org.example.models.utils.FileStorage;
 
 import java.util.HashMap;

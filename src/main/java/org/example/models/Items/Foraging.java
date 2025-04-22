@@ -1,4 +1,4 @@
-package org.example.models;
+package org.example.models.Items;
 
 import org.example.models.enums.Types.ForagingType;
 

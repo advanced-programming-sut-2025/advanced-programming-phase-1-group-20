@@ -1,6 +1,5 @@
 package org.example.models.Items;
 
-import org.example.models.Item;
 import org.example.models.Player.Skill;
 import org.example.models.enums.PlayerEnums.Skills;
 

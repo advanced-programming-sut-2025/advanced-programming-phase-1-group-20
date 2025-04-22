@@ -1,6 +1,6 @@
 package org.example.models.enums;
 
-import org.example.models.Item;
+import org.example.models.Items.Item;
 
 public enum Ingredients {
     Friedegg("1 egg"),

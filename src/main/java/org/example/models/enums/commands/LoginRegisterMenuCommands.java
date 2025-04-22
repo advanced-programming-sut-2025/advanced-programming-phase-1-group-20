@@ -3,12 +3,15 @@ package org.example.models.enums.commands;
 import java.util.regex.Pattern;
 
 public enum LoginRegisterMenuCommands implements Command {
-    Login(Pattern.compile("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(–stay-logged-in)?\\s*$")),
+    Login(Pattern.compile("^\\s*login\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s*(–stay-logged-in)?\\s*$")),
     RegisterUser(Pattern.compile("^\\s*register\\s+-u\\s+(\\S+)\\s+-p\\s+(\\S+)\\s+(\\S+)\\s+-n\\s+(\\S+)\\s+-e" +
             "\\s+(\\S+)\\s+-g\\s+(\\S+)\\s*$")),
-    PickSecurityQuestion(Pattern.compile("^pick\\s+question-q\\s+(\\S+)\\s+-a(\\S+)\\s+(-c\\S+)$")),
-    ForgotPass(Pattern.compile("^forget\\s+password\\s+-u\\s+(\\S+)$")),
-    AnswerSecurityQuestion(Pattern.compile("^answer\\s+-a\\s+(\\S+)$")),
+    PickSecurityQuestion(Pattern.compile("^\\s*pick\\s+question\\s+-q\\s+(\\d+)\\s+-a\\s+(\\S+)\\s+-c\\s+(\\S+)\\s*$")),
+    ForgotPass(Pattern.compile("^\\s*forget\\s+password\\s+-u\\s+(\\S+)\\s*$")),
+    AnswerSecurityQuestion(Pattern.compile("^\\s*answer\\s+-a\\s+(\\S+)\\s*$")),
+    AcceptPassword(Pattern.compile("^\\s*accept\\s+password\\s*$")),
+    SetCustomPassword(Pattern.compile("^\\s*set\\s+password\\s+-p\\s+(\\S+)\\s+-c\\s+(\\S+)\\s*$")),
+    GenerateNewPassword(Pattern.compile("^\\s*generate\\s+new\\s+password\\s*$")),
     None(null);
     private final Pattern pattern;
 
@@ -33,6 +36,6 @@ public enum LoginRegisterMenuCommands implements Command {
     }
 
     public boolean matches(String input) {
-        return this.pattern.matcher(input).matches();
+        return this.pattern != null && this.pattern.matcher(input).matches();
     }
 }

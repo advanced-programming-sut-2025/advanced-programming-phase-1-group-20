@@ -1,9 +1,9 @@
 package org.example.controllers;
 
-import org.example.models.Date;
-import org.example.models.GameMap;
+import org.example.models.common.Date;
+import org.example.models.common.GameMap;
 import org.example.models.Player.Player;
-import org.example.models.Result;
+import org.example.models.common.Result;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
 
@@ -21,18 +21,38 @@ public class GameMenuController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         GameMenuCommands command = GameMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
+        Result result = null;
+
         switch (command) {
-            //implementing methods:
+            // time related commands
             case ShowTime -> showTime();
             case ShowDate -> showDate();
             case ShowDateTime -> showDateTime();
             case AdvanceTime -> advanceTime(args);
             case AdvanceDate -> advanceDate(args);
+
+            // Map related commands
+
+
+            // Player related commands
+
+            // Farm related commands
+
+            // saving related commands
+            case SaveGame -> {
+
+            }
+            case AutoSave -> {
+
+            }
             case None -> Result.error("Invalid command");
         }
+        appView.handleResult(result, command);
+
+        return result;
     }
 
     //implementing methods:

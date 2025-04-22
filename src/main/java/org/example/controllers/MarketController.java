@@ -1,9 +1,9 @@
 package org.example.controllers;
 
-import org.example.models.Date;
-import org.example.models.GameMap;
+import org.example.models.common.Date;
+import org.example.models.common.GameMap;
 import org.example.models.Player.Player;
-import org.example.models.Result;
+import org.example.models.common.Result;
 import org.example.models.enums.commands.MainMenuCommands;
 import org.example.views.AppView;
 
@@ -21,11 +21,12 @@ public class MarketController implements Controller {
     }
 
     @Override
-    public void update(String input) {
+    public Result update(String input) {
         MainMenuCommands command = MainMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         switch (command) {
             case None -> Result.error("Invalid input");
         }
+        return Result.success("Command executed successfully");
     }
 }

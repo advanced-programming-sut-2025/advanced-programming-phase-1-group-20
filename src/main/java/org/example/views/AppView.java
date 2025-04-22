@@ -1,8 +1,10 @@
 package org.example.views;
 
 import org.example.models.App;
-import org.example.models.Game;
-//import org.example.models.utils.GameSaveManager;
+import org.example.models.entities.Game;
+import org.example.models.common.Result;
+import org.example.models.enums.commands.LoginRegisterMenuCommands;
+import org.example.models.utils.AutoLoginUtil;
 
 import java.util.Scanner;
 
@@ -20,7 +22,7 @@ public class AppView {
         scanner = new Scanner(System.in);
 
         // Check for auto-login
-        boolean autoLoginSuccessful = org.example.models.utils.AutoLoginUtil.checkAndPerformAutoLogin(this);
+        boolean autoLoginSuccessful = AutoLoginUtil.checkAndPerformAutoLogin(this);
 
         if (!autoLoginSuccessful) {
             this.currentMenu = new LoginRegisterMenu(this);
@@ -29,14 +31,11 @@ public class AppView {
 
     public void appStart() {
         while (!exit) {
-            // Display the current menu
             // Get user input
             String input = scanner.nextLine();
 
-            // Update the current menu based on user input
             update(input);
 
-            // Check if the user wants to exit
             if (input.equalsIgnoreCase("exit")) {
                 exit();
             }
@@ -45,12 +44,16 @@ public class AppView {
 
     public void update(String input) {
         this.currentMenu.updateMenu(input);
+
     }
 
     public void navigateMenu(AppMenu menu) {
         this.currentMenu = menu;
     }
 
+    public void handleResult(Result result, Object command) {
+        currentMenu.handleResult(result, command);
+    }
 
     public void setCurrentGame(Game game) {
         this.currentGame = game;
@@ -60,27 +63,23 @@ public class AppView {
         return this.currentGame;
     }
 
-
     private void saveAllData() {
         // Save user data
         App.saveData();
 
-        // Save the current game if one exists
-//        if (currentGame != null) {
-//            currentGame.saveGame();
-//        }
+        // if (currentGame != null) {
+        //     currentGame.saveGame();
+        // }
     }
 
     public void exit() {
-        // Save all data before exiting
         saveAllData();
         this.exit = true;
     }
 
-
     public void autoSave() {
-//        if (currentGame != null) {
-//            currentGame.saveGame();
-//        }
+        // if (currentGame != null) {
+        //     currentGame.saveGame();
+        // }
     }
 }

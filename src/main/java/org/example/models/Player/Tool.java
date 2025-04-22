@@ -1,6 +1,6 @@
 package org.example.models.Player;
 
-import org.example.models.Item;
+import org.example.models.Items.Item;
 import org.example.models.enums.Types.ToolType;
 
 

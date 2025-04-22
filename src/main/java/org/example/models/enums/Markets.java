@@ -1,7 +1,7 @@
 package org.example.models.enums;
 
-import org.example.models.Foraging;
-import org.example.models.Item;
+import org.example.models.Items.Foraging;
+import org.example.models.Items.Item;
 import org.example.models.Items.ArtisanItem;
 import org.example.models.Items.CookingItem;
 import org.example.models.Market;
@@ -70,34 +70,6 @@ public enum Markets {
         int endHour = 16;
         String[] menu = new String[]{};
         return new Market(items, startHour, endHour, menu);
-    }
-
-    private static void
-    createStarDropSaloon() {
-        HashMap<Item, Integer> items = new HashMap<>();
-
-//        Item beer = (Item) new ArtisanItem(ArtisanItems.BEER);
-//        beer.setPrice(400);
-//        items.put(beer, -1);
-//        Item coffee = (Item) new ArtisanItem(ArtisanItems.COFFEE);
-//        coffee.setPrice(300);
-//        items.put(coffee, -1);
-//        Item pizza = (Item) new CookingItem(CookingItems.pizza);
-//        pizza.setPrice(600);
-//        items.put(pizza, -1);
-//        Item spaghetti = (Item) new CookingItem(CookingItems.spaghetti);
-//        spaghetti.setPrice(240);
-//        items.put(spaghetti, -1);
-//        Item bread = new CookingItem(CookingItems.bread);
-//        bread.setPrice(120);
-//        items.put(bread, -1);
-//        Item salad = (Item) new CookingItem(CookingItems.Salad);
-//        salad.setPrice(220);
-//        items.put(salad, -1);
-//        int startHour = 9;
-//        int endHour = 16;
-//        String[] menu = new String[]{};
-//        return new Market(items, startHour, endHour, menu);
     }
 
     private static Market createMarnieShop() {

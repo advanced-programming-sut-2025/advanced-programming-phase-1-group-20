@@ -13,10 +13,8 @@ public class PasswordUtils {
             byte[] encodedHash = digest.digest(
                     password.getBytes(StandardCharsets.UTF_8));
 
-            // Convert the byte array to a Base64 string for storage
             return Base64.getEncoder().encodeToString(encodedHash);
         } catch (NoSuchAlgorithmException e) {
-            // This exception shouldn't occur since SHA-256 is a standard algorithm
             e.printStackTrace();
             return null;
         }

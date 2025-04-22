@@ -1,5 +1,7 @@
 package org.example.controllers;
 
+import org.example.models.common.Result;
+
 public interface Controller {
-    void update(String input);
+    Result update(String input);
 }
