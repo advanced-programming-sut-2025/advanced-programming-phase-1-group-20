@@ -5,6 +5,7 @@ import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
+import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
 
 import java.util.ArrayList;
@@ -15,12 +16,12 @@ import java.util.regex.Pattern;
 public class LoginRegisterMenuController implements Controller {
     private AppView appView;
     private User user;
-
+    private String tempUsername;
     public LoginRegisterMenuController(AppView appView, User user) {
         this.appView = appView;
         this.user = user;
 
-        // Initialize the App to load saved data
+        // initialize the App to load saved data
         App.initialize();
     }
 
@@ -28,13 +29,15 @@ public class LoginRegisterMenuController implements Controller {
     public void update(String input) {
         LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
+        Result result = null;
+
         switch (command) {
-            case RegisterUser -> registerUser(args);
-            case Login -> login(args);
-            case ForgotPass -> forgotPassword(args);
-            case PickSecurityQuestion -> pickSecurityQuestion(args, user);
-            case AnswerSecurityQuestion -> answerSecurityQuestion(args, user.getUsername());
-            case None -> Result.error("Invalid input");
+            case RegisterUser -> result = registerUser(args);
+            case Login -> result = login(args);
+            case ForgotPass -> result = forgotPassword(args);
+            case PickSecurityQuestion -> result = pickSecurityQuestion(args, user);
+            case AnswerSecurityQuestion -> result = answerSecurityQuestion(args, tempUsername);
+            case None -> result = Result.error("Invalid input");
         }
     }
 
@@ -89,10 +92,8 @@ public class LoginRegisterMenuController implements Controller {
     }
 
     private Result checkPasswordStrength(String password) {
-        // At least 8 characters
         boolean validLength = password.length() > 8;
 
-        // Check for at least one lowercase, one uppercase, one digit, and one special character
         boolean hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
         String specialChars = "!#$%^&*()=+{}[]|\\:;'\"<>?";
 
@@ -137,7 +138,6 @@ public class LoginRegisterMenuController implements Controller {
     }
 
     private boolean checkEmail(String email) {
-        // email validation pattern
         String emailRegex = "^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\\.[a-zA-Z]{2,}$";
         Pattern pattern = Pattern.compile(emailRegex);
 
@@ -171,18 +171,15 @@ public class LoginRegisterMenuController implements Controller {
         Random random = new Random();
         StringBuilder password = new StringBuilder();
 
-        // Ensure at least one character from each category
         password.append(upper.charAt(random.nextInt(upper.length())));
         password.append(lower.charAt(random.nextInt(lower.length())));
         password.append(digits.charAt(random.nextInt(digits.length())));
         password.append(special.charAt(random.nextInt(special.length())));
 
-        // Fill the rest to make it 12 characters long
         for (int i = 0; i < 8; i++) {
             password.append(all.charAt(random.nextInt(all.length())));
         }
 
-        // Shuffle the characters
         char[] array = password.toString().toCharArray();
         for (int i = array.length - 1; i > 0; i--) {
             int index = random.nextInt(i + 1);
@@ -206,7 +203,6 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("user not found");
         }
 
-        // Use password verification instead of direct comparison
         if (!user.verifyPassword(password)) {
             return Result.error("wrong password");
         }
@@ -214,14 +210,12 @@ public class LoginRegisterMenuController implements Controller {
         user.setStayLoggedIn(stayLoggedIn);
         App.setLoggedInUser(user);
 
-        // Handle auto-login if stay logged in is selected
         if (stayLoggedIn) {
-            org.example.models.utils.AutoLoginUtil.saveAutoLogin(username);
+            AutoLoginUtil.saveAutoLogin(username);
         } else {
-            org.example.models.utils.AutoLoginUtil.clearAutoLogin();
+            AutoLoginUtil.clearAutoLogin();
         }
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("logged in successfully");
@@ -229,7 +223,7 @@ public class LoginRegisterMenuController implements Controller {
 
     public Result logout() {
         // Clear auto-login when logging out
-        org.example.models.utils.AutoLoginUtil.clearAutoLogin();
+        AutoLoginUtil.clearAutoLogin();
 
         User user = App.getLoggedInUser();
         if (user != null) {
@@ -254,7 +248,6 @@ public class LoginRegisterMenuController implements Controller {
         user.setSecurityAnswer(answer);
         user.setSecurityQuestionIndex(questionNumber);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("security question added successfully");
@@ -277,13 +270,13 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("the answer is not correct");
         }
 
-        // Since we can't return the hashed password, we need to generate a new one
         String newPassword = generateRandomPassword();
         user.setPassword(newPassword);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("your new password is " + newPassword);
+
+        // TODO: add making the new password or getting the pass word from the user
     }
 }

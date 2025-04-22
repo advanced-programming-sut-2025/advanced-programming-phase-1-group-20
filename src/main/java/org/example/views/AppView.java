@@ -2,6 +2,7 @@ package org.example.views;
 
 import org.example.models.App;
 import org.example.models.entities.Game;
+import org.example.models.utils.AutoLoginUtil;
 //import org.example.models.utils.GameSaveManager;
 
 import java.util.Scanner;
@@ -14,13 +15,12 @@ public class AppView {
     private Game currentGame;
 
     public AppView() {
-        // Initialize the App to load saved user data
         App.initialize();
 
         scanner = new Scanner(System.in);
 
         // Check for auto-login
-        boolean autoLoginSuccessful = org.example.models.utils.AutoLoginUtil.checkAndPerformAutoLogin(this);
+        boolean autoLoginSuccessful = AutoLoginUtil.checkAndPerformAutoLogin(this);
 
         if (!autoLoginSuccessful) {
             this.currentMenu = new LoginRegisterMenu(this);
@@ -29,14 +29,10 @@ public class AppView {
 
     public void appStart() {
         while (!exit) {
-            // Display the current menu
-            // Get user input
             String input = scanner.nextLine();
 
-            // Update the current menu based on user input
             update(input);
 
-            // Check if the user wants to exit
             if (input.equalsIgnoreCase("exit")) {
                 exit();
             }
