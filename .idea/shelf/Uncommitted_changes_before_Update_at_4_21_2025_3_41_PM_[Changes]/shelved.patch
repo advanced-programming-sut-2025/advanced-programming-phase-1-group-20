@@ -1,0 +1,169 @@
+Index: src/main/java/org/example/models/Plant.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package org.example.models;\r\n\r\nimport org.example.models.enums.Types.PlantType;\r\n\r\npublic class Plant extends Item {\r\n    private PlantType type;\r\n\r\n    public Plant(PlantType type) {\r\n        super(type.getName(), type.getBaseSell());\r\n        this.type = type;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/models/Plant.java b/src/main/java/org/example/models/Plant.java
+--- a/src/main/java/org/example/models/Plant.java	(revision 97f9ab3daf037960773d55e37dbc1751a7b106d0)
++++ b/src/main/java/org/example/models/Plant.java	(date 1745237477765)
+@@ -9,4 +9,10 @@
+         super(type.getName(), type.getBaseSell());
+         this.type = type;
+     }
++
++    public void showPlant() {
++        System.out.println("Name: " + type.getName());
++        System.out.println("Source: " + type.getSeed());
++        System.out.println("Stages: ");
++    }
+ }
+Index: src/main/java/org/example/models/Seed.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/models/Seed.java b/src/main/java/org/example/models/Seed.java
+new file mode 100644
+--- /dev/null	(date 1745236787794)
++++ b/src/main/java/org/example/models/Seed.java	(date 1745236787794)
+@@ -0,0 +1,12 @@
++package org.example.models;
++
++import org.example.models.enums.Types.SeedType;
++
++public class Seed extends Item {
++    private SeedType seedType;
++
++    public Seed(SeedType seedType) {
++        super(seedType.getName() , seedType.getPrice());
++        this.seedType = seedType;
++    }
++}
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n    <component name=\"ProjectModuleManager\">\r\n        <modules>\r\n            <module fileurl=\"file://$PROJECT_DIR$/your_project_name.iml\" filepath=\"$PROJECT_DIR$/your_project_name.iml\" />\r\n        </modules>\r\n    </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+--- a/.idea/modules.xml	(revision 97f9ab3daf037960773d55e37dbc1751a7b106d0)
++++ b/.idea/modules.xml	(date 1745235476716)
+@@ -1,8 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-    <component name="ProjectModuleManager">
+-        <modules>
+-            <module fileurl="file://$PROJECT_DIR$/your_project_name.iml" filepath="$PROJECT_DIR$/your_project_name.iml" />
+-        </modules>
+-    </component>
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/your_project_name.iml" filepath="$PROJECT_DIR$/your_project_name.iml" />
++    </modules>
++  </component>
+ </project>
+\ No newline at end of file
+Index: .idea/jarRepositories.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"RemoteRepositoriesConfiguration\">\r\n    <remote-repository>\r\n      <option name=\"id\" value=\"central\" />\r\n      <option name=\"name\" value=\"Central Repository\" />\r\n      <option name=\"url\" value=\"https://repo.maven.apache.org/maven2\" />\r\n    </remote-repository>\r\n    <remote-repository>\r\n      <option name=\"id\" value=\"central\" />\r\n      <option name=\"name\" value=\"Maven Central repository\" />\r\n      <option name=\"url\" value=\"https://repo1.maven.org/maven2\" />\r\n    </remote-repository>\r\n    <remote-repository>\r\n      <option name=\"id\" value=\"jboss.community\" />\r\n      <option name=\"name\" value=\"JBoss Community repository\" />\r\n      <option name=\"url\" value=\"https://repository.jboss.org/nexus/content/repositories/public/\" />\r\n    </remote-repository>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+--- a/.idea/jarRepositories.xml	(revision 97f9ab3daf037960773d55e37dbc1751a7b106d0)
++++ b/.idea/jarRepositories.xml	(date 1745235476725)
+@@ -3,6 +3,11 @@
+   <component name="RemoteRepositoriesConfiguration">
+     <remote-repository>
+       <option name="id" value="central" />
++      <option name="name" value="Maven Central" />
++      <option name="url" value="https://repo.maven.apache.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="central" />
+       <option name="name" value="Central Repository" />
+       <option name="url" value="https://repo.maven.apache.org/maven2" />
+     </remote-repository>
+Index: src/main/java/org/example/models/enums/Types/SeedType.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/models/enums/Types/SeedType.java b/src/main/java/org/example/models/enums/Types/SeedType.java
+new file mode 100644
+--- /dev/null	(date 1745236787799)
++++ b/src/main/java/org/example/models/enums/Types/SeedType.java	(date 1745236787799)
+@@ -0,0 +1,69 @@
++package org.example.models.enums.Types;
++
++import org.example.models.enums.Seasons;
++
++public enum SeedType {
++    Jazz("Jazz Seeds" , Seasons.SPRING , 0),
++    Carrot("Carrot Seeds" , Seasons.SPRING , 0),
++    Cauliflower("Cauliflower Seeds" , Seasons.SPRING , 0),
++    CoffeeBean("Coffee Bean" , Seasons.SPRING , 0),
++    Garlic("Garlic Seeds" , Seasons.SPRING , 0),
++    BeanStarter("Bean Starter" ,Seasons.SPRING , 0),
++    Kale("Kale Seeds" , Seasons.SPRING , 0),
++    Parsnip("Parsnip Seeds" , Seasons.SPRING , 0),
++    Potato("Potato Seeds" , Seasons.SPRING , 0),
++    Rhubarb("Rhubarb Seeds" , Seasons.SPRING , 0),
++    Strawberry("Strawberry Seeds" , Seasons.SPRING , 0),
++    TulipBulb("Tulip Bulb" , Seasons.SPRING , 0),
++    RiceShoot("Rice Shoot" , Seasons.SPRING , 0),
++    Blueberry("Blueberry Seeds" , Seasons.SUMMER , 0),
++    Corn("Corn Seeds" , Seasons.SUMMER , 0),
++    HopsStarter("Hops Starter" , Seasons.SUMMER , 0),
++    Pepper("Pepper Seeds" , Seasons.SUMMER , 0),
++    Melon("Melon Seeds" , Seasons.SUMMER , 0),
++    Poppy("Poppy Seeds" , Seasons.SUMMER , 0),
++    Radish("Radish Seeds" , Seasons.SUMMER , 0),
++    RedCabbage("Red Cabbage Seeds" , Seasons.SUMMER , 0),
++    Starfruit("Starfruit Seeds" , Seasons.SUMMER , 0),
++    Spangle("Spangle Seeds" , Seasons.SUMMER , 0),
++    SummerSquash("Summer Squash" , Seasons.SUMMER , 0),
++    Sunflower("Sunflower Seeds" , Seasons.SUMMER , 0),
++    Tomato("Tomato Seeds" , Seasons.SUMMER , 0),
++    Wheat("Wheat Seeds" , Seasons.SUMMER , 0),
++    Amaranth("Amaranth Seeds" , Seasons.AUTUMN , 0),
++    Artichoke("Artichoke Seeds" , Seasons.AUTUMN , 0),
++    Beet("Beet Seeds" , Seasons.AUTUMN , 0),
++    BokChoy("Bok Choy Seeds" , Seasons.AUTUMN , 0),
++    Broccoli("Broccoli Seeds" , Seasons.AUTUMN, 0),
++    Cranberry("Cranberry Seeds" , Seasons.AUTUMN, 0),
++    Eggplant("Eggplant Seeds" , Seasons.AUTUMN, 0),
++    Fairy("Fairy Seeds" , Seasons.AUTUMN, 0),
++    GrapeStarter("Grape Starter" , Seasons.AUTUMN, 0),
++    Pumpkin("Pumpkin Seeds" , Seasons.AUTUMN, 0),
++    Yam("Yam Seeds" , Seasons.AUTUMN, 0),
++    Rare("Rare Seeds" , Seasons.AUTUMN, 0),
++    Powdermelon("Powdermelon Seeds" , Seasons.AUTUMN, 0),
++    Ancient("Ancient Seeds" , Seasons.AUTUMN, 0),
++    Mixed("Mixed Seeds" , Seasons.AUTUMN, 0),
++    ;
++    private final String name;
++    private final Seasons season;
++    private final int price;
++    SeedType(String name, Seasons season, int price) {
++        this.name = name;
++        this.season = season;
++        this.price = price;
++    }
++
++    public String getName() {
++        return name;
++    }
++
++    public int getPrice() {
++        return price;
++    }
++
++    public Seasons getSeason() {
++        return season;
++    }
++}
