@@ -1,0 +1,1225 @@
+[
+  {
+    "name": "Carrot",
+    "seed": "Carrot Seed",
+    "stage": [
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 3,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 35,
+    "edible": true,
+    "energyGet": 75,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Blue Jazz",
+    "seed": "Jazz Seeds",
+    "stage": [
+      1,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 7,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 50,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Cauliflower",
+    "seed": "Cauliflower Seeds",
+    "stage": [
+      1,
+      2,
+      4,
+      4,
+      1
+    ],
+    "totalHarvestTime": 12,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 175,
+    "edible": true,
+    "energyGet": 75,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": true
+  },
+  {
+    "name": "Coffee Bean",
+    "seed": "Coffee Bean",
+    "stage": [
+      1,
+      2,
+      2,
+      3,
+      2
+    ],
+    "totalHarvestTime": 10,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 2,
+    "baseSell": 15,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "SPRING",
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Garlic",
+    "seed": "Garlic Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 4,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 60,
+    "edible": true,
+    "energyGet": 20,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Green Bean",
+    "seed": "Bean Starter",
+    "stage": [
+      1,
+      1,
+      1,
+      3,
+      4
+    ],
+    "totalHarvestTime": 10,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 3,
+    "baseSell": 40,
+    "edible": true,
+    "energyGet": 20,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Kale",
+    "seed": "Kale Seeds",
+    "stage": [
+      1,
+      2,
+      2,
+      1
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 110,
+    "edible": true,
+    "energyGet": 50,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Parsnip",
+    "seed": "Parsnip Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 4,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 35,
+    "edible": true,
+    "energyGet": 25,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Potato",
+    "seed": "Potato Seeds",
+    "stage": [
+      1,
+      1,
+      2,
+      1
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 80,
+    "edible": true,
+    "energyGet": 25,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Rhubarb",
+    "seed": "Rhubarb Seeds",
+    "stage": [
+      2,
+      2,
+      2,
+      3,
+      4
+    ],
+    "totalHarvestTime": 13,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 220,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Strawberry",
+    "seed": "Strawberry Seeds",
+    "stage": [
+      1,
+      1,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 4,
+    "baseSell": 120,
+    "edible": true,
+    "energyGet": 50,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Tulip",
+    "seed": "Tulip Bulb",
+    "stage": [
+      1,
+      1,
+      2,
+      2
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 30,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Unmilled Rice",
+    "seed": "Rice Shoot",
+    "stage": [
+      1,
+      2,
+      2,
+      3
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 30,
+    "edible": true,
+    "energyGet": 3,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Blueberry",
+    "seed": "Blueberry Seeds",
+    "stage": [
+      1,
+      3,
+      3,
+      4,
+      2
+    ],
+    "totalHarvestTime": 13,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 4,
+    "baseSell": 50,
+    "edible": true,
+    "energyGet": 25,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Corn",
+    "seed": "Corn Seeds",
+    "stage": [
+      2,
+      3,
+      3,
+      3,
+      3
+    ],
+    "totalHarvestTime": 14,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 4,
+    "baseSell": 50,
+    "edible": true,
+    "energyGet": 25,
+    "healthGet": 0,
+    "season": [
+      "SUMMER",
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Hops",
+    "seed": "Hops Starter",
+    "stage": [
+      1,
+      1,
+      2,
+      3,
+      4
+    ],
+    "totalHarvestTime": 11,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 1,
+    "baseSell": 25,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Hot Pepper",
+    "seed": "Pepper Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 5,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 3,
+    "baseSell": 40,
+    "edible": true,
+    "energyGet": 13,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Melon",
+    "seed": "Melon Seeds",
+    "stage": [
+      1,
+      2,
+      3,
+      3,
+      3
+    ],
+    "totalHarvestTime": 12,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 250,
+    "edible": true,
+    "energyGet": 113,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": true
+  },
+  {
+    "name": "Poppy",
+    "seed": "Poppy Seeds",
+    "stage": [
+      1,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 7,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 140,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Radish",
+    "seed": "Radish Seeds",
+    "stage": [
+      2,
+      1,
+      2,
+      1
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 90,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Red Cabbage",
+    "seed": "Red Cabbage Seeds",
+    "stage": [
+      2,
+      1,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 9,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 260,
+    "edible": true,
+    "energyGet": 75,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Starfruit",
+    "seed": "Starfruit Seeds",
+    "stage": [
+      2,
+      3,
+      2,
+      3,
+      3
+    ],
+    "totalHarvestTime": 13,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 750,
+    "edible": true,
+    "energyGet": 125,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Summer Spangle",
+    "seed": "Spangle Seeds",
+    "stage": [
+      1,
+      2,
+      3,
+      1
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 90,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Summer Squash",
+    "seed": "Summer Squash Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      2,
+      1
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 3,
+    "baseSell": 45,
+    "edible": true,
+    "energyGet": 63,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Sunflower",
+    "seed": "Sunflower Seeds",
+    "stage": [
+      1,
+      2,
+      3,
+      2
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 80,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "SUMMER",
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Tomato",
+    "seed": "Tomato Seeds",
+    "stage": [
+      2,
+      2,
+      2,
+      2,
+      3
+    ],
+    "totalHarvestTime": 11,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 4,
+    "baseSell": 60,
+    "edible": true,
+    "energyGet": 20,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Wheat",
+    "seed": "Wheat Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 4,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 25,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Amaranth",
+    "seed": "Amaranth Seeds",
+    "stage": [
+      1,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 7,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 150,
+    "edible": true,
+    "energyGet": 50,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Artichoke",
+    "seed": "Artichoke Seeds",
+    "stage": [
+      2,
+      2,
+      1,
+      2,
+      1
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 160,
+    "edible": true,
+    "energyGet": 30,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Beet",
+    "seed": "Beet Seeds",
+    "stage": [
+      1,
+      1,
+      2,
+      2
+    ],
+    "totalHarvestTime": 6,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 100,
+    "edible": true,
+    "energyGet": 30,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Bok Choy",
+    "seed": "Bok Choy Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 4,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 80,
+    "edible": true,
+    "energyGet": 25,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Broccoli",
+    "seed": "Broccoli Seeds",
+    "stage": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "totalHarvestTime": 8,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 4,
+    "baseSell": 70,
+    "edible": true,
+    "energyGet": 63,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Cranberries",
+    "seed": "Cranberry Seeds",
+    "stage": [
+      1,
+      2,
+      1,
+      1,
+      2
+    ],
+    "totalHarvestTime": 7,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 5,
+    "baseSell": 75,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Eggplant",
+    "seed": "Eggplant Seeds",
+    "stage": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "totalHarvestTime": 5,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 5,
+    "baseSell": 60,
+    "edible": true,
+    "energyGet": 20,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Fairy Rose",
+    "seed": "Fairy Seeds",
+    "stage": [
+      1,
+      4,
+      4,
+      3
+    ],
+    "totalHarvestTime": 12,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 290,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Grape",
+    "seed": "Grape Starter",
+    "stage": [
+      1,
+      1,
+      2,
+      3,
+      3
+    ],
+    "totalHarvestTime": 10,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 3,
+    "baseSell": 80,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Pumpkin",
+    "seed": "Pumpkin Seeds",
+    "stage": [
+      1,
+      2,
+      3,
+      4,
+      3
+    ],
+    "totalHarvestTime": 13,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 320,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": true
+  },
+  {
+    "name": "Yam",
+    "seed": "Yam Seeds",
+    "stage": [
+      1,
+      3,
+      3,
+      3
+    ],
+    "totalHarvestTime": 10,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 160,
+    "edible": true,
+    "energyGet": 45,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Sweet Gem Berry",
+    "seed": "Rare Seed",
+    "stage": [
+      2,
+      4,
+      6,
+      6,
+      6
+    ],
+    "totalHarvestTime": 24,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 3000,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Powder melon",
+    "seed": "Powdermelon Seeds",
+    "stage": [
+      1,
+      2,
+      1,
+      2,
+      1
+    ],
+    "totalHarvestTime": 7,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 0,
+    "baseSell": 60,
+    "edible": true,
+    "energyGet": 63,
+    "healthGet": 0,
+    "season": [
+      "WINTER"
+    ],
+    "harvestable": true,
+    "giantable": true
+  },
+  {
+    "name": "Ancient Fruit",
+    "seed": "Ancient Seeds",
+    "stage": [
+      2,
+      7,
+      7,
+      7,
+      5
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 7,
+    "baseSell": 550,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [
+      "SPRING",
+      "SUMMER",
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Apricot",
+    "seed": "Apricot Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 59,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Cherry",
+    "seed": "Cherry Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 59,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "SPRING"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Banana",
+    "seed": "Banana Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 150,
+    "edible": true,
+    "energyGet": 75,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Mango",
+    "seed": "Mango Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 130,
+    "edible": true,
+    "energyGet": 100,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Orange",
+    "seed": "Orange Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 100,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Peach",
+    "seed": "Peach Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 140,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "SUMMER"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Apple",
+    "seed": "Apple Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 100,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Pomegranate",
+    "seed": "Pomegranate Sapling",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 140,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [
+      "AUTUMN"
+    ],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Oak Resin ",
+    "seed": "Acorns",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 7,
+    "baseSell": 150,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Maple Syrup",
+    "seed": "Maple Seeds",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 9,
+    "baseSell": 200,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Pine Tar",
+    "seed": "Pine Cones",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 5,
+    "baseSell": 100,
+    "edible": false,
+    "energyGet": 0,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Sap",
+    "seed": "Mahogany Seeds",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 2,
+    "edible": true,
+    "energyGet": -2,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Common Mushroom",
+    "seed": "Mushroom Tree Seeds",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": true,
+    "multipleHarvest": 1,
+    "baseSell": 40,
+    "edible": true,
+    "energyGet": 38,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  },
+  {
+    "name": "Mystic Syrup",
+    "seed": "Mystic Tree Seeds",
+    "stage": [
+      7,
+      7,
+      7,
+      7
+    ],
+    "totalHarvestTime": 28,
+    "oneTimeHarvest": false,
+    "multipleHarvest": 7,
+    "baseSell": 1000,
+    "edible": true,
+    "energyGet": 500,
+    "healthGet": 0,
+    "season": [],
+    "harvestable": true,
+    "giantable": false
+  }
+]
