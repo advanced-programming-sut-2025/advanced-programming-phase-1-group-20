@@ -80,13 +80,16 @@ public class Date {
 
     private void updateWeatherToday() {
         Seasons currentSeason = Seasons.values()[this.season];
-        List<Weather> possibleWeather = this.weatherMap.get(currentSeason);
+        List<Weather> possibleWeather = weatherMap.get(currentSeason);
         int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
     }
 
     private void updateWeatherTomorrow() {
-        //TODO: implement this method
+        Seasons currentSeason = Seasons.values()[this.season];
+        List<Weather> possibleWeather = weatherMap.get(currentSeason);
+        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
+        this.weatherTomorrow = possibleWeather.get(randomIndex);
     }
 
     // changing the day
