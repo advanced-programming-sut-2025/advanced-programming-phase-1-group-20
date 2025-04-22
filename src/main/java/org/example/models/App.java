@@ -81,6 +81,4 @@ public class App {
     public static List<String> getSecurityQuestions() {
         return (List<String>) securityQuestions.values();
     }
-
-
 }
