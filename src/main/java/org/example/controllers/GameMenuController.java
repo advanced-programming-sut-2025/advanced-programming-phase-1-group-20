@@ -58,6 +58,29 @@ public class GameMenuController implements Controller {
             case AutoSave -> {
                 result = Result.success("Auto-save completed");
             }
+
+
+            //plants and foraging related commands
+            case CraftInfo -> craftInfo(args);
+            case Plant -> plant(args);
+            case ShowPlant -> showPlant(args);
+            case Fertilize -> fertilize(args);
+            case HowMuchWater -> howMuchWater();
+            case Harvest -> harvest(args);
+
+            //crafting related commands
+            case CraftingShowRecipes -> craftingShowRecipes();
+            case PlaceItem -> placeItem(args);
+            case AddItem -> addItem(args);
+
+
+            //cooking related commands
+            case AddRefrigerator -> addRefrigerator(args);
+            case CookingShowRecipes -> cookingShowRecipes();
+            case CookingPrepare -> cookingPrepare(args);
+            case EatFood -> eatFood(args);
+
+
             case None -> result = Result.error("Invalid command");
         }
 
@@ -69,6 +92,9 @@ public class GameMenuController implements Controller {
 
         return result;
     }
+
+
+    //time related
 
     public void showTime() {
         gameClock.displayTime();
@@ -166,6 +192,52 @@ public class GameMenuController implements Controller {
         } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates format");
         }
+    }
+
+
+    //plants and foraging related
+    private void craftInfo(String[] args) {
+    }
+
+    private void plant(String[] args) {
+    }
+
+    private void showPlant(String[] args) {
+    }
+
+    private void fertilize(String[] args) {
+    }
+
+    private void howMuchWater() {
+    }
+
+    private void harvest(String[] args) {
+    }
+
+
+    //crafting related
+    private void craftingShowRecipes() {
+    }
+
+    private void placeItem(String[] args) {
+    }
+
+    private void addItem(String[] args) {
+    }
+
+
+
+    //cooking related
+    private void addRefrigerator(String[] args) {
+    }
+
+    private void cookingShowRecipes() {
+    }
+
+    private void cookingPrepare(String[] args) {
+    }
+
+    private void eatFood(String[] args) {
     }
 
     // TODO: map showing + map related commands
