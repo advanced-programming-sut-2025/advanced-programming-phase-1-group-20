@@ -1,0 +1,128 @@
+[
+    {
+      "name": "Apricot Tree",
+      "source": "Apricot Sapling",
+      "fruit": "Apricot",
+      "baseSellPrice": 59,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["SPRING"]
+    },
+    {
+      "name": "Cherry Tree",
+      "source": "Cherry Sapling",
+      "fruit": "Cherry",
+      "baseSellPrice": 80,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["SPRING"]
+    },
+    {
+      "name": "Banana Tree",
+      "source": "Banana Sapling",
+      "fruit": "Banana",
+      "baseSellPrice": 150,
+      "isEdible": true,
+      "energy": 75,
+      "season": ["SUMMER"]
+    },
+    {
+      "name": "Mango Tree",
+      "source": "Mango Sapling",
+      "fruit": "Mango",
+      "baseSellPrice": 130,
+      "isEdible": true,
+      "energy": 100,
+      "season": ["SUMMER"]
+    },
+    {
+      "name": "Orange Tree",
+      "source": "Orange Sapling",
+      "fruit": "Orange",
+      "baseSellPrice": 100,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["SUMMER"]
+    },
+    {
+      "name": "Peach Tree",
+      "source": "Peach Sapling",
+      "fruit": "Peach",
+      "baseSellPrice": 140,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["SUMMER"]
+    },
+    {
+      "name": "Apple Tree",
+      "source": "Apple Sapling",
+      "fruit": "Apple",
+      "baseSellPrice": 100,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["AUTUMN"]
+    },
+    {
+      "name": "Pomegranate Tree",
+      "source": "Pomegranate Sapling",
+      "fruit": "Pomegranate",
+      "baseSellPrice": 140,
+      "isEdible": true,
+      "energy": 38,
+      "season": ["AUTUMN"]
+    },
+    {
+        "name": "Oak Tree",
+        "source": "Acorns",
+        "fruit": "Oak Resin",
+        "baseSellPrice": 150,
+        "isEdible": false,
+        "energy": 0,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      },
+      {
+        "name": "Maple Tree",
+        "source": "Maple Seeds",
+        "fruit": "Maple Syrup",
+        "baseSellPrice": 200,
+        "isEdible": false,
+        "energy": 0,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      },
+      {
+        "name": "Pine Tree",
+        "source": "Pine Cones",
+        "fruit": "Pine Tar",
+        "baseSellPrice": 100,
+        "isEdible": false,
+        "energy": 0,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      },
+      {
+        "name": "Mahogany Tree",
+        "source": "Mahogany Seeds",
+        "fruit": "Sap",
+        "baseSellPrice": 2,
+        "isEdible": true,
+        "energy": -2,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      },
+      {
+        "name": "Mushroom Tree",
+        "source": "Mushroom Tree Seeds",
+        "fruit": "Common Mushroom",
+        "baseSellPrice": 40,
+        "isEdible": true,
+        "energy": 38,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      },
+      {
+        "name": "Mystic Tree",
+        "source": "Mystic Tree Seeds",
+        "fruit": "Mystic Syrup",
+        "baseSellPrice": 1000,
+        "isEdible": true,
+        "energy": 500,
+        "season": ["SPRING" , "SUMMER" , "AUTUMN" , "WINTER"]
+      }
+]
