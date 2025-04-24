@@ -112,4 +112,44 @@ public class App {
 
 
     //game lists
+    public static Plant getPlant(String plantName) {
+        return plants.stream().filter(plant -> plant.getName().equals(plantName))
+                .findFirst().orElse(null);
+    }
+
+    public static Crop getCrop(String cropName) {
+        return crops.stream().filter(crop -> crop.getName().equals(cropName))
+                .findFirst().orElse(null);
+    }
+
+    public static Mineral getMineral(String mineralName) {
+        return minerals.stream().filter(mineral -> mineral.getName().equals(mineralName))
+                .findFirst().orElse(null);
+    }
+
+    public static Seed getSeed(String seedName) {
+        return seeds.stream().filter(seed -> seed.getName().equals(seedName))
+                .findFirst().orElse(null);
+    }
+
+    public static Tree getTree(String treeName) {
+        return trees.stream().filter(tree -> tree.getName().equals(treeName))
+                .findFirst().orElse(null);
+    }
+
+    public static CookingItem getCookingItem(String itemName) {
+        return cookingItems.stream().filter(cookingItem -> cookingItem.getName().equals(itemName))
+                .findFirst().orElse(null);
+    }
+
+    public static CraftingItem getCraftingItem(String itemName) {
+        return craftingItems.stream().filter(cookingItem -> cookingItem.getName().equals(itemName))
+                .findFirst().orElse(null);
+    }
+
+    public static Item getItem(String itemName) {
+        return items.stream().filter(item -> item.getName().equals(itemName))
+                .findFirst().orElse(null);
+    }
+
 }
