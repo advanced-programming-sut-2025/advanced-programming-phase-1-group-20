@@ -26,6 +26,16 @@ public enum GameMenuCommands implements Command {
     SaveGame(Pattern.compile("^save$")),
     AutoSave(Pattern.compile("^autosave$")),
 
+    //plants and foraging related
+    CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")),
+    Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+)\\s+" +
+            "(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
+    ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+    Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+    HowMuchWater(Pattern.compile("^howmuch\\s+water$")),
+    Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+
+
     // TODO: add more commands
     None(null);
 
