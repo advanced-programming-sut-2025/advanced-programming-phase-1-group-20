@@ -3,7 +3,7 @@ package org.example.models.Items;
 import org.example.models.enums.Seasons;
 
 public class Plant extends Item {
-    private Seed seed;
+    private String seedName;
     private int[] stage;
     private int totalHarvestTime;
     private boolean oneTimeHarvest;
@@ -12,11 +12,11 @@ public class Plant extends Item {
     private int energy;
     private Seasons[] season;
     private boolean isGiantable;
-    public Plant(String name, int price , Seed seed , int[] stage , int totalHarvestTime ,
+    public Plant(String name, int price , String seedName , int[] stage , int totalHarvestTime ,
                  boolean oneTimeHarvest , int regrowthTime , boolean isEdible , int energy ,
                  Seasons[] seasons , boolean isGiantable) {
         super(name, price);
-        this.seed = seed;
+        this.seedName = seedName;
         this.stage = stage;
         this.totalHarvestTime = totalHarvestTime;
         this.oneTimeHarvest = oneTimeHarvest;
@@ -27,8 +27,8 @@ public class Plant extends Item {
         this.isGiantable = isGiantable;
     }
 
-    public Seed getSeed() {
-        return seed;
+    public String getSeed() {
+        return seedName;
     }
 
     public int[] getStage() {
