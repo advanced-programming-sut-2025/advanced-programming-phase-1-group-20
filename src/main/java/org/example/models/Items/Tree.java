@@ -3,27 +3,27 @@ package org.example.models.Items;
 import org.example.models.enums.Seasons;
 
 public class Tree extends Item{
-    private Seed seed;
+    private String seedName;
     private String fruitName;
     private boolean isEdible;
     private int energy;
     private Seasons[] seasons;
-    public Tree(String name, int baseSellPrice , Seed seed, String fruitName,
+    public Tree(String name, int baseSellPrice , String seedName, String fruitName,
                 boolean isEdible, int energy , Seasons[] seasons) {
         super(name, baseSellPrice);
-        this.seed = seed;
+        this.seedName = seedName;
         this.fruitName = fruitName;
         this.isEdible = isEdible;
         this.energy = energy;
         this.seasons = seasons;
     }
 
-    public Seed getSeed() {
-        return seed;
+    public String getSeed() {
+        return seedName;
     }
 
-    public void setSeed(Seed seed) {
-        this.seed = seed;
+    public void setSeed(String seed) {
+        this.seedName = seed;
     }
 
     public String getFruitName() {
