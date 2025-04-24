@@ -1,8 +1,10 @@
 package org.example.models;
 
+import org.example.models.Items.*;
 import org.example.models.entities.User;
 import org.example.models.utils.FileStorage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,16 @@ public class App {
 
     //    private static List<Game> allGames;
 
+    //    private static Lists for game
+    private static List<Plant> plants = new ArrayList<>();
+    private static List<Crop> crops = new ArrayList<>();
+    private static List<Mineral> minerals = new ArrayList<>();
+    private static List<Seed> seeds = new ArrayList<>();
+    private static List<Tree> trees = new ArrayList<>();
+    private static List<CookingItem> cookingItems = new ArrayList<>();
+    private static List<CraftingItem> craftingItems = new ArrayList<>();
+    private static List<Item> items = new ArrayList<>();
+
 
     public static void initialize() {
         if (!dataLoaded) {
@@ -26,6 +38,22 @@ public class App {
 
             // Add security questions
             addSecurityQuestion();
+
+            //initializing game static lists
+            plants = FileStorage.loadPlants();
+            crops = FileStorage.loadCrops();
+            minerals = FileStorage.loadMinerals();
+            seeds = FileStorage.loadSeeds();
+            trees = FileStorage.loadTrees();
+            cookingItems = FileStorage.loadCookingItems();
+            craftingItems = FileStorage.loadCraftingItems();
+            items.addAll(plants);
+            items.addAll(crops);
+            items.addAll(minerals);
+            items.addAll(seeds);
+            items.addAll(trees);
+            items.addAll(cookingItems);
+            items.addAll(craftingItems);
 
             dataLoaded = true;
         }
@@ -81,4 +109,7 @@ public class App {
     public static List<String> getSecurityQuestions() {
         return (List<String>) securityQuestions.values();
     }
+
+
+    //game lists
 }
