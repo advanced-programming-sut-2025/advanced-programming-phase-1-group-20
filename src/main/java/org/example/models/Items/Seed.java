@@ -1,12 +1,26 @@
 package org.example.models.Items;
 
-import org.example.models.enums.Types.SeedType;
+
+import org.example.models.enums.Ingredients;
+import org.example.models.enums.Seasons;
 
 public class Seed extends Item {
-    private SeedType seedType;
+    private Seasons[] season;
 
-    public Seed(SeedType seedType) {
-        super(seedType.getName(), seedType.getPrice());
-        this.seedType = seedType;
+    public Seed(String name, Seasons[] season, int price) {
+        super(name, price);
+        this.season = season;
+    }
+
+    public Seasons[] getSeason() {
+        return season;
+    }
+
+    public int getPrice(){
+        return super.getPrice();
+    }
+
+    public void setPrice(int price) {
+        super.setPrice(price);
     }
 }

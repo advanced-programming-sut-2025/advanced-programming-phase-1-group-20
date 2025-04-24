@@ -1,11 +1,15 @@
 package org.example.models.Items;
 
 public class Item {
-    String name;
-    int price;
+    private String name;
+    private int baseSellPrice;
+    private int price;
 
-    public Item(String name, int price) {
+
+    public Item(String name, int baseSellPrice) {
         this.name = name;
+        this.baseSellPrice = baseSellPrice;
+        this.price = baseSellPrice;
     }
 
     public String getName() {
@@ -16,11 +20,19 @@ public class Item {
         this.name = name;
     }
 
-    public int getPrice() {
-        return price;
+    public int getBaseSellPrice() {
+        return baseSellPrice;
+    }
+
+    public void setBaseSellPrice(int baseSellPrice) {
+        this.baseSellPrice = baseSellPrice;
     }
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public int getPrice() {
+        return price;
     }
 }

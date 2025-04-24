@@ -57,7 +57,7 @@ public class Plant extends Item {
         System.out.println(this.totalHarvest);
         System.out.println(this.oneTimeHarvest);
         System.out.println("Regrowth time: ");
-        System.out.println("Base Sell Price: " + this.getPrice());
+        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
         System.out.println("Is Edible: " + this.edible);
         System.out.println("Base Energy: " + this.energyGet);
         System.out.println("Base Health: " + this.healthGet);

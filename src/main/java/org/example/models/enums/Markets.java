@@ -1,9 +1,9 @@
 package org.example.models.enums;
 
-import org.example.models.Items.Foraging;
+
 import org.example.models.Items.Item;
 import org.example.models.Market;
-import org.example.models.enums.Types.ForagingType;
+
 
 import java.util.HashMap;
 
@@ -25,10 +25,10 @@ public enum Markets {
 
     private static Market creatBlackSmith() {
         HashMap<Item, Integer> items = new HashMap<>();
-        items.put((Item) new Foraging(ForagingType.Copper), -1);
-        items.put((Item) new Foraging(ForagingType.Iron), -1);
-        items.put((Item) new Foraging(ForagingType.Coal), -1);
-        items.put((Item) new Foraging(ForagingType.Gold), -1);
+//        items.put((Item) new Foraging(ForagingType.Copper), -1);
+//        items.put((Item) new Foraging(ForagingType.Iron), -1);
+//        items.put((Item) new Foraging(ForagingType.Coal), -1);
+//        items.put((Item) new Foraging(ForagingType.Gold), -1);
         // tools needed: i need them like items so it would be easy to handle
 //        items.put(new Foraging(ForagingsType.Co), 1);
 //        items.put(new Item("Iron Tool" , 5000), 1);
