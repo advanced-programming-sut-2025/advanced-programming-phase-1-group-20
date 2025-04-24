@@ -29,21 +29,42 @@ public class GameMenu implements AppMenu {
         if (result == null) return;
 
         if (result.success()) {
-            System.out.println(result.message());
+            if (command instanceof GameMenuCommands gameCommand) {
 
-            if (command instanceof GameMenuCommands) {
-                GameMenuCommands gameCommand = (GameMenuCommands) command;
                 switch (gameCommand) {
                     case ShowMap:
-
+                        displayMap();
                         break;
                     case ShowInventory:
+                        displayInventory();
+                        break;
+                    case ShowDateTime:
+                    case ShowTime:
+                    case ShowDate:
+                    case DayOfWeek:
+                    case ShowSeason:
+                    case ShowWeather:
+                    case ShowWeatherForecast:
 
                         break;
+                    default:
+                        System.out.println(result.message());
+                        break;
                 }
+            } else {
+                System.out.println(result.message());
             }
         } else {
             System.out.println("Error: " + result.message());
         }
+    }
+
+    private void displayMap() {
+        // TODO: Implement map display
+    }
+
+    private void displayInventory() {
+        System.out.println("Inventory: ");
+        // TODO: Implement  inventory display
     }
 }
