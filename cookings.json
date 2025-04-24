@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Fried Egg",
+    "ingredients": "1 egg",
+    "energy": 50,
+    "buff": "",
+    "source": "Starter",
+    "baseSellPrice": 35
+  },
+  {
+    "name": "Baked Fish",
+    "ingredients": "1 Sardine + 1 Salmon + 1 wheat",
+    "energy": 75,
+    "buff": "",
+    "source": "Starter",
+    "baseSellPrice": 100
+  },
+  {
+    "name": "Salad",
+    "ingredients": "1 leek + 1 dandelion",
+    "energy": 113,
+    "buff": "",
+    "source": "Starter",
+    "baseSellPrice": 110
+  },
+  {
+    "name": "Omelet",
+    "ingredients": "1 egg + 1 milk",
+    "energy": 100,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 125
+  },
+  {
+    "name": "Pumpkin Pie",
+    "ingredients": "1 pumpkin + 1 wheat flour + 1 milk + 1 sugar",
+    "energy": 225,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 385
+  },
+  {
+    "name": "Spaghetti",
+    "ingredients": "1 wheat flour + 1 tomato",
+    "energy": 75,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 120
+  },
+  {
+    "name": "Pizza",
+    "ingredients": "1 wheat flour + 1 tomato + 1 cheese",
+    "energy": 150,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 300
+  },
+  {
+    "name": "Tortilla",
+    "ingredients": "1 corn",
+    "energy": 50,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 50
+  },
+  {
+    "name": "Maki Roll",
+    "ingredients": "1 any fish + 1 rice + 1 fiber",
+    "energy": 100,
+    "buff": "",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 220
+  },
+  {
+    "name": "Triple Shot Espresso",
+    "ingredients": "3 coffee",
+    "energy": 200,
+    "buff": "Max Energy + 100 (5 hours)",
+    "source": "Stardrop Saloon",
+    "baseSellPrice": 450
+  }
+]

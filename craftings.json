@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Cherry Bomb",
+    "ingredients": "4 copper ore + 1 coal",
+    "source": "Mining Level 1",
+    "baseSellPrice": 50
+  },
+  {
+    "name": "Bomb",
+    "ingredients": "4 iron ore + 1 coal",
+    "source": "Mining Level 2",
+    "baseSellPrice": 50
+  },
+  {
+    "name": "Mega Bomb",
+    "ingredients": "4 gold ore + 1 coal",
+    "source": "Mining Level 3",
+    "baseSellPrice": 50
+  },
+  {
+    "name": "Sprinkler",
+    "ingredients": "1 copper bar + 1 iron bar",
+    "source": "Farming Level 1",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Quality Sprinkler",
+    "ingredients": "1 iron bar + 1 gold bar",
+    "source": "Farming Level 2",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Iridium Sprinkler",
+    "ingredients": "1 gold bar + 1 iridium bar",
+    "source": "Farming Level 3",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Charcoal Klin",
+    "ingredients": "20 wood + 2 copper bar",
+    "source": "Foraging Level 1",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Furnace",
+    "ingredients": "20 copper ore + 25 stone",
+    "source": "-",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Scarecrow",
+    "ingredients": "50 wood + 1 coal + 20 fiber",
+    "source": "-",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Deluxe Scarecrow",
+    "ingredients": "50 wood + 1 coal + 20 fiber + 1 iridium ore",
+    "source": "Farming Level 2",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Bee House",
+    "ingredients": "40 wood + 8 coal + 1 iron bar",
+    "source": "Farming Level 1",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Cheese Press",
+    "ingredients": "45 wood + 45 stone + 1 copper bar",
+    "source": "Farming Level 2",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Keg",
+    "ingredients": "30 wood + 1 copper bar + 1 iron bar",
+    "source": "Farming Level 3",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Loom",
+    "ingredients": "60 wood + 30 fiber",
+    "source": "Farming Level 3",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Mayonnaise Machine",
+    "ingredients": "15 wood + 15 stone + 1 copper bar",
+    "source": "-",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Oil Maker",
+    "ingredients": "100 wood + 1 gold bar + 1 iron bar",
+    "source": "Farming Level 3",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Preserves Jar",
+    "ingredients": "50 wood + 40 stone + 8 coal",
+    "source": "Farming Level 2",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Dehydrator",
+    "ingredients": "30 wood + 20 stone + 30 fiber",
+    "source": "Pierre's General Store",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Fish Smoker",
+    "ingredients": "50 wood + 3 iron bar + 10 coal",
+    "source": "Fish Shop",
+    "baseSellPrice": 0
+  },
+  {
+    "name": "Mystic Tree Seed",
+    "ingredients": "5 acorn + 5 maple seed + 5 pine cone + 5 mahogany seed",
+    "source": "Foraging Level 4",
+    "baseSellPrice": 100
+  }
+]
