@@ -9,9 +9,9 @@ public class CookingItem extends Item {
     private String ingredients;
     private int energy;
     private String buffer;
-    private Skill source;
+    private String source;
 
-    public CookingItem(String name, String ingredients, String buffer, Skill source, int baseSellPrice) {
+    public CookingItem(String name, String ingredients, String buffer, String source, int baseSellPrice) {
         super(name, baseSellPrice);
         this.ingredients = ingredients;
         this.buffer = buffer;
@@ -42,11 +42,20 @@ public class CookingItem extends Item {
         this.buffer = buffer;
     }
 
-    public Skill getSource() {
+    public String getSource() {
         return source;
     }
 
-    public void setSource(Skill source) {
+    public void setSource(String source) {
         this.source = source;
+    }
+
+    public void showInfo(){
+        System.out.println("Name: " + this.getName());
+        System.out.println("Ingredients: " + ingredients);
+        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
+        System.out.println("Energy: " + this.getEnergy());
+        System.out.println("Buffer: " + this.getBuffer());
+        System.out.println("Source: " + this.getSource());
     }
 }

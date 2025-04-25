@@ -2,6 +2,8 @@ package org.example.models.Items;
 
 import org.example.models.enums.Seasons;
 
+import java.util.Arrays;
+
 public class Tree extends Item{
     private String seedName;
     private String fruitName;
@@ -56,5 +58,22 @@ public class Tree extends Item{
 
     public void setSeasons(Seasons[] seasons) {
         this.seasons = seasons;
+    }
+
+    @Override
+    public void showInfo(){
+        System.out.println("Name: " + this.getName());
+        System.out.println("Source: " + seedName);
+        String stages = Arrays.toString(seasons).replace("[", "").replace("]", "")
+                .replace(" " , "");
+        System.out.println("Stages: " + stages);
+        System.out.println("Fruit: " + fruitName);
+        System.out.println("Base Sell Price: " + this.getPrice());
+        System.out.println("Is Edible: " + this.isEdible);
+        System.out.println("Energy: " + energy);
+        String season = Arrays.toString(seasons)
+                .replace("[", "").replace("]", "")
+                .replace(" " , "");
+        System.out.println("Season: " + season);
     }
 }

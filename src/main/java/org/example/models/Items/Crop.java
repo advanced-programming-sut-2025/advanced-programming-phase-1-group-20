@@ -2,6 +2,8 @@ package org.example.models.Items;
 
 import org.example.models.enums.Seasons;
 
+import java.util.Arrays;
+
 public class Crop extends Item {
     private Seasons[] seasons;
     private int energy;
@@ -25,5 +27,15 @@ public class Crop extends Item {
 
     public void setEnergy(int energy) {
         this.energy = energy;
+    }
+
+    @Override
+    public void showInfo(){
+        System.out.println("Name: " + this.getName());
+        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
+        String season = Arrays.toString(seasons).replace("[", "").replace("]", "")
+                .replace(" " , "");
+        System.out.println("Season: " + season);
+        System.out.println("Energy: " + energy);
     }
 }

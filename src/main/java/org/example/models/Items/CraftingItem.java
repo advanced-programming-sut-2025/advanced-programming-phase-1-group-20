@@ -1,14 +1,13 @@
 package org.example.models.Items;
 
-import org.example.models.enums.Sources;
 
 import java.util.HashMap;
 
 public class CraftingItem extends Item {
     private String ingredients;
-    private Sources source;
+    private String source;
 
-    public CraftingItem(String name, String ingredients, Sources source, int baseSellPrice) {
+    public CraftingItem(String name, String ingredients, String source, int baseSellPrice) {
         super(name, baseSellPrice);
         this.ingredients = ingredients;
         this.source = source;
@@ -22,11 +21,19 @@ public class CraftingItem extends Item {
         this.ingredients = ingredients;
     }
 
-    public Sources getSource() {
+    public String getSource() {
         return source;
     }
 
-    public void setSource(Sources source) {
+    public void setSource(String source) {
         this.source = source;
+    }
+
+    @Override
+    public void showInfo(){
+        System.out.println("Name: " + this.getName());
+        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
+        System.out.println("Ingredients: " + ingredients);
+        System.out.println("Source: " + source);
     }
 }
