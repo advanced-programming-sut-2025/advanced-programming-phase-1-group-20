@@ -5,14 +5,28 @@ import org.example.models.enums.Sources;
 import java.util.HashMap;
 
 public class CraftingItem extends Item {
-    private HashMap<Item, Integer> ingredients;
+    private String ingredients;
     private Sources source;
-    private int sellPrice;
 
-    public CraftingItem(String name, HashMap<Item, Integer> ingredients, Sources source, int sellPrice) {
-        super(name, sellPrice);
+    public CraftingItem(String name, String ingredients, Sources source, int baseSellPrice) {
+        super(name, baseSellPrice);
         this.ingredients = ingredients;
         this.source = source;
-        this.sellPrice = sellPrice;
+    }
+
+    public String getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public Sources getSource() {
+        return source;
+    }
+
+    public void setSource(Sources source) {
+        this.source = source;
     }
 }

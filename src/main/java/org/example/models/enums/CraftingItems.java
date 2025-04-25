@@ -20,8 +20,8 @@ public enum CraftingItems {
         this.sellPrice = sellPrice;
     }
 
-    public CraftingItem createCraftingItem() {
-        return new CraftingItem(name, ingredients, source, sellPrice);
-    }
+//    public CraftingItem createCraftingItem() {
+//        return new CraftingItem(name, ingredients, source, sellPrice);
+//    }
 
 }
