@@ -4,7 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa7e87b3-0ced-4232-af9d-a985d1396dd4" name="Changes" comment="craft info completed" />
+    <list default="true" id="aa7e87b3-0ced-4232-af9d-a985d1396dd4" name="Changes" comment="craft info completed">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/ArtisanItemBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/Builder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CookingItemBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CraftingItemBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CropBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/MineralBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/PlantBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/SeedBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/TreeBuilder.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/director/Director.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/enums/CraftingItems.java" beforeDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -51,9 +66,10 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Application.Main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "craftInfo",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -86,7 +102,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745329267449</updated>
       <workItem from="1745329268620" duration="1070000" />
-      <workItem from="1745511027399" duration="18888000" />
+      <workItem from="1745511027399" duration="22284000" />
     </task>
     <task id="LOCAL-00001" summary="added plants commands (regexes)">
       <option name="closed" value="true" />

@@ -16,6 +16,10 @@ public class Inventory {
         inventory.put(item, inventory.getOrDefault(item, 0) + 1);
     }
 
+    public Map<Item, Integer> getInventory() {
+        return inventory;
+    }
+
     public void remove(Item item) {
     }
 

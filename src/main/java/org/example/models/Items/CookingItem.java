@@ -1,9 +1,12 @@
 package org.example.models.Items;
 
+import org.example.models.App;
+import org.example.models.Player.Inventory;
 import org.example.models.Player.Skill;
 import org.example.models.enums.PlayerEnums.Skills;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class CookingItem extends Item {
     private String ingredients;
@@ -48,6 +51,29 @@ public class CookingItem extends Item {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public boolean canCook(Inventory inventory) {
+        Map<Item, Integer> items = inventory.getInventory();
+        String[] parts = ingredients.split("\\+");
+        for(String part : parts) {
+            part = part.trim();
+            String[] itemData = part.split(" " , 2);
+
+            int requiredItem = Integer.parseInt(itemData[0]);
+            String itemName = itemData[1];
+            if(itemName.startsWith("any")){
+                itemName = itemName.replace("any ", "");
+                //checking fishes list (only time that this happens)
+            }else{
+                itemName = itemName.trim();
+                Item item = App.getItem(itemName);
+                if(!items.containsKey(item) || requiredItem > items.get(item)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void showInfo(){
