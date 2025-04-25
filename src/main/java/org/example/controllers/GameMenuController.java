@@ -1,5 +1,7 @@
 package org.example.controllers;
 
+import org.example.models.App;
+import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
@@ -197,6 +199,13 @@ public class GameMenuController implements Controller {
 
     //plants and foraging related
     private void craftInfo(String[] args) {
+        String name = args[0];
+        Item item = App.getItem(name);
+        if (item == null) {
+            System.out.println("Item " + name + " not found");
+        }else{
+            item.showInfo();
+        }
     }
 
     private void plant(String[] args) {
