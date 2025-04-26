@@ -106,10 +106,13 @@ public class Tree extends Item{
         return stage;
     }
 
-    public boolean updateTree(){
+    public void updateTree(){
         if(!finished){
             updateDaysCounter();
         }
+    }
+
+    public boolean getFinished(){
         return finished;
     }
 

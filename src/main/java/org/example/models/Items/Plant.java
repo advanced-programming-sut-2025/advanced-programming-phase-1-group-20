@@ -129,10 +129,13 @@ public class Plant extends Item {
         return stage;
     }
 
-    public boolean updatePlant(){
+    public void updatePlant(){
         if(!finished){
             updateDaysCounter();
         }
+    }
+
+    public boolean getFinished(){
         return finished;
     }
 }
