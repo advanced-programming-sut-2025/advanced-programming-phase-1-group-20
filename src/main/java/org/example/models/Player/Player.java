@@ -1,5 +1,7 @@
 package org.example.models.Player;
 
+import org.example.models.Items.CookingItem;
+import org.example.models.Items.CraftingItem;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.entities.Mob;
 import org.example.models.entities.NPC;
@@ -15,6 +17,12 @@ public class Player extends Mob {
     private User user;
     private int energy;
     private List<Skill> skills;
+
+    // items player has
+    private List<CraftingItem> craftingItems;
+    private List<CookingItem> cookingItems;
+
+
     private boolean energySet = true;
 
     public Player(User user) {
@@ -22,6 +30,11 @@ public class Player extends Mob {
         skills = new ArrayList<Skill>();
         //adding skills:
 //        Skills.HARVESTING.addSkill();
+
+
+        //initializing crafting items
+        craftingItems = new ArrayList<CraftingItem>();
+        cookingItems  = new ArrayList<CookingItem>();
     }
 
     //decreasing energy:
@@ -73,5 +86,21 @@ public class Player extends Mob {
         if (tile == TileType.WATER) {
             //implementing func.
         }
+    }
+
+    public void addCraftingItem(CraftingItem craftingItem) {
+        craftingItems.add(craftingItem);
+    }
+
+    public List<CraftingItem> getCraftingItems() {
+        return craftingItems;
+    }
+
+    public void addCookingItem(CookingItem cookingItem) {
+        cookingItems.add(cookingItem);
+    }
+
+    public List<CookingItem> getCookingItems() {
+        return cookingItems;
     }
 }

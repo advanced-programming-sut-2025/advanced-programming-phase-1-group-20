@@ -1,6 +1,8 @@
 package org.example.controllers;
 
 import org.example.models.App;
+import org.example.models.Items.CookingItem;
+import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
@@ -72,6 +74,7 @@ public class GameMenuController implements Controller {
 
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
+            case CraftingCraft -> craftItem(args);
             case PlaceItem -> placeItem(args);
             case AddItem -> addItem(args);
 
@@ -226,27 +229,78 @@ public class GameMenuController implements Controller {
 
     //crafting related
     private void craftingShowRecipes() {
+        for(CraftingItem craftingItem : player.getCraftingItems()){
+            craftingItem.showInfo();
+        }
+    }
+
+    private void craftItem(String[] args) {
+        String itemName = args[0];
+        CraftingItem craftingItem = App.getCraftingItem(itemName);
+        //checking flag (can craft method is ready we just need player inventory.
+        boolean flag = checkItem(craftingItem); //&& craftingItem.canCraft()
+        if (flag) {
+            // Item item = App.getItem(itemName); creating item and adding it to inventory.
+        }
+    }
+
+    private boolean checkItem(Item item){
+        if(item == null){
+            System.out.println("item does not exist");
+            return false;
+        }
+        return true;
     }
 
     private void placeItem(String[] args) {
+        String itemName = args[0];
+        Item item = App.getItem(itemName);
+        boolean flag = checkItem(item);
+        if (flag) {
+            //place item.
+        }
     }
 
     private void addItem(String[] args) {
+        String itemName = args[0];
+        int count = Integer.parseInt(args[1]);
+        Item item = App.getItem(itemName);
+        boolean flag = checkItem(item);
+        if (flag) {
+            //adding items to inventory.
+        }
     }
 
 
 
     //cooking related
     private void addRefrigerator(String[] args) {
+        String key = args[0];
+        String itemName = args[1];
+        Item item = App.getItem(itemName);
+        boolean flag = checkItem(item);
+        if (flag) {
+            //implementing put or pick method
+        }
     }
 
     private void cookingShowRecipes() {
+        for(CookingItem cookingItem : player.getCookingItems()){
+            cookingItem.showInfo();
+        }
     }
 
     private void cookingPrepare(String[] args) {
+        CookingItem cookingItem = App.getCookingItem(args[0]);
+        boolean flag = checkItem(cookingItem);
+        if (flag) {
+            //cooking recipe and adding it to inventory
+        }
     }
 
     private void eatFood(String[] args) {
+        String foodName = args[0];
+        //getting food and eating function.
     }
 
     // TODO: map showing + map related commands
