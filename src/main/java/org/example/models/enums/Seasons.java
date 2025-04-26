@@ -1,10 +1,6 @@
 package org.example.models.enums;
 
-import org.example.models.App;
-import org.example.models.Items.Seed;
 
-import java.util.Arrays;
-import java.util.List;
 
 public enum Seasons {
     SPRING(new String[]{"Cauliflower", "Parsnip", "Potato", "Blue Jazz", "Tulip"}),

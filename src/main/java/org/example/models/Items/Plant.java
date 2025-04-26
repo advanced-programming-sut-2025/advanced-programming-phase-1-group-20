@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class Plant extends Item {
     private String seedName;
-    private int[] stage;
+    private int[] stages;
     private int totalHarvestTime;
     private boolean oneTimeHarvest;
     private int regrowthTime;
@@ -14,12 +14,15 @@ public class Plant extends Item {
     private int energy;
     private Seasons[] season;
     private boolean isGiantable;
+    private int stage;
+    private int daysCounter;
+    private boolean finished;
     public Plant(String name, int price , String seedName , int[] stage , int totalHarvestTime ,
                  boolean oneTimeHarvest , int regrowthTime , boolean isEdible , int energy ,
                  Seasons[] seasons , boolean isGiantable) {
         super(name, price);
         this.seedName = seedName;
-        this.stage = stage;
+        this.stages = stage;
         this.totalHarvestTime = totalHarvestTime;
         this.oneTimeHarvest = oneTimeHarvest;
         this.regrowthTime = regrowthTime;
@@ -27,14 +30,17 @@ public class Plant extends Item {
         this.energy = energy;
         this.season = seasons;
         this.isGiantable = isGiantable;
+        this.stage = 0;
+        daysCounter = 0;
+        finished = false;
     }
 
     public String getSeed() {
         return seedName;
     }
 
-    public int[] getStage() {
-        return stage;
+    public int[] getStages() {
+        return stages;
     }
 
     public int getTotalHarvestTime() {
@@ -78,7 +84,7 @@ public class Plant extends Item {
         System.out.println("Name: " + this.getName());
         System.out.println("Source: " + seedName);
         System.out.print("Stage: ");
-        String stages = Arrays.toString(stage).
+        String stages = Arrays.toString(this.stages).
                 replace("[", "").replace("]", "")
                 .replace(" " , "");
         System.out.println("Stages: " + stages);
@@ -98,5 +104,35 @@ public class Plant extends Item {
                 .replace(" " , "");
         System.out.println("Seasons: " + seasons);
         System.out.println("Can Become Giant: " + isGiantable);
+    }
+
+
+
+    public void addStage(){
+        if(stage < stages.length){
+            stage++;
+        }else if(stage == stages.length){
+            finished = true;
+        }
+    }
+
+    public void updateDaysCounter(){
+        if(daysCounter < stages[stage]){
+            daysCounter++;
+        }else if(daysCounter == stages[stage]){
+            addStage();
+            daysCounter = 0;
+        }
+    }
+
+    public int getStage(){
+        return stage;
+    }
+
+    public boolean updatePlant(){
+        if(!finished){
+            updateDaysCounter();
+        }
+        return finished;
     }
 }

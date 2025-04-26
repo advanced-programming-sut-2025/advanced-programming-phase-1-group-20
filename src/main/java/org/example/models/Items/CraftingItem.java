@@ -4,7 +4,6 @@ package org.example.models.Items;
 import org.example.models.App;
 import org.example.models.Player.Inventory;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class CraftingItem extends Item {

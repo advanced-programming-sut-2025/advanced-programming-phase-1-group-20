@@ -2,10 +2,6 @@ package org.example.models.Items;
 
 import org.example.models.App;
 import org.example.models.Player.Inventory;
-import org.example.models.Player.Skill;
-import org.example.models.enums.PlayerEnums.Skills;
-
-import java.util.HashMap;
 import java.util.Map;
 
 public class CookingItem extends Item {
