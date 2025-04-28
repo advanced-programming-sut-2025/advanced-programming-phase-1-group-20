@@ -6,6 +6,4 @@ public enum Weather {
     STORMY,
     SNOWY,
     GREENHOUSE;
-
-
 }

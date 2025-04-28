@@ -3,6 +3,7 @@ package org.example.models.Player;
 import org.example.models.Items.Item;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Inventory {
@@ -24,6 +25,30 @@ public class Inventory {
     }
 
     public void showInventory() {
+        for (Map.Entry<Item, Integer> entry : inventory.entrySet()) {
+            Item item = entry.getKey();
+            int quantity = entry.getValue();
+            System.out.println(item.getName() + ": " + quantity);
+        }
     }
 
+    public Item getItem(String name) {
+        for (Item item : inventory.keySet()) {
+            if (item.getName().equalsIgnoreCase(name)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    // Check if the inventory has all the items in the list
+    public boolean hasItems(List<String> names) {
+        for (String name : names) {
+            if (inventory.containsKey(getItem(name))) {
+                continue;
+            }
+            return false;
+        }
+        return false;
+    }
 }
