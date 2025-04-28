@@ -1,7 +1,5 @@
 package org.example.models.enums;
 
-
-import org.example.models.App;
 import org.example.models.Items.Item;
 import org.example.models.Items.Mineral;
 import org.example.models.Items.Plant;
@@ -15,13 +13,13 @@ import org.example.models.enums.Types.SeedType;
 import java.util.HashMap;
 
 public enum Markets {
-    BLACKS_SMITH(creatBlackSmith());
-//    JOJA_MART(createJojaMarket()),
-//    PIERRE_GENERAL_STORE(createPierreGeneralStore()),
-//    CARPENTERS_SHOP(createCarpentersShop()),
-//    FISH_SHOP(createFishShop()),
-//    MARNIE_SHOP(createMarnieShop()),
-//    STARDROP_SALOON(createStarDropSaloon());
+    BLACKS_SMITH(creatBlackSmith()),
+    JOJA_MART(createJojaMarket()),
+    PIERRE_GENERAL_STORE(createPierreGeneralStore()),
+    CARPENTERS_SHOP(createCarpentersShop()),
+    FISH_SHOP(createFishShop()),
+    MARNIE_SHOP(createMarnieShop()),
+    STARDROP_SALOON(createStarDropSaloon());
 
 
     private final Market market;
@@ -318,6 +316,23 @@ public enum Markets {
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
 
+        Item wood = new Item("Wood" , 10 , "A sturdy, yet flexible plant material with a wide variety of uses.");
+        items.put(wood, Double.POSITIVE_INFINITY);
+
+        Item stone = new Item("Stone" , 20 , "A common material with many uses in crafting and building.");
+        items.put(stone, Double.POSITIVE_INFINITY);
+
+
+        //TODO: adding barns:
+        //Barn
+        //Big Barn
+        //Deluxe Barn
+        //Coop
+        //Big Coop
+        //Deluxe Coop
+        //Well
+        //Shipping Bin
+        //i need Barns taha... fuck you
 
 
 
@@ -328,6 +343,22 @@ public enum Markets {
     }
 
     private static Market createMarnieShop() {
+        HashMap<Item, Double> items = new HashMap<>();
+        HashMap<Item, Double> springItems = new HashMap<>();
+        HashMap<Item, Double> summerItems = new HashMap<>();
+        HashMap<Item, Double> autumnItems = new HashMap<>();
+        HashMap<Item, Double> winterItems = new HashMap<>();
+
+
+
+
+        int startHour = 9;
+        int endHour = 16;
+        String[] menu = new String[]{};
+        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+    }
+
+    private static Market createStarDropSaloon() {
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
