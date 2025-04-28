@@ -74,13 +74,13 @@ public enum Markets {
         ancientSeed.setPrice(500);
         items.put(ancientSeed, 1.0);
 
-        Item sugar = new Item("sugar" , 125);
+        Item sugar = new Item("sugar" , 125 , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        Item wheatFlour = new Item("wheat flour" , 125);
+        Item wheatFlour = new Item("wheat flour" , 125 , "A common cooking ingredient made from crushed wheat seeds.");
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
-        Item rice = new Item("rice" , 250);
+        Item rice = new Item("rice" , 250 , "A basic grain often served under vegetables.");
         items.put(rice, Double.POSITIVE_INFINITY);
 
         //Spring Stock
@@ -254,6 +254,54 @@ public enum Markets {
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
 
+        // permanent stock
+        Item rice = new Item("Rice" , 200 , "A basic grain often served under vegetables.");
+        items.put(rice, Double.POSITIVE_INFINITY);
+
+        Item wheatFlour = new Item("Wheat Flour" , 100 , "A common cooking ingredient made from crushed wheat seeds.");
+        items.put(wheatFlour, Double.POSITIVE_INFINITY);
+
+
+        //TODO : need to be added:
+        //Wedding Ring
+        //Dehydrator (Recipe)
+        //Grass Starter (Recipe)
+
+        Item sugar = new Item("Sugar" , 100 , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
+        items.put(sugar, Double.POSITIVE_INFINITY);
+
+        Item oil = new Item("Oil" , 200 , "All purpose cooking oil.");
+        items.put(oil, Double.POSITIVE_INFINITY);
+
+        Item vinegar = new Item("Vinegar" , 100 , "An aged fermented liquid used in many cooking recipes.");
+        items.put(vinegar, Double.POSITIVE_INFINITY);
+
+        //TODO : need to be added:
+        //Deluxe Retaining Soil
+        //Grass Starter
+        //Speed-Gro waiting for kasra.
+
+        Item appleSapling = new Item("Apple Sapling" , 4000 , "Takes 28 days to produce a mature Apple tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(appleSapling, Double.POSITIVE_INFINITY);
+
+        Item apricotSapling = new Item("Apricot Sapling" , 2000 , "Takes 28 days to produce a mature Apricot tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(apricotSapling, Double.POSITIVE_INFINITY);
+
+        Item cherrySapling = new Item("Cherry Sapling" , 3_400 , "Takes 28 days to produce a mature Cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(cherrySapling, Double.POSITIVE_INFINITY);
+
+        Item orangeSapling = new Item("Orange Sapling" , 4_000 , "Takes 28 days to produce a mature Orange tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(orangeSapling, Double.POSITIVE_INFINITY);
+
+        Item peachSapling = new Item("Peach Sapling" , 6_000 , "Takes 28 days to produce a mature Peach tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(peachSapling, Double.POSITIVE_INFINITY);
+
+        Item pomegranateSapling = new Item("Pomegranate Sapling" , 6_000 , "Takes 28 days to produce a mature Pomegranate tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        items.put(pomegranateSapling, Double.POSITIVE_INFINITY);
+
+        //TODO: need to be added:
+        //Basic Retaining Soil
+        //Quality Retaining Soil
 
 
 
@@ -269,6 +317,7 @@ public enum Markets {
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
 
 
 

@@ -4,12 +4,27 @@ public class Item {
     private String name;
     private int baseSellPrice;
     private int price;
+    private String description;
 
 
     public Item(String name, int baseSellPrice) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
         this.price = baseSellPrice;
+    }
+
+    public Item(String name, int baseSellPrice, String description) {
+        this.name = name;
+        this.baseSellPrice = baseSellPrice;
+        this.description = description;
+    }
+
+    public String getDescription(){
+        return description;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
     }
 
     public String getName() {
