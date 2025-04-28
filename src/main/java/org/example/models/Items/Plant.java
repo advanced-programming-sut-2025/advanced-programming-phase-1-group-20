@@ -1,74 +1,57 @@
 package org.example.models.Items;
 
 import org.example.models.enums.Seasons;
+import org.example.models.enums.Types.PlantType;
 
 import java.util.Arrays;
 
 public class Plant extends Item {
-    private String seedName;
-    private int[] stages;
-    private int totalHarvestTime;
-    private boolean oneTimeHarvest;
-    private int regrowthTime;
-    private boolean isEdible;
-    private int energy;
-    private Seasons[] season;
-    private boolean isGiantable;
+    private PlantType type;
     private int stage;
     private int daysCounter;
     private boolean finished;
-    public Plant(String name, int price , String seedName , int[] stage , int totalHarvestTime ,
-                 boolean oneTimeHarvest , int regrowthTime , boolean isEdible , int energy ,
-                 Seasons[] seasons , boolean isGiantable) {
-        super(name, price);
-        this.seedName = seedName;
-        this.stages = stage;
-        this.totalHarvestTime = totalHarvestTime;
-        this.oneTimeHarvest = oneTimeHarvest;
-        this.regrowthTime = regrowthTime;
-        this.isEdible = isEdible;
-        this.energy = energy;
-        this.season = seasons;
-        this.isGiantable = isGiantable;
+    public Plant(PlantType type) {
+        super(type.getName(), type.getBaseSellPrice());
+        this.type = type;
         this.stage = 0;
         daysCounter = 0;
         finished = false;
     }
 
     public String getSeed() {
-        return seedName;
+        return type.getSeed();
     }
 
     public int[] getStages() {
-        return stages;
+        return type.getStage();
     }
 
     public int getTotalHarvestTime() {
-        return totalHarvestTime;
+        return type.getTotalHarvestTime();
     }
 
-    public boolean isOneTimeHarvest() {
-        return oneTimeHarvest;
+    public boolean getOneTimeHarvest() {
+        return type.isOneTimeHarvest();
     }
 
     public int getRegrowthTime() {
-        return regrowthTime;
+        return type.getRegrowthTime();
     }
 
     public boolean isEdible() {
-        return isEdible;
+        return type.isEdible();
     }
 
     public int getEnergy() {
-        return energy;
+        return type.getEnergy();
     }
 
     public Seasons[] getSeason() {
-        return season;
+        return type.getSeasons();
     }
 
     public boolean isGiantable() {
-        return isGiantable;
+        return type.isGiantable();
     }
 
     public int getPrice(){
@@ -82,41 +65,43 @@ public class Plant extends Item {
     @Override
     public void showInfo() {
         System.out.println("Name: " + this.getName());
-        System.out.println("Source: " + seedName);
+        System.out.println("Source: " + getSeed());
         System.out.print("Stage: ");
-        String stages = Arrays.toString(this.stages).
+        String stages = Arrays.toString(getStages()).
                 replace("[", "").replace("]", "")
                 .replace(" " , "");
         System.out.println("Stages: " + stages);
-        System.out.println("Total Harvest Time: " + totalHarvestTime);
-        System.out.println("One Time: " + oneTimeHarvest);
+        System.out.println("Total Harvest Time: " + getTotalHarvestTime());
+        System.out.println("One Time: " + getOneTimeHarvest());
         System.out.print("Regrowth Time: ");
-        if(regrowthTime > 0){
-            System.out.println(regrowthTime);
+        if(getRegrowthTime() > 0){
+            System.out.println(getRegrowthTime());
         }else{
             System.out.println();
         }
         System.out.println("Base Sell Price: " + this.getPrice());
-        System.out.println("Is Edible: " + isEdible);
-        System.out.println("Energy: " + energy);
-        String seasons = Arrays.toString(season)
-                .replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Seasons: " + seasons);
-        System.out.println("Can Become Giant: " + isGiantable);
+        System.out.println("Is Edible: " + isEdible());
+        System.out.println("Energy: " + getEnergy());
+        //checking later
+//        String seasons = Arrays.toString(type.getSeasons());
+//                .replace("[", "").replace("]", "")
+//                .replace(" " , "");
+        System.out.println("Seasons: " + Arrays.toString(type.getSeasons()));
+        System.out.println("Can Become Giant: " + isGiantable());
     }
 
 
 
     public void addStage(){
-        if(stage < stages.length){
+        if(stage < getStages().length){
             stage++;
-        }else if(stage == stages.length){
+        }else if(stage == getStages().length){
             finished = true;
         }
     }
 
     public void updateDaysCounter(){
+        int[] stages = getStages();
         if(daysCounter < stages[stage]){
             daysCounter++;
         }else if(daysCounter == stages[stage]){

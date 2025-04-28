@@ -2,56 +2,40 @@ package org.example.models.Items;
 
 import org.example.models.App;
 import org.example.models.Player.Inventory;
+import org.example.models.enums.Types.CookingType;
+
 import java.util.Map;
 
 public class CookingItem extends Item {
-    private String ingredients;
-    private int energy;
-    private String buffer;
-    private String source;
+    private CookingType type;
 
-    public CookingItem(String name, String ingredients, String buffer, String source, int baseSellPrice) {
-        super(name, baseSellPrice);
-        this.ingredients = ingredients;
-        this.buffer = buffer;
-        this.source = source;
+    public CookingItem(CookingType type) {
+        super(type.getName(), type.getBaseSellPrice());
+        this.type = type;
     }
 
     public String getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(String ingredients) {
-        this.ingredients = ingredients;
+        return type.getIngredient();
     }
 
     public int getEnergy() {
-        return energy;
+        return type.getEnergy();
     }
 
-    public void setEnergy(int energy) {
-        this.energy = energy;
-    }
 
     public String getBuffer() {
-        return buffer;
+        return type.getBuffer();
     }
 
-    public void setBuffer(String buffer) {
-        this.buffer = buffer;
-    }
 
     public String getSource() {
-        return source;
+        return type.getSource();
     }
 
-    public void setSource(String source) {
-        this.source = source;
-    }
 
     public boolean canCook(Inventory inventory) {
         Map<Item, Integer> items = inventory.getInventory();
-        String[] parts = ingredients.split("\\+");
+        String[] parts = type.getIngredient().split("\\+");
         for(String part : parts) {
             part = part.trim();
             String[] itemData = part.split(" " , 2);
@@ -74,7 +58,7 @@ public class CookingItem extends Item {
 
     public void showInfo(){
         System.out.println("Name: " + this.getName());
-        System.out.println("Ingredients: " + ingredients);
+        System.out.println("Ingredients: " + type.getIngredient());
         System.out.println("Base Sell Price: " + this.getBaseSellPrice());
         System.out.println("Energy: " + this.getEnergy());
         System.out.println("Buffer: " + this.getBuffer());

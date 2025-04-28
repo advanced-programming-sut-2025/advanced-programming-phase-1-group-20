@@ -1,88 +1,64 @@
 package org.example.models.Items;
 
 import org.example.models.enums.Seasons;
+import org.example.models.enums.Types.TreeType;
 
 import java.util.Arrays;
 
 public class Tree extends Item{
-    private String seedName;
-    private String fruitName;
-    private boolean isEdible;
-    private int energy;
-    private Seasons[] seasons;
+    private TreeType type;
     private int[] stages;
     private int stage;
     private int daysCounter;
     private boolean finished;
-    public Tree(String name, int baseSellPrice , String seedName, String fruitName,
-                boolean isEdible, int energy , Seasons[] seasons) {
-        super(name, baseSellPrice);
-        this.seedName = seedName;
-        this.fruitName = fruitName;
-        this.isEdible = isEdible;
-        this.energy = energy;
-        this.seasons = seasons;
-        this.stages = new int[]{7,7,7,7};
+    public Tree(TreeType type) {
+        super(type.getName(), type.getBaseSellPrice());
+        this.type = type;
+        stages = new int[]{7,7,7,7};
         this.stage = 0;
         this.daysCounter = 0;
         this.finished = false;
     }
 
     public String getSeed() {
-        return seedName;
-    }
-
-    public void setSeed(String seed) {
-        this.seedName = seed;
+        return type.getSource();
     }
 
     public String getFruitName() {
-        return fruitName;
+        return type.getFruit();
     }
 
-    public void setFruitName(String fruitName) {
-        this.fruitName = fruitName;
-    }
 
     public boolean isEdible() {
-        return isEdible;
+        return type.isEdible();
     }
 
-    public void setEdible(boolean edible) {
-        isEdible = edible;
-    }
 
     public int getEnergy() {
-        return energy;
+        return type.getEnergy();
     }
 
-    public void setEnergy(int energy) {
-        this.energy = energy;
-    }
 
     public Seasons[] getSeasons() {
-        return seasons;
+        return type.getSeasons();
     }
 
-    public void setSeasons(Seasons[] seasons) {
-        this.seasons = seasons;
-    }
 
     @Override
     public void showInfo(){
         System.out.println("Name: " + this.getName());
-        System.out.println("Source: " + seedName);
-        String stages = Arrays.toString(seasons).replace("[", "").replace("]", "")
+        System.out.println("Source: " + type.getSource());
+        String stages = Arrays.toString(type.getSeasons()).replace("[", "").replace("]", "")
                 .replace(" " , "");
         System.out.println("Stages: " + stages);
-        System.out.println("Fruit: " + fruitName);
+        System.out.println("Fruit: " + type.getFruit());
         System.out.println("Base Sell Price: " + this.getPrice());
-        System.out.println("Is Edible: " + this.isEdible);
-        System.out.println("Energy: " + energy);
-        String season = Arrays.toString(seasons)
-                .replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Season: " + season);
+        System.out.println("Is Edible: " + isEdible());
+        System.out.println("Energy: " + getEnergy());
+//        String season = Arrays.toString(seasons)
+//                .replace("[", "").replace("]", "")
+//                .replace(" " , "");
+        System.out.println("Season: " + Arrays.toString(type.getSeasons()));
     }
 
     public void addStage(){

@@ -3,19 +3,20 @@ package org.example.models.Items;
 
 import org.example.models.enums.Ingredients;
 import org.example.models.enums.Seasons;
+import org.example.models.enums.Types.SeedType;
 
 import java.util.Arrays;
 
 public class Seed extends Item {
-    private Seasons[] season;
+    private SeedType type;
 
-    public Seed(String name, Seasons[] season, int price) {
-        super(name, price);
-        this.season = season;
+    public Seed(SeedType type) {
+        super(type.getName(), type.getBaseSellPrice());
+        this.type = type;
     }
 
     public Seasons[] getSeason() {
-        return season;
+        return type.getSeasons();
     }
 
     public int getPrice(){
@@ -30,8 +31,8 @@ public class Seed extends Item {
     public void showInfo() {
         System.out.println("Name: " + this.getName());
         System.out.println("Base Sell Price: " + this.getPrice());
-        String seasons = Arrays.toString(season).replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Seasons: " + seasons);
+//        String seasons = Arrays.toString(season).replace("[", "").replace("]", "")
+//                .replace(" " , "");
+        System.out.println("Seasons: " + Arrays.toString(type.getSeasons()));
     }
 }
