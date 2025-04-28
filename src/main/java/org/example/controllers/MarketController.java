@@ -39,7 +39,7 @@ public class MarketController implements Controller {
     }
 
     private void showAllProducts() {
-
+        market.showAllProducts();
     }
 
     private void showAllAvailableProducts() {

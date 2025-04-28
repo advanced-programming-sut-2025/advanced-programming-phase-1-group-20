@@ -24,4 +24,103 @@ public class Market {
         this.endHour = endHour;
         this.menu = menu;
     }
+
+
+    public void showAllProducts() {
+        System.out.println("Permanent Stock");
+        int c = 1;
+        for(Item item : permanentStock.keySet()) {
+            System.out.println("Item Code " + c + " : ");
+            System.out.println("Name        : " + item.getName());
+            System.out.println("Description : " + item.getDescription());
+            System.out.println("Price       : " + item.getPrice());
+            String formatedStock = String.format("%.0f", permanentStock.get(item));
+            System.out.println("Stock       : " + formatedStock);
+            c++;
+        }
+
+        System.out.println("Spring Stock");
+        if(!springStock.isEmpty()) {
+            for(Item item : springStock.keySet()) {
+                System.out.println();
+                System.out.println("--------------------------------");
+                System.out.println("Item Code " + c + " : ");
+                System.out.println("Name        : " + item.getName());
+                System.out.println("Description : " + item.getDescription());
+                System.out.println("Price       : " + item.getPrice());
+                String formatedStock = String.format("%.0f", springStock.get(item));
+                System.out.println("Stock       : " + formatedStock);
+                System.out.println("--------------------------------");
+                System.out.println();
+                c++;
+            }
+        }else{
+            System.out.println("--------------------------------");
+            System.out.println();
+            System.out.println("--------------------------------");
+        }
+
+        System.out.println("Summer Stock");
+        if(!summerStock.isEmpty()) {
+            for(Item item : summerStock.keySet()) {
+                System.out.println();
+                System.out.println("--------------------------------");
+                System.out.println("Item Code " + c + " : ");
+                System.out.println("Name        : " + item.getName());
+                System.out.println("Description : " + item.getDescription());
+                System.out.println("Price       : " + item.getPrice());
+                String formatedStock = String.format("%.0f", summerStock.get(item));
+                System.out.println("Stock       : " + formatedStock);
+                System.out.println("--------------------------------");
+                System.out.println();
+                c++;
+            }
+        }else{
+            System.out.println("--------------------------------");
+            System.out.println();
+            System.out.println("--------------------------------");
+        }
+
+        System.out.println("Autumn Stock");
+        if(!autumnStock.isEmpty()){
+            for(Item item : autumnStock.keySet()) {
+                System.out.println();
+                System.out.println("--------------------------------");
+                System.out.println("Item Code " + c + " : ");
+                System.out.println("Name        : " + item.getName());
+                System.out.println("Description : " + item.getDescription());
+                System.out.println("Price       : " + item.getPrice());
+                String formatedStock = String.format("%.0f", autumnStock.get(item));
+                System.out.println("Stock       : " + formatedStock);
+                System.out.println("--------------------------------");
+                System.out.println();
+                c++;
+            }
+        }else{
+            System.out.println("--------------------------------");
+            System.out.println();
+            System.out.println("--------------------------------");
+        }
+
+        System.out.println("Winter Stock");
+        if(!winterStock.isEmpty()) {
+            for(Item item : winterStock.keySet()) {
+                System.out.println();
+                System.out.println("--------------------------------");
+                System.out.println("Item Code " + c + " : ");
+                System.out.println("Name        : " + item.getName());
+                System.out.println("Description : " + item.getDescription());
+                System.out.println("Price       : " + item.getPrice());
+                String formatedStock = String.format("%.0f", winterStock.get(item));
+                System.out.println("Stock       : " + formatedStock);
+                System.out.println("--------------------------------");
+                System.out.println();
+                c++;
+            }
+        }else{
+            System.out.println("--------------------------------");
+            System.out.println();
+            System.out.println("--------------------------------");
+        }
+    }
 }
