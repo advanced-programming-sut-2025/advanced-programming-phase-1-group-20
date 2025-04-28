@@ -57,11 +57,6 @@ public class CookingItem extends Item {
     }
 
     public void showInfo(){
-        System.out.println("Name: " + this.getName());
-        System.out.println("Ingredients: " + type.getIngredient());
-        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
-        System.out.println("Energy: " + this.getEnergy());
-        System.out.println("Buffer: " + this.getBuffer());
-        System.out.println("Source: " + this.getSource());
+        type.showInfo();
     }
 }

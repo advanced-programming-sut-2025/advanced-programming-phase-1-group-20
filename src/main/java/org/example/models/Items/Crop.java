@@ -23,11 +23,6 @@ public class Crop extends Item {
 
     @Override
     public void showInfo(){
-        System.out.println("Name: " + this.getName());
-        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
-        String season = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Season: " + season);
-        System.out.println("Energy: " + getEnergy());
+        type.showInfo();
     }
 }

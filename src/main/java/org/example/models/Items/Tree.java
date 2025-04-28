@@ -46,19 +46,7 @@ public class Tree extends Item{
 
     @Override
     public void showInfo(){
-        System.out.println("Name: " + this.getName());
-        System.out.println("Source: " + type.getSource());
-        String stages = Arrays.toString(type.getSeasons()).replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Stages: " + stages);
-        System.out.println("Fruit: " + type.getFruit());
-        System.out.println("Base Sell Price: " + this.getPrice());
-        System.out.println("Is Edible: " + isEdible());
-        System.out.println("Energy: " + getEnergy());
-//        String season = Arrays.toString(seasons)
-//                .replace("[", "").replace("]", "")
-//                .replace(" " , "");
-        System.out.println("Season: " + Arrays.toString(type.getSeasons()));
+
     }
 
     public void addStage(){

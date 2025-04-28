@@ -4,11 +4,14 @@ import org.example.models.App;
 import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
+import org.example.models.Items.Plant;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
+import org.example.models.enums.Types.CraftingType;
+import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
@@ -200,16 +203,20 @@ public class GameMenuController implements Controller {
     }
 
 
+
+
     //plants and foraging related
     private void craftInfo(String[] args) {
         String name = args[0];
-        Item item = App.getItem(name);
-        if (item == null) {
+        PlantType type = PlantType.fromName(name);
+        if(type == null){
             System.out.println("Item " + name + " not found");
         }else{
+            Item item = new Plant(type);
             item.showInfo();
         }
     }
+
 
     private void plant(String[] args) {
     }
@@ -229,18 +236,18 @@ public class GameMenuController implements Controller {
 
     //crafting related
     private void craftingShowRecipes() {
-        for(CraftingItem craftingItem : player.getCraftingItems()){
-            craftingItem.showInfo();
+        for(CraftingType type :CraftingType.values()){
+            type.showInfo();
         }
     }
 
     private void craftItem(String[] args) {
         String itemName = args[0];
-        CraftingItem craftingItem = App.getCraftingItem(itemName);
-        //checking flag (can craft method is ready we just need player inventory.
-        boolean flag = checkItem(craftingItem); //&& craftingItem.canCraft()
-        if (flag) {
-            // Item item = App.getItem(itemName); creating item and adding it to inventory.
+        CraftingType type = CraftingType.fromName(itemName);
+        if(type == null){
+            System.out.println("item does not exist");
+        }else{
+            CraftingItem craftingItem = new CraftingItem(type);
         }
     }
 
@@ -254,6 +261,8 @@ public class GameMenuController implements Controller {
 
     private void placeItem(String[] args) {
         String itemName = args[0];
+
+        //TODO : i must get items from inventory
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
@@ -291,7 +300,7 @@ public class GameMenuController implements Controller {
     }
 
     private void cookingPrepare(String[] args) {
-        CookingItem cookingItem = App.getCookingItem(args[0]);
+        CookingItem cookingItem = (CookingItem) App.getItem(args[0]);
         boolean flag = checkItem(cookingItem);
         if (flag) {
             //cooking recipe and adding it to inventory

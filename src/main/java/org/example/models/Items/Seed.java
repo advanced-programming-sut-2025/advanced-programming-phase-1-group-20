@@ -29,10 +29,6 @@ public class Seed extends Item {
 
     @Override
     public void showInfo() {
-        System.out.println("Name: " + this.getName());
-        System.out.println("Base Sell Price: " + this.getPrice());
-//        String seasons = Arrays.toString(season).replace("[", "").replace("]", "")
-//                .replace(" " , "");
-        System.out.println("Seasons: " + Arrays.toString(type.getSeasons()));
+        type.showInfo();
     }
 }

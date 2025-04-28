@@ -2,6 +2,8 @@ package org.example.models.enums.Types;
 
 import org.example.models.enums.Seasons;
 
+import java.util.Arrays;
+
 public enum CropType {
     CommonMushroom("Common Mushroom" , new Seasons[]{Seasons.SPRING , Seasons.SUMMER , Seasons.AUTUMN , Seasons.WINTER} , 40 , 38),
     Daffodil("Daffodil", new Seasons[]{Seasons.SPRING}, 30, 0),
@@ -54,5 +56,23 @@ public enum CropType {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public void showInfo() {
+        System.out.println("Name: " + getName());
+        System.out.println("Base Sell Price: " + getBaseSellPrice());
+        String season = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
+                .replace(" " , "");
+        System.out.println("Season: " + season);
+        System.out.println("Energy: " + getEnergy());
+    }
+
+    public static CropType fromName(String name) {
+        for (CropType cropType : CropType.values()) {
+            if (cropType.getName().equals(name)) {
+                return cropType;
+            }
+        }
+        return null;
     }
 }

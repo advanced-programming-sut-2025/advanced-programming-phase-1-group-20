@@ -46,9 +46,6 @@ public class CraftingItem extends Item {
 
     @Override
     public void showInfo(){
-        System.out.println("Name: " + this.getName());
-        System.out.println("Base Sell Price: " + this.getBaseSellPrice());
-        System.out.println("Ingredients: " + getIngredients());
-        System.out.println("Source: " + getSource());
+        type.showInfo();
     }
 }

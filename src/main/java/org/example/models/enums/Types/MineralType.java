@@ -40,4 +40,19 @@ public enum MineralType {
     public int getBaseSellPrice() {
         return baseSellPrice;
     }
+
+    public void showInfo(){
+        System.out.println("Name: " + getName());
+        System.out.println("Base Sell Price: " + getBaseSellPrice());
+        System.out.println("Description: " + getDescription());
+    }
+
+    public static MineralType fromName(String name) {
+        for (MineralType type : MineralType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

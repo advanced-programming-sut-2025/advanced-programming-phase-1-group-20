@@ -16,8 +16,6 @@ public class Mineral extends Item {
 
     @Override
     public void showInfo(){
-        System.out.println("Name: " + this.getName());
-        System.out.println("Base Sell Price: " + this.getPrice());
-        System.out.println("Description: " + getDescription());
+        type.showInfo();
     }
 }

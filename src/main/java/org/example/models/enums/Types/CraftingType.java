@@ -49,4 +49,20 @@ public enum CraftingType {
     public int getBaseSellPrice() {
         return baseSellPrice;
     }
+
+    public void showInfo(){
+        System.out.println("Name: " + getName());
+        System.out.println("Base Sell Price: " + getBaseSellPrice());
+        System.out.println("Ingredients: " + getIngredients());
+        System.out.println("Source: " + getSource());
+    }
+
+    public static CraftingType fromName(String name) {
+        for (CraftingType type : CraftingType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

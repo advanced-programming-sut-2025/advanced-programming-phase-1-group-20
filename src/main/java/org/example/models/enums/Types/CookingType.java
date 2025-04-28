@@ -1,5 +1,7 @@
 package org.example.models.enums.Types;
 
+import org.example.models.Items.Item;
+
 public enum CookingType {
     FriedEgg("Fried Egg" , "1 egg" , 50 , "" , "Starter" , 35),
     BakedFish("Baked Fish", "1 Sardine + 1 Salmon + 1 wheat", 75, "", "Starter", 100),
@@ -50,5 +52,23 @@ public enum CookingType {
 
     public int getBaseSellPrice() {
         return baseSellPrice;
+    }
+
+    public void showInfo(){
+        System.out.println("Name: " + getName());
+        System.out.println("Ingredients: " + getIngredient());
+        System.out.println("Base Sell Price: " + getBaseSellPrice());
+        System.out.println("Energy: " + getEnergy());
+        System.out.println("Buffer: " + getBuffer());
+        System.out.println("Source: " + getSource());
+    }
+
+    public static CookingType fromName(String name) {
+        for (CookingType type : CookingType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
     }
 }

@@ -64,30 +64,7 @@ public class Plant extends Item {
 
     @Override
     public void showInfo() {
-        System.out.println("Name: " + this.getName());
-        System.out.println("Source: " + getSeed());
-        System.out.print("Stage: ");
-        String stages = Arrays.toString(getStages()).
-                replace("[", "").replace("]", "")
-                .replace(" " , "");
-        System.out.println("Stages: " + stages);
-        System.out.println("Total Harvest Time: " + getTotalHarvestTime());
-        System.out.println("One Time: " + getOneTimeHarvest());
-        System.out.print("Regrowth Time: ");
-        if(getRegrowthTime() > 0){
-            System.out.println(getRegrowthTime());
-        }else{
-            System.out.println();
-        }
-        System.out.println("Base Sell Price: " + this.getPrice());
-        System.out.println("Is Edible: " + isEdible());
-        System.out.println("Energy: " + getEnergy());
-        //checking later
-//        String seasons = Arrays.toString(type.getSeasons());
-//                .replace("[", "").replace("]", "")
-//                .replace(" " , "");
-        System.out.println("Seasons: " + Arrays.toString(type.getSeasons()));
-        System.out.println("Can Become Giant: " + isGiantable());
+        type.showInfo();
     }
 
 

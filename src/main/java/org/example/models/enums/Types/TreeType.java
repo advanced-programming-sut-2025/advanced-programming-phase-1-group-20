@@ -2,6 +2,8 @@ package org.example.models.enums.Types;
 
 import org.example.models.enums.Seasons;
 
+import java.util.Arrays;
+
 public enum TreeType {
     ApricotTree("Apricot Tree" , "Apricot Sapling", "Apricot" , 59 , true , 38 , new Seasons[]{Seasons.SPRING}),
     CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}),
@@ -63,5 +65,28 @@ public enum TreeType {
 
     public Seasons[] getSeasons() {
         return seasons;
+    }
+
+    public void showInfo() {
+        System.out.println("Name: " + getName());
+        System.out.println("Source: " + getSource());
+        String stages = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
+                .replace(" " , "");
+        System.out.println("Stages: " + stages);
+        System.out.println("Fruit: " + getFruit());
+        System.out.println("Base Sell Price: " + getBaseSellPrice());
+        System.out.println("Is Edible: " + isEdible());
+        System.out.println("Energy: " + getEnergy());
+//        String season = Arrays.toString(seasons)
+//                .replace("[", "").replace("]", "")
+//                .replace(" " , "");
+        System.out.println("Season: " + Arrays.toString(getSeasons()));
+    }
+
+    public static TreeType getType(String name) {
+        for (TreeType type : TreeType.values()) {
+            if (type.getName().equals(name)) return type;
+        }
+        return null;
     }
 }
