@@ -1,0 +1,179 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"aa7e87b3-0ced-4232-af9d-a985d1396dd4\" name=\"Changes\" comment=\"craft info completed\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/ArtisanItemBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/Builder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/CookingItemBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/CraftingItemBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/CropBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/MineralBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/PlantBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/SeedBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/builder/TreeBuilder.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/director/Director.java\" beforeDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java\" afterDir=\"false\" />\r\n      <change beforePath=\"$PROJECT_DIR$/src/main/java/org/example/models/enums/CraftingItems.java\" beforeDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Interface\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$\" value=\"main\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\"><![CDATA[{\r\n  \"lastFilter\": {\r\n    \"state\": \"OPEN\",\r\n    \"assignee\": \"MostafaOmidi17\"\r\n  }\r\n}]]></component>\r\n  <component name=\"GithubPullRequestsUISettings\"><![CDATA[{\r\n  \"selectedUrlAndAccountId\": {\r\n    \"url\": \"https://github.com/advanced-programming-sut-2025/advanced-programming-phase-1-group-20.git\",\r\n    \"accountId\": \"5d0316a9-d53b-454b-80ac-dfefcf594f8b\"\r\n  }\r\n}]]></component>\r\n  <component name=\"ProblemsViewState\">\r\n    <option name=\"selectedTabId\" value=\"CurrentFile\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 8\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2w5R5nTJmQpFuZm7Pt9wgyAbfUP\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"Application.Main.executor\": \"Run\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"git-widget-placeholder\": \"main\",\r\n    \"kotlin-language-version-configured\": \"true\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\MatriX\\IdeaProjects\\advanced-programming-phase-1-group-20\" />\r\n      <recent name=\"C:\\Users\\MatriX\\IdeaProjects\\advanced-programming-phase-1-group-20\\src\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"aa7e87b3-0ced-4232-af9d-a985d1396dd4\" name=\"Changes\" comment=\"\" />\r\n      <created>1745329267449</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1745329267449</updated>\r\n      <workItem from=\"1745329268620\" duration=\"1070000\" />\r\n      <workItem from=\"1745511027399\" duration=\"22284000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"added plants commands (regexes)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745511663772</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745511663772</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"added crafting commands (regexes)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745512161418</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745512161418</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"added cooking commands (regexes)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745512648358</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745512648358</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"commands added\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745513448219</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745513448219</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"builders added and json files updated (plants , crops , foragings , minerals etc...)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745518193512</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745518193512</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00006\" summary=\"cooking and craftings added to the project\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745518835709</created>\r\n      <option name=\"number\" value=\"00006\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00006\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745518835709</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00007\" summary=\"some changes on items behavior (crops added foragings deleted seeds added etc...)\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745521023932</created>\r\n      <option name=\"number\" value=\"00007\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00007\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745521023932</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00008\" summary=\"added trees\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745522120669</created>\r\n      <option name=\"number\" value=\"00008\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00008\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745522120669</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00009\" summary=\"added lists of static items into app\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745528658442</created>\r\n      <option name=\"number\" value=\"00009\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00009\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745528658442</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00010\" summary=\"added get function for items in app\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745528901132</created>\r\n      <option name=\"number\" value=\"00010\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00010\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745528901132</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00011\" summary=\"fixed some bugs with json files\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745530161547</created>\r\n      <option name=\"number\" value=\"00011\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00011\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745530161547</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00012\" summary=\"fixed some bugs with json files...\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745530284558</created>\r\n      <option name=\"number\" value=\"00012\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00012\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745530284558</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00013\" summary=\"changes on CraftingItem and CookingItem logic\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745589034190</created>\r\n      <option name=\"number\" value=\"00013\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00013\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745589034190</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00014\" summary=\"showInfo method added into items\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745591424952</created>\r\n      <option name=\"number\" value=\"00014\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00014\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745591424952</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00015\" summary=\"craft info completed\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1745592542026</created>\r\n      <option name=\"number\" value=\"00015\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00015\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1745592542026</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"16\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"added plants commands (regexes)\" />\r\n    <MESSAGE value=\"added crafting commands (regexes)\" />\r\n    <MESSAGE value=\"added cooking commands (regexes)\" />\r\n    <MESSAGE value=\"commands added\" />\r\n    <MESSAGE value=\"builders added and json files updated (plants , crops , foragings , minerals etc...)\" />\r\n    <MESSAGE value=\"cooking and craftings added to the project\" />\r\n    <MESSAGE value=\"some changes on items behavior (crops added foragings deleted seeds added etc...)\" />\r\n    <MESSAGE value=\"added trees\" />\r\n    <MESSAGE value=\"added lists of static items into app\" />\r\n    <MESSAGE value=\"added get function for items in app\" />\r\n    <MESSAGE value=\"fixed some bugs with json files\" />\r\n    <MESSAGE value=\"fixed some bugs with json files...\" />\r\n    <MESSAGE value=\"changes on CraftingItem and CookingItem logic\" />\r\n    <MESSAGE value=\"showInfo method added into items\" />\r\n    <MESSAGE value=\"craft info completed\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"craft info completed\" />\r\n  </component>\r\n</project>
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 78946ecba8407e8339be0ab694f05843ee3f2755)
++++ b/.idea/workspace.xml	(date 1745682182945)
+@@ -4,21 +4,8 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="aa7e87b3-0ced-4232-af9d-a985d1396dd4" name="Changes" comment="craft info completed">
++    <list default="true" id="aa7e87b3-0ced-4232-af9d-a985d1396dd4" name="Changes" comment="updated some functions">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/ArtisanItemBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/Builder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CookingItemBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CraftingItemBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/CropBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/MineralBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/PlantBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/SeedBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/builder/TreeBuilder.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/director/Director.java" beforeDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/models/Items/CookingItem.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/models/Player/Inventory.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/models/enums/CraftingItems.java" beforeDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -41,18 +28,18 @@
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+   </component>
+-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+-  "lastFilter": {
+-    "state": "OPEN",
+-    "assignee": "MostafaOmidi17"
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;MostafaOmidi17&quot;
+   }
+-}]]></component>
+-  <component name="GithubPullRequestsUISettings"><![CDATA[{
+-  "selectedUrlAndAccountId": {
+-    "url": "https://github.com/advanced-programming-sut-2025/advanced-programming-phase-1-group-20.git",
+-    "accountId": "5d0316a9-d53b-454b-80ac-dfefcf594f8b"
++}</component>
++  <component name="GithubPullRequestsUISettings">{
++  &quot;selectedUrlAndAccountId&quot;: {
++    &quot;url&quot;: &quot;https://github.com/advanced-programming-sut-2025/advanced-programming-phase-1-group-20.git&quot;,
++    &quot;accountId&quot;: &quot;5d0316a9-d53b-454b-80ac-dfefcf594f8b&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="ProblemsViewState">
+     <option name="selectedTabId" value="CurrentFile" />
+   </component>
+@@ -64,21 +51,21 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent"><![CDATA[{
+-  "keyToString": {
+-    "Application.Main.executor": "Run",
+-    "RunOnceActivity.ShowReadmeOnStart": "true",
+-    "RunOnceActivity.git.unshallow": "true",
+-    "git-widget-placeholder": "main",
+-    "kotlin-language-version-configured": "true",
+-    "node.js.detected.package.eslint": "true",
+-    "node.js.detected.package.tslint": "true",
+-    "node.js.selected.package.eslint": "(autodetect)",
+-    "node.js.selected.package.tslint": "(autodetect)",
+-    "nodejs_package_manager_path": "npm",
+-    "vue.rearranger.settings.migration": "true"
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
++    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+   }
+-}]]></component>
++}</component>
+   <component name="RecentsManager">
+     <key name="MoveFile.RECENT_KEYS">
+       <recent name="C:\Users\MatriX\IdeaProjects\advanced-programming-phase-1-group-20" />
+@@ -102,7 +89,9 @@
+       <option name="presentableId" value="Default" />
+       <updated>1745329267449</updated>
+       <workItem from="1745329268620" duration="1070000" />
+-      <workItem from="1745511027399" duration="22284000" />
++      <workItem from="1745511027399" duration="23599000" />
++      <workItem from="1745656311371" duration="46000" />
++      <workItem from="1745656887592" duration="6221000" />
+     </task>
+     <task id="LOCAL-00001" summary="added plants commands (regexes)">
+       <option name="closed" value="true" />
+@@ -224,7 +213,55 @@
+       <option name="project" value="LOCAL" />
+       <updated>1745592542026</updated>
+     </task>
+-    <option name="localTasksCounter" value="16" />
++    <task id="LOCAL-00016" summary="some junk files deleted checking cooking ingredient added (method canCook())">
++      <option name="closed" value="true" />
++      <created>1745596533596</created>
++      <option name="number" value="00016" />
++      <option name="presentableId" value="LOCAL-00016" />
++      <option name="project" value="LOCAL" />
++      <updated>1745596533596</updated>
++    </task>
++    <task id="LOCAL-00017" summary="crafting ingredients canCraft added">
++      <option name="closed" value="true" />
++      <created>1745596995811</created>
++      <option name="number" value="00017" />
++      <option name="presentableId" value="LOCAL-00017" />
++      <option name="project" value="LOCAL" />
++      <updated>1745596995811</updated>
++    </task>
++    <task id="LOCAL-00018" summary="added mixed seeds to seasons">
++      <option name="closed" value="true" />
++      <created>1745665266352</created>
++      <option name="number" value="00018" />
++      <option name="presentableId" value="LOCAL-00018" />
++      <option name="project" value="LOCAL" />
++      <updated>1745665266352</updated>
++    </task>
++    <task id="LOCAL-00019" summary="edited some files ... added updatePlant method to trees and Plant">
++      <option name="closed" value="true" />
++      <created>1745666594423</created>
++      <option name="number" value="00019" />
++      <option name="presentableId" value="LOCAL-00019" />
++      <option name="project" value="LOCAL" />
++      <updated>1745666594423</updated>
++    </task>
++    <task id="LOCAL-00020" summary="added finished field to plants and trees to check if plant/tree is finished or not.">
++      <option name="closed" value="true" />
++      <created>1745666762966</created>
++      <option name="number" value="00020" />
++      <option name="presentableId" value="LOCAL-00020" />
++      <option name="project" value="LOCAL" />
++      <updated>1745666762966</updated>
++    </task>
++    <task id="LOCAL-00021" summary="updated some functions">
++      <option name="closed" value="true" />
++      <created>1745668025280</created>
++      <option name="number" value="00021" />
++      <option name="presentableId" value="LOCAL-00021" />
++      <option name="project" value="LOCAL" />
++      <updated>1745668025280</updated>
++    </task>
++    <option name="localTasksCounter" value="22" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -257,6 +294,12 @@
+     <MESSAGE value="changes on CraftingItem and CookingItem logic" />
+     <MESSAGE value="showInfo method added into items" />
+     <MESSAGE value="craft info completed" />
+-    <option name="LAST_COMMIT_MESSAGE" value="craft info completed" />
++    <MESSAGE value="some junk files deleted checking cooking ingredient added (method canCook())" />
++    <MESSAGE value="crafting ingredients canCraft added" />
++    <MESSAGE value="added mixed seeds to seasons" />
++    <MESSAGE value="edited some files ... added updatePlant method to trees and Plant" />
++    <MESSAGE value="added finished field to plants and trees to check if plant/tree is finished or not." />
++    <MESSAGE value="updated some functions" />
++    <option name="LAST_COMMIT_MESSAGE" value="updated some functions" />
+   </component>
+ </project>
+\ No newline at end of file

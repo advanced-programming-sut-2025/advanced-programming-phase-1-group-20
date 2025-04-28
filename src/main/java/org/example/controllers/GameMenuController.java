@@ -88,6 +88,9 @@ public class GameMenuController implements Controller {
             case CookingPrepare -> cookingPrepare(args);
             case EatFood -> eatFood(args);
 
+            //sell command:
+            case SellProduct -> sellProduct(args);
+
 
             case None -> result = Result.error("Invalid command");
         }
@@ -310,6 +313,14 @@ public class GameMenuController implements Controller {
     private void eatFood(String[] args) {
         String foodName = args[0];
         //getting food and eating function.
+    }
+
+
+    //sell Function:
+    private void sellProduct(String[] args) {
+        String productName = args[0];
+        int count = Integer.parseInt(args[1]);
+        // checkTrashBin();
     }
 
     // TODO: map showing + map related commands

@@ -26,6 +26,10 @@ public enum GameMenuCommands implements Command {
     AddRefrigerator(Pattern.compile("^cooking\\s+refrigerator\\s+(put|pick)\\s+(?<itemName>.+)$")), CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")), CookingPrepare(Pattern.compile("^cooking\\s+prepare\\s+(?<recipeName>.+)$")), EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
 
 
+    //sell command
+    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
+
+
     // TODO: add more commands
     None(null);
 
