@@ -53,6 +53,10 @@ public enum GameMenuCommands implements Command {
 
 
 
+    //sell command
+    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
+
+
     // TODO: add more commands
     None(null);
 
