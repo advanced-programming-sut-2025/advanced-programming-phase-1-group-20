@@ -10,7 +10,7 @@ public enum Npcs {
 
     SEBASTIAN(
             "Sebastian",
-            Charactristic.BITCH,
+            Charactristic.KIND,
             Jobs.ENGINEER,
             new Location(10, 10, TileType.COBBLED_STONE),
             Arrays.asList("Wool", "Pumpkin Pie", "Pizza"),

@@ -21,6 +21,13 @@ public class App {
     //    private static List<Game> allGames;
 
     //    private static Lists for game
+    private static List<Plant> plants = new ArrayList<>();
+    private static List<Crop> crops = new ArrayList<>();
+    private static List<Mineral> minerals = new ArrayList<>();
+    private static List<Seed> seeds = new ArrayList<>();
+    private static List<Tree> trees = new ArrayList<>();
+    private static List<CookingItem> cookingItems = new ArrayList<>();
+    private static List<CraftingItem> craftingItems = new ArrayList<>();
     private static List<Item> items = new ArrayList<>();
 
 
@@ -33,7 +40,20 @@ public class App {
             addSecurityQuestion();
 
             //initializing game static lists
-            items = FileStorage.loadItems();
+            plants = FileStorage.loadPlants();
+            crops = FileStorage.loadCrops();
+            minerals = FileStorage.loadMinerals();
+            seeds = FileStorage.loadSeeds();
+            trees = FileStorage.loadTrees();
+            cookingItems = FileStorage.loadCookingItems();
+            craftingItems = FileStorage.loadCraftingItems();
+            items.addAll(plants);
+            items.addAll(crops);
+            items.addAll(minerals);
+            items.addAll(seeds);
+            items.addAll(trees);
+            items.addAll(cookingItems);
+            items.addAll(craftingItems);
 
             dataLoaded = true;
         }
@@ -91,11 +111,44 @@ public class App {
     }
 
 
+    //game lists
+    public static Plant getPlant(String plantName) {
+        return plants.stream().filter(plant -> plant.getName().equals(plantName))
+                .findFirst().orElse(null);
+    }
 
+    public static Crop getCrop(String cropName) {
+        return crops.stream().filter(crop -> crop.getName().equals(cropName))
+                .findFirst().orElse(null);
+    }
+
+    public static Mineral getMineral(String mineralName) {
+        return minerals.stream().filter(mineral -> mineral.getName().equals(mineralName))
+                .findFirst().orElse(null);
+    }
+
+    public static Seed getSeed(String seedName) {
+        return seeds.stream().filter(seed -> seed.getName().equals(seedName))
+                .findFirst().orElse(null);
+    }
+
+    public static Tree getTree(String treeName) {
+        return trees.stream().filter(tree -> tree.getName().equals(treeName))
+                .findFirst().orElse(null);
+    }
+
+    public static CookingItem getCookingItem(String itemName) {
+        return cookingItems.stream().filter(cookingItem -> cookingItem.getName().equals(itemName))
+                .findFirst().orElse(null);
+    }
+
+    public static CraftingItem getCraftingItem(String itemName) {
+        return craftingItems.stream().filter(cookingItem -> cookingItem.getName().equals(itemName))
+                .findFirst().orElse(null);
+    }
 
     public static Item getItem(String itemName) {
         return items.stream().filter(item -> item.getName().equals(itemName))
                 .findFirst().orElse(null);
     }
-
 }
