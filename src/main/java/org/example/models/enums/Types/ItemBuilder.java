@@ -3,7 +3,7 @@ package org.example.models.enums.Types;
 import org.example.models.Items.*;
 
 public class ItemBuilder {
-    private static Item build(String name){
+    public static Item build(String name){
         MineralType mineralType = MineralType.fromName(name);
         if(mineralType != null){
             return new Mineral(mineralType);

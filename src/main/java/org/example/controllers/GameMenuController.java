@@ -363,7 +363,7 @@ public class GameMenuController implements Controller {
         if (flag) {
             CookingItem cookingItem = (CookingItem) item;
             //TODO : decrease energy.
-            Food food = cookingItem.cook();
+            Food food = cookingItem.cook(player.getInventory());
             player.getInventory().add(food);
             //TODO : controlling xp.
         }
