@@ -69,8 +69,9 @@ public class Tree extends Item {
         return stage;
     }
 
-    public void updateTree() {
-        if (!finished) {
+    @Override
+    public void updateItem() {
+        if(!finished){
             updateDaysCounter();
         }
     }

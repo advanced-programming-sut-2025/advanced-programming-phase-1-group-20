@@ -100,4 +100,11 @@ public class Plant extends Item {
     public boolean getFinished(){
         return finished;
     }
+
+    @Override
+    public void updateItem() {
+        if(!finished){
+            updateDaysCounter();
+        }
+    }
 }

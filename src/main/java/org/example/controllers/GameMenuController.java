@@ -229,7 +229,7 @@ public class GameMenuController implements Controller {
         //TODO : check direction && check collision
         if(flag){
             //TODO : implementing plant , addToMap(Item item) ,
-            // updateItems( // updating all items each clock)
+            //TODO : item.updateItem(); added just need to be added to gameClock
         }
     }
 
@@ -269,8 +269,7 @@ public class GameMenuController implements Controller {
         //TODO: getting plant or Tree from Map;
         Item item = App.getItem("getting Tree or Plant" +
                 "from map this must change later");
-        boolean flag = checkItem(item);
-        //TODO: add method isHarvestable() to item.
+        boolean flag = checkItem(item) && item.getFinished() ;
         if(flag){
             player.getInventory().add(item);
         }
