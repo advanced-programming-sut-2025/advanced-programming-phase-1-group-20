@@ -1,5 +1,5 @@
 package org.example.models.enums;
-
+import java.util.Random;
 
 
 public enum Seasons {
@@ -17,5 +17,13 @@ public enum Seasons {
     public String[] getSeeds() {
         return mixedSeeds;
     }
+    public String getRandomSeed() {
+        final Random RANDOM = new Random();
+        if (mixedSeeds.length == 0) {
+            return null;
+        }
+        return mixedSeeds[RANDOM.nextInt(mixedSeeds.length)];
+    }
+
 
 }

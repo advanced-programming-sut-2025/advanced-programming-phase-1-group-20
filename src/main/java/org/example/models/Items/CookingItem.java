@@ -56,6 +56,12 @@ public class CookingItem extends Item {
         return true;
     }
 
+    public Food cook(){
+        return new Food(getName(),getBaseSellPrice(),getEnergy());
+    }
+
+
+
     public void showInfo(){
         type.showInfo();
     }

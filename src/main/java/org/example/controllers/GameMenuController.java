@@ -1,10 +1,7 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Items.CookingItem;
-import org.example.models.Items.CraftingItem;
-import org.example.models.Items.Item;
-import org.example.models.Items.Plant;
+import org.example.models.Items.*;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
@@ -230,6 +227,12 @@ public class GameMenuController implements Controller {
         if(flag){
             //TODO : implementing plant , addToMap(Item item) ,
             //TODO : item.updateItem(); added just need to be added to gameClock
+            //TODO : implementing giant Items.
+            if(seedName.equals("Mixed Seeds")) {
+                seedName = gameClock.getSeason().getRandomSeed();
+                item = App.getItem(seedName);
+                //TODO: implementing planting seed.
+            }
         }
     }
 
@@ -241,7 +244,6 @@ public class GameMenuController implements Controller {
         //TODO: check location (x,y) and if there is a plant
         Item item = App.getItem("this must change later and " +
                 "we must get it from map");
-
         if(flag){
             item.showInfo();
         }
@@ -356,16 +358,47 @@ public class GameMenuController implements Controller {
     }
 
     private void cookingPrepare(String[] args) {
-        CookingItem cookingItem = (CookingItem) App.getItem(args[0]);
-        boolean flag = checkItem(cookingItem);
+        String name = args[0];
+        Item item = App.getItem(name);
+        boolean flag = checkItem(item) && isCooking(item)
+                && player.getInventory().hasItems(Collections.singletonList(name));
+        //TODO : checking refrigerator.
+        //TODO : we must check inventory is full or not.
         if (flag) {
-            //cooking recipe and adding it to inventory
+            CookingItem cookingItem = (CookingItem) item;
+            //TODO : decrease energy.
+            Food food = cookingItem.cook();
+            player.getInventory().add(food);
+            //TODO : controlling xp.
         }
+    }
+
+    private boolean isCooking(Item item) {
+        if(item instanceof CookingItem){
+            return true;
+        }
+        System.out.println("item is not a cooking item");
+        return false;
     }
 
     private void eatFood(String[] args) {
         String foodName = args[0];
-        //getting food and eating function.
+        Item item = App.getItem(foodName);
+        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(foodName))
+                && isFood(item);
+        if (flag) {
+            Food food = (Food) item;
+            //TODO : advance energy.
+            player.getInventory().remove(food);
+        }
+    }
+
+    private boolean isFood(Item item) {
+        if(item instanceof Food){
+            return true;
+        }
+        System.out.println("item is not a food");
+        return false;
     }
 
 

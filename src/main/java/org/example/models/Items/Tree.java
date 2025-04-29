@@ -1,6 +1,7 @@
 package org.example.models.Items;
 
 import org.example.models.enums.Seasons;
+import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TreeType;
 
 public class Tree extends Item {
@@ -78,6 +79,11 @@ public class Tree extends Item {
 
     public boolean getFinished() {
         return finished;
+    }
+
+
+    public Item burnTree(){
+        return new Mineral(MineralType.Coal);
     }
 
 }
