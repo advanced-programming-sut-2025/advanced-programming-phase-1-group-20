@@ -12,7 +12,7 @@ public class Game {
 
     public Game(List<Player> players) {
         this.players = players;
-        this.currentPlayer = players.getFirst();
+        //this.currentPlayer = players.getFirst();
         this.date = new Date();
     }
 

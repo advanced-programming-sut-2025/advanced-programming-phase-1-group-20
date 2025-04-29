@@ -81,7 +81,8 @@ public class Player extends Mob {
 
     public void move(int x, int y) {
         //checking the Tile around.
-        TileType tile = GameMap.getTile(x + 1, y);
+        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش
+        TileType tile = TileType.GRASS;
         //etc
         if (tile == TileType.WATER) {
             //implementing func.

@@ -1,36 +1,39 @@
 package org.example.models.common;
 
+import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.enums.Types.TileType;
 
 public class Location {
     public int xAxis;
     public int yAxis;
-    TileType tile;
+    private TileType tile;
+    private String type;
+    private Item item;
 
     public Location(int xAxis, int yAxis, TileType tile) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.tile = tile;
-
-        if (tile == null) {
-            try {
-                this.tile = GameMap.getTile(xAxis, yAxis);
-            } catch (Exception e) {
-                this.tile = TileType.GRASS;
-            }
-        }
+        this.item = null;
     }
 
     public TileType getTile() {
         return tile;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public void setTile(TileType tile) {
         this.tile = tile;
     }
 
-    @Override
     public String toString() {
         return "Location(x=" + xAxis + ", y=" + yAxis + ", tile=" + tile + ")";
     }

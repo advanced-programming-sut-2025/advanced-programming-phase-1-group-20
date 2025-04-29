@@ -26,7 +26,8 @@ public class GameMenuController implements Controller {
         this.appView = appView;
         this.player = player;
         this.gameClock = new Date();
-        this.gMap = new GameMap();
+        this.gMap = new GameMap(100, 100, player);
+        // طول و عرض همینطوری گذاشته شده!
     }
 
     @Override
