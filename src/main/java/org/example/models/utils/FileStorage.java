@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import org.example.models.Items.*;
-import org.example.models.Items.Plant;
 import org.example.models.entities.User;
 import org.example.models.enums.Types.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,49 +49,47 @@ public class FileStorage {
     }
 
 
-
-
-    public static List<Item> loadItems(){
+    public static List<Item> loadItems() {
         List<Item> items = new ArrayList<>();
 
         //adding plants
-        for(PlantType type : PlantType.values()) {
+        for (PlantType type : PlantType.values()) {
             Item item = new Plant(type);
             items.add(item);
         }
 
         //adding crops
-        for(CropType type : CropType.values()) {
+        for (CropType type : CropType.values()) {
             Item item = new Crop(type);
             items.add(item);
         }
 
         //adding minerals
-        for(MineralType type : MineralType.values()) {
+        for (MineralType type : MineralType.values()) {
             Item item = new Mineral(type);
             items.add(item);
         }
 
         //adding seeds
-        for(SeedType type : SeedType.values()) {
+        for (SeedType type : SeedType.values()) {
             Item item = new Seed(type);
             items.add(item);
         }
 
         //adding trees
-        for(TreeType type : TreeType.values()) {
+        for (TreeType type : TreeType.values()) {
             Item item = new Tree(type);
             items.add(item);
         }
 
         //adding cookings
-        for(CookingType type : CookingType.values()) {
+        for (CookingType type : CookingType.values()) {
             Item item = new CookingItem(type);
             items.add(item);
         }
 
-        //adding craftings
-        for(CraftingType type : CraftingType.values()) {
+        //adding crafting
+        for (CraftingType type : CraftingType.values()) {
             Item item = new CraftingItem(type);
             items.add(item);
         }

@@ -1,7 +1,8 @@
 package org.example.models;
 
-import org.example.models.Items.*;
+import org.example.models.Items.Item;
 import org.example.models.entities.User;
+import org.example.models.utils.AutoLoginUtil;
 import org.example.models.utils.FileStorage;
 
 import java.util.ArrayList;
@@ -55,6 +56,11 @@ public class App {
 
     public static void setLoggedInUser(User user) {
         loggedInUser = user;
+    }
+
+    public static void logout() {
+        loggedInUser = null;
+        AutoLoginUtil.clearAutoLogin();
     }
 
     public static User getUser(String username) {
