@@ -211,11 +211,9 @@ public class GameMenuController implements Controller {
     //plants and foraging related
     private void craftInfo(String[] args) {
         String name = args[0];
-        PlantType type = PlantType.fromName(name);
-        if(type == null){
-            System.out.println("Item " + name + " not found");
-        }else{
-            Item item = new Plant(type);
+        Item item = App.getItem(name);
+        boolean flag = checkItem(item);
+        if(flag) {
             item.showInfo();
         }
     }
