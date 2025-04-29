@@ -318,7 +318,9 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
-            //adding items to inventory.
+            for(int i = 0 ; i < count ; i++){
+                player.getInventory().add(item);
+            }
         }
     }
 
