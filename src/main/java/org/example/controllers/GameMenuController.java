@@ -16,6 +16,8 @@ import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
 
+import java.util.Collections;
+
 public class GameMenuController implements Controller {
     private AppView appView;
     private Player player;
@@ -222,19 +224,56 @@ public class GameMenuController implements Controller {
     private void plant(String[] args) {
         String seedName = args[0];
         String direction = args[1];
-
+        Item item = App.getItem(seedName);
+        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(seedName));
+        //TODO : check direction && check collision
+        if(flag){
+            //TODO : implementing plant , addToMap(Item item) ,
+            // updateItems( // updating all items each clock)
+        }
     }
 
+
     private void showPlant(String[] args) {
+        int x = Integer.parseInt(args[0]);
+        int y = Integer.parseInt(args[1]);
+        boolean flag = true;
+        //TODO: check location (x,y) and if there is a plant
+        Item item = App.getItem("this must change later and " +
+                "we must get it from map");
+
+        if(flag){
+            item.showInfo();
+        }
     }
 
     private void fertilize(String[] args) {
+        String fertilizer = args[0];
+        Item item = App.getItem(fertilizer);
+        String direction = args[1];
+        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(fertilizer));
+        if(flag){
+            //TODO : (kasra) implementing fertilize function in tools.
+        }
     }
 
     private void howMuchWater() {
+        //TODO : checking water in our bucket. (kasra)
+        //TODO : adding useTool() method to tools.
     }
 
     private void harvest(String[] args) {
+        int x = Integer.parseInt(args[0]);
+        int y = Integer.parseInt(args[1]);
+        //TODO: getting Location from (x,y).
+        //TODO: getting plant or Tree from Map;
+        Item item = App.getItem("getting Tree or Plant" +
+                "from map this must change later");
+        boolean flag = checkItem(item);
+        //TODO: add method isHarvestable() to item.
+        if(flag){
+            player.getInventory().add(item);
+        }
     }
 
 
