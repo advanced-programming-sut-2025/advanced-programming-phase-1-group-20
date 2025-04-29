@@ -77,7 +77,7 @@ public enum SeedType {
         System.out.println("Seasons: " + Arrays.toString(getSeasons()));
     }
 
-    public SeedType fromName(String name) {
+    public static SeedType fromName(String name) {
         for (SeedType type : SeedType.values()) {
             if (type.getName().equals(name)) return type;
         }
