@@ -30,6 +30,7 @@ public class ProfileMenuController implements Controller {
             case ChangePassword -> result = changePassword(args);
             case ChangeEmail -> result = changeEmail(args);
             case ShowUserInfo -> result = showUserInfo();
+            case Logout -> result = logout();
             case None -> Result.error("Invalid input");
         }
         appView.handleResult(result, command);
@@ -198,5 +199,10 @@ public class ProfileMenuController implements Controller {
         userInfo.append("Games Played: ").append(user.getGamesPlayed()).append("\n\n");
 
         return Result.success(userInfo.toString());
+    }
+
+    public Result logout() {
+        App.logout();
+        return Result.success("logged out successfully");
     }
 }

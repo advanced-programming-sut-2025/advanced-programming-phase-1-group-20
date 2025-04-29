@@ -1,14 +1,16 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Items.*;
+import org.example.models.Items.CookingItem;
+import org.example.models.Items.CraftingItem;
+import org.example.models.Items.Food;
+import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.enums.Types.CraftingType;
-import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
@@ -205,14 +207,12 @@ public class GameMenuController implements Controller {
     }
 
 
-
-
     //plants and foraging related
     private void craftInfo(String[] args) {
         String name = args[0];
         Item item = App.getItem(name);
         boolean flag = checkItem(item);
-        if(flag) {
+        if (flag) {
             item.showInfo();
         }
     }
@@ -224,11 +224,11 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(seedName);
         boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(seedName));
         //TODO : check direction && check collision
-        if(flag){
+        if (flag) {
             //TODO : implementing plant , addToMap(Item item) ,
             //TODO : item.updateItem(); added just need to be added to gameClock
             //TODO : implementing giant Items.
-            if(seedName.equals("Mixed Seeds")) {
+            if (seedName.equals("Mixed Seeds")) {
                 seedName = gameClock.getSeason().getRandomSeed();
                 item = App.getItem(seedName);
                 //TODO: implementing planting seed.
@@ -242,9 +242,8 @@ public class GameMenuController implements Controller {
         int y = Integer.parseInt(args[1]);
         boolean flag = true;
         //TODO: check location (x,y) and if there is a plant
-        Item item = App.getItem("this must change later and " +
-                "we must get it from map");
-        if(flag){
+        Item item = App.getItem("this must change later and " + "we must get it from map");
+        if (flag) {
             item.showInfo();
         }
     }
@@ -254,7 +253,7 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(fertilizer);
         String direction = args[1];
         boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(fertilizer));
-        if(flag){
+        if (flag) {
             //TODO : (kasra) implementing fertilize function in tools.
         }
     }
@@ -269,10 +268,9 @@ public class GameMenuController implements Controller {
         int y = Integer.parseInt(args[1]);
         //TODO: getting Location from (x,y).
         //TODO: getting plant or Tree from Map;
-        Item item = App.getItem("getting Tree or Plant" +
-                "from map this must change later");
-        boolean flag = checkItem(item) && item.getFinished() ;
-        if(flag){
+        Item item = App.getItem("getting Tree or Plant" + "from map this must change later");
+        boolean flag = checkItem(item) && item.getFinished();
+        if (flag) {
             player.getInventory().add(item);
         }
     }
@@ -280,7 +278,7 @@ public class GameMenuController implements Controller {
 
     //crafting related
     private void craftingShowRecipes() {
-        for(CraftingType type :CraftingType.values()){
+        for (CraftingType type : CraftingType.values()) {
             type.showInfo();
         }
     }
@@ -288,15 +286,15 @@ public class GameMenuController implements Controller {
     private void craftItem(String[] args) {
         String itemName = args[0];
         CraftingType type = CraftingType.fromName(itemName);
-        if(type == null){
+        if (type == null) {
             System.out.println("item does not exist");
-        }else{
+        } else {
             CraftingItem craftingItem = new CraftingItem(type);
         }
     }
 
-    private boolean checkItem(Item item){
-        if(item == null){
+    private boolean checkItem(Item item) {
+        if (item == null) {
             System.out.println("item does not exist");
             return false;
         }
@@ -320,12 +318,11 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
-            for(int i = 0 ; i < count ; i++){
+            for (int i = 0; i < count; i++) {
                 player.getInventory().add(item);
             }
         }
     }
-
 
 
     //cooking related
@@ -335,12 +332,12 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
-            switch (key){
+            switch (key) {
                 //TODO : checking refrigerator collision and check Item in refrigerator (taha).
                 case "put":
                     //TODO : add item to refrigerator
                     flag = flag && player.getInventory().hasItems(Collections.singletonList(key));
-                    if(flag){
+                    if (flag) {
                         player.getInventory().add(item);
                     }
                     break;
@@ -352,7 +349,7 @@ public class GameMenuController implements Controller {
     }
 
     private void cookingShowRecipes() {
-        for(CookingItem cookingItem : player.getCookingItems()){
+        for (CookingItem cookingItem : player.getCookingItems()) {
             cookingItem.showInfo();
         }
     }
@@ -360,8 +357,7 @@ public class GameMenuController implements Controller {
     private void cookingPrepare(String[] args) {
         String name = args[0];
         Item item = App.getItem(name);
-        boolean flag = checkItem(item) && isCooking(item)
-                && player.getInventory().hasItems(Collections.singletonList(name));
+        boolean flag = checkItem(item) && isCooking(item) && player.getInventory().hasItems(Collections.singletonList(name));
         //TODO : checking refrigerator.
         //TODO : we must check inventory is full or not.
         if (flag) {
@@ -374,7 +370,7 @@ public class GameMenuController implements Controller {
     }
 
     private boolean isCooking(Item item) {
-        if(item instanceof CookingItem){
+        if (item instanceof CookingItem) {
             return true;
         }
         System.out.println("item is not a cooking item");
@@ -384,8 +380,7 @@ public class GameMenuController implements Controller {
     private void eatFood(String[] args) {
         String foodName = args[0];
         Item item = App.getItem(foodName);
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(foodName))
-                && isFood(item);
+        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(foodName)) && isFood(item);
         if (flag) {
             Food food = (Food) item;
             //TODO : advance energy.
@@ -394,7 +389,7 @@ public class GameMenuController implements Controller {
     }
 
     private boolean isFood(Item item) {
-        if(item instanceof Food){
+        if (item instanceof Food) {
             return true;
         }
         System.out.println("item is not a food");
