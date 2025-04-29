@@ -51,6 +51,7 @@ public class Date {
     }
 
     public void cheatThor(Location location) {
+        //TODO : burning trees.
         System.out.println("Thor has struck the location");
     }
 

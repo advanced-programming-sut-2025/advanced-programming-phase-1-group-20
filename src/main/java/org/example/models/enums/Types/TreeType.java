@@ -38,6 +38,15 @@ public enum TreeType {
         this.seasons = seasons;
     }
 
+    public static TreeType fromName(String name) {
+        for(TreeType treeType : TreeType.values()) {
+            if(treeType.getName().equals(name)) {
+                return treeType;
+            }
+        }
+        return null;
+    }
+
 
     public String getName() {
         return name;

@@ -22,6 +22,8 @@ public class Inventory {
     }
 
     public void remove(Item item) {
+        //TODO: this must complete.
+        
     }
 
     public void showInventory() {

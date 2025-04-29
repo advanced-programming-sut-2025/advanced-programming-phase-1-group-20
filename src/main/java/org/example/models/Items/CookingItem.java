@@ -3,6 +3,7 @@ package org.example.models.Items;
 import org.example.models.App;
 import org.example.models.Player.Inventory;
 import org.example.models.enums.Types.CookingType;
+import org.example.models.enums.Types.ItemBuilder;
 
 import java.util.Map;
 
@@ -55,6 +56,31 @@ public class CookingItem extends Item {
         }
         return true;
     }
+
+    public Food cook(Inventory inventory) {
+        ItemBuilder builder = new ItemBuilder();
+        Map<Item, Integer> items = inventory.getInventory();
+        String[] parts = type.getIngredient().split("\\+");
+        for(String part : parts) {
+            part = part.trim();
+            String[] itemData = part.split(" " , 2);
+            int requiredItem = Integer.parseInt(itemData[0]);
+            String itemName = itemData[1];
+            if(itemName.startsWith("any")){
+                itemName = itemName.replace("any ", "");
+                //checking fishes list (only time that this happens)
+
+                //TODO : removing items from inventory
+            }else{
+                itemName = itemName.trim();
+                Item item = builder.build(itemName);
+                inventory.remove(item);
+            }
+        }
+        return new Food(getName(),getBaseSellPrice(),getEnergy());
+    }
+
+
 
     public void showInfo(){
         type.showInfo();

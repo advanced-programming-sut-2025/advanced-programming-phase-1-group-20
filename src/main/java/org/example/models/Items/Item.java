@@ -54,4 +54,9 @@ public class Item {
     public void showInfo(){
 
     }
+    public void updateItem(){
+    }
+    public boolean getFinished(){
+        return false;
+    }
 }

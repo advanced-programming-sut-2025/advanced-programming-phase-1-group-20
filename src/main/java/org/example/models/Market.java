@@ -1,8 +1,10 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.enums.Seasons;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
 
 public class Market {
     private HashMap<Item, Double> permanentStock;
@@ -28,99 +30,91 @@ public class Market {
 
     public void showAllProducts() {
         System.out.println("Permanent Stock");
-        int c = 1;
-        for(Item item : permanentStock.keySet()) {
-            System.out.println("Item Code " + c + " : ");
-            System.out.println("Name        : " + item.getName());
-            System.out.println("Description : " + item.getDescription());
-            System.out.println("Price       : " + item.getPrice());
-            String formatedStock = String.format("%.0f", permanentStock.get(item));
-            System.out.println("Stock       : " + formatedStock);
-            c++;
-        }
+        showProducts(permanentStock);
 
         System.out.println("Spring Stock");
-        if(!springStock.isEmpty()) {
-            for(Item item : springStock.keySet()) {
-                System.out.println();
-                System.out.println("--------------------------------");
-                System.out.println("Item Code " + c + " : ");
-                System.out.println("Name        : " + item.getName());
-                System.out.println("Description : " + item.getDescription());
-                System.out.println("Price       : " + item.getPrice());
-                String formatedStock = String.format("%.0f", springStock.get(item));
-                System.out.println("Stock       : " + formatedStock);
-                System.out.println("--------------------------------");
-                System.out.println();
-                c++;
-            }
-        }else{
-            System.out.println("--------------------------------");
-            System.out.println();
-            System.out.println("--------------------------------");
-        }
+        showProducts(springStock);
 
         System.out.println("Summer Stock");
-        if(!summerStock.isEmpty()) {
-            for(Item item : summerStock.keySet()) {
-                System.out.println();
-                System.out.println("--------------------------------");
-                System.out.println("Item Code " + c + " : ");
-                System.out.println("Name        : " + item.getName());
-                System.out.println("Description : " + item.getDescription());
-                System.out.println("Price       : " + item.getPrice());
-                String formatedStock = String.format("%.0f", summerStock.get(item));
-                System.out.println("Stock       : " + formatedStock);
-                System.out.println("--------------------------------");
-                System.out.println();
-                c++;
-            }
-        }else{
-            System.out.println("--------------------------------");
-            System.out.println();
-            System.out.println("--------------------------------");
-        }
+        showProducts(summerStock);
 
         System.out.println("Autumn Stock");
-        if(!autumnStock.isEmpty()){
-            for(Item item : autumnStock.keySet()) {
-                System.out.println();
-                System.out.println("--------------------------------");
-                System.out.println("Item Code " + c + " : ");
-                System.out.println("Name        : " + item.getName());
-                System.out.println("Description : " + item.getDescription());
-                System.out.println("Price       : " + item.getPrice());
-                String formatedStock = String.format("%.0f", autumnStock.get(item));
-                System.out.println("Stock       : " + formatedStock);
-                System.out.println("--------------------------------");
-                System.out.println();
-                c++;
-            }
-        }else{
-            System.out.println("--------------------------------");
-            System.out.println();
-            System.out.println("--------------------------------");
-        }
+        showProducts(autumnStock);
 
         System.out.println("Winter Stock");
-        if(!winterStock.isEmpty()) {
-            for(Item item : winterStock.keySet()) {
-                System.out.println();
-                System.out.println("--------------------------------");
+        showProducts(winterStock);
+    }
+
+    public void showAvailableProducts(Seasons season) {
+        System.out.println("Permanent Stock");
+        showProducts(permanentStock);
+        switch(season) {
+            case SPRING:
+                System.out.println("Spring Stock");
+                showProducts(springStock);
+                break;
+            case SUMMER:
+                System.out.println("Summer Stock");
+                showProducts(summerStock);
+                break;
+            case AUTUMN:
+                System.out.println("Autumn Stock");
+                showProducts(autumnStock);
+                break;
+            case WINTER:
+                System.out.println("Winter Stock");
+                showProducts(winterStock);
+                break;
+        }
+    }
+
+    public void showProducts(HashMap<Item, Double> permanentStock) {
+        int c = 1;
+        if(!permanentStock.isEmpty()) {
+            for(Item item : permanentStock.keySet()) {
                 System.out.println("Item Code " + c + " : ");
                 System.out.println("Name        : " + item.getName());
                 System.out.println("Description : " + item.getDescription());
                 System.out.println("Price       : " + item.getPrice());
-                String formatedStock = String.format("%.0f", winterStock.get(item));
+                String formatedStock = String.format("%.0f", permanentStock.get(item));
                 System.out.println("Stock       : " + formatedStock);
-                System.out.println("--------------------------------");
-                System.out.println();
                 c++;
             }
         }else{
-            System.out.println("--------------------------------");
+            System.out.println("------------------------------");
             System.out.println();
-            System.out.println("--------------------------------");
+            System.out.println("------------------------------");
         }
     }
+
+
+    public boolean containsItem(Item item , Double count , Seasons season) {
+        HashMap<Item, Double> totalStock = permanentStock;
+        switch(season) {
+            case SPRING:
+                totalStock.putAll(springStock);
+                break;
+            case SUMMER:
+                totalStock.putAll(summerStock);
+                break;
+            case AUTUMN:
+                totalStock.putAll(autumnStock);
+                break;
+            case WINTER:
+                totalStock.putAll(winterStock);
+                break;
+        }
+        if(totalStock.containsKey(item)) {
+            if(totalStock.get(item) >= count) {
+                return true;
+            }else{
+                System.out.println("Not enough stock for this product");
+                return false;
+            }
+        }
+        System.out.println("Item not found");
+        return false;
+    }
+
+
 }
