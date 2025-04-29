@@ -333,7 +333,19 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
-            //implementing put or pick method
+            switch (key){
+                //TODO : checking refrigerator collision and check Item in refrigerator (taha).
+                case "put":
+                    //TODO : add item to refrigerator
+                    flag = flag && player.getInventory().hasItems(Collections.singletonList(key));
+                    if(flag){
+                        player.getInventory().add(item);
+                    }
+                    break;
+                case "pick":
+                    //TODO : check refrigerator.
+                    break;
+            }
         }
     }
 
