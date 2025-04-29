@@ -2,6 +2,7 @@ package org.example.models.Player;
 
 import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
+import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.entities.Mob;
 import org.example.models.entities.NPC;
@@ -21,6 +22,7 @@ public class Player extends Mob {
     // items player has
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
+    private Inventory inventory;
 
 
     private boolean energySet = true;
@@ -35,6 +37,7 @@ public class Player extends Mob {
         //initializing crafting items
         craftingItems = new ArrayList<CraftingItem>();
         cookingItems  = new ArrayList<CookingItem>();
+        inventory = new Inventory();
     }
 
     //decreasing energy:
@@ -102,5 +105,14 @@ public class Player extends Mob {
 
     public List<CookingItem> getCookingItems() {
         return cookingItems;
+    }
+
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void addItem(Item item) {
+        inventory.add(item);
     }
 }

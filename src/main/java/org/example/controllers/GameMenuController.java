@@ -220,6 +220,9 @@ public class GameMenuController implements Controller {
 
 
     private void plant(String[] args) {
+        String seedName = args[0];
+        String direction = args[1];
+
     }
 
     private void showPlant(String[] args) {
