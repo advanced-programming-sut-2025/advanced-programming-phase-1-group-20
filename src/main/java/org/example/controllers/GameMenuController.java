@@ -405,6 +405,15 @@ public class GameMenuController implements Controller {
     }
 
 
+
+    public void artisanUse(String[] args) {
+
+    }
+
+    public void artisanGetUse(String[] args) {
+
+    }
+
     //sell Function:
     private void sellProduct(String[] args) {
         String productName = args[0];
