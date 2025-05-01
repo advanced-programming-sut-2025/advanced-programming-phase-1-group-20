@@ -153,4 +153,7 @@ public class Player extends Mob {
         return energyUnlimited;
     }
 
+    public User getUser() {
+        return user;
+    }
 }

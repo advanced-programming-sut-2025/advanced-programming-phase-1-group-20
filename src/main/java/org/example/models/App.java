@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.Player.Player;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.utils.AutoLoginUtil;
@@ -116,5 +117,16 @@ public class App {
 
     public static void removeGame(Game game) {
         allGames.remove(game);
+    }
+
+    public static boolean isUserInGame(User user) {
+        for (Game game : allGames) {
+            for (Player player : game.getPlayers()) {
+                if (player.getUser().equals(user)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

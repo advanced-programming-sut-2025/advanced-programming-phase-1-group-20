@@ -74,6 +74,11 @@ public class Backpack {
         return false;
     }
 
+    public void trashItem(Item item, int amount) {
+        this.inventory.remove(item, amount);
+
+    }
+
     enum Type {
         Initial,
         Big,

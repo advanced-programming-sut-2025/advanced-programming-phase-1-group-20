@@ -73,7 +73,7 @@ public class CookingItem extends Item {
                 //TODO : removing items from inventory
             } else {
                 itemName = itemName.trim();
-                Item item = builder.build(itemName);
+                Item item = ItemBuilder.build(itemName);
                 inventory.remove(item);
             }
         }
