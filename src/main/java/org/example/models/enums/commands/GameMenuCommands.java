@@ -37,6 +37,10 @@ public enum GameMenuCommands implements Command {
     EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
 
 
+    // artisan related
+    ArtisanUse(Pattern.compile("^artisan\\s+use\\s+(?<artisanName>.+)\\s+(?<itemName>.+)$")),
+    ArtisanGet(Pattern.compile("^artisan\\s+get\\s+(?<artisanName>.+)$")),
+
     // sell command
     SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
 
