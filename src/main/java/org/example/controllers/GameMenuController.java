@@ -410,7 +410,7 @@ public class GameMenuController implements Controller {
 
     }
 
-    public void artisanGetUse(String[] args) {
+    public void artisanGet(String[] args) {
 
     }
 
