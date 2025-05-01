@@ -70,4 +70,14 @@ public enum ArtisanType {
     public void setBaseSellPrice(int baseSellPrice) {
         this.baseSellPrice = baseSellPrice;
     }
+
+
+    public static ArtisanType fromName(String name) {
+        for(ArtisanType artisanType : ArtisanType.values()) {
+            if(name.equals(artisanType.getName())) {
+                return artisanType;
+            }
+        }
+        return null;
+    }
 }
