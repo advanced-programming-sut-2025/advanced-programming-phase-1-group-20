@@ -3,7 +3,7 @@ package org.example.models.enums;
 import org.example.models.Items.Item;
 
 public enum Ingredients {
-    Friedegg("1 egg"),
+    FriedEgg("1 egg"),
     BakedFish("1 Sardine + 1 Salmon + 1 wheat"),
     Salad("1 leek + 1 dandelion"),
     Olmelet("1 egg + 1 milk"),

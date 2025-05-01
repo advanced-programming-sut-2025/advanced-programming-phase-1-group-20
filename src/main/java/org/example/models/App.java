@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.utils.AutoLoginUtil;
 import org.example.models.utils.FileStorage;
@@ -19,7 +20,8 @@ public class App {
     private static Map<Integer, String> securityQuestions = new HashMap<>();
     private static boolean dataLoaded = false;
 
-    //    private static List<Game> allGames;
+    private static List<Game> allGames;
+    private static Game currentGame;
 
     //    private static Lists for game
     private static List<Item> items = new ArrayList<>();
@@ -102,5 +104,17 @@ public class App {
     public static Item getItem(String itemName) {
         return items.stream().filter(item -> item.getName().equals(itemName))
                 .findFirst().orElse(null);
+    }
+
+    public static Game getGame() {
+        return currentGame;
+    }
+
+    public static void setGame(Game game) {
+        currentGame = game;
+    }
+
+    public static void removeGame(Game game) {
+        allGames.remove(game);
     }
 }

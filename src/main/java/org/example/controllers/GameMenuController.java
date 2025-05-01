@@ -89,6 +89,9 @@ public class GameMenuController implements Controller {
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> cookingPrepare(args);
             case EatFood -> eatFood(args);
+            case ShowEnergy -> result = showEnergy();
+            case setEnergy -> result = setEnergy(args);
+            case energyUnlimited -> result = energyUnlimited();
 
             //artisan related commands
             case ArtisanUse -> artisanUse(args);
@@ -295,10 +298,6 @@ public class GameMenuController implements Controller {
             System.out.println("item does not exist");
         } else {
             CraftingItem craftingItem = new CraftingItem(type);
-            boolean flag = craftingItem.canCraft(player.getInventory());
-            if (flag) {
-                player.getInventory().add(craftingItem);
-            }
         }
     }
 
@@ -403,16 +402,6 @@ public class GameMenuController implements Controller {
         }
         System.out.println("item is not a food");
         return false;
-    }
-
-
-    //artisan related
-    private void artisanUse(String[] args) {
-
-    }
-
-    private void artisanGet(String[] args) {
-
     }
 
 
