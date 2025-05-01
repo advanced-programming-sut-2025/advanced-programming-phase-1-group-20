@@ -96,6 +96,11 @@ public class GameMenuController implements Controller {
             case ShowEnergy -> result = showEnergy();
             case setEnergy -> result = setEnergy(args);
             case energyUnlimited -> result = energyUnlimited();
+
+            //artisan related commands
+            case ArtisanUse -> artisanUse(args);
+            case ArtisanGet -> artisanGet(args);
+
             //sell command:
             case SellProduct -> sellProduct(args);
 
@@ -407,13 +412,6 @@ public class GameMenuController implements Controller {
     }
 
 
-    //sell Function:
-    private void sellProduct(String[] args) {
-        String productName = args[0];
-        int count = Integer.parseInt(args[1]);
-        // checkTrashBin();
-    }
-
     public Result showEnergy() {
         return Result.success(String.format("%s", App.getGame().getCurrentPlayer().getEnergy()));
     }
@@ -428,5 +426,24 @@ public class GameMenuController implements Controller {
         App.getGame().getCurrentPlayer().setEnergyUnlimited();
         return Result.success("energy unlimited");
     }
+
+
+
+    //artisan related
+    public void artisanUse(String[] args) {
+
+    }
+
+    public void artisanGet(String[] args) {
+
+    }
+
+    //sell Function:
+    private void sellProduct(String[] args) {
+        String productName = args[0];
+        int count = Integer.parseInt(args[1]);
+        // checkTrashBin();
+    }
+
     // TODO: map showing + map related commands
 }
