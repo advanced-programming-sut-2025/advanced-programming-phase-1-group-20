@@ -10,12 +10,14 @@ public class Location {
     private TileType tile;
     private String type;
     private Item item;
+    private boolean shokhm;
 
     public Location(int xAxis, int yAxis, TileType tile) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.tile = tile;
         this.item = null;
+        this.shokhm = false;
     }
 
     public TileType getTile() {
@@ -32,6 +34,14 @@ public class Location {
 
     public void setTile(TileType tile) {
         this.tile = tile;
+    }
+
+    public boolean getShokhm() {
+        return shokhm;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
     }
 
     public String toString() {

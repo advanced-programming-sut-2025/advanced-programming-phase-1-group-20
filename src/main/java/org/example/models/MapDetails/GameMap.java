@@ -1,5 +1,6 @@
 package org.example.models.MapDetails;
 
+import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
@@ -245,6 +246,36 @@ public class GameMap {
         return null;
     }
 
-    // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
+    public boolean isShokhm(int x, int y) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Location tile = tiles[x][y];
+                boolean isShokhm = tile.getShokhm();
+                if (isShokhm) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Location getItem(int x, int y) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Location tile = tiles[x][y];
+                return tile;
+            }
+        }
+        return null;
+    }
+
+    public void placeItem(int x, int y, Item item) {
+        Location tile = tiles[x][y];
+        tile.setItem(item);
+    }
+
+
+
+    // TODO : colision - add item to refrigerator - get inventory
 
 }
