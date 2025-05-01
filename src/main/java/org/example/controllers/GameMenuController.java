@@ -405,7 +405,24 @@ public class GameMenuController implements Controller {
     }
 
 
+    public Result showEnergy() {
+        return Result.success(String.format("%s", App.getGame().getCurrentPlayer().getEnergy()));
+    }
 
+    public Result setEnergy(String[] args) {
+        int amount = Integer.parseInt(args[0]);
+        App.getGame().getCurrentPlayer().setEnergy(amount);
+        return Result.success("energy set to: " + amount);
+    }
+
+    public Result energyUnlimited() {
+        App.getGame().getCurrentPlayer().setEnergyUnlimited();
+        return Result.success("energy unlimited");
+    }
+
+
+
+    //artisan related
     public void artisanUse(String[] args) {
 
     }
