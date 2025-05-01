@@ -19,4 +19,6 @@ public class NPC extends Mob {
         this.jobs = jobs;
         this.missions = missions;
     }
+    
+
 }

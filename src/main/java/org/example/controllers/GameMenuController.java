@@ -89,7 +89,9 @@ public class GameMenuController implements Controller {
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> cookingPrepare(args);
             case EatFood -> eatFood(args);
-
+            case ShowEnergy -> result = showEnergy();
+            case setEnergy -> result = setEnergy(args);
+            case energyUnlimited -> result = energyUnlimited();
             //sell command:
             case SellProduct -> sellProduct(args);
 
@@ -405,5 +407,19 @@ public class GameMenuController implements Controller {
         // checkTrashBin();
     }
 
+    public Result showEnergy() {
+        return Result.success(String.format("%s", App.getGame().getCurrentPlayer().getEnergy()));
+    }
+
+    public Result setEnergy(String[] args) {
+        int amount = Integer.parseInt(args[0]);
+        App.getGame().getCurrentPlayer().setEnergy(amount);
+        return Result.success("energy set to: " + amount);
+    }
+
+    public Result energyUnlimited() {
+        App.getGame().getCurrentPlayer().setEnergyUnlimited();
+        return Result.success("energy unlimited");
+    }
     // TODO: map showing + map related commands
 }

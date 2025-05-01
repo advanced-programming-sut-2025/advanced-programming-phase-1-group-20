@@ -18,7 +18,7 @@ public class Player extends Mob {
     private User user;
     private int energy;
     private List<Skill> skills;
-
+    private boolean energyUnlimited;
     // items player has
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
@@ -36,7 +36,7 @@ public class Player extends Mob {
 
         //initializing crafting items
         craftingItems = new ArrayList<CraftingItem>();
-        cookingItems  = new ArrayList<CookingItem>();
+        cookingItems = new ArrayList<CookingItem>();
         inventory = new Inventory();
     }
 
@@ -116,4 +116,29 @@ public class Player extends Mob {
     public void addItem(Item item) {
         inventory.add(item);
     }
+
+    public void increaseEnergy(int amount) {
+        this.energy += amount;
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
+    public void decreaseEnergy(int amount) {
+        this.energy -= amount;
+    }
+
+    public void setEnergyUnlimited() {
+        this.energyUnlimited = true;
+    }
+
+    public boolean isEnergyUnlimited() {
+        return energyUnlimited;
+    }
+
 }
