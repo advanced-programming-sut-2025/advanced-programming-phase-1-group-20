@@ -53,6 +53,10 @@ public class GameMenuController implements Controller {
             case SetWeather -> result = setWeather(args);
             case CheatThor -> result = cheatThor(args);
 
+
+            // Player Related
+            case ShowInventory -> showInventory();
+
             // Map related commands
 
 
@@ -108,7 +112,10 @@ public class GameMenuController implements Controller {
         return result;
     }
 
-
+    private void showInventory() {
+        App.getGame().getCurrentPlayer().getBackpack().showInventory();
+    }
+    // TODO: add items should be checked -> Mostafa
     //time related
 
     public void showTime() {
@@ -225,7 +232,7 @@ public class GameMenuController implements Controller {
         String seedName = args[0];
         String direction = args[1];
         Item item = App.getItem(seedName);
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(seedName));
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(seedName));
         //TODO : check direction && check collision
         if (flag) {
             //TODO : implementing plant , addToMap(Item item) ,
@@ -255,7 +262,7 @@ public class GameMenuController implements Controller {
         String fertilizer = args[0];
         Item item = App.getItem(fertilizer);
         String direction = args[1];
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(fertilizer));
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(fertilizer));
         if (flag) {
             //TODO : (kasra) implementing fertilize function in tools.
         }
@@ -274,7 +281,7 @@ public class GameMenuController implements Controller {
         Item item = App.getItem("getting Tree or Plant" + "from map this must change later");
         boolean flag = checkItem(item) && item.getFinished();
         if (flag) {
-            player.getInventory().add(item);
+            player.getBackpack().add(item);
         }
     }
 
@@ -322,7 +329,7 @@ public class GameMenuController implements Controller {
         boolean flag = checkItem(item);
         if (flag) {
             for (int i = 0; i < count; i++) {
-                player.getInventory().add(item);
+                player.getBackpack().add(item);
             }
         }
     }
@@ -339,9 +346,9 @@ public class GameMenuController implements Controller {
                 //TODO : checking refrigerator collision and check Item in refrigerator (taha).
                 case "put":
                     //TODO : add item to refrigerator
-                    flag = flag && player.getInventory().hasItems(Collections.singletonList(key));
+                    flag = flag && player.getBackpack().hasItems(Collections.singletonList(key));
                     if (flag) {
-                        player.getInventory().add(item);
+                        player.getBackpack().add(item);
                     }
                     break;
                 case "pick":
@@ -360,14 +367,14 @@ public class GameMenuController implements Controller {
     private void cookingPrepare(String[] args) {
         String name = args[0];
         Item item = App.getItem(name);
-        boolean flag = checkItem(item) && isCooking(item) && player.getInventory().hasItems(Collections.singletonList(name));
+        boolean flag = checkItem(item) && isCooking(item) && player.getBackpack().hasItems(Collections.singletonList(name));
         //TODO : checking refrigerator.
         //TODO : we must check inventory is full or not.
         if (flag) {
             CookingItem cookingItem = (CookingItem) item;
             //TODO : decrease energy.
-            Food food = cookingItem.cook(player.getInventory());
-            player.getInventory().add(food);
+            Food food = cookingItem.cook(player.getBackpack());
+            player.getBackpack().add(food);
             //TODO : controlling xp.
         }
     }
@@ -383,11 +390,11 @@ public class GameMenuController implements Controller {
     private void eatFood(String[] args) {
         String foodName = args[0];
         Item item = App.getItem(foodName);
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(foodName)) && isFood(item);
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(foodName)) && isFood(item);
         if (flag) {
             Food food = (Food) item;
             //TODO : advance energy.
-            player.getInventory().remove(food);
+            player.getBackpack().remove(food);
         }
     }
 

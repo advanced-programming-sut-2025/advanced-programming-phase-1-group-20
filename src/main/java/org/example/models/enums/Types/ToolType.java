@@ -6,7 +6,7 @@ public enum ToolType {
     Iron(3),
     Gold(2),
     Iridium(1);
-
+    
     private final int energyDamage;
 
     ToolType(int energyDamage) {

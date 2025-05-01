@@ -2,7 +2,7 @@ package org.example.models.Items;
 
 
 import org.example.models.App;
-import org.example.models.Player.Inventory;
+import org.example.models.Player.Backpack;
 import org.example.models.enums.Types.CraftingType;
 
 import java.util.Map;
@@ -25,18 +25,18 @@ public class CraftingItem extends Item {
     }
 
 
-    public boolean canCraft(Inventory inventory) {
+    public boolean canCraft(Backpack inventory) {
         Map<Item, Integer> items = inventory.getInventory();
         String[] parts = type.getIngredients().split("\\+");
-        for(String part : parts) {
+        for (String part : parts) {
             part = part.trim();
-            String[] itemData = part.split(" " , 2);
+            String[] itemData = part.split(" ", 2);
 
             int requiredItem = Integer.parseInt(itemData[0]);
             String itemName = itemData[1];
             itemName = itemName.trim();
             Item item = App.getItem(itemName);
-            if(!items.containsKey(item) || requiredItem > items.get(item)) {
+            if (!items.containsKey(item) || requiredItem > items.get(item)) {
                 return false;
             }
         }
@@ -45,7 +45,7 @@ public class CraftingItem extends Item {
 
 
     @Override
-    public void showInfo(){
+    public void showInfo() {
         type.showInfo();
     }
 }

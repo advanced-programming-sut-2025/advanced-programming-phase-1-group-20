@@ -12,36 +12,27 @@ public enum GameMenuCommands implements Command {
     // weather related
     ShowSeason(Pattern.compile("^season$")), ShowWeather(Pattern.compile("^weather$")), ShowWeatherForecast(Pattern.compile("^weather\\s+forecast$")), SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")), // cheat code
     CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")), // cheat code
-    Move(Pattern.compile("^move\\s+(\\d+)\\s+(\\d+)$")), SaveGame(Pattern.compile("^save$")), AutoSave(Pattern.compile("^autosave$")),
+
+
+    // player related
+    Move(Pattern.compile("^move\\s+(\\d+)\\s+(\\d+)$")),
+
+    // saving related
+    SaveGame(Pattern.compile("^save$")), AutoSave(Pattern.compile("^autosave$")),
 
     // plants and foraging related
-    CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")),
-    Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+)\\s+" + "(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
-    ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
-    Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
-    HowMuchWater(Pattern.compile("^howmuch\\s+water$")),
-    Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+    CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")), Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+)\\s+" + "(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")), ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")), Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")), HowMuchWater(Pattern.compile("^howmuch\\s+water$")), Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
 
 
     // crafting related
-    CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
-    CraftingCraft(Pattern.compile("^crafting\\s+craft\\s+(?<itemName>.+)$")),
-    PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" + "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
-    AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
+    CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")), CraftingCraft(Pattern.compile("^crafting\\s+craft\\s+(?<itemName>.+)$")), PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" + "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")), AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
 
     // cooking related
-    AddRefrigerator(Pattern.compile("^cooking\\s+refrigerator\\s+(put|pick)\\s+(?<itemName>.+)$")),
-    CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),
-    CookingPrepare(Pattern.compile("^cooking\\s+prepare\\s+(?<recipeName>.+)$")),
-    EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
-    showEnergy(Pattern.compile("^energy show$")),
-    setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
-    energyUnlimited(Pattern.compile("^energy unlimited$")),
+    AddRefrigerator(Pattern.compile("^cooking\\s+refrigerator\\s+(put|pick)\\s+(?<itemName>.+)$")), CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")), CookingPrepare(Pattern.compile("^cooking\\s+prepare\\s+(?<recipeName>.+)$")), EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")), showEnergy(Pattern.compile("^energy show$")), setEnergy(Pattern.compile("^energy set -v (\\d+)$")), energyUnlimited(Pattern.compile("^energy unlimited$")),
 
     // sell command
     SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
-
 
     // TODO: add more commands
     None(null);

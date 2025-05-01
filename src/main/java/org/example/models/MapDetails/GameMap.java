@@ -3,6 +3,7 @@ package org.example.models.MapDetails;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +28,17 @@ public class GameMap {
 
         initializeSymbols();
         initializeMap();
+    }
+
+    public static int calculateEnergyNeeded(Location location1, Location location2) {
+        int energyNeeded = 100;
+        return energyNeeded;
+    }
+
+    public static Location findFurthestCanGo(Location location1, Location location2) {
+        Location location = location2;
+
+        return location;
     }
 
     private void initializeSymbols() {
@@ -85,12 +97,10 @@ public class GameMap {
         for (int x = farm.getStartX(); x < farm.getStartX() + farm.getWidth(); x++) {
             for (int y = farm.getStartY(); y < farm.getStartY() + farm.getHeight(); y++) {
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    if (x == farm.getStartX() + farm.getWidth() / 2 &&
-                            y == farm.getStartY() + farm.getHeight() / 2) {
+                    if (x == farm.getStartX() + farm.getWidth() / 2 && y == farm.getStartY() + farm.getHeight() / 2) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
                         farm.setHousePosition(x, y);
-                    }
-                    else if (Math.random() < 0.1) {
+                    } else if (Math.random() < 0.1) {
                         //tiles[x][y] = new Location(x, y, Math.random() < 0.5 ? "tree" : "stone");
                     }
                 }
@@ -112,15 +122,13 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                }
-                else if (currentX > villageCenterX) {
+                } else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                }
-                else if (currentY > villageCenterY) {
+                } else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -175,11 +183,6 @@ public class GameMap {
         return tiles[x][y].getType().equals("path");
     }
 
-    private boolean
-    isProtectedTile(String type) {
-        return type.equals("water") || type.equals("village") || type.equals("house");
-    }
-
     //TODO : later it should be only items not strings
 //    private boolean requiresTool(String currentType, String newType) {
 //        return (currentType.equals("tree") && newType.equals("stump")) ||
@@ -194,14 +197,17 @@ public class GameMap {
 //        return "";
 //    }
 
+    private boolean isProtectedTile(String type) {
+        return type.equals("water") || type.equals("village") || type.equals("house");
+    }
+
     private void handleTileChangeEffects(Location tile, String previousType, String newType, Player player) {
         if (previousType.equals("tilled_soil") && !newType.equals("tilled_soil")) {
             //tile.setPlant(null);
             //kasra
         }
 
-        if ((previousType.equals("tree") || previousType.equals("stone")) &&
-                (newType.equals("stump") || newType.equals("debris"))) {
+        if ((previousType.equals("tree") || previousType.equals("stone")) && (newType.equals("stump") || newType.equals("debris"))) {
             //player.addItemToInventory(new Item(previousType.equals("tree") ? "wood" : "stone", 1));
             //kasra
         }
@@ -217,8 +223,7 @@ public class GameMap {
             for (int x = startX; x <= endX; x++) {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
-                }
-                else {
+                } else {
 
                     System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
                 }

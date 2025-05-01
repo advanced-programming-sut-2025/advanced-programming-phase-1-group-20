@@ -4,6 +4,7 @@ import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.common.Location;
 import org.example.models.entities.Mob;
 import org.example.models.entities.NPC;
 import org.example.models.entities.User;
@@ -19,10 +20,12 @@ public class Player extends Mob {
     private int energy;
     private List<Skill> skills;
     private boolean energyUnlimited;
+    private boolean hasCollapsed;
+    private Location location;
     // items player has
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
-    private Inventory inventory;
+    private Backpack backpack;
 
 
     private boolean energySet = true;
@@ -37,7 +40,9 @@ public class Player extends Mob {
         //initializing crafting items
         craftingItems = new ArrayList<CraftingItem>();
         cookingItems = new ArrayList<CookingItem>();
-        inventory = new Inventory();
+        backpack = new Backpack();
+        this.energy = 200;
+        this.hasCollapsed = false;
     }
 
     //decreasing energy:
@@ -90,6 +95,13 @@ public class Player extends Mob {
         if (tile == TileType.WATER) {
             //implementing func.
         }
+        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
+        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
+        if (energyNeeded > energy) {
+            this.hasCollapsed = true;
+            this.energy = 0;
+            this.location = furthestCanGo;
+        }
     }
 
     public void addCraftingItem(CraftingItem craftingItem) {
@@ -109,12 +121,12 @@ public class Player extends Mob {
     }
 
 
-    public Inventory getInventory() {
-        return inventory;
+    public Backpack getBackpack() {
+        return backpack;
     }
 
     public void addItem(Item item) {
-        inventory.add(item);
+        backpack.add(item);
     }
 
     public void increaseEnergy(int amount) {
