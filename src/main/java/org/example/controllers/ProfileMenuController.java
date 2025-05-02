@@ -5,6 +5,7 @@ import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.ProfileMenuCommands;
 import org.example.views.AppView;
+import org.example.views.MainMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,11 @@ public class ProfileMenuController implements Controller {
 
     @Override
     public Result update(String input) {
+        // Check if the input is a menu navigation command
+        if (isMenuNavigationCommand(input)) {
+            return processMenuNavigationCommand(input);
+        }
+
         ProfileMenuCommands command = ProfileMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -35,6 +41,33 @@ public class ProfileMenuController implements Controller {
         }
         appView.handleResult(result, command);
         return result;
+    }
+
+    private boolean isMenuNavigationCommand(String input) {
+        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
+    }
+
+    private Result processMenuNavigationCommand(String input) {
+        input = input.trim();
+
+        if (input.equals("show current menu")) {
+            return Result.success(appView.getCurrentMenuName());
+        } else if (input.equals("menu exit")) {
+            appView.navigateMenu(new MainMenu(appView, user));
+            return Result.success("Exited to main menu");
+        } else if (input.startsWith("menu enter ")) {
+            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
+
+            // From profile menu, can only go to main menu
+            if (menuName.equals("main")) {
+                appView.navigateMenu(new MainMenu(appView, user));
+                return Result.success("Entered main menu");
+            } else {
+                return Result.error("Cannot navigate from profile menu to " + menuName + " menu");
+            }
+        }
+
+        return Result.error("Invalid menu navigation command");
     }
 
     public Result changeUsername(String[] args) {
@@ -163,7 +196,7 @@ public class ProfileMenuController implements Controller {
             if (!hasSpecial) {
                 if (oneError) reason.append(" ");
                 oneError = true;
-                reasonStrings.add("passsword doesn't have special character");
+                reasonStrings.add("password doesn't have special character");
             }
 
             if (!hasUpper) {

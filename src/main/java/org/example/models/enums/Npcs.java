@@ -17,6 +17,7 @@ public enum Npcs {
             "A reclusive young man who lives in his mom's basement. He's a programmer and enjoys solitude."
     );
 
+
     private final String name;
     private final Charactristic characteristic;
     private final Jobs job;

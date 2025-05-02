@@ -3,6 +3,8 @@ package org.example.models.enums.commands;
 import java.util.regex.Pattern;
 
 public enum MainMenuCommands implements Command {
+    NewGame(Pattern.compile("^game\\s+new\\s+-u\\s+(\\S+)(\\s+\\S+)?(\\s+\\S+)?$")),
+    LoadGame(Pattern.compile("^load\\s+game$")),
     None(null);
     private final Pattern pattern;
 

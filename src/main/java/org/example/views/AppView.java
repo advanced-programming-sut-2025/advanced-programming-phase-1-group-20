@@ -40,8 +40,22 @@ public class AppView {
     }
 
     public void update(String input) {
+        // Pass all commands directly to the current menu
         this.currentMenu.updateMenu(input);
+    }
 
+    public String getCurrentMenuName() {
+        if (currentMenu instanceof LoginRegisterMenu) {
+            return "login";
+        } else if (currentMenu instanceof MainMenu) {
+            return "main";
+        } else if (currentMenu instanceof ProfileMenu) {
+            return "profile";
+        } else if (currentMenu instanceof GameMenu) {
+            return "game";
+        } else {
+            return "unknown";
+        }
     }
 
     public void navigateMenu(AppMenu menu) {

@@ -1,21 +1,24 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Items.CookingItem;
-import org.example.models.Items.CraftingItem;
-import org.example.models.Items.Food;
-import org.example.models.Items.Item;
+import org.example.models.Items.*;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
+import org.example.models.entities.Friendship;
+import org.example.models.entities.Game;
 import org.example.models.enums.Types.CraftingType;
+import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
+import org.example.views.MainMenu;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class GameMenuController implements Controller {
     private AppView appView;
@@ -33,12 +36,23 @@ public class GameMenuController implements Controller {
 
     @Override
     public Result update(String input) {
+        // Check if the input is a menu navigation command
+        if (isMenuNavigationCommand(input)) {
+            return processMenuNavigationCommand(input);
+        }
+
         GameMenuCommands command = GameMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
 
         switch (command) {
-            // time related commands
+            // game related commands
+            case SelectMap -> result = selectMap(args);
+            case ExitGame -> result = exitGame();
+            case NextTurn -> result = nextTurn();
+            case VoteTerminate -> result = voteTerminate(args);
+
+            // time-related commands
             case ShowTime -> showTime();
             case ShowDate -> showDate();
             case ShowDateTime -> showDateTime();
@@ -53,10 +67,12 @@ public class GameMenuController implements Controller {
             case SetWeather -> result = setWeather(args);
             case CheatThor -> result = cheatThor(args);
 
+
+            // Player Related
+            case ShowInventory -> showInventory();
+
             // Map related commands
 
-
-            // Player related commands
 
             // Farm related commands
 
@@ -89,10 +105,36 @@ public class GameMenuController implements Controller {
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> cookingPrepare(args);
             case EatFood -> eatFood(args);
+            case ShowEnergy -> result = showEnergy();
+            case setEnergy -> result = setEnergy(args);
+            case energyUnlimited -> result = energyUnlimited();
+
+            //artisan-related commands
+            case ArtisanUse -> artisanUse(args);
+            case ArtisanGet -> artisanGet(args);
 
             //sell command:
             case SellProduct -> sellProduct(args);
 
+            // tool commands
+            case ToolEquip -> result = equipTool(args);
+            case ToolShowCurrent -> result = showCurrentTool();
+            case ToolShowAvailable -> result = showAvailableTools();
+            case ToolUpgrade -> result = upgradeTool(args);
+            case ToolUse -> result = useTool(args);
+
+            // Greenhouse-related commands
+            case GreenhouseBuild -> result = greenhouseBuild();
+
+            // Walking and map commands
+            case Walk -> result = walk(args);
+            case PrintMap -> result = printMap(args);
+
+            case HelpReadingMap -> result = helpReadingMap();
+
+            case FriendshipStatus -> result = friendShipsStatus();
+            case TalkToPlayer -> result = talkToPlayer(args);
+            case TalkHistory -> result = talkHistory(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -106,7 +148,36 @@ public class GameMenuController implements Controller {
         return result;
     }
 
+    private boolean isMenuNavigationCommand(String input) {
+        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
+    }
 
+    private Result processMenuNavigationCommand(String input) {
+        input = input.trim();
+
+        if (input.equals("show current menu")) {
+            return Result.success(appView.getCurrentMenuName());
+        } else if (input.equals("menu exit")) {
+            appView.navigateMenu(new MainMenu(appView, player.getUser()));
+            return Result.success("Exited to main menu");
+        } else if (input.startsWith("menu enter ")) {
+            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
+
+            if (menuName.equals("main")) {
+                appView.navigateMenu(new MainMenu(appView, player.getUser()));
+                return Result.success("Entered main menu");
+            } else {
+                return Result.error("Cannot navigate from game menu to " + menuName + " menu");
+            }
+        }
+
+        return Result.error("Invalid menu navigation command");
+    }
+
+    private void showInventory() {
+        App.getGame().getCurrentPlayer().getBackpack().showInventory();
+    }
+    // TODO: add items should be checked -> Mostafa
     //time related
 
     public void showTime() {
@@ -223,7 +294,7 @@ public class GameMenuController implements Controller {
         String seedName = args[0];
         String direction = args[1];
         Item item = App.getItem(seedName);
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(seedName));
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(seedName));
         //TODO : check direction && check collision
         if (flag) {
             //TODO : implementing plant , addToMap(Item item) ,
@@ -253,7 +324,7 @@ public class GameMenuController implements Controller {
         String fertilizer = args[0];
         Item item = App.getItem(fertilizer);
         String direction = args[1];
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(fertilizer));
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(fertilizer));
         if (flag) {
             //TODO : (kasra) implementing fertilize function in tools.
         }
@@ -272,7 +343,7 @@ public class GameMenuController implements Controller {
         Item item = App.getItem("getting Tree or Plant" + "from map this must change later");
         boolean flag = checkItem(item) && item.getFinished();
         if (flag) {
-            player.getInventory().add(item);
+            player.getBackpack().add(item);
         }
     }
 
@@ -320,7 +391,7 @@ public class GameMenuController implements Controller {
         boolean flag = checkItem(item);
         if (flag) {
             for (int i = 0; i < count; i++) {
-                player.getInventory().add(item);
+                player.getBackpack().add(item);
             }
         }
     }
@@ -337,9 +408,9 @@ public class GameMenuController implements Controller {
                 //TODO : checking refrigerator collision and check Item in refrigerator (taha).
                 case "put":
                     //TODO : add item to refrigerator
-                    flag = flag && player.getInventory().hasItems(Collections.singletonList(key));
+                    flag = flag && player.getBackpack().hasItems(Collections.singletonList(key));
                     if (flag) {
-                        player.getInventory().add(item);
+                        player.getBackpack().add(item);
                     }
                     break;
                 case "pick":
@@ -358,14 +429,17 @@ public class GameMenuController implements Controller {
     private void cookingPrepare(String[] args) {
         String name = args[0];
         Item item = App.getItem(name);
-        boolean flag = checkItem(item) && isCooking(item) && player.getInventory().hasItems(Collections.singletonList(name));
+        boolean flag = checkItem(item) && isCooking(item) && player.getBackpack().hasItems(Collections.singletonList(name));
         //TODO : checking refrigerator.
-        //TODO : we must check inventory is full or not.
+        if (player.getBackpack().isBackPackFull()) {
+            // TODO: make this a Result -> Mostafa
+        }
         if (flag) {
             CookingItem cookingItem = (CookingItem) item;
-            //TODO : decrease energy.
-            Food food = cookingItem.cook(player.getInventory());
-            player.getInventory().add(food);
+            // TODO: mostafa baadan begoo energish doroste ya na
+            player.decreaseEnergy(cookingItem.getEnergy());
+            Food food = cookingItem.cook(player.getBackpack());
+            player.getBackpack().add(food);
             //TODO : controlling xp.
         }
     }
@@ -381,11 +455,11 @@ public class GameMenuController implements Controller {
     private void eatFood(String[] args) {
         String foodName = args[0];
         Item item = App.getItem(foodName);
-        boolean flag = checkItem(item) && player.getInventory().hasItems(Collections.singletonList(foodName)) && isFood(item);
+        boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(foodName)) && isFood(item);
         if (flag) {
             Food food = (Food) item;
-            //TODO : advance energy.
-            player.getInventory().remove(food);
+            player.increaseEnergy(food.getEnergy());
+            player.getBackpack().remove(food);
         }
     }
 
@@ -393,10 +467,36 @@ public class GameMenuController implements Controller {
         if (item instanceof Food) {
             return true;
         }
+        // TODO: this must be a Result
         System.out.println("item is not a food");
         return false;
     }
 
+
+    public Result showEnergy() {
+        return Result.success(String.format("%s", App.getGame().getCurrentPlayer().getEnergy()));
+    }
+
+    public Result setEnergy(String[] args) {
+        int amount = Integer.parseInt(args[0]);
+        App.getGame().getCurrentPlayer().setEnergy(amount);
+        return Result.success("energy set to: " + amount);
+    }
+
+    public Result energyUnlimited() {
+        App.getGame().getCurrentPlayer().setEnergyUnlimited();
+        return Result.success("energy unlimited");
+    }
+
+
+    //artisan related
+    public void artisanUse(String[] args) {
+
+    }
+
+    public void artisanGet(String[] args) {
+
+    }
 
     //sell Function:
     private void sellProduct(String[] args) {
@@ -406,4 +506,460 @@ public class GameMenuController implements Controller {
     }
 
     // TODO: map showing + map related commands
+
+    // Tool-related methods
+
+    private Result equipTool(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Tool name not specified");
+        }
+
+        String toolName = args[0];
+        boolean success = player.equipTool(toolName);
+
+        if (success) {
+            return Result.success("Tool " + toolName + " equipped successfully");
+        } else {
+            return Result.error("Tool " + toolName + " not found in backpack");
+        }
+    }
+
+    private Result showCurrentTool() {
+        Tool currentTool = player.getCurrentTool();
+
+        if (currentTool == null) {
+            return Result.error("No tool is currently equipped");
+        } else {
+            return Result.success("Currently equipped tool: " + currentTool.getName());
+        }
+    }
+
+
+    private Result showAvailableTools() {
+        List<Tool> tools = player.getAvailableTools();
+
+        if (tools.isEmpty()) {
+            return Result.error("No tools available in backpack");
+        } else {
+            StringBuilder sb = new StringBuilder("Available tools in backpack:\n");
+            for (Tool tool : tools) {
+                sb.append("- ").append(tool.getName()).append("\n");
+            }
+            return Result.success(sb.toString());
+        }
+    }
+
+
+    private Result upgradeTool(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Tool name not specified");
+        }
+
+        String toolName = args[0];
+        boolean success = player.upgradeTool(toolName);
+
+        if (success) {
+            return Result.success("Tool " + toolName + " upgraded successfully");
+        } else {
+            return Result.error("Failed to upgrade tool " + toolName + ". Make sure you are in a blacksmith and have enough resources.");
+        }
+    }
+
+
+    private Result useTool(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Direction not specified");
+        }
+
+        String direction = args[0];
+        boolean success = player.useTool(direction);
+
+        if (success) {
+            return Result.success("Tool used successfully in direction " + direction);
+        } else {
+            Tool currentTool = player.getCurrentTool();
+            if (currentTool == null) {
+                return Result.error("No tool is currently equipped");
+            } else if (player.getEnergy() <= 0) {
+                return Result.error("Not enough energy to use this tool");
+            } else {
+                return Result.error("Failed to use tool in direction " + direction + ". Make sure you're using it on a valid tile.");
+            }
+        }
+    }
+
+
+    private Result walk(String[] args) {
+        if (args == null || args.length < 2) {
+            return Result.error("Coordinates not specified");
+        }
+
+        try {
+            int x = Integer.parseInt(args[0]);
+            int y = Integer.parseInt(args[1]);
+
+            // Check if the destination is valid
+            if (!gMap.isValidCoordinate(x, y)) {
+                return Result.error("Invalid coordinates");
+            }
+
+            // Check if the destination is in another player's farm
+            // TODO: Implement this check
+
+            // Get the current location
+            Location currentLocation = player.getLocation();
+            Location destination = new Location(x, y, gMap.getTile(x, y));
+
+            int energyNeeded = GameMap.calculateEnergyNeeded(currentLocation, destination);
+
+            // Check if the player has enough energy
+            if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
+                // Move the player
+                player.move(x, y);
+                return Result.success("Walked to (" + x + ", " + y + ")");
+            } else {
+                Location furthestLocation = GameMap.findFurthestCanGo(currentLocation, destination);
+                player.setEnergy(0);
+                player.move(furthestLocation.xAxis, furthestLocation.yAxis);
+                return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
+                        furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
+            }
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid coordinates");
+        }
+    }
+
+    private Result printMap(String[] args) {
+        if (args == null || args.length < 3) {
+            return Result.error("Coordinates or size not specified");
+        }
+
+        try {
+            int x = Integer.parseInt(args[0]);
+            int y = Integer.parseInt(args[1]);
+            int size = Integer.parseInt(args[2]);
+
+            // Check if the coordinates are valid
+            if (!gMap.isValidCoordinate(x, y)) {
+                return Result.error("Invalid coordinates");
+            }
+
+            // Check if the location is in another player's farm
+            if (gMap.isInOtherPlayersFarm(player, x, y)) {
+                return Result.error("You cannot view another player's farm");
+            }
+
+            System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
+            gMap.printCurrentView(x, y, size);
+            System.out.println("Map printed successfully!");
+
+            return Result.success("Map printed");
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid coordinates or size");
+        }
+    }
+
+
+    private Result helpReadingMap() {
+        System.out.println("Map Legend:");
+        System.out.println("'.' - Grass");
+        System.out.println("'=' - Tilled Soil");
+        System.out.println("'T' - Tree");
+        System.out.println("'S' - Stone");
+        System.out.println("'~' - Water");
+        System.out.println("'#' - Path");
+        System.out.println("'H' - House");
+        System.out.println("'V' - Village");
+        System.out.println("'B' - Bridge");
+        System.out.println("' ' - Empty");
+        System.out.println("'@' - Player Position");
+        return Result.success("Map legend displayed");
+    }
+
+    private Result selectMap(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Map number not specified");
+        }
+
+        Game game = App.getGame();
+        if (game == null) {
+            return Result.error("No active game");
+        }
+
+        if (!game.isInMapSelectionPhase()) {
+            return Result.error("Map selection phase is over");
+        }
+
+        if (game.getCurrentPlayer() != player) {
+            return Result.error("It's not your turn to select a map");
+        }
+
+        try {
+            int mapNumber = Integer.parseInt(args[0]);
+            if (mapNumber < 1 || mapNumber > 4) {
+                return Result.error("Invalid map number. Please choose a number between 1 and 4.");
+            }
+
+            game.selectMap(player, mapNumber);
+
+            // Move to the next player's turn
+            game.nextTurn();
+
+            // If all players have selected a map, start the game
+            if (game.allPlayersSelectedMap()) {
+                game.setMapSelectionPhase(false);
+                return Result.success("All players have selected their maps. The game has started!");
+            }
+
+            return Result.success("Map " + mapNumber + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid map number format");
+        }
+    }
+
+
+    private Result exitGame() {
+        Game game = App.getGame();
+        if (game == null) {
+            return Result.error("No active game");
+        }
+
+        if (game.getGameCreator() != player) {
+            return Result.error("Only the game creator can exit the game");
+        }
+
+        // Save the game
+        App.saveCurrentGame();
+
+        // Return to main menu
+        appView.navigateMenu(new MainMenu(appView, player.getUser()));
+
+        return Result.success("Game saved and exited");
+    }
+
+    private Result nextTurn() {
+        Game game = App.getGame();
+        if (game == null) {
+            return Result.error("No active game");
+        }
+
+        if (game.isInMapSelectionPhase()) {
+            return Result.error("Cannot advance turn during map selection phase");
+        }
+
+        if (game.getCurrentPlayer() != player) {
+            return Result.error("It's not your turn");
+        }
+
+        // Move to the next player's turn
+        game.nextTurn();
+
+        return Result.success("Turn advanced. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn.");
+    }
+
+    private Result voteTerminate(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Vote (yes/no) not specified");
+        }
+
+        Game game = App.getGame();
+        if (game == null) {
+            return Result.error("No active game");
+        }
+
+        if (game.isInMapSelectionPhase()) {
+            return Result.error("Cannot vote during map selection phase");
+        }
+
+        String vote = args[0].toLowerCase();
+        boolean voteValue;
+
+        if (vote.equals("yes")) {
+            voteValue = true;
+        } else if (vote.equals("no")) {
+            voteValue = false;
+        } else {
+            return Result.error("Invalid vote. Please specify 'yes' or 'no'.");
+        }
+
+        game.voteToTerminate(player, voteValue);
+
+        // If all players voted to terminate, remove the game
+        if (game.allPlayersVotedToTerminate()) {
+            App.removeGame(game);
+            appView.navigateMenu(new MainMenu(appView, player.getUser()));
+            return Result.success("All players voted to terminate the game. Game terminated.");
+        }
+
+        return Result.success("Vote recorded. Waiting for other players to vote.");
+    }
+
+    // TODO: check if the items required are right
+    private Result greenhouseBuild() {
+        int requiredWood = 500;
+        int requiredStone = 1000;
+
+        Item woodItem = App.getItem("Wood");
+        if (woodItem == null) {
+            return Result.error("Wood item not found in the game.");
+        }
+
+        int woodCount = 0;
+        for (Map.Entry<Item, Integer> entry : player.getBackpack().getInventory().entrySet()) {
+            if (entry.getKey().getName().equalsIgnoreCase("Wood")) {
+                woodCount = entry.getValue();
+                break;
+            }
+        }
+
+        if (woodCount < requiredWood) {
+            return Result.error("Not enough wood. You need " + requiredWood + " wood to build a greenhouse.");
+        }
+
+        Item stoneItem = App.getItem("Stone");
+        if (stoneItem == null) {
+            return Result.error("Stone item not found in the game.");
+        }
+
+        int stoneCount = 0;
+        for (Map.Entry<Item, Integer> entry : player.getBackpack().getInventory().entrySet()) {
+            if (entry.getKey().getName().equalsIgnoreCase("Stone")) {
+                stoneCount = entry.getValue();
+                break;
+            }
+        }
+
+        if (stoneCount < requiredStone) {
+            return Result.error("Not enough stone. You need " + requiredStone + " stone to build a greenhouse.");
+        }
+
+        for (int i = 0; i < requiredWood; i++) {
+            player.getBackpack().remove(woodItem);
+        }
+
+        for (int i = 0; i < requiredStone; i++) {
+            player.getBackpack().remove(stoneItem);
+        }
+
+        // The greenhouse is a 5x6 grid (without counting the wall)
+        Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
+        Location rightCorner = new Location(16, 15, TileType.GREENHOUSE);
+
+        gMap.addGreenhouse(leftCorner, rightCorner);
+
+        return Result.success("Greenhouse built successfully! You can now plant crops regardless of the season.");
+    }
+
+    private Result friendShipsStatus() {
+        Player player = App.getGame().getCurrentPlayer();
+        StringBuilder result = new StringBuilder();
+        result.append("friendships status:\n");
+
+        Map<Player, Friendship> friendships = player.getAllFriendships();
+
+        if (friendships.isEmpty()) {
+            result.append("You have no friendships yet.");
+        } else {
+            for (Map.Entry<Player, Friendship> entry : friendships.entrySet()) {
+                Player friend = entry.getKey();
+                Friendship friendship = entry.getValue();
+
+                result.append("- ").append(friend.getUser().getUsername())
+                        .append(": Level ").append(friendship.getLevel())
+                        .append(" (").append(friendship.getXp()).append("/")
+                        .append(friendship.getMaxXpForCurrentLevel()).append(" XP)");
+
+                if (friendship.isMarried()) {
+                    result.append(" [Married]");
+                }
+
+                result.append("\n");
+            }
+        }
+
+        return Result.success(result.toString());
+    }
+
+    private Result talkToPlayer(String[] args) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        String username = args[0];
+        String message = args[1];
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        // Get or create friendship
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        // Talk to the player
+        boolean success = friendship.talk(message, currentPlayer);
+        if (!success) {
+            if (!arePlayersNearEachOther(currentPlayer, targetPlayer)) {
+                return Result.error("You need to be near " + username + " to talk to them.");
+            } else {
+                return Result.error("You have already talked to " + username + " today.");
+            }
+        }
+
+        return Result.success("Message sent to " + username + ". Friendship increased by " + Friendship.XP_TALK + " XP.");
+    }
+
+    private Result talkHistory(String[] args) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        String username = args[0];
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        List<String> chatHistory = friendship.getChatHistory();
+        if (chatHistory.isEmpty()) {
+            return Result.success("No chat history with " + username + ".");
+        }
+
+        StringBuilder result = new StringBuilder();
+        result.append("Chat history with ").append(username).append(":\n");
+
+        for (String message : chatHistory) {
+            result.append(message).append("\n");
+        }
+
+        return Result.success(result.toString());
+    }
+
+    private boolean arePlayersNearEachOther(Player player1, Player player2) {
+        Location loc1 = player1.getLocation();
+        Location loc2 = player2.getLocation();
+
+        int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
+
+        return distance <= 2;
+    }
 }

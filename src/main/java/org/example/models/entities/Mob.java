@@ -1,11 +1,12 @@
 package org.example.models.entities;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Mob {
-    private HashMap<Mob, Integer> friendShip;
+    private Map<Mob, Friendship> friendships;
 
     public Mob() {
-        friendShip = new HashMap<Mob, Integer>();
+        friendships = new HashMap<>();
     }
 }

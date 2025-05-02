@@ -7,24 +7,64 @@ import org.example.models.enums.Weather;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GreenHouse {
-    Location leftCorner;
-    Location rightCorner;
-    List<Plant> greenHousePlants;
-    Weather weather;
 
-    GreenHouse(Location leftCorner, Location rightCorner) {
+public class GreenHouse {
+    private static final int ROWS = 5; // 5 rows
+    private static final int COLS = 6; // 6 columns
+    private Location leftCorner;
+    private Location rightCorner;
+    private List<Plant> greenHousePlants;
+    private Weather weather;
+    private boolean isBuilt;
+
+
+    public GreenHouse(Location leftCorner, Location rightCorner) {
         this.leftCorner = leftCorner;
         this.rightCorner = rightCorner;
         this.greenHousePlants = new ArrayList<>();
         this.weather = Weather.GREENHOUSE;
+        this.isBuilt = true;
     }
+
+    public static int getRows() {
+        return ROWS;
+    }
+
+    public static int getCols() {
+        return COLS;
+    }
+
 
     public void addPlant(Plant plant) {
         greenHousePlants.add(plant);
     }
 
+
     public void removePlant(Plant plant) {
         greenHousePlants.remove(plant);
+    }
+
+    public boolean isInside(Location location) {
+        return location.xAxis >= leftCorner.xAxis && location.xAxis <= rightCorner.xAxis &&
+                location.yAxis >= leftCorner.yAxis && location.yAxis <= rightCorner.yAxis;
+    }
+
+
+    public Weather getWeather() {
+        return weather;
+    }
+
+
+    public boolean isBuilt() {
+        return isBuilt;
+    }
+
+
+    public Location getLeftCorner() {
+        return leftCorner;
+    }
+    
+    public Location getRightCorner() {
+        return rightCorner;
     }
 }

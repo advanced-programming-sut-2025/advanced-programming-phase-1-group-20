@@ -3,7 +3,7 @@ package org.example.models.enums;
 import org.example.models.Items.Item;
 
 public enum CookingItems {
-    Friedegg("Fried Egg", Ingredients.Friedegg.getIngridents(), 50, 35),
+    FriedEgg("Fried Egg", Ingredients.FriedEgg.getIngridents(), 50, 35),
     BakedFish("Baked Fish", Ingredients.BakedFish.getIngridents(), 75, 100),
     Salad("Salad", Ingredients.Salad.getIngridents(), 113, 110),
     Omelet("Omelet", Ingredients.Olmelet.getIngridents(), 100, 125),

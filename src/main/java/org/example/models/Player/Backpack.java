@@ -6,15 +6,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Inventory {
+public class Backpack {
     private Map<Item, Integer> inventory;
 
-    public Inventory() {
+    private Type type;
+
+    public Backpack() {
         inventory = new HashMap<>();
     }
 
-    public void add(Item item) {
+    public boolean add(Item item) {
+        if (type == Type.Initial) {
+            if (countItems() == 12) {
+                return false;
+            }
+        } else if (type == Type.Big) {
+            if (countItems() == 24) {
+                return false;
+            }
+        }
         inventory.put(item, inventory.getOrDefault(item, 0) + 1);
+        return true;
+    }
+
+    public int countItems() {
+        int count = 0;
+        for (Item item : inventory.keySet()) {
+            count += inventory.get(item);
+        }
+        return count;
     }
 
     public Map<Item, Integer> getInventory() {
@@ -23,7 +43,7 @@ public class Inventory {
 
     public void remove(Item item) {
         //TODO: this must complete.
-        
+
     }
 
     public void showInventory() {
@@ -52,5 +72,29 @@ public class Inventory {
             return false;
         }
         return false;
+    }
+
+    public void trashItem(Item item, int amount) {
+        this.inventory.remove(item, amount);
+
+    }
+
+    public boolean isBackPackFull() {
+        if (type == Type.Initial) {
+            if (countItems() == 12) {
+                return false;
+            }
+        } else if (type == Type.Big) {
+            if (countItems() == 24) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    enum Type {
+        Initial,
+        Big,
+        Deluxe
     }
 }

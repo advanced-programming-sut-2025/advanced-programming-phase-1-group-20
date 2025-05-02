@@ -23,4 +23,12 @@ public class Skill {
     public void maxSkill(int hour, int plus) {
     }
 
+
+    public String getName() {
+        return name;
+    }
+    
+    public int getLevel() {
+        return level;
+    }
 }
