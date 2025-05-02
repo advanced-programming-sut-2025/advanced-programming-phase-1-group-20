@@ -5,8 +5,8 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum PlantType {
-    BlueJazz("Blue Jazz" , "Jazz Seeds" , new int[]{1, 2, 2, 2} , 7 , true , 0 , 50 , true , 45 , new Seasons[]{Seasons.SPRING} , false),
-    Carrot("Carrot" , "Carrot Seeds" , new int[]{1, 1, 1} , 3 , true , 0 , 35 , true , 75 , new Seasons[]{Seasons.SPRING} , false),
+    BlueJazz("Blue Jazz", "Jazz Seeds", new int[]{1, 2, 2, 2}, 7, true, 0, 50, true, 45, new Seasons[]{Seasons.SPRING}, false),
+    Carrot("Carrot", "Carrot Seeds", new int[]{1, 1, 1}, 3, true, 0, 35, true, 75, new Seasons[]{Seasons.SPRING}, false),
     Cauliflower("Cauliflower", "Cauliflower Seeds", new int[]{1, 2, 4, 4, 1}, 12, true, 0, 175, true, 75, new Seasons[]{Seasons.SPRING}, true),
     CoffeeBean("Coffee Bean", "Coffee Bean", new int[]{1, 2, 2, 3, 2}, 10, false, 2, 15, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER}, false),
     Garlic("Garlic", "Garlic Seeds", new int[]{1, 1, 1, 1}, 4, true, 0, 60, true, 20, new Seasons[]{Seasons.SPRING}, false),
@@ -58,9 +58,10 @@ public enum PlantType {
     private final int energy;
     private final Seasons[] seasons;
     private final boolean isGiantable;
-    PlantType(String name, String seed , int[] stage , int totalHarvestTime
-            , boolean oneTimeHarvest , int regrowthTime , int baseSellPrice
-            , boolean isEdible , int energy , Seasons[] seasons , boolean isGiantable) {
+
+    PlantType(String name, String seed, int[] stage, int totalHarvestTime
+            , boolean oneTimeHarvest, int regrowthTime, int baseSellPrice
+            , boolean isEdible, int energy, Seasons[] seasons, boolean isGiantable) {
         this.name = name;
         this.seed = seed;
         this.stage = stage;
@@ -74,6 +75,14 @@ public enum PlantType {
         this.isGiantable = isGiantable;
     }
 
+    public static PlantType fromName(String name) {
+        for (PlantType type : PlantType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
     public String getName() {
         return name;
@@ -125,33 +134,26 @@ public enum PlantType {
         System.out.print("Stage: ");
         String stages = Arrays.toString(getStage()).
                 replace("[", "").replace("]", "")
-                .replace(" " , "");
+                .replace(" ", "");
         System.out.println("Stages: " + stages);
         System.out.println("Total Harvest Time: " + getTotalHarvestTime());
         System.out.println("One Time: " + isOneTimeHarvest());
         System.out.print("Regrowth Time: ");
-        if(getRegrowthTime() > 0){
+        if (getRegrowthTime() > 0) {
             System.out.println(getRegrowthTime());
-        }else{
+        } else {
             System.out.println();
         }
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Is Edible: " + isEdible());
         System.out.println("Energy: " + getEnergy());
+
         //checking later
+
 //        String seasons = Arrays.toString(type.getSeasons());
 //                .replace("[", "").replace("]", "")
 //                .replace(" " , "");
         System.out.println("Seasons: " + Arrays.toString(getSeasons()));
         System.out.println("Can Become Giant: " + isGiantable());
-    }
-
-    public static PlantType fromName(String name) {
-        for (PlantType type : PlantType.values()) {
-            if (type.getName().equals(name)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

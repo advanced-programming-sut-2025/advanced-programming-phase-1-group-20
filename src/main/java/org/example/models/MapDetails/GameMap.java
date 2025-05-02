@@ -29,16 +29,232 @@ public class GameMap {
         initializeSymbols();
         initializeMap();
     }
-
+    
     public static int calculateEnergyNeeded(Location location1, Location location2) {
-        int energyNeeded = 100;
+        int distanceInTiles = Math.abs(location1.xAxis - location2.xAxis) +
+                Math.abs(location1.yAxis - location2.yAxis);
+
+        int numberOfTurns = calculateNumberOfTurns(location1, location2);
+
+        int energyNeeded = (int) Math.ceil((distanceInTiles + 10 * numberOfTurns) / 20.0);
+
         return energyNeeded;
     }
 
-    public static Location findFurthestCanGo(Location location1, Location location2) {
-        Location location = location2;
+    private static int calculateNumberOfTurns(Location location1, Location location2) {
+        if (location1.xAxis == location2.xAxis && location1.yAxis == location2.yAxis) {
+            return 0;
+        }
 
-        return location;
+        if (location1.xAxis == location2.xAxis || location1.yAxis == location2.yAxis) {
+            return 0;
+        }
+
+        return calculateMinimumTurns(location1, location2);
+    }
+
+
+    private static int calculateMinimumTurns(Location location1, Location location2) {
+        int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+
+        int minTurns = Integer.MAX_VALUE;
+
+        boolean[][] visited = new boolean[1000][1000]; // Assuming map size is less than 1000x1000
+
+        for (int dirIndex = 0; dirIndex < 4; dirIndex++) {
+            for (int i = 0; i < visited.length; i++) {
+                for (int j = 0; j < visited[0].length; j++) {
+                    visited[i][j] = false;
+                }
+            }
+
+            int turns = dfsCalculateTurns(location1.xAxis, location1.yAxis,
+                    location2.xAxis, location2.yAxis,
+                    dirIndex, 0, directions, visited);
+            minTurns = Math.min(minTurns, turns);
+        }
+
+        if (minTurns == Integer.MAX_VALUE) {
+            return 2;
+        }
+
+        return minTurns;
+    }
+
+
+    private static int dfsCalculateTurns(int x, int y, int destX, int destY,
+                                         int currentDir, int turns, int[][] directions, boolean[][] visited) {
+        if (x == destX && y == destY) {
+            return turns;
+        }
+
+        visited[x + 500][y + 500] = true; // Offset to handle negative coordinates
+
+        int minTurns = Integer.MAX_VALUE;
+
+        for (int newDir = 0; newDir < 4; newDir++) {
+            int newX = x + directions[newDir][0];
+            int newY = y + directions[newDir][1];
+
+            if (visited[newX + 500][newY + 500]) {
+                continue;
+            }
+
+            // Check if the new position is walkable (GRASS)
+            if (!isWalkable(newX, newY)) {
+                continue; // Skip non-walkable tiles
+            }
+
+            if (Math.abs(newX - destX) + Math.abs(newY - destY) < Math.abs(x - destX) + Math.abs(y - destY)) {
+                int newTurns = turns;
+                if (newDir != currentDir) {
+                    newTurns++;
+                }
+
+                int result = dfsCalculateTurns(newX, newY, destX, destY, newDir, newTurns, directions, visited);
+                minTurns = Math.min(minTurns, result);
+            }
+        }
+
+        visited[x + 500][y + 500] = false;
+
+        return minTurns;
+    }
+
+    public static String getPathWithTurns(Location location1, Location location2) {
+        int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        String[] dirNames = {"up", "right", "down", "left"};
+
+        int minTurns = Integer.MAX_VALUE;
+        int bestStartDir = 0;
+
+        boolean[][] visited = new boolean[1000][1000]; // Assuming map size is less than 1000x1000
+
+        for (int dirIndex = 0; dirIndex < 4; dirIndex++) {
+            for (int i = 0; i < visited.length; i++) {
+                for (int j = 0; j < visited[0].length; j++) {
+                    visited[i][j] = false;
+                }
+            }
+
+            int turns = dfsCalculateTurns(location1.xAxis, location1.yAxis,
+                    location2.xAxis, location2.yAxis,
+                    dirIndex, 0, directions, visited);
+            if (turns < minTurns) {
+                minTurns = turns;
+                bestStartDir = dirIndex;
+            }
+        }
+
+        StringBuilder path = new StringBuilder();
+        path.append("Start at (").append(location1.xAxis).append(", ").append(location1.yAxis).append(")\n");
+        path.append("Initial direction: ").append(dirNames[bestStartDir]).append("\n");
+
+        int x = location1.xAxis;
+        int y = location1.yAxis;
+        int currentDir = bestStartDir;
+        int turnCount = 0;
+
+        // Reset visited array for path reconstruction
+        for (int i = 0; i < visited.length; i++) {
+            for (int j = 0; j < visited[0].length; j++) {
+                visited[i][j] = false;
+            }
+        }
+
+        visited[x + 500][y + 500] = true;
+
+        int maxSteps = Math.abs(location2.xAxis - location1.xAxis) + Math.abs(location2.yAxis - location1.yAxis) + 10;
+        int steps = 0;
+
+        while ((x != location2.xAxis || y != location2.yAxis) && steps < maxSteps) {
+            boolean moved = false;
+            steps++;
+
+            for (int newDir = 0; newDir < 4; newDir++) {
+                int newX = x + directions[newDir][0];
+                int newY = y + directions[newDir][1];
+
+                // Skip if already visited
+                if (visited[newX + 500][newY + 500]) {
+                    continue;
+                }
+
+                if (!isWalkable(newX, newY)) {
+                    continue;
+                }
+
+                if (Math.abs(newX - location2.xAxis) + Math.abs(newY - location2.yAxis) <
+                        Math.abs(x - location2.xAxis) + Math.abs(y - location2.yAxis)) {
+
+                    if (newDir != currentDir) {
+                        turnCount++;
+                        path.append("Turn to ").append(dirNames[newDir]).append(" at (")
+                                .append(x).append(", ").append(y).append(")\n");
+                    }
+
+                    x = newX;
+                    y = newY;
+                    currentDir = newDir;
+                    visited[x + 500][y + 500] = true;
+                    moved = true;
+                    break;
+                }
+            }
+
+            if (!moved) {
+                path.append("No valid move found from (").append(x).append(", ").append(y).append(")\n");
+                break;
+            }
+        }
+
+        if (steps >= maxSteps) {
+            path.append("Path reconstruction exceeded maximum steps. Possible infinite loop.\n");
+        }
+
+        path.append("Arrive at (").append(location2.xAxis).append(", ").append(location2.yAxis).append(")\n");
+        path.append("Total turns: ").append(turnCount);
+
+        return path.toString();
+    }
+
+
+    public static Location findFurthestCanGo(Location location1, Location location2) {
+        if (location1.xAxis == location2.xAxis && location1.yAxis == location2.yAxis) {
+            return location1;
+        }
+
+        if (location2.getTile() != TileType.GRASS) {
+            return location1; // Can't walk on non-GRASS tiles
+        }
+
+        // Calculate the direction vector
+        int dx = Integer.compare(location2.xAxis - location1.xAxis, 0);
+        int dy = Integer.compare(location2.yAxis - location1.yAxis, 0);
+
+        int totalDistance = Math.abs(location1.xAxis - location2.xAxis) +
+                Math.abs(location1.yAxis - location2.yAxis);
+
+
+        int maxDistance = totalDistance; // Assuming player has enough energy
+
+        int furthestX = location1.xAxis + dx * Math.min(maxDistance, Math.abs(location2.xAxis - location1.xAxis));
+        int furthestY = location1.yAxis + dy * Math.min(maxDistance - Math.min(maxDistance, Math.abs(location2.xAxis - location1.xAxis)),
+                Math.abs(location2.yAxis - location1.yAxis));
+
+        return new Location(furthestX, furthestY, TileType.GRASS);
+    }
+
+
+    public static boolean isWalkable(int x, int y) {
+        if (x < 0 || y < 0) {
+            return false;
+        }
+
+        GameMap tempMap = new GameMap(1000, 1000, null);
+        TileType tileType = tempMap.getTile(x, y);
+
+        return tileType == TileType.GRASS;
     }
 
     private void initializeSymbols() {
@@ -173,16 +389,6 @@ public class GameMap {
         return symbolMap.containsKey(type);
     }
 
-    private boolean canPlayerModifyTile(Player player, int x, int y) {
-        for (Farm farm : farms) {
-            if (farm.contains(x, y) && farm.getOwner().equals(player)) {
-                return true;
-            }
-        }
-
-        return tiles[x][y].getType().equals("path");
-    }
-
     //TODO : later it should be only items not strings
 //    private boolean requiresTool(String currentType, String newType) {
 //        return (currentType.equals("tree") && newType.equals("stump")) ||
@@ -196,6 +402,16 @@ public class GameMap {
 //        if (currentType.equals("grass") && newType.equals("tilled_soil")) return "hoe";
 //        return "";
 //    }
+
+    private boolean canPlayerModifyTile(Player player, int x, int y) {
+        for (Farm farm : farms) {
+            if (farm.contains(x, y) && farm.getOwner().equals(player)) {
+                return true;
+            }
+        }
+
+        return tiles[x][y].getType().equals("path");
+    }
 
     private boolean isProtectedTile(String type) {
         return type.equals("water") || type.equals("village") || type.equals("house");
@@ -242,6 +458,7 @@ public class GameMap {
         }
     }
 
+    // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
     public TileType getTile(int x, int y) {
         if (isValidCoordinate(x, y)) {
             Location location = tiles[x][y];
@@ -249,7 +466,4 @@ public class GameMap {
         }
         return null;
     }
-
-    // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
-
 }

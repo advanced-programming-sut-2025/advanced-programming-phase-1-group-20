@@ -7,6 +7,7 @@ import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
+import org.example.views.MainMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,11 @@ public class LoginRegisterMenuController implements Controller {
 
     @Override
     public Result update(String input) {
+        // Check if the input is a menu navigation command
+        if (isMenuNavigationCommand(input)) {
+            return processMenuNavigationCommand(input);
+        }
+
         LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -43,6 +49,35 @@ public class LoginRegisterMenuController implements Controller {
 
         appView.handleResult(result, command);
         return result;
+    }
+
+    private boolean isMenuNavigationCommand(String input) {
+        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
+    }
+
+    private Result processMenuNavigationCommand(String input) {
+        input = input.trim();
+
+        if (input.equals("show current menu")) {
+            return Result.success(appView.getCurrentMenuName());
+        } else if (input.equals("menu exit")) {
+            appView.exit();
+            return Result.success("Exiting application");
+        } else if (input.startsWith("menu enter ")) {
+            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
+
+            if (menuName.equals("main")) {
+                if (App.getLoggedInUser() == null) {
+                    return Result.error("You must be logged in to access the main menu");
+                }
+                appView.navigateMenu(new MainMenu(appView, App.getLoggedInUser()));
+                return Result.success("Entered main menu");
+            } else {
+                return Result.error("Cannot navigate from login menu to " + menuName + " menu");
+            }
+        }
+
+        return Result.error("Invalid menu navigation command");
     }
 
     public Result registerUser(String[] args) {

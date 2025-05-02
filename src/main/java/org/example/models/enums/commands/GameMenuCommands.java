@@ -4,6 +4,12 @@ import java.util.regex.Pattern;
 
 public enum GameMenuCommands implements Command {
 
+    // game related
+    SelectMap(Pattern.compile("^game\\s+map\\s+(\\d+)$")),
+    ExitGame(Pattern.compile("^exit\\s+game$")),
+    NextTurn(Pattern.compile("^next\\s+turn$")),
+    VoteTerminate(Pattern.compile("^vote\\s+terminate\\s+(yes|no)$")),
+
     // time related
     ShowTime(Pattern.compile("^time$")),
     ShowDate(Pattern.compile("^date$")),
@@ -21,11 +27,12 @@ public enum GameMenuCommands implements Command {
 
 
     // player related
-    Move(Pattern.compile("^move\\s+(\\d+)\\s+(\\d+)$")),
+    Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
     ShowInventory(Pattern.compile("^inventory$")),
     ShowLocation(Pattern.compile("^location$")),
     ShowEnergy(Pattern.compile("^energy$")),
     ShowMap(Pattern.compile("^map$")),
+    PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
     setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
     energyUnlimited(Pattern.compile("^energy unlimited$")),

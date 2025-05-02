@@ -7,13 +7,13 @@ import org.example.models.entities.User;
 import org.example.models.utils.AutoLoginUtil;
 import org.example.models.utils.FileStorage;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class App {
-
     // TODO: add the saving methods
     // static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
@@ -21,11 +21,15 @@ public class App {
     private static Map<Integer, String> securityQuestions = new HashMap<>();
     private static boolean dataLoaded = false;
 
-    private static List<Game> allGames;
+    private static List<Game> allGames = new ArrayList<>();
     private static Game currentGame;
 
     //    private static Lists for game
     private static List<Item> items = new ArrayList<>();
+
+    // File paths for saving games
+    private static final String GAMES_DIRECTORY = "saved_games";
+    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.ser";
 
 
     public static void initialize() {
@@ -39,12 +43,82 @@ public class App {
             //initializing game static lists
             items = FileStorage.loadItems();
 
+            // Create games directory if it doesn't exist
+            File directory = new File(GAMES_DIRECTORY);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Load saved games
+            loadAllGames();
+
             dataLoaded = true;
         }
     }
 
     public static void saveData() {
         FileStorage.saveUsers(users);
+        saveAllGames();
+    }
+
+    public static void saveAllGames() {
+        // Save all games to files
+        for (int i = 0; i < allGames.size(); i++) {
+            Game game = allGames.get(i);
+            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".ser");
+        }
+    }
+
+    public static void saveCurrentGame() {
+        if (currentGame != null) {
+            currentGame.setSaved(true);
+            saveGame(currentGame, CURRENT_GAME_FILE);
+        }
+    }
+
+    private static void saveGame(Game game, String filePath) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(game);
+        } catch (IOException e) {
+            System.err.println("Error saving game: " + e.getMessage());
+        }
+    }
+
+    public static void loadAllGames() {
+        allGames = new ArrayList<>();
+        File directory = new File(GAMES_DIRECTORY);
+        if (directory.exists()) {
+            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".ser"));
+            if (files != null) {
+                for (File file : files) {
+                    Game game = loadGame(file.getPath());
+                    if (game != null) {
+                        allGames.add(game);
+                    }
+                }
+            }
+        }
+    }
+
+    public static Game loadCurrentGame() {
+        File file = new File(CURRENT_GAME_FILE);
+        if (file.exists()) {
+            Game game = loadGame(CURRENT_GAME_FILE);
+            if (game != null) {
+                currentGame = game;
+                return game;
+            }
+        }
+        return null;
+    }
+
+    private static Game loadGame(String filePath) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            return (Game) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game: " + e.getMessage());
+            return null;
+        }
     }
 
     public static void addUser(User user) {
@@ -113,20 +187,50 @@ public class App {
 
     public static void setGame(Game game) {
         currentGame = game;
+        if (!allGames.contains(game)) {
+            allGames.add(game);
+        }
     }
 
     public static void removeGame(Game game) {
         allGames.remove(game);
+        if (currentGame == game) {
+            currentGame = null;
+        }
+
+        // Delete the saved game file
+        for (int i = 0; i < allGames.size(); i++) {
+            if (allGames.get(i) == game) {
+                File file = new File(GAMES_DIRECTORY + "/game_" + i + ".ser");
+                if (file.exists()) {
+                    file.delete();
+                }
+                break;
+            }
+        }
+    }
+
+    public static List<Game> getAllGames() {
+        return allGames;
+    }
+
+    public static Game findGameForUser(User user) {
+        for (Game game : allGames) {
+            if (game.isPlayerInGame(user)) {
+                return game;
+            }
+        }
+        return null;
     }
 
     public static boolean isUserInGame(User user) {
-        for (Game game : allGames) {
-            for (Player player : game.getPlayers()) {
-                if (player.getUser().equals(user)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return findGameForUser(user) != null;
+    }
+
+    public static Game createNewGame(List<Player> players, Player creator) {
+        Game game = new Game(players, creator);
+        setGame(game);
+        saveCurrentGame();
+        return game;
     }
 }
