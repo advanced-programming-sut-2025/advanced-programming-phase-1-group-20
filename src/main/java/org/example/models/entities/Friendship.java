@@ -64,8 +64,7 @@ public class Friendship {
     public int getXpRequiredForNextLevel() {
         return 100 * (1 + level);
     }
-
-
+    
     public int getMaxXpForCurrentLevel() {
         switch (level) {
             case LEVEL_0:
