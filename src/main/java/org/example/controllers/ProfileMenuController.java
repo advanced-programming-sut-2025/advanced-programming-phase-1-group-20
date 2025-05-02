@@ -53,7 +53,6 @@ public class ProfileMenuController implements Controller {
         if (input.equals("show current menu")) {
             return Result.success(appView.getCurrentMenuName());
         } else if (input.equals("menu exit")) {
-            // From profile menu, go back to main menu
             appView.navigateMenu(new MainMenu(appView, user));
             return Result.success("Exited to main menu");
         } else if (input.startsWith("menu enter ")) {

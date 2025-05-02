@@ -43,12 +43,7 @@ public class WateringCan extends Tool {
         }
     }
 
-    /**
-     * Get the energy consumption based on the material
-     *
-     * @param material The material of the watering can
-     * @return The energy consumption
-     */
+
     private static int getEnergyConsumption(ToolMaterial material) {
         switch (material) {
             case BASIC:

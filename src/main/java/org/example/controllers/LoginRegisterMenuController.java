@@ -23,7 +23,6 @@ public class LoginRegisterMenuController implements Controller {
         this.appView = appView;
         this.user = user;
 
-        // initialize the App to load saved data
         App.initialize();
     }
 
@@ -156,7 +155,7 @@ public class LoginRegisterMenuController implements Controller {
             if (!hasSpecial) {
                 if (oneError) reason.append(" ");
                 oneError = true;
-                reasonStrings.add("passsword doesn't have special character");
+                reasonStrings.add("password doesn't have special character");
             }
 
             if (!hasUpper) {
@@ -319,7 +318,5 @@ public class LoginRegisterMenuController implements Controller {
         App.saveData();
 
         return Result.success("your new password is " + newPassword);
-
-        // TODO: add making the new password or getting the pass word from the user
     }
 }

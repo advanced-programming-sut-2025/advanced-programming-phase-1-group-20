@@ -18,56 +18,35 @@ public class Pickaxe extends Tool {
     }
 
     private static int getBaseSellPrice(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 0;
-            case COPPER:
-                return 2000;
-            case IRON:
-                return 5000;
-            case GOLD:
-                return 10000;
-            case IRIDIUM:
-                return 25000;
-            default:
-                return 0;
-        }
+        return switch (material) {
+            case BASIC -> 0;
+            case COPPER -> 2000;
+            case IRON -> 5000;
+            case GOLD -> 10000;
+            case IRIDIUM -> 25000;
+        };
     }
 
     private static int getEnergyConsumption(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 5;
-            case COPPER:
-                return 4;
-            case IRON:
-                return 3;
-            case GOLD:
-                return 2;
-            case IRIDIUM:
-                return 1;
-            default:
-                return 5;
-        }
+        return switch (material) {
+            case BASIC -> 5;
+            case COPPER -> 4;
+            case IRON -> 3;
+            case GOLD -> 2;
+            case IRIDIUM -> 1;
+        };
     }
 
 
     @Override
     public Tool upgrade() {
-        switch (getMaterial()) {
-            case BASIC:
-                return new Pickaxe(ToolMaterial.COPPER);
-            case COPPER:
-                return new Pickaxe(ToolMaterial.IRON);
-            case IRON:
-                return new Pickaxe(ToolMaterial.GOLD);
-            case GOLD:
-                return new Pickaxe(ToolMaterial.IRIDIUM);
-            case IRIDIUM:
-                return null; // Already at highest material
-            default:
-                return null;
-        }
+        return switch (getMaterial()) {
+            case BASIC -> new Pickaxe(ToolMaterial.COPPER);
+            case COPPER -> new Pickaxe(ToolMaterial.IRON);
+            case IRON -> new Pickaxe(ToolMaterial.GOLD);
+            case GOLD -> new Pickaxe(ToolMaterial.IRIDIUM);
+            case IRIDIUM -> null; // Already at highest material
+        };
     }
 
     @Override

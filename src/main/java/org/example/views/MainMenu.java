@@ -26,12 +26,6 @@ public class MainMenu implements AppMenu {
 
         if (result.success()) {
             System.out.println(result.message());
-//            if (command instanceof MainMenuCommands) {
-//                MainMenuCommands mainCommand = (MainMenuCommands) command;
-//                switch (mainCommand) {
-//
-//                }
-//            }
         } else {
             System.out.println("Error: " + result.message());
         }

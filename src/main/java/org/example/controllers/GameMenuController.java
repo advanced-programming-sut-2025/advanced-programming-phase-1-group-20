@@ -7,6 +7,7 @@ import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
+import org.example.models.entities.Friendship;
 import org.example.models.entities.Game;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.TileType;
@@ -130,6 +131,10 @@ public class GameMenuController implements Controller {
             case PrintMap -> result = printMap(args);
 
             case HelpReadingMap -> result = helpReadingMap();
+
+            case FriendshipStatus -> result = friendShipsStatus();
+            case TalkToPlayer -> result = talkToPlayer(args);
+            case TalkHistory -> result = talkHistory(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -843,5 +848,118 @@ public class GameMenuController implements Controller {
         gMap.addGreenhouse(leftCorner, rightCorner);
 
         return Result.success("Greenhouse built successfully! You can now plant crops regardless of the season.");
+    }
+
+    private Result friendShipsStatus() {
+        Player player = App.getGame().getCurrentPlayer();
+        StringBuilder result = new StringBuilder();
+        result.append("friendships status:\n");
+
+        Map<Player, Friendship> friendships = player.getAllFriendships();
+
+        if (friendships.isEmpty()) {
+            result.append("You have no friendships yet.");
+        } else {
+            for (Map.Entry<Player, Friendship> entry : friendships.entrySet()) {
+                Player friend = entry.getKey();
+                Friendship friendship = entry.getValue();
+
+                result.append("- ").append(friend.getUser().getUsername())
+                        .append(": Level ").append(friendship.getLevel())
+                        .append(" (").append(friendship.getXp()).append("/")
+                        .append(friendship.getMaxXpForCurrentLevel()).append(" XP)");
+
+                if (friendship.isMarried()) {
+                    result.append(" [Married]");
+                }
+
+                result.append("\n");
+            }
+        }
+
+        return Result.success(result.toString());
+    }
+
+    private Result talkToPlayer(String[] args) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        String username = args[0];
+        String message = args[1];
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        // Get or create friendship
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        // Talk to the player
+        boolean success = friendship.talk(message, currentPlayer);
+        if (!success) {
+            if (!arePlayersNearEachOther(currentPlayer, targetPlayer)) {
+                return Result.error("You need to be near " + username + " to talk to them.");
+            } else {
+                return Result.error("You have already talked to " + username + " today.");
+            }
+        }
+
+        return Result.success("Message sent to " + username + ". Friendship increased by " + Friendship.XP_TALK + " XP.");
+    }
+
+    private Result talkHistory(String[] args) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        String username = args[0];
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        List<String> chatHistory = friendship.getChatHistory();
+        if (chatHistory.isEmpty()) {
+            return Result.success("No chat history with " + username + ".");
+        }
+
+        StringBuilder result = new StringBuilder();
+        result.append("Chat history with ").append(username).append(":\n");
+
+        for (String message : chatHistory) {
+            result.append(message).append("\n");
+        }
+
+        return Result.success(result.toString());
+    }
+
+    private boolean arePlayersNearEachOther(Player player1, Player player2) {
+        Location loc1 = player1.getLocation();
+        Location loc2 = player2.getLocation();
+
+        int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
+
+        return distance <= 2;
     }
 }

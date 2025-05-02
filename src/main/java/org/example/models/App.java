@@ -14,42 +14,33 @@ import java.util.List;
 import java.util.Map;
 
 public class App {
+    // File paths for saving games
+    private static final String GAMES_DIRECTORY = "saved_games";
+    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.ser";
     // TODO: add the saving methods
     // static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
     private static User loggedInUser;
     private static Map<Integer, String> securityQuestions = new HashMap<>();
     private static boolean dataLoaded = false;
-
     private static List<Game> allGames = new ArrayList<>();
     private static Game currentGame;
-
     //    private static Lists for game
     private static List<Item> items = new ArrayList<>();
 
-    // File paths for saving games
-    private static final String GAMES_DIRECTORY = "saved_games";
-    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.ser";
-
-
     public static void initialize() {
         if (!dataLoaded) {
-            // Load users from file storage
             users = FileStorage.loadUsers();
 
-            // Add security questions
             addSecurityQuestion();
 
-            //initializing game static lists
             items = FileStorage.loadItems();
 
-            // Create games directory if it doesn't exist
             File directory = new File(GAMES_DIRECTORY);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
-            // Load saved games
             loadAllGames();
 
             dataLoaded = true;
@@ -172,10 +163,7 @@ public class App {
     public static List<String> getSecurityQuestions() {
         return (List<String>) securityQuestions.values();
     }
-
-
-    //game lists
-
+    
     public static Item getItem(String itemName) {
         return items.stream().filter(item -> item.getName().equals(itemName))
                 .findFirst().orElse(null);

@@ -7,7 +7,7 @@ import org.example.models.Items.Tool;
 import org.example.models.Items.Tools.*;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.common.Location;
-import org.example.models.entities.Mob;
+import org.example.models.entities.Friendship;
 import org.example.models.entities.NPC;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Skills;
@@ -16,9 +16,10 @@ import org.example.models.enums.Types.TileType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class Player extends Mob {
-    private HashMap<Mob, Integer> friendShip;
+public class Player {
+    private Map<Player, Friendship> friendships;
     private User user;
     private int energy;
     private List<Skill> skills;
@@ -29,7 +30,7 @@ public class Player extends Mob {
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
     private Backpack backpack;
-    
+
     private Tool currentTool;
 
     private boolean energySet = true;
@@ -49,6 +50,7 @@ public class Player extends Mob {
         backpack = new Backpack();
         this.energy = 200;
         this.hasCollapsed = false;
+        this.friendships = new HashMap<>();
 
         // Initialize basic tools
         backpack.add(new Hoe());
@@ -61,9 +63,56 @@ public class Player extends Mob {
         equipTool("Basic Hoe");
     }
 
-    //decreasing energy:
-    private void decreaseEnergy() {
-        if (energySet) {
+    public Friendship getFriendship(Player player) {
+        if (!friendships.containsKey(player)) {
+            Friendship friendship = new Friendship(this, player);
+            friendships.put(player, friendship);
+            if (!player.friendships.containsKey(this)) {
+                player.friendships.put(this, friendship);
+            }
+        }
+        return friendships.get(player);
+    }
+
+    public Map<Player, Friendship> getAllFriendships() {
+        return friendships;
+    }
+
+
+    public boolean talkTo(Player player, String message) {
+        return getFriendship(player).talk(message, this);
+    }
+
+    public boolean tradeWith(Player player, boolean success) {
+        return getFriendship(player).trade(success);
+    }
+
+
+    public boolean giftTo(Player player, org.example.models.Items.Item item) {
+        return getFriendship(player).gift(item, this);
+    }
+
+    public boolean hugMob(Player player) {
+        return getFriendship(player).hug(this);
+    }
+
+    public boolean giveBouquetTo(Player player) {
+        return getFriendship(player).giveBouquet(this);
+    }
+
+
+    public boolean proposeMarriageTo(Player player) {
+        return getFriendship(player).proposeMarriage(this);
+    }
+
+
+    public boolean isMarriedTo(Player player) {
+        return friendships.containsKey(player) && friendships.get(player).isMarried();
+    }
+
+    public void applyDailyDecayToAllFriendships() {
+        for (Friendship friendship : friendships.values()) {
+            friendship.applyDailyDecay();
         }
     }
 
@@ -84,9 +133,29 @@ public class Player extends Mob {
         //checking around for NPC's , and doing missions.
     }
 
-    public void giftNPC(NPC npc) {
-        //implementing func. leveling up npc's friendShip for both.
+
+    public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
+        return false;
     }
+
+    public boolean talkToNPC(NPC npc, String message) {
+        return false;
+    }
+
+    public boolean hugNPC(NPC npc) {
+        return false;
+    }
+
+    public boolean giveBouquetToNPC(NPC npc) {
+        return false;
+    }
+
+
+    public int getFriendshipXP(NPC npc) {
+        // NPCs are not players, so we can't use the friendship system with them
+        return 0;
+    }
+
 
     public void showCraftingItems() {
 

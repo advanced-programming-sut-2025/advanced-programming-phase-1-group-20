@@ -4,7 +4,6 @@ import org.example.models.Player.Player;
 import org.example.models.common.Date;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +30,17 @@ public class Game implements Serializable {
         this.terminateVotes = new HashMap<>();
         this.saved = false;
 
-        // Initialize all players with no map selection and no vote
         for (Player player : players) {
             mapSelections.put(player, -1);
             terminateVotes.put(player, false);
+        }
+
+        for (int i = 0; i < players.size(); i++) {
+            for (int j = i + 1; j < players.size(); j++) {
+                Player player1 = players.get(i);
+                Player player2 = players.get(j);
+                player1.getFriendship(player2);
+            }
         }
     }
 

@@ -26,74 +26,46 @@ public class TrashCan extends Tool {
 
 
     private static int getBaseSellPrice(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 0;
-            case COPPER:
-                return 2000;
-            case IRON:
-                return 5000;
-            case GOLD:
-                return 10000;
-            case IRIDIUM:
-                return 25000;
-            default:
-                return 0;
-        }
+        return switch (material) {
+            case BASIC -> 0;
+            case COPPER -> 2000;
+            case IRON -> 5000;
+            case GOLD -> 10000;
+            case IRIDIUM -> 25000;
+        };
     }
 
 
     private static TrashCanType getTrashCanType(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return TrashCanType.INITIAL;
-            case COPPER:
-                return TrashCanType.COPPER;
-            case IRON:
-                return TrashCanType.IRON;
-            case GOLD:
-                return TrashCanType.GOLD;
-            case IRIDIUM:
-                return TrashCanType.IRIDIUM;
-            default:
-                return TrashCanType.INITIAL;
-        }
+        return switch (material) {
+            case BASIC -> TrashCanType.INITIAL;
+            case COPPER -> TrashCanType.COPPER;
+            case IRON -> TrashCanType.IRON;
+            case GOLD -> TrashCanType.GOLD;
+            case IRIDIUM -> TrashCanType.IRIDIUM;
+        };
     }
 
     private static double getReturnPercentage(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 0.0;
-            case COPPER:
-                return 0.15;
-            case IRON:
-                return 0.30;
-            case GOLD:
-                return 0.45;
-            case IRIDIUM:
-                return 0.60;
-            default:
-                return 0.0;
-        }
+        return switch (material) {
+            case BASIC -> 0.0;
+            case COPPER -> 0.15;
+            case IRON -> 0.30;
+            case GOLD -> 0.45;
+            case IRIDIUM -> 0.60;
+        };
     }
 
 
     @Override
     public Tool upgrade() {
-        switch (getMaterial()) {
-            case BASIC:
-                return new TrashCan(ToolMaterial.COPPER);
-            case COPPER:
-                return new TrashCan(ToolMaterial.IRON);
-            case IRON:
-                return new TrashCan(ToolMaterial.GOLD);
-            case GOLD:
-                return new TrashCan(ToolMaterial.IRIDIUM);
-            case IRIDIUM:
-                return null; // Already at highest material
-            default:
-                return null;
-        }
+        return switch (getMaterial()) {
+            case BASIC -> new TrashCan(ToolMaterial.COPPER);
+            case COPPER -> new TrashCan(ToolMaterial.IRON);
+            case IRON -> new TrashCan(ToolMaterial.GOLD);
+            case GOLD -> new TrashCan(ToolMaterial.IRIDIUM);
+            case IRIDIUM -> null; // Already at highest material
+        };
     }
 
 
