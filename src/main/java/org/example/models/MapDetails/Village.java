@@ -1,7 +1,5 @@
 package org.example.models.MapDetails;
 
-import org.example.models.common.Location;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;

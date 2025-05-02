@@ -6,6 +6,7 @@ import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class GameMap {
     private int width;
@@ -49,10 +50,37 @@ public class GameMap {
                 tiles[x][y] = new Location(x, y, TileType.GRASS);
             }
         }
+
         initializeVillage();
         initializeFarms();
         connectFarmsToVillage();
+
+        placeRandomObjects("tree", 30);
+        placeRandomObjects("stone", 30);
     }
+
+    private void placeRandomObjects(String type, int count) {
+        Random rand = new Random();
+        int placed = 0;
+
+        while (placed < count) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            String currentType = tiles[x][y].getType();
+
+            if (!isProtectedTile(currentType) && !currentType.equals("tree") && !currentType.equals("stone")) {
+                tiles[x][y].setType(type);
+                if (type.equals("tree")) {
+                    tiles[x][y].setTile(TileType.TREE);
+                }
+                else if (type.equals("stone")) {
+                    tiles[x][y].setTile(TileType.STONE);
+                }
+                placed++;
+            }
+        }
+    }
+
 
     private void initializeVillage() {
         int centerX = width / 2;
@@ -273,8 +301,6 @@ public class GameMap {
         Location tile = tiles[x][y];
         tile.setItem(item);
     }
-
-
 
     // TODO : colision - add item to refrigerator - get inventory
 

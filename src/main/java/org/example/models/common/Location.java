@@ -24,16 +24,16 @@ public class Location {
         return tile;
     }
 
+    public void setTile(TileType tile) {
+        this.tile = tile;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public void setTile(TileType tile) {
-        this.tile = tile;
     }
 
     public boolean getShokhm() {
