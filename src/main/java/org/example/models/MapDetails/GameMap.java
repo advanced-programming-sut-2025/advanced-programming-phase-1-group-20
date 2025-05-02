@@ -7,9 +7,7 @@ import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.TreeType;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameMap {
     private int width;
@@ -311,6 +309,43 @@ public class GameMap {
         Location tile = tiles[x][y];
         tile.setItem(item);
     }
+
+    public List<Location> getPassableNeighbors(Location location) {
+        List<Location> result = new ArrayList<>();
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},           {0, 1},
+                {1, -1},  {1, 0},  {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (isInBounds(newX, newY)) {
+                Location neighbor = tiles[newX][newY];
+                if (isPassable(neighbor)) {
+                    result.add(neighbor);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public boolean isPassable(Location location) {
+        TileType type = location.getTile();
+        return type == TileType.GRASS || type == TileType.PATH;
+    }
+
+    public boolean isInBounds(int x, int y) {
+        return x >= 0 && y >= 0 && x < width && y < height;
+    }
+
+
 
     // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
 
