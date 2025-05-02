@@ -1,10 +1,15 @@
 package org.example.models.MapDetails;
 
+import org.example.models.Items.Item;
+import org.example.models.Items.Tree;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
+import org.example.models.enums.Types.TreeType;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class GameMap {
     private int width;
@@ -48,10 +53,44 @@ public class GameMap {
                 tiles[x][y] = new Location(x, y, TileType.GRASS);
             }
         }
+
         initializeVillage();
         initializeFarms();
         connectFarmsToVillage();
+
+        placeRandomObjects("tree", 30);
+        placeRandomObjects("stone", 30);
     }
+
+    private void placeRandomObjects(String type, int count) {
+        Random rand = new Random();
+        int placed = 0;
+
+        while (placed < count) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            String currentType = tiles[x][y].getType();
+
+            if (!isProtectedTile(currentType) && !currentType.equals("tree") && !currentType.equals("stone")) {
+                tiles[x][y].setType(type);
+
+                if (type.equals("tree")) {
+                    tiles[x][y].setTile(TileType.TREE);
+
+                    TreeType[] types = TreeType.values();
+                    TreeType randomType = types[rand.nextInt(types.length)];
+                    Tree tree = new Tree(randomType);
+                    tiles[x][y].setItem(tree);
+                }
+                else if (type.equals("stone")) {
+                    tiles[x][y].setTile(TileType.STONE);
+                }
+
+                placed++;
+            }
+        }
+    }
+
 
     private void initializeVillage() {
         int centerX = width / 2;
@@ -243,6 +282,34 @@ public class GameMap {
             return location.getTile();
         }
         return null;
+    }
+
+    public boolean isShokhm(int x, int y) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Location tile = tiles[x][y];
+                boolean isShokhm = tile.getShokhm();
+                if (isShokhm) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Location getItem(int x, int y) {
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                Location tile = tiles[x][y];
+                return tile;
+            }
+        }
+        return null;
+    }
+
+    public void placeItem(int x, int y, Item item) {
+        Location tile = tiles[x][y];
+        tile.setItem(item);
     }
 
     // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
