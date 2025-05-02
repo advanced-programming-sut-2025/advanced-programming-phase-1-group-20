@@ -33,6 +33,8 @@ public enum GameMenuCommands implements Command {
     ShowEnergy(Pattern.compile("^energy$")),
     ShowMap(Pattern.compile("^map$")),
     PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
+    TestPrintMap(Pattern.compile("^test\\s+print\\s+map$")),
+    HelpReadingMap(Pattern.compile("^help\\s+reading\\s+map$")),
     EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
     setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
     energyUnlimited(Pattern.compile("^energy unlimited$")),

@@ -123,6 +123,11 @@ public class GameMenuController implements Controller {
             // Walking and map commands
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
+            case TestPrintMap -> {
+                testPrintMap();
+                result = Result.success("Map print test completed");
+            }
+            case HelpReadingMap -> result = helpReadingMap();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -613,7 +618,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-    // TODO: implement more details (Taha please)
     private Result printMap(String[] args) {
         if (args == null || args.length < 3) {
             return Result.error("Coordinates or size not specified");
@@ -629,12 +633,58 @@ public class GameMenuController implements Controller {
                 return Result.error("Invalid coordinates");
             }
 
+            // Check if the location is in another player's farm
+            if (gMap.isInOtherPlayersFarm(player, x, y)) {
+                return Result.error("You cannot view another player's farm");
+            }
+
+            System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
             gMap.printCurrentView(x, y, size);
+            System.out.println("Map printed successfully!");
 
             return Result.success("Map printed");
         } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates or size");
         }
+    }
+
+    /**
+     * Test method to verify if the map is printed correctly
+     * This can be called from the game to test map printing
+     */
+    public void testPrintMap() {
+        System.out.println("Testing map printing functionality...");
+
+        // Use default coordinates and size
+        int x = 10;
+        int y = 10;
+        int size = 3;
+
+        // Check if the coordinates are valid
+        if (!gMap.isValidCoordinate(x, y)) {
+            System.out.println("Invalid coordinates: (" + x + ", " + y + ")");
+            return;
+        }
+
+        System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
+        gMap.printCurrentView(x, y, size);
+        System.out.println("Map printed successfully!");
+    }
+
+    private Result helpReadingMap() {
+        System.out.println("Map Legend:");
+        System.out.println("'.' - Grass");
+        System.out.println("'=' - Tilled Soil");
+        System.out.println("'T' - Tree");
+        System.out.println("'S' - Stone");
+        System.out.println("'~' - Water");
+        System.out.println("'#' - Path");
+        System.out.println("'H' - House");
+        System.out.println("'V' - Village");
+        System.out.println("'B' - Bridge");
+        System.out.println("' ' - Empty");
+        System.out.println("'@' - Player Position");
+        return Result.success("Map legend displayed");
     }
 
     private Result selectMap(String[] args) {

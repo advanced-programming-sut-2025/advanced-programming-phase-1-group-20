@@ -29,7 +29,7 @@ public class GameMap {
         initializeSymbols();
         initializeMap();
     }
-    
+
     public static int calculateEnergyNeeded(Location location1, Location location2) {
         int distanceInTiles = Math.abs(location1.xAxis - location2.xAxis) +
                 Math.abs(location1.yAxis - location2.yAxis);
@@ -440,12 +440,24 @@ public class GameMap {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
                 } else {
-
-                    System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
+                    // Convert TileType to lowercase string to match symbolMap keys
+                    String tileTypeStr = tiles[x][y].getTile().toString().toLowerCase();
+                    // Use a default symbol if the tile type is not in the symbolMap
+                    Character symbol = symbolMap.getOrDefault(tileTypeStr, '?');
+                    System.out.print(symbol + " ");
                 }
             }
             System.out.println();
         }
+    }
+
+    public boolean isInOtherPlayersFarm(Player player, int x, int y) {
+        for (Farm farm : farms) {
+            if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Farm getCurrentFarm() {
@@ -459,6 +471,7 @@ public class GameMap {
     }
 
     // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
+
     public TileType getTile(int x, int y) {
         if (isValidCoordinate(x, y)) {
             Location location = tiles[x][y];
