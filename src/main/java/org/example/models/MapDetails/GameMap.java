@@ -440,11 +440,7 @@ public class GameMap {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
                 } else {
-                    // Convert TileType to lowercase string to match symbolMap keys
-                    String tileTypeStr = tiles[x][y].getTile().toString().toLowerCase();
-                    // Use a default symbol if the tile type is not in the symbolMap
-                    Character symbol = symbolMap.getOrDefault(tileTypeStr, '?');
-                    System.out.print(symbol + " ");
+                    System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
                 }
             }
             System.out.println();
@@ -471,12 +467,25 @@ public class GameMap {
     }
 
     // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
-
     public TileType getTile(int x, int y) {
         if (isValidCoordinate(x, y)) {
             Location location = tiles[x][y];
             return location.getTile();
         }
         return null;
+    }
+
+
+    public void addGreenhouse(Location leftCorner, Location rightCorner) {
+        GreenHouse greenhouse = new GreenHouse(leftCorner, rightCorner);
+
+        for (int x = leftCorner.xAxis; x <= rightCorner.xAxis; x++) {
+            for (int y = leftCorner.yAxis; y <= rightCorner.yAxis; y++) {
+                if (isValidCoordinate(x, y)) {
+                    tiles[x][y].setTile(TileType.GREENHOUSE);
+                }
+            }
+        }
+
     }
 }

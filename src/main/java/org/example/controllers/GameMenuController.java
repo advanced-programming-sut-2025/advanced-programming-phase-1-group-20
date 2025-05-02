@@ -9,6 +9,7 @@ import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.Game;
 import org.example.models.enums.Types.CraftingType;
+import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
@@ -16,6 +17,7 @@ import org.example.views.MainMenu;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class GameMenuController implements Controller {
     private AppView appView;
@@ -43,13 +45,13 @@ public class GameMenuController implements Controller {
         Result result = null;
 
         switch (command) {
-            // multiplayer game related commands
+            // game related commands
             case SelectMap -> result = selectMap(args);
             case ExitGame -> result = exitGame();
             case NextTurn -> result = nextTurn();
             case VoteTerminate -> result = voteTerminate(args);
 
-            // time related commands
+            // time-related commands
             case ShowTime -> showTime();
             case ShowDate -> showDate();
             case ShowDateTime -> showDateTime();
@@ -120,13 +122,13 @@ public class GameMenuController implements Controller {
             case ToolUpgrade -> result = upgradeTool(args);
             case ToolUse -> result = useTool(args);
 
+            // Greenhouse-related commands
+            case GreenhouseBuild -> result = greenhouseBuild();
+
             // Walking and map commands
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
-            case TestPrintMap -> {
-                testPrintMap();
-                result = Result.success("Map print test completed");
-            }
+
             case HelpReadingMap -> result = helpReadingMap();
 
             case None -> result = Result.error("Invalid command");
@@ -424,10 +426,13 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(name);
         boolean flag = checkItem(item) && isCooking(item) && player.getBackpack().hasItems(Collections.singletonList(name));
         //TODO : checking refrigerator.
-        //TODO : we must check inventory is full or not.
+        if (player.getBackpack().isBackPackFull()) {
+            // TODO: make this a Result -> Mostafa
+        }
         if (flag) {
             CookingItem cookingItem = (CookingItem) item;
-            //TODO : decrease energy.
+            // TODO: mostafa baadan begoo energish doroste ya na
+            player.decreaseEnergy(cookingItem.getEnergy());
             Food food = cookingItem.cook(player.getBackpack());
             player.getBackpack().add(food);
             //TODO : controlling xp.
@@ -448,7 +453,7 @@ public class GameMenuController implements Controller {
         boolean flag = checkItem(item) && player.getBackpack().hasItems(Collections.singletonList(foodName)) && isFood(item);
         if (flag) {
             Food food = (Food) item;
-            //TODO : advance energy.
+            player.increaseEnergy(food.getEnergy());
             player.getBackpack().remove(food);
         }
     }
@@ -457,6 +462,7 @@ public class GameMenuController implements Controller {
         if (item instanceof Food) {
             return true;
         }
+        // TODO: this must be a Result
         System.out.println("item is not a food");
         return false;
     }
@@ -648,28 +654,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-    /**
-     * Test method to verify if the map is printed correctly
-     * This can be called from the game to test map printing
-     */
-    public void testPrintMap() {
-        System.out.println("Testing map printing functionality...");
-
-        // Use default coordinates and size
-        int x = 10;
-        int y = 10;
-        int size = 3;
-
-        // Check if the coordinates are valid
-        if (!gMap.isValidCoordinate(x, y)) {
-            System.out.println("Invalid coordinates: (" + x + ", " + y + ")");
-            return;
-        }
-
-        System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
-        gMap.printCurrentView(x, y, size);
-        System.out.println("Map printed successfully!");
-    }
 
     private Result helpReadingMap() {
         System.out.println("Map Legend:");
@@ -803,5 +787,61 @@ public class GameMenuController implements Controller {
         }
 
         return Result.success("Vote recorded. Waiting for other players to vote.");
+    }
+
+    // TODO: check if the items required are right
+    private Result greenhouseBuild() {
+        int requiredWood = 500;
+        int requiredStone = 1000;
+
+        Item woodItem = App.getItem("Wood");
+        if (woodItem == null) {
+            return Result.error("Wood item not found in the game.");
+        }
+
+        int woodCount = 0;
+        for (Map.Entry<Item, Integer> entry : player.getBackpack().getInventory().entrySet()) {
+            if (entry.getKey().getName().equalsIgnoreCase("Wood")) {
+                woodCount = entry.getValue();
+                break;
+            }
+        }
+
+        if (woodCount < requiredWood) {
+            return Result.error("Not enough wood. You need " + requiredWood + " wood to build a greenhouse.");
+        }
+
+        Item stoneItem = App.getItem("Stone");
+        if (stoneItem == null) {
+            return Result.error("Stone item not found in the game.");
+        }
+
+        int stoneCount = 0;
+        for (Map.Entry<Item, Integer> entry : player.getBackpack().getInventory().entrySet()) {
+            if (entry.getKey().getName().equalsIgnoreCase("Stone")) {
+                stoneCount = entry.getValue();
+                break;
+            }
+        }
+
+        if (stoneCount < requiredStone) {
+            return Result.error("Not enough stone. You need " + requiredStone + " stone to build a greenhouse.");
+        }
+
+        for (int i = 0; i < requiredWood; i++) {
+            player.getBackpack().remove(woodItem);
+        }
+
+        for (int i = 0; i < requiredStone; i++) {
+            player.getBackpack().remove(stoneItem);
+        }
+
+        // The greenhouse is a 5x6 grid (without counting the wall)
+        Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
+        Location rightCorner = new Location(16, 15, TileType.GREENHOUSE);
+
+        gMap.addGreenhouse(leftCorner, rightCorner);
+
+        return Result.success("Greenhouse built successfully! You can now plant crops regardless of the season.");
     }
 }

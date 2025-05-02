@@ -78,6 +78,9 @@ public enum GameMenuCommands implements Command {
     ToolUpgrade(Pattern.compile("^tools\\s+upgrade\\s+(?<toolName>.+)$")),
     ToolUse(Pattern.compile("^tools\\s+use\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
 
+    // greenhouse related
+    GreenhouseBuild(Pattern.compile("^greenhouse\\s+build$")),
+
     // TODO: add more commands
     None(null);
 

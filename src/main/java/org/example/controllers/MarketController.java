@@ -24,6 +24,8 @@ public class MarketController implements Controller {
         this.gameClock = new Date();
         this.gMap = new GameMap(100, 100, player);
         // طول و عرض همینطوری گذاشته شده!
+        // TODO: make the map more detailed
+        // "Kasra" -> TODO: i wil add the colored map printing when this is handled
         this.market = market;
         this.app = app;
     }

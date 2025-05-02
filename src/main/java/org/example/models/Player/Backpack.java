@@ -79,6 +79,19 @@ public class Backpack {
 
     }
 
+    public boolean isBackPackFull() {
+        if (type == Type.Initial) {
+            if (countItems() == 12) {
+                return false;
+            }
+        } else if (type == Type.Big) {
+            if (countItems() == 24) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     enum Type {
         Initial,
         Big,
