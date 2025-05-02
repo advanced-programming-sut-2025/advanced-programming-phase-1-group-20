@@ -312,6 +312,6 @@ public class GameMap {
         tile.setItem(item);
     }
 
-    // TODO : colision - add item to refrigerator - get inventory
+    // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
 
 }
