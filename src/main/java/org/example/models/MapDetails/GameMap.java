@@ -335,7 +335,7 @@ public class GameMap {
             int newY = y + dir[1];
 
             if (isInBounds(newX, newY)) {
-                Location neighbor = getTile(newX, newY);
+                Location neighbor = tiles[newX][newY];
                 if (isPassable(neighbor)) {
                     result.add(neighbor);
                 }
