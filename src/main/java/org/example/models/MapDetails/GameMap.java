@@ -1,9 +1,12 @@
 package org.example.models.MapDetails;
 
 import org.example.models.Items.Item;
+import org.example.models.Items.Tree;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
+import org.example.models.enums.Types.TreeType;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -70,16 +73,23 @@ public class GameMap {
 
             if (!isProtectedTile(currentType) && !currentType.equals("tree") && !currentType.equals("stone")) {
                 tiles[x][y].setType(type);
+
                 if (type.equals("tree")) {
                     tiles[x][y].setTile(TileType.TREE);
-                }
-                else if (type.equals("stone")) {
+
+                    TreeType[] types = TreeType.values();
+                    TreeType randomType = types[rand.nextInt(types.length)];
+                    Tree tree = new Tree(randomType);
+                    tiles[x][y].setItem(tree);
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
+
                 placed++;
             }
         }
     }
+
 
 
     private void initializeVillage() {
