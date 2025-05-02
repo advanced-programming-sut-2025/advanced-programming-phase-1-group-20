@@ -44,6 +44,14 @@ public class Location {
         this.item = item;
     }
 
+    public int getX() {
+        return xAxis;
+    }
+
+    public int getY() {
+        return yAxis;
+    }
+
     public String toString() {
         return "Location(x=" + xAxis + ", y=" + yAxis + ", tile=" + tile + ")";
     }
