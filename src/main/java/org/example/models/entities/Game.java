@@ -82,6 +82,9 @@ public class Game implements Serializable {
     }
 
     public void nextTurn() {
+        // Reset energy used in the current turn for the current player
+        currentPlayer.resetEnergyUsedInTurn();
+
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
 

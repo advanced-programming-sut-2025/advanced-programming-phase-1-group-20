@@ -9,8 +9,11 @@ import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.Friendship;
 import org.example.models.entities.Game;
+import org.example.models.entities.NPC;
 import org.example.models.entities.TradeRequest;
 import org.example.models.entities.User;
+import org.example.models.enums.Charactristic;
+import org.example.models.enums.Jobs;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.TileType;
@@ -19,9 +22,14 @@ import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
 import org.example.views.MainMenu;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class GameMenuController implements Controller {
     private AppView appView;
@@ -600,16 +608,26 @@ public class GameMenuController implements Controller {
         }
 
         String direction = args[0];
+
+        // Check if the player has a tool equipped
+        Tool currentTool = player.getCurrentTool();
+        if (currentTool == null) {
+            return Result.error("No tool is currently equipped");
+        }
+
+        // Check if the player has enough energy
+        if (player.getEnergy() <= 0) {
+            return Result.error("Not enough energy to use this tool");
+        }
+
         boolean success = player.useTool(direction, gMap);
 
         if (success) {
             return Result.success("Tool used successfully in direction " + direction);
         } else {
-            Tool currentTool = player.getCurrentTool();
-            if (currentTool == null) {
-                return Result.error("No tool is currently equipped");
-            } else if (player.getEnergy() <= 0) {
-                return Result.error("Not enough energy to use this tool");
+            // Check if the failure is due to energy limit per turn
+            if (!player.canUseEnergy(1)) { // Using a small value to check if any energy can be used
+                return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
             } else {
                 return Result.error("Failed to use tool in direction " + direction + ". Make sure you're using it on a valid tile.");
             }
@@ -639,6 +657,11 @@ public class GameMenuController implements Controller {
             Location destination = new Location(x, y, gMap.getTile(x, y));
 
             int energyNeeded = GameMap.calculateEnergyNeeded(currentLocation, destination);
+
+            // Check if the player has used too much energy this turn
+            if (!player.canUseEnergy(energyNeeded)) {
+                return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
+            }
 
             // Check if the player has enough energy
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
@@ -1282,11 +1305,55 @@ public class GameMenuController implements Controller {
             return Result.error("You need to be adjacent to " + npcName + " to talk to them.");
         }
 
-        // Since we can't directly create an NPC from the enum in the controller,
-        // we'll just return a generic dialogue based on the NPC's name and characteristics
-        String dialogue = "Hello, I'm " + npcName + ". " + npcEnum.getDescription();
+        // Create an NPC object from the enum
+        NPC npc = createNPCFromEnum(npcEnum);
+
+        // Get the current date for time-appropriate dialogue
+        Date currentDate = App.getGame().getDate();
+
+        // Use the player's meetNPC method to get the dialogue
+        String response = player.meetNPC(npc);
+
+        // Format the response with the NPC's name
+        String dialogue = npcName + ": " + response;
+
+        // For first-time meetings or low friendship levels, include background info
+        Map<String, String> friendships = player.getNPCFriendships();
+        if (!friendships.containsKey(npcName) || friendships.get(npcName).contains("Level: 0")) {
+            dialogue += "\n\n" + npcEnum.getDescription();
+        }
 
         return Result.success(dialogue);
+    }
+
+    /**
+     * Creates an NPC object from an Npcs enum value
+     * @param npcEnum The Npcs enum value
+     * @return A new NPC object
+     */
+    private NPC createNPCFromEnum(Npcs npcEnum) {
+        // Create a new NPC with the properties from the enum
+        HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
+        NPC npc = new NPC(
+            npcEnum.getCharacteristic(),
+            npcEnum.getName(),
+            npcEnum.getJob(),
+            missions
+        );
+
+        // Set the NPC's location and description
+        npc.setLocation(npcEnum.getLocation());
+        npc.setDescription(npcEnum.getDescription());
+
+        // Add favorite items
+        for (String itemName : npcEnum.getFavoriteItems()) {
+            Item item = App.getItem(itemName);
+            if (item != null) {
+                npc.addFavoriteItem(item);
+            }
+        }
+
+        return npc;
     }
 
     private Result giftNPC(String[] args) {
@@ -1322,30 +1389,64 @@ public class GameMenuController implements Controller {
             return Result.error("You need to be adjacent to " + npcName + " to give them a gift.");
         }
 
+        // Create an NPC object from the enum
+        NPC npc = createNPCFromEnum(npcEnum);
+
+        // Use the player's giftNPC method to give the gift and get the response
+        boolean success = player.giftNPC(npc, item);
+
+        if (!success) {
+            return Result.error("You can't gift that item to " + npcName + ".");
+        }
+
+        // Get the current date for time-appropriate dialogue
+        Date currentDate = App.getGame().getDate();
+
         // Check if the item is a favorite of the NPC
         boolean isFavorite = npcEnum.getFavoriteItems().contains(itemName);
 
-        // Remove the item from the player's backpack
-        player.getBackpack().remove(item, 1);
+        // Get the NPC's friendship level
+        Map<String, String> friendships = player.getNPCFriendships();
+        String friendshipInfo = friendships.getOrDefault(npcName, "Level: 0, Points: 0");
 
-        // Since we can't directly create an NPC from the enum in the controller,
-        // we'll just return a generic success message
+        // Format a success message
+        StringBuilder resultMessage = new StringBuilder();
+        resultMessage.append("You gave ").append(itemName).append(" to ").append(npcName).append(".\n\n");
+
+        // Add the NPC's response
         if (isFavorite) {
-            return Result.success("You gave " + itemName + " to " + npcName + ". They loved it! Friendship increased by 200 points.");
+            resultMessage.append(npcName).append(" loved your gift! Friendship increased by 200 points.");
         } else {
-            return Result.success("You gave " + itemName + " to " + npcName + ". Friendship increased by 50 points.");
+            resultMessage.append(npcName).append(" appreciated your gift. Friendship increased by 50 points.");
         }
+
+        // Add the updated friendship level
+        resultMessage.append("\n\nCurrent friendship with ").append(npcName).append(": ").append(friendshipInfo);
+
+        return Result.success(resultMessage.toString());
     }
 
     private Result friendshipNPCList() {
-        // Since we can't directly access the player's NPC friendships in the controller,
-        // we'll just return a generic message listing all NPCs with random friendship levels
+        // Get the actual NPC friendships from the player
+        Map<String, String> friendships = player.getNPCFriendships();
+
         StringBuilder result = new StringBuilder("NPC Friendships:\n");
 
-        for (Npcs npc : Npcs.values()) {
-            int level = (int) (Math.random() * 3); // Random level between 0 and 2
-            int points = (int) (Math.random() * 200); // Random points between 0 and 199
-            result.append("- ").append(npc.getName()).append(": Level ").append(level).append(", Points ").append(points).append("\n");
+        // Sort NPCs by name for consistent display
+        List<Npcs> sortedNpcs = new ArrayList<>(Arrays.asList(Npcs.values()));
+        Collections.sort(sortedNpcs, Comparator.comparing(Npcs::getName));
+
+        for (Npcs npc : sortedNpcs) {
+            String npcName = npc.getName();
+            String friendshipInfo = friendships.getOrDefault(npcName, "Level: 0, Points: 0");
+
+            result.append("- ").append(npcName).append(": ").append(friendshipInfo).append("\n");
+
+            // Add the NPC's characteristic and job for more detail
+            result.append("  Trait: ").append(npc.getCharacteristic()).append(", Job: ").append(npc.getJob()).append("\n");
+
+            // Add favorite items
+            result.append("  Favorite Items: ").append(String.join(", ", npc.getFavoriteItems())).append("\n\n");
         }
 
         return Result.success(result.toString());
@@ -1460,11 +1561,6 @@ public class GameMenuController implements Controller {
 
     // Trade-related methods
 
-    /**
-     * Opens the trade menu and shows a list of players in the game.
-     *
-     * @return Result with the list of players
-     */
     private Result startTrade() {
         Game game = App.getGame();
         if (game == null) {
@@ -1496,12 +1592,7 @@ public class GameMenuController implements Controller {
         return Result.success(sb.toString());
     }
 
-    /**
-     * Creates a trade request.
-     *
-     * @param args Command arguments
-     * @return Result of the operation
-     */
+
     private Result tradeRequest(String[] args) {
         if (args == null || args.length < 4) {
             return Result.error("Invalid trade request format");
@@ -1584,7 +1675,7 @@ public class GameMenuController implements Controller {
                     player, targetPlayer, item, amount, targetItem, targetAmount, isRequest);
         } else {
             request = TradeManager.getInstance().createTradeRequest(
-                    player, targetPlayer, item, amount, price >= 0 ? price : 0, isRequest);
+                    player, targetPlayer, item, amount, Math.max(price, 0), isRequest);
         }
 
         if (request == null) {

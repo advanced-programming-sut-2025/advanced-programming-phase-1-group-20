@@ -39,6 +39,7 @@ public class Player {
     private Tool currentTool;
     private Date rejectDate;
     private boolean energySet = true;
+    private int energyUsedInTurn = 0;
 
     public Player(User user) {
         this.user = user;
@@ -138,13 +139,6 @@ public class Player {
     }
 
 
-    /**
-     * Give a gift to an NPC
-     *
-     * @param npc  The NPC to give the gift to
-     * @param item The item to give
-     * @return True if the gift was given successfully
-     */
     public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
         // Check if the item is a tool (tools can't be gifted)
         if (item instanceof org.example.models.Items.Tool) {
@@ -169,12 +163,7 @@ public class Player {
         return true;
     }
 
-    /**
-     * Talk to an NPC
-     *
-     * @param npc The NPC to talk to
-     * @return The NPC's response
-     */
+
     public String meetNPC(NPC npc) {
         // Get the current date
         Date currentDate = org.example.models.App.getGame().getDate();
@@ -245,6 +234,15 @@ public class Player {
             this.hasCollapsed = true;
             this.energy = 0;
             this.location = furthestCanGo;
+        } else {
+            // Update the player's location
+            this.location = new Location(x, y, TileType.GRASS);
+
+            // Consume energy
+            if (!energyUnlimited) {
+                this.energy -= energyNeeded;
+                this.energyUsedInTurn += energyNeeded;
+            }
         }
     }
 
@@ -287,6 +285,18 @@ public class Player {
 
     public void decreaseEnergy(int amount) {
         this.energy -= amount;
+    }
+
+    public int getEnergyUsedInTurn() {
+        return energyUsedInTurn;
+    }
+
+    public void resetEnergyUsedInTurn() {
+        this.energyUsedInTurn = 0;
+    }
+
+    public boolean canUseEnergy(int amount) {
+        return energyUnlimited || (energyUsedInTurn + amount <= 50);
     }
 
     public void setEnergyUnlimited() {
@@ -384,7 +394,14 @@ public class Player {
 
         int skillLevel = getSkillLevel(currentTool.getAssociatedSkill());
         int energyConsumption = currentTool.getEnergyConsumption(skillLevel);
+
+        // Check if the player has enough energy
         if (!energyUnlimited && energy < energyConsumption) {
+            return false;
+        }
+
+        // Check if the player has used too much energy this turn
+        if (!canUseEnergy(energyConsumption)) {
             return false;
         }
 
@@ -398,6 +415,7 @@ public class Player {
 
         if (success && !energyUnlimited) {
             energy -= energyConsumption;
+            energyUsedInTurn += energyConsumption;
         }
 
         return success;
