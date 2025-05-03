@@ -1,5 +1,7 @@
 package org.example.models.Items;
 
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
 import org.example.models.enums.PlayerEnums.Skills;
 
 public class Tool extends Item {
@@ -61,6 +63,10 @@ public class Tool extends Item {
 
 
     public boolean use(String direction) {
+        return false;
+    }
+
+    public boolean use(String direction, GameMap gameMap, Player player) {
         return false;
     }
 

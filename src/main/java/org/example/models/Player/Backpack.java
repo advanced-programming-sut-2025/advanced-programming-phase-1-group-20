@@ -42,7 +42,16 @@ public class Backpack {
     }
 
     public void remove(Item item, int amount) {
-        inventory.remove(item, amount);
+        if (inventory.containsKey(item)) {
+            int currentAmount = inventory.get(item);
+            if (currentAmount <= amount) {
+                // Remove the item entirely if we're removing all or more than we have
+                inventory.remove(item);
+            } else {
+                // Otherwise, reduce the amount
+                inventory.put(item, currentAmount - amount);
+            }
+        }
     }
 
     public void showInventory() {
@@ -65,30 +74,26 @@ public class Backpack {
     // Check if the inventory has all the items in the list
     public boolean hasItems(List<String> names) {
         for (String name : names) {
-            if (inventory.containsKey(getItem(name))) {
-                continue;
-            }
-            return false;
-        }
-        return false;
-    }
-
-    public void trashItem(Item item, int amount) {
-        this.inventory.remove(item, amount);
-
-    }
-
-    public boolean isBackPackFull() {
-        if (type == Type.Initial) {
-            if (countItems() == 12) {
-                return false;
-            }
-        } else if (type == Type.Big) {
-            if (countItems() == 24) {
+            if (!inventory.containsKey(getItem(name))) {
                 return false;
             }
         }
         return true;
+    }
+
+    public void trashItem(Item item, int amount) {
+        remove(item, amount);
+    }
+
+    public boolean isBackPackFull() {
+        if (type == Type.Initial) {
+            return countItems() >= 12;
+        } else if (type == Type.Big) {
+            return countItems() >= 24;
+        } else if (type == Type.Deluxe) {
+            return countItems() >= 36; // Assuming Deluxe has 36 slots
+        }
+        return countItems() >= 12; // Default to Initial capacity
     }
 
     enum Type {

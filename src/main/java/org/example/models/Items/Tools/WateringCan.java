@@ -1,7 +1,11 @@
 package org.example.models.Items.Tools;
 
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.enums.PlayerEnums.Skills;
+import org.example.models.enums.Types.TileType;
 
 
 public class WateringCan extends Tool {
@@ -106,6 +110,7 @@ public class WateringCan extends Tool {
 
     @Override
     public boolean use(String direction) {
+        // This method is kept for backward compatibility
         // If the watering can is empty, it can't be used to water crops
         if (currentWater <= 0) {
             return false;
@@ -113,15 +118,63 @@ public class WateringCan extends Tool {
 
         // Decrease the water level by 1
         currentWater--;
-
-        // Implementation will depend on the game mechanics
-        // For now, just return true to indicate success
         return true;
     }
 
+    @Override
+    public boolean use(String direction, GameMap gameMap, Player player) {
+        // Get the target tile coordinates based on the player's location and direction
+        Location playerLocation = player.getLocation();
+        int targetX = playerLocation.xAxis;
+        int targetY = playerLocation.yAxis;
+
+        // Adjust coordinates based on direction
+        switch (direction.toLowerCase()) {
+            case "north" -> targetY--;
+            case "south" -> targetY++;
+            case "east" -> targetX++;
+            case "west" -> targetX--;
+            case "north-east" -> { targetX++; targetY--; }
+            case "north-west" -> { targetX--; targetY--; }
+            case "south-east" -> { targetX++; targetY++; }
+            case "south-west" -> { targetX--; targetY++; }
+            default -> { return false; } // Invalid direction
+        }
+
+        // Check if the target tile is valid and not in another player's farm
+        if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+            return false;
+        }
+
+        // Check the tile type and perform the appropriate action
+        TileType tileType = gameMap.getTile(targetX, targetY);
+
+        // 1. Fill the watering can with water if the tile is water
+        if (tileType == TileType.WATER) {
+            return fill();
+        }
+
+        // 2. Water crops if the tile is tilled soil with a crop
+        // If the watering can is empty, it can't be used to water crops
+        if (currentWater <= 0) {
+            return false;
+        }
+
+        // Check if the tile is tilled soil
+        if (gameMap.isShokhm(targetX, targetY)) {
+            // Decrease the water level by 1
+            currentWater--;
+
+            // Water the crop (implementation depends on the game mechanics)
+            // For now, just return true to indicate success
+            return true;
+        }
+
+        return false;
+    }
+
     public boolean fill() {
-        // Implementation will depend on the game mechanics
-        // For now, just fill the watering can to capacity
+        // Fill the watering can to capacity
         this.currentWater = this.capacity;
         return true;
     }

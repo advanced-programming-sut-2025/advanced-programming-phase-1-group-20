@@ -93,7 +93,22 @@ public enum GameMenuCommands implements Command {
     FlowerPlayer(Pattern.compile("^flower\\s+-u\\s+(?<username>\\S+)$")),
     AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>\\S+)$")),
     RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
-    // TODO: add more commands
+
+    // NPC-related commands
+    MeetNPC(Pattern.compile("^meet\\s+NPC\\s+(?<npcName>\\S+)$")),
+    GiftNPC(Pattern.compile("^gift\\s+NPC\\s+(?<npcName>\\S+)\\s+-i\\s+(?<item>.+)$")),
+    FriendshipNPCList(Pattern.compile("^friendship\\s+NPC\\s+list$")),
+
+    // Quest-related commands
+    QuestsList(Pattern.compile("^quests\\s+list$")),
+    QuestsFinish(Pattern.compile("^quests\\s+finish\\s+-i\\s+(?<index>\\d+)$")),
+
+    // Trade-related commands
+    StartTrade(Pattern.compile("^start\\s+trade$")),
+    TradeRequest(Pattern.compile("^trade\\s+-u\\s+(?<username>\\S+)\\s+-t\\s+(?<type>request|offer)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)(\\s+-p\\s+(?<price>\\d+))?(\\s+-ti\\s+(?<targetItem>.+)\\s+-ta\\s+(?<targetAmount>\\d+))?$")),
+    TradeList(Pattern.compile("^trade\\s+list$")),
+    TradeResponse(Pattern.compile("^trade\\s+response\\s+(--accept|--reject)\\s+-i\\s+(?<id>\\d+)$")),
+    TradeHistory(Pattern.compile("^trade\\s+history$")),
     None(null);
 
     private final Pattern pattern;

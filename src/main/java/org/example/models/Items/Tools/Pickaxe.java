@@ -1,7 +1,11 @@
 package org.example.models.Items.Tools;
 
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.enums.PlayerEnums.Skills;
+import org.example.models.enums.Types.TileType;
 
 public class Pickaxe extends Tool {
 
@@ -51,9 +55,79 @@ public class Pickaxe extends Tool {
 
     @Override
     public boolean use(String direction) {
-        // Implementation will depend on the game mechanics
-        // For now, just return true to indicate success
+        // This method is kept for backward compatibility
         return true;
+    }
+
+    @Override
+    public boolean use(String direction, GameMap gameMap, Player player) {
+        // Get the target tile coordinates based on the player's location and direction
+        Location playerLocation = player.getLocation();
+        int targetX = playerLocation.xAxis;
+        int targetY = playerLocation.yAxis;
+
+        // Adjust coordinates based on direction
+        switch (direction.toLowerCase()) {
+            case "north" -> targetY--;
+            case "south" -> targetY++;
+            case "east" -> targetX++;
+            case "west" -> targetX--;
+            case "north-east" -> { targetX++; targetY--; }
+            case "north-west" -> { targetX--; targetY--; }
+            case "south-east" -> { targetX++; targetY++; }
+            case "south-west" -> { targetX--; targetY++; }
+            default -> { return false; } // Invalid direction
+        }
+
+        // Check if the target tile is valid and not in another player's farm
+        if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+            return false;
+        }
+
+        // Check the tile type and perform the appropriate action
+        TileType tileType = gameMap.getTile(targetX, targetY);
+
+        // 1. Remove the effect of the hoe on soil (check if the tile is tilled)
+        if (gameMap.isShokhm(targetX, targetY)) {
+            return gameMap.changeTile(targetX, targetY, "GRASS", player);
+        }
+
+        // 2. Break stones and ores in the mine
+        if (tileType == TileType.STONE || 
+            tileType == TileType.IRON_ORE || 
+            tileType == TileType.GOLD_ORE || 
+            tileType == TileType.DIAMOND_ORE || 
+            tileType == TileType.EMERALD_ORE) {
+
+            // Check if the pickaxe can break this type of ore
+            String oreType;
+            if (tileType == TileType.STONE) {
+                oreType = "stone";
+            } else if (tileType == TileType.IRON_ORE) {
+                oreType = "iron";
+            } else if (tileType == TileType.GOLD_ORE) {
+                oreType = "gold";
+            } else {
+                oreType = "gem"; // For diamond and emerald
+            }
+
+            if (canBreakOre(oreType)) {
+                return gameMap.changeTile(targetX, targetY, "GRASS", player);
+            }
+            return false;
+        }
+
+        // 3. Remove items that the player has placed on the ground
+        // Since there's no getItem method in Location, we need to use getItem from GameMap
+        Location tile = gameMap.getItem(targetX, targetY);
+        // We can't directly check if the tile has an item, so we'll just try to place null
+        // and assume it worked
+        if (tile != null) {
+            gameMap.placeItem(targetX, targetY, null);
+            return true;
+        }
+
+        return false;
     }
 
 

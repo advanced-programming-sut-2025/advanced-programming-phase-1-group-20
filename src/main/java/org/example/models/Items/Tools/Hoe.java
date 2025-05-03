@@ -1,7 +1,11 @@
 package org.example.models.Items.Tools;
 
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.enums.PlayerEnums.Skills;
+import org.example.models.enums.Types.TileType;
 
 public class Hoe extends Tool {
 
@@ -49,8 +53,42 @@ public class Hoe extends Tool {
 
     @Override
     public boolean use(String direction) {
-        // Implementation will depend on the game mechanics
-        // For now, just return true to indicate success
+        // This method is kept for backward compatibility
         return true;
+    }
+
+    @Override
+    public boolean use(String direction, GameMap gameMap, Player player) {
+        // Get the target tile coordinates based on the player's location and direction
+        Location playerLocation = player.getLocation();
+        int targetX = playerLocation.xAxis;
+        int targetY = playerLocation.yAxis;
+
+        // Adjust coordinates based on direction
+        switch (direction.toLowerCase()) {
+            case "north" -> targetY--;
+            case "south" -> targetY++;
+            case "east" -> targetX++;
+            case "west" -> targetX--;
+            case "north-east" -> { targetX++; targetY--; }
+            case "north-west" -> { targetX--; targetY--; }
+            case "south-east" -> { targetX++; targetY++; }
+            case "south-west" -> { targetX--; targetY++; }
+            default -> { return false; } // Invalid direction
+        }
+
+        // Check if the target tile is valid and not in another player's farm
+        if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+            return false;
+        }
+
+        // Check if the tile is grass (can be tilled)
+        TileType tileType = gameMap.getTile(targetX, targetY);
+        if (tileType != TileType.GRASS) {
+            return false;
+        }
+
+        // Till the soil (change the tile to tilled soil)
+        return gameMap.changeTile(targetX, targetY, "TILLED_SOIL", player);
     }
 }

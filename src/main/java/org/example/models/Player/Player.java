@@ -11,6 +11,7 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.Friendship;
 import org.example.models.entities.NPC;
+import org.example.models.entities.NPCFriendship;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Types.TileType;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 public class Player {
     private Map<Player, Friendship> friendships;
+
     private User user;
     private int energy;
     private List<Skill> skills;
@@ -136,8 +138,81 @@ public class Player {
     }
 
 
+    /**
+     * Give a gift to an NPC
+     *
+     * @param npc  The NPC to give the gift to
+     * @param item The item to give
+     * @return True if the gift was given successfully
+     */
     public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
-        return false;
+        // Check if the item is a tool (tools can't be gifted)
+        if (item instanceof org.example.models.Items.Tool) {
+            return false;
+        }
+
+        // Get the current date
+        Date currentDate = org.example.models.App.getGame().getDate();
+
+        // Get or create the friendship with this NPC
+        NPCFriendship friendship = npc.getFriendship(this);
+
+        // Give the gift and get the response
+        String response = friendship.giveGift(item, currentDate);
+
+        // Remove the item from the player's inventory
+        backpack.remove(item, 1);
+
+        // Print the NPC's response
+        System.out.println(npc.getName() + ": " + response);
+
+        return true;
+    }
+
+    /**
+     * Talk to an NPC
+     *
+     * @param npc The NPC to talk to
+     * @return The NPC's response
+     */
+    public String meetNPC(NPC npc) {
+        // Get the current date
+        Date currentDate = org.example.models.App.getGame().getDate();
+
+        // Get or create the friendship with this NPC
+        NPCFriendship friendship = npc.getFriendship(this);
+
+        // Talk to the NPC and get their response
+        String response = friendship.talk(currentDate);
+
+        return response;
+    }
+
+
+    public Map<String, String> getNPCFriendships() {
+        Map<String, String> friendships = new HashMap<>();
+
+        // Use the Npcs enum values to get all NPCs
+        for (org.example.models.enums.Npcs npcEnum : org.example.models.enums.Npcs.values()) {
+            // Create an NPC instance from the enum
+            NPC npc = createNPCFromEnum(npcEnum);
+
+            // Get the friendship with this NPC
+            NPCFriendship friendship = npc.getFriendship(this);
+            int level = friendship.getLevel();
+            int points = friendship.getPoints();
+            friendships.put(npc.getName(), "Level: " + level + ", Points: " + points);
+        }
+
+        return friendships;
+    }
+
+    private NPC createNPCFromEnum(org.example.models.enums.Npcs npcEnum) {
+        // Create a new NPC with the properties from the enum
+        HashMap<Integer, HashMap<org.example.models.Items.Item, Integer>> missions = new HashMap<>();
+        NPC npc = new NPC(org.example.models.enums.Charactristic.KIND, npcEnum.name(), org.example.models.enums.Jobs.ENGINEER, missions);
+
+        return npc;
     }
 
 
@@ -299,6 +374,10 @@ public class Player {
     }
 
     public boolean useTool(String direction) {
+        return useTool(direction, null);
+    }
+
+    public boolean useTool(String direction, GameMap gameMap) {
         if (currentTool == null) {
             return false;
         }
@@ -310,7 +389,13 @@ public class Player {
         }
 
         // Use the tool
-        boolean success = currentTool.use(direction);
+        boolean success;
+        if (gameMap != null) {
+            success = currentTool.use(direction, gameMap, this);
+        } else {
+            success = currentTool.use(direction);
+        }
+
         if (success && !energyUnlimited) {
             energy -= energyConsumption;
         }

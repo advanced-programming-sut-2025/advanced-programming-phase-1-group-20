@@ -58,10 +58,8 @@ public class MarketController implements Controller {
         Item item = App.getItem(productName);
         boolean flag = checkItem(item) && market.containsItem(item, count, gameClock.getSeason());
         if (flag) {
-            for (int i = 0; i < count; i++) {
-                player.getBackpack().add(item);
-                //TODO : handling money.
-            }
+            player.getBackpack().add(item, (int)count);
+            //TODO : handling money.
         }
     }
 

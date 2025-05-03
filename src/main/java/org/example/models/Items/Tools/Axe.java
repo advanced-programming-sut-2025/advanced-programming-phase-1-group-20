@@ -1,7 +1,11 @@
 package org.example.models.Items.Tools;
 
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.enums.PlayerEnums.Skills;
+import org.example.models.enums.Types.TileType;
 
 
 public class Axe extends Tool {
@@ -68,7 +72,60 @@ public class Axe extends Tool {
 
     @Override
     public boolean use(String direction) {
-        // TODO: add using
+        // This method is kept for backward compatibility
         return true;
+    }
+
+    @Override
+    public boolean use(String direction, GameMap gameMap, Player player) {
+        // Get the target tile coordinates based on the player's location and direction
+        Location playerLocation = player.getLocation();
+        int targetX = playerLocation.xAxis;
+        int targetY = playerLocation.yAxis;
+
+        // Adjust coordinates based on direction
+        switch (direction.toLowerCase()) {
+            case "north" -> targetY--;
+            case "south" -> targetY++;
+            case "east" -> targetX++;
+            case "west" -> targetX--;
+            case "north-east" -> { targetX++; targetY--; }
+            case "north-west" -> { targetX--; targetY--; }
+            case "south-east" -> { targetX++; targetY++; }
+            case "south-west" -> { targetX--; targetY++; }
+            default -> { return false; } // Invalid direction
+        }
+
+        // Check if the target tile is valid and not in another player's farm
+        if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+            return false;
+        }
+
+        // Check the tile type and perform the appropriate action
+        TileType tileType = gameMap.getTile(targetX, targetY);
+
+        // 1. Cut down trees for regular wood and some tree essences
+        if (tileType == TileType.TREE) {
+            // Add wood to player's inventory (simplified)
+            // player.addItem(new Item("Wood", 1));
+
+            // Change the tile to grass
+            return gameMap.changeTile(targetX, targetY, "GRASS", player);
+        }
+
+        // 2. Remove branches on the ground
+        // Since there's no specific branch tile type, we'll assume any item on the ground
+        // that's not a tree could be a branch
+        Location tile = gameMap.getItem(targetX, targetY);
+        if (tile != null) {
+            // Remove the item (branch) and add it to the player's inventory
+            // player.addItem(new Item("Branch", 1));
+
+            // Clear the tile
+            gameMap.placeItem(targetX, targetY, null);
+            return true;
+        }
+
+        return false;
     }
 }

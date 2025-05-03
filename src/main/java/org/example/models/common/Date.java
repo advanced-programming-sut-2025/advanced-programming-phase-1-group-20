@@ -154,6 +154,15 @@ public class Date {
     }
 
     public long getDaysPassed(Date rejectDate) {
-        
+        if (rejectDate == null) {
+            return 0;
+        }
+
+        // Calculate total days for both dates
+        long currentTotalDays = ((long) (year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
+        long rejectTotalDays = ((long) (rejectDate.year - 1) * 4 * daysPerSeason) + (rejectDate.season * daysPerSeason) + rejectDate.day;
+
+        // Return the difference
+        return currentTotalDays - rejectTotalDays;
     }
 }
