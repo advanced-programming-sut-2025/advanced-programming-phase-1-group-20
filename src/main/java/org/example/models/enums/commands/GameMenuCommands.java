@@ -90,6 +90,7 @@ public enum GameMenuCommands implements Command {
     GiftRate(Pattern.compile("^gift\\s+rate\\s+-i\\s+(?<giftNumber>\\d+)\\s+-r\\s+(?<rating>[1-5])$")),
     GiftHistory(Pattern.compile("^gift\\s+history\\s+-u\\s+(?<username>\\S+)$")),
     HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\S+)$")),
+    FlowerPlayer(Pattern.compile("^flower\\s+-u\\s+(?<username>\\S+)$")),
     AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>\\S+)$")),
     RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
     // TODO: add more commands

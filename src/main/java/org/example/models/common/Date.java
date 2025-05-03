@@ -152,4 +152,8 @@ public class Date {
     public void setWeatherTomorrow(Weather weather) {
         this.weatherTomorrow = weather;
     }
+
+    public long getDaysPassed(Date rejectDate) {
+        
+    }
 }

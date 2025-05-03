@@ -1,11 +1,13 @@
 package org.example.models.Player;
 
+import org.example.models.App;
 import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
 import org.example.models.Items.Tools.*;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.Friendship;
 import org.example.models.entities.NPC;
@@ -32,9 +34,8 @@ public class Player {
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
     private Backpack backpack;
-
     private Tool currentTool;
-
+    private Date rejectDate;
     private boolean energySet = true;
 
     public Player(User user) {
@@ -64,6 +65,7 @@ public class Player {
         this.spouse = null;
 
         this.isMarried = false;
+        rejectDate = null;
         equipTool("Basic Hoe");
     }
 
@@ -136,24 +138,6 @@ public class Player {
 
     public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
         return false;
-    }
-
-    public boolean talkToNPC(NPC npc, String message) {
-        return false;
-    }
-
-    public boolean hugNPC(NPC npc) {
-        return false;
-    }
-
-    public boolean giveBouquetToNPC(NPC npc) {
-        return false;
-    }
-
-
-    public int getFriendshipXP(NPC npc) {
-        // NPCs are not players, so we can't use the friendship system with them
-        return 0;
     }
 
 
@@ -354,10 +338,28 @@ public class Player {
     }
 
     public void increaseMoney(int amount) {
+        if (isMarried) {
+            this.money += amount / 2;
+            this.spouse.increaseMoneyBySpouse(amount / 2);
+            return;
+        }
+        this.money += amount;
+    }
+
+    private void increaseMoneyBySpouse(int amount) {
         this.money += amount;
     }
 
     public void decreaseMoney(int amount) {
+        if (isMarried) {
+            this.money -= amount / 2;
+            this.spouse.decreaseMoneyBySpouse(amount / 2);
+            return;
+        }
+        this.money -= amount;
+    }
+
+    private void decreaseMoneyBySpouse(int amount) {
         this.money -= amount;
     }
 
@@ -372,5 +374,18 @@ public class Player {
 
     public Player getSpouse() {
         return spouse;
+    }
+
+    public void setRejectDate() {
+        this.rejectDate = App.getGame().getDate();
+    }
+
+    public void updateRejectDate() {
+        if (rejectDate != null) {
+            long daysPassed = App.getGame().getDate().getDaysPassed(rejectDate);
+            if (daysPassed >= 7) {
+                rejectDate = null;
+            }
+        }
     }
 }

@@ -139,6 +139,12 @@ public class GameMenuController implements Controller {
             case TalkHistory -> result = talkHistory(args);
             case GiftToPlayer -> result = giftToPlayer(args);
             case GiftList -> result = giftList();
+            case GiftRate -> result = giftRate(args);
+            case GiftHistory -> result = giftHistory(args);
+            case HugPlayer -> result = hugPlayer(args);
+            case FlowerPlayer -> result = flowerPlayer(args);
+            case AskToMarry -> result = askMarriage(args);
+            case RespondToMarry -> result = respondToMarriage(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -1008,10 +1014,231 @@ public class GameMenuController implements Controller {
         return Result.success(result.toString());
     }
 
+    public Result giftRate(String[] args) {
+        int giftIndex = Integer.parseInt(args[0]);
+        int rating = Integer.parseInt(args[1]);
+
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+
+        // Check if the rating is valid
+        if (rating < 1 || rating > 5) {
+            return Result.error("Rating must be between 1 and 5.");
+        }
+
+        // Find the gift in the player's gift history
+        boolean ratedAny = false;
+        for (Friendship friendship : currentPlayer.getAllFriendships().values()) {
+            if (friendship.rateGift(giftIndex - 1, rating)) {
+                ratedAny = true;
+                int xpChange = 15 + 30 * (rating - 3);
+                return Result.success("Gift rated successfully. Friendship " +
+                        (xpChange >= 0 ? "increased" : "decreased") + " by " + Math.abs(xpChange) + " XP.");
+            }
+        }
+
+        if (!ratedAny) {
+            return Result.error("Gift with index " + giftIndex + " not found or already rated.");
+        }
+
+        return Result.success("Gift rated successfully.");
+    }
+
     public Result giftHistory(String[] args) {
         String username = args[0];
         Player player = App.getGame().getPlayer(App.getUser(username));
         Friendship friendship = App.getGame().getCurrentPlayer().getFriendship(player);
         return Result.success(friendship.getGiftHistory().toString());
+    }
+
+    public Result hugPlayer(String[] args) {
+        String username = args[0];
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        // Check if players are near each other
+        if (!arePlayersNearEachOther(currentPlayer, targetPlayer)) {
+            return Result.error("You need to be near " + username + " to hug them.");
+        }
+
+        // Check friendship level
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        if (friendship.getLevel() < 2) {
+            return Result.error("You need to be at friendship level 2 with " + username + " to hug them.");
+        }
+
+        // Hug the player
+        boolean success = currentPlayer.hugMob(targetPlayer);
+        if (!success) {
+            return Result.error("You have already hugged " + username + " today.");
+        }
+
+        return Result.success("You hugged " + username + ". Friendship increased by 60 XP.");
+    }
+
+    public Result flowerPlayer(String[] args) {
+        String username = args[0];
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+
+        // Find the target player
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        // Check if players are near each other
+        if (!arePlayersNearEachOther(currentPlayer, targetPlayer)) {
+            return Result.error("You need to be near " + username + " to give them a flower.");
+        }
+
+        Item flower = currentPlayer.getBackpack().getItem("Flower");
+        if (flower == null || currentPlayer.getBackpack().getInventory().getOrDefault(flower, 0) <= 0) {
+            return Result.error("You don't have a flower to give.");
+        }
+
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        if (friendship.getLevel() < 2) {
+            return Result.error("You need to be at friendship level 2 with " + username + " to give them a flower.");
+        }
+
+        currentPlayer.getBackpack().remove(App.getItem("Flower"), 1);
+        boolean success = currentPlayer.giveBouquetTo(targetPlayer);
+        if (!success) {
+            return Result.error("Failed to give flower to " + username + ".");
+        }
+
+        return Result.success("You gave a flower to " + username + ". Your friendship level is now 3.");
+    }
+
+    public Result askMarriage(String[] args) {
+        String username = args[0];
+        String ringName = args[1];
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+
+        Player targetPlayer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                targetPlayer = player;
+                break;
+            }
+        }
+
+        if (targetPlayer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        if (!arePlayersNearEachOther(currentPlayer, targetPlayer)) {
+            return Result.error("You need to be near " + username + " to propose marriage.");
+        }
+
+        Item ring = currentPlayer.getBackpack().getItem(ringName);
+        if (ring == null || currentPlayer.getBackpack().getInventory().getOrDefault(ring, 0) <= 0) {
+            return Result.error("You don't have a " + ringName + " to propose with.");
+        }
+
+        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        if (friendship.getLevel() < 3) {
+            return Result.error("You need to be at friendship level 3 with " + username + " to propose marriage.");
+        }
+
+        if (currentPlayer.getUser().getGender().equals(targetPlayer.getUser().getGender())) {
+            return Result.error("You can only propose to someone of the opposite gender.");
+        }
+
+        boolean success = currentPlayer.proposeMarriageTo(targetPlayer);
+        if (!success) {
+            return Result.error("Failed to propose marriage to " + username + ".");
+        }
+
+        // Remove the ring from the player's inventory
+        currentPlayer.getBackpack().remove(App.getItem(ringName), 1);
+
+        return Result.success("You proposed marriage to " + username + ". Waiting for their response.");
+    }
+
+    public Result respondToMarriage(String[] args) {
+        String response = args[0];
+        String username = args[1];
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+
+        // Find the proposer
+        Player proposer = null;
+        for (Player player : App.getGame().getPlayers()) {
+            if (player.getUser().getUsername().equals(username)) {
+                proposer = player;
+                break;
+            }
+        }
+
+        if (proposer == null) {
+            return Result.error("Player with username " + username + " not found.");
+        }
+
+        // Check if players are near each other
+        if (!arePlayersNearEachOther(currentPlayer, proposer)) {
+            return Result.error("You need to be near " + username + " to respond to their proposal.");
+        }
+
+        // Check friendship level
+        Friendship friendship = currentPlayer.getFriendship(proposer);
+        if (friendship == null) {
+            return Result.error("Friendship with " + username + " not found.");
+        }
+
+        if (friendship.getLevel() < 3) {
+            return Result.error("You need to be at friendship level 3 with " + username + " to respond to their proposal.");
+        }
+
+        if (response.equals("accept")) {
+            // Accept the proposal
+            proposer.marry(currentPlayer);
+            currentPlayer.marry(proposer);
+
+            // Combine money
+            int totalMoney = proposer.getMoney() + currentPlayer.getMoney();
+            proposer.decreaseMoney(proposer.getMoney());
+            currentPlayer.decreaseMoney(currentPlayer.getMoney());
+            proposer.increaseMoney(totalMoney);
+            currentPlayer.increaseMoney(totalMoney);
+
+            return Result.success("You accepted " + username + "'s marriage proposal. You are now married!");
+        } else {
+            // Reject the proposal
+            friendship.decreaseXp(friendship.getXp()); // Reset friendship to level 0
+
+            proposer.setEnergy(proposer.getEnergy() / 2);
+
+            return Result.success("You rejected " + username + "'s marriage proposal. Your friendship level has been reset to 0.");
+        }
     }
 }
