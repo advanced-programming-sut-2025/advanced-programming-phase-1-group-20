@@ -83,14 +83,15 @@ public enum GameMenuCommands implements Command {
 
     // Friendship-related commands
     FriendshipStatus(Pattern.compile("^friendships$")),
-    TalkToPlayer(Pattern.compile("^talk\\s+-u\\s+(?<username>\\w+)\\s+-m\\s+(?<message>.+)$")),
-    TalkHistory(Pattern.compile("^talk\\s+history\\s+-u\\s+(?<username>\\w+)$")),
-    GiftToPlayer(Pattern.compile("^gift\\s+-u\\s+(?<username>\\w+)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)$")),
+    TalkToPlayer(Pattern.compile("^talk\\s+-u\\s+(?<username>\\S+)\\s+-m\\s+(?<message>.+)$")),
+    TalkHistory(Pattern.compile("^talk\\s+history\\s+-u\\s+(?<username>\\S+)$")),
+    GiftToPlayer(Pattern.compile("^gift\\s+-u\\s+(?<username>\\S+)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)$")),
     GiftList(Pattern.compile("^gift\\s+list$")),
     GiftRate(Pattern.compile("^gift\\s+rate\\s+-i\\s+(?<giftNumber>\\d+)\\s+-r\\s+(?<rating>[1-5])$")),
-    GiftHistory(Pattern.compile("^gift\\s+history\\s+-u\\s+(?<username>\\w+)$")),
-    HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\w+)$")),
-
+    GiftHistory(Pattern.compile("^gift\\s+history\\s+-u\\s+(?<username>\\S+)$")),
+    HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\S+)$")),
+    AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>\\S+)$")),
+    RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
     // TODO: add more commands
     None(null);
 

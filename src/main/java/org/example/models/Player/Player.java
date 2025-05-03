@@ -26,7 +26,9 @@ public class Player {
     private boolean energyUnlimited;
     private boolean hasCollapsed;
     private Location location;
-
+    private int money;
+    private Player spouse;
+    private boolean isMarried;
     private List<CraftingItem> craftingItems;
     private List<CookingItem> cookingItems;
     private Backpack backpack;
@@ -53,13 +55,15 @@ public class Player {
         this.friendships = new HashMap<>();
 
         // Initialize basic tools
-        backpack.add(new Hoe());
-        backpack.add(new Pickaxe());
-        backpack.add(new Axe());
-        backpack.add(new WateringCan());
-        backpack.add(new Scythe());
-        backpack.add(new TrashCan());
+        backpack.add(new Hoe(), 1);
+        backpack.add(new Pickaxe(), 1);
+        backpack.add(new Axe(), 1);
+        backpack.add(new WateringCan(), 1);
+        backpack.add(new Scythe(), 1);
+        backpack.add(new TrashCan(), 1);
+        this.spouse = null;
 
+        this.isMarried = false;
         equipTool("Basic Hoe");
     }
 
@@ -87,10 +91,6 @@ public class Player {
         return getFriendship(player).trade(success);
     }
 
-
-    public boolean giftTo(Player player, org.example.models.Items.Item item) {
-        return getFriendship(player).gift(item, this);
-    }
 
     public boolean hugMob(Player player) {
         return getFriendship(player).hug(this);
@@ -211,7 +211,7 @@ public class Player {
     }
 
     public void addItem(Item item) {
-        backpack.add(item);
+        backpack.add(item, 1);
     }
 
     public void increaseEnergy(int amount) {
@@ -302,9 +302,9 @@ public class Player {
             return false;
         }
 
-        backpack.remove(tool);
+        backpack.remove(tool, 1);
 
-        backpack.add(upgradedTool);
+        backpack.add(upgradedTool, 1);
 
         if (currentTool != null && currentTool.equals(tool)) {
             currentTool = upgradedTool;
@@ -347,5 +347,30 @@ public class Player {
         }
 
         return 0;
+    }
+
+    public int getMoney() {
+        return money;
+    }
+
+    public void increaseMoney(int amount) {
+        this.money += amount;
+    }
+
+    public void decreaseMoney(int amount) {
+        this.money -= amount;
+    }
+
+    public boolean isMarried() {
+        return isMarried;
+    }
+
+    public void marry(Player player) {
+        this.isMarried = true;
+        this.spouse = player;
+    }
+
+    public Player getSpouse() {
+        return spouse;
     }
 }

@@ -134,4 +134,13 @@ public class Game implements Serializable {
         }
         return false;
     }
+
+    public Player getPlayer(User user) {
+        for (Player player : players) {
+            if (player.getUser().equals(user)) {
+                return player;
+            }
+        }
+        return null;
+    }
 }

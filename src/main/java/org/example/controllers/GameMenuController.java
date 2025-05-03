@@ -9,6 +9,7 @@ import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.Friendship;
 import org.example.models.entities.Game;
+import org.example.models.entities.User;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
@@ -132,9 +133,12 @@ public class GameMenuController implements Controller {
 
             case HelpReadingMap -> result = helpReadingMap();
 
+            // player related commands
             case FriendshipStatus -> result = friendShipsStatus();
             case TalkToPlayer -> result = talkToPlayer(args);
             case TalkHistory -> result = talkHistory(args);
+            case GiftToPlayer -> result = giftToPlayer(args);
+            case GiftList -> result = giftList();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -343,7 +347,7 @@ public class GameMenuController implements Controller {
         Item item = App.getItem("getting Tree or Plant" + "from map this must change later");
         boolean flag = checkItem(item) && item.getFinished();
         if (flag) {
-            player.getBackpack().add(item);
+            player.getBackpack().add(item, 1);
         }
     }
 
@@ -390,9 +394,8 @@ public class GameMenuController implements Controller {
         Item item = App.getItem(itemName);
         boolean flag = checkItem(item);
         if (flag) {
-            for (int i = 0; i < count; i++) {
-                player.getBackpack().add(item);
-            }
+            player.getBackpack().add(item, count);
+
         }
     }
 
@@ -410,7 +413,8 @@ public class GameMenuController implements Controller {
                     //TODO : add item to refrigerator
                     flag = flag && player.getBackpack().hasItems(Collections.singletonList(key));
                     if (flag) {
-                        player.getBackpack().add(item);
+                        // TODO: add the amount
+                        player.getBackpack().add(item, 1);
                     }
                     break;
                 case "pick":
@@ -439,7 +443,7 @@ public class GameMenuController implements Controller {
             // TODO: mostafa baadan begoo energish doroste ya na
             player.decreaseEnergy(cookingItem.getEnergy());
             Food food = cookingItem.cook(player.getBackpack());
-            player.getBackpack().add(food);
+            player.getBackpack().add(food, 1);
             //TODO : controlling xp.
         }
     }
@@ -459,7 +463,7 @@ public class GameMenuController implements Controller {
         if (flag) {
             Food food = (Food) item;
             player.increaseEnergy(food.getEnergy());
-            player.getBackpack().remove(food);
+            player.getBackpack().remove(food, 1);
         }
     }
 
@@ -833,13 +837,12 @@ public class GameMenuController implements Controller {
             return Result.error("Not enough stone. You need " + requiredStone + " stone to build a greenhouse.");
         }
 
-        for (int i = 0; i < requiredWood; i++) {
-            player.getBackpack().remove(woodItem);
-        }
 
-        for (int i = 0; i < requiredStone; i++) {
-            player.getBackpack().remove(stoneItem);
-        }
+        player.getBackpack().remove(woodItem, requiredWood);
+
+
+        player.getBackpack().remove(stoneItem, requiredStone);
+
 
         // The greenhouse is a 5x6 grid (without counting the wall)
         Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
@@ -961,5 +964,54 @@ public class GameMenuController implements Controller {
         int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
 
         return distance <= 2;
+    }
+
+    public Result giftToPlayer(String[] args) {
+        String username = args[0];
+        String itemName = args[1];
+        int amount = Integer.parseInt(args[2]);
+        User user = App.getUser(username);
+        if (user == null) {
+            return Result.error("User " + username + " not found.");
+        }
+
+        Player targetPlayer = App.getGame().getPlayer(user);
+        if (targetPlayer == null) {
+            return Result.error("Player " + username + " not found.");
+        }
+        Item item = App.getItem(itemName);
+        if (item == null) {
+            return Result.error("Item " + itemName + " not found.");
+        }
+
+
+        if (App.getGame().getCurrentPlayer().getFriendship(targetPlayer).gift(item, App.getGame().getCurrentPlayer(), amount)) {
+            return Result.success("You have gifted " + amount + " " + itemName + "to " + username + ".");
+        } else {
+            if (arePlayersNearEachOther(App.getGame().getCurrentPlayer(), targetPlayer)) {
+                return Result.error("you must be near the target to gift them");
+            } else if (App.getGame().getCurrentPlayer().getFriendship(targetPlayer).getLevel() < 1) {
+                return Result.error("You must be friends with " + username + " to gift them.");
+            } else {
+                return Result.error("You have already gifted " + username + " today.");
+            }
+        }
+    }
+
+    public Result giftList() {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        StringBuilder result = new StringBuilder();
+        for (Friendship friendShip : currentPlayer.getAllFriendships().values()) {
+            result.append("gift history with: ").append(friendShip.getTheOtherPlayer(currentPlayer).getUser().getUsername()).append("\n");
+            friendShip.getGiftHistory().forEach(gift -> result.append("~Gift Name: ").append(gift).append("\n").append("~Amount: ").append(gift.getAmount()).append("\n"));
+        }
+        return Result.success(result.toString());
+    }
+
+    public Result giftHistory(String[] args) {
+        String username = args[0];
+        Player player = App.getGame().getPlayer(App.getUser(username));
+        Friendship friendship = App.getGame().getCurrentPlayer().getFriendship(player);
+        return Result.success(friendship.getGiftHistory().toString());
     }
 }

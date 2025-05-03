@@ -74,7 +74,7 @@ public class CookingItem extends Item {
             } else {
                 itemName = itemName.trim();
                 Item item = ItemBuilder.build(itemName);
-                inventory.remove(item);
+                inventory.remove(item, 1);
             }
         }
         return new Food(getName(), getBaseSellPrice(), getEnergy());

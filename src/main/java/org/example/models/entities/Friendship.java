@@ -1,5 +1,6 @@
 package org.example.models.entities;
 
+import org.example.models.App;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
@@ -64,7 +65,7 @@ public class Friendship {
     public int getXpRequiredForNextLevel() {
         return 100 * (1 + level);
     }
-    
+
     public int getMaxXpForCurrentLevel() {
         switch (level) {
             case LEVEL_0:
@@ -76,7 +77,7 @@ public class Friendship {
             case LEVEL_3:
                 return XP_LEVEL_3_TO_4;
             default:
-                return Integer.MAX_VALUE; // No max for level 4
+                return Integer.MAX_VALUE;
         }
     }
 
@@ -95,6 +96,7 @@ public class Friendship {
 
             if (level == LEVEL_4) {
                 married = true;
+                // TODO: Handle marriage logic
             }
 
             return true;
@@ -161,7 +163,7 @@ public class Friendship {
         return true;
     }
 
-    public boolean gift(Item item, Player sender) {
+    public boolean gift(Item item, Player sender, int amount) {
         if (!areAdjacent(player1, player2)) {
             return false;
         }
@@ -176,8 +178,11 @@ public class Friendship {
         }
 
         lastInteractionTimes.put(key, System.currentTimeMillis());
-        giftHistory.add(new GiftRecord(item, sender, null));
+        giftHistory.add(new GiftRecord(item, sender, null, amount));
 
+        App.getGame().getCurrentPlayer().getBackpack().remove(item, amount);
+        Player targetPlayer = (sender.equals(player1) ? player2 : player1);
+        targetPlayer.getBackpack().add(item, amount);
         return true;
     }
 
@@ -307,15 +312,21 @@ public class Friendship {
         return lastInteractionTimes.containsKey(key) && isToday(lastInteractionTimes.get(key));
     }
 
+    public Player getTheOtherPlayer(Player player) {
+        return (player.equals(player1) ? player2 : player1);
+    }
+
     public static class GiftRecord {
         private Item item;
         private Player sender;
         private Integer rating;
+        private int amount;
 
-        public GiftRecord(Item item, Player sender, Integer rating) {
+        public GiftRecord(Item item, Player sender, Integer rating, int amount) {
             this.item = item;
             this.sender = sender;
             this.rating = rating;
+            this.amount = amount;
         }
 
         public Item getItem() {
@@ -333,6 +344,10 @@ public class Friendship {
 
         public void setRating(int rating) {
             this.rating = rating;
+        }
+
+        public int getAmount() {
+            return amount;
         }
     }
 }

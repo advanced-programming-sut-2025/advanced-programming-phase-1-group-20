@@ -15,7 +15,7 @@ public class Backpack {
         inventory = new HashMap<>();
     }
 
-    public boolean add(Item item) {
+    public boolean add(Item item, int quantity) {
         if (type == Type.Initial) {
             if (countItems() == 12) {
                 return false;
@@ -25,7 +25,7 @@ public class Backpack {
                 return false;
             }
         }
-        inventory.put(item, inventory.getOrDefault(item, 0) + 1);
+        inventory.put(item, inventory.getOrDefault(item, 0) + quantity);
         return true;
     }
 
@@ -41,9 +41,8 @@ public class Backpack {
         return inventory;
     }
 
-    public void remove(Item item) {
-        //TODO: this must complete.
-
+    public void remove(Item item, int amount) {
+        inventory.remove(item, amount);
     }
 
     public void showInventory() {
