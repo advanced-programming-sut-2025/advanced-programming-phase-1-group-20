@@ -31,9 +31,9 @@ public enum ArtisanType {
     ;
     private final String name;
     private final String description;
-    private final int proccessingTime;
     private final String ingridient;
     private final String source;
+    private int proccessingTime;
     private int energy;
     private int baseSellPrice;
 
@@ -72,11 +72,11 @@ public enum ArtisanType {
         this.energy = energy;
     }
 
-    public int getProccessingTime() {
+    public int getProcessingTime() {
         return proccessingTime;
     }
 
-    public String getIngridient() {
+    public String getIngredient() {
         return ingridient;
     }
 
@@ -86,6 +86,11 @@ public enum ArtisanType {
 
     public void setBaseSellPrice(int baseSellPrice) {
         this.baseSellPrice = baseSellPrice;
+    }
+
+
+    public void setProccessingTime(int proccessingTime) {
+        this.proccessingTime = proccessingTime;
     }
 
     public String getSource() {

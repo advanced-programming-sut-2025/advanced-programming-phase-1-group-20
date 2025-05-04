@@ -27,11 +27,15 @@ public class ArtisanItem extends Item {
         type.setEnergy(energy);
     }
 
-    public int getProccessingTime() {
+    public int getProcessingTime() {
         return type.getProcessingTime();
     }
 
-    public String getIngridient() {
+    public void setProccessingTime(int proccessingTime) {
+        type.setProccessingTime(proccessingTime);
+    }
+
+    public String getIngredient() {
         return type.getIngredient();
     }
 
@@ -41,10 +45,5 @@ public class ArtisanItem extends Item {
 
     public void setBaseSellPrice(int baseSellPrice) {
         type.setBaseSellPrice(baseSellPrice);
-    }
-
-
-    public void setProccessingTime(int proccessingTime) {
-        type.setProccessingTime(proccessingTime);
     }
 }

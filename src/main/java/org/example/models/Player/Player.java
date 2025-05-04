@@ -234,12 +234,13 @@ public class Player {
         if (tile == TileType.WATER) {
             //implementing func.
         }
-        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
-        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
-        if (energyNeeded > energy) {
+//        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
+//        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
+        int energyNeeded = 10;
+        if (10 > energy) {
             this.hasCollapsed = true;
             this.energy = 0;
-            this.location = furthestCanGo;
+//            this.location = furthestCanGo;
         } else {
             // Update the player's location
             this.location = new Location(x, y, TileType.GRASS);

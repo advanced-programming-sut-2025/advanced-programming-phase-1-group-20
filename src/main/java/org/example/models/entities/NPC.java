@@ -8,6 +8,7 @@ import org.example.models.common.Location;
 import org.example.models.enums.Charactristic;
 import org.example.models.enums.Jobs;
 import org.example.models.enums.Weather;
+import org.example.models.utils.HuggingFaceApiClient;
 
 import java.util.*;
 
@@ -21,6 +22,9 @@ public class NPC extends Mob {
     private Map<Player, NPCFriendship> friendships;
     private Location location;
     private String description;
+
+    // Flag to control whether to use AI-generated dialogues
+    private boolean useAiDialogue = true;
 
     // Dialogue options based on different conditions
     private List<String> morningDialogues;
@@ -262,6 +266,62 @@ public class NPC extends Mob {
     }
 
     public String getDialogue(Date currentDate, int friendshipLevel) {
+        // If AI dialogue is enabled, use the Hugging Face API
+        if (useAiDialogue) {
+            try {
+                // Create context information for the AI
+                String context = createContextForAi(currentDate, friendshipLevel);
+
+                // Call the AI service to generate dialogue
+                return HuggingFaceApiClient.generateDialogue(this, context);
+            } catch (Exception e) {
+                System.err.println("Error using AI dialogue, falling back to predefined dialogues: " + e.getMessage());
+                // If AI fails, fall back to predefined dialogues
+                return getPreDefinedDialogue(currentDate, friendshipLevel);
+            }
+        } else {
+            return getPreDefinedDialogue(currentDate, friendshipLevel);
+        }
+    }
+
+
+    private String createContextForAi(Date currentDate, int friendshipLevel) {
+        StringBuilder context = new StringBuilder();
+
+        // Add time context
+        int hour = currentDate.getHour();
+        if (hour >= 6 && hour < 12) {
+            context.append("Time: Morning. ");
+        } else if (hour >= 12 && hour < 18) {
+            context.append("Time: Afternoon. ");
+        } else {
+            context.append("Time: Evening. ");
+        }
+
+        // Add weather context
+        try {
+            if (App.getGame() != null && App.getGame().getDate() != null) {
+                Weather currentWeather = App.getGame().getDate().getWeatherToday();
+                context.append("Weather: ").append(currentWeather).append(". ");
+            } else {
+                context.append("Weather: SUNNY. "); // Default weather
+            }
+        } catch (Exception e) {
+            // In test environment, App.getGame() might be null
+            context.append("Weather: SUNNY. "); // Default weather
+        }
+
+        // Add friendship level context
+        context.append("Friendship Level: ").append(friendshipLevel).append(" out of 3. ");
+
+        // Add character trait context
+        context.append("The NPC is ").append(character).append(". ");
+
+        return context.toString();
+    }
+
+
+    private String getPreDefinedDialogue(Date currentDate, int friendshipLevel) {
         Random random = new Random();
         List<String> appropriateDialogues = new ArrayList<>();
 
@@ -276,8 +336,13 @@ public class NPC extends Mob {
         }
 
         // Add weather-based dialogues
-        if (App.getGame().getDate().getWeatherToday() == Weather.RAINY) {
-            appropriateDialogues.addAll(rainyDialogues);
+        try {
+            if (App.getGame() != null && App.getGame().getDate() != null &&
+                    App.getGame().getDate().getWeatherToday() == Weather.RAINY) {
+                appropriateDialogues.addAll(rainyDialogues);
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: Could not check weather, using default dialogues");
         }
 
         if (friendshipLevel >= 1) {
@@ -370,5 +435,15 @@ public class NPC extends Mob {
 
     public HashMap<Integer, HashMap<Item, Integer>> getMissions() {
         return missions;
+    }
+
+
+    public boolean isUseAiDialogue() {
+        return useAiDialogue;
+    }
+
+
+    public void setUseAiDialogue(boolean useAiDialogue) {
+        this.useAiDialogue = useAiDialogue;
     }
 }

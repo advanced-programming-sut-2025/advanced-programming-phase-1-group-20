@@ -52,26 +52,24 @@ public class CraftingItem extends Item {
     public ArtisanItem createArtisan(String items) {
         if (type.getName().equals("Bee House")) {
             return new ArtisanItem(ArtisanType.Honey);
-        }
-        else if (type.getName().equals("Cheese Press")) {
+        } else if (type.getName().equals("Cheese Press")) {
             String[] regexes = new String[]{"^\\s*1\\s+Milk\\s*$", "^\\s*1\\s+Large Milk\\s*$",
                     "^\\s*1\\s+Goat Milk\\s*$", "^\\s*1\\s+Large Goat Milk\\s*$"};
             if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.Cheese);
-            } else if(items.matches(regexes[1])){
+            } else if (items.matches(regexes[1])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Cheese);
                 artisanItem.setBaseSellPrice(345);
                 return artisanItem;
-            } else if(items.matches(regexes[2])){
+            } else if (items.matches(regexes[2])) {
                 return new ArtisanItem(ArtisanType.GoatCheese);
-            }  else if (items.matches(regexes[3])) {
+            } else if (items.matches(regexes[3])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.GoatCheese);
                 int price = 600;
                 artisanItem.setBaseSellPrice(price);
                 return artisanItem;
             }
-        }
-        else if (type.getName().equals("Keg")) {
+        } else if (type.getName().equals("Keg")) {
             String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$", "^\\s*1\\s+Rice\\s*$", // beer and vinegar
                     "^\\s*1\\s+Honey\\s*$", "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
                     "^\\s*5\\s+Coffee Bean\\s*$", // Coffee
@@ -138,8 +136,7 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        }
-        else if (type.getName().equals("Dehydrator")) {
+        } else if (type.getName().equals("Dehydrator")) {
             String[] regexes = new String[]{ //Raisins
                     "^\\s*5\\s+Grape\\s*$",
                     //Dried Mushrooms
@@ -183,14 +180,12 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        }
-        else if (type.getName().equals("Charcoal Klin")) {
+        } else if (type.getName().equals("Charcoal Klin")) {
             String regex = "^\\s*10\\s+Wood\\s*$";
             if (items.matches(regex)) {
                 return new ArtisanItem(ArtisanType.Coal);
             }
-        }
-        else if (type.getName().equals("Preserves Jar")) {
+        } else if (type.getName().equals("Preserves Jar")) {
             String[] regexes = new String[]{
                     //Vegetables : (Pickles)
                     "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
@@ -239,11 +234,9 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        }
-        else if (type.getName().equals("Fish Smoker")) {
+        } else if (type.getName().equals("Fish Smoker")) {
             //TODO : when fishes are ready.
-        }
-        else if (type.getName().equals("Furnace")) {
+        } else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
                     "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Gold\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Iridium\\s+1\\s+Coal\\s*$"};
@@ -272,19 +265,18 @@ public class CraftingItem extends Item {
                 artisanItem.setBaseSellPrice(baseSellPrice);
                 return artisanItem;
             }
-        }
-        else if(type.getName().equals("Loom")) {
+        } else if (type.getName().equals("Loom")) {
             String regex = "^\\s*1\\s+Wool\\s*$";
+            // TODO
             if (items.matches(regex)) {
                 return new ArtisanItem(ArtisanType.Cloth);
             }
-        }
-        else if(type.getName().equals("Mayonnaise Machine")) {
-            String[] regexes = new String[]{"^\\s*1\\s+Egg\\s*$" , "^\\s*1\\s+Large Egg\\s*$",
-            "^\\s*1\\s+Duck Egg\\s*$" , "^\\s*1\\s+Dinosaur Egg\\s*$"};
+        } else if (type.getName().equals("Mayonnaise Machine")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Egg\\s*$", "^\\s*1\\s+Large Egg\\s*$",
+                    "^\\s*1\\s+Duck Egg\\s*$", "^\\s*1\\s+Dinosaur Egg\\s*$"};
             if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.Mayonnaise);
-            }else if(items.matches(regexes[1])) {
+            } else if (items.matches(regexes[1])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Mayonnaise);
                 int price = 237;
                 artisanItem.setBaseSellPrice(price);
@@ -294,20 +286,19 @@ public class CraftingItem extends Item {
             } else if (items.matches(regexes[3])) {
                 return new ArtisanItem(ArtisanType.DinosaurMayonnaise);
             }
-        }
-        else if(type.getName().equals("Oil Maker")) {
-            String[] regexes = new String[]{"^\\s*1\\s+Truffle\\s*$" , "^\\s*1\\s+Corn\\s*$",
-                                "^\\s*1\\s+Sunflower Seeds\\s*$" , "^\\s*1\\s+Sunflower\\s*$"};
+        } else if (type.getName().equals("Oil Maker")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Truffle\\s*$", "^\\s*1\\s+Corn\\s*$",
+                    "^\\s*1\\s+Sunflower Seeds\\s*$", "^\\s*1\\s+Sunflower\\s*$"};
             if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.TruffleOil);
-            }else if(items.matches(regexes[1])) {
+            } else if (items.matches(regexes[1])) {
                 return new ArtisanItem(ArtisanType.Oil);
-            }else if(items.matches(regexes[2])) {
+            } else if (items.matches(regexes[2])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Oil);
-                int proccessingTime = 2*24;
+                int proccessingTime = 2 * 24;
                 artisanItem.setProccessingTime(proccessingTime);
                 return artisanItem;
-            }else if(items.matches(regexes[3])) {
+            } else if (items.matches(regexes[3])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Oil);
                 int proccessingTime = 1;
                 artisanItem.setProccessingTime(proccessingTime);
@@ -317,20 +308,18 @@ public class CraftingItem extends Item {
         return null;
     }
 
-    public String checkRegex(String items){
-        if(type.getName().equals("Bee House")) {
+    public String checkRegex(String items) {
+        if (type.getName().equals("Bee House")) {
             return " ";
-        }
-        else if(type.getName().equals("Cheese Press")){
+        } else if (type.getName().equals("Cheese Press")) {
             String[] regexes = new String[]{"^\\s*1\\s+Milk\\s*$", "^\\s*1\\s+Large Milk\\s*$",
                     "^\\s*1\\s+Goat Milk\\s*$", "^\\s*1\\s+Large Goat Milk\\s*$"};
-            for(String regex : regexes){
-                if(items.matches(regex)) {
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Keg")){
+        } else if (type.getName().equals("Keg")) {
             String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$", "^\\s*1\\s+Rice\\s*$", // beer and vinegar
                     "^\\s*1\\s+Honey\\s*$", "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
                     "^\\s*5\\s+Coffee Bean\\s*$", // Coffee
@@ -353,13 +342,12 @@ public class CraftingItem extends Item {
                     "^\\s*1\\s+Pomegranate\\s*$", "^\\s*1\\s+Powdermelon\\s*$", "^\\s*1\\s+Rhubarb\\s*$",
                     "^\\s*1\\s+Salmonberry\\s*$", "^\\s*1\\s+Spice Berry\\s*$", "^\\s*1\\s+Starfruit\\s*$",
                     "^\\s*1\\s+Strawberry\\s*$", "^\\s*1\\s+Wild Plum\\s*$"};
-            for(String regex : regexes){
-                if(items.matches(regex)){
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Dehydrator")){
+        } else if (type.getName().equals("Dehydrator")) {
             String[] regexes = new String[]{ //Raisins
                     "^\\s*5\\s+Grape\\s*$",
                     //Dried Mushrooms
@@ -376,19 +364,17 @@ public class CraftingItem extends Item {
                     "^\\s*5\\s+Salmonberry\\s*$", "^\\s*5\\s+Spice Berry\\s*$", "^\\s*5\\s+Starfruit\\s*$",
                     "^\\s*5\\s+Strawberry\\s*$", "^\\s*5\\s+Wild Plum\\s*$",
             };
-            for(String regex : regexes){
-                if(items.matches(regex)){
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Charcoal Klin")){
+        } else if (type.getName().equals("Charcoal Klin")) {
             String regex = "^\\s*10\\s+Wood\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 return regex;
             }
-        }
-        else if(type.getName().equals("Preserves Jar")){
+        } else if (type.getName().equals("Preserves Jar")) {
             String[] regexes = new String[]{
                     //Vegetables : (Pickles)
                     "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
@@ -409,46 +395,41 @@ public class CraftingItem extends Item {
                     "^\\s*1\\s+Pomegranate\\s*$", "^\\s*1\\s+Powdermelon\\s*$", "^\\s*1\\s+Rhubarb\\s*$",
                     "^\\s*1\\s+Salmonberry\\s*$", "^\\s*1\\s+Spice Berry\\s*$", "^\\s*1\\s+Starfruit\\s*$",
                     "^\\s*1\\s+Strawberry\\s*$", "^\\s*1\\s+Wild Plum\\s*$"};
-            for (String regex : regexes){
-                if(items.matches(regex)){
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Fish Smoker")){
+        } else if (type.getName().equals("Fish Smoker")) {
             //TODO: must check later
             return "hmmm";
-        }
-        else if(type.getName().equals("Furnace")){
+        } else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
                     "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Gold\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Iridium\\s+1\\s+Coal\\s*$"};
-            for (String regex : regexes){
-                if(items.matches(regex)){
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Loom")){
+        } else if (type.getName().equals("Loom")) {
             String regex = "^\\s*1\\s+Wool\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 return regex;
             }
-        }
-        else if(type.getName().equals("Mayonnaise Machine")){
-            String[] regexes = new String[]{"^\\s*1\\s+Egg\\s*$" , "^\\s*1\\s+Large Egg\\s*$",
-                    "^\\s*1\\s+Duck Egg\\s*$" , "^\\s*1\\s+Dinosaur Egg\\s*$"};
-            for (String regex : regexes){
-                if(items.matches(regex)){
+        } else if (type.getName().equals("Mayonnaise Machine")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Egg\\s*$", "^\\s*1\\s+Large Egg\\s*$",
+                    "^\\s*1\\s+Duck Egg\\s*$", "^\\s*1\\s+Dinosaur Egg\\s*$"};
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
-        }
-        else if(type.getName().equals("Oil Maker")){
-            String[] regexes = new String[]{"^\\s*1\\s+Truffle\\s*$" , "^\\s*1\\s+Corn\\s*$",
-                    "^\\s*1\\s+Sunflower Seeds\\s*$" , "^\\s*1\\s+Sunflower\\s*$"};
-            for (String regex : regexes){
-                if(items.matches(regex)){
+        } else if (type.getName().equals("Oil Maker")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Truffle\\s*$", "^\\s*1\\s+Corn\\s*$",
+                    "^\\s*1\\s+Sunflower Seeds\\s*$", "^\\s*1\\s+Sunflower\\s*$"};
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
                     return regex;
                 }
             }
@@ -457,25 +438,25 @@ public class CraftingItem extends Item {
     }
 
 
-    public void proccessItem(String items){
+    public void proccessItem(String items) {
         proccessingItem = createArtisan(items);
 
     }
 
-    public void updateArtisan(){
-        if(proccessingItem != null){
-            int proccessingTime = proccessingItem.getProccessingTime();
-            if(proccessingTime > 1){
+    public void updateArtisan() {
+        if (proccessingItem != null) {
+            int proccessingTime = proccessingItem.getProcessingTime();
+            if (proccessingTime > 1) {
                 proccessingItem.setProccessingTime(proccessingTime - 1);
-            }else{
+            } else {
                 finishedItem = proccessingItem;
                 proccessingItem = null;
             }
         }
     }
 
-    public Item getFinishedItem(){
-        if(finishedItem != null){
+    public Item getFinishedItem() {
+        if (finishedItem != null) {
             Item clone = finishedItem;
             finishedItem = null;
             return clone;
@@ -483,10 +464,9 @@ public class CraftingItem extends Item {
         return null;
     }
 
-    public Item getProccessingItem(){
+    public Item getProccessingItem() {
         return proccessingItem;
     }
-
 
 
     @Override

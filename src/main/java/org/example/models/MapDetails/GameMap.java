@@ -2,6 +2,7 @@ package org.example.models.MapDetails;
 
 import org.example.models.Items.Item;
 import org.example.models.Items.Tree;
+import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
@@ -30,6 +31,50 @@ public class GameMap {
 
         initializeSymbols();
         initializeMap();
+    }
+
+    public static int calculateEnergyNeeded(Location from, Location to) {
+        // Calculate Manhattan distance (|x1 - x2| + |y1 - y2|)
+        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
+
+        // Base energy cost per tile
+        int baseEnergyCost = 2;
+
+        return distance * baseEnergyCost;
+    }
+
+    /**
+     * Finds the furthest location a player can go with their remaining energy.
+     * This is used when a player doesn't have enough energy to reach their destination.
+     *
+     * @param from The starting location
+     * @param to   The destination location
+     * @return The furthest location the player can reach with their remaining energy
+     */
+    public static Location findFurthestCanGo(Location from, Location to) {
+        // Calculate the direction vector
+        int dx = to.getX() - from.getX();
+        int dy = to.getY() - from.getY();
+
+        // Normalize the direction vector
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) {
+            return from; // Already at destination
+        }
+
+        double nx = dx / length;
+        double ny = dy / length;
+
+        // Assume the player can go 50% of the way (this is a simplification)
+        // In a real implementation, you would calculate this based on the player's energy
+        int maxDistance = (int) (length * 0.5);
+
+        // Calculate the new position
+        int newX = from.getX() + (int) (nx * maxDistance);
+        int newY = from.getY() + (int) (ny * maxDistance);
+
+        // Create a new location with the same tile type as the starting location
+        return new Location(newX, newY, from.getTile());
     }
 
     private void initializeSymbols() {
@@ -67,9 +112,9 @@ public class GameMap {
         while (placed < count) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            String currentType = tiles[x][y].getType();
+            TileType currentTile = tiles[x][y].getTile();
 
-            if (!isProtectedTile(currentType) && !currentType.equals("tree") && !currentType.equals("stone")) {
+            if (currentTile != TileType.WATER && currentTile != TileType.TREE && currentTile != TileType.STONE) {
                 tiles[x][y].setType(type);
 
                 if (type.equals("tree")) {
@@ -79,8 +124,7 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -125,8 +169,7 @@ public class GameMap {
                             y == farm.getStartY() + farm.getHeight() / 2) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
                         farm.setHousePosition(x, y);
-                    }
-                    else if (Math.random() < 0.1) {
+                    } else if (Math.random() < 0.1) {
                         //tiles[x][y] = new Location(x, y, Math.random() < 0.5 ? "tree" : "stone");
                     }
                 }
@@ -148,15 +191,13 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                }
-                else if (currentX > villageCenterX) {
+                } else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                }
-                else if (currentY > villageCenterY) {
+                } else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -211,8 +252,24 @@ public class GameMap {
         return tiles[x][y].getType().equals("path");
     }
 
-    private boolean
-    isProtectedTile(String type) {
+    //TODO : later it should be only items not strings
+//    private boolean requiresTool(String currentType, String newType) {
+//        return (currentType.equals("tree") && newType.equals("stump")) ||
+//                (currentType.equals("stone") && newType.equals("debris")) ||
+//                (currentType.equals("grass") && newType.equals("tilled_soil"));
+//    }
+//
+//    private String getRequiredTool(String currentType, String newType) {
+//        if (currentType.equals("tree") && newType.equals("stump")) return "axe";
+//        if (currentType.equals("stone") && newType.equals("debris")) return "pickaxe";
+//        if (currentType.equals("grass") && newType.equals("tilled_soil")) return "hoe";
+//        return "";
+//    }
+
+    private boolean isProtectedTile(String type) {
+        if (type == null) {
+            return false;
+        }
         return type.equals("water") || type.equals("village") || type.equals("house");
     }
 
@@ -227,20 +284,6 @@ public class GameMap {
 //        }
         return null;
     }
-
-    //TODO : later it should be only items not strings
-//    private boolean requiresTool(String currentType, String newType) {
-//        return (currentType.equals("tree") && newType.equals("stump")) ||
-//                (currentType.equals("stone") && newType.equals("debris")) ||
-//                (currentType.equals("grass") && newType.equals("tilled_soil"));
-//    }
-//
-//    private String getRequiredTool(String currentType, String newType) {
-//        if (currentType.equals("tree") && newType.equals("stump")) return "axe";
-//        if (currentType.equals("stone") && newType.equals("debris")) return "pickaxe";
-//        if (currentType.equals("grass") && newType.equals("tilled_soil")) return "hoe";
-//        return "";
-//    }
 
     private void handleTileChangeEffects(Location tile, String previousType, String newType, Player player) {
         if (previousType.equals("tilled_soil") && !newType.equals("tilled_soil")) {
@@ -265,8 +308,7 @@ public class GameMap {
             for (int x = startX; x <= endX; x++) {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
-                }
-                else {
+                } else {
 
                     System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
                 }
@@ -328,8 +370,8 @@ public class GameMap {
 
         int[][] directions = {
                 {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},           {0, 1},
-                {1, -1},  {1, 0},  {1, 1}
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -355,6 +397,67 @@ public class GameMap {
     public boolean isInBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < width && y < height;
     }
+
+    public boolean isInOtherPlayersFarm(Player player, int x, int y) {
+        for (Farm farm : farms) {
+            if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void updateArtisans(Player player) {
+        Backpack backpack = player.getBackpack();
+        Map<Item, Integer> inventory = backpack.getInventory();
+
+        // Iterate through all items in the player's backpack
+        for (Map.Entry<Item, Integer> entry : inventory.entrySet()) {
+            Item item = entry.getKey();
+
+            // Check if the item is an artisan item
+            if (item instanceof org.example.models.Items.ArtisanItem) {
+                org.example.models.Items.ArtisanItem artisanItem = (org.example.models.Items.ArtisanItem) item;
+
+                // Reduce processing time by 1
+                int currentProcessingTime = artisanItem.getProcessingTime();
+                if (currentProcessingTime > 0) {
+                    artisanItem.setProccessingTime(currentProcessingTime - 1);
+                }
+
+                // Check if processing is complete
+                if (artisanItem.getProcessingTime() <= 0) {
+                    // Processing complete, item is ready to use
+                    // You might want to add additional logic here
+                }
+            }
+        }
+    }
+
+    /**
+     * Adds a greenhouse to the game map.
+     * A greenhouse is a special area where players can plant crops regardless of the season.
+     *
+     * @param leftCorner  The top-left corner of the greenhouse
+     * @param rightCorner The bottom-right corner of the greenhouse
+     */
+    public void addGreenhouse(Location leftCorner, Location rightCorner) {
+        int startX = leftCorner.getX();
+        int startY = leftCorner.getY();
+        int endX = rightCorner.getX();
+        int endY = rightCorner.getY();
+
+        // Set all tiles in the greenhouse area to GREENHOUSE type
+        for (int x = startX; x <= endX; x++) {
+            for (int y = startY; y <= endY; y++) {
+                if (isValidCoordinate(x, y)) {
+                    tiles[x][y].setTile(TileType.GREENHOUSE);
+                }
+            }
+        }
+    }
+
+    // TODO : collision - get inventory
 
     public class MapPrinter {
 
@@ -399,7 +502,4 @@ public class GameMap {
             }
         }
     }
-
-    // TODO : collision - get inventory
-
 }

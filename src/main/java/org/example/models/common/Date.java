@@ -38,7 +38,7 @@ public class Date {
         weatherMap.put(Seasons.WINTER, Arrays.asList(Weather.SUNNY, Weather.SNOWY));
     }
 
-    public void advanceTime(int hours , GameMap gameMap) {
+    public void advanceTime(int hours, GameMap gameMap) {
         //TODO : must update items in map.
         if (hours < 0) {
             System.out.println("Error: Cannot advance time by negative values");
@@ -48,18 +48,18 @@ public class Date {
         this.hour += hours;
         while (this.hour >= 22) {
             this.hour -= 13;
-            advanceDays(1 , gameMap);
+            advanceDays(1, gameMap);
         }
     }
 
-    public void cheatThor(Location location , GameMap gameMap) {
+    public void cheatThor(Location location, GameMap gameMap) {
         //TODO : burning trees.
-        gameMap.thor(location);
+//        gameMap.thor(location);
         System.out.println("Thor has struck the location");
     }
 
 
-    public void advanceDays(int days , GameMap gameMap) {
+    public void advanceDays(int days, GameMap gameMap) {
         //TODO for mostafa:
         //TODO : only attack of the crows
         if (days < 0) {
@@ -67,7 +67,7 @@ public class Date {
             return;
         }
 
-        gameMap.updatePlants();
+//        gameMap.updatePlants();
 
         this.day += days;
 
@@ -101,7 +101,7 @@ public class Date {
 
     // changing the day
     public void goTomorrow(GameMap gameMap) {
-        advanceDays(1 , gameMap);
+        advanceDays(1, gameMap);
         this.weatherToday = weatherTomorrow;
         updateWeatherTomorrow();
     }
