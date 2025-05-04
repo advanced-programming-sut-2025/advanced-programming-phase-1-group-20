@@ -260,7 +260,7 @@ public class GameMenuController implements Controller {
             if (hours < 0) {
                 return Result.error("Cannot advance time by negative values");
             }
-            gameClock.advanceTime(hours);
+            gameClock.advanceTime(hours , gMap);
             return Result.success("Time advanced by " + hours + " hours");
         } catch (NumberFormatException e) {
             return Result.error("Invalid number format for hours");
@@ -275,7 +275,7 @@ public class GameMenuController implements Controller {
         try {
             int days = Integer.parseInt(args[0]);
 
-            gameClock.advanceDays(days);
+            gameClock.advanceDays(days , gMap);
             return Result.success("Date advanced by " + days + " days");
         } catch (NumberFormatException e) {
             return Result.error("Invalid number format for days");
@@ -298,7 +298,7 @@ public class GameMenuController implements Controller {
             int y = Integer.parseInt(coordinates[1].trim());
 
             Location location = new Location(x, y, null);
-            gameClock.cheatThor(location);
+            gameClock.cheatThor(location , gMap);
 
             return Result.success("Thor has struck at location (" + x + "," + y + ")");
         } catch (NumberFormatException e) {
@@ -916,7 +916,7 @@ public class GameMenuController implements Controller {
             game.selectMap(player, mapNumber);
 
             // Move to the next player's turn
-            game.nextTurn();
+            game.nextTurn(gMap);
 
             // If all players have selected a map, start the game
             if (game.allPlayersSelectedMap()) {
@@ -965,7 +965,7 @@ public class GameMenuController implements Controller {
         }
 
         // Move to the next player's turn
-        game.nextTurn();
+        game.nextTurn(gMap);
 
         return Result.success("Turn advanced. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn.");
     }

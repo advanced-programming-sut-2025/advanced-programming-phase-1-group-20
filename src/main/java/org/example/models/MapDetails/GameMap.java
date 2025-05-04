@@ -1,6 +1,7 @@
 package org.example.models.MapDetails;
 
 import org.example.models.Items.Item;
+import org.example.models.Items.Plant;
 import org.example.models.Items.Tree;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
@@ -550,5 +551,49 @@ public class GameMap {
                 }
             }
         }
+    }
+
+
+    public void updateItems(){
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Location tile = tiles[x][y];
+                if(tile.getItem() != null){
+                    if(tile.getItem() instanceof Tree){
+                        tile.getItem().updateItem();
+                        Tree tree = (Tree) tile.getItem();
+                        if(!tree.getMoisture()){
+                            tile.setItem(null);
+                        }
+                    }else if(tile.getItem() instanceof Plant){
+                        tile.getItem().updateItem();
+                        Plant plant = (Plant) tile.getItem();
+                        if(!plant.getMoisture()){
+                            tile.setItem(null);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void thor(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+        for(int i = x ; i < x + 4 ; i++){
+            for(int j = y ; j < y + 4 ; j++){
+                Location tile = tiles[x][y];
+                if(tile.getTile() != null){
+                    if(tile.getItem() instanceof Tree){
+                        Tree tree = (Tree) tile.getItem();
+                        tile.setItem(tree.burnTree());
+                    }
+                }
+            }
+        }
+    }
+
+    public void attackOfTheCrows(){
+
     }
 }

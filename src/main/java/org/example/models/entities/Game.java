@@ -1,5 +1,6 @@
 package org.example.models.entities;
 
+import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 
@@ -18,6 +19,7 @@ public class Game implements Serializable {
     private Map<Player, Boolean> terminateVotes;
     private Player gameCreator;
     private boolean saved;
+    private GameMap gameMap;
 
     public Game(List<Player> players, Player creator) {
         this.players = players;
@@ -81,7 +83,7 @@ public class Game implements Serializable {
         return mapSelections.getOrDefault(player, -1);
     }
 
-    public void nextTurn() {
+    public void nextTurn(GameMap gameMap) {
         // Reset energy used in the current turn for the current player
         currentPlayer.resetEnergyUsedInTurn();
 
@@ -90,7 +92,7 @@ public class Game implements Serializable {
 
         // If we've gone through all players, advance the game time by 1 hour
         if (currentPlayerIndex == 0) {
-            date.advanceTime(1);
+            date.advanceTime(1 , gameMap);
         }
     }
 
