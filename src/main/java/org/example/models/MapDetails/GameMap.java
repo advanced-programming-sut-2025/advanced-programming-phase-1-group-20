@@ -516,11 +516,11 @@ public class GameMap {
         return false;
     }
 
-    public Location getItem(int x, int y) {
+    public Item getItem(int x, int y) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 Location tile = tiles[x][y];
-                return tile;
+                return tile.getItem();
             }
         }
         return null;

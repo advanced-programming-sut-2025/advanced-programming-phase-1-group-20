@@ -483,6 +483,11 @@ public class CraftingItem extends Item {
         return null;
     }
 
+    public Item getProccessingItem(){
+        return proccessingItem;
+    }
+
+
 
     @Override
     public void showInfo() {

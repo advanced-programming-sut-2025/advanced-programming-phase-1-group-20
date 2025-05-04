@@ -2,6 +2,7 @@ package org.example.controllers;
 
 import org.example.models.App;
 import org.example.models.Items.*;
+import org.example.models.Items.Plant;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
@@ -92,6 +93,7 @@ public class GameMenuController implements Controller {
             case ShowPlant -> result = showPlant(args);
             case Fertilize -> result = fertilize(args);
             case HowMuchWater -> result = howMuchWater();
+            case GiveWater -> result = giveWater(args);
             case Harvest -> result = harvest(args);
 
             //crafting related commands
@@ -102,17 +104,17 @@ public class GameMenuController implements Controller {
 
 
             //cooking related commands
-            case AddRefrigerator -> addRefrigerator(args);
+            case AddRefrigerator -> result = addRefrigerator(args);
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> result = cookingPrepare(args);
-            case EatFood -> eatFood(args);
+            case EatFood -> result = eatFood(args);
             case ShowEnergy -> result = showEnergy();
             case setEnergy -> result = setEnergy(args);
             case energyUnlimited -> result = energyUnlimited();
 
             //artisan-related commands
-            case ArtisanUse -> artisanUse(args);
-            case ArtisanGet -> artisanGet(args);
+            case ArtisanUse -> result = artisanUse(args);
+            case ArtisanGet -> result = artisanGet(args);
 
             //sell command:
             case SellProduct -> sellProduct(args);
@@ -317,34 +319,83 @@ public class GameMenuController implements Controller {
     }
 
 
+    //TODO : i need to implement updateItems() in map. and implementing giant Items.
     private Result plant(String[] args) {
         String seedName = args[0];
         String direction = args[1];
-        Item item = ItemBuilder.build(seedName);
+        int[] dir = getDirection(direction);
+        Item item = player.getBackpack().getItem(seedName);
+        Location loc = player.getLocation();
+        int x = loc.getX() + dir[1];
+        int y = loc.getY() + dir[0];
         if(item == null){
-            return Result.error(seedName + " does not exist");
+            return Result.error(seedName + " does not exist in backpack.");
         }
         if(!player.getBackpack().hasItems(Collections.singletonList(seedName))){
             return Result.error("Backpack does not contain " + seedName);
         }
-        //TODO : check direction && check collision
-        //TODO : implementing plant , addToMap(Item item) ,
-        //TODO : item.updateItem(); added just need to be added to gameClock
-        //TODO : implementing giant Items.
+        if(!gMap.isShokhm(x , y)){
+            return Result.error("the land is not plowed!");
+        }
+        if (gMap.getItem(x,y) != null) {
+            return Result.error("there is an item on the ground");
+        }
+
         if (seedName.equals("Mixed Seeds")) {
             seedName = gameClock.getSeason().getRandomSeed();
-            item = App.getItem(seedName);
-            //TODO: implementing planting seed.
+            item = ItemBuilder.build(seedName);
+            if(item == null){
+                return Result.error("Item does not exist");
+            }
         }
+
+        gMap.placeItem(x , y , item);
         return Result.success(seedName + "planted successfully!");
     }
 
 
+    private int[] getDirection(String direction) {
+        int[] dir = new int[]{0,0};
+        switch(direction) {
+            case "north":
+                dir[0] = -1;
+                break;
+            case "south":
+                dir[0] = 1;
+                break;
+            case "east":
+                dir[1] = 1;
+                break;
+            case "west":
+                dir[1] = -1;
+                break;
+            case "north-east":
+                dir[0] = -1;
+                dir[1] = 1;
+                break;
+            case "north-west":
+                dir[0] = -1;
+                dir[1] = -1;
+                break;
+            case "south-east":
+                dir[0] = 1;
+                dir[1] = 1;
+                break;
+            case "south-west":
+                dir[0] = 1;
+                dir[1] = -1;
+                break;
+        }
+        return dir;
+    }
+
+
+    //this method is completed.
     private Result showPlant(String[] args) {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
-        //TODO: check location (x,y) and if there is a plant
-        Item item = App.getItem("this must change later and " + "we must get it from map");
+
+        Item item = gMap.getItem(x , y);
         if(item == null){
             return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
         }
@@ -352,34 +403,54 @@ public class GameMenuController implements Controller {
         return Result.success("");
     }
 
+
+    //TODO : Only needed to be completed when kasra implements fertilize
     private Result fertilize(String[] args) {
         String fertilizer = args[0];
-        Item item = App.getItem(fertilizer);
+        Item item = ItemBuilder.build(fertilizer);
+        Location location = player.getLocation();
         String direction = args[1];
+        int[] dir = getDirection(direction);
+        int x = location.getX() + dir[1];
+        int y = location.getY() + dir[0];
         if(item == null){
             return Result.error("Fertilizer" + fertilizer + " does not exist.");
         }
         if(!player.getBackpack().hasItems(Collections.singletonList(fertilizer))){
             return Result.error("Backpack does not contain " + fertilizer);
         }
-        //TODO : (kasra) implementing fertilize function in tools.
+        if(!(gMap.getItem(x , y) instanceof Tool)){
+            return Result.error("Fertilizer" + fertilizer + " is not a tool");
+        }
+
         return Result.success("fertilized successfully with" + fertilizer);
     }
 
+
+
+
+    private Result giveWater(String[] args) {
+        return Result.success("");
+    }
+
+
+    //TODO : adding useTool() method to tools.
     private Result howMuchWater() {
-        //TODO : checking water in our bucket. (kasra)
-        //TODO : adding useTool() method to tools.
         return Result.success("How much water has been cheated");
     }
 
+
+    //this method is completed.
     private Result harvest(String[] args) {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
-        //TODO: getting Location from (x,y).
-        //TODO: getting plant or Tree from Map;
-        Item item = App.getItem("getting Tree or Plant" + "from map this must change later");
+
+        Item item = gMap.getItem(x , y);
         if(item == null){
             return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
+        }
+        if(!((item instanceof Plant) || (item instanceof Tree))){
+            return Result.error("Item is not harvestable");
         }
         if(!item.getFinished()){
             return Result.error("Plant is not ready yet");
@@ -389,13 +460,17 @@ public class GameMenuController implements Controller {
     }
 
 
-    //crafting related
+    //this method is completed
     private void craftingShowRecipes() {
         for (CraftingType type : CraftingType.values()) {
             type.showInfo();
         }
     }
 
+
+
+
+    //this method is completed
     private Result craftItem(String[] args) {
         String itemName = args[0];
         CraftingType type = CraftingType.fromName(itemName);
@@ -406,30 +481,39 @@ public class GameMenuController implements Controller {
         if(!craftingItem.canCraft(player.getBackpack())){
             return Result.error("You don't have enough items for crafting this item");
         }
-
+        if(player.getBackpack().isBackPackFull()){
+            return Result.error("Your backpack is full");
+        }
+        CraftingItem craftedItem = new CraftingItem(type);
+        player.getBackpack().add(craftedItem , 1);
         return Result.success("Item " + itemName + " has been crafted");
     }
 
-    private boolean checkItem(Item item) {
-        if (item == null) {
-            System.out.println("item does not exist");
-            return false;
-        }
-        return true;
-    }
 
+
+
+    //this method is completed now.
     private Result placeItem(String[] args) {
         String itemName = args[0];
-
-        //TODO : i must get items from inventory
+        String direction = args[1];
+        int[] dir = getDirection(direction);
+        Location loc = player.getLocation();
+        int x = loc.getX() + dir[1];
+        int y = loc.getY() + dir[0];
         Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
             return Result.error("Item " + itemName + " does not exist in backpack");
         }
+        if(gMap.getItem(x , y) != null){
+            return Result.error("there is Item already in the ground!");
+        }
 
-        return Result.success("Item " + itemName + " has been placed");
+        gMap.placeItem(x , y , item);
+
+        return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
     }
 
+    //this method is completed now.
     private Result addItem(String[] args) {
         String itemName = args[0];
         int count = Integer.parseInt(args[1]);
@@ -443,27 +527,28 @@ public class GameMenuController implements Controller {
 
 
     //cooking related
-    private void addRefrigerator(String[] args) {
+    private Result addRefrigerator(String[] args) {
         String key = args[0];
         String itemName = args[1];
         Item item = App.getItem(itemName);
-        boolean flag = checkItem(item);
-        if (flag) {
-            switch (key) {
-                //TODO : checking refrigerator collision and check Item in refrigerator (taha).
-                case "put":
-                    //TODO : add item to refrigerator
-                    flag = flag && player.getBackpack().hasItems(Collections.singletonList(key));
-                    if (flag) {
-                        // TODO: add the amount
-                        player.getBackpack().add(item, 1);
-                    }
-                    break;
-                case "pick":
-                    //TODO : check refrigerator.
-                    break;
-            }
+        if(item == null){
+            return Result.error( itemName + "does not exist");
         }
+        switch (key) {
+            //TODO : checking refrigerator collision and check Item in refrigerator (taha).
+            case "put":
+                //TODO : add item to refrigerator
+                if(!player.getBackpack().hasItems(Collections.singletonList(key))){
+                    return Result.error("Backpack doesn't contain item");
+                }
+                // TODO: add the amount
+                player.getBackpack().add(item, 1);
+                break;
+            case "pick":
+                //TODO : check refrigerator.
+                break;
+        }
+        return Result.success("Item " + itemName + " has been " + key + "ed");
     }
 
     private void cookingShowRecipes() {
@@ -475,31 +560,26 @@ public class GameMenuController implements Controller {
     private Result cookingPrepare(String[] args) {
         //TODO : this function should be in HomeMenu.
         String name = args[0];
-        Item item = App.getItem(name);
+        Item item = ItemBuilder.build(name);
         //TODO : checking refrigerator.
 
         if (player.getBackpack().isBackPackFull()) {
             return Result.error("Backpack is full");
         }
-
         if (item == null) {
-            return Result.error("Item is not a cooking item");
+            return Result.error(name + " does not exist");
         }
-
         if (!isCooking(item)) {
             return Result.error("Item is not a cooking item");
         }
-
         if (player.getBackpack().hasItems(Collections.singletonList(name))) {
             return Result.error("Backpack is already cooking");
         }
         if(player.getBackpack().hasItems(Collections.singletonList(name))){
             return Result.error("Item doesn't exist in backpack");
         }
+
         CookingItem cookingItem = (CookingItem) item;
-        if(cookingItem == null){
-            return Result.error("Item is not a cooking item");
-        }
         player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
         player.getBackpack().add(food, 1);
@@ -507,13 +587,10 @@ public class GameMenuController implements Controller {
     }
 
     private boolean isCooking(Item item) {
-        if (item instanceof CookingItem) {
-            return true;
-        }
-        System.out.println("item is not a cooking item");
-        return false;
+        return item instanceof CookingItem;
     }
 
+    //this method is completed now
     private Result eatFood(String[] args) {
         String foodName = args[0];
         Item item = ItemBuilder.build(foodName);
@@ -550,23 +627,27 @@ public class GameMenuController implements Controller {
 
 
     //artisan related
-    public void artisanUse(String[] args) {
+    public Result artisanUse(String[] args) {
         String artisanName = args[0];
         String items = args[1];
         Item item = ItemBuilder.build(artisanName);
-        boolean flag = checkItem(item);
-        if (flag) {
-            if (player.getBackpack().hasItems(Collections.singletonList(artisanName))) {
-                CraftingItem craftingItem = (CraftingItem) item;
-                flag = flag && checkItem(craftingItem);
-                if(flag) {
-                    flag = checkItems(items , craftingItem);
-                    if(flag) {
-                        craftingItem.proccessItem(items);
-                    }
-                }
-            }
+        if(item == null){
+            return Result.error(artisanName + " does not exist");
         }
+        if(!player.getBackpack().hasItems(Collections.singletonList(artisanName))){
+            return Result.error(artisanName + " does not exist in backpack");
+        }
+        if(!(item instanceof CraftingItem)){
+            return Result.error(artisanName + " is not a CraftingItem");
+        }
+
+        CraftingItem craftingItem = (CraftingItem) item;
+        if(!checkItems(items, craftingItem)){
+            return Result.error("You don't have enough items for crafting");
+        }
+        craftingItem.proccessItem(items);
+        ArtisanItem artisanItem = (ArtisanItem) craftingItem.getProccessingItem();
+        return Result.success(artisanItem.getName() + " is now in process estimated turns : " + artisanItem.getProccessingTime());
     }
 
     public boolean checkItems(String items , CraftingItem craftingItem) {
@@ -575,27 +656,25 @@ public class GameMenuController implements Controller {
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(items);
             String itemName = matcher.group(1);
-            Item item = ItemBuilder.build(itemName);
             if(player.getBackpack().hasItems(Collections.singletonList(itemName))) {
                 return true;
             }
-        }else{
-            System.out.println("Ingredient is invalid");
         }
         return false;
     }
 
-    public void artisanGet(String[] args) {
+    public Result artisanGet(String[] args) {
         String artisanName = args[0];
-        CraftingItem craftingItem = (CraftingItem) ItemBuilder.build(args[0]);
-        boolean flag = checkItem(craftingItem);
-        if (flag) {
-            Item item = craftingItem.getFinishedItem();
-            flag = checkItem(item);
-            if(flag) {
-                player.getBackpack().add(item, 1);
-            }
+        CraftingItem craftingItem = (CraftingItem) ItemBuilder.build(artisanName);
+        if(craftingItem == null){
+            return Result.error(artisanName + " does not exist");
         }
+        Item item = craftingItem.getFinishedItem();
+        if(item == null){
+            return Result.error(artisanName + " is not in queue!");
+        }
+        player.getBackpack().add(item, 1);
+        return Result.success("Artisan item " + item.getName() + " arrived");
     }
 
     //sell Function:
