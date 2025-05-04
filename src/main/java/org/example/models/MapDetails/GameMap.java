@@ -216,15 +216,15 @@ public class GameMap {
         return type.equals("water") || type.equals("village") || type.equals("house");
     }
 
-    public Building getBuildingContainingPlayer(Player player) {
-        int x = player.getX();
-        int y = player.getY();
+    public Building getBuildingContainingPlayer(Location playerLocation) {
+        int x = playerLocation.getX();
+        int y = playerLocation.getY();
 
-        for (Building building : buildings) {
-            if (building.contains(x, y)) {
-                return building;
-            }
-        }
+//        for (Building building : buildings) {
+//            if (building.contains(x, y)) {
+//                return building;
+//            }
+//        }
         return null;
     }
 
@@ -400,6 +400,6 @@ public class GameMap {
         }
     }
 
-    // TODO : collision - add item to refrigerator - get inventory
+    // TODO : collision - get inventory
 
 }
