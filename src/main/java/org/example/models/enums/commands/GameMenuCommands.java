@@ -48,6 +48,7 @@ public enum GameMenuCommands implements Command {
     ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     HowMuchWater(Pattern.compile("^howmuch\\s+water$")),
+    GiveWater(Pattern.compile("^give\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
 
 

@@ -1,5 +1,6 @@
 package org.example.models.common;
 
+import org.example.models.MapDetails.GameMap;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Weather;
 
@@ -37,7 +38,8 @@ public class Date {
         weatherMap.put(Seasons.WINTER, Arrays.asList(Weather.SUNNY, Weather.SNOWY));
     }
 
-    public void advanceTime(int hours) {
+    public void advanceTime(int hours , GameMap gameMap) {
+        //TODO : must update items in map.
         if (hours < 0) {
             System.out.println("Error: Cannot advance time by negative values");
             return;
@@ -46,21 +48,26 @@ public class Date {
         this.hour += hours;
         while (this.hour >= 22) {
             this.hour -= 13;
-            advanceDays(1);
+            advanceDays(1 , gameMap);
         }
     }
 
-    public void cheatThor(Location location) {
+    public void cheatThor(Location location , GameMap gameMap) {
         //TODO : burning trees.
+        gameMap.thor(location);
         System.out.println("Thor has struck the location");
     }
 
 
-    public void advanceDays(int days) {
+    public void advanceDays(int days , GameMap gameMap) {
+        //TODO for mostafa:
+        //TODO : only attack of the crows
         if (days < 0) {
             System.out.println("Error: Cannot advance date by negative values");
             return;
         }
+
+        gameMap.updatePlants();
 
         this.day += days;
 
@@ -93,8 +100,8 @@ public class Date {
     }
 
     // changing the day
-    public void goTomorrow() {
-        advanceDays(1);
+    public void goTomorrow(GameMap gameMap) {
+        advanceDays(1 , gameMap);
         this.weatherToday = weatherTomorrow;
         updateWeatherTomorrow();
     }

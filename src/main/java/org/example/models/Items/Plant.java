@@ -8,6 +8,8 @@ public class Plant extends Item {
     private int stage;
     private int daysCounter;
     private boolean finished;
+    private boolean moisture;
+    private int moistureCounter;
 
     public Plant(PlantType type) {
         super(type.getName(), type.getBaseSellPrice());
@@ -15,6 +17,8 @@ public class Plant extends Item {
         this.stage = 0;
         daysCounter = 0;
         finished = false;
+        moisture = true;
+        moistureCounter = 0;
     }
 
     public String getSeed() {
@@ -64,6 +68,7 @@ public class Plant extends Item {
     @Override
     public void showInfo() {
         type.showInfo();
+        System.out.println("is Moisture: " + moisture);
     }
 
 
@@ -78,6 +83,11 @@ public class Plant extends Item {
     public void updateDaysCounter() {
         int[] stages = getStages();
         if (daysCounter < stages[stage]) {
+            if(!moisture){
+                if(moistureCounter < 2){
+                    moistureCounter++;
+                }
+            }
             daysCounter++;
         } else if (daysCounter == stages[stage]) {
             addStage();
@@ -97,6 +107,22 @@ public class Plant extends Item {
 
     public boolean getFinished() {
         return finished;
+    }
+
+    public boolean getMoisture() {
+        return moisture;
+    }
+
+    public void setMoisture(boolean moisture) {
+        this.moisture = moisture;
+    }
+
+    public int getMoistureCounter() {
+        return moistureCounter;
+    }
+
+    public void setMoistureCounter(int moistureCounter) {
+        this.moistureCounter = moistureCounter;
     }
 
     @Override

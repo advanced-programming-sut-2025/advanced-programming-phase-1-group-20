@@ -147,12 +147,6 @@ public enum PlantType {
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Is Edible: " + isEdible());
         System.out.println("Energy: " + getEnergy());
-
-        //checking later
-
-//        String seasons = Arrays.toString(type.getSeasons());
-//                .replace("[", "").replace("]", "")
-//                .replace(" " , "");
         System.out.println("Seasons: " + Arrays.toString(getSeasons()));
         System.out.println("Can Become Giant: " + isGiantable());
     }

@@ -46,7 +46,8 @@ public class CookingItem extends Item {
             if (itemName.startsWith("any")) {
                 itemName = itemName.replace("any ", "");
                 //checking fishes list (only time that this happens)
-            } else {
+            }
+            else {
                 itemName = itemName.trim();
                 Item item = App.getItem(itemName);
                 if (!items.containsKey(item) || requiredItem > items.get(item)) {
@@ -71,7 +72,8 @@ public class CookingItem extends Item {
                 //checking fishes list (only time that this happens)
 
                 //TODO : removing items from inventory
-            } else {
+            }
+            else {
                 itemName = itemName.trim();
                 Item item = ItemBuilder.build(itemName);
                 inventory.remove(item, 1);

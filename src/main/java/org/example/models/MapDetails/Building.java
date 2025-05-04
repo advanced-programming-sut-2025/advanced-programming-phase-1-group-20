@@ -1,6 +1,7 @@
 package org.example.models.MapDetails;
 
 import org.example.models.Player.Player;
+import org.example.models.Player.Refrigerator;
 
 public class Building {
     private int x;
@@ -12,6 +13,7 @@ public class Building {
     private Player owner; // null for public buildings
     private boolean isEnterable;
     private String interiorMapName;
+    private Refrigerator refrigerator = new Refrigerator();
 
     public Building(int x, int y, int width, int height, String name, String type) {
         this.x = x;
@@ -70,6 +72,10 @@ public class Building {
 
     public String getType() {
         return type;
+    }
+
+    public Refrigerator getRefrigerator() {
+        return refrigerator;
     }
 
     public Player getOwner() {
