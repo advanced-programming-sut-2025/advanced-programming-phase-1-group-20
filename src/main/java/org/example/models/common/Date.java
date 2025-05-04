@@ -61,14 +61,13 @@ public class Date {
 
     public void advanceDays(int days , GameMap gameMap) {
         //TODO for mostafa:
-        //TODO : 1. attack of the crows
-        //TODO : 2. Thor method
+        //TODO : only attack of the crows
         if (days < 0) {
             System.out.println("Error: Cannot advance date by negative values");
             return;
         }
 
-        gameMap.updateItems();
+        gameMap.updatePlants();
 
         this.day += days;
 

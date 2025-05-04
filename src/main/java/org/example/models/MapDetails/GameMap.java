@@ -1,8 +1,6 @@
 package org.example.models.MapDetails;
 
-import org.example.models.Items.Item;
-import org.example.models.Items.Plant;
-import org.example.models.Items.Tree;
+import org.example.models.Items.*;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
@@ -554,7 +552,7 @@ public class GameMap {
     }
 
 
-    public void updateItems(){
+    public void updatePlants(){
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
                 Location tile = tiles[x][y];
@@ -573,6 +571,16 @@ public class GameMap {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public void updateArtisans(Player player){
+        Map<Item , Integer> items = player.getBackpack().getInventory();
+        for(Item item : items.keySet()){
+            if(item instanceof CraftingItem){
+                CraftingItem craftingItem = (CraftingItem) item;
+                craftingItem.updateArtisan();
             }
         }
     }
