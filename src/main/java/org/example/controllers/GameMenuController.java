@@ -18,6 +18,8 @@ import org.example.views.AppView;
 import org.example.views.MainMenu;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GameMenuController implements Controller {
     private AppView appView;
@@ -523,13 +525,44 @@ public class GameMenuController implements Controller {
         if (flag) {
             if (player.getBackpack().hasItems(Collections.singletonList(artisanName))) {
                 CraftingItem craftingItem = (CraftingItem) item;
-                ArtisanItem artisanItem = craftingItem.createArtisan(items);
+                flag = flag && checkItem(craftingItem);
+                if(flag) {
+                    flag = checkItems(items , craftingItem);
+                    if(flag) {
+                        craftingItem.proccessItem(items);
+                    }
+                }
             }
         }
     }
 
-    public void artisanGet(String[] args) {
+    public boolean checkItems(String items , CraftingItem craftingItem) {
+        String regex = craftingItem.checkRegex(items);
+        if(regex != null) {
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(items);
+            String itemName = matcher.group(1);
+            Item item = builder.build(itemName);
+            if(player.getBackpack().hasItems(Collections.singletonList(itemName))) {
+                return true;
+            }
+        }else{
+            System.out.println("Ingredient is invalid");
+        }
+        return false;
+    }
 
+    public void artisanGet(String[] args) {
+        String artisanName = args[0];
+        CraftingItem craftingItem = (CraftingItem) builder.build(args[0]);
+        boolean flag = checkItem(craftingItem);
+        if (flag) {
+            Item item = craftingItem.getFinishedItem();
+            flag = checkItem(item);
+            if(flag) {
+                player.getBackpack().add(item, 1);
+            }
+        }
     }
 
     //sell Function:
