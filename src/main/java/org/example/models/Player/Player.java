@@ -5,7 +5,6 @@ import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
-import org.example.models.Items.Tools.*;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
@@ -15,6 +14,7 @@ import org.example.models.entities.NPCFriendship;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Types.TileType;
+import org.example.models.enums.Types.ToolFunctionality;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,12 +59,18 @@ public class Player {
         this.friendships = new HashMap<>();
 
         // Initialize basic tools
-        backpack.add(new Hoe(), 1);
-        backpack.add(new Pickaxe(), 1);
-        backpack.add(new Axe(), 1);
-        backpack.add(new WateringCan(), 1);
-        backpack.add(new Scythe(), 1);
-        backpack.add(new TrashCan(), 1);
+        backpack.add(new Tool("Basic Hoe", 0, "A basic hoe for tilling soil.",
+                Tool.ToolType.HOE, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.HOE), 1);
+        backpack.add(new Tool("Basic Pickaxe", 0, "A basic pickaxe for breaking rocks and mining ores.",
+                Tool.ToolType.PICKAXE, Tool.ToolMaterial.BASIC, 5, Skills.MINING, ToolFunctionality.PICKAXE), 1);
+        backpack.add(new Tool("Basic Axe", 0, "A basic axe for cutting down trees and breaking branches.",
+                Tool.ToolType.AXE, Tool.ToolMaterial.BASIC, 5, Skills.FORAGING, ToolFunctionality.AXE), 1);
+        backpack.add(new Tool("Basic Watering Can", 0, "A basic watering can for watering crops.",
+                Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
+        backpack.add(new Tool("Scythe", 0, "A tool for harvesting crops and cutting grass.",
+                Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null), 1);
+        backpack.add(new Tool("Initial Trash Can", 0, "A basic trash can for disposing of items.",
+                Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null), 1);
         this.spouse = null;
 
         this.isMarried = false;

@@ -28,11 +28,11 @@ public class ArtisanItem extends Item {
     }
 
     public int getProccessingTime() {
-        return type.getProccessingTime();
+        return type.getProcessingTime();
     }
 
     public String getIngridient() {
-        return type.getIngridient();
+        return type.getIngredient();
     }
 
     public int getBaseSellPrice() {

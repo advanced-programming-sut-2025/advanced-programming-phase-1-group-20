@@ -1,4 +1,5 @@
 import org.example.models.MapDetails.GameMap;
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -6,13 +7,9 @@ import java.io.PrintStream;
 
 public class GameMapTest {
 
-    public static void main(String[] args) {
-        testPrintMap();
-        System.out.println("All tests passed!");
-    }
 
-
-    private static void testPrintMap() {
+    @Test
+    public void testPrintMap() {
         GameMap gameMap = new GameMap(20, 20, null);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
