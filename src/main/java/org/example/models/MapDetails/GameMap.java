@@ -89,7 +89,6 @@ public class GameMap {
         }
     }
 
-
     private void initializeVillage() {
         int centerX = width / 2;
         int centerY = height / 2;
@@ -215,6 +214,18 @@ public class GameMap {
     private boolean
     isProtectedTile(String type) {
         return type.equals("water") || type.equals("village") || type.equals("house");
+    }
+
+    public Building getBuildingContainingPlayer(Player player) {
+        int x = player.getX();
+        int y = player.getY();
+
+        for (Building building : buildings) {
+            if (building.contains(x, y)) {
+                return building;
+            }
+        }
+        return null;
     }
 
     //TODO : later it should be only items not strings
