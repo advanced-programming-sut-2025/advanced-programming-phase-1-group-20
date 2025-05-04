@@ -91,7 +91,7 @@ public class Backpack {
         } else if (type == Type.Big) {
             return countItems() >= 24;
         } else if (type == Type.Deluxe) {
-            return countItems() >= 36; // Assuming Deluxe has 36 slots
+            return countItems() == Integer.MAX_VALUE; // Assuming Deluxe has 36 slots
         }
         return countItems() >= 12; // Default to Initial capacity
     }
