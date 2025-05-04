@@ -12,9 +12,11 @@ import java.util.regex.Pattern;
 public class CraftingItem extends Item {
     private CraftingType type;
 
+
     public CraftingItem(CraftingType type) {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
+
     }
 
     public String getIngredients() {
@@ -48,15 +50,26 @@ public class CraftingItem extends Item {
     public ArtisanItem createArtisan(String items) {
         if (type.getName().equals("Bee House")) {
             return new ArtisanItem(ArtisanType.Honey);
-        } else if (type.getName().equals("Cheese Press")) {
+        }
+        else if (type.getName().equals("Cheese Press")) {
             String[] regexes = new String[]{"^\\s*1\\s+Milk\\s*$", "^\\s*1\\s+Large\\s+Milk\\s*$",
                     "^\\s*1\\s+Goat\\s+Milk\\s*$", "^\\s*1\\s+Large\\s+Goat\\s+Milk\\s*$"};
-            if (items.matches(regexes[0]) || items.matches(regexes[1])) {
+            if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.Cheese);
-            } else if (items.matches(regexes[2]) || items.matches(regexes[3])) {
+            } else if(items.matches(regexes[1])){
+                ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Cheese);
+                artisanItem.setBaseSellPrice(345);
+                return artisanItem;
+            } else if(items.matches(regexes[2])){
                 return new ArtisanItem(ArtisanType.GoatCheese);
+            }  else if (items.matches(regexes[3])) {
+                ArtisanItem artisanItem = new ArtisanItem(ArtisanType.GoatCheese);
+                int price = 600;
+                artisanItem.setBaseSellPrice(price);
+                return artisanItem;
             }
-        } else if (type.getName().equals("Keg")) {
+        }
+        else if (type.getName().equals("Keg")) {
             String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$", "^\\s*1\\s+Rice\\s*$", // beer and vinegar
                     "^\\s*1\\s+Honey\\s*$", "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
                     "^\\s*5\\s+Coffee Bean\\s*$", // Coffee
@@ -123,7 +136,8 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        } else if (type.getName().equals("Dehydrator")) {
+        }
+        else if (type.getName().equals("Dehydrator")) {
             String[] regexes = new String[]{ //Raisins
                     "^\\s*5\\s+Grape\\s*$",
                     //Dried Mushrooms
@@ -167,12 +181,14 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        } else if (type.getName().equals("Charcoal Klin")) {
+        }
+        else if (type.getName().equals("Charcoal Klin")) {
             String regex = "^\\s*10\\s+Wood\\s*$";
             if (items.matches(regex)) {
                 return new ArtisanItem(ArtisanType.Coal);
             }
-        } else if (type.getName().equals("Preserves Jar")) {
+        }
+        else if (type.getName().equals("Preserves Jar")) {
             String[] regexes = new String[]{
                     //Vegetables : (Pickles)
                     "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
@@ -221,9 +237,11 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        } else if (type.getName().equals("Fish Smoker")) {
+        }
+        else if (type.getName().equals("Fish Smoker")) {
             //TODO : when fishes are ready.
-        } else if (type.getName().equals("Furnace")) {
+        }
+        else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
                     "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Gold\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Iridium\\s+1\\s+Coal\\s*$"};
@@ -253,7 +271,47 @@ public class CraftingItem extends Item {
                 return artisanItem;
             }
         }
-
+        else if(type.getName().equals("Loom")) {
+            String regex = "^\\s*1\\s+Wool\\s*$";
+            if (items.matches(regex)) {
+                return new ArtisanItem(ArtisanType.Cloth);
+            }
+        }
+        else if(type.getName().equals("Mayonnaise Machine")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Egg\\s*$" , "^\\s*1\\s+Large Egg\\s*$",
+            "^\\s*1\\s+Duck Egg\\s*$" , "^\\s*1\\s+Dinosaur Egg\\s*$"};
+            if (items.matches(regexes[0])) {
+                return new ArtisanItem(ArtisanType.Mayonnaise);
+            }else if(items.matches(regexes[1])) {
+                ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Mayonnaise);
+                int price = 237;
+                artisanItem.setBaseSellPrice(price);
+                return artisanItem;
+            } else if (items.matches(regexes[2])) {
+                return new ArtisanItem(ArtisanType.DuckMayonnaise);
+            } else if (items.matches(regexes[3])) {
+                return new ArtisanItem(ArtisanType.DinosaurMayonnaise);
+            }
+        }
+        else if(type.getName().equals("Oil Maker")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Truffle\\s*$" , "^\\s*1\\s+Corn\\s*$",
+                                "^\\s*1\\s+Sunflower Seeds\\s*$" , "^\\s*1\\s+Sunflower\\s*$"};
+            if (items.matches(regexes[0])) {
+                return new ArtisanItem(ArtisanType.TruffleOil);
+            }else if(items.matches(regexes[1])) {
+                return new ArtisanItem(ArtisanType.Oil);
+            }else if(items.matches(regexes[2])) {
+                ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Oil);
+                int proccessingTime = 2*24;
+                artisanItem.setProccessingTime(proccessingTime);
+                return artisanItem;
+            }else if(items.matches(regexes[3])) {
+                ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Oil);
+                int proccessingTime = 1;
+                artisanItem.setProccessingTime(proccessingTime);
+                return artisanItem;
+            }
+        }
         return null;
     }
 

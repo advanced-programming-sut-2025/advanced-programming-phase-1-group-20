@@ -18,14 +18,21 @@ public enum ArtisanType {
     Pickles("Pickles", "A jar of your home-made pickles.", 0, 6, "1 any Vegetable", 0, "Preserves Jar"),
     Jelly("Jelly", "Gooey.", 0, 3 * 24, "1 any Fruit", 0, "Preserves Jar"),
     SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, "1 any Fish + Coal", 0, "Fish Smoker"),// TODO : check sell price && energy later
-    IronBar("Iron bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"), // TODO : check sell price
-    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace"), // TODO: check sell price
-    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace"), // TODO: check sell price
-    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace"), // TODO: check sell price
+    IronBar("Iron bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"),
+    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace"),
+    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace"),
+    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace"),
+    Cloth("Cloth" , "A bolt of fine wool cloth." , 0, 4 , "1 Wool" , 470 , "Loom"),
+    Mayonnaise("Mayonnaise" , "It looks spreadable." , 50 , 3 , "1 Egg or 1 Large Egg" , 190,"Mayonnaise Machine"),
+    DuckMayonnaise("Duck Mayonnaise" , "It's a rich, yellow mayonnaise." , 75 , 3 , "1 Duck Egg" , 37 , "Mayonnaise Machine"),
+    DinosaurMayonnaise("Dinosaur Mayonnaise" , "It's thick and creamy, with a vivid green hue. It smells like grass and leather." , 125 , 3 , "1 Dinosaur Egg" , 800 , "Mayonnaise Machine"),
+    TruffleOil("Truffle Oil" , "A gourmet cooking ingredient." , 38 , 6 , "1 Truffle" , 1065 , "Oil Maker"),
+    Oil("Oil" , "All purpose cooking oil." , 13 , 6 , "1 Corn or 1 Sunflower Seeds or Sunflower" , 100 , "Oil Maker"),
+
     ;
     private final String name;
     private final String description;
-    private final int proccessingTime;
+    private int proccessingTime;
     private final String ingridient;
     private final String source;
     private int energy;
@@ -80,6 +87,10 @@ public enum ArtisanType {
 
     public void setBaseSellPrice(int baseSellPrice) {
         this.baseSellPrice = baseSellPrice;
+    }
+
+    public void setProccessingTime(int proccessingTime) {
+        this.proccessingTime = proccessingTime;
     }
 
     public String getSource() {

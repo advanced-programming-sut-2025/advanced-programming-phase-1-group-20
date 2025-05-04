@@ -44,4 +44,7 @@ public class ArtisanItem extends Item {
     }
 
 
+    public void setProccessingTime(int proccessingTime) {
+        type.setProccessingTime(proccessingTime);
+    }
 }
