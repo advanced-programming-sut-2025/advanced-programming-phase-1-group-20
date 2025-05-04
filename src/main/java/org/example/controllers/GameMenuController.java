@@ -430,7 +430,26 @@ public class GameMenuController implements Controller {
 
 
     private Result giveWater(String[] args) {
-        return Result.success("");
+        String direction = args[0];
+        Location location = player.getLocation();
+        int[] dir = getDirection(direction);
+        int x = location.getX() + dir[1];
+        int y = location.getY() + dir[0];
+        Item item = gMap.getItem(x , y);
+        if(item == null){
+            return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
+        }
+        if(!(item instanceof Tree || item instanceof Plant)){
+            return Result.error("Item is not a Plant or a Tree");
+        }
+        if(item instanceof Tree){
+            Tree tree = (Tree)item;
+            tree.setMoisture(true);
+        }else if(item instanceof Plant){
+            Plant plant = (Plant)item;
+            plant.setMoisture(true);
+        }
+        return Result.success("Water is given now.");
     }
 
 
