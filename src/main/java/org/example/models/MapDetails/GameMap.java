@@ -345,30 +345,6 @@ public class GameMap {
         return x >= 0 && y >= 0 && x < width && y < height;
     }
 
-    private static String getColoredSymbol(Location loc) {
-        final String RESET = "\u001B[0m";
-        final String GREEN = "\u001B[32m";
-        final String BLUE = "\u001B[34m";
-        final String RED = "\u001B[31m";
-        final String GRAY = "\u001B[37m";
-        final String CYAN = "\u001B[36m";
-
-        switch (loc.getTile()) {
-            case GRASS:
-                return GREEN + "###" + RESET;
-            case WATER:
-                return BLUE + "###" + RESET;
-//            case HOUSE:
-//                return RED + "###" + RESET;
-            case STONE:
-                return GRAY + "###" + RESET;
-//            case BUILDING:
-//                return CYAN + "###" + RESET;
-            default:
-                return "   ";
-        }
-    }
-
     public class MapPrinter {
 
         private static final String RESET = "\u001B[0m";
@@ -413,7 +389,6 @@ public class GameMap {
         }
     }
 
-
-    // TODO : colision - add item to refrigerator - get inventory
+    // TODO : collision - add item to refrigerator - get inventory
 
 }
