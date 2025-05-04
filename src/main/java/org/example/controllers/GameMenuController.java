@@ -16,6 +16,7 @@ import org.example.models.enums.Charactristic;
 import org.example.models.enums.Jobs;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Types.CraftingType;
+import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
@@ -36,6 +37,7 @@ public class GameMenuController implements Controller {
     private Player player;
     private Date gameClock;
     private GameMap gMap;
+    private ItemBuilder builder;
 
     public GameMenuController(AppView appView, Player player) {
         this.appView = appView;
@@ -527,7 +529,16 @@ public class GameMenuController implements Controller {
 
     //artisan related
     public void artisanUse(String[] args) {
-
+        String artisanName = args[0];
+        String items = args[1];
+        Item item = builder.build(artisanName);
+        boolean flag = checkItem(item);
+        if (flag) {
+            if(player.getBackpack().hasItems(Collections.singletonList(artisanName))){
+                CraftingItem craftingItem = (CraftingItem) item;
+                ArtisanItem artisanItem = craftingItem.createArtisan(items);
+            }
+        }
     }
 
     public void artisanGet(String[] args) {

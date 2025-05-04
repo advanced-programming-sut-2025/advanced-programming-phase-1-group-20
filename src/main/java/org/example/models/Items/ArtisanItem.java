@@ -43,4 +43,7 @@ public class ArtisanItem extends Item {
         type.setBaseSellPrice(baseSellPrice);
     }
 
+
+
+
 }
