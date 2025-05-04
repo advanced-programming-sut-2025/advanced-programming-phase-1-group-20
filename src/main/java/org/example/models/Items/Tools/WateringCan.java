@@ -49,62 +49,38 @@ public class WateringCan extends Tool {
 
 
     private static int getEnergyConsumption(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 5;
-            case COPPER:
-                return 4;
-            case IRON:
-                return 3;
-            case GOLD:
-                return 2;
-            case IRIDIUM:
-                return 1;
-            default:
-                return 5;
-        }
+        return switch (material) {
+            case BASIC -> 5;
+            case COPPER -> 4;
+            case IRON -> 3;
+            case GOLD -> 2;
+            case IRIDIUM -> 1;
+            default -> 5;
+        };
     }
 
-    /**
-     * Get the capacity based on the material
-     *
-     * @param material The material of the watering can
-     * @return The capacity
-     */
     private static int getCapacity(ToolMaterial material) {
-        switch (material) {
-            case BASIC:
-                return 40;
-            case COPPER:
-                return 55;
-            case IRON:
-                return 70;
-            case GOLD:
-                return 85;
-            case IRIDIUM:
-                return 100;
-            default:
-                return 40;
-        }
+        return switch (material) {
+            case BASIC -> 40;
+            case COPPER -> 55;
+            case IRON -> 70;
+            case GOLD -> 85;
+            case IRIDIUM -> 100;
+            default -> 40;
+        };
     }
 
 
     @Override
     public Tool upgrade() {
-        switch (getMaterial()) {
-            case BASIC:
-                return new WateringCan(ToolMaterial.COPPER);
-            case COPPER:
-                return new WateringCan(ToolMaterial.IRON);
-            case IRON:
-                return new WateringCan(ToolMaterial.GOLD);
-            case GOLD:
-                return new WateringCan(ToolMaterial.IRIDIUM);
-            case IRIDIUM:
-                return null; // Already at highest material
-            default:
-                return null;
-        }
+        return switch (getMaterial()) {
+            case BASIC -> new WateringCan(ToolMaterial.COPPER);
+            case COPPER -> new WateringCan(ToolMaterial.IRON);
+            case IRON -> new WateringCan(ToolMaterial.GOLD);
+            case GOLD -> new WateringCan(ToolMaterial.IRIDIUM);
+            case IRIDIUM -> null; // Already at highest material
+            default -> null;
+        };
     }
 
 
@@ -134,11 +110,25 @@ public class WateringCan extends Tool {
             case "south" -> targetY++;
             case "east" -> targetX++;
             case "west" -> targetX--;
-            case "north-east" -> { targetX++; targetY--; }
-            case "north-west" -> { targetX--; targetY--; }
-            case "south-east" -> { targetX++; targetY++; }
-            case "south-west" -> { targetX--; targetY++; }
-            default -> { return false; } // Invalid direction
+            case "north-east" -> {
+                targetX++;
+                targetY--;
+            }
+            case "north-west" -> {
+                targetX--;
+                targetY--;
+            }
+            case "south-east" -> {
+                targetX++;
+                targetY++;
+            }
+            case "south-west" -> {
+                targetX--;
+                targetY++;
+            }
+            default -> {
+                return false;
+            } // Invalid direction
         }
 
         // Check if the target tile is valid and not in another player's farm

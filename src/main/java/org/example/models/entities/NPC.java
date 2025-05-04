@@ -1,11 +1,13 @@
 package org.example.models.entities;
 
+import org.example.models.App;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.enums.Charactristic;
 import org.example.models.enums.Jobs;
+import org.example.models.enums.Weather;
 
 import java.util.*;
 
@@ -273,13 +275,11 @@ public class NPC extends Mob {
             appropriateDialogues.addAll(eveningDialogues);
         }
 
-        // Add weather-based dialogues (assuming rainy is a property we can check)
-        // For now, just randomly add rainy dialogues sometimes
-        if (random.nextDouble() < 0.2) {
+        // Add weather-based dialogues
+        if (App.getGame().getDate().getWeatherToday() == Weather.RAINY) {
             appropriateDialogues.addAll(rainyDialogues);
         }
 
-        // Add friendship level-based dialogues
         if (friendshipLevel >= 1) {
             appropriateDialogues.addAll(level1Dialogues);
         }

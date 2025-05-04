@@ -12,8 +12,7 @@ public class Shears extends Tool {
 
     @Override
     public boolean use(String direction) {
-        // Implementation will depend on the game mechanics
-        // For now, just return true to indicate success
+        // TODO: Implement the logic for using shears
         return true;
     }
 

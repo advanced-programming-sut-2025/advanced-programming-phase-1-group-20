@@ -72,11 +72,25 @@ public class Pickaxe extends Tool {
             case "south" -> targetY++;
             case "east" -> targetX++;
             case "west" -> targetX--;
-            case "north-east" -> { targetX++; targetY--; }
-            case "north-west" -> { targetX--; targetY--; }
-            case "south-east" -> { targetX++; targetY++; }
-            case "south-west" -> { targetX--; targetY++; }
-            default -> { return false; } // Invalid direction
+            case "north-east" -> {
+                targetX++;
+                targetY--;
+            }
+            case "north-west" -> {
+                targetX--;
+                targetY--;
+            }
+            case "south-east" -> {
+                targetX++;
+                targetY++;
+            }
+            case "south-west" -> {
+                targetX--;
+                targetY++;
+            }
+            default -> {
+                return false;
+            } // Invalid direction
         }
 
         // Check if the target tile is valid and not in another player's farm
@@ -93,11 +107,11 @@ public class Pickaxe extends Tool {
         }
 
         // 2. Break stones and ores in the mine
-        if (tileType == TileType.STONE || 
-            tileType == TileType.IRON_ORE || 
-            tileType == TileType.GOLD_ORE || 
-            tileType == TileType.DIAMOND_ORE || 
-            tileType == TileType.EMERALD_ORE) {
+        if (tileType == TileType.STONE ||
+                tileType == TileType.IRON_ORE ||
+                tileType == TileType.GOLD_ORE ||
+                tileType == TileType.DIAMOND_ORE ||
+                tileType == TileType.EMERALD_ORE) {
 
             // Check if the pickaxe can break this type of ore
             String oreType;
@@ -118,9 +132,8 @@ public class Pickaxe extends Tool {
         }
 
         // 3. Remove items that the player has placed on the ground
-        // Since there's no getItem method in Location, we need to use getItem from GameMap
         Location tile = gameMap.getItem(targetX, targetY);
-        // We can't directly check if the tile has an item, so we'll just try to place null
+        // TODO: Implement the logic to remove items from the ground
         // and assume it worked
         if (tile != null) {
             gameMap.placeItem(targetX, targetY, null);

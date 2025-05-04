@@ -464,7 +464,7 @@ public class GameMap {
         }
     }
 
-    // TODO : check shokhm - colision - get item from location - add item to refrigerator - get inventory - place item
+    // TODO : check shokhm - collision - get item from location - add item to refrigerator - get inventory - place item
 
     public void printCurrentView(int centerX, int centerY, int viewRadius) {
         int startX = Math.max(0, centerX - viewRadius);
