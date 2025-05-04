@@ -1,7 +1,7 @@
 package org.example.models.enums.Types;
 
 public enum CraftingType {
-    CherryBomb("Cherry Bomb" , "4 copper ore + 1 coal" , "Mining Level 1" , 50),
+    CherryBomb("Cherry Bomb", "4 copper ore + 1 coal", "Mining Level 1", 50),
     Bomb("Bomb", "4 iron ore + 1 coal", "Mining Level 2", 50),
     MegaBomb("Mega Bomb", "4 gold ore + 1 coal", "Mining Level 3", 50),
     Sprinkler("Sprinkler", "1 copper bar + 1 iron bar", "Farming Level 1", 0),
@@ -34,6 +34,15 @@ public enum CraftingType {
         this.baseSellPrice = baseSellPrice;
     }
 
+    public static CraftingType fromName(String name) {
+        for (CraftingType type : CraftingType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,19 +59,10 @@ public enum CraftingType {
         return baseSellPrice;
     }
 
-    public void showInfo(){
+    public void showInfo() {
         System.out.println("Name: " + getName());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Ingredients: " + getIngredients());
         System.out.println("Source: " + getSource());
-    }
-
-    public static CraftingType fromName(String name) {
-        for (CraftingType type : CraftingType.values()) {
-            if (type.getName().equals(name)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

@@ -72,7 +72,7 @@ public class Tree extends Item {
 
     @Override
     public void updateItem() {
-        if(!finished){
+        if (!finished) {
             updateDaysCounter();
         }
     }
@@ -82,7 +82,7 @@ public class Tree extends Item {
     }
 
 
-    public Item burnTree(){
+    public Item burnTree() {
         return new Mineral(MineralType.Coal);
     }
 

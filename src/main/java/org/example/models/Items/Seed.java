@@ -1,11 +1,8 @@
 package org.example.models.Items;
 
 
-import org.example.models.enums.Ingredients;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.SeedType;
-
-import java.util.Arrays;
 
 public class Seed extends Item {
     private SeedType type;
@@ -19,7 +16,7 @@ public class Seed extends Item {
         return type.getSeasons();
     }
 
-    public int getPrice(){
+    public int getPrice() {
         return super.getPrice();
     }
 

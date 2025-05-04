@@ -70,11 +70,25 @@ public class Hoe extends Tool {
             case "south" -> targetY++;
             case "east" -> targetX++;
             case "west" -> targetX--;
-            case "north-east" -> { targetX++; targetY--; }
-            case "north-west" -> { targetX--; targetY--; }
-            case "south-east" -> { targetX++; targetY++; }
-            case "south-west" -> { targetX--; targetY++; }
-            default -> { return false; } // Invalid direction
+            case "north-east" -> {
+                targetX++;
+                targetY--;
+            }
+            case "north-west" -> {
+                targetX--;
+                targetY--;
+            }
+            case "south-east" -> {
+                targetX++;
+                targetY++;
+            }
+            case "south-west" -> {
+                targetX--;
+                targetY++;
+            }
+            default -> {
+                return false;
+            } // Invalid direction
         }
 
         // Check if the target tile is valid and not in another player's farm

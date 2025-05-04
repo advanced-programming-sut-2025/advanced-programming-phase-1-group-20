@@ -30,8 +30,7 @@ public class Building {
     }
 
     public boolean contains(int targetX, int targetY) {
-        return targetX >= x && targetX < x + width &&
-                targetY >= y && targetY < y + height;
+        return targetX >= x && targetX < x + width && targetY >= y && targetY < y + height;
     }
 
     public boolean canEnter(Player player) {
@@ -44,40 +43,49 @@ public class Building {
         return interiorMapName;
     }
 
+    public void setInteriorMapName(String name) {
+        this.interiorMapName = name;
+    }
+
     // Getters
     public int getX() {
         return x;
     }
+
     public int getY() {
         return y;
     }
+
     public int getWidth() {
         return width;
     }
+
     public int getHeight() {
         return height;
     }
+
     public String getName() {
         return name;
     }
+
     public String getType() {
         return type;
     }
+
     public Player getOwner() {
         return owner;
     }
+
+    public void setOwner(Player owner) {
+        this.owner = owner;
+    }
+
     public boolean isEnterable() {
         return isEnterable;
     }
 
     public void setEnterable(boolean enterable) {
         isEnterable = enterable;
-    }
-    public void setOwner(Player owner) {
-        this.owner = owner;
-    }
-    public void setInteriorMapName(String name) {
-        this.interiorMapName = name;
     }
 
     public void printBuildingInfo() {

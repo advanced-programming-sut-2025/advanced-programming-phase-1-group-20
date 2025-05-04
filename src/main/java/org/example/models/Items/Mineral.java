@@ -5,6 +5,7 @@ import org.example.models.enums.Types.MineralType;
 
 public class Mineral extends Item {
     private MineralType type;
+
     public Mineral(MineralType type) {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
@@ -15,7 +16,7 @@ public class Mineral extends Item {
     }
 
     @Override
-    public void showInfo(){
+    public void showInfo() {
         type.showInfo();
     }
 }

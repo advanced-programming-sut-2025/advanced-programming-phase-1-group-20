@@ -1,9 +1,7 @@
 package org.example.models.enums.Types;
 
-import org.example.models.Items.Item;
-
 public enum CookingType {
-    FriedEgg("Fried Egg" , "1 egg" , 50 , "" , "Starter" , 35),
+    FriedEgg("Fried Egg", "1 egg", 50, "", "Starter", 35),
     BakedFish("Baked Fish", "1 Sardine + 1 Salmon + 1 wheat", 75, "", "Starter", 100),
     Salad("Salad", "1 leek + 1 dandelion", 113, "", "Starter", 110),
     Omelet("Omelet", "1 egg + 1 milk", 100, "", "Stardrop Saloon", 125),
@@ -30,6 +28,15 @@ public enum CookingType {
         this.baseSellPrice = baseSellPrice;
     }
 
+    public static CookingType fromName(String name) {
+        for (CookingType type : CookingType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -54,21 +61,12 @@ public enum CookingType {
         return baseSellPrice;
     }
 
-    public void showInfo(){
+    public void showInfo() {
         System.out.println("Name: " + getName());
         System.out.println("Ingredients: " + getIngredient());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Energy: " + getEnergy());
         System.out.println("Buffer: " + getBuffer());
         System.out.println("Source: " + getSource());
-    }
-
-    public static CookingType fromName(String name) {
-        for (CookingType type : CookingType.values()) {
-            if (type.getName().equals(name)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

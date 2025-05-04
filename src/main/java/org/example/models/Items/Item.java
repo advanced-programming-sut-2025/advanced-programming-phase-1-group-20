@@ -19,11 +19,11 @@ public class Item {
         this.description = description;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -43,20 +43,22 @@ public class Item {
         this.baseSellPrice = baseSellPrice;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
-    }
-
     public int getPrice() {
         return price;
     }
 
-    public void showInfo(){
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public void showInfo() {
 
     }
-    public void updateItem(){
+
+    public void updateItem() {
     }
-    public boolean getFinished(){
+
+    public boolean getFinished() {
         return false;
     }
 }

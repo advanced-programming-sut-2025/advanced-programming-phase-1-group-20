@@ -79,6 +79,7 @@ public class Axe extends Tool {
     @Override
     public boolean use(String direction, GameMap gameMap, Player player) {
         // Get the target tile coordinates based on the player's location and direction
+        super.use(direction, gameMap, player);
         Location playerLocation = player.getLocation();
         int targetX = playerLocation.xAxis;
         int targetY = playerLocation.yAxis;
@@ -89,11 +90,25 @@ public class Axe extends Tool {
             case "south" -> targetY++;
             case "east" -> targetX++;
             case "west" -> targetX--;
-            case "north-east" -> { targetX++; targetY--; }
-            case "north-west" -> { targetX--; targetY--; }
-            case "south-east" -> { targetX++; targetY++; }
-            case "south-west" -> { targetX--; targetY++; }
-            default -> { return false; } // Invalid direction
+            case "north-east" -> {
+                targetX++;
+                targetY--;
+            }
+            case "north-west" -> {
+                targetX--;
+                targetY--;
+            }
+            case "south-east" -> {
+                targetX++;
+                targetY++;
+            }
+            case "south-west" -> {
+                targetX--;
+                targetY++;
+            }
+            default -> {
+                return false;
+            } // Invalid direction
         }
 
         // Check if the target tile is valid and not in another player's farm

@@ -4,7 +4,6 @@ import org.example.models.Items.Item;
 import org.example.models.enums.Seasons;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
 
 public class Market {
     private HashMap<Item, Double> permanentStock;
@@ -16,7 +15,7 @@ public class Market {
     private int endHour;
     private String[] menu;
 
-    public Market(HashMap<Item, Double> permanentStock , HashMap<Item, Double> springStock ,HashMap<Item, Double> summerStock , HashMap<Item, Double> autumnStock , HashMap<Item, Double> winterStock , int startHour, int endHour, String[] menu) {
+    public Market(HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu) {
         this.permanentStock = permanentStock;
         this.springStock = springStock;
         this.summerStock = summerStock;
@@ -48,7 +47,7 @@ public class Market {
     public void showAvailableProducts(Seasons season) {
         System.out.println("Permanent Stock");
         showProducts(permanentStock);
-        switch(season) {
+        switch (season) {
             case SPRING:
                 System.out.println("Spring Stock");
                 showProducts(springStock);
@@ -70,8 +69,8 @@ public class Market {
 
     public void showProducts(HashMap<Item, Double> permanentStock) {
         int c = 1;
-        if(!permanentStock.isEmpty()) {
-            for(Item item : permanentStock.keySet()) {
+        if (!permanentStock.isEmpty()) {
+            for (Item item : permanentStock.keySet()) {
                 System.out.println("Item Code " + c + " : ");
                 System.out.println("Name        : " + item.getName());
                 System.out.println("Description : " + item.getDescription());
@@ -80,7 +79,7 @@ public class Market {
                 System.out.println("Stock       : " + formatedStock);
                 c++;
             }
-        }else{
+        } else {
             System.out.println("------------------------------");
             System.out.println();
             System.out.println("------------------------------");
@@ -88,9 +87,9 @@ public class Market {
     }
 
 
-    public boolean containsItem(Item item , Double count , Seasons season) {
+    public boolean containsItem(Item item, Double count, Seasons season) {
         HashMap<Item, Double> totalStock = permanentStock;
-        switch(season) {
+        switch (season) {
             case SPRING:
                 totalStock.putAll(springStock);
                 break;
@@ -104,10 +103,10 @@ public class Market {
                 totalStock.putAll(winterStock);
                 break;
         }
-        if(totalStock.containsKey(item)) {
-            if(totalStock.get(item) >= count) {
+        if (totalStock.containsKey(item)) {
+            if (totalStock.get(item) >= count) {
                 return true;
-            }else{
+            } else {
                 System.out.println("Not enough stock for this product");
                 return false;
             }

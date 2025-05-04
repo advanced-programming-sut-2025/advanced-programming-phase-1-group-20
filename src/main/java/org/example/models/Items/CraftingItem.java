@@ -6,7 +6,8 @@ import org.example.models.Player.Backpack;
 import org.example.models.enums.Types.*;
 
 import java.util.Map;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CraftingItem extends Item {
     private CraftingType type;
@@ -45,60 +46,60 @@ public class CraftingItem extends Item {
     }
 
     public ArtisanItem createArtisan(String items) {
-        if(type.getName().equals("Bee House")){
+        if (type.getName().equals("Bee House")) {
             return new ArtisanItem(ArtisanType.Honey);
-        }else if(type.getName().equals("Cheese Press")){
-            String[] regexes = new String[]{"^\\s*1\\s+Milk\\s*$" , "^\\s*1\\s+Large\\s+Milk\\s*$" ,
-                    "^\\s*1\\s+Goat\\s+Milk\\s*$" , "^\\s*1\\s+Large\\s+Goat\\s+Milk\\s*$"};
-            if(items.matches(regexes[0]) || items.matches(regexes[1])){
+        } else if (type.getName().equals("Cheese Press")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Milk\\s*$", "^\\s*1\\s+Large\\s+Milk\\s*$",
+                    "^\\s*1\\s+Goat\\s+Milk\\s*$", "^\\s*1\\s+Large\\s+Goat\\s+Milk\\s*$"};
+            if (items.matches(regexes[0]) || items.matches(regexes[1])) {
                 return new ArtisanItem(ArtisanType.Cheese);
-            }else if(items.matches(regexes[2]) || items.matches(regexes[3])){
+            } else if (items.matches(regexes[2]) || items.matches(regexes[3])) {
                 return new ArtisanItem(ArtisanType.GoatCheese);
             }
-        }else if(type.getName().equals("Keg")){
-            String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$" , "^\\s*1\\s+Rice\\s*$" , // beer and vinegar
-                    "^\\s*1\\s+Honey\\s*$" , "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
-                    "^\\s*5\\s+Coffee Bean\\s*$" , // Coffee
+        } else if (type.getName().equals("Keg")) {
+            String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$", "^\\s*1\\s+Rice\\s*$", // beer and vinegar
+                    "^\\s*1\\s+Honey\\s*$", "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
+                    "^\\s*5\\s+Coffee Bean\\s*$", // Coffee
                     //juices : from 5 to 26
-                    "^\\s*1\\s+Amaranth\\s*$" ,"^\\s*1\\s+Artichoke\\s*$",
-                    "^\\s*1\\s+Beet\\s*$" , "^\\s*1\\s+Bok Choy\\s*$" , "^\\s*1\\s+Broccoli\\s*$",
-                    "^\\s*1\\s+Carrot\\s*$" , "^\\s*1\\s+Cauliflower\\s*$" , "^\\s*1\\s+Corn\\s*$" ,
-                    "^\\s*1\\s+Eggplant\\s*$" , "^\\s*1\\s+Garlic\\s*$" , "^\\s*1\\s+Green Bean\\s*$" ,
-                    "^\\s*1\\s+Kale\\s*$" , "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$" ,
-                    "^\\s*1\\s+Pumpkin\\s*$" , "^\\s*1\\s+Radish\\s*$" , "^\\s*1\\s+Red Cabbage\\s*$" ,
-                    "^\\s*1\\s+Summer Squash\\s*$" , "^\\s*1\\s+Taro Root\\s*$" ,
-                    "^\\s*1\\s+Tea Leaves\\s*$" , "^\\s*1\\s+Tomato\\s*$" , "^\\s*1\\s+Unmilled Rice\\s*$",
+                    "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
+                    "^\\s*1\\s+Beet\\s*$", "^\\s*1\\s+Bok Choy\\s*$", "^\\s*1\\s+Broccoli\\s*$",
+                    "^\\s*1\\s+Carrot\\s*$", "^\\s*1\\s+Cauliflower\\s*$", "^\\s*1\\s+Corn\\s*$",
+                    "^\\s*1\\s+Eggplant\\s*$", "^\\s*1\\s+Garlic\\s*$", "^\\s*1\\s+Green Bean\\s*$",
+                    "^\\s*1\\s+Kale\\s*$", "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$",
+                    "^\\s*1\\s+Pumpkin\\s*$", "^\\s*1\\s+Radish\\s*$", "^\\s*1\\s+Red Cabbage\\s*$",
+                    "^\\s*1\\s+Summer Squash\\s*$", "^\\s*1\\s+Taro Root\\s*$",
+                    "^\\s*1\\s+Tea Leaves\\s*$", "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
                     //Wine : from 27 to 52
-                    "^\\s*1\\s+Ancient Fruit\\s*$" , "^\\s*1\\s+Apple\\s*$" , "^\\s*1\\s+Apricot\\s*$",
-                    "^\\s*1\\s+Banana\\s*$" , "^\\s*1\\s+Blackberry\\s*$" , "^\\s*1\\s+Blueberry\\s*$",
-                    "^\\s*1\\s+Cactus Fruit\\s*$" , "^\\s*1\\s+Cherry\\s*$" , "^\\s*1\\s+Coconut\\s*$",
-                    "^\\s*1\\s+Cranberries\\s*$" , "^\\s*1\\s+Crystal Fruit\\s*$" , "^\\s*1\\s+Grape\\s*$",
-                    "^\\s*1\\s+Hot Pepper\\s*$" , "^\\s*1\\s+Mango\\s*$" , "^\\s*1\\s+Melon\\s*$",
-                    "^\\s*1\\s+Orange\\s*$" , "^\\s*1\\s+Peach\\s*$" , "^\\s*1\\s+Pineapple\\s*$",
-                    "^\\s*1\\s+Pomegranate\\s*$" , "^\\s*1\\s+Powdermelon\\s*$" , "^\\s*1\\s+Rhubarb\\s*$" ,
-                    "^\\s*1\\s+Salmonberry\\s*$" , "^\\s*1\\s+Spice Berry\\s*$" , "^\\s*1\\s+Starfruit\\s*$",
-                    "^\\s*1\\s+Strawberry\\s*$" , "^\\s*1\\s+Wild Plum\\s*$"};
-            if(items.matches(regexes[0])){
+                    "^\\s*1\\s+Ancient Fruit\\s*$", "^\\s*1\\s+Apple\\s*$", "^\\s*1\\s+Apricot\\s*$",
+                    "^\\s*1\\s+Banana\\s*$", "^\\s*1\\s+Blackberry\\s*$", "^\\s*1\\s+Blueberry\\s*$",
+                    "^\\s*1\\s+Cactus Fruit\\s*$", "^\\s*1\\s+Cherry\\s*$", "^\\s*1\\s+Coconut\\s*$",
+                    "^\\s*1\\s+Cranberries\\s*$", "^\\s*1\\s+Crystal Fruit\\s*$", "^\\s*1\\s+Grape\\s*$",
+                    "^\\s*1\\s+Hot Pepper\\s*$", "^\\s*1\\s+Mango\\s*$", "^\\s*1\\s+Melon\\s*$",
+                    "^\\s*1\\s+Orange\\s*$", "^\\s*1\\s+Peach\\s*$", "^\\s*1\\s+Pineapple\\s*$",
+                    "^\\s*1\\s+Pomegranate\\s*$", "^\\s*1\\s+Powdermelon\\s*$", "^\\s*1\\s+Rhubarb\\s*$",
+                    "^\\s*1\\s+Salmonberry\\s*$", "^\\s*1\\s+Spice Berry\\s*$", "^\\s*1\\s+Starfruit\\s*$",
+                    "^\\s*1\\s+Strawberry\\s*$", "^\\s*1\\s+Wild Plum\\s*$"};
+            if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.Beer);
-            }else if(items.matches(regexes[1])){
+            } else if (items.matches(regexes[1])) {
                 return new ArtisanItem(ArtisanType.Vinegar);
-            }else if(items.matches(regexes[2])){
+            } else if (items.matches(regexes[2])) {
                 return new ArtisanItem(ArtisanType.Mead);
-            }else if(items.matches(regexes[3])){
+            } else if (items.matches(regexes[3])) {
                 return new ArtisanItem(ArtisanType.PaleAle);
-            }else if(items.matches(regexes[4])){
+            } else if (items.matches(regexes[4])) {
                 return new ArtisanItem(ArtisanType.Coffee);
             }
-            for(int i = 4 ; i < 27 ; i++){
+            for (int i = 4; i < 27; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
 
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String name = matcher.group(1);
                     PlantType type = PlantType.fromName(name);
                     int energy = type.getEnergy() * 2;
                     //TODO : base Sell Price must change later
-                    int baseSellPrice = (int) ( type.getBaseSellPrice() * 2.25);
+                    int baseSellPrice = (int) (type.getBaseSellPrice() * 2.25);
                     ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Juice);
                     artisanItem.setEnergy(energy);
                     artisanItem.setBaseSellPrice(baseSellPrice);
@@ -106,47 +107,47 @@ public class CraftingItem extends Item {
                 }
             }
 
-            for(int i = 26  ; i < 53 ; i++){
+            for (int i = 26; i < 53; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
 
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String name = matcher.group(1);
                     PlantType type = PlantType.fromName(name);
                     int energy = (int) (type.getEnergy() * 1.75);
                     //TODO : base Sell Price must change later
-                    int baseSellPrice = (int) ( type.getBaseSellPrice() * 3);
+                    int baseSellPrice = (int) (type.getBaseSellPrice() * 3);
                     ArtisanItem artisanItem = new ArtisanItem(ArtisanType.Wine);
                     artisanItem.setEnergy(energy);
                     artisanItem.setBaseSellPrice(baseSellPrice);
                     return artisanItem;
                 }
             }
-        }else if(type.getName().equals("Dehydrator")){
+        } else if (type.getName().equals("Dehydrator")) {
             String[] regexes = new String[]{ //Raisins
                     "^\\s*5\\s+Grape\\s*$",
                     //Dried Mushrooms
                     "^\\s*5\\s+Chanterelle\\s*$", "^\\s*5\\s+Common Mushroom\\s*$", "^\\s*5\\s+Morel\\s*$",
                     "^\\s*5\\s+Red Mushroom\\s*$", "^\\s*5\\s+Purple Mushroom\\s*$",
                     // Dried Fruit
-                    "^\\s*5\\s+Ancient Fruit\\s*$" , "^\\s*5\\s+Apple\\s*$" , "^\\s*5\\s+Apricot\\s*$",
-                    "^\\s*5\\s+Banana\\s*$" , "^\\s*5\\s+Blackberry\\s*$" , "^\\s*5\\s+Blueberry\\s*$",
-                    "^\\s*5\\s+Cactus Fruit\\s*$" , "^\\s*5\\s+Cherry\\s*$" , "^\\s*5\\s+Coconut\\s*$",
-                    "^\\s*5\\s+Cranberries\\s*$" , "^\\s*5\\s+Crystal Fruit\\s*$",
-                    "^\\s*5\\s+Hot Pepper\\s*$" , "^\\s*5\\s+Mango\\s*$" , "^\\s*5\\s+Melon\\s*$",
-                    "^\\s*5\\s+Orange\\s*$" , "^\\s*5\\s+Peach\\s*$" , "^\\s*5\\s+Pineapple\\s*$",
-                    "^\\s*5\\s+Pomegranate\\s*$" , "^\\s*5\\s+Powdermelon\\s*$" , "^\\s*5\\s+Rhubarb\\s*$" ,
-                    "^\\s*5\\s+Salmonberry\\s*$" , "^\\s*5\\s+Spice Berry\\s*$" , "^\\s*5\\s+Starfruit\\s*$",
-                    "^\\s*5\\s+Strawberry\\s*$" , "^\\s*5\\s+Wild Plum\\s*$" ,
-                    };
-            if(items.matches(regexes[0])){
+                    "^\\s*5\\s+Ancient Fruit\\s*$", "^\\s*5\\s+Apple\\s*$", "^\\s*5\\s+Apricot\\s*$",
+                    "^\\s*5\\s+Banana\\s*$", "^\\s*5\\s+Blackberry\\s*$", "^\\s*5\\s+Blueberry\\s*$",
+                    "^\\s*5\\s+Cactus Fruit\\s*$", "^\\s*5\\s+Cherry\\s*$", "^\\s*5\\s+Coconut\\s*$",
+                    "^\\s*5\\s+Cranberries\\s*$", "^\\s*5\\s+Crystal Fruit\\s*$",
+                    "^\\s*5\\s+Hot Pepper\\s*$", "^\\s*5\\s+Mango\\s*$", "^\\s*5\\s+Melon\\s*$",
+                    "^\\s*5\\s+Orange\\s*$", "^\\s*5\\s+Peach\\s*$", "^\\s*5\\s+Pineapple\\s*$",
+                    "^\\s*5\\s+Pomegranate\\s*$", "^\\s*5\\s+Powdermelon\\s*$", "^\\s*5\\s+Rhubarb\\s*$",
+                    "^\\s*5\\s+Salmonberry\\s*$", "^\\s*5\\s+Spice Berry\\s*$", "^\\s*5\\s+Starfruit\\s*$",
+                    "^\\s*5\\s+Strawberry\\s*$", "^\\s*5\\s+Wild Plum\\s*$",
+            };
+            if (items.matches(regexes[0])) {
                 return new ArtisanItem(ArtisanType.Raisins);
             }
-            for(int i = 1 ; i < 6 ; i++){
+            for (int i = 1; i < 6; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
 
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     CropType cropType = CropType.fromName(matcher.group(1));
                     int price = (int) (cropType.getBaseSellPrice() * 7.5) + 25;
                     ArtisanItem artisanItem = new ArtisanItem(ArtisanType.DriedMushrooms);
@@ -154,48 +155,48 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-            for(int i = 6 ; i < 31 ; i++){
+            for (int i = 6; i < 31; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String name = matcher.group(1);
                     PlantType type = PlantType.fromName(name);
-                    int baseSellPrice = (int) ( type.getBaseSellPrice() * 7.5) + 25;
+                    int baseSellPrice = (int) (type.getBaseSellPrice() * 7.5) + 25;
                     ArtisanItem artisanItem = new ArtisanItem(ArtisanType.DriedFruit);
                     artisanItem.setBaseSellPrice(baseSellPrice);
                     return artisanItem;
                 }
             }
-        }else if(type.getName().equals("Charcoal Klin")){
+        } else if (type.getName().equals("Charcoal Klin")) {
             String regex = "^\\s*10\\s+Wood\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 return new ArtisanItem(ArtisanType.Coal);
             }
-        }else if(type.getName().equals("Preserves Jar")){
+        } else if (type.getName().equals("Preserves Jar")) {
             String[] regexes = new String[]{
                     //Vegetables : (Pickles)
-                    "^\\s*1\\s+Amaranth\\s*$" ,"^\\s*1\\s+Artichoke\\s*$",
-                    "^\\s*1\\s+Beet\\s*$" , "^\\s*1\\s+Bok Choy\\s*$" , "^\\s*1\\s+Broccoli\\s*$",
-                    "^\\s*1\\s+Carrot\\s*$" , "^\\s*1\\s+Cauliflower\\s*$" , "^\\s*1\\s+Corn\\s*$" ,
-                    "^\\s*1\\s+Eggplant\\s*$" , "^\\s*1\\s+Garlic\\s*$" , "^\\s*1\\s+Green Bean\\s*$" ,
-                    "^\\s*1\\s+Kale\\s*$" , "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$" ,
-                    "^\\s*1\\s+Pumpkin\\s*$" , "^\\s*1\\s+Radish\\s*$" , "^\\s*1\\s+Red Cabbage\\s*$" ,
-                    "^\\s*1\\s+Summer Squash\\s*$" , "^\\s*1\\s+Taro Root\\s*$" ,
-                    "^\\s*1\\s+Tea Leaves\\s*$" , "^\\s*1\\s+Tomato\\s*$" , "^\\s*1\\s+Unmilled Rice\\s*$",
+                    "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
+                    "^\\s*1\\s+Beet\\s*$", "^\\s*1\\s+Bok Choy\\s*$", "^\\s*1\\s+Broccoli\\s*$",
+                    "^\\s*1\\s+Carrot\\s*$", "^\\s*1\\s+Cauliflower\\s*$", "^\\s*1\\s+Corn\\s*$",
+                    "^\\s*1\\s+Eggplant\\s*$", "^\\s*1\\s+Garlic\\s*$", "^\\s*1\\s+Green Bean\\s*$",
+                    "^\\s*1\\s+Kale\\s*$", "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$",
+                    "^\\s*1\\s+Pumpkin\\s*$", "^\\s*1\\s+Radish\\s*$", "^\\s*1\\s+Red Cabbage\\s*$",
+                    "^\\s*1\\s+Summer Squash\\s*$", "^\\s*1\\s+Taro Root\\s*$",
+                    "^\\s*1\\s+Tea Leaves\\s*$", "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
                     //Fruits : (Jelly)
-                    "^\\s*1\\s+Ancient Fruit\\s*$" , "^\\s*1\\s+Apple\\s*$" , "^\\s*1\\s+Apricot\\s*$",
-                    "^\\s*1\\s+Banana\\s*$" , "^\\s*1\\s+Blackberry\\s*$" , "^\\s*1\\s+Blueberry\\s*$",
-                    "^\\s*1\\s+Cactus Fruit\\s*$" , "^\\s*1\\s+Cherry\\s*$" , "^\\s*1\\s+Coconut\\s*$",
-                    "^\\s*1\\s+Cranberries\\s*$" , "^\\s*1\\s+Crystal Fruit\\s*$" , "^\\s*1\\s+Grape\\s*$",
-                    "^\\s*1\\s+Hot Pepper\\s*$" , "^\\s*1\\s+Mango\\s*$" , "^\\s*1\\s+Melon\\s*$",
-                    "^\\s*1\\s+Orange\\s*$" , "^\\s*1\\s+Peach\\s*$" , "^\\s*1\\s+Pineapple\\s*$",
-                    "^\\s*1\\s+Pomegranate\\s*$" , "^\\s*1\\s+Powdermelon\\s*$" , "^\\s*1\\s+Rhubarb\\s*$" ,
-                    "^\\s*1\\s+Salmonberry\\s*$" , "^\\s*1\\s+Spice Berry\\s*$" , "^\\s*1\\s+Starfruit\\s*$",
-                    "^\\s*1\\s+Strawberry\\s*$" , "^\\s*1\\s+Wild Plum\\s*$"};
-            for(int i = 0 ; i < 23 ; i++){
+                    "^\\s*1\\s+Ancient Fruit\\s*$", "^\\s*1\\s+Apple\\s*$", "^\\s*1\\s+Apricot\\s*$",
+                    "^\\s*1\\s+Banana\\s*$", "^\\s*1\\s+Blackberry\\s*$", "^\\s*1\\s+Blueberry\\s*$",
+                    "^\\s*1\\s+Cactus Fruit\\s*$", "^\\s*1\\s+Cherry\\s*$", "^\\s*1\\s+Coconut\\s*$",
+                    "^\\s*1\\s+Cranberries\\s*$", "^\\s*1\\s+Crystal Fruit\\s*$", "^\\s*1\\s+Grape\\s*$",
+                    "^\\s*1\\s+Hot Pepper\\s*$", "^\\s*1\\s+Mango\\s*$", "^\\s*1\\s+Melon\\s*$",
+                    "^\\s*1\\s+Orange\\s*$", "^\\s*1\\s+Peach\\s*$", "^\\s*1\\s+Pineapple\\s*$",
+                    "^\\s*1\\s+Pomegranate\\s*$", "^\\s*1\\s+Powdermelon\\s*$", "^\\s*1\\s+Rhubarb\\s*$",
+                    "^\\s*1\\s+Salmonberry\\s*$", "^\\s*1\\s+Spice Berry\\s*$", "^\\s*1\\s+Starfruit\\s*$",
+                    "^\\s*1\\s+Strawberry\\s*$", "^\\s*1\\s+Wild Plum\\s*$"};
+            for (int i = 0; i < 23; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String name = matcher.group(1);
                     PlantType plantType = PlantType.fromName(name);
                     int energy = (int) (plantType.getEnergy() * 1.75);
@@ -206,10 +207,10 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-            for(int i = 23 ; i < 49 ; i++){
+            for (int i = 23; i < 49; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String name = matcher.group(1);
                     PlantType plantType = PlantType.fromName(name);
                     int energy = (int) (plantType.getEnergy() * 2);
@@ -220,31 +221,31 @@ public class CraftingItem extends Item {
                     return artisanItem;
                 }
             }
-        }else if(type.getName().equals("Fish Smoker")){
+        } else if (type.getName().equals("Fish Smoker")) {
             //TODO : when fishes are ready.
         } else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
-                    "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$" ,
-                    "^\\s*1\\s+Gold\\s+1\\s+Coal\\s*$" , "^\\s*1\\s+Iridium\\s+1\\s+Coal\\s*$"};
-            if(items.matches(regexes[0])){
+                    "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Gold\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Iridium\\s+1\\s+Coal\\s*$"};
+            if (items.matches(regexes[0])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.IronBar);
                 MineralType type = MineralType.Iron;
                 int baseSellPrice = (int) (type.getBaseSellPrice() * 10);
                 artisanItem.setBaseSellPrice(baseSellPrice);
                 return artisanItem;
-            }else if (items.matches(regexes[1])){
+            } else if (items.matches(regexes[1])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.CopperBar);
                 MineralType type = MineralType.Copper;
                 int baseSellPrice = (int) (type.getBaseSellPrice() * 10);
                 artisanItem.setBaseSellPrice(baseSellPrice);
                 return artisanItem;
-            }else if(items.matches(regexes[2])){
+            } else if (items.matches(regexes[2])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.GoldBar);
                 MineralType type = MineralType.Gold;
                 int baseSellPrice = (int) (type.getBaseSellPrice() * 10);
                 artisanItem.setBaseSellPrice(baseSellPrice);
                 return artisanItem;
-            }else if(items.matches(regexes[3])){
+            } else if (items.matches(regexes[3])) {
                 ArtisanItem artisanItem = new ArtisanItem(ArtisanType.IridiumBar);
                 MineralType type = MineralType.Iridium;
                 int baseSellPrice = (int) (type.getBaseSellPrice() * 10);

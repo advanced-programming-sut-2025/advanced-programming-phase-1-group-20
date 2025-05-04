@@ -45,8 +45,7 @@ public class GreenHouse {
     }
 
     public boolean isInside(Location location) {
-        return location.xAxis >= leftCorner.xAxis && location.xAxis <= rightCorner.xAxis &&
-                location.yAxis >= leftCorner.yAxis && location.yAxis <= rightCorner.yAxis;
+        return location.xAxis >= leftCorner.xAxis && location.xAxis <= rightCorner.xAxis && location.yAxis >= leftCorner.yAxis && location.yAxis <= rightCorner.yAxis;
     }
 
 
@@ -63,7 +62,7 @@ public class GreenHouse {
     public Location getLeftCorner() {
         return leftCorner;
     }
-    
+
     public Location getRightCorner() {
         return rightCorner;
     }

@@ -3,10 +3,9 @@ package org.example.models.Items;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.CropType;
 
-import java.util.Arrays;
-
 public class Crop extends Item {
     private CropType type;
+
     public Crop(CropType type) {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
@@ -22,7 +21,7 @@ public class Crop extends Item {
 
 
     @Override
-    public void showInfo(){
+    public void showInfo() {
         type.showInfo();
     }
 }

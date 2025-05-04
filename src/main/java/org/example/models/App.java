@@ -163,7 +163,7 @@ public class App {
     public static List<String> getSecurityQuestions() {
         return (List<String>) securityQuestions.values();
     }
-    
+
     public static Item getItem(String itemName) {
         return items.stream().filter(item -> item.getName().equals(itemName))
                 .findFirst().orElse(null);

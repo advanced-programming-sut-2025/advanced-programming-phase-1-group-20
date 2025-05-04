@@ -3,13 +3,12 @@ package org.example.models.Items;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.PlantType;
 
-import java.util.Arrays;
-
 public class Plant extends Item {
     private PlantType type;
     private int stage;
     private int daysCounter;
     private boolean finished;
+
     public Plant(PlantType type) {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
@@ -54,7 +53,7 @@ public class Plant extends Item {
         return type.isGiantable();
     }
 
-    public int getPrice(){
+    public int getPrice() {
         return super.getPrice();
     }
 
@@ -68,42 +67,41 @@ public class Plant extends Item {
     }
 
 
-
-    public void addStage(){
-        if(stage < getStages().length){
+    public void addStage() {
+        if (stage < getStages().length) {
             stage++;
-        }else if(stage == getStages().length){
+        } else if (stage == getStages().length) {
             finished = true;
         }
     }
 
-    public void updateDaysCounter(){
+    public void updateDaysCounter() {
         int[] stages = getStages();
-        if(daysCounter < stages[stage]){
+        if (daysCounter < stages[stage]) {
             daysCounter++;
-        }else if(daysCounter == stages[stage]){
+        } else if (daysCounter == stages[stage]) {
             addStage();
             daysCounter = 0;
         }
     }
 
-    public int getStage(){
+    public int getStage() {
         return stage;
     }
 
-    public void updatePlant(){
-        if(!finished){
+    public void updatePlant() {
+        if (!finished) {
             updateDaysCounter();
         }
     }
 
-    public boolean getFinished(){
+    public boolean getFinished() {
         return finished;
     }
 
     @Override
     public void updateItem() {
-        if(!finished){
+        if (!finished) {
             updateDaysCounter();
         }
     }

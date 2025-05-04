@@ -30,8 +30,7 @@ public class Farm {
     }
 
     public boolean contains(int x, int y) {
-        return x >= startX && x < startX + width &&
-                y >= startY && y < startY + height;
+        return x >= startX && x < startX + width && y >= startY && y < startY + height;
     }
 
     public void addAnimal(Animal animal) {
@@ -58,30 +57,39 @@ public class Farm {
     public int getStartX() {
         return startX;
     }
+
     public int getStartY() {
         return startY;
     }
+
     public int getWidth() {
         return width;
     }
+
     public int getHeight() {
         return height;
     }
+
     public String getName() {
         return name;
     }
+
     public Player getOwner() {
         return owner;
     }
+
     public int getHouseX() {
         return houseX;
     }
+
     public int getHouseY() {
         return houseY;
     }
+
     public List<Animal> getAnimals() {
         return animals;
     }
+
     public List<Building> getBuildings() {
         return buildings;
     }

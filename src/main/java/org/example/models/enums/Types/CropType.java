@@ -5,7 +5,7 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum CropType {
-    CommonMushroom("Common Mushroom" , new Seasons[]{Seasons.SPRING , Seasons.SUMMER , Seasons.AUTUMN , Seasons.WINTER} , 40 , 38),
+    CommonMushroom("Common Mushroom", new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, 40, 38),
     Daffodil("Daffodil", new Seasons[]{Seasons.SPRING}, 30, 0),
     Dandelion("Dandelion", new Seasons[]{Seasons.SPRING}, 40, 25),
     Leek("Leek", new Seasons[]{Seasons.SPRING}, 60, 40),
@@ -42,6 +42,15 @@ public enum CropType {
         this.energy = energy;
     }
 
+    public static CropType fromName(String name) {
+        for (CropType cropType : CropType.values()) {
+            if (cropType.getName().equals(name)) {
+                return cropType;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -62,17 +71,8 @@ public enum CropType {
         System.out.println("Name: " + getName());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         String season = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
-                .replace(" " , "");
+                .replace(" ", "");
         System.out.println("Season: " + season);
         System.out.println("Energy: " + getEnergy());
-    }
-
-    public static CropType fromName(String name) {
-        for (CropType cropType : CropType.values()) {
-            if (cropType.getName().equals(name)) {
-                return cropType;
-            }
-        }
-        return null;
     }
 }

@@ -1,7 +1,7 @@
 package org.example.models.enums.Types;
 
 public enum MineralType {
-    Quartz("Quartz" , "A clear crystal commonly found in caves and mines." , 25),
+    Quartz("Quartz", "A clear crystal commonly found in caves and mines.", 25),
     EarthCrystal("Earth Crystal", "A resinous substance found near the surface.", 50),
     FrozenTear("Frozen Tear", "A crystal fabled to be the frozen tears of a yeti.", 75),
     FireQuartz("Fire Quartz", "A glowing red crystal commonly found near hot lava.", 100),
@@ -22,12 +22,21 @@ public enum MineralType {
     private final String name;
     private final String description;
     private final int baseSellPrice;
+
     MineralType(String name, String description, int baseSellPrice) {
         this.name = name;
         this.description = description;
         this.baseSellPrice = baseSellPrice;
     }
 
+    public static MineralType fromName(String name) {
+        for (MineralType type : MineralType.values()) {
+            if (type.getName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
     public String getName() {
         return name;
@@ -41,18 +50,9 @@ public enum MineralType {
         return baseSellPrice;
     }
 
-    public void showInfo(){
+    public void showInfo() {
         System.out.println("Name: " + getName());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Description: " + getDescription());
-    }
-
-    public static MineralType fromName(String name) {
-        for (MineralType type : MineralType.values()) {
-            if (type.getName().equals(name)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

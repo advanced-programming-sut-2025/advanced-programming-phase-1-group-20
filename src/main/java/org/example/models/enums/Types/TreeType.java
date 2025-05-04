@@ -5,7 +5,7 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum TreeType {
-    ApricotTree("Apricot Tree" , "Apricot Sapling", "Apricot" , 59 , true , 38 , new Seasons[]{Seasons.SPRING}),
+    ApricotTree("Apricot Tree", "Apricot Sapling", "Apricot", 59, true, 38, new Seasons[]{Seasons.SPRING}),
     CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}),
     BananaTree("Banana Tree", "Banana Sapling", "Banana", 150, true, 75, new Seasons[]{Seasons.SUMMER}),
     MangoTree("Mango Tree", "Mango Sapling", "Mango", 130, true, 100, new Seasons[]{Seasons.SUMMER}),
@@ -39,14 +39,20 @@ public enum TreeType {
     }
 
     public static TreeType fromName(String name) {
-        for(TreeType treeType : TreeType.values()) {
-            if(treeType.getName().equals(name)) {
+        for (TreeType treeType : TreeType.values()) {
+            if (treeType.getName().equals(name)) {
                 return treeType;
             }
         }
         return null;
     }
 
+    public static TreeType getType(String name) {
+        for (TreeType type : TreeType.values()) {
+            if (type.getName().equals(name)) return type;
+        }
+        return null;
+    }
 
     public String getName() {
         return name;
@@ -80,7 +86,7 @@ public enum TreeType {
         System.out.println("Name: " + getName());
         System.out.println("Source: " + getSource());
         String stages = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
-                .replace(" " , "");
+                .replace(" ", "");
         System.out.println("Stages: " + stages);
         System.out.println("Fruit: " + getFruit());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
@@ -90,12 +96,5 @@ public enum TreeType {
 //                .replace("[", "").replace("]", "")
 //                .replace(" " , "");
         System.out.println("Season: " + Arrays.toString(getSeasons()));
-    }
-
-    public static TreeType getType(String name) {
-        for (TreeType type : TreeType.values()) {
-            if (type.getName().equals(name)) return type;
-        }
-        return null;
     }
 }

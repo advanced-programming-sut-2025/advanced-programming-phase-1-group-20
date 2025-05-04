@@ -7,13 +7,7 @@ import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
-import org.example.models.entities.Friendship;
-import org.example.models.entities.Game;
-import org.example.models.entities.NPC;
-import org.example.models.entities.TradeRequest;
-import org.example.models.entities.User;
-import org.example.models.enums.Charactristic;
-import org.example.models.enums.Jobs;
+import org.example.models.entities.*;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
@@ -23,14 +17,7 @@ import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
 import org.example.views.MainMenu;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameMenuController implements Controller {
     private AppView appView;
@@ -534,7 +521,7 @@ public class GameMenuController implements Controller {
         Item item = builder.build(artisanName);
         boolean flag = checkItem(item);
         if (flag) {
-            if(player.getBackpack().hasItems(Collections.singletonList(artisanName))){
+            if (player.getBackpack().hasItems(Collections.singletonList(artisanName))) {
                 CraftingItem craftingItem = (CraftingItem) item;
                 ArtisanItem artisanItem = craftingItem.createArtisan(items);
             }
@@ -1339,6 +1326,7 @@ public class GameMenuController implements Controller {
 
     /**
      * Creates an NPC object from an Npcs enum value
+     *
      * @param npcEnum The Npcs enum value
      * @return A new NPC object
      */
@@ -1346,10 +1334,10 @@ public class GameMenuController implements Controller {
         // Create a new NPC with the properties from the enum
         HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
         NPC npc = new NPC(
-            npcEnum.getCharacteristic(),
-            npcEnum.getName(),
-            npcEnum.getJob(),
-            missions
+                npcEnum.getCharacteristic(),
+                npcEnum.getName(),
+                npcEnum.getJob(),
+                missions
         );
 
         // Set the NPC's location and description

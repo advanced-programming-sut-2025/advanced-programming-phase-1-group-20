@@ -12,8 +12,7 @@ public class Tool extends Item {
     private boolean equipped;
 
 
-    public Tool(String name, int baseSellPrice, String description, ToolType type,
-                ToolMaterial material, int energyConsumption, Skills associatedSkill) {
+    public Tool(String name, int baseSellPrice, String description, ToolType type, ToolMaterial material, int energyConsumption, Skills associatedSkill) {
         super(name, baseSellPrice, description);
         this.type = type;
         this.material = material;
@@ -78,23 +77,11 @@ public class Tool extends Item {
 
 
     public enum ToolType {
-        HOE,
-        PICKAXE,
-        AXE,
-        WATERING_CAN,
-        FISHING_ROD,
-        SCYTHE,
-        MILK_PAIL,
-        SHEARS,
-        TRASH_CAN
+        HOE, PICKAXE, AXE, WATERING_CAN, FISHING_ROD, SCYTHE, MILK_PAIL, SHEARS, TRASH_CAN
     }
 
 
     public enum ToolMaterial {
-        BASIC,
-        COPPER,
-        IRON,
-        GOLD,
-        IRIDIUM
+        BASIC, COPPER, IRON, GOLD, IRIDIUM
     }
 }

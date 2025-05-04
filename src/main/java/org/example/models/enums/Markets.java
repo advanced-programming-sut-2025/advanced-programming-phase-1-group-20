@@ -9,7 +9,6 @@ import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Types.SeedType;
 
-
 import java.util.HashMap;
 
 public enum Markets {
@@ -56,7 +55,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createJojaMarket() {
@@ -72,13 +71,13 @@ public enum Markets {
         ancientSeed.setPrice(500);
         items.put(ancientSeed, 1.0);
 
-        Item sugar = new Item("sugar" , 125 , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
+        Item sugar = new Item("sugar", 125, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        Item wheatFlour = new Item("wheat flour" , 125 , "A common cooking ingredient made from crushed wheat seeds.");
+        Item wheatFlour = new Item("wheat flour", 125, "A common cooking ingredient made from crushed wheat seeds.");
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
-        Item rice = new Item("rice" , 250 , "A basic grain often served under vegetables.");
+        Item rice = new Item("rice", 250, "A basic grain often served under vegetables.");
         items.put(rice, Double.POSITIVE_INFINITY);
 
         //Spring Stock
@@ -226,7 +225,7 @@ public enum Markets {
         fairySeeds.setPrice(250);
         autumnItems.put(fairySeeds, 5.0);
 
-        Item rareSeed =  new Seed(SeedType.RareSeed);
+        Item rareSeed = new Seed(SeedType.RareSeed);
         rareSeed.setPrice(1000);
         autumnItems.put(rareSeed, 1.0);
 
@@ -242,7 +241,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createPierreGeneralStore() {
@@ -253,10 +252,10 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
         // permanent stock
-        Item rice = new Item("Rice" , 200 , "A basic grain often served under vegetables.");
+        Item rice = new Item("Rice", 200, "A basic grain often served under vegetables.");
         items.put(rice, Double.POSITIVE_INFINITY);
 
-        Item wheatFlour = new Item("Wheat Flour" , 100 , "A common cooking ingredient made from crushed wheat seeds.");
+        Item wheatFlour = new Item("Wheat Flour", 100, "A common cooking ingredient made from crushed wheat seeds.");
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
 
@@ -265,13 +264,13 @@ public enum Markets {
         //Dehydrator (Recipe)
         //Grass Starter (Recipe)
 
-        Item sugar = new Item("Sugar" , 100 , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
+        Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        Item oil = new Item("Oil" , 200 , "All purpose cooking oil.");
+        Item oil = new Item("Oil", 200, "All purpose cooking oil.");
         items.put(oil, Double.POSITIVE_INFINITY);
 
-        Item vinegar = new Item("Vinegar" , 100 , "An aged fermented liquid used in many cooking recipes.");
+        Item vinegar = new Item("Vinegar", 100, "An aged fermented liquid used in many cooking recipes.");
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
         //TODO : need to be added:
@@ -279,22 +278,22 @@ public enum Markets {
         //Grass Starter
         //Speed-Gro waiting for kasra.
 
-        Item appleSapling = new Item("Apple Sapling" , 4000 , "Takes 28 days to produce a mature Apple tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item appleSapling = new Item("Apple Sapling", 4000, "Takes 28 days to produce a mature Apple tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(appleSapling, Double.POSITIVE_INFINITY);
 
-        Item apricotSapling = new Item("Apricot Sapling" , 2000 , "Takes 28 days to produce a mature Apricot tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item apricotSapling = new Item("Apricot Sapling", 2000, "Takes 28 days to produce a mature Apricot tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(apricotSapling, Double.POSITIVE_INFINITY);
 
-        Item cherrySapling = new Item("Cherry Sapling" , 3_400 , "Takes 28 days to produce a mature Cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item cherrySapling = new Item("Cherry Sapling", 3_400, "Takes 28 days to produce a mature Cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(cherrySapling, Double.POSITIVE_INFINITY);
 
-        Item orangeSapling = new Item("Orange Sapling" , 4_000 , "Takes 28 days to produce a mature Orange tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item orangeSapling = new Item("Orange Sapling", 4_000, "Takes 28 days to produce a mature Orange tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(orangeSapling, Double.POSITIVE_INFINITY);
 
-        Item peachSapling = new Item("Peach Sapling" , 6_000 , "Takes 28 days to produce a mature Peach tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item peachSapling = new Item("Peach Sapling", 6_000, "Takes 28 days to produce a mature Peach tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(peachSapling, Double.POSITIVE_INFINITY);
 
-        Item pomegranateSapling = new Item("Pomegranate Sapling" , 6_000 , "Takes 28 days to produce a mature Pomegranate tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item pomegranateSapling = new Item("Pomegranate Sapling", 6_000, "Takes 28 days to produce a mature Pomegranate tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
         items.put(pomegranateSapling, Double.POSITIVE_INFINITY);
 
         //TODO: need to be added:
@@ -302,11 +301,10 @@ public enum Markets {
         //Quality Retaining Soil
 
 
-
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createCarpentersShop() {
@@ -316,10 +314,10 @@ public enum Markets {
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
 
-        Item wood = new Item("Wood" , 10 , "A sturdy, yet flexible plant material with a wide variety of uses.");
+        Item wood = new Item("Wood", 10, "A sturdy, yet flexible plant material with a wide variety of uses.");
         items.put(wood, Double.POSITIVE_INFINITY);
 
-        Item stone = new Item("Stone" , 20 , "A common material with many uses in crafting and building.");
+        Item stone = new Item("Stone", 20, "A common material with many uses in crafting and building.");
         items.put(stone, Double.POSITIVE_INFINITY);
 
 
@@ -335,11 +333,10 @@ public enum Markets {
         //i need Barns taha... fuck you
 
 
-
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createMarnieShop() {
@@ -350,12 +347,10 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
 
-
-
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createStarDropSaloon() {
@@ -366,12 +361,10 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
 
-
-
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     private static Market createFishShop() {
@@ -382,12 +375,10 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
 
-
-
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items , springItems , summerItems , autumnItems , winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
     public Market createMarket() {

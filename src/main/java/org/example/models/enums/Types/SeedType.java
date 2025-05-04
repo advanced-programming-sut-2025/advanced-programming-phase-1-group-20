@@ -5,7 +5,7 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum SeedType {
-    JazzSeeds("Jazz Seeds" , new Seasons[]{Seasons.SPRING} , 0),
+    JazzSeeds("Jazz Seeds", new Seasons[]{Seasons.SPRING}, 0),
     CarrotSeeds("Carrot Seeds", new Seasons[]{Seasons.SPRING}, 0),
     CauliflowerSeeds("Cauliflower Seeds", new Seasons[]{Seasons.SPRING}, 0),
     CoffeeBean("Coffee Bean", new Seasons[]{Seasons.SPRING}, 0),
@@ -51,10 +51,18 @@ public enum SeedType {
     private final String name;
     private final Seasons[] seasons;
     private final int baseSellPrice;
-    SeedType(String name, Seasons[] seasons , int baseSellPrice) {
+
+    SeedType(String name, Seasons[] seasons, int baseSellPrice) {
         this.name = name;
         this.seasons = seasons;
         this.baseSellPrice = baseSellPrice;
+    }
+
+    public static SeedType fromName(String name) {
+        for (SeedType type : SeedType.values()) {
+            if (type.getName().equals(name)) return type;
+        }
+        return null;
     }
 
     public String getName() {
@@ -75,12 +83,5 @@ public enum SeedType {
 //        String seasons = Arrays.toString(season).replace("[", "").replace("]", "")
 //                .replace(" " , "");
         System.out.println("Seasons: " + Arrays.toString(getSeasons()));
-    }
-
-    public static SeedType fromName(String name) {
-        for (SeedType type : SeedType.values()) {
-            if (type.getName().equals(name)) return type;
-        }
-        return null;
     }
 }

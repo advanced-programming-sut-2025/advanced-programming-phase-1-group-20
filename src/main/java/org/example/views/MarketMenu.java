@@ -16,11 +16,11 @@ public class MarketMenu implements AppMenu {
     private Market market;
 
 
-    public MarketMenu(AppView appView , App app, Player player , Market market) {
+    public MarketMenu(AppView appView, App app, Player player, Market market) {
         this.appView = appView;
         this.app = app;
         this.player = player;
-        this.controller = new MarketController(appView , app , player , market);
+        this.controller = new MarketController(appView, app, player, market);
     }
 
     @Override
@@ -35,6 +35,7 @@ public class MarketMenu implements AppMenu {
         if (result.success()) {
             System.out.println(result.message());
 
+            // TODO: mostafa
             // Handle specific market commands if needed
             if (command instanceof MarketMenuCommands) {
                 MarketMenuCommands marketCommand = (MarketMenuCommands) command;

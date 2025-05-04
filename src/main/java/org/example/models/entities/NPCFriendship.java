@@ -87,42 +87,42 @@ public class NPCFriendship {
                 switch (trait) {
                     case KIND:
                         response = getRandomResponse(new String[]{
-                            "Oh! This is my favorite! Thank you so much!",
-                            "You remembered my favorite! That's so thoughtful of you!",
-                            "This is perfect! You really know how to make someone's day!",
-                            "I absolutely love this! You're such a dear friend!"
+                                "Oh! This is my favorite! Thank you so much!",
+                                "You remembered my favorite! That's so thoughtful of you!",
+                                "This is perfect! You really know how to make someone's day!",
+                                "I absolutely love this! You're such a dear friend!"
                         });
                         break;
                     case HARD_WORKING:
                         response = getRandomResponse(new String[]{
-                            "This is exactly what I needed! Very efficient of you to notice!",
-                            "My favorite! This will help me be even more productive!",
-                            "You put real effort into finding this for me, didn't you? I appreciate that!",
-                            "This is perfect! A quality gift from a quality friend!"
+                                "This is exactly what I needed! Very efficient of you to notice!",
+                                "My favorite! This will help me be even more productive!",
+                                "You put real effort into finding this for me, didn't you? I appreciate that!",
+                                "This is perfect! A quality gift from a quality friend!"
                         });
                         break;
                     case LAZY:
                         response = getRandomResponse(new String[]{
-                            "Whoa, my favorite! You saved me the trouble of getting it myself!",
-                            "Nice! This is exactly what I wanted, and I didn't even have to drop any hints!",
-                            "My favorite! How'd you know? Actually, don't tell me - that would require too much explanation.",
-                            "Sweet! This is perfect for enjoying while doing absolutely nothing!"
+                                "Whoa, my favorite! You saved me the trouble of getting it myself!",
+                                "Nice! This is exactly what I wanted, and I didn't even have to drop any hints!",
+                                "My favorite! How'd you know? Actually, don't tell me - that would require too much explanation.",
+                                "Sweet! This is perfect for enjoying while doing absolutely nothing!"
                         });
                         break;
                     case JEALOUS:
                         response = getRandomResponse(new String[]{
-                            "My favorite! I didn't think anyone would give me something this nice...",
-                            "Wait, you got this for me? I... wow, I don't know what to say. Thank you.",
-                            "This is my favorite! How did you afford this? ...Sorry, I mean thank you!",
-                            "I've wanted one of these forever! Yours is probably better though... but this is still amazing!"
+                                "My favorite! I didn't think anyone would give me something this nice...",
+                                "Wait, you got this for me? I... wow, I don't know what to say. Thank you.",
+                                "This is my favorite! How did you afford this? ...Sorry, I mean thank you!",
+                                "I've wanted one of these forever! Yours is probably better though... but this is still amazing!"
                         });
                         break;
                     case GREEDY:
                         response = getRandomResponse(new String[]{
-                            "Now THIS is valuable! You have excellent taste in gifts!",
-                            "My favorite! Do you know how much this is worth? I mean... thank you!",
-                            "What a profitable exchange! I mean... what a wonderful gift! Thank you!",
-                            "This must have cost a fortune! I'll treasure it... or maybe sell it for more... just kidding! Maybe."
+                                "Now THIS is valuable! You have excellent taste in gifts!",
+                                "My favorite! Do you know how much this is worth? I mean... thank you!",
+                                "What a profitable exchange! I mean... what a wonderful gift! Thank you!",
+                                "This must have cost a fortune! I'll treasure it... or maybe sell it for more... just kidding! Maybe."
                         });
                         break;
                     default:
@@ -135,42 +135,42 @@ public class NPCFriendship {
                 switch (trait) {
                     case KIND:
                         response = getRandomResponse(new String[]{
-                            "Thank you for the gift! It's so nice of you to think of me!",
-                            "How thoughtful of you! I appreciate this very much!",
-                            "What a lovely surprise! Thank you for your kindness!",
-                            "You didn't have to bring me anything! Thank you!"
+                                "Thank you for the gift! It's so nice of you to think of me!",
+                                "How thoughtful of you! I appreciate this very much!",
+                                "What a lovely surprise! Thank you for your kindness!",
+                                "You didn't have to bring me anything! Thank you!"
                         });
                         break;
                     case HARD_WORKING:
                         response = getRandomResponse(new String[]{
-                            "Thank you! I'll put this to good use right away!",
-                            "A practical gift! I appreciate your thoughtfulness.",
-                            "This will come in handy for my projects. Thanks!",
-                            "Thank you for the gift! It's always good to have more resources."
+                                "Thank you! I'll put this to good use right away!",
+                                "A practical gift! I appreciate your thoughtfulness.",
+                                "This will come in handy for my projects. Thanks!",
+                                "Thank you for the gift! It's always good to have more resources."
                         });
                         break;
                     case LAZY:
                         response = getRandomResponse(new String[]{
-                            "Thanks... you didn't have to go to all that trouble.",
-                            "A gift? For me? That's surprisingly energetic of you.",
-                            "Cool, thanks. Saves me the effort of getting one myself.",
-                            "Nice. I'll add it to my collection of stuff I might use someday."
+                                "Thanks... you didn't have to go to all that trouble.",
+                                "A gift? For me? That's surprisingly energetic of you.",
+                                "Cool, thanks. Saves me the effort of getting one myself.",
+                                "Nice. I'll add it to my collection of stuff I might use someday."
                         });
                         break;
                     case JEALOUS:
                         response = getRandomResponse(new String[]{
-                            "You're giving this to me? I bet you give better gifts to others...",
-                            "Thanks... I guess. It's not what I would have chosen, but it's fine.",
-                            "A gift for me? That's... unexpected. Thanks, I suppose.",
-                            "Well, it's not the best gift I've ever received, but thank you anyway."
+                                "You're giving this to me? I bet you give better gifts to others...",
+                                "Thanks... I guess. It's not what I would have chosen, but it's fine.",
+                                "A gift for me? That's... unexpected. Thanks, I suppose.",
+                                "Well, it's not the best gift I've ever received, but thank you anyway."
                         });
                         break;
                     case GREEDY:
                         response = getRandomResponse(new String[]{
-                            "Hmm, what's this worth? I mean... thank you for the gift!",
-                            "I suppose I could find a use for this. Thanks.",
-                            "Not the most valuable thing, but I appreciate the gesture.",
-                            "I'll add this to my collection. Every item has its worth!"
+                                "Hmm, what's this worth? I mean... thank you for the gift!",
+                                "I suppose I could find a use for this. Thanks.",
+                                "Not the most valuable thing, but I appreciate the gesture.",
+                                "I'll add this to my collection. Every item has its worth!"
                         });
                         break;
                     default:
@@ -187,37 +187,37 @@ public class NPCFriendship {
             switch (trait) {
                 case KIND:
                     response = getRandomResponse(new String[]{
-                        "I already received a gift from you today, but it's sweet of you to offer another!",
-                        "You're too generous! But I can only accept one gift per day.",
-                        "That's very kind, but I already have your wonderful gift from earlier."
+                            "I already received a gift from you today, but it's sweet of you to offer another!",
+                            "You're too generous! But I can only accept one gift per day.",
+                            "That's very kind, but I already have your wonderful gift from earlier."
                     });
                     break;
                 case HARD_WORKING:
                     response = getRandomResponse(new String[]{
-                        "I appreciate the offer, but I already logged your gift for today.",
-                        "One gift per day is my rule. It keeps things efficient.",
-                        "Thanks, but I already received something from you. Let's save this for tomorrow."
+                            "I appreciate the offer, but I already logged your gift for today.",
+                            "One gift per day is my rule. It keeps things efficient.",
+                            "Thanks, but I already received something from you. Let's save this for tomorrow."
                     });
                     break;
                 case LAZY:
                     response = getRandomResponse(new String[]{
-                        "Whoa, another gift? That's too much effort... for both of us.",
-                        "I already got something from you today. Too much stuff is just... more to manage.",
-                        "Can we do this tomorrow? I've already dealt with one gift today."
+                            "Whoa, another gift? That's too much effort... for both of us.",
+                            "I already got something from you today. Too much stuff is just... more to manage.",
+                            "Can we do this tomorrow? I've already dealt with one gift today."
                     });
                     break;
                 case JEALOUS:
                     response = getRandomResponse(new String[]{
-                        "Another gift? Are you trying to make me feel obligated to you?",
-                        "I already got your gift today. Are you giving extras to everyone else too?",
-                        "One gift per day is enough. I don't want to owe you too much."
+                            "Another gift? Are you trying to make me feel obligated to you?",
+                            "I already got your gift today. Are you giving extras to everyone else too?",
+                            "One gift per day is enough. I don't want to owe you too much."
                     });
                     break;
                 case GREEDY:
                     response = getRandomResponse(new String[]{
-                        "I already accepted one valuable item from you today. Rules are rules!",
-                        "Save it for tomorrow! I'll get more value if we space out the gifts.",
-                        "Business is business - one transaction per day. Come back tomorrow!"
+                            "I already accepted one valuable item from you today. Rules are rules!",
+                            "Save it for tomorrow! I'll get more value if we space out the gifts.",
+                            "Business is business - one transaction per day. Come back tomorrow!"
                     });
                     break;
                 default:
@@ -230,6 +230,7 @@ public class NPCFriendship {
 
     /**
      * Helper method to get a random response from an array of possible responses
+     *
      * @param responses Array of possible responses
      * @return A randomly selected response
      */
