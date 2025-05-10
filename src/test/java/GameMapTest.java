@@ -51,7 +51,7 @@ public class GameMapTest {
         } finally {
             System.setOut(originalOut);
         }
-        gameMap.printCurrentView(10, 10, 3);
+        gameMap.printCurrentViewColored(10, 10, 10);
         System.out.println("testPrintMap: PASSED");
     }
 }

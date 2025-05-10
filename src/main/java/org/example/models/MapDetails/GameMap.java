@@ -19,6 +19,13 @@ public class GameMap {
     private int currentFarmIndex;
     private Map<String, Character> symbolMap;
     private Player currentPlayer;
+    private static final String RESET = "\u001B[0m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String BLUE = "\u001B[34m";
+    private static final String RED = "\u001B[31m";
+    private static final String GRAY = "\u001B[37m";
+    private static final String CYAN = "\u001B[36m";
+    private static final String YELLOW = "\u001B[33m";
 
     public GameMap(int width, int height, Player player) {
         this.width = width;
@@ -337,26 +344,13 @@ public class GameMap {
     }
 
     public boolean isShokhm(int x, int y) {
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Location tile = tiles[x][y];
-                boolean isShokhm = tile.getShokhm();
-                if (isShokhm) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        if (!isValidCoordinate(x, y)) return false;
+        return tiles[x][y].getShokhm();
     }
 
     public Location getItem(int x, int y) {
-        for (int i = 0; i < width; i++) {
-            for (int j = 0; j < height; j++) {
-                Location tile = tiles[x][y];
-                return tile;
-            }
-        }
-        return null;
+        if (!isValidCoordinate(x, y)) return null;
+        return tiles[x][y];
     }
 
     public void placeItem(int x, int y, Item item) {
@@ -458,49 +452,42 @@ public class GameMap {
         }
     }
 
-    // TODO : collision - get inventory
+    public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
+        int startX = Math.max(0, centerX - viewRadius);
+        int endX = Math.min(width - 1, centerX + viewRadius);
+        int startY = Math.max(0, centerY - viewRadius);
+        int endY = Math.min(height - 1, centerY + viewRadius);
 
-    public class MapPrinter {
+        for (int y = startY; y <= endY; y++) {
+            for (int x = startX; x <= endX; x++) {
+                Location tile = tiles[x][y];
+                String type = tile.getType();
+                char symbol = symbolMap.getOrDefault(type, '?');
 
-        private static final String RESET = "\u001B[0m";
-        private static final String GREEN = "\u001B[32m";
-        private static final String BLUE = "\u001B[34m";
-        private static final String RED = "\u001B[31m";
-        private static final String GRAY = "\u001B[37m";
-        private static final String CYAN = "\u001B[36m";
-        private static final String YELLOW = "\u001B[33m";
+                String color = switch (type) {
+                    case "grass" -> GREEN;
+                    case "tilled_soil" -> YELLOW;
+                    case "tree" -> GREEN;
+                    case "stone" -> GRAY;
+                    case "water" -> BLUE;
+                    case "path" -> CYAN;
+                    case "house" -> RED;
+                    case "village" -> BLUE;
+                    case "bridge" -> CYAN;
+                    case "empty" -> RESET;
+                    default -> RESET;
+                };
 
-
-        public static void printColoredMap(Location[][] map) {
-            int height = map[0].length;
-            int width = map.length;
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    Location loc = map[x][y];
-                    System.out.print(getColoredTile(loc.getTile()));
+                if (x == centerX && y == centerY) {
+                    System.out.print(RED + "@ " + RESET);
                 }
-                System.out.println();
+                else {
+                    System.out.print(color + symbol + " " + RESET);
+                }
             }
-        }
-
-        private static String getColoredTile(TileType tile) {
-            switch (tile) {
-                case GRASS:
-                    return GREEN + "###" + RESET;
-                case WATER:
-                    return BLUE + "###" + RESET;
-//                case HOUSE:
-//                    return RED + "###" + RESET;
-                case STONE:
-                    return GRAY + "###" + RESET;
-//                case BUILDING:
-//                    return CYAN + "###" + RESET;
-//                case FARM_LAND:
-//                    return YELLOW + "###" + RESET;
-                default:
-                    return "   ";
-            }
+            System.out.println();
         }
     }
+
+
 }
