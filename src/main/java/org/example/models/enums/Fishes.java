@@ -1,7 +1,5 @@
 package org.example.models.enums;
 
-import org.example.models.entities.animal.Fish;
-
 public enum Fishes {
     SALMON("salmon", 75, Seasons.AUTUMN),
     ;//other types
@@ -14,9 +12,4 @@ public enum Fishes {
         this.price = price;
         this.season = season;
     }
-
-    public Fish createFish() {
-        return new Fish(name, price, season);
-    }
-
 }

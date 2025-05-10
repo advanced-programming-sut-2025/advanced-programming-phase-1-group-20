@@ -498,4 +498,8 @@ public class Player {
             }
         }
     }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
 }

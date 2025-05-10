@@ -4,6 +4,7 @@ import org.example.models.Items.Item;
 import org.example.models.Items.Tree;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
+import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.TreeType;
@@ -26,6 +27,7 @@ public class GameMap {
     private int currentFarmIndex;
     private Map<String, Character> symbolMap;
     private Player currentPlayer;
+    private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
         this.width = width;
@@ -38,6 +40,7 @@ public class GameMap {
 
         initializeSymbols();
         initializeMap();
+        initializeLakes();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -93,7 +96,16 @@ public class GameMap {
     private void initializeMap() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tiles[x][y] = new Location(x, y, TileType.GRASS);
+                // Default to grass
+                TileType tileType = TileType.GRASS;
+
+                // If the tile is within a lake, make it water
+                if (isInWater(x, y)) {
+                    tileType = TileType.WATER;
+                }
+
+                // Create the tile with the appropriate type
+                tiles[x][y] = new Location(x, y, tileType);
             }
         }
 
@@ -420,13 +432,7 @@ public class GameMap {
         }
     }
 
-    /**
-     * Adds a greenhouse to the game map.
-     * A greenhouse is a special area where players can plant crops regardless of the season.
-     *
-     * @param leftCorner  The top-left corner of the greenhouse
-     * @param rightCorner The bottom-right corner of the greenhouse
-     */
+
     public void addGreenhouse(Location leftCorner, Location rightCorner) {
         int startX = leftCorner.getX();
         int startY = leftCorner.getY();
@@ -479,5 +485,94 @@ public class GameMap {
         }
     }
 
+    private void initializeLakes() {
+        // Create different lakes in the map
+        // TODO: make it one (TAha)
+        // Ocean on the southern edge of the map
+        lakes.add(new Lake(0, 90, 100, 10, "Ocean", Lake.LakeType.RIVER));
 
+        // River running through the center of the map
+        lakes.add(new Lake(45, 0, 10, 100, "River", Lake.LakeType.RIVER));
+
+        // Mountain lake in the northwest
+        lakes.add(new Lake(10, 10, 20, 15, "Mountain Lake", Lake.LakeType.RIVER));
+
+        // Farm pond in the east
+        lakes.add(new Lake(70, 40, 15, 15, "Farm Pond", Lake.LakeType.RIVER));
+
+        // Secret lake in the forest
+        lakes.add(new Lake(20, 60, 10, 10, "Forest Pond", Lake.LakeType.RIVER));
+
+        // Winter lake (only appears in winter)
+        lakes.add(new Lake(60, 15, 25, 20, "Winter Lake", Lake.LakeType.RIVER));
+
+        // Sewers (special location for Mutant Carp)
+        lakes.add(new Lake(35, 80, 15, 5, "Sewers", Lake.LakeType.RIVER));
+
+        // Initialize fish in lakes based on the current season
+        for (Lake lake : lakes) {
+            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(),
+                    1); // Default to level 1 fishing skill initially
+        }
+    }
+
+    /**
+     * Check if a location is in water (part of a lake).
+     *
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return true if the location is in water, false otherwise
+     */
+    public boolean isInWater(int x, int y) {
+        for (Lake lake : lakes) {
+            if (lake.contains(x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Find the lake at a specific location.
+     *
+     * @param x The x-coordinate to check
+     * @param y The y-coordinate to check
+     * @return The lake at the location, or null if no lake is found
+     */
+    public Lake getLakeAt(int x, int y) {
+        for (Lake lake : lakes) {
+            if (lake.contains(x, y)) {
+                return lake;
+            }
+        }
+        return null;
+    }
+
+
+    public void updateLakeFish(Player player) {
+        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
+        for (Lake lake : lakes) {
+            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
+        }
+    }
+
+    /*
+     * 4. MODIFY YOUR TILE INITIALIZATION CODE
+     * When creating tiles, set the TileType to WATER for any tile within a lake:
+     */
+
+    /*
+     * 5. ADD THIS TO YOUR ADVANCEDATE METHOD
+     * To ensure lakes update their fish when the season changes:
+     */
+
+    // Inside advanceDate or wherever you handle season changes:
+    private void checkSeasonChange(org.example.models.common.Date oldDate, Date newDate) {
+        if (oldDate.getSeason() != newDate.getSeason()) {
+            // Season has changed, update lakes
+            for (Player player : org.example.models.App.getGame().getPlayers()) {
+                updateLakeFish(player);
+            }
+        }
+    }
 }
