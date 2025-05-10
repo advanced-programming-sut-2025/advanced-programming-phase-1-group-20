@@ -3,10 +3,7 @@ package org.example.models.entities;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 
-/**
- * Represents a trade request between two players.
- * A trade request can be either a request for items or an offer of items.
- */
+
 public class TradeRequest {
     private static int nextId = 1;
 

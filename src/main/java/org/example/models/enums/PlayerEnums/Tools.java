@@ -1,7 +1,5 @@
 package org.example.models.enums.PlayerEnums;
 
-import org.example.models.Player.Tool;
-
 public enum Tools {
     HOE("hoe", 5),
     PICK_AXE("pick axe", 5),
@@ -11,7 +9,6 @@ public enum Tools {
     MILK_PAIL("milk pail", 4),
     FISHING_ROD("fishing rod", 8),
     WATERING_CAN("watering can", 5);
-    // TODO: add needed tools -> Kasra
 
     private final String name;
     private final int energyCost;

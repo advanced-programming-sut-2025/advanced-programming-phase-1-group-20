@@ -1,6 +1,7 @@
-package org.example.models.enums;
+package org.example.models.enums.Types;
 
 import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.enums.Cages;
 
 public enum BarnAnimals {
     SHEEP("sheep", false, 1, null, 500),

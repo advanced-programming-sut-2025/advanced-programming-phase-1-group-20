@@ -6,8 +6,6 @@ import java.io.PrintStream;
 
 
 public class GameMapTest {
-
-
     @Test
     public void testPrintMap() {
         GameMap gameMap = new GameMap(21, 21, null);
@@ -37,7 +35,6 @@ public class GameMapTest {
 //            // Verify that each line has the expected number of characters (2*radius + 1) * 2 (for the space after each character)
 //            for (int i = 0; i < lines.length; i++) {
 //                // Each tile is represented by a character and a space, so the length should be (2*radius + 1) * 2
-//                // But we need to trim the line to remove any trailing spaces
 //                String trimmedLine = lines[i].trim();
 //                if (trimmedLine.length() != 14) { // (2*3 + 1) * 2 = 14 characters for radius 3
 //                    throw new AssertionError("Expected 14 characters in line " + i + ", but got " + trimmedLine.length());

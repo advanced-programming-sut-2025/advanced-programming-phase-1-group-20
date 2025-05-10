@@ -11,6 +11,13 @@ import org.example.models.enums.Types.TreeType;
 import java.util.*;
 
 public class GameMap {
+    private static final String RESET = "\u001B[0m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String BLUE = "\u001B[34m";
+    private static final String RED = "\u001B[31m";
+    private static final String GRAY = "\u001B[37m";
+    private static final String CYAN = "\u001B[36m";
+    private static final String YELLOW = "\u001B[33m";
     private int width;
     private int height;
     private Location[][] tiles;
@@ -19,13 +26,6 @@ public class GameMap {
     private int currentFarmIndex;
     private Map<String, Character> symbolMap;
     private Player currentPlayer;
-    private static final String RESET = "\u001B[0m";
-    private static final String GREEN = "\u001B[32m";
-    private static final String BLUE = "\u001B[34m";
-    private static final String RED = "\u001B[31m";
-    private static final String GRAY = "\u001B[37m";
-    private static final String CYAN = "\u001B[36m";
-    private static final String YELLOW = "\u001B[33m";
 
     public GameMap(int width, int height, Player player) {
         this.width = width;
@@ -50,14 +50,7 @@ public class GameMap {
         return distance * baseEnergyCost;
     }
 
-    /**
-     * Finds the furthest location a player can go with their remaining energy.
-     * This is used when a player doesn't have enough energy to reach their destination.
-     *
-     * @param from The starting location
-     * @param to   The destination location
-     * @return The furthest location the player can reach with their remaining energy
-     */
+
     public static Location findFurthestCanGo(Location from, Location to) {
         // Calculate the direction vector
         int dx = to.getX() - from.getX();
@@ -131,8 +124,7 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -316,8 +308,7 @@ public class GameMap {
             for (int x = startX; x <= endX; x++) {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
-                }
-                else {
+                } else {
                     System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
                 }
             }
@@ -480,8 +471,7 @@ public class GameMap {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }

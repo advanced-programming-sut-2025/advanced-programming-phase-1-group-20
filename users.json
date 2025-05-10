@@ -35,5 +35,18 @@
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
+  },
+  "kasraaa": {
+    "gender": "Male",
+    "username": "kasraaa",
+    "password": "PVbjpNX6wAKEhqqLFrcEUar/mV5J+k/SRjZZSb10gDQ\u003d",
+    "email": "kasra@gmail.com",
+    "nickname": "kasra",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 3,
+    "securityAnswer": "java",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
   }
 }

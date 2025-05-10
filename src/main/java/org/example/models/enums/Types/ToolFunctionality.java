@@ -488,44 +488,21 @@ public enum ToolFunctionality {
         this.baseSellPriceFunction = baseSellPriceFunction;
         this.associatedSkill = associatedSkill;
     }
-
-    /**
-     * Use the tool with the given parameters.
-     *
-     * @param tool   The tool being used
-     * @param params Parameters for the use function (direction, gameMap, player)
-     * @return true if the tool was used successfully, false otherwise
-     */
+    
     public boolean use(Tool tool, Object... params) {
         return useFunction.apply(tool, params);
     }
 
-    /**
-     * Get the next material for upgrading the tool.
-     *
-     * @param tool The tool to upgrade
-     * @return The next material, or null if already at highest level
-     */
     public Tool.ToolMaterial getUpgradeMaterial(Tool tool) {
         return upgradeFunction.apply(tool);
     }
 
-    /**
-     * Get the energy consumption for a tool with the given material.
-     *
-     * @param material The tool material
-     * @return The energy consumption
-     */
+
     public int getEnergyConsumption(Tool.ToolMaterial material) {
         return energyConsumptionFunction.apply(material);
     }
 
-    /**
-     * Get the base sell price for a tool with the given material.
-     *
-     * @param material The tool material
-     * @return The base sell price
-     */
+
     public int getBaseSellPrice(Tool.ToolMaterial material) {
         return baseSellPriceFunction.apply(material);
     }
