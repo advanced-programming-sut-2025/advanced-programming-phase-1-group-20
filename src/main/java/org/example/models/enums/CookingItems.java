@@ -6,7 +6,7 @@ public enum CookingItems {
     FriedEgg("Fried Egg", Ingredients.FriedEgg.getIngridents(), 50, 35),
     BakedFish("Baked Fish", Ingredients.BakedFish.getIngridents(), 75, 100),
     Salad("Salad", Ingredients.Salad.getIngridents(), 113, 110),
-    Omelet("Omelet", Ingredients.Olmelet.getIngridents(), 100, 125),
+    Omelet("Omelet", Ingredients.Omelet.getIngridents(), 100, 125),
     Pumpkin_pie("pumpkin pie", Ingredients.pumpkinpie.getIngridents(), 225, 385),
     Spaghetti("spaghetti", Ingredients.spaghetti.getIngridents(), 75, 120),
     pizza("pizza", Ingredients.pizza.getIngridents(), 150, 300),

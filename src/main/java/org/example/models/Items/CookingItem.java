@@ -2,6 +2,7 @@ package org.example.models.Items;
 
 import org.example.models.App;
 import org.example.models.Player.Backpack;
+import org.example.models.enums.Ingredients;
 import org.example.models.enums.Types.CookingType;
 import org.example.models.enums.Types.ItemBuilder;
 
@@ -15,7 +16,7 @@ public class CookingItem extends Item {
         this.type = type;
     }
 
-    public String getIngredients() {
+    public Ingredients getIngredients() {
         return type.getIngredient();
     }
 
@@ -36,7 +37,7 @@ public class CookingItem extends Item {
 
     public boolean canCook(Backpack inventory) {
         Map<Item, Integer> items = inventory.getInventory();
-        String[] parts = type.getIngredient().split("\\+");
+        String[] parts = new String[]{type.getIngredient().toString()};
         for (String part : parts) {
             part = part.trim();
             String[] itemData = part.split(" ", 2);
@@ -46,8 +47,7 @@ public class CookingItem extends Item {
             if (itemName.startsWith("any")) {
                 itemName = itemName.replace("any ", "");
                 //checking fishes list (only time that this happens)
-            }
-            else {
+            } else {
                 itemName = itemName.trim();
                 Item item = App.getItem(itemName);
                 if (!items.containsKey(item) || requiredItem > items.get(item)) {
@@ -61,7 +61,7 @@ public class CookingItem extends Item {
     public Food cook(Backpack inventory) {
         ItemBuilder builder = new ItemBuilder();
         Map<Item, Integer> items = inventory.getInventory();
-        String[] parts = type.getIngredient().split("\\+");
+        String[] parts = new String[]{type.getIngredient().toString()};
         for (String part : parts) {
             part = part.trim();
             String[] itemData = part.split(" ", 2);
@@ -72,8 +72,7 @@ public class CookingItem extends Item {
                 //checking fishes list (only time that this happens)
 
                 //TODO : removing items from inventory
-            }
-            else {
+            } else {
                 itemName = itemName.trim();
                 Item item = ItemBuilder.build(itemName);
                 inventory.remove(item, 1);

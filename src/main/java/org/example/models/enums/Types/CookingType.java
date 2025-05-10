@@ -6,7 +6,7 @@ public enum CookingType {
     FriedEgg("Fried Egg", Ingredients.FriedEgg, 50, "", "Starter", 35),
     BakedFish("Baked Fish", Ingredients.BakedFish, 75, "", "Starter", 100),
     Salad("Salad", Ingredients.Salad, 113, "", "Starter", 110),
-    Omelet("Omelet", Ingredients.Olmelet, 100, "", "Stardrop Saloon", 125),
+    Omelet("Omelet", Ingredients.Omelet, 100, "", "Stardrop Saloon", 125),
     PumpkinPie("Pumpkin Pie", Ingredients.pumpkinpie, 225, "", "Stardrop Saloon", 385),
     Spaghetti("Spaghetti", Ingredients.spaghetti, 75, "", "Stardrop Saloon", 120),
     Pizza("Pizza", Ingredients.pizza, 150, "", "Stardrop Saloon", 300),

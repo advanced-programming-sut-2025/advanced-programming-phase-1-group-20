@@ -8,7 +8,7 @@ public enum Ingredients {
     FriedEgg(Map.of("egg", 1)),
     BakedFish(Map.of("Sardine", 1, "Salmon", 1, "wheat", 1)),
     Salad(Map.of("leek", 1, "dandelion", 1)),
-    Olmelet(Map.of("egg", 1, "milk", 1)),
+    Omelet(Map.of("egg", 1, "milk", 1)),
     pumpkinpie(Map.of("pumpkin", 1, "wheat flour", 1, "milk", 1, "sugar", 1)),
     spaghetti(Map.of("wheat flour", 1, "tomato", 1)),
     pizza(Map.of("wheat flour", 1, "tomato", 1, "cheese", 1)),
