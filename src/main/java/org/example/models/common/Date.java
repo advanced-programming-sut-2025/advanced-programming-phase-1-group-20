@@ -22,7 +22,7 @@ public class Date {
 
     public Date() {
         this.day = 1; // first day of spring
-        this.season = 1; // spring
+        this.season = 0; // spring
         this.year = 1;
         this.hour = 9; // 9 AM
         this.weatherMap = new HashMap<>();
@@ -81,7 +81,12 @@ public class Date {
             }
         }
 
-        updateWeatherToday();
+
+        if (days != 1) {
+            updateWeatherToday();
+        } else {
+            weatherToday = weatherTomorrow;
+        }
         updateWeatherTomorrow();
     }
 
@@ -101,7 +106,8 @@ public class Date {
 
     // changing the day
     public void goTomorrow(GameMap gameMap) {
-        advanceDays(1, gameMap);
+//        advanceDays(1, gameMap);
+        this.day++;
         this.weatherToday = weatherTomorrow;
         updateWeatherTomorrow();
     }
@@ -141,7 +147,7 @@ public class Date {
     }
 
     public void displayDayOfWeek() {
-        int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
+        int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day - 1;
         int dayOfWeek = (totalDays % 7);
 
         String[] dayNames = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
@@ -165,7 +171,6 @@ public class Date {
             return 0;
         }
 
-        // Calculate total days for both dates
         long currentTotalDays = ((long) (year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
         long rejectTotalDays = ((long) (rejectDate.year - 1) * 4 * daysPerSeason) + (rejectDate.season * daysPerSeason) + rejectDate.day;
 

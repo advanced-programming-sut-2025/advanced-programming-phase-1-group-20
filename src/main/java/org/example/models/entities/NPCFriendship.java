@@ -228,12 +228,6 @@ public class NPCFriendship {
         return response;
     }
 
-    /**
-     * Helper method to get a random response from an array of possible responses
-     *
-     * @param responses Array of possible responses
-     * @return A randomly selected response
-     */
     private String getRandomResponse(String[] responses) {
         if (responses == null || responses.length == 0) {
             return "Thank you!";
