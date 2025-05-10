@@ -10,7 +10,7 @@ public class GameMapTest {
 
     @Test
     public void testPrintMap() {
-        GameMap gameMap = new GameMap(20, 20, null);
+        GameMap gameMap = new GameMap(21, 21, null);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
@@ -51,7 +51,7 @@ public class GameMapTest {
         } finally {
             System.setOut(originalOut);
         }
-        gameMap.printCurrentView(10, 10, 10);
+        gameMap.printCurrentView(10, 10, 3);
         System.out.println("testPrintMap: PASSED");
     }
 }

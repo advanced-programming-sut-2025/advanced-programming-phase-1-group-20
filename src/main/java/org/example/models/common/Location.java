@@ -18,7 +18,20 @@ public class Location {
         this.tile = tile;
         this.item = null;
         this.shokhm = false;
+        updateTypeFromTile();
     }
+
+    public void updateTypeFromTile() {
+        switch (tile) {
+            case GRASS -> this.type = "grass";
+            case TREE -> this.type = "tree";
+            case STONE -> this.type = "stone";
+            case WATER -> this.type = "water";
+            case PATH -> this.type = "path";
+            default -> this.type = "?";
+        }
+    }
+
 
     public TileType getTile() {
         return tile;

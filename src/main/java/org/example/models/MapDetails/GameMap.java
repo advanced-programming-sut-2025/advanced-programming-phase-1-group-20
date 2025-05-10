@@ -124,7 +124,8 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -308,8 +309,8 @@ public class GameMap {
             for (int x = startX; x <= endX; x++) {
                 if (x == centerX && y == centerY) {
                     System.out.print("@ ");
-                } else {
-
+                }
+                else {
                     System.out.print(symbolMap.get(tiles[x][y].getType()) + " ");
                 }
             }
