@@ -3,7 +3,7 @@ package org.example.models;
 import org.example.models.Items.Item;
 import org.example.models.common.Result;
 import org.example.models.entities.animal.CoopAnimal;
-import org.example.models.enums.Cages;
+import org.example.models.enums.Types.Cages;
 
 import java.io.Serializable;
 import java.util.ArrayList;

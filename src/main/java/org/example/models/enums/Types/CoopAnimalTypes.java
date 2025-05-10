@@ -2,13 +2,11 @@ package org.example.models.enums;
 
 import org.example.models.Items.Item;
 import org.example.models.entities.animal.CoopAnimal;
+import org.example.models.enums.Types.Cages;
 
 import java.util.Random;
 
-/**
- * Enum for different types of coop animals
- * Contains all the specific data and behavior for each animal type
- */
+
 public enum CoopAnimalTypes {
     CHICKEN(
             "Chicken",

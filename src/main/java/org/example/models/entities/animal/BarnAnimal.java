@@ -1,17 +1,33 @@
 package org.example.models.entities.animal;
 
-import org.example.models.enums.Cages;
+import org.example.models.enums.Types.BarnAnimalTypes;
 
 public class BarnAnimal extends Animal {
-    private int price;
-    private boolean barn;
-    private int speed;
-    private Cages cage;
+    private BarnAnimalTypes type;
+    private int happinessLevel;
 
-    public BarnAnimal(String name, boolean barn, int speed, Cages cage, int price) {
-        super(name, price);
-        this.barn = barn;
-        this.speed = speed;
-        this.cage = cage;
+    public BarnAnimal(BarnAnimalTypes type) {
+        super(type.getName(), type.getPrice());
+        this.type = type;
+    }
+
+    public int getHappiness() {
+        return happinessLevel;
+    }
+
+    public String getSecondaryProduct() {
+        return type.getSecondaryProduct();
+    }
+
+    public String getPrimaryProduct() {
+        return type.getPrimaryProduct();
+    }
+
+    public int getSecondaryProductPrice() {
+        return type.getSecondaryProductPrice();
+    }
+
+    public int getPrimaryProductPrice() {
+        return type.getPrimaryProductPrice();
     }
 }

@@ -2,15 +2,12 @@ package org.example.models.entities.animal;
 
 import org.example.models.Items.Item;
 import org.example.models.common.Result;
-import org.example.models.enums.Cages;
 import org.example.models.enums.CoopAnimalTypes;
+import org.example.models.enums.Types.Cages;
 
 import java.io.Serializable;
 
-/**
- * Class representing a coop animal
- * Uses the CoopAnimalTypes enum for specific behaviors
- */
+
 public class CoopAnimal extends Animal implements Serializable {
     private final CoopAnimalTypes type;
     private int happinessLevel;
@@ -24,11 +21,6 @@ public class CoopAnimal extends Animal implements Serializable {
         this.daysSinceLastProduction = 0;
     }
 
-    /**
-     * Attempts to produce an item (product) from the animal
-     *
-     * @return Result containing success/failure and item produced
-     */
     public Result produceItem() {
         if (daysSinceLastProduction < type.getProductionInterval()) {
             return Result.error("Not ready to produce yet");
@@ -38,11 +30,6 @@ public class CoopAnimal extends Animal implements Serializable {
         return Result.success("Item produced successfully");
     }
 
-    /**
-     * Get the product from this animal if available
-     *
-     * @return The item produced or null if not available
-     */
     public Item getProduct() {
         if (daysSinceLastProduction >= type.getProductionInterval()) {
             Item product = type.determineProduct(this);
@@ -52,37 +39,21 @@ public class CoopAnimal extends Animal implements Serializable {
         return null;
     }
 
-    /**
-     * Increase happiness level of the animal
-     *
-     * @param amount Amount to increase happiness by
-     */
+
     public void increaseHappiness(int amount) {
         happinessLevel = Math.min(100, happinessLevel + amount);
     }
 
-    /**
-     * Decrease happiness level of the animal
-     *
-     * @param amount Amount to decrease happiness by
-     */
     public void decreaseHappiness(int amount) {
         happinessLevel = Math.max(0, happinessLevel - amount);
     }
 
-    /**
-     * Advance the day counter
-     */
+
     public void advanceDay() {
         daysSinceLastProduction++;
     }
 
-    /**
-     * Check if this animal can live in the given coop type
-     *
-     * @param coopType The coop type to check
-     * @return True if the animal can live in this coop type
-     */
+
     public boolean canLiveIn(Cages coopType) {
         // Animals can live in their minimum coop size or better
         Cages minimumCoopSize = type.getMinimumCoopSize();

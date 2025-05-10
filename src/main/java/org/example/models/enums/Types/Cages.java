@@ -1,4 +1,4 @@
-package org.example.models.enums;
+package org.example.models.enums.Types;
 
 import org.example.models.Cage;
 
