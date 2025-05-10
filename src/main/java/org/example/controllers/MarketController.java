@@ -56,6 +56,7 @@ public class MarketController implements Controller {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
         Item item = App.getItem(productName);
+        
         boolean flag = checkItem(item) && market.containsItem(item, count, gameClock.getSeason());
         if (flag) {
             player.getBackpack().add(item, (int) count);
