@@ -221,11 +221,9 @@ public class DateTimeTest {
 
     @Test
     public void testSeasonRandomSeed() {
-        // Test that seasons provide different random seeds
         Seasons spring = Seasons.SPRING;
         String springSeed = spring.getRandomSeed();
 
-        // The seed should be one of the seeds available for the season
         String[] springSeeds = spring.getSeeds();
         boolean validSeed = false;
         for (String seed : springSeeds) {
