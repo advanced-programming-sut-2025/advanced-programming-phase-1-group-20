@@ -78,7 +78,11 @@ public class CookingItem extends Item {
                 inventory.remove(item, 1);
             }
         }
-        return new Food(getName(), getBaseSellPrice(), getEnergy());
+        return new Food(getName(), getBaseSellPrice(), getEnergy() , getBuffer());
+    }
+
+    public Food getFood(){
+        return new Food(getName(), getBaseSellPrice(), getEnergy() , getBuffer());
     }
 
 
