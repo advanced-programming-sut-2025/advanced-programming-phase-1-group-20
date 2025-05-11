@@ -8,6 +8,7 @@ public class ArtisanItem extends Item {
     public ArtisanItem(ArtisanType type) {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
+        this.setPlacable(true);
     }
 
 

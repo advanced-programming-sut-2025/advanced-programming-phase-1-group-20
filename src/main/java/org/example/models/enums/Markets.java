@@ -281,22 +281,29 @@ public enum Markets {
         //Grass Starter
         //Speed-Gro waiting for kasra.
 
-        Item appleSapling = new Item("Apple Sapling", 4000, "Takes 28 days to produce a mature Apple tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        new Tree(TreeType.AppleTree);
+        Item appleSapling = new Tree(TreeType.AppleTree);
+        appleSapling.setPrice(4_000);
         items.put(appleSapling, Double.POSITIVE_INFINITY);
 
-        Item apricotSapling = new Item("Apricot Sapling", 2000, "Takes 28 days to produce a mature Apricot tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item apricotSapling = new Tree(TreeType.ApricotTree);
+        appleSapling.setPrice(2_000);
         items.put(apricotSapling, Double.POSITIVE_INFINITY);
 
-        Item cherrySapling = new Item("Cherry Sapling", 3_400, "Takes 28 days to produce a mature Cherry tree. Bears fruit in the spring. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item cherrySapling = new Tree(TreeType.CherryTree);
+        cherrySapling.setPrice(3_400);
         items.put(cherrySapling, Double.POSITIVE_INFINITY);
 
-        Item orangeSapling = new Item("Orange Sapling", 4_000, "Takes 28 days to produce a mature Orange tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item orangeSapling = new Tree(TreeType.OrangeTree);
+        orangeSapling.setPrice(4_000);
         items.put(orangeSapling, Double.POSITIVE_INFINITY);
 
-        Item peachSapling = new Item("Peach Sapling", 6_000, "Takes 28 days to produce a mature Peach tree. Bears fruit in the summer. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item peachSapling = new Tree(TreeType.PeachTree);
+        peachSapling.setPrice(6_000);
         items.put(peachSapling, Double.POSITIVE_INFINITY);
 
-        Item pomegranateSapling = new Item("Pomegranate Sapling", 6_000, "Takes 28 days to produce a mature Pomegranate tree. Bears fruit in the fall. Only grows if the 8 surrounding \"tiles\" are empty.");
+        Item pomegranateSapling = new Tree(TreeType.PomegranateTree);
+        pomegranateSapling.setPrice(4_000);
         items.put(pomegranateSapling, Double.POSITIVE_INFINITY);
 
         //TODO: need to be added:
@@ -573,7 +580,7 @@ public enum Markets {
         items.put(stone, Double.POSITIVE_INFINITY);
 
 
-        //TODO: adding barns:
+        //TODO: adding barns , kir to taha.
         //Barn
         //Big Barn
         //Deluxe Barn
@@ -638,7 +645,7 @@ public enum Markets {
         coffee.setPrice(300);
         items.put(coffee, Double.POSITIVE_INFINITY);
 
-        //TODO : checking recipes.
+
         Item hashBrownsRecipe = new CookingItem(CookingType.HashBrowns);
         hashBrownsRecipe.setPrice(50);
         items.put(hashBrownsRecipe, 1.0);
