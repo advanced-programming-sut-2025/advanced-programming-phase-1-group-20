@@ -10,6 +10,7 @@ import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
 import org.example.models.enums.Npcs;
+import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.TileType;
@@ -319,7 +320,6 @@ public class GameMenuController implements Controller {
     }
 
 
-    //TODO : i need to implement updateItems() in map. and implementing giant Items.
     private Result plant(String[] args) {
         String seedName = args[0];
         String direction = args[1];
@@ -348,6 +348,21 @@ public class GameMenuController implements Controller {
                 return Result.error("Item does not exist");
             }
         }
+        Item seedItem = ItemBuilder.build(seedName);
+        Seed seed = (Seed) seedItem;
+        Seasons[] seasons = seed.getSeason();
+        int counter = 0;
+
+        for(Seasons season : seasons) {
+            if(gameClock.getSeason() == season) {
+                counter++;
+            }
+        }
+
+        if(counter == 0) {
+            return Result.error("There seed is not for this season.");
+        }
+
 
         gMap.placeItem(x, y, item);
         return Result.success(seedName + "planted successfully!");
@@ -405,7 +420,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    //TODO : Only needed to be completed when kasra implements fertilize
+    //TODO : fertilize need to be completed
     private Result fertilize(String[] args) {
         String fertilizer = args[0];
         Item item = ItemBuilder.build(fertilizer);
@@ -457,7 +472,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    //TODO : adding useTool() method to tools.
+
     private Result howMuchWater() {
         return Result.success("How much water has been cheated");
     }
@@ -480,6 +495,7 @@ public class GameMenuController implements Controller {
         if (!item.getFinished()) {
             return Result.error("Plant is not ready yet");
         }
+        //TODO : check item im getting is correct or not.
         player.getBackpack().add(item, 1);
         return Result.success("Plant has been harvested!");
     }
@@ -487,18 +503,19 @@ public class GameMenuController implements Controller {
 
     //this method is completed
     private void craftingShowRecipes() {
+        //TODO : this showing all the recipes now it must show players recipes.
         for (CraftingType type : CraftingType.values()) {
             type.showInfo();
         }
     }
 
 
-    //this method is completed
     private Result craftItem(String[] args) {
         String itemName = args[0];
         CraftingType type = CraftingType.fromName(itemName);
+        //TODO : this checking all the recipes now it must show players recipes.
         if (type == null) {
-            return Result.error("Item " + itemName + " does not exist");
+            return Result.error("Crafting item: " + itemName + " does not exist");
         }
         CraftingItem craftingItem = new CraftingItem(type);
         if (!craftingItem.canCraft(player.getBackpack())) {
@@ -509,11 +526,11 @@ public class GameMenuController implements Controller {
         }
         CraftingItem craftedItem = new CraftingItem(type);
         player.getBackpack().add(craftedItem, 1);
+        player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }
 
 
-    //this method is completed now.
     private Result placeItem(String[] args) {
         String itemName = args[0];
         String direction = args[1];
@@ -534,7 +551,7 @@ public class GameMenuController implements Controller {
         return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
     }
 
-    //this method is completed now.
+
     private Result addItem(String[] args) {
         String itemName = args[0];
         int count = Integer.parseInt(args[1]);
@@ -627,6 +644,7 @@ public class GameMenuController implements Controller {
         Food food = (Food) item;
         player.increaseEnergy(food.getEnergy());
         player.getBackpack().remove(food, 1);
+        //TODO : adding buffer.
         return Result.success("Food " + food.getName() + " eaten");
     }
 
