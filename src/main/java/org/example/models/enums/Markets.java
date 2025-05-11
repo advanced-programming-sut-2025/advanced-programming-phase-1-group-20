@@ -691,6 +691,12 @@ public enum Markets {
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
 
+        Item fishSmoker = new CraftingItem(CraftingType.FishSmoker);
+        fishSmoker.setPrice(10_000);
+        items.put(fishSmoker, 1.0);
+
+//        Item rod = new Tool(Tool.ToolType.FISHING_ROD);
+
 
         int startHour = 9;
         int endHour = 16;
@@ -698,9 +704,7 @@ public enum Markets {
         return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
-    public Market createMarket() {
-        return this.market;
-    }
+
 
 
 }
