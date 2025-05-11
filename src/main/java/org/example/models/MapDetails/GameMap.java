@@ -1,6 +1,8 @@
 package org.example.models.MapDetails;
 
+import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
+import org.example.models.Items.Plant;
 import org.example.models.Items.Tree;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
@@ -53,7 +55,14 @@ public class GameMap {
         return distance * baseEnergyCost;
     }
 
-
+    /**
+     * Finds the furthest location a player can go with their remaining energy.
+     * This is used when a player doesn't have enough energy to reach their destination.
+     *
+     * @param from The starting location
+     * @param to   The destination location
+     * @return The furthest location the player can reach with their remaining energy
+     */
     public static Location findFurthestCanGo(Location from, Location to) {
         // Calculate the direction vector
         int dx = to.getX() - from.getX();
@@ -405,34 +414,53 @@ public class GameMap {
         return false;
     }
 
-    public void updateArtisans(Player player) {
-        Backpack backpack = player.getBackpack();
-        Map<Item, Integer> inventory = backpack.getInventory();
 
-        // Iterate through all items in the player's backpack
-        for (Map.Entry<Item, Integer> entry : inventory.entrySet()) {
-            Item item = entry.getKey();
 
-            // Check if the item is an artisan item
-            if (item instanceof org.example.models.Items.ArtisanItem) {
-                org.example.models.Items.ArtisanItem artisanItem = (org.example.models.Items.ArtisanItem) item;
-
-                // Reduce processing time by 1
-                int currentProcessingTime = artisanItem.getProcessingTime();
-                if (currentProcessingTime > 0) {
-                    artisanItem.setProccessingTime(currentProcessingTime - 1);
-                }
-
-                // Check if processing is complete
-                if (artisanItem.getProcessingTime() <= 0) {
-                    // Processing complete, item is ready to use
-                    // You might want to add additional logic here
+    public void updatePlants(){
+        for(int x = 0; x < width; x++){
+            for(int y = 0; y < height; y++){
+                Location tile = tiles[x][y];
+                if(tile.getItem() != null){
+                    if(tile.getItem() instanceof Tree){
+                        tile.getItem().updateItem();
+                        Tree tree = (Tree) tile.getItem();
+                        if(!tree.getMoisture()){
+                            tile.setItem(null);
+                        }
+                    }else if(tile.getItem() instanceof Plant){
+                        tile.getItem().updateItem();
+                        Plant plant = (Plant) tile.getItem();
+                        if(!plant.getMoisture()){
+                            tile.setItem(null);
+                        }
+                    }
                 }
             }
         }
     }
 
 
+    public void updateArtisans(Player player){
+        Map<Item , Integer> items = player.getBackpack().getInventory();
+        for(Item item : items.keySet()){
+            if(item instanceof CraftingItem){
+                CraftingItem craftingItem = (CraftingItem) item;
+                craftingItem.updateArtisan();
+            }
+        }
+    }
+
+
+
+
+
+    /**
+     * Adds a greenhouse to the game map.
+     * A greenhouse is a special area where players can plant crops regardless of the season.
+     *
+     * @param leftCorner  The top-left corner of the greenhouse
+     * @param rightCorner The bottom-right corner of the greenhouse
+     */
     public void addGreenhouse(Location leftCorner, Location rightCorner) {
         int startX = leftCorner.getX();
         int startY = leftCorner.getY();

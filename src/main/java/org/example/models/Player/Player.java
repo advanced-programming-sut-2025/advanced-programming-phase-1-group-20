@@ -429,7 +429,7 @@ public class Player {
     }
 
 
-    private int getSkillLevel(Skills skill) {
+    public int getSkillLevel(Skills skill) {
         if (skill == null) {
             return 0;
         }
