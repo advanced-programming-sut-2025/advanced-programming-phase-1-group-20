@@ -4,10 +4,12 @@ import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Plant;
 import org.example.models.Items.Tree;
+import org.example.models.Market;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
+import org.example.models.enums.Markets;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.TreeType;
 
@@ -24,6 +26,7 @@ public class GameMap {
     private final int width;
     private final int height;
     private final Location[][] tiles;
+    private final Market[] markets;
     private final Farm[] farms;
     private Village village;
     private int currentFarmIndex;
@@ -36,12 +39,14 @@ public class GameMap {
         this.height = height;
         this.tiles = new Location[width][height];
         this.farms = new Farm[4];
+        this.markets = new Market[7];
         this.currentFarmIndex = 0;
         this.currentPlayer = player;
         this.symbolMap = new HashMap<>();
 
         initializeSymbols();
         initializeMap();
+        initializeMarkets();
         //initializeLakes();
     }
 
@@ -602,5 +607,19 @@ public class GameMap {
                 updateLakeFish(player);
             }
         }
+    }
+
+
+
+    //Initializing markets.
+    private void initializeMarkets(){
+        markets[0] = Markets.BLACKS_SMITH.createMarket();
+        markets[1] = Markets.JOJA_MART.createMarket();
+        markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
+        markets[3] = Markets.CARPENTERS_SHOP.createMarket();
+        markets[4] = Markets.FISH_SHOP.createMarket();
+        markets[5] = Markets.MARNIE_SHOP.createMarket();
+        markets[6] = Markets.STARDROP_SALOON.createMarket();
+
     }
 }

@@ -2,10 +2,7 @@ package org.example.models.enums;
 
 import org.example.models.Items.*;
 import org.example.models.Market;
-import org.example.models.enums.Types.ArtisanType;
-import org.example.models.enums.Types.MineralType;
-import org.example.models.enums.Types.PlantType;
-import org.example.models.enums.Types.SeedType;
+import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
 
@@ -386,8 +383,7 @@ public enum Markets {
         autumnItems.put(riceShoot,5.0);
         winterItems.put(riceShoot , 5.0);
 
-
-        //TODO : Summer Stock
+        //Summer Stock:
         Item melonSeed = new Seed(SeedType.MelonSeeds);
         melonSeed.setPrice(80);
         summerItems.put(melonSeed, 5.0);
@@ -396,7 +392,94 @@ public enum Markets {
         autumnItems.put(melonSeed, 5.0);
         winterItems.put(melonSeed, 5.0);
 
-        //TODO : Autumn Stock
+        Item tomatoSeed = new Seed(SeedType.TomatoSeeds);
+        tomatoSeed.setPrice(50);
+        summerItems.put(tomatoSeed, 5.0);
+        tomatoSeed.setPrice(75);
+        springItems.put(tomatoSeed, 5.0);
+        autumnItems.put(tomatoSeed, 5.0);
+        winterItems.put(tomatoSeed, 5.0);
+
+        Item BlueberrySeed = new Seed(SeedType.BlueberrySeeds);
+        BlueberrySeed.setPrice(80);
+        summerItems.put(BlueberrySeed, 5.0);
+        BlueberrySeed.setPrice(120);
+        springItems.put(BlueberrySeed, 5.0);
+        autumnItems.put(BlueberrySeed, 5.0);
+        winterItems.put(BlueberrySeed, 5.0);
+
+        Item pepperSeed = new Seed(SeedType.PepperSeeds);
+        pepperSeed.setPrice(40);
+        summerItems.put(pepperSeed, 5.0);
+        pepperSeed.setPrice(60);
+        springItems.put(pepperSeed, 5.0);
+        autumnItems.put(pepperSeed, 5.0);
+        winterItems.put(pepperSeed, 5.0);
+
+        Item wheatSeed = new Seed(SeedType.WheatSeeds);
+        wheatSeed.setPrice(10);
+        summerItems.put(wheatSeed, 5.0);
+        wheatSeed.setPrice(15);
+        springItems.put(wheatSeed, 5.0);
+        autumnItems.put(wheatSeed, 5.0);
+        winterItems.put(wheatSeed, 5.0);
+
+        Item radishSeed = new Seed(SeedType.RadishSeeds);
+        radishSeed.setPrice(40);
+        summerItems.put(radishSeed, 5.0);
+        radishSeed.setPrice(60);
+        springItems.put(radishSeed, 5.0);
+        autumnItems.put(radishSeed, 5.0);
+        winterItems.put(radishSeed, 5.0);
+
+        Item poppySeed = new Seed(SeedType.PoppySeeds);
+        poppySeed.setPrice(100);
+        summerItems.put(poppySeed, 5.0);
+        poppySeed.setPrice(150);
+        springItems.put(poppySeed, 5.0);
+        autumnItems.put(poppySeed, 5.0);
+        winterItems.put(poppySeed, 5.0);
+
+        Item spangleSeed = new Seed(SeedType.SpangleSeeds);
+        spangleSeed.setPrice(50);
+        summerItems.put(spangleSeed, 5.0);
+        spangleSeed.setPrice(75);
+        springItems.put(spangleSeed, 5.0);
+        autumnItems.put(spangleSeed, 5.0);
+        winterItems.put(spangleSeed, 5.0);
+
+        Item hopStarter = new Item("Hops Starter" , 60 , "Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
+        summerItems.put(hopStarter, 5.0);
+        hopStarter.setPrice(90);
+        springItems.put(hopStarter, 5.0);
+        autumnItems.put(hopStarter, 5.0);
+        winterItems.put(hopStarter, 5.0);
+
+        Item cornSeeds = new Seed(SeedType.CornSeeds);
+        cornSeeds.setPrice(150);
+        summerItems.put(cornSeeds, 5.0);
+        cornSeeds.setPrice(225);
+        springItems.put(cornSeeds, 5.0);
+        autumnItems.put(cornSeeds, 5.0);
+        winterItems.put(cornSeeds, 5.0);
+
+        Item sunflowerSeeds = new Seed(SeedType.SunflowerSeeds);
+        sunflowerSeeds.setPrice(200);
+        summerItems.put(sunflowerSeeds, 5.0);
+        sunflowerSeeds.setPrice(300);
+        springItems.put(sunflowerSeeds, 5.0);
+        autumnItems.put(sunflowerSeeds, 5.0);
+        winterItems.put(sunflowerSeeds, 5.0);
+
+        Item redCabbageSeeds = new Seed(SeedType.RedCabbageSeeds);
+        redCabbageSeeds.setPrice(100);
+        summerItems.put(redCabbageSeeds, 5.0);
+        redCabbageSeeds.setPrice(150);
+        springItems.put(redCabbageSeeds, 5.0);
+        autumnItems.put(redCabbageSeeds, 5.0);
+        winterItems.put(redCabbageSeeds, 5.0);
+
+        //Autumn Stock:
         Item eggPlantSeed = new Seed(SeedType.EggplantSeeds);
         eggPlantSeed.setPrice(20);
         autumnItems.put(eggPlantSeed, 5.0);
@@ -404,6 +487,71 @@ public enum Markets {
         springItems.put(eggPlantSeed, 5.0);
         summerItems.put(eggPlantSeed, 5.0);
         winterItems.put(eggPlantSeed, 5.0);
+
+        Item pumpkinSeed = new Seed(SeedType.PumpkinSeeds);
+        pumpkinSeed.setPrice(100);
+        autumnItems.put(pumpkinSeed, 5.0);
+        pumpkinSeed.setPrice(150);
+        springItems.put(pumpkinSeed, 5.0);
+        summerItems.put(pumpkinSeed, 5.0);
+        winterItems.put(pumpkinSeed, 5.0);
+
+        Item bokChoySeed = new Seed(SeedType.BokChoySeeds);
+        bokChoySeed.setPrice(50);
+        autumnItems.put(bokChoySeed, 5.0);
+        bokChoySeed.setPrice(75);
+        springItems.put(bokChoySeed, 5.0);
+        summerItems.put(bokChoySeed, 5.0);
+        winterItems.put(bokChoySeed, 5.0);
+
+        Item yamSeed = new Seed(SeedType.YamSeeds);
+        yamSeed.setPrice(60);
+        autumnItems.put(yamSeed, 5.0);
+        yamSeed.setPrice(90);
+        springItems.put(yamSeed, 5.0);
+        summerItems.put(yamSeed, 5.0);
+        winterItems.put(yamSeed, 5.0);
+
+        Item cranberrySeed = new Seed(SeedType.CranberrySeeds);
+        cranberrySeed.setPrice(240);
+        autumnItems.put(cranberrySeed, 5.0);
+        cranberrySeed.setPrice(360);
+        springItems.put(cranberrySeed, 5.0);
+        summerItems.put(cranberrySeed, 5.0);
+        winterItems.put(cranberrySeed, 5.0);
+
+        Item fairySeed = new Seed(SeedType.FairySeeds);
+        fairySeed.setPrice(200);
+        autumnItems.put(fairySeed , 5.0);
+        fairySeed.setPrice(300);
+        springItems.put(fairySeed , 5.0);
+        summerItems.put(fairySeed , 5.0);
+        winterItems.put(fairySeed, 5.0);
+
+        Item amaranthSeed = new Seed(SeedType.AmaranthSeeds);
+        amaranthSeed.setPrice(70);
+        autumnItems.put(amaranthSeed, 5.0);
+        amaranthSeed.setPrice(105);
+        springItems.put(amaranthSeed, 5.0);
+        summerItems.put(amaranthSeed, 5.0);
+        winterItems.put(amaranthSeed, 5.0);
+
+
+        Item grapeStarter = new Seed(SeedType.GrapeStarter);
+        grapeStarter.setPrice(60);
+        autumnItems.put(grapeStarter, 5.0);
+        grapeStarter.setPrice(90);
+        springItems.put(grapeStarter, 5.0);
+        summerItems.put(grapeStarter, 5.0);
+        winterItems.put(grapeStarter, 5.0);
+
+        Item artichokeSeed = new Seed(SeedType.ArtichokeSeeds);
+        artichokeSeed.setPrice(30);
+        autumnItems.put(artichokeSeed, 5.0);
+        artichokeSeed.setPrice(45);
+        springItems.put(artichokeSeed, 5.0);
+        summerItems.put(artichokeSeed, 5.0);
+        winterItems.put(artichokeSeed, 5.0);
 
         int startHour = 9;
         int endHour = 16;
@@ -465,6 +613,71 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
 
+        Item beer = new ArtisanItem(ArtisanType.Beer);
+        beer.setPrice(400);
+        items.put(beer, Double.POSITIVE_INFINITY);
+
+        Item salad = new CookingItem(CookingType.Salad);
+        salad.setPrice(220);
+        items.put(salad, Double.POSITIVE_INFINITY);
+
+        Item bread = new CookingItem(CookingType.Bread);
+        bread.setPrice(120);
+        items.put(bread, Double.POSITIVE_INFINITY);
+
+        Item spaghetti = new CookingItem(CookingType.Spaghetti);
+        spaghetti.setPrice(240);
+        items.put(spaghetti, Double.POSITIVE_INFINITY);
+
+        Item pizza = new CookingItem(CookingType.Pizza);
+        pizza.setPrice(600);
+        items.put(pizza, Double.POSITIVE_INFINITY);
+
+
+        Item coffee = new ArtisanItem(ArtisanType.Coffee);
+        coffee.setPrice(300);
+        items.put(coffee, Double.POSITIVE_INFINITY);
+
+        //TODO : checking recipes.
+        Item hashBrownsRecipe = new CookingItem(CookingType.HashBrowns);
+        hashBrownsRecipe.setPrice(50);
+        items.put(hashBrownsRecipe, 1.0);
+
+        Item omeletRecipe = new CookingItem(CookingType.Omelet);
+        omeletRecipe.setPrice(100);
+        items.put(omeletRecipe, 1.0);
+
+        Item pancakesRecipe = new CookingItem(CookingType.Pancakes);
+        pancakesRecipe.setPrice(100);
+        items.put(pancakesRecipe, 1.0);
+
+        Item breadRecipe = new CookingItem(CookingType.Bread);
+        breadRecipe.setPrice(100);
+        items.put(breadRecipe, 1.0);
+
+        Item tortillaRecipe = new CookingItem(CookingType.Tortilla);
+        tortillaRecipe.setPrice(100);
+        items.put(tortillaRecipe, 1.0);
+
+        Item makiRoll = new CookingItem(CookingType.MakiRoll);
+        makiRoll.setPrice(300);
+        items.put(makiRoll, 1.0);
+
+        Item tripleShotEspresso = new CookingItem(CookingType.TripleShotEspresso);
+        tripleShotEspresso.setPrice(5_000);
+        items.put(tripleShotEspresso, 1.0);
+
+        Item pizzaRecipe = new CookingItem(CookingType.Pizza);
+        pizzaRecipe.setPrice(150);
+        items.put(pizzaRecipe, 1.0);
+
+        Item cookieRecipe = new CookingItem(CookingType.Cookie);
+        cookieRecipe.setPrice(300);
+        items.put(cookieRecipe, 1.0);
+
+
+
+
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
@@ -477,6 +690,12 @@ public enum Markets {
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
+        Item fishSmoker = new CraftingItem(CraftingType.FishSmoker);
+        fishSmoker.setPrice(10_000);
+        items.put(fishSmoker, 1.0);
+
+//        Item rod = new Tool(Tool.ToolType.FISHING_ROD);
 
 
         int startHour = 9;
