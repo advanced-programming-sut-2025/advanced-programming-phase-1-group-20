@@ -704,7 +704,9 @@ public enum Markets {
         return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
     }
 
-
+    public Market createMarket() {
+        return this.market;
+    }
 
 
 }
