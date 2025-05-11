@@ -5,12 +5,14 @@ public class Item {
     private int baseSellPrice;
     private int price;
     private String description;
+    private boolean placable;
 
 
     public Item(String name, int baseSellPrice) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
         this.price = baseSellPrice;
+        this.placable = false;
     }
 
     public Item(String name, int baseSellPrice, String description) {
@@ -60,5 +62,13 @@ public class Item {
 
     public boolean getFinished() {
         return false;
+    }
+
+    public boolean isPlacable() {
+        return placable;
+    }
+
+    public void setPlacable(boolean placable) {
+        this.placable = placable;
     }
 }

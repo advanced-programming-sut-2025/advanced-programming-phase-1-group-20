@@ -548,6 +548,9 @@ public class GameMenuController implements Controller {
         if (gMap.getItem(x, y) != null) {
             return Result.error("there is Item already in the ground!");
         }
+        if(!item.isPlacable()){
+            return Result.error("Item " + itemName + " is not a placeable item");
+        }
 
         gMap.placeItem(x, y, item);
 
