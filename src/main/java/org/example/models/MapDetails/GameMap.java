@@ -23,6 +23,8 @@ public class GameMap {
     private static final String GRAY = "\u001B[37m";
     private static final String CYAN = "\u001B[36m";
     private static final String YELLOW = "\u001B[33m";
+    private static final String BROWN = "\u001B[38;5;94m";
+
     private final int width;
     private final int height;
     private final Location[][] tiles;
@@ -101,7 +103,9 @@ public class GameMap {
         symbolMap.put("stone", 'S');
         symbolMap.put("water", '~');
         symbolMap.put("path", '#');
-        symbolMap.put("house", 'H');
+        symbolMap.put("lake", 'L');
+        symbolMap.put("quarry", 'Q');
+        symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
         symbolMap.put("building", 'B');
         symbolMap.put("empty", ' ');
@@ -206,6 +210,7 @@ public class GameMap {
         }
 
         farm.markBuildingArea(tiles);
+        farm.markGreenHouseArea(tiles);
     }
 
 
@@ -502,6 +507,7 @@ public class GameMap {
                     case "stone" -> GRAY;
                     case "water" -> BLUE;
                     case "path" -> CYAN;
+                    case "greenhouse" -> BROWN;
                     case "house" -> RED;
                     case "village" -> BLUE;
                     case "bridge" -> CYAN;
@@ -620,6 +626,5 @@ public class GameMap {
         markets[4] = Markets.FISH_SHOP.createMarket();
         markets[5] = Markets.MARNIE_SHOP.createMarket();
         markets[6] = Markets.STARDROP_SALOON.createMarket();
-
     }
 }

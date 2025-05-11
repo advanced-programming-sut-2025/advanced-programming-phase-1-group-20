@@ -9,8 +9,8 @@ import java.util.List;
 
 
 public class GreenHouse {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
     private static final int height = 6;
     private static final int width = 5;
     private String name;

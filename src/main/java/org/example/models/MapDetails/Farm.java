@@ -9,28 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Farm {
-    private final int x;
-    private final int y;
+    private final int startX;
+    private final int startY;
     private final int width;
     private final int height;
     private final String name;
     private final Player owner;
     private final List<Animal> animals;
     private final Building building;
-    private final Lake lake;
+    //private final Lake lake;
     private final GreenHouse greenHouse;
 
 
     public Farm(int startX, int startY, int width, int height, String name, Player owner) {
-        this.x = startX;
-        this.y = startY;
+        this.startX = startX;
+        this.startY = startY;
         this.width = width;
         this.height = height;
         this.name = name;
         this.owner = owner;
         this.animals = new ArrayList<>();
         this.building = createBuilding();
-        this.lake = createLake();
+        //this.lake = createLake();
         this.greenHouse = createGreenHouse();
     }
 
@@ -56,6 +56,24 @@ public class Farm {
         return null;
     }
 
+    public GreenHouse createGreenHouse() {
+        switch (name) {
+            case "Up Right Farm":
+                GreenHouse g1 = new GreenHouse(startX + 1, startY);
+                return g1;
+            case "Up Left Farm":
+                GreenHouse g2 = new GreenHouse(startX + width - 5, startY);
+                return g2;
+            case "Down Right Farm":
+                GreenHouse g3 = new GreenHouse(startX + width - 5, startY + height - 5);
+                return g3;
+            case "Down Left Farm":
+                GreenHouse g4 = new GreenHouse(startX + 1, startY + height - 5);
+                return g4;
+        }
+        return null;
+    }
+
     public void markBuildingArea(Location[][] tiles) {
         Building b = getBuilding();
         int buildingX = b.getX();
@@ -66,6 +84,20 @@ public class Farm {
         for (int y = buildingY; y < buildingY + buildingHeight; y++) {
             for (int x = buildingX; x < buildingX + buildingWidth; x++) {
                 tiles[x][y] = new Location(x, y, TileType.BUILDING);
+            }
+        }
+    }
+
+    public void markGreenHouseArea(Location[][] tiles) {
+        GreenHouse g = getGreenHouse();
+        int greenHouseX = g.getX();
+        int greenHouseY = g.getY();
+        int greenHouseWidth = g.getWidth();
+        int greenHouseHeight = g.getHeight();
+
+        for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
+            for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.GREENHOUSE);
             }
         }
     }
@@ -108,6 +140,10 @@ public class Farm {
 
     public Building getBuilding() {
         return building;
+    }
+
+    public GreenHouse getGreenHouse() {
+        return greenHouse;
     }
 
 }
