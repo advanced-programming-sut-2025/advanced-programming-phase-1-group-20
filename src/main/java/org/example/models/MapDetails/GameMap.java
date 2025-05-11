@@ -136,8 +136,7 @@ public class GameMap {
             int y = rand.nextInt(height);
             TileType currentTile = tiles[x][y].getTile();
 
-            if (currentTile != TileType.WATER && currentTile != TileType.TREE &&
-                    currentTile != TileType.STONE && currentTile != TileType.BUILDING) {
+            if (currentTile == TileType.GRASS) {
                 tiles[x][y].setType(type);
 
                 if (type.equals("tree")) {
