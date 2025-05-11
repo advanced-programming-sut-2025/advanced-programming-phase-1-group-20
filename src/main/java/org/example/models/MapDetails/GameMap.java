@@ -5,7 +5,6 @@ import org.example.models.Items.Item;
 import org.example.models.Items.Plant;
 import org.example.models.Items.Tree;
 import org.example.models.Market;
-import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
@@ -39,10 +38,10 @@ public class GameMap {
     private final Location[][] tiles;
     private final Market[] markets;
     private final Farm[] farms;
-    private Village village;
-    private int currentFarmIndex;
     private final Map<String, Character> symbolMap;
     private final Player currentPlayer;
+    private Village village;
+    private int currentFarmIndex;
     private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
@@ -54,11 +53,12 @@ public class GameMap {
         this.currentFarmIndex = 0;
         this.currentPlayer = player;
         this.symbolMap = new HashMap<>();
+        this.lakes = new ArrayList<>();
 
+//        initializeLakes();
         initializeSymbols();
         initializeMap();
-        initializeMarkets();
-        //initializeLakes();
+        initializeMarkets();//        initializeLakes();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -71,14 +71,6 @@ public class GameMap {
         return distance * baseEnergyCost;
     }
 
-    /**
-     * Finds the furthest location a player can go with their remaining energy.
-     * This is used when a player doesn't have enough energy to reach their destination.
-     *
-     * @param from The starting location
-     * @param to   The destination location
-     * @return The furthest location the player can reach with their remaining energy
-     */
     public static Location findFurthestCanGo(Location from, Location to) {
         // Calculate the direction vector
         int dx = to.getX() - from.getX();
@@ -164,8 +156,7 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -210,8 +201,8 @@ public class GameMap {
                 if (x >= 0 && x < width && y >= 0 && y < height) {
                     if (tile.getTile() != TileType.VILLAGE) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
-                    }
-//                    else {
+
+                    }//                    else {
 //                        tiles[x][y] = new Location(x, y, TileType.GRASS);
 //                    }
                 }
@@ -238,15 +229,13 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                }
-                else if (currentX > villageCenterX) {
+                } else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                }
-                else if (currentY > villageCenterY) {
+                } else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -442,21 +431,22 @@ public class GameMap {
         return false;
     }
 
-    public void updatePlants(){
-        for(int x = 0; x < width; x++){
-            for(int y = 0; y < height; y++){
+
+    public void updatePlants() {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
                 Location tile = tiles[x][y];
-                if(tile.getItem() != null){
-                    if(tile.getItem() instanceof Tree){
+                if (tile.getItem() != null) {
+                    if (tile.getItem() instanceof Tree) {
                         tile.getItem().updateItem();
                         Tree tree = (Tree) tile.getItem();
-                        if(!tree.getMoisture()){
+                        if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    }else if(tile.getItem() instanceof Plant){
+                    } else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
-                        if(!plant.getMoisture()){
+                        if (!plant.getMoisture()) {
                             tile.setItem(null);
                         }
                     }
@@ -465,23 +455,16 @@ public class GameMap {
         }
     }
 
-    public void updateArtisans(Player player){
-        Map<Item , Integer> items = player.getBackpack().getInventory();
-        for(Item item : items.keySet()){
-            if(item instanceof CraftingItem){
+    public void updateArtisans(Player player) {
+        Map<Item, Integer> items = player.getBackpack().getInventory();
+        for (Item item : items.keySet()) {
+            if (item instanceof CraftingItem) {
                 CraftingItem craftingItem = (CraftingItem) item;
                 craftingItem.updateArtisan();
             }
         }
     }
 
-    /**
-     * Adds a greenhouse to the game map.
-     * A greenhouse is a special area where players can plant crops regardless of the season.
-     *
-     * @param leftCorner  The top-left corner of the greenhouse
-     * @param rightCorner The bottom-right corner of the greenhouse
-     */
     public void addGreenhouse(Location leftCorner, Location rightCorner) {
         int startX = leftCorner.getX();
         int startY = leftCorner.getY();
@@ -566,14 +549,11 @@ public class GameMap {
 //        }
 //    }
 
-    /**
-     * Check if a location is in water (part of a lake).
-     *
-     * @param x The x-coordinate to check
-     * @param y The y-coordinate to check
-     * @return true if the location is in water, false otherwise
-     */
+
     public boolean isInWater(int x, int y) {
+        if (lakes.isEmpty()) {
+            return false;
+        }
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
                 return true;
@@ -582,13 +562,7 @@ public class GameMap {
         return false;
     }
 
-    /**
-     * Find the lake at a specific location.
-     *
-     * @param x The x-coordinate to check
-     * @param y The y-coordinate to check
-     * @return The lake at the location, or null if no lake is found
-     */
+
     public Lake getLakeAt(int x, int y) {
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
@@ -599,21 +573,11 @@ public class GameMap {
     }
 
     public void updateLakeFish(Player player) {
-        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
-        for (Lake lake : lakes) {
-            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
-        }
+//        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
+//        for (Lake lake : lakes) {
+//            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
+//        }
     }
-
-    /*
-     * 4. MODIFY YOUR TILE INITIALIZATION CODE
-     * When creating tiles, set the TileType to WATER for any tile within a lake:
-     */
-
-    /*
-     * 5. ADD THIS TO YOUR ADVANCEDATE METHOD
-     * To ensure lakes update their fish when the season changes:
-     */
 
     // Inside advanceDate or wherever you handle season changes:
     private void checkSeasonChange(org.example.models.common.Date oldDate, Date newDate) {
@@ -626,9 +590,8 @@ public class GameMap {
     }
 
 
-
     //Initializing markets.
-    private void initializeMarkets(){
+    private void initializeMarkets() {
         markets[0] = Markets.BLACKS_SMITH.createMarket();
         markets[1] = Markets.JOJA_MART.createMarket();
         markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();

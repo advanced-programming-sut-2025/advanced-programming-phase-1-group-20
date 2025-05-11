@@ -4,12 +4,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.example.models.entities.NPC;
 
+import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-/**
- * Client for interacting with the Hugging Face API to generate AI-powered NPC dialogues.
- */
+
 public class HuggingFaceApiClient {
     private static final String API_URL = "https://api-inference.huggingface.co/models/gpt2";
     private static final String API_KEY = "hf_...jmzX"; // Mock API key for testing
@@ -47,18 +51,6 @@ public class HuggingFaceApiClient {
     }
 
     private static String callHuggingFaceApi(String prompt) throws Exception {
-        // Always use mock responses until we have a valid API key
-        return createMockResponse(prompt);
-
-        /* The following code is commented out until we have a valid API key
-        // Check if we're in a test environment
-        boolean isTestEnvironment = isTestEnvironment();
-
-        if (isTestEnvironment) {
-            // Return a mock response for testing
-            return createMockResponse(prompt);
-        }
-
         // Prepare the request body
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("inputs", prompt);
@@ -93,7 +85,7 @@ public class HuggingFaceApiClient {
             throw new RuntimeException("API call failed with status code: " + response.statusCode() +
                     ", response: " + response.body());
         }
-        */
+
     }
 
     private static boolean isTestEnvironment() {
@@ -251,9 +243,7 @@ public class HuggingFaceApiClient {
         }
     }
 
-    /**
-     * Provides a fallback dialogue if the API call fails or returns invalid data.
-     */
+
     private static String getFallbackDialogue(NPC npc) {
         switch (npc.getCharacter()) {
             case KIND:

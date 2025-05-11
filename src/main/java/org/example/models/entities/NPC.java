@@ -13,8 +13,16 @@ import org.example.models.utils.HuggingFaceApiClient;
 import java.util.*;
 
 public class NPC extends Mob {
+    // Dialogue options based on different conditions
+    private final List<String> morningDialogues;
+    private final List<String> afternoonDialogues;
+    private final List<String> eveningDialogues;
+    private final List<String> rainyDialogues;
+    private final List<String> level1Dialogues;
+    private final List<String> level2Dialogues;
+    private final List<String> level3Dialogues;
+    private final String name;
     private Charactristic character;
-    private String name;
     private Jobs jobs;
     private HashMap<Integer, HashMap<Item, Integer>> missions;
     private List<Item> favoriteItems;
@@ -24,16 +32,7 @@ public class NPC extends Mob {
     private String description;
 
     // Flag to control whether to use AI-generated dialogues
-    private boolean useAiDialogue = true;
-
-    // Dialogue options based on different conditions
-    private List<String> morningDialogues;
-    private List<String> afternoonDialogues;
-    private List<String> eveningDialogues;
-    private List<String> rainyDialogues;
-    private List<String> level1Dialogues;
-    private List<String> level2Dialogues;
-    private List<String> level3Dialogues;
+    private boolean useAiDialogue = false;
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
