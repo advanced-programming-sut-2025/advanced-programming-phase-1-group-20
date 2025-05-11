@@ -21,14 +21,14 @@ public class GameMap {
     private static final String GRAY = "\u001B[37m";
     private static final String CYAN = "\u001B[36m";
     private static final String YELLOW = "\u001B[33m";
-    private int width;
-    private int height;
-    private Location[][] tiles;
-    private Farm[] farms;
+    private final int width;
+    private final int height;
+    private final Location[][] tiles;
+    private final Farm[] farms;
     private Village village;
     private int currentFarmIndex;
-    private Map<String, Character> symbolMap;
-    private Player currentPlayer;
+    private final Map<String, Character> symbolMap;
+    private final Player currentPlayer;
     private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
@@ -162,8 +162,8 @@ public class GameMap {
         for (int x = centerX - villageRadius; x <= centerX + villageRadius; x++) {
             for (int y = centerY - villageRadius; y <= centerY + villageRadius; y++) {
                 if (Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) <= Math.pow(villageRadius, 2)) {
-                    tiles[x][y] = new Location(x, y, TileType.GRASS);
-                    // TileType.VILLAGE
+//                    tiles[x][y] = new Location(x, y, TileType.GRASS);
+                    tiles[x][y] = new Location(x, y, TileType.VILLAGE);
                 }
             }
         }
@@ -190,7 +190,8 @@ public class GameMap {
                             y == farm.getStartY() + farm.getHeight() / 2) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
                         farm.setHousePosition(x, y);
-                    } else if (Math.random() < 0.1) {
+                    }
+                    else if (Math.random() < 0.1) {
                         //tiles[x][y] = new Location(x, y, Math.random() < 0.5 ? "tree" : "stone");
                     }
                 }
@@ -212,13 +213,15 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                } else if (currentX > villageCenterX) {
+                }
+                else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                } else if (currentY > villageCenterY) {
+                }
+                else if (currentY > villageCenterY) {
                     currentY--;
                 }
 

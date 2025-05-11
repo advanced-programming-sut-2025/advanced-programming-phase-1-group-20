@@ -28,6 +28,7 @@ public class Location {
             case STONE -> this.type = "stone";
             case WATER -> this.type = "water";
             case PATH -> this.type = "path";
+            case VILLAGE -> this.type = "village";
             default -> this.type = "?";
         }
     }

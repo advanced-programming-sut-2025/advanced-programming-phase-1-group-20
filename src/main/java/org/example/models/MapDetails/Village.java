@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Village {
-    private int centerX;
-    private int centerY;
-    private int radius;
-    private Map<String, Tile> tiles;
-    private List<Building> buildings;
+    private final int centerX;
+    private final int centerY;
+    private final int radius;
+    private final Map<String, Tile> tiles;
+    private final List<Building> buildings;
     //private List<NPC> residents;
-    private String name;
+    private final String name;
     //private List<Shop> shops;
 
     public Village(int centerX, int centerY, int radius, String name) {
@@ -49,10 +49,10 @@ public class Village {
     }
 
     private void initializeBuildings() {
-        buildings.add(new Building(centerX - 5, centerY - 3, 3, 2, "Town Hall", "public"));
-        buildings.add(new Building(centerX + 3, centerY - 4, 2, 2, "Blacksmith", "shop"));
-        buildings.add(new Building(centerX - 2, centerY + 4, 3, 2, "General Store", "shop"));
-        buildings.add(new Building(centerX + 4, centerY + 2, 3, 2, "Stardrop Saloon", "public"));
+        buildings.add(new Building(centerX - 5, centerY - 3, "Town Hall", "public"));
+        buildings.add(new Building(centerX + 3, centerY - 4, "Blacksmith", "shop"));
+        buildings.add(new Building(centerX - 2, centerY + 4, "General Store", "shop"));
+        buildings.add(new Building(centerX + 4, centerY + 2, "Stardrop Saloon", "public"));
     }
 
     private void initializeNPCs() {

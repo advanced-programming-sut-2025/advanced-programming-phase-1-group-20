@@ -7,16 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Farm {
-    private int startX;
-    private int startY;
-    private int width;
-    private int height;
-    private String name;
-    private Player owner;
+    private final int startX;
+    private final int startY;
+    private final int width;
+    private final int height;
+    private final String name;
+    private final Player owner;
     private int houseX;
     private int houseY;
-    private List<Animal> animals;
-    private List<Building> buildings;
+    private final List<Animal> animals;
+    private final Building building;
 
     public Farm(int startX, int startY, int width, int height, String name, Player owner) {
         this.startX = startX;
@@ -26,7 +26,7 @@ public class Farm {
         this.name = name;
         this.owner = owner;
         this.animals = new ArrayList<>();
-        this.buildings = new ArrayList<>();
+        this.building = new Building(startX, startY, "house", "house");
     }
 
     public boolean contains(int x, int y) {
@@ -39,14 +39,6 @@ public class Farm {
 
     public void removeAnimal(Animal animal) {
         animals.remove(animal);
-    }
-
-    public void addBuilding(Building building) {
-        buildings.add(building);
-    }
-
-    public void removeBuilding(Building building) {
-        buildings.remove(building);
     }
 
     public void setHousePosition(int x, int y) {
@@ -90,8 +82,8 @@ public class Farm {
         return animals;
     }
 
-    public List<Building> getBuildings() {
-        return buildings;
+    public Building getBuilding() {
+        return building;
     }
 
 }
