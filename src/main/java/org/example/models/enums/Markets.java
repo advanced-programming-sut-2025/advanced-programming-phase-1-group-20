@@ -1,10 +1,8 @@
 package org.example.models.enums;
 
-import org.example.models.Items.Item;
-import org.example.models.Items.Mineral;
-import org.example.models.Items.Plant;
-import org.example.models.Items.Seed;
+import org.example.models.Items.*;
 import org.example.models.Market;
+import org.example.models.enums.Types.ArtisanType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Types.SeedType;
@@ -67,9 +65,15 @@ public enum Markets {
 
 
         //Permanent Stock
+        Item jojaCola = new Item("Joja Cola" , 75 , "The flagship product of Joja corporation.");
+        items.put(jojaCola, Double.POSITIVE_INFINITY);
+
         Item ancientSeed = new Seed(SeedType.AncientSeeds);
         ancientSeed.setPrice(500);
         items.put(ancientSeed, 1.0);
+
+        Item grassStarter = new Item("Grass Starter" , 125 , "Place this on your farm to start a new patch of grass.");
+        items.put(grassStarter, Double.POSITIVE_INFINITY);
 
         Item sugar = new Item("sugar", 125, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
@@ -267,10 +271,12 @@ public enum Markets {
         Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        Item oil = new Item("Oil", 200, "All purpose cooking oil.");
+        Item oil = new ArtisanItem(ArtisanType.Oil);
+        oil.setPrice(200);
         items.put(oil, Double.POSITIVE_INFINITY);
 
-        Item vinegar = new Item("Vinegar", 100, "An aged fermented liquid used in many cooking recipes.");
+        Item vinegar = new ArtisanItem(ArtisanType.Vinegar);
+        vinegar.setPrice(100);
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
         //TODO : need to be added:
@@ -300,6 +306,104 @@ public enum Markets {
         //Basic Retaining Soil
         //Quality Retaining Soil
 
+        Item basicRetainingSoil = new Item("Basic Retaining Soil" , 100 , "This soil has a chance of staying watered overnight. Mix into tilled soil.");
+        items.put(basicRetainingSoil, Double.POSITIVE_INFINITY);
+
+        Item qualityRetainingSoil = new Item("Quality Retaining Soil" , 150 , "This soil has a good chance of staying watered overnight. Mix into tilled soil.");
+        items.put(qualityRetainingSoil, Double.POSITIVE_INFINITY);
+
+
+        //Spring stock
+        Item parsnipSeeds = new Plant(PlantType.Parsnip);
+        parsnipSeeds.setPrice(20);
+        springItems.put(parsnipSeeds, 5.0);
+        parsnipSeeds.setPrice(30);
+        summerItems.put(parsnipSeeds, 5.0);
+        autumnItems.put(parsnipSeeds, 5.0);
+        winterItems.put(parsnipSeeds, 5.0);
+
+        Item beanStarter = new Seed(SeedType.BeanStarter);
+        beanStarter.setPrice(60);
+        springItems.put(beanStarter, 5.0);
+        beanStarter.setPrice(90);
+        summerItems.put(beanStarter, 5.0);
+        autumnItems.put(beanStarter, 5.0);
+        winterItems.put(beanStarter, 5.0);
+
+        Item cauliflowerSeeds = new Seed(SeedType.CauliflowerSeeds);
+        cauliflowerSeeds.setPrice(80);
+        springItems.put(cauliflowerSeeds, 5.0);
+        cauliflowerSeeds.setPrice(120);
+        summerItems.put(cauliflowerSeeds, 5.0);
+        autumnItems.put(cauliflowerSeeds, 5.0);
+        winterItems.put(cauliflowerSeeds, 5.0);
+
+        Item potatoSeeds = new Seed(SeedType.PotatoSeeds);
+        potatoSeeds.setPrice(50);
+        springItems.put(potatoSeeds, 5.0);
+        potatoSeeds.setPrice(75);
+        summerItems.put(potatoSeeds, 5.0);
+        autumnItems.put(potatoSeeds, 5.0);
+        winterItems.put(potatoSeeds, 5.0);
+
+        Item tulipBulb = new Seed(SeedType.TulipBulb);
+        tulipBulb.setPrice(20);
+        springItems.put(tulipBulb, 5.0);
+        tulipBulb.setPrice(30);
+        summerItems.put(tulipBulb, 5.0);
+        autumnItems.put(tulipBulb, 5.0);
+        winterItems.put(tulipBulb, 5.0);
+
+        Item kaleSeeds = new Seed(SeedType.KaleSeeds);
+        kaleSeeds.setPrice(70);
+        springItems.put(kaleSeeds, 5.0);
+        kaleSeeds.setPrice(105);
+        summerItems.put(kaleSeeds, 5.0);
+        autumnItems.put(kaleSeeds, 5.0);
+        winterItems.put(kaleSeeds, 5.0);
+
+        Item jazzSeeds = new Seed(SeedType.JazzSeeds);
+        jazzSeeds.setPrice(30);
+        springItems.put(jazzSeeds, 5.0);
+        jazzSeeds.setPrice(45);
+        summerItems.put(jazzSeeds, 5.0);
+        autumnItems.put(jazzSeeds, 5.0);
+        winterItems.put(jazzSeeds, 5.0);
+
+        Item garlicSeeds = new Seed(SeedType.GarlicSeeds);
+        garlicSeeds.setPrice(40);
+        springItems.put(garlicSeeds , 5.0);
+        garlicSeeds.setPrice(60);
+        summerItems.put(garlicSeeds, 5.0);
+        autumnItems.put(garlicSeeds, 5.0);
+        winterItems.put(garlicSeeds, 5.0);
+
+        Item riceShoot = new Seed(SeedType.RiceShoot);
+        riceShoot.setPrice(40);
+        springItems.put(riceShoot , 5.0);
+        riceShoot.setPrice(60);
+        summerItems.put(riceShoot , 5.0);
+        autumnItems.put(riceShoot,5.0);
+        winterItems.put(riceShoot , 5.0);
+
+
+        //TODO : Summer Stock
+        Item melonSeed = new Seed(SeedType.MelonSeeds);
+        melonSeed.setPrice(80);
+        summerItems.put(melonSeed, 5.0);
+        melonSeed.setPrice(120);
+        springItems.put(melonSeed, 5.0);
+        autumnItems.put(melonSeed, 5.0);
+        winterItems.put(melonSeed, 5.0);
+
+        //TODO : Autumn Stock
+        Item eggPlantSeed = new Seed(SeedType.EggplantSeeds);
+        eggPlantSeed.setPrice(20);
+        autumnItems.put(eggPlantSeed, 5.0);
+        eggPlantSeed.setPrice(30);
+        springItems.put(eggPlantSeed, 5.0);
+        summerItems.put(eggPlantSeed, 5.0);
+        winterItems.put(eggPlantSeed, 5.0);
 
         int startHour = 9;
         int endHour = 16;
