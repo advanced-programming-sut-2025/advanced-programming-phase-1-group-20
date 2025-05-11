@@ -9,61 +9,57 @@ import java.util.List;
 
 
 public class GreenHouse {
-    private static final int ROWS = 5; // 5 rows
-    private static final int COLS = 6; // 6 columns
-    private final Location leftCorner;
-    private final Location rightCorner;
+    private final int x;
+    private final int y;
+    private static final int height = 6;
+    private static final int width = 5;
+    private String name;
     private final List<Plant> greenHousePlants;
     private final Weather weather;
     private final boolean isBuilt;
 
 
-    public GreenHouse(Location leftCorner, Location rightCorner) {
-        this.leftCorner = leftCorner;
-        this.rightCorner = rightCorner;
+    public GreenHouse(int x, int y) {
+        this.x = x;
+        this.y = y;
         this.greenHousePlants = new ArrayList<>();
         this.weather = Weather.GREENHOUSE;
         this.isBuilt = true;
     }
 
-    public static int getRows() {
-        return ROWS;
+    public int getX() {
+        return x;
     }
 
-    public static int getCols() {
-        return COLS;
+    public int getY() {
+        return y;
     }
-
 
     public void addPlant(Plant plant) {
         greenHousePlants.add(plant);
     }
-
 
     public void removePlant(Plant plant) {
         greenHousePlants.remove(plant);
     }
 
     public boolean isInside(Location location) {
-        return location.xAxis >= leftCorner.xAxis && location.xAxis <= rightCorner.xAxis && location.yAxis >= leftCorner.yAxis && location.yAxis <= rightCorner.yAxis;
+        return location.xAxis >= x && location.xAxis <= x + width && location.yAxis >= y && location.yAxis <= y + height;
     }
-
 
     public Weather getWeather() {
         return weather;
     }
 
-
     public boolean isBuilt() {
         return isBuilt;
     }
 
-
-    public Location getLeftCorner() {
-        return leftCorner;
+    public int getWidth() {
+        return width;
     }
 
-    public Location getRightCorner() {
-        return rightCorner;
+    public int getHeight() {
+        return height;
     }
 }

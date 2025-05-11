@@ -8,8 +8,8 @@ public class Building {
     private int y;
     private static final int height = 5;
     private static final int width = 5;
-    private String name;
-    private String type; // "house", "shop", "public", etc.
+    private final String name;
+    private final String type; // "house", "shop", "public", etc.
     private Player owner; // null for public buildings
     private boolean isEnterable;
     private String interiorMapName;
