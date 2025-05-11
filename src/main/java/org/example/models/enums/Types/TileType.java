@@ -10,7 +10,7 @@ public enum TileType {
     IRON_ORE,
     GOLD_ORE,
     DIAMOND_ORE,
-    //VILLAGE
+    VILLAGE,
     PATH,
     EMERALD_ORE,
     GREENHOUSE;

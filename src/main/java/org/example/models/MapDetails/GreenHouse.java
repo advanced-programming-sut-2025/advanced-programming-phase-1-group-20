@@ -11,11 +11,11 @@ import java.util.List;
 public class GreenHouse {
     private static final int ROWS = 5; // 5 rows
     private static final int COLS = 6; // 6 columns
-    private Location leftCorner;
-    private Location rightCorner;
-    private List<Plant> greenHousePlants;
-    private Weather weather;
-    private boolean isBuilt;
+    private final Location leftCorner;
+    private final Location rightCorner;
+    private final List<Plant> greenHousePlants;
+    private final Weather weather;
+    private final boolean isBuilt;
 
 
     public GreenHouse(Location leftCorner, Location rightCorner) {

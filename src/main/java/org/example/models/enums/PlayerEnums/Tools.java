@@ -18,7 +18,7 @@ public enum Tools {
         this.energyCost = energyCost;
     }
 
-    public Tool createTool() {
-        return new Tool(name, energyCost);
-    }
+//    public Tool createTool() {
+//        return new Tool(name, energyCost);
+//    }
 }

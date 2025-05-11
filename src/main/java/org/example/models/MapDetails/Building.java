@@ -6,28 +6,26 @@ import org.example.models.Player.Refrigerator;
 public class Building {
     private int x;
     private int y;
-    private int width;
-    private int height;
+    private static final int height = 5;
+    private static final int width = 6;
     private String name;
     private String type; // "house", "shop", "public", etc.
     private Player owner; // null for public buildings
     private boolean isEnterable;
     private String interiorMapName;
-    private Refrigerator refrigerator = new Refrigerator();
+    private final Refrigerator refrigerator = new Refrigerator();
 
-    public Building(int x, int y, int width, int height, String name, String type) {
+    public Building(int x, int y, String name, String type) {
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
         this.name = name;
         this.type = type;
         this.isEnterable = true;
         this.interiorMapName = name.toLowerCase().replace(" ", "_") + "_interior";
     }
 
-    public Building(int x, int y, int width, int height, String name, String type, Player owner) {
-        this(x, y, width, height, name, type);
+    public Building(int x, int y, String name, String type, Player owner) {
+        this(x, y, name, type);
         this.owner = owner;
     }
 
@@ -49,7 +47,6 @@ public class Building {
         this.interiorMapName = name;
     }
 
-    // Getters
     public int getX() {
         return x;
     }
