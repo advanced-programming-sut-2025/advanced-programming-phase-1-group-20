@@ -9,24 +9,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Farm {
-    private final int startX;
-    private final int startY;
+    private final int x;
+    private final int y;
     private final int width;
     private final int height;
     private final String name;
     private final Player owner;
     private final List<Animal> animals;
     private final Building building;
+    private final Lake lake;
+    private final GreenHouse greenHouse;
+
 
     public Farm(int startX, int startY, int width, int height, String name, Player owner) {
-        this.startX = startX;
-        this.startY = startY;
+        this.x = startX;
+        this.y = startY;
         this.width = width;
         this.height = height;
         this.name = name;
         this.owner = owner;
         this.animals = new ArrayList<>();
         this.building = createBuilding();
+        this.lake = createLake();
+        this.greenHouse = createGreenHouse();
     }
 
     public boolean contains(int x, int y) {
