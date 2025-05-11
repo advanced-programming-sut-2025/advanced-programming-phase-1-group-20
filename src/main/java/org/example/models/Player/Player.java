@@ -502,4 +502,8 @@ public class Player {
     public List<Skill> getSkills() {
         return skills;
     }
+
+    public boolean craftingExists(String name) {
+        return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
+    }
 }

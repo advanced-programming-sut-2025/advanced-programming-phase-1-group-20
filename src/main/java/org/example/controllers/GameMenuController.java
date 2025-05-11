@@ -503,28 +503,31 @@ public class GameMenuController implements Controller {
 
     //this method is completed
     private void craftingShowRecipes() {
-        //TODO : this showing all the recipes now it must show players recipes.
-        for (CraftingType type : CraftingType.values()) {
-            type.showInfo();
+        List<CraftingItem> craftingItems = player.getCraftingItems();
+        for (CraftingItem craftingItem : craftingItems) {
+            craftingItem.showInfo();
         }
     }
 
 
     private Result craftItem(String[] args) {
         String itemName = args[0];
-        CraftingType type = CraftingType.fromName(itemName);
-        //TODO : this checking all the recipes now it must show players recipes.
-        if (type == null) {
+        boolean exists = player.craftingExists(itemName);
+
+        if (exists) {
             return Result.error("Crafting item: " + itemName + " does not exist");
         }
-        CraftingItem craftingItem = new CraftingItem(type);
-        if (!craftingItem.canCraft(player.getBackpack())) {
-            return Result.error("You don't have enough items for crafting this item");
+
+        CraftingType type = CraftingType.fromName(itemName);
+        CraftingItem craftedItem = new CraftingItem(type);
+        if (!craftedItem.canCraft(player.getBackpack())) {
+            return Result.error("You don't have enough items for  this item");
         }
+
         if (player.getBackpack().isBackPackFull()) {
             return Result.error("Your backpack is full");
         }
-        CraftingItem craftedItem = new CraftingItem(type);
+
         player.getBackpack().add(craftedItem, 1);
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
