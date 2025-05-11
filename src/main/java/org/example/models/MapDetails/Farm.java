@@ -19,6 +19,7 @@ public class Farm {
     private final Building building;
     //private final Lake lake;
     private final GreenHouse greenHouse;
+    private final Quarry quarry;
 
 
     public Farm(int startX, int startY, int width, int height, String name, Player owner) {
@@ -32,6 +33,7 @@ public class Farm {
         this.building = createBuilding();
         //this.lake = createLake();
         this.greenHouse = createGreenHouse();
+        this.quarry = createQuarry();
     }
 
     public boolean contains(int x, int y) {
@@ -74,6 +76,24 @@ public class Farm {
         return null;
     }
 
+    public Quarry createQuarry() {
+        switch (name) {
+            case "Up Right Farm":
+                Quarry q1 = new Quarry(startX + width - 3, startY + height - 4);
+                return q1;
+            case "Up Left Farm":
+                Quarry q2 = new Quarry(startX, startY + height - 4);
+                return q2;
+            case "Down Right Farm":
+                Quarry q3 = new Quarry(startX, startY + 1);
+                return q3;
+            case "Down Left Farm":
+                Quarry q4 = new Quarry(startX + width - 3, startY + 1);
+                return q4;
+        }
+        return null;
+    }
+
     public void markBuildingArea(Location[][] tiles) {
         Building b = getBuilding();
         int buildingX = b.getX();
@@ -98,6 +118,20 @@ public class Farm {
         for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
             for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
                 tiles[x][y] = new Location(x, y, TileType.GREENHOUSE);
+            }
+        }
+    }
+
+    public void markQuarry(Location[][] tiles) {
+        Quarry q = getQuarry();
+        int quarryX = q.getX();
+        int quarryY = q.getY();
+        int quarryWidth = q.getWidth();
+        int quarryHeight = q.getHeight();
+
+        for (int y = quarryY; y < quarryY + quarryHeight; y++) {
+            for (int x = quarryX; x < quarryX + quarryWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.QUARRY);
             }
         }
     }
@@ -144,6 +178,10 @@ public class Farm {
 
     public GreenHouse getGreenHouse() {
         return greenHouse;
+    }
+
+    public Quarry getQuarry() {
+        return quarry;
     }
 
 }

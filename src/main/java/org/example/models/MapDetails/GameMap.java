@@ -24,6 +24,15 @@ public class GameMap {
     private static final String CYAN = "\u001B[36m";
     private static final String YELLOW = "\u001B[33m";
     private static final String BROWN = "\u001B[38;5;94m";
+    private static final String PURPLE = "\u001B[35m";
+    private static final String ORANGE = "\u001B[38;5;208m";
+    private static final String PINK = "\u001B[38;5;200m";
+    private static final String LIGHT_BLUE = "\u001B[94m";
+    private static final String DARK_GRAY = "\u001B[90m";
+    private static final String LIGHT_GREEN = "\u001B[92m";
+    private static final String LIGHT_RED = "\u001B[91m";
+    private static final String GOLD = "\u001B[38;5;220m";
+
 
     private final int width;
     private final int height;
@@ -211,6 +220,7 @@ public class GameMap {
 
         farm.markBuildingArea(tiles);
         farm.markGreenHouseArea(tiles);
+        farm.markQuarry(tiles);
     }
 
 
@@ -506,10 +516,10 @@ public class GameMap {
                     case "tree" -> GREEN;
                     case "stone" -> GRAY;
                     case "water" -> BLUE;
-                    case "path" -> CYAN;
+                    case "path" -> YELLOW;
                     case "greenhouse" -> BROWN;
-                    case "house" -> RED;
-                    case "village" -> BLUE;
+                    case "quarry" -> RED;
+                    case "village" -> PURPLE;
                     case "bridge" -> CYAN;
                     case "empty" -> RESET;
                     default -> RESET;
