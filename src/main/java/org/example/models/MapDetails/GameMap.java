@@ -42,7 +42,7 @@ public class GameMap {
 
         initializeSymbols();
         initializeMap();
-        initializeLakes();
+        //initializeLakes();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -98,7 +98,7 @@ public class GameMap {
         symbolMap.put("path", '#');
         symbolMap.put("house", 'H');
         symbolMap.put("village", 'V');
-        symbolMap.put("bridge", 'B');
+        symbolMap.put("building", 'B');
         symbolMap.put("empty", ' ');
     }
 
@@ -109,9 +109,9 @@ public class GameMap {
                 TileType tileType = TileType.GRASS;
 
                 // If the tile is within a lake, make it water
-                if (isInWater(x, y)) {
-                    tileType = TileType.WATER;
-                }
+//                if (isInWater(x, y)) {
+//                    tileType = TileType.WATER;
+//                }
 
                 // Create the tile with the appropriate type
                 tiles[x][y] = new Location(x, y, tileType);
@@ -122,8 +122,9 @@ public class GameMap {
         initializeFarms();
         connectFarmsToVillage();
 
-        placeRandomObjects("tree", 30);
         placeRandomObjects("stone", 30);
+        placeRandomObjects("tree", 30);
+
     }
 
     private void placeRandomObjects(String type, int count) {
@@ -135,7 +136,8 @@ public class GameMap {
             int y = rand.nextInt(height);
             TileType currentTile = tiles[x][y].getTile();
 
-            if (currentTile != TileType.WATER && currentTile != TileType.TREE && currentTile != TileType.STONE) {
+            if (currentTile != TileType.WATER && currentTile != TileType.TREE &&
+                    currentTile != TileType.STONE && currentTile != TileType.BUILDING) {
                 tiles[x][y].setType(type);
 
                 if (type.equals("tree")) {
@@ -145,7 +147,8 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -170,12 +173,13 @@ public class GameMap {
     }
 
     private void initializeFarms() {
-        int farmSize = Math.min(width, height) / 2;
+        int farmWidth = width / 2;
+        int farmHeight = height / 2;
 
-        farms[0] = new Farm(width / 2 - farmSize / 2, 0, farmSize, farmSize, "North Farm", currentPlayer);
-        farms[1] = new Farm(width - farmSize, height / 2 - farmSize / 2, farmSize, farmSize, "East Farm", currentPlayer);
-        farms[2] = new Farm(width / 2 - farmSize / 2, height - farmSize, farmSize, farmSize, "South Farm", currentPlayer);
-        farms[3] = new Farm(0, height / 2 - farmSize / 2, farmSize, farmSize, "West Farm", currentPlayer);
+        farms[0] = new Farm(0, 0, farmWidth, farmHeight, "Up Left Farm", currentPlayer);
+        farms[1] = new Farm(width / 2, 0, farmWidth, farmHeight, "Up Right Farm", currentPlayer);
+        farms[2] = new Farm(0, height / 2, farmWidth, farmHeight, "Down Right Farm", currentPlayer);
+        farms[3] = new Farm(width / 2, height / 2, farmWidth, farmHeight, "Down Left Farm", currentPlayer);
 
         for (Farm farm : farms) {
             initializeFarmTiles(farm);
@@ -185,19 +189,21 @@ public class GameMap {
     private void initializeFarmTiles(Farm farm) {
         for (int x = farm.getStartX(); x < farm.getStartX() + farm.getWidth(); x++) {
             for (int y = farm.getStartY(); y < farm.getStartY() + farm.getHeight(); y++) {
+                Location tile = tiles[x][y];
                 if (x >= 0 && x < width && y >= 0 && y < height) {
-                    if (x == farm.getStartX() + farm.getWidth() / 2 &&
-                            y == farm.getStartY() + farm.getHeight() / 2) {
+                    if (tile.getTile() != TileType.VILLAGE) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
-                        farm.setHousePosition(x, y);
                     }
-                    else if (Math.random() < 0.1) {
-                        //tiles[x][y] = new Location(x, y, Math.random() < 0.5 ? "tree" : "stone");
-                    }
+//                    else {
+//                        tiles[x][y] = new Location(x, y, TileType.GRASS);
+//                    }
                 }
             }
         }
+
+        farm.markBuildingArea(tiles);
     }
+
 
     private void connectFarmsToVillage() {
         int villageCenterX = width / 2;
@@ -417,8 +423,6 @@ public class GameMap {
         return false;
     }
 
-
-
     public void updatePlants(){
         for(int x = 0; x < width; x++){
             for(int y = 0; y < height; y++){
@@ -442,7 +446,6 @@ public class GameMap {
         }
     }
 
-
     public void updateArtisans(Player player){
         Map<Item , Integer> items = player.getBackpack().getInventory();
         for(Item item : items.keySet()){
@@ -452,10 +455,6 @@ public class GameMap {
             }
         }
     }
-
-
-
-
 
     /**
      * Adds a greenhouse to the game map.
@@ -516,36 +515,36 @@ public class GameMap {
         }
     }
 
-    private void initializeLakes() {
-        // Create different lakes in the map
-        // TODO: make it one (TAha)
-        // Ocean on the southern edge of the map
-        lakes.add(new Lake(0, 90, 100, 10, "Ocean", Lake.LakeType.RIVER));
-
-        // River running through the center of the map
-        lakes.add(new Lake(45, 0, 10, 100, "River", Lake.LakeType.RIVER));
-
-        // Mountain lake in the northwest
-        lakes.add(new Lake(10, 10, 20, 15, "Mountain Lake", Lake.LakeType.RIVER));
-
-        // Farm pond in the east
-        lakes.add(new Lake(70, 40, 15, 15, "Farm Pond", Lake.LakeType.RIVER));
-
-        // Secret lake in the forest
-        lakes.add(new Lake(20, 60, 10, 10, "Forest Pond", Lake.LakeType.RIVER));
-
-        // Winter lake (only appears in winter)
-        lakes.add(new Lake(60, 15, 25, 20, "Winter Lake", Lake.LakeType.RIVER));
-
-        // Sewers (special location for Mutant Carp)
-        lakes.add(new Lake(35, 80, 15, 5, "Sewers", Lake.LakeType.RIVER));
-
-        // Initialize fish in lakes based on the current season
-        for (Lake lake : lakes) {
-            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(),
-                    1); // Default to level 1 fishing skill initially
-        }
-    }
+//    private void initializeLakes() {
+//        // Create different lakes in the map
+//        // TODO: make it one (TAha)
+//        // Ocean on the southern edge of the map
+//        lakes.add(new Lake(0, 90, 100, 10, "Ocean", Lake.LakeType.RIVER));
+//
+//        // River running through the center of the map
+//        lakes.add(new Lake(45, 0, 10, 100, "River", Lake.LakeType.RIVER));
+//
+//        // Mountain lake in the northwest
+//        lakes.add(new Lake(10, 10, 20, 15, "Mountain Lake", Lake.LakeType.RIVER));
+//
+//        // Farm pond in the east
+//        lakes.add(new Lake(70, 40, 15, 15, "Farm Pond", Lake.LakeType.RIVER));
+//
+//        // Secret lake in the forest
+//        lakes.add(new Lake(20, 60, 10, 10, "Forest Pond", Lake.LakeType.RIVER));
+//
+//        // Winter lake (only appears in winter)
+//        lakes.add(new Lake(60, 15, 25, 20, "Winter Lake", Lake.LakeType.RIVER));
+//
+//        // Sewers (special location for Mutant Carp)
+//        lakes.add(new Lake(35, 80, 15, 5, "Sewers", Lake.LakeType.RIVER));
+//
+//        // Initialize fish in lakes based on the current season
+//        for (Lake lake : lakes) {
+//            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(),
+//                    1); // Default to level 1 fishing skill initially
+//        }
+//    }
 
     /**
      * Check if a location is in water (part of a lake).
@@ -578,7 +577,6 @@ public class GameMap {
         }
         return null;
     }
-
 
     public void updateLakeFish(Player player) {
         int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);

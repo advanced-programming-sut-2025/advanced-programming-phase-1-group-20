@@ -1,7 +1,9 @@
 package org.example.models.MapDetails;
 
 import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.entities.animal.Animal;
+import org.example.models.enums.Types.TileType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +15,6 @@ public class Farm {
     private final int height;
     private final String name;
     private final Player owner;
-    private int houseX;
-    private int houseY;
     private final List<Animal> animals;
     private final Building building;
 
@@ -26,11 +26,43 @@ public class Farm {
         this.name = name;
         this.owner = owner;
         this.animals = new ArrayList<>();
-        this.building = new Building(startX, startY, "house", "house");
+        this.building = createBuilding();
     }
 
     public boolean contains(int x, int y) {
         return x >= startX && x < startX + width && y >= startY && y < startY + height;
+    }
+
+    public Building createBuilding() {
+        switch (name) {
+            case "Up Right Farm":
+                Building b1 = new Building(startX + width - 4, startY, "house", "house");
+                return b1;
+            case "Up Left Farm":
+                Building b2 = new Building(startX, startY, "house", "house");
+                return b2;
+            case "Down Right Farm":
+                Building b3 = new Building(startX, startY + height - 4, "house", "house");
+                return b3;
+            case "Down Left Farm":
+                Building b4 = new Building(startX + width - 4, startY + height - 4, "house", "house");
+                return b4;
+        }
+        return null;
+    }
+
+    public void markBuildingArea(Location[][] tiles) {
+        Building b = getBuilding();
+        int buildingX = b.getX();
+        int buildingY = b.getY();
+        int buildingWidth = b.getWidth();
+        int buildingHeight = b.getHeight();
+
+        for (int y = buildingY; y < buildingY + buildingHeight; y++) {
+            for (int x = buildingX; x < buildingX + buildingWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.BUILDING);
+            }
+        }
     }
 
     public void addAnimal(Animal animal) {
@@ -39,11 +71,6 @@ public class Farm {
 
     public void removeAnimal(Animal animal) {
         animals.remove(animal);
-    }
-
-    public void setHousePosition(int x, int y) {
-        this.houseX = x;
-        this.houseY = y;
     }
 
     public int getStartX() {
@@ -68,14 +95,6 @@ public class Farm {
 
     public Player getOwner() {
         return owner;
-    }
-
-    public int getHouseX() {
-        return houseX;
-    }
-
-    public int getHouseY() {
-        return houseY;
     }
 
     public List<Animal> getAnimals() {

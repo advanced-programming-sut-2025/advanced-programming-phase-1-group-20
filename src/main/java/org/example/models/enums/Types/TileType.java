@@ -12,6 +12,7 @@ public enum TileType {
     DIAMOND_ORE,
     VILLAGE,
     PATH,
+    BUILDING,
     EMERALD_ORE,
     GREENHOUSE;
 }

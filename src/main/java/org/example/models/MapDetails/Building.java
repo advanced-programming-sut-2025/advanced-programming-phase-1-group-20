@@ -7,7 +7,7 @@ public class Building {
     private int x;
     private int y;
     private static final int height = 5;
-    private static final int width = 6;
+    private static final int width = 5;
     private String name;
     private String type; // "house", "shop", "public", etc.
     private Player owner; // null for public buildings
@@ -55,7 +55,7 @@ public class Building {
         return y;
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
