@@ -94,6 +94,24 @@ public class Farm {
         return null;
     }
 
+//    public Lake createLake() {
+//        switch (name) {
+//            case "Up Right Farm":
+//                Lake l1 = new Lake(startX + width - 3, startY + height - 4);
+//                return l1;
+//            case "Up Left Farm":
+//                Lake l2 = new Lake(startX, startY + height - 4);
+//                return l2;
+//            case "Down Right Farm":
+//                Lake l3 = new Lake(startX, startY + 1);
+//                return l3;
+//            case "Down Left Farm":
+//                Lake l4 = new Lake(startX + width - 3, startY + 1);
+//                return l4;
+//        }
+//        return null;
+//    }
+
     public void markBuildingArea(Location[][] tiles) {
         Building b = getBuilding();
         int buildingX = b.getX();

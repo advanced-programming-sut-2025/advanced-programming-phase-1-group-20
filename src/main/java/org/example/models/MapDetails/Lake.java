@@ -57,13 +57,17 @@ public class Lake implements Serializable {
         // Each legendary fish is found in a specific lake
         if (fishType == FishType.CRIMSONFISH && name.equals("Ocean")) {
             return true;
-        } else if (fishType == FishType.ANGLER && name.equals("Mountain Lake")) {
+        }
+        else if (fishType == FishType.ANGLER && name.equals("Mountain Lake")) {
             return true;
-        } else if (fishType == FishType.LEGEND && name.equals("Mountain Lake")) {
+        }
+        else if (fishType == FishType.LEGEND && name.equals("Mountain Lake")) {
             return true;
-        } else if (fishType == FishType.GLACIERFISH && name.equals("Winter Lake")) {
+        }
+        else if (fishType == FishType.GLACIERFISH && name.equals("Winter Lake")) {
             return true;
-        } else if (fishType == FishType.MUTANT_CARP && name.equals("Sewers")) {
+        }
+        else if (fishType == FishType.MUTANT_CARP && name.equals("Sewers")) {
             return true;
         }
         return false;
@@ -77,11 +81,14 @@ public class Lake implements Serializable {
         double weatherMultiplier;
         if (currentWeather == Weather.SUNNY) {
             weatherMultiplier = 1.5;
-        } else if (currentWeather == Weather.RAINY) {
+        }
+        else if (currentWeather == Weather.RAINY) {
             weatherMultiplier = 1.2;
-        } else if (currentWeather == Weather.STORMY) {
+        }
+        else if (currentWeather == Weather.STORMY) {
             weatherMultiplier = 0.5;
-        } else {
+        }
+        else {
             weatherMultiplier = 1.0;
         }
 
@@ -100,11 +107,14 @@ public class Lake implements Serializable {
                 int quality;
                 if (qualityScore >= 5) {
                     quality = 3; // Iridium
-                } else if (qualityScore >= 3) {
+                }
+                else if (qualityScore >= 3) {
                     quality = 2; // Gold
-                } else if (qualityScore >= 1) {
+                }
+                else if (qualityScore >= 1) {
                     quality = 1; // Silver
-                } else {
+                }
+                else {
                     quality = 0; // Normal
                 }
 
