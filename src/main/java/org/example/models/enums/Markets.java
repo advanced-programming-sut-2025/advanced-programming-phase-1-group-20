@@ -50,7 +50,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Black Smith");
     }
 
     private static Market createJojaMarket() {
@@ -242,7 +242,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Joja Market");
     }
 
     private static Market createPierreGeneralStore() {
@@ -556,7 +556,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu, "Pierre General Store");
     }
 
     private static Market createCarpentersShop() {
@@ -588,7 +588,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Carpenters Shop");
     }
 
     private static Market createMarnieShop() {
@@ -602,7 +602,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Marnie Shop");
     }
 
     private static Market createStarDropSaloon() {
@@ -617,19 +617,19 @@ public enum Markets {
         beer.setPrice(400);
         items.put(beer, Double.POSITIVE_INFINITY);
 
-        Item salad = new CookingItem(CookingType.Salad);
+        Item salad = new CookingItem(CookingType.Salad).getFood();
         salad.setPrice(220);
         items.put(salad, Double.POSITIVE_INFINITY);
 
-        Item bread = new CookingItem(CookingType.Bread);
+        Item bread = new CookingItem(CookingType.Bread).getFood();
         bread.setPrice(120);
         items.put(bread, Double.POSITIVE_INFINITY);
 
-        Item spaghetti = new CookingItem(CookingType.Spaghetti);
+        Item spaghetti = new CookingItem(CookingType.Spaghetti).getFood();
         spaghetti.setPrice(240);
         items.put(spaghetti, Double.POSITIVE_INFINITY);
 
-        Item pizza = new CookingItem(CookingType.Pizza);
+        Item pizza = new CookingItem(CookingType.Pizza).getFood();
         pizza.setPrice(600);
         items.put(pizza, Double.POSITIVE_INFINITY);
 
@@ -681,7 +681,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Star Drop Saloon");
     }
 
     private static Market createFishShop() {
@@ -701,7 +701,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu);
+        return new Market(items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Fish Shop");
     }
 
     public Market createMarket() {

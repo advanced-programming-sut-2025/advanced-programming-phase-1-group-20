@@ -7,6 +7,7 @@ import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Result;
+import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.commands.MarketMenuCommands;
 import org.example.views.AppView;
 
@@ -27,6 +28,7 @@ public class MarketController implements Controller {
         // TODO: make the map more detailed
         // "Kasra" -> TODO: i wil add the colored map printing when this is handled
         this.market = market;
+        market.initializeTotalStock(gameClock.getSeason());
         this.app = app;
     }
 
@@ -34,14 +36,16 @@ public class MarketController implements Controller {
     public Result update(String input) {
         MarketMenuCommands command = MarketMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
+        Result result = null;
+
         switch (command) {
             case ShowAllProducts -> showAllProducts();
             case ShowAllAvailableProducts -> showAllAvailableProducts();
-            case Purchase -> purchase(args);
+            case Purchase -> result = purchase(args);
             case CheatAddDollars -> cheatAddDollars(args);
             case None -> Result.error("Invalid input");
         }
-        return Result.success("Command executed successfully");
+        return result;
     }
 
     private void showAllProducts() {
@@ -52,28 +56,32 @@ public class MarketController implements Controller {
         market.showAvailableProducts(gameClock.getSeason());
     }
 
-    private void purchase(String[] args) {
+    private Result purchase(String[] args) {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
-        Item item = App.getItem(productName);
-        
-        boolean flag = checkItem(item) && market.containsItem(item, count, gameClock.getSeason());
-        if (flag) {
-            player.getBackpack().add(item, (int) count);
-            //TODO : handling money.
-        }
-    }
+        Item item = market.getItem(productName);
 
-    private boolean checkItem(Item item) {
-        if (item == null) {
-            System.out.println("Item does not exist");
-            return false;
+        if(item == null) {
+            return Result.error("Item not found");
         }
-        return true;
+
+        if(!market.containsItem(item , count)){
+            return Result.error("Item not in stock");
+        }
+
+        if(!market.checkItem(player, item,count)) {
+            return Result.error("You don't have enough resources for this product");
+        }
+        market.checkOut(player, item, count);
+        player.getBackpack().add(item, (int) count);
+
+
+
+        return Result.success("Item purchased successfully");
     }
 
     private void cheatAddDollars(String[] args) {
         int amount = Integer.parseInt(args[0]);
-        //TODO : handling money.
+        player.increaseMoney(amount);
     }
 }

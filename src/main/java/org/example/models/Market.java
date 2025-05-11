@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.Player.Player;
 import org.example.models.enums.Seasons;
 
 import java.util.HashMap;
@@ -11,11 +12,13 @@ public class Market {
     private HashMap<Item, Double> summerStock;
     private HashMap<Item, Double> autumnStock;
     private HashMap<Item, Double> winterStock;
+    HashMap<Item, Double> totalStock = permanentStock;
     private int startHour;
     private int endHour;
     private String[] menu;
+    private String name;
 
-    public Market(HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu) {
+    public Market(HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu , String name) {
         this.permanentStock = permanentStock;
         this.springStock = springStock;
         this.summerStock = summerStock;
@@ -24,6 +27,7 @@ public class Market {
         this.startHour = startHour;
         this.endHour = endHour;
         this.menu = menu;
+        this.name = name;
     }
 
 
@@ -87,8 +91,41 @@ public class Market {
     }
 
 
-    public boolean containsItem(Item item, Double count, Seasons season) {
-        HashMap<Item, Double> totalStock = permanentStock;
+    public Item getItem(String name) {
+        for(Item item : permanentStock.keySet()) {
+            if(name.equals(item.getName())) {
+                return item;
+            }
+        }
+
+        for(Item item : springStock.keySet()) {
+            if(name.equals(item.getName())) {
+                return item;
+            }
+        }
+
+        for(Item item : summerStock.keySet()) {
+            if(name.equals(item.getName())) {
+                return item;
+            }
+        }
+
+        for(Item item : autumnStock.keySet()) {
+            if(name.equals(item.getName())) {
+                return item;
+            }
+        }
+
+        for(Item item : winterStock.keySet()) {
+            if(name.equals(item.getName())) {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
+    public void initializeTotalStock(Seasons season) {
         switch (season) {
             case SPRING:
                 totalStock.putAll(springStock);
@@ -103,6 +140,10 @@ public class Market {
                 totalStock.putAll(winterStock);
                 break;
         }
+    }
+
+
+    public boolean containsItem(Item item, Double count) {
         if (totalStock.containsKey(item)) {
             if (totalStock.get(item) >= count) {
                 return true;
@@ -113,6 +154,138 @@ public class Market {
         }
         System.out.println("Item not found");
         return false;
+    }
+
+
+    public boolean checkItem(Player player , Item item , double count) {
+        switch (name){
+            case "Fish Shop":
+                return checkFishShop(player,item,count);
+            case "Pierre General Store":
+                return checkPirreGeneralStore(player,item,count);
+            case "Black Smith":
+                return checkBlackSmith(player,item,count);
+            case "Star Drop Saloon":
+                return checkStarDropSaloon(player,item,count);
+            case "Marnie Shop":
+                return checkMarnieShop(player,item,count);
+            case "Carpenters Shop":
+                return checkCarpentersShop(player,item,count);
+            case "Joja Market":
+                return checkJojaMarket(player,item,count);
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkFishShop(Player player , Item item , double count){
+        if(!(item.getName().equals("Fish Smoker") || item.getName().equals("Trout Soup") || item.getName().equals("Bamboo Pole") || item.getName().equals("Training Rod"))) {
+            //TODO : check skills for these items.
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkPirreGeneralStore(Player player , Item item , double count){
+        if(!(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack"))) {
+
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkBlackSmith(Player player, Item item, double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkStarDropSaloon(Player player, Item item , double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkMarnieShop(Player player, Item item , double count) {
+        //TODO : this method needed to be completed after barns ready.
+        return false;
+    }
+
+    private boolean checkCarpentersShop(Player player, Item item , double count) {
+        //TODO : this method needed to be completed after barns ready.
+        return false;
+    }
+
+    private boolean checkJojaMarket(Player player, Item item , double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public void checkOut(Player player, Item item , double count) {
+        switch (name){
+            case "Fish Shop":
+                checkOutFishShop(player,item,count);
+            case "Pierre General Store":
+                checkOutPirreGeneralStore(player,item,count);
+            case "Black Smith":
+                checkOutBlackSmith(player,item,count);
+            case "Star Drop Saloon":
+                checkOutStarDropSaloon(player,item,count);
+            case "Marnie Shop":
+                checkOutMarnieShop(player,item,count);
+            case "Carpenters Shop":
+                checkOutCarpentersShop(player,item,count);
+            case "Joja Market":
+                checkOutJojaMarket(player,item,count);
+        }
+    }
+
+    private void checkOutFishShop(Player player, Item item , double count) {
+        if(!(item.getName().equals("Fish Smoker") || item.getName().equals("Trout Soup") || item.getName().equals("Bamboo Pole") || item.getName().equals("Training Rod"))) {
+            //TODO : check skills for these items.
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+
+        }
+    }
+
+    private void checkOutPirreGeneralStore(Player player, Item item , double count) {
+        if(!(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack"))) {
+
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+        }
+    }
+
+    private void checkOutBlackSmith(Player player, Item item , double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+
+        }
+    }
+
+    private void checkOutStarDropSaloon(Player player, Item item , double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+        }
+    }
+
+    private void checkOutMarnieShop(Player player, Item item , double count) {
+    }
+
+    private void checkOutCarpentersShop(Player player, Item item , double count) {
+    }
+
+    private void checkOutJojaMarket(Player player, Item item , double count) {
+        if(item.getPrice() * count <= player.getMoney()) {
+        }
     }
 
 
