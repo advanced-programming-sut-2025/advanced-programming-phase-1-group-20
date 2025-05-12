@@ -352,13 +352,13 @@ public class GameMenuController implements Controller {
         Seasons[] seasons = seed.getSeason();
         int counter = 0;
 
-        for(Seasons season : seasons) {
-            if(gameClock.getSeason() == season) {
+        for (Seasons season : seasons) {
+            if (gameClock.getSeason() == season) {
                 counter++;
             }
         }
 
-        if(counter == 0) {
+        if (counter == 0) {
             return Result.error("There seed is not for this season.");
         }
 
@@ -471,7 +471,6 @@ public class GameMenuController implements Controller {
     }
 
 
-
     private Result howMuchWater() {
         return Result.success("How much water has been cheated");
     }
@@ -547,7 +546,7 @@ public class GameMenuController implements Controller {
         if (gMap.getItem(x, y) != null) {
             return Result.error("there is Item already in the ground!");
         }
-        if(!item.isPlacable()){
+        if (!item.isPlacable()) {
             return Result.error("Item " + itemName + " is not a placeable item");
         }
 
@@ -1576,7 +1575,7 @@ public class GameMenuController implements Controller {
         Date currentDate = App.getGame().getDate();
 
         // Check if the item is a favorite of the NPC
-        boolean isFavorite = npcEnum.getFavoriteItems().contains(itemName);
+        boolean isFavorite = npc.isFavoriteItem(item);
 
         // Get the NPC's friendship level
         Map<String, String> friendships = player.getNPCFriendships();
@@ -1626,32 +1625,50 @@ public class GameMenuController implements Controller {
     }
 
     private Result questsList() {
+        QuestManager questManager = QuestManager.getInstance();
+        List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
 
         StringBuilder result = new StringBuilder("Available Quests:\n");
         int questIndex = 1;
 
-        for (Npcs npc : Npcs.values()) {
-            // Generate a random quest for each NPC
-            String questDescription = generateRandomQuest(npc);
-            result.append(questIndex).append(". ").append(npc.getName()).append(": ").append(questDescription).append("\n");
-            questIndex++;
+        if (activeQuests.isEmpty()) {
+            result.append("You don't have any active quests at the moment.\n");
+            result.append("Talk to NPCs to discover new quests!\n");
+        } else {
+            for (Quest quest : activeQuests) {
+                result.append(questIndex).append(". [").append(quest.getNpc().getName()).append("] ");
+                result.append(quest.getTitle()).append(": ").append(quest.getDescription()).append("\n");
+
+                // Add requirements
+                result.append("   Requirements: ");
+                for (Map.Entry<Item, Integer> requirement : quest.getRequirements().entrySet()) {
+                    result.append(requirement.getValue()).append(" ").append(requirement.getKey().getName()).append(", ");
+                }
+                result.delete(result.length() - 2, result.length()); // Remove last comma and space
+                result.append("\n");
+
+                // Add rewards
+                result.append("   Rewards: ");
+                if (quest.getGoldReward() > 0) {
+                    result.append(quest.getGoldReward()).append(" gold");
+                    if (quest.getItemReward() != null) {
+                        result.append(", ");
+                    }
+                }
+
+                if (quest.getItemReward() != null) {
+                    result.append(quest.getItemRewardQuantity()).append(" ").append(quest.getItemReward().getName());
+                }
+                result.append("\n\n");
+
+                questIndex++;
+            }
         }
+
+        // Update quests based on current date and friendship levels
+        questManager.updateQuestsForPlayer(player, App.getGame().getDate());
 
         return Result.success(result.toString());
-    }
-
-    private String generateRandomQuest(Npcs npc) {
-        // TODO: Implement a more complex quest generation logic
-        switch (npc.getJob()) {
-            case ENGINEER:
-                return "Bring 10 Iron Ore";
-            case STUDENT:
-                return "Bring 5 Books";
-            case SELLER:
-                return "Bring 20 Wood";
-            default:
-                return "Bring 15 Stone";
-        }
     }
 
     private Result questsFinish(String[] args) {
@@ -1661,14 +1678,17 @@ public class GameMenuController implements Controller {
 
         try {
             int questIndex = Integer.parseInt(args[0]);
+            QuestManager questManager = QuestManager.getInstance();
+            List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
 
             // Check if the quest index is valid
-            if (questIndex < 1 || questIndex > Npcs.values().length) {
-                return Result.error("Invalid quest index. Please choose a number between 1 and " + Npcs.values().length + ".");
+            if (questIndex < 1 || questIndex > activeQuests.size()) {
+                return Result.error("Invalid quest index. Please choose a number between 1 and " + activeQuests.size() + ".");
             }
 
-            // Get the NPC for this quest
-            Npcs npc = Npcs.values()[questIndex - 1];
+            // Get the quest
+            Quest quest = activeQuests.get(questIndex - 1);
+            Npcs npc = quest.getNpc();
 
             // Check if player is near the NPC
             Location playerLocation = player.getLocation();
@@ -1680,52 +1700,92 @@ public class GameMenuController implements Controller {
                 return Result.error("You need to be adjacent to " + npc.getName() + " to complete their quest.");
             }
 
-            // Check if player has the required items based on the NPC's job
-            String requiredItem;
-            int requiredQuantity = switch (npc.getJob()) {
-                case ENGINEER -> {
-                    requiredItem = "Iron Ore";
-                    yield 10;
-                }
-                case STUDENT -> {
-                    requiredItem = "Book";
-                    yield 5;
-                }
-                case SELLER -> {
-                    requiredItem = "Wood";
-                    yield 20;
-                }
-                default -> {
-                    requiredItem = "Stone";
-                    yield 15;
-                }
-            };
+            // Check if player has the required items
+            if (!quest.hasRequiredItems(player)) {
+                StringBuilder missingItems = new StringBuilder("You don't have the required items. You need:\n");
+                for (Map.Entry<Item, Integer> requirement : quest.getRequirements().entrySet()) {
+                    Item requiredItem = requirement.getKey();
+                    int requiredQuantity = requirement.getValue();
 
-            Item item = App.getItem(requiredItem);
-            if (item == null) {
-                return Result.error("Item " + requiredItem + " not found in the game.");
+                    int playerQuantity = 0;
+                    for (Map.Entry<Item, Integer> playerItem : player.getBackpack().getInventory().entrySet()) {
+                        if (playerItem.getKey().getName().equalsIgnoreCase(requiredItem.getName())) {
+                            playerQuantity = playerItem.getValue();
+                            break;
+                        }
+                    }
+
+                    if (playerQuantity < requiredQuantity) {
+                        missingItems.append("- ").append(requiredQuantity).append(" ").append(requiredItem.getName())
+                                .append(" (you have ").append(playerQuantity).append(")\n");
+                    }
+                }
+                return Result.error(missingItems.toString());
             }
 
-            // Check if player has enough of the required item
-            int itemCount = 0;
-            for (Map.Entry<Item, Integer> entry : player.getBackpack().getInventory().entrySet()) {
-                if (entry.getKey().getName().equalsIgnoreCase(requiredItem)) {
-                    itemCount = entry.getValue();
-                    break;
+            // Complete the quest
+            boolean completed = questManager.completeQuest(player, quest.getId());
+
+            if (!completed) {
+                return Result.error("Failed to complete the quest. Please try again.");
+            }
+
+            // Build success message
+            StringBuilder successMessage = new StringBuilder("Quest completed! ");
+            successMessage.append(npc.getName()).append(" gave you ");
+
+            // Add rewards to message
+            if (quest.getGoldReward() > 0) {
+                int goldReward = quest.getGoldReward();
+                // Check if rewards are doubled due to friendship level
+                Map<String, String> friendships = player.getNPCFriendships();
+                String friendshipInfo = friendships.get(npc.getName());
+                int friendshipLevel = 0;
+                if (friendshipInfo != null && friendshipInfo.startsWith("Level: ")) {
+                    try {
+                        friendshipLevel = Integer.parseInt(friendshipInfo.substring(7, 8));
+                    } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+                        // Default to level 0 if parsing fails
+                    }
+                }
+
+                if (friendshipLevel >= 2) {
+                    goldReward *= 2;
+                    successMessage.append(goldReward).append(" gold (doubled due to friendship level) ");
+                } else {
+                    successMessage.append(goldReward).append(" gold ");
+                }
+
+                if (quest.getItemReward() != null) {
+                    successMessage.append("and ");
                 }
             }
 
-            if (itemCount < requiredQuantity) {
-                return Result.error("You don't have enough " + requiredItem + ". You need " + requiredQuantity + ".");
+            if (quest.getItemReward() != null) {
+                int itemQuantity = quest.getItemRewardQuantity();
+                // Check if rewards are doubled due to friendship level
+                Map<String, String> friendships = player.getNPCFriendships();
+                String friendshipInfo = friendships.get(npc.getName());
+                int friendshipLevel = 0;
+                if (friendshipInfo != null && friendshipInfo.startsWith("Level: ")) {
+                    try {
+                        friendshipLevel = Integer.parseInt(friendshipInfo.substring(7, 8));
+                    } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+                        // Default to level 0 if parsing fails
+                    }
+                }
+
+                if (friendshipLevel >= 2) {
+                    itemQuantity *= 2;
+                    successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName())
+                            .append(" (doubled due to friendship level)");
+                } else {
+                    successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName());
+                }
             }
 
-            // Remove the items from player's backpack
-            player.getBackpack().remove(item, requiredQuantity);
-
-            // Give reward
-            player.increaseMoney(500);
-
-            return Result.success("Quest completed! " + npc.getName() + " gave you 500 gold as a reward.");
+            successMessage.append(" as a reward.");
+            return Result.success(successMessage.toString());
 
         } catch (NumberFormatException e) {
             return Result.error("Invalid quest index format");

@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cage implements Serializable {
+public class Coop implements Serializable {
     private int capacity;
     private int productPerDay;
     private int buildCost;
@@ -17,7 +17,7 @@ public class Cage implements Serializable {
     private boolean hasHeater;
     private boolean hasAutoFeeder;
 
-    public Cage(int capacity, int productPerDay, int buildCost) {
+    public Coop(int capacity, int productPerDay, int buildCost) {
         this.capacity = capacity;
         this.productPerDay = productPerDay;
         this.buildCost = buildCost;
@@ -174,16 +174,10 @@ public class Cage implements Serializable {
     public int getUpgradeCost() {
         Cages currentType = getCageType();
 
-        switch (currentType) {
-            case NORMAL_COOP:
-                return Cages.BIG_CAGE.getBuildCost() - Cages.NORMAL_COOP.getBuildCost();
-
-            case BIG_CAGE:
-                return Cages.DELUXE_CAGE.getBuildCost() - Cages.BIG_CAGE.getBuildCost();
-
-            case DELUXE_CAGE:
-            default:
-                return 0;
-        }
+        return switch (currentType) {
+            case NORMAL_COOP -> Cages.BIG_CAGE.getBuildCost() - Cages.NORMAL_COOP.getBuildCost();
+            case BIG_CAGE -> Cages.DELUXE_CAGE.getBuildCost() - Cages.BIG_CAGE.getBuildCost();
+            default -> 0;
+        };
     }
 }

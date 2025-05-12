@@ -1,6 +1,6 @@
 package org.example.models.enums.Types;
 
-import org.example.models.Cage;
+import org.example.models.Coop;
 
 public enum Cages {
     NORMAL_COOP(4, 1, "Coop", 4000),
@@ -19,8 +19,8 @@ public enum Cages {
         this.buildCost = buildCost;
     }
 
-    public Cage createCage() {
-        return new Cage(capacity, productPerDay, buildCost);
+    public Coop createCage() {
+        return new Coop(capacity, productPerDay, buildCost);
     }
 
     public int getCapacity() {
