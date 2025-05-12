@@ -1,5 +1,7 @@
 package org.example.models.MapDetails;
 
+import org.example.models.Barn;
+import org.example.models.Coop;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.entities.animal.Animal;
@@ -20,6 +22,8 @@ public class Farm {
     private final Lake lake;
     private final GreenHouse greenHouse;
     private final Quarry quarry;
+    private final List<Barn> barns;
+    private final List<Coop> coops;
 
 
     public Farm(int startX, int startY, int width, int height, String name, Player owner) {
@@ -30,6 +34,8 @@ public class Farm {
         this.name = name;
         this.owner = owner;
         this.animals = new ArrayList<>();
+        this.barns = new ArrayList<>();
+        this.coops = new ArrayList<>();
         this.building = createBuilding();
         this.lake = createLake();
         this.greenHouse = createGreenHouse();
@@ -168,6 +174,32 @@ public class Farm {
         }
     }
 
+    public void markBarnArea(Location[][] tiles, Barn barn) {
+        int barnX = barn.getX();
+        int barnY = barn.getY();
+        int barnWidth = barn.getWidth();
+        int barnHeight = barn.getHeight();
+
+        for (int y = barnY; y < barnY + barnHeight; y++) {
+            for (int x = barnX; x < barnX + barnWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.BARN);
+            }
+        }
+    }
+
+    public void markCoopArea(Location[][] tiles, Coop coop) {
+        int coopX = coop.getX();
+        int coopY = coop.getY();
+        int coopWidth = coop.getWidth();
+        int coopHeight = coop.getHeight();
+
+        for (int y = coopY; y < coopY + coopHeight; y++) {
+            for (int x = coopX; x < coopX + coopWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.COOP);
+            }
+        }
+    }
+
     public void addAnimal(Animal animal) {
         animals.add(animal);
     }
@@ -218,6 +250,32 @@ public class Farm {
 
     public Lake getLake() {
         return lake;
+    }
+
+    public boolean isBarnsEmpty() {
+        return barns.isEmpty();
+    }
+
+    public boolean isCoopsEmpty() {
+        return coops.isEmpty();
+    }
+
+    public List<Barn> getBarns() {
+        return barns;
+    }
+
+    public List<Coop> getCoops() {
+        return coops;
+    }
+
+    public void addBarn(Location[][] tiles, Barn barn) {
+        markBarnArea(tiles, barn);
+        barns.add(barn);
+    }
+
+    public void addCoop(Location[][] tiles, Coop coop) {
+        markCoopArea(tiles, coop);
+        coops.add(coop);
     }
 
 }

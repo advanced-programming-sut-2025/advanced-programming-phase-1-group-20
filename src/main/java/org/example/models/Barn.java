@@ -17,8 +17,8 @@ public class Barn extends Building implements Serializable {
     private static final int width = 4;
     private int capacity;
     private int productPerDay;
-    private int buildCost;
-    private List<BarnAnimal> animals;
+    private final int buildCost;
+    private final List<BarnAnimal> animals;
     private boolean hasHeater;
     private boolean hasAutoFeeder;
 

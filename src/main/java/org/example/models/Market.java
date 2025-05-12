@@ -9,11 +9,11 @@ import org.example.models.enums.Seasons;
 import java.util.HashMap;
 
 public class Market extends Building {
-    private HashMap<Item, Double> permanentStock;
-    private HashMap<Item, Double> springStock;
-    private HashMap<Item, Double> summerStock;
-    private HashMap<Item, Double> autumnStock;
-    private HashMap<Item, Double> winterStock;
+    private final HashMap<Item, Double> permanentStock;
+    private final HashMap<Item, Double> springStock;
+    private final HashMap<Item, Double> summerStock;
+    private final HashMap<Item, Double> autumnStock;
+    private final HashMap<Item, Double> winterStock;
     HashMap<Item, Double> totalStock;
     HashMap<Item, Double> counterStock;
     private int startHour;
@@ -182,19 +182,19 @@ public class Market extends Building {
     public boolean checkItem(Player player , Item item , double count) {
         switch (name){
             case "Fish Shop":
-                return checkFishShop(player,item,count);
+                return checkFishShop(player, item, count);
             case "Pierre General Store":
-                return checkPirreGeneralStore(player,item,count);
+                return checkPirreGeneralStore(player, item, count);
             case "Black Smith":
-                return checkBlackSmith(player,item,count);
+                return checkBlackSmith(player, item, count);
             case "Star Drop Saloon":
-                return checkStarDropSaloon(player,item,count);
+                return checkStarDropSaloon(player, item, count);
             case "Marnie Shop":
-                return checkMarnieShop(player,item,count);
+                return checkMarnieShop(player, item, count);
             case "Carpenters Shop":
-                return checkCarpentersShop(player,item,count);
+                return checkCarpentersShop(player, item, count);
             case "Joja Market":
-                return checkJojaMarket(player,item,count);
+                return checkJojaMarket(player, item, count);
             default:
                 return false;
         }

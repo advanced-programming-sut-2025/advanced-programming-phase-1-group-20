@@ -15,8 +15,8 @@ public class Coop extends Building implements Serializable {
     private static final int width = 3;
     private int capacity;
     private int productPerDay;
-    private int buildCost;
-    private List<CoopAnimal> animals;
+    private final int buildCost;
+    private final List<CoopAnimal> animals;
     private boolean hasHeater;
     private boolean hasAutoFeeder;
 

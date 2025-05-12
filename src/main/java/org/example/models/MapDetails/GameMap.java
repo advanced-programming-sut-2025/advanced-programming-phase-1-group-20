@@ -106,7 +106,9 @@ public class GameMap {
         symbolMap.put("quarry", 'Q');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
-        symbolMap.put("building", 'B');
+        symbolMap.put("building", 'H');
+        symbolMap.put("coop", 'C');
+        symbolMap.put("barn", 'B');
         symbolMap.put("empty", ' ');
     }
 
@@ -491,6 +493,8 @@ public class GameMap {
                     case "stone" -> GRAY;
                     case "lake" -> BLUE;
                     case "path" -> YELLOW;
+                    case "coop" -> PINK;
+                    case "barn" -> LIGHT_BLUE;
                     case "greenhouse" -> BROWN;
                     case "quarry" -> RED;
                     case "village" -> PURPLE;
@@ -601,15 +605,16 @@ public class GameMap {
 
 
     public void sprinkle(int x , int y , int r) {
-        for(int i = x-r ; i <= x+r ; i++){
-            for(int j = y-r ; j <= y+r ; j++){
-                if(getItem(i, j) != null){
-                    Item check = getItem(i , j).getItem();
-                    if(check != null){
-                        if(check instanceof Plant){
+        for (int i = x-r ; i <= x+r ; i++) {
+            for (int j = y-r ; j <= y+r ; j++) {
+                if (getItem(i, j) != null) {
+                    Item check = getItem(i ,j).getItem();
+                    if (check != null) {
+                        if (check instanceof Plant) {
                             Plant plant = (Plant) check;
                             plant.setMoisture(true);
-                        }else if(check instanceof Tree){
+                        }
+                        else if (check instanceof Tree) {
                             Tree tree = (Tree) check;
                             tree.setMoisture(true);
                         }
@@ -619,13 +624,29 @@ public class GameMap {
         }
     }
 
-    public void bomb(int x , int y , int r) {
-        for(int i = x-r ; i <= x+r ; i++){
-            for(int j = y-r ; j <= y+r ; j++){
-                if(getItem(i, j) != null){
+    public void bomb (int x , int y , int r) {
+        for (int i = x-r ; i <= x+r ; i++) {
+            for (int j = y-r ; j <= y+r ; j++) {
+                if (getItem(i, j) != null) {
                     getItem(i , j).setItem(null);
                 }
             }
         }
     }
+
+    public boolean canBuildBarnOrCoop(int x, int y, int width, int height) {
+        for (int i = x - width ;i <= x + width ;i++) {
+            for (int j = y - height ;j <= y + height ;j++) {
+                Location tile = tiles[i][j];
+                if (tile.getItem() == null) {
+                    return false;
+                }
+                if (tile.getTile() != TileType.GRASS) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 }

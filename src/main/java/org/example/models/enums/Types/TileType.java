@@ -8,6 +8,8 @@ public enum TileType {
     STONE,
     TREE,
     IRON_ORE,
+    BARN,
+    COOP,
     CROP,
     GOLD_ORE,
     DIAMOND_ORE,
