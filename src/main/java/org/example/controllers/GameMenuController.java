@@ -579,17 +579,18 @@ public class GameMenuController implements Controller {
             return Result.error(itemName + "does not exist");
         }
         switch (key) {
-            //TODO : checking refrigerator collision and check Item in refrigerator (taha).
             case "put":
-                //TODO : add item to refrigerator
                 if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
                     return Result.error("Backpack doesn't contain item");
                 }
-                // TODO: add the amount
-                player.getBackpack().add(item, 1);
+                // home.getRefrigerator().putItem(item)
                 break;
             case "pick":
-                //TODO : check refrigerator.
+//                Item item = home.pickItem(item);
+//                if(item == null){
+//                    return Result.error("Item not found");
+//                }
+//                player.getBackpack().add(item, 1);
                 break;
         }
         return Result.success("Item " + itemName + " has been " + key + "ed");

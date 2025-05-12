@@ -62,7 +62,7 @@ public class MarketController implements Controller {
         Item item = market.getItem(productName);
 
         if(item == null) {
-            return Result.error("Item not found");
+            return Result.error("There is no such item as" + productName);
         }
 
         if(!market.containsItem(item , count)){

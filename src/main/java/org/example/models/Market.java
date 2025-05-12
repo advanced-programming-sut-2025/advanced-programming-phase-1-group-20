@@ -1,24 +1,27 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.MapDetails.Building;
 import org.example.models.Player.Player;
 import org.example.models.enums.Seasons;
 
 import java.util.HashMap;
 
-public class Market {
+public class Market extends Building {
     private HashMap<Item, Double> permanentStock;
     private HashMap<Item, Double> springStock;
     private HashMap<Item, Double> summerStock;
     private HashMap<Item, Double> autumnStock;
     private HashMap<Item, Double> winterStock;
     HashMap<Item, Double> totalStock = permanentStock;
+    HashMap<Item, Double> counterStock = totalStock;
     private int startHour;
     private int endHour;
     private String[] menu;
     private String name;
 
-    public Market(HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu , String name) {
+    public Market(int x , int y , HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu , String name) {
+        super(x,y,name,"market");
         this.permanentStock = permanentStock;
         this.springStock = springStock;
         this.summerStock = summerStock;
@@ -28,6 +31,19 @@ public class Market {
         this.endHour = endHour;
         this.menu = menu;
         this.name = name;
+        initializeCounterStock();
+    }
+
+
+    public void initializeCounterStock(){
+        counterStock.putAll(springStock);
+        counterStock.putAll(summerStock);
+        counterStock.putAll(autumnStock);
+        counterStock.putAll(winterStock);
+    }
+
+    public void updateCounterStock(){
+        counterStock.replaceAll((key , value ) -> 0.0);
     }
 
 
@@ -79,7 +95,8 @@ public class Market {
                 System.out.println("Name        : " + item.getName());
                 System.out.println("Description : " + item.getDescription());
                 System.out.println("Price       : " + item.getPrice());
-                String formatedStock = String.format("%.0f", permanentStock.get(item));
+                double stock = permanentStock.get(item) - counterStock.get(item);
+                String formatedStock = String.format("%.0f" , stock);
                 System.out.println("Stock       : " + formatedStock);
                 c++;
             }
@@ -182,6 +199,9 @@ public class Market {
         if(!(item.getName().equals("Fish Smoker") || item.getName().equals("Trout Soup") || item.getName().equals("Bamboo Pole") || item.getName().equals("Training Rod"))) {
             //TODO : check skills for these items.
         }
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
         if(item.getPrice() * count <= player.getMoney()) {
             return true;
         }
@@ -189,8 +209,11 @@ public class Market {
     }
 
     private boolean checkPirreGeneralStore(Player player , Item item , double count){
-        if(!(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack"))) {
+        if(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
 
+        }
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
         }
         if(item.getPrice() * count <= player.getMoney()) {
             return true;
@@ -199,6 +222,9 @@ public class Market {
     }
 
     private boolean checkBlackSmith(Player player, Item item, double count) {
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
         if(item.getPrice() * count <= player.getMoney()) {
             return true;
         }
@@ -206,6 +232,9 @@ public class Market {
     }
 
     private boolean checkStarDropSaloon(Player player, Item item , double count) {
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
         if(item.getPrice() * count <= player.getMoney()) {
             return true;
         }
@@ -223,6 +252,9 @@ public class Market {
     }
 
     private boolean checkJojaMarket(Player player, Item item , double count) {
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
         if(item.getPrice() * count <= player.getMoney()) {
             return true;
         }
@@ -250,31 +282,30 @@ public class Market {
     }
 
     private void checkOutFishShop(Player player, Item item , double count) {
-        if(!(item.getName().equals("Fish Smoker") || item.getName().equals("Trout Soup") || item.getName().equals("Bamboo Pole") || item.getName().equals("Training Rod"))) {
-            //TODO : check skills for these items.
-        }
-        if(item.getPrice() * count <= player.getMoney()) {
-
-        }
+        player.decreaseMoney((int) (item.getPrice()*count));
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
     private void checkOutPirreGeneralStore(Player player, Item item , double count) {
-        if(!(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack"))) {
+        if(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
 
         }
-        if(item.getPrice() * count <= player.getMoney()) {
-        }
+        player.decreaseMoney((int) (item.getPrice()*count));
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
     private void checkOutBlackSmith(Player player, Item item , double count) {
-        if(item.getPrice() * count <= player.getMoney()) {
-
-        }
+        player.decreaseMoney((int) (item.getPrice()*count));
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
     private void checkOutStarDropSaloon(Player player, Item item , double count) {
-        if(item.getPrice() * count <= player.getMoney()) {
-        }
+        player.decreaseMoney((int) (item.getPrice()*count));
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
     private void checkOutMarnieShop(Player player, Item item , double count) {
@@ -284,8 +315,9 @@ public class Market {
     }
 
     private void checkOutJojaMarket(Player player, Item item , double count) {
-        if(item.getPrice() * count <= player.getMoney()) {
-        }
+        player.decreaseMoney((int) (item.getPrice()*count));
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
 
