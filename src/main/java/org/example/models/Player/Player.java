@@ -6,6 +6,7 @@ import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.Market;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.Friendship;
@@ -362,7 +363,7 @@ public class Player {
         return tools;
     }
 
-    public boolean upgradeTool(String toolName) {
+    public boolean upgradeTool(String toolName , Market market) {
         // Check if the tool is in the backpack
         Item item = backpack.getItem(toolName);
         if (item == null || !(item instanceof Tool)) {
@@ -383,88 +384,6 @@ public class Player {
         }
 
         Tool tool = (Tool) item;
-        switch (tool.getMaterial()) {
-            case BASIC -> {
-                int cost = 1_000;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cost = cost * 2;
-                }
-                if (getMoney() < cost) {
-                    return false;
-                }
-                if (getBackpack().getItem("Cooper Bar") == null) {
-                    return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Cooper Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
-                }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
-            }
-            case COPPER -> {
-                int cost = 2_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cost = cost * 2;
-                }
-                if (getMoney() < cost) {
-                    return false;
-                }
-                if (getBackpack().getItem("Iron Bar") == null) {
-                    return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iron Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
-                }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
-            }
-            case IRON -> {
-                int cost = 5_000;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cost = cost * 2;
-                }
-                if (getMoney() < cost) {
-                    return false;
-                }
-                if (getBackpack().getItem("Gold Bar") == null) {
-                    return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Gold Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
-                }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
-            }
-            case GOLD -> {
-                int cost = 12_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cost = cost * 2;
-                }
-                if (getMoney() < cost) {
-                    return false;
-                }
-                if (getBackpack().getItem("Iridium Bar") == null) {
-                    return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iridium Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
-                }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
-            }
-            case IRIDIUM -> {
-                return false;
-            }
-        }
-
         Tool upgradedTool = tool.upgrade();
         if (upgradedTool == null) {
             return false;

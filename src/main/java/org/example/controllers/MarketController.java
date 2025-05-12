@@ -91,13 +91,16 @@ public class MarketController implements Controller {
             return Result.error("Tool name not specified");
         }
 
-        String toolName = args[0];
-        boolean success = player.upgradeTool(toolName);
+        if(market.getName().equalsIgnoreCase("Black Smith")){
+            String toolName = args[0];
+            boolean success = player.upgradeTool(toolName , market);
 
-        if (success) {
-            return Result.success("Tool " + toolName + " upgraded successfully");
-        } else {
-            return Result.error("Failed to upgrade tool " + toolName + ". Make sure you are in a blacksmith and have enough resources.");
+            if (success) {
+                return Result.success("Tool " + toolName + " upgraded successfully");
+            } else {
+                return Result.error("Failed to upgrade tool " + toolName);
+            }
         }
+        return Result.error("You are not in Black Smith!");
     }
 }
