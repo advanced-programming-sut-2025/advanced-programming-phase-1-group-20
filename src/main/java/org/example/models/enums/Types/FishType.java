@@ -51,12 +51,6 @@ public enum FishType {
         this.description = description;
     }
 
-    /**
-     * Get a fish type by its name.
-     *
-     * @param name The name of the fish to retrieve
-     * @return The FishType with the given name, or null if not found
-     */
     public static FishType fromName(String name) {
         for (FishType type : FishType.values()) {
             if (type.getName().equals(name)) {

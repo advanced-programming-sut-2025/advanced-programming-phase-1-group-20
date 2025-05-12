@@ -8,6 +8,7 @@ import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
+import org.example.models.enums.Markets;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.TreeType;
 
@@ -37,10 +38,10 @@ public class GameMap {
     private final Location[][] tiles;
     private final Market[] markets;
     private final Farm[] farms;
-    private final Map<String, Character> symbolMap;
-    private final Player currentPlayer;
     private Village village;
     private int currentFarmIndex;
+    private final Map<String, Character> symbolMap;
+    private final Player currentPlayer;
     private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
@@ -122,8 +123,8 @@ public class GameMap {
         initializeFarms();
         connectFarmsToVillage();
 
-        placeRandomObjects("stone", 200);
-        placeRandomObjects("tree", 200);
+        placeRandomObjects("stone", 1000);
+        placeRandomObjects("tree", 1000);
 
     }
 
@@ -146,7 +147,8 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -175,8 +177,8 @@ public class GameMap {
 
         farms[0] = new Farm(0, 0, farmWidth, farmHeight, "Up Left Farm", currentPlayer);
         farms[1] = new Farm(width / 2, 0, farmWidth, farmHeight, "Up Right Farm", currentPlayer);
-        farms[2] = new Farm(0, height / 2, farmWidth, farmHeight, "Down Right Farm", currentPlayer);
-        farms[3] = new Farm(width / 2, height / 2, farmWidth, farmHeight, "Down Left Farm", currentPlayer);
+        farms[2] = new Farm(0, height / 2, farmWidth, farmHeight, "Down Left Farm", currentPlayer);
+        farms[3] = new Farm(width / 2, height / 2, farmWidth, farmHeight, "Down Right Farm", currentPlayer);
 
         for (Farm farm : farms) {
             initializeFarmTiles(farm);
@@ -216,13 +218,15 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                } else if (currentX > villageCenterX) {
+                }
+                else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                } else if (currentY > villageCenterY) {
+                }
+                else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -404,7 +408,7 @@ public class GameMap {
         return false;
     }
 
-    public void updatePlants() {
+    public void updatePlants(){
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Location tile = tiles[x][y];
@@ -415,7 +419,8 @@ public class GameMap {
                         if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    } else if (tile.getItem() instanceof Plant) {
+                    }
+                    else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {
@@ -427,8 +432,8 @@ public class GameMap {
         }
     }
 
-    public void updateArtisans(Player player) {
-        Map<Item, Integer> items = player.getBackpack().getInventory();
+    public void updateArtisans(Player player){
+        Map<Item , Integer> items = player.getBackpack().getInventory();
         for (Item item : items.keySet()) {
             if (item instanceof CraftingItem) {
                 CraftingItem craftingItem = (CraftingItem) item;
@@ -482,7 +487,8 @@ public class GameMap {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                } else {
+                }
+                else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -558,13 +564,13 @@ public class GameMap {
     }
 
     //Initializing markets.
-    private void initializeMarkets() {
-//        markets[0] = Markets.BLACKS_SMITH.createMarket();
-//        markets[1] = Markets.JOJA_MART.createMarket();
-//        markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
-//        markets[3] = Markets.CARPENTERS_SHOP.createMarket();
-//        markets[4] = Markets.FISH_SHOP.createMarket();
-//        markets[5] = Markets.MARNIE_SHOP.createMarket();
-//        markets[6] = Markets.STARDROP_SALOON.createMarket();
+    private void initializeMarkets(){
+        markets[0] = Markets.BLACKS_SMITH.createMarket();
+        markets[1] = Markets.JOJA_MART.createMarket();
+        markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
+        markets[3] = Markets.CARPENTERS_SHOP.createMarket();
+        markets[4] = Markets.FISH_SHOP.createMarket();
+        markets[5] = Markets.MARNIE_SHOP.createMarket();
+        markets[6] = Markets.STARDROP_SALOON.createMarket();
     }
 }

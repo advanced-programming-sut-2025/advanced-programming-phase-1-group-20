@@ -1,0 +1,63 @@
+{
+  "mostafa": {
+    "gender": "Male",
+    "username": "mostafa",
+    "password": "YHTqkFkEjNYSbKgTdj73ucmRM5SjwfP2FmjUEeeLU9w\u003d",
+    "email": "mostafaomidi@gmail.com",
+    "nickname": "hammal",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "securityAnswer": "mmd",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  },
+  "test1": {
+    "gender": "Female",
+    "username": "test1",
+    "password": "RdRG8o8aiTXL6jRmXd2maRlmdWkarygseC71xomeT+0\u003d",
+    "email": "shanbalileh@gmail.com",
+    "nickname": "toot",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  },
+  "testi": {
+    "gender": "Female",
+    "username": "testi",
+    "password": "MsmNZGpo6tRq97bUsUSGX0/+AmmOSUpvborI/+YOmnY\u003d",
+    "email": "shanbalilehaaa@gmail.com",
+    "nickname": "Sahur",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  },
+  "mmdReza": {
+    "gender": "Male",
+    "username": "mmdReza",
+    "password": "rn+Zk8MRQjBokAW2xwsyIk9H/bzRyJityzqXACEKOWk\u003d",
+    "email": "ahmaghhhhh@gmail.com",
+    "nickname": "golzar",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  },
+  "pegah": {
+    "gender": "Male",
+    "username": "pegah",
+    "password": "HRgJG+tdfUujJZx+XFvoHzLD8q54r4rIxzCU/NZfTpg\u003d",
+    "email": "akhehkasitoro@gmail.com",
+    "nickname": "adam",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  }
+}
