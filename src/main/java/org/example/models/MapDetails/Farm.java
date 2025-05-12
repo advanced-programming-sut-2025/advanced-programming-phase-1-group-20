@@ -17,7 +17,7 @@ public class Farm {
     private final Player owner;
     private final List<Animal> animals;
     private final Building building;
-    //private final Lake lake;
+    private final Lake lake;
     private final GreenHouse greenHouse;
     private final Quarry quarry;
 
@@ -31,7 +31,7 @@ public class Farm {
         this.owner = owner;
         this.animals = new ArrayList<>();
         this.building = createBuilding();
-        //this.lake = createLake();
+        this.lake = createLake();
         this.greenHouse = createGreenHouse();
         this.quarry = createQuarry();
     }
@@ -94,23 +94,23 @@ public class Farm {
         return null;
     }
 
-//    public Lake createLake() {
-//        switch (name) {
-//            case "Up Right Farm":
-//                Lake l1 = new Lake(startX + width - 3, startY + height - 4);
-//                return l1;
-//            case "Up Left Farm":
-//                Lake l2 = new Lake(startX, startY + height - 4);
-//                return l2;
-//            case "Down Right Farm":
-//                Lake l3 = new Lake(startX, startY + 1);
-//                return l3;
-//            case "Down Left Farm":
-//                Lake l4 = new Lake(startX + width - 3, startY + 1);
-//                return l4;
-//        }
-//        return null;
-//    }
+    public Lake createLake() {
+        switch (name) {
+            case "Up Right Farm":
+                Lake l1 = new Lake(startX + width / 2 + 2, startY + height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                return l1;
+            case "Up Left Farm":
+                Lake l2 = new Lake(startX + width / 2 - 6, startY + height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                return l2;
+            case "Down Right Farm":
+                Lake l3 = new Lake(startX + width / 2 - 6, startY + height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
+                return l3;
+            case "Down Left Farm":
+                Lake l4 = new Lake(startX + width / 2 + 2, startY + height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
+                return l4;
+        }
+        return null;
+    }
 
     public void markBuildingArea(Location[][] tiles) {
         Building b = getBuilding();
@@ -150,6 +150,20 @@ public class Farm {
         for (int y = quarryY; y < quarryY + quarryHeight; y++) {
             for (int x = quarryX; x < quarryX + quarryWidth; x++) {
                 tiles[x][y] = new Location(x, y, TileType.QUARRY);
+            }
+        }
+    }
+
+    public void markLake(Location[][] tiles) {
+        Lake l = getLake();
+        int lakeX = l.getX();
+        int lakeY = l.getY();
+        int lakeWidth = l.getWidth();
+        int lakeHeight = l.getHeight();
+
+        for (int y = lakeY; y < lakeY + lakeHeight; y++) {
+            for (int x = lakeX; x < lakeX + lakeWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.LAKE);
             }
         }
     }
@@ -200,6 +214,10 @@ public class Farm {
 
     public Quarry getQuarry() {
         return quarry;
+    }
+
+    public Lake getLake() {
+        return lake;
     }
 
 }

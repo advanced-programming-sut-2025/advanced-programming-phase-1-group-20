@@ -38,10 +38,10 @@ public class GameMap {
     private final Location[][] tiles;
     private final Market[] markets;
     private final Farm[] farms;
-    private final Map<String, Character> symbolMap;
-    private final Player currentPlayer;
     private Village village;
     private int currentFarmIndex;
+    private final Map<String, Character> symbolMap;
+    private final Player currentPlayer;
     private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
@@ -53,12 +53,11 @@ public class GameMap {
         this.currentFarmIndex = 0;
         this.currentPlayer = player;
         this.symbolMap = new HashMap<>();
-        this.lakes = new ArrayList<>();
 
-//        initializeLakes();
         initializeSymbols();
         initializeMap();
-        initializeMarkets();//        initializeLakes();
+        initializeMarkets();
+        //initializeLakes();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -115,15 +114,7 @@ public class GameMap {
     private void initializeMap() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                // Default to grass
                 TileType tileType = TileType.GRASS;
-
-                // If the tile is within a lake, make it water
-//                if (isInWater(x, y)) {
-//                    tileType = TileType.WATER;
-//                }
-
-                // Create the tile with the appropriate type
                 tiles[x][y] = new Location(x, y, tileType);
             }
         }
@@ -132,8 +123,8 @@ public class GameMap {
         initializeFarms();
         connectFarmsToVillage();
 
-        placeRandomObjects("stone", 30);
-        placeRandomObjects("tree", 30);
+        placeRandomObjects("stone", 200);
+        placeRandomObjects("tree", 200);
 
     }
 
@@ -156,7 +147,8 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
                 }
 
@@ -173,7 +165,6 @@ public class GameMap {
         for (int x = centerX - villageRadius; x <= centerX + villageRadius; x++) {
             for (int y = centerY - villageRadius; y <= centerY + villageRadius; y++) {
                 if (Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) <= Math.pow(villageRadius, 2)) {
-//                    tiles[x][y] = new Location(x, y, TileType.GRASS);
                     tiles[x][y] = new Location(x, y, TileType.VILLAGE);
                 }
             }
@@ -198,13 +189,10 @@ public class GameMap {
         for (int x = farm.getStartX(); x < farm.getStartX() + farm.getWidth(); x++) {
             for (int y = farm.getStartY(); y < farm.getStartY() + farm.getHeight(); y++) {
                 Location tile = tiles[x][y];
-                if (x >= 0 && x < width && y >= 0 && y < height) {
+                if (x < width && y < height) {
                     if (tile.getTile() != TileType.VILLAGE) {
                         tiles[x][y] = new Location(x, y, TileType.GRASS);
-
-                    }//                    else {
-//                        tiles[x][y] = new Location(x, y, TileType.GRASS);
-//                    }
+                    }
                 }
             }
         }
@@ -212,6 +200,7 @@ public class GameMap {
         farm.markBuildingArea(tiles);
         farm.markGreenHouseArea(tiles);
         farm.markQuarry(tiles);
+        farm.markLake(tiles);
     }
 
 
@@ -229,13 +218,15 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                } else if (currentX > villageCenterX) {
+                }
+                else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                } else if (currentY > villageCenterY) {
+                }
+                else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -289,20 +280,6 @@ public class GameMap {
 
         return tiles[x][y].getType().equals("path");
     }
-
-    //TODO : later it should be only items not strings
-//    private boolean requiresTool(String currentType, String newType) {
-//        return (currentType.equals("tree") && newType.equals("stump")) ||
-//                (currentType.equals("stone") && newType.equals("debris")) ||
-//                (currentType.equals("grass") && newType.equals("tilled_soil"));
-//    }
-//
-//    private String getRequiredTool(String currentType, String newType) {
-//        if (currentType.equals("tree") && newType.equals("stump")) return "axe";
-//        if (currentType.equals("stone") && newType.equals("debris")) return "pickaxe";
-//        if (currentType.equals("grass") && newType.equals("tilled_soil")) return "hoe";
-//        return "";
-//    }
 
     private boolean isProtectedTile(String type) {
         if (type == null) {
@@ -431,8 +408,7 @@ public class GameMap {
         return false;
     }
 
-
-    public void updatePlants() {
+    public void updatePlants(){
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Location tile = tiles[x][y];
@@ -443,7 +419,8 @@ public class GameMap {
                         if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    } else if (tile.getItem() instanceof Plant) {
+                    }
+                    else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {
@@ -455,8 +432,8 @@ public class GameMap {
         }
     }
 
-    public void updateArtisans(Player player) {
-        Map<Item, Integer> items = player.getBackpack().getInventory();
+    public void updateArtisans(Player player){
+        Map<Item , Integer> items = player.getBackpack().getInventory();
         for (Item item : items.keySet()) {
             if (item instanceof CraftingItem) {
                 CraftingItem craftingItem = (CraftingItem) item;
@@ -498,7 +475,7 @@ public class GameMap {
                     case "tilled_soil" -> YELLOW;
                     case "tree" -> GREEN;
                     case "stone" -> GRAY;
-                    case "water" -> BLUE;
+                    case "lake" -> BLUE;
                     case "path" -> YELLOW;
                     case "greenhouse" -> BROWN;
                     case "quarry" -> RED;
@@ -510,7 +487,8 @@ public class GameMap {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                } else {
+                }
+                else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -551,9 +529,6 @@ public class GameMap {
 
 
     public boolean isInWater(int x, int y) {
-        if (lakes.isEmpty()) {
-            return false;
-        }
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
                 return true;
@@ -561,7 +536,6 @@ public class GameMap {
         }
         return false;
     }
-
 
     public Lake getLakeAt(int x, int y) {
         for (Lake lake : lakes) {
@@ -573,10 +547,10 @@ public class GameMap {
     }
 
     public void updateLakeFish(Player player) {
-//        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
-//        for (Lake lake : lakes) {
-//            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
-//        }
+        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
+        for (Lake lake : lakes) {
+            lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
+        }
     }
 
     // Inside advanceDate or wherever you handle season changes:
@@ -589,9 +563,8 @@ public class GameMap {
         }
     }
 
-
     //Initializing markets.
-    private void initializeMarkets() {
+    private void initializeMarkets(){
         markets[0] = Markets.BLACKS_SMITH.createMarket();
         markets[1] = Markets.JOJA_MART.createMarket();
         markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
