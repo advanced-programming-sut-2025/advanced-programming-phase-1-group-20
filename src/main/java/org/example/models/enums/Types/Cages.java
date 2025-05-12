@@ -19,9 +19,10 @@ public enum Cages {
         this.buildCost = buildCost;
     }
 
-    public Coop createCage() {
-        return new Coop(capacity, productPerDay, buildCost);
-    }
+//    public Coop createCage() {
+//        return new Coop(capacity, productPerDay, buildCost);
+//    }
+    //TODO: کامنتش کردم بعدا باید درستش کرد همینه که هست :)
 
     public int getCapacity() {
         return capacity;

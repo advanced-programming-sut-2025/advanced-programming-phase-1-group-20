@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.MapDetails.Building;
 import org.example.models.common.Result;
 import org.example.models.entities.animal.BarnAnimal;
 import org.example.models.enums.Seasons;
@@ -11,7 +12,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Barn implements Serializable {
+public class Barn extends Building implements Serializable {
+    private static final int height = 7;
+    private static final int width = 4;
     private int capacity;
     private int productPerDay;
     private int buildCost;
@@ -19,7 +22,8 @@ public class Barn implements Serializable {
     private boolean hasHeater;
     private boolean hasAutoFeeder;
 
-    public Barn(int capacity, int productPerDay, int buildCost) {
+    public Barn(int x, int y, String name, int capacity, int productPerDay, int buildCost) {
+        super(x, y, name, "barn");
         this.capacity = capacity;
         this.productPerDay = productPerDay;
         this.buildCost = buildCost;
@@ -133,9 +137,11 @@ public class Barn implements Serializable {
     public BarnTypes getBarnType() {
         if (capacity == 12) {
             return BarnTypes.DELUXE_BARN;
-        } else if (capacity == 8) {
+        }
+        else if (capacity == 8) {
             return BarnTypes.BIG_BARN;
-        } else {
+        }
+        else {
             return BarnTypes.NORMAL_BARN;
         }
     }
