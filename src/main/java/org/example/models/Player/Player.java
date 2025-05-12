@@ -6,6 +6,7 @@ import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.Market;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.Friendship;
@@ -352,7 +353,7 @@ public class Player {
         return tools;
     }
 
-    public boolean upgradeTool(String toolName) {
+    public boolean upgradeTool(String toolName , Market market) {
         // Check if the tool is in the backpack
         Item item = backpack.getItem(toolName);
         if (item == null || !(item instanceof Tool)) {
@@ -376,9 +377,18 @@ public class Player {
         switch (tool.getMaterial()){
             case BASIC ->{
                 int cost = 1_000;
+                Item cooper;
                 if(!toolName.equalsIgnoreCase("Trash Can")){
+                    cooper = new Item("Cooper Tool" , 5_000);
                     cost = cost * 2;
+                }else{
+                    cooper = new Item("Copper Trash Can" , 1_000);
                 }
+
+                if(!market.checkItem(this , cooper , 1)){
+                    return false;
+                }
+
                 if(getMoney() < cost){
                     return false;
                 }
@@ -394,10 +404,19 @@ public class Player {
                 getBackpack().remove(tool , 5);
             }
             case COPPER ->{
+                Item iron;
                 int cost = 2_500;
                 if(!toolName.equalsIgnoreCase("Trash Can")){
+                    iron = new Item("Iron Tool" , 5_000);
                     cost = cost * 2;
+                }else{
+                    iron = new Item("Iron Trash Can" , 2_500);
                 }
+
+                if(!market.checkItem(this , iron , 1)){
+                    return false;
+                }
+
                 if(getMoney() < cost){
                     return false;
                 }
@@ -413,10 +432,19 @@ public class Player {
                 getBackpack().remove(tool , 5);
             }
             case IRON ->{
+                Item gold;
                 int cost = 5_000;
                 if(!toolName.equalsIgnoreCase("Trash Can")){
+                    gold = new Item("Gold Tool" , 10_000);
                     cost = cost * 2;
+                }else{
+                    gold = new Item("Gold Trash Can" , 5_000);
                 }
+
+                if(!market.checkItem(this,gold , 1)){
+                    return false;
+                }
+
                 if(getMoney() < cost){
                     return false;
                 }
@@ -432,10 +460,19 @@ public class Player {
                 getBackpack().remove(tool , 5);
             }
             case GOLD ->{
+                Item iridium;
                 int cost = 12_500;
                 if(!toolName.equalsIgnoreCase("Trash Can")){
+                    iridium = new Item("Iridium Tool" , 25_000);
                     cost = cost * 2;
+                }else{
+                    iridium = new Item("Iridium Trash Can" , 12_500);
                 }
+
+                if(!market.checkItem(this,iridium , 1)){
+                    return false;
+                }
+
                 if(getMoney() < cost){
                     return false;
                 }

@@ -47,7 +47,31 @@ public enum Markets {
         gold.setPrice(400);
         items.put(gold, Double.POSITIVE_INFINITY);
 
-        //TODO : tools need to be added later
+        //upgrading item;
+        Item cooperTool = new Item("Cooper Tool" , 2_000);
+        items.put(cooperTool, 1.0);
+
+        Item ironTool = new Item("Iron Tool" , 5_000);
+        items.put(ironTool, 1.0);
+
+        Item goldTool = new Item("Gold Tool" , 10_000);
+        items.put(goldTool, 1.0);
+
+        Item iridiumTool = new Item("Irididium Tool" , 25_000);
+        items.put(iridiumTool, 1.0);
+
+        Item cooperTrashCan = new Item("Copper Trash Can" , 1_000);
+        items.put(cooperTrashCan, 1.0);
+
+        Item ironTrashCan = new Item("Iron Trash Can" , 2_500);
+        items.put(ironTrashCan, 1.0);
+
+        Item goldTrashCan = new Item("Gold Trash Can" , 5_000);
+        items.put(goldTrashCan, 1.0);
+
+        Item iridiumTrashCan = new Item("Iridium Trash Can" , 12_500);
+        items.put(iridiumTrashCan, 1.0);
+
 
         int startHour = 9;
         int endHour = 16;
