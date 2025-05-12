@@ -628,111 +628,31 @@ public class GameMenuController implements Controller {
             //it will be replaced as item.place() like a function pointer.
             switch (item.getName()){
                 case "Cherry Bomb"->{
-                    for(int i = x-3 ; i <= x+3 ; i++){
-                        for(int j = y-3 ; j <= y+3 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                gMap.getItem(i , j).setItem(null);
-                            }
-                        }
-                    }
+                    gMap.bomb(x,y,3);
                 }
                 case "Bomb"->{
-                    for(int i = x-5 ; i <= x+5 ; i++){
-                        for(int j = y-5 ; j <= y+5 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                gMap.getItem(i , j).setItem(null);
-                            }
-                        }
-                    }
+                    gMap.bomb(x,y,5);
                 }
                 case "Mega Bomb"->{
-                    for(int i = x-7 ; i <= x+7 ; i++){
-                        for(int j = y-7 ; j <= y+7 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                gMap.getItem(i , j).setItem(null);
-                            }
-                        }
-                    }
+                    gMap.bomb(x,y,7);
                 }
                 case "Sprinkler"->{
-                    for(int i = x-4 ; i <= x+4 ; i++){
-                        for(int j = y-4 ; j <= y+4 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                Item check = gMap.getItem(i , j).getItem();
-                                if(check != null){
-                                    if(check instanceof Plant){
-                                        Plant plant = (Plant) check;
-                                        plant.setMoisture(true);
-                                    }else if(check instanceof Tree){
-                                        Tree tree = (Tree) check;
-                                        tree.setMoisture(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    gMap.sprinkle(x,y,4);
                 }
                 case "Quality Sprinkler"->{
-                    for(int i = x-3 ; i <= x+8 ; i++){
-                        for(int j = y-3 ; j <= y+8 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                Item check = gMap.getItem(i , j).getItem();
-                                if(check != null){
-                                    if(check instanceof Plant){
-                                        Plant plant = (Plant) check;
-                                        plant.setMoisture(true);
-                                    }else if(check instanceof Tree){
-                                        Tree tree = (Tree) check;
-                                        tree.setMoisture(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    gMap.sprinkle(x,y,8);
                 }
                 case "Iridium Sprinkler"->{
-                    for(int i = x-3 ; i <= x+24 ; i++){
-                        for(int j = y-3 ; j <= y+24 ; j++){
-                            if(gMap.getItem(i, j) != null){
-                                Item check = gMap.getItem(i , j).getItem();
-                                if(check != null){
-                                    if(check instanceof Plant){
-                                        Plant plant = (Plant) check;
-                                        plant.setMoisture(true);
-                                    }else if(check instanceof Tree){
-                                        Tree tree = (Tree) check;
-                                        tree.setMoisture(true);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    gMap.sprinkle(x,y,24);
                 }
                 case "Scarecrow"->{
-                    for(int i = x-3 ; i <= x+8 ; i++){
-                        for(int j = y-3 ; j <= y+8 ; j++){
-                            Item check = gMap.getItem(i , j).getItem();
-                            if(check != null){
-                                if(check instanceof Plant){
-                                    Plant plant = (Plant) check;
-                                    plant.setMoisture(true);
-                                }else if(check instanceof Tree){
-                                    Tree tree = (Tree) check;
-                                    tree.setMoisture(true);
-                                }
-                            }
-                        }
-                    }
+                    gMap.setScarecrow(x,y,8,true);
                 }
                 case "Deluxe Scarecrow"->{
-                    for(int i = x-3 ; i <= x+12 ; i++){
-                        for(int j = y-3 ; j <= y+12 ; j++){
-
-                        }
-                    }
+                    gMap.setScarecrow(x,y,12,true);
                 }
                 case "Bee House"->{
-
+                    //TODO : bee house.
                 }
             }
         }

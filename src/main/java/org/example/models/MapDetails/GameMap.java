@@ -598,4 +598,34 @@ public class GameMap {
             }
         }
     }
+
+
+    public void sprinkle(int x , int y , int r) {
+        for(int i = x-r ; i <= x+r ; i++){
+            for(int j = y-r ; j <= y+r ; j++){
+                if(getItem(i, j) != null){
+                    Item check = getItem(i , j).getItem();
+                    if(check != null){
+                        if(check instanceof Plant){
+                            Plant plant = (Plant) check;
+                            plant.setMoisture(true);
+                        }else if(check instanceof Tree){
+                            Tree tree = (Tree) check;
+                            tree.setMoisture(true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void bomb(int x , int y , int r) {
+        for(int i = x-r ; i <= x+r ; i++){
+            for(int j = y-r ; j <= y+r ; j++){
+                if(getItem(i, j) != null){
+                    getItem(i , j).setItem(null);
+                }
+            }
+        }
+    }
 }
