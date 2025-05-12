@@ -48,10 +48,10 @@ public class Farm {
             case "Up Left Farm":
                 Building b2 = new Building(startX, startY, "house", "house");
                 return b2;
-            case "Down Right Farm":
+            case "Down Left Farm":
                 Building b3 = new Building(startX, startY + height - 4, "house", "house");
                 return b3;
-            case "Down Left Farm":
+            case "Down Right Farm":
                 Building b4 = new Building(startX + width - 4, startY + height - 4, "house", "house");
                 return b4;
         }
@@ -66,10 +66,10 @@ public class Farm {
             case "Up Left Farm":
                 GreenHouse g2 = new GreenHouse(startX + width - 5, startY);
                 return g2;
-            case "Down Right Farm":
+            case "Down Left Farm":
                 GreenHouse g3 = new GreenHouse(startX + width - 5, startY + height - 5);
                 return g3;
-            case "Down Left Farm":
+            case "Down Right Farm":
                 GreenHouse g4 = new GreenHouse(startX + 1, startY + height - 5);
                 return g4;
         }
@@ -84,10 +84,10 @@ public class Farm {
             case "Up Left Farm":
                 Quarry q2 = new Quarry(startX, startY + height - 4);
                 return q2;
-            case "Down Right Farm":
+            case "Down Left Farm":
                 Quarry q3 = new Quarry(startX, startY + 1);
                 return q3;
-            case "Down Left Farm":
+            case "Down Right Farm":
                 Quarry q4 = new Quarry(startX + width - 3, startY + 1);
                 return q4;
         }
@@ -102,10 +102,10 @@ public class Farm {
             case "Up Left Farm":
                 Lake l2 = new Lake(startX + width / 2 - 6, startY + height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
                 return l2;
-            case "Down Right Farm":
+            case "Down Left Farm":
                 Lake l3 = new Lake(startX + width / 2 - 6, startY + height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
                 return l3;
-            case "Down Left Farm":
+            case "Down Right Farm":
                 Lake l4 = new Lake(startX + width / 2 + 2, startY + height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
                 return l4;
         }
