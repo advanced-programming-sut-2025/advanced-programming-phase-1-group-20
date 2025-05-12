@@ -9,8 +9,8 @@ public class Building {
     private static final int height = 5;
     private static final int width = 5;
     private final String name;
-    private final String type; // "house", "market", "public", etc.
-    private Player owner; // null for public buildings
+    private final String type;
+    private Player owner;
     private boolean isEnterable;
     private String interiorMapName;
     private final Refrigerator refrigerator = new Refrigerator();

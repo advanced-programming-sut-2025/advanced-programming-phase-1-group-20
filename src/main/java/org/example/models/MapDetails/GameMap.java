@@ -587,4 +587,15 @@ public class GameMap {
         markets[5] = Markets.MARNIE_SHOP.createMarket();
         markets[6] = Markets.STARDROP_SALOON.createMarket();
     }
+
+    public void setScarecrow (int x, int y, int r, boolean key) {
+        for (int i = x - r; i <= x + r; i++) {
+            for (int j = y - r; j <= y + r; j++) {
+                Location tile = tiles[i][j];
+                if (tile.getItem() != null) {
+                    tile.setScarecrowThere(key);
+                }
+            }
+        }
+    }
 }

@@ -11,6 +11,7 @@ public class Location {
     private String type;
     private Item item;
     private boolean shokhm;
+    private boolean isScarecrowThere;
 
     public Location(int xAxis, int yAxis, TileType tile) {
         this.xAxis = xAxis;
@@ -18,6 +19,7 @@ public class Location {
         this.tile = tile;
         this.item = null;
         this.shokhm = false;
+        this.isScarecrowThere = false;
         updateTypeFromTile();
     }
 
@@ -73,6 +75,14 @@ public class Location {
 
     public int getY() {
         return yAxis;
+    }
+
+    public boolean isScarecrowThere() {
+        return isScarecrowThere;
+    }
+
+    public void setScarecrowThere(boolean scarecrowThere) {
+        isScarecrowThere = scarecrowThere;
     }
 
     public String toString() {
