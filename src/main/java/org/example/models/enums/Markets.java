@@ -306,9 +306,6 @@ public enum Markets {
         vinegar.setPrice(100);
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
-        //TODO : need to be added:
-        //Grass Starter
-        //Speed-Gro waiting for kasra.
 
         new Tree(TreeType.AppleTree);
         Item appleSapling = new Tree(TreeType.AppleTree);
@@ -335,9 +332,7 @@ public enum Markets {
         pomegranateSapling.setPrice(4_000);
         items.put(pomegranateSapling, Double.POSITIVE_INFINITY);
 
-        //TODO: need to be added:
-        //Basic Retaining Soil
-        //Quality Retaining Soil
+
 
         Item basicRetainingSoil = new Item("Basic Retaining Soil" , 100 , "This soil has a chance of staying watered overnight. Mix into tilled soil.");
         items.put(basicRetainingSoil, Double.POSITIVE_INFINITY);
