@@ -14,8 +14,8 @@ public class Market extends Building {
     private HashMap<Item, Double> summerStock;
     private HashMap<Item, Double> autumnStock;
     private HashMap<Item, Double> winterStock;
-    HashMap<Item, Double> totalStock = permanentStock;
-    HashMap<Item, Double> counterStock = totalStock;
+    HashMap<Item, Double> totalStock;
+    HashMap<Item, Double> counterStock;
     private int startHour;
     private int endHour;
     private String[] menu;
@@ -28,6 +28,8 @@ public class Market extends Building {
         this.summerStock = summerStock;
         this.autumnStock = autumnStock;
         this.winterStock = winterStock;
+        this.totalStock = permanentStock;
+        this.counterStock = totalStock;
         this.startHour = startHour;
         this.endHour = endHour;
         this.menu = menu;
