@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.models.Items.Item;
+import org.example.models.MapDetails.Building;
 import org.example.models.common.Result;
 import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.enums.Types.Cages;
@@ -9,7 +10,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Coop implements Serializable {
+public class Coop extends Building implements Serializable {
+    private static final int height = 6;
+    private static final int width = 3;
     private int capacity;
     private int productPerDay;
     private int buildCost;
@@ -17,7 +20,8 @@ public class Coop implements Serializable {
     private boolean hasHeater;
     private boolean hasAutoFeeder;
 
-    public Coop(int capacity, int productPerDay, int buildCost) {
+    public Coop(int x, int y, String name, int capacity, int productPerDay, int buildCost) {
+        super(x, y, name, "coop");
         this.capacity = capacity;
         this.productPerDay = productPerDay;
         this.buildCost = buildCost;
@@ -110,9 +114,11 @@ public class Coop implements Serializable {
     public Cages getCageType() {
         if (capacity == 12) {
             return Cages.DELUXE_CAGE;
-        } else if (capacity == 8) {
+        }
+        else if (capacity == 8) {
             return Cages.BIG_CAGE;
-        } else {
+        }
+        else {
             return Cages.NORMAL_COOP;
         }
     }

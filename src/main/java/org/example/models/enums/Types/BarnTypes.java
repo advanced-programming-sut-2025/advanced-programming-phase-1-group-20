@@ -19,10 +19,10 @@ public enum BarnTypes {
         this.buildCost = buildCost;
     }
 
-    public Barn createBarn() {
-        return new Barn(capacity, productPerDay, buildCost);
-    }
-
+//    public Barn createBarn() {
+//        return new Barn(capacity, productPerDay, buildCost);
+//    }
+c
     public int getCapacity() {
         return capacity;
     }

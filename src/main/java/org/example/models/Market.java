@@ -21,8 +21,10 @@ public class Market extends Building {
     private String[] menu;
     private String name;
 
-    public Market(int x , int y , HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock, HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item, Double> winterStock, int startHour, int endHour, String[] menu , String name) {
-        super(x,y,name,"market");
+    public Market(int x , int y , HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock,
+                  HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item,
+                    Double> winterStock, int startHour, int endHour, String[] menu , String name) {
+        super(x, y, name, "market");
         this.permanentStock = permanentStock;
         this.springStock = springStock;
         this.summerStock = summerStock;
