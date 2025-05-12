@@ -1,14 +1,13 @@
 package org.example.models.MapDetails;
 
-import org.example.models.Items.CraftingItem;
-import org.example.models.Items.Item;
-import org.example.models.Items.Plant;
-import org.example.models.Items.Tree;
+import org.example.models.Items.*;
 import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.enums.Markets;
+import org.example.models.enums.Types.CropType;
+import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.TreeType;
 
@@ -100,8 +99,8 @@ public class GameMap {
         symbolMap.put("grass", '.');
         symbolMap.put("tilled_soil", '=');
         symbolMap.put("tree", 'T');
+        symbolMap.put("crop", 'C');
         symbolMap.put("stone", 'S');
-        symbolMap.put("water", '~');
         symbolMap.put("path", '#');
         symbolMap.put("lake", '~');
         symbolMap.put("quarry", 'Q');
@@ -123,8 +122,9 @@ public class GameMap {
         initializeFarms();
         connectFarmsToVillage();
 
-        placeRandomObjects("stone", 1000);
-        placeRandomObjects("tree", 1000);
+        placeRandomObjects("stone", 500);
+        placeRandomObjects("tree", 500);
+        placeRandomObjects("crop", 500);
 
     }
 
@@ -148,8 +148,21 @@ public class GameMap {
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
                 }
+                else if (type.equals("crop")) {
+                    tiles[x][y].setTile(TileType.CROP);
+
+                    CropType[] types = CropType.values();
+                    CropType randomType = types[rand.nextInt(types.length)];
+                    Crop crop = new Crop(randomType);
+                    tiles[x][y].setItem(crop);
+                }
                 else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
+
+                    MineralType[] types = MineralType.values();
+                    MineralType randomType = types[rand.nextInt(types.length)];
+                    Mineral stone = new Mineral(randomType);
+                    tiles[x][y].setItem(stone);
                 }
 
                 placed++;
@@ -474,6 +487,7 @@ public class GameMap {
                     case "grass" -> GREEN;
                     case "tilled_soil" -> YELLOW;
                     case "tree" -> GREEN;
+                    case "crop" -> LIGHT_GREEN;
                     case "stone" -> GRAY;
                     case "lake" -> BLUE;
                     case "path" -> YELLOW;

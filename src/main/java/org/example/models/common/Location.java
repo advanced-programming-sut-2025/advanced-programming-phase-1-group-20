@@ -29,6 +29,7 @@ public class Location {
             case WATER -> this.type = "water";
             case PATH -> this.type = "path";
             case BUILDING -> this.type = "building";
+            case CROP -> this.type = "crop";
             case GREENHOUSE -> this.type = "greenhouse";
             case LAKE -> this.type = "lake";
             case QUARRY -> this.type = "quarry";
