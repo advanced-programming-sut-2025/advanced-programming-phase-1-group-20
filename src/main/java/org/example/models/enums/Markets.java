@@ -307,7 +307,6 @@ public enum Markets {
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
         //TODO : need to be added:
-        //Deluxe Retaining Soil
         //Grass Starter
         //Speed-Gro waiting for kasra.
 
@@ -612,16 +611,26 @@ public enum Markets {
         items.put(stone, Double.POSITIVE_INFINITY);
 
 
-        //TODO: adding barns , kir to taha.
-        //Barn
-        //Big Barn
-        //Deluxe Barn
-        //Coop
-        //Big Coop
-        //Deluxe Coop
-        //Well
-        //Shipping Bin
-        //i need Barns taha... fuck you
+
+        Item barn = new Item("Barn" , 6_000);
+        items.put(barn,1.0);
+        Item bigBarn = new Item("Big Barn" , 12_000);
+        items.put(bigBarn,1.0);
+        Item deluxeBarn = new Item("Deluxe Barn" , 25_000);
+        items.put(deluxeBarn,1.0);
+
+
+        Item coop = new Item("Barn" , 4_000);
+        items.put(coop,1.0);
+        Item bigCoop = new Item("Big Barn" , 10_000);
+        items.put(bigCoop,1.0);
+        Item deluxeCoop = new Item("Deluxe Barn" , 20_000);
+        items.put(deluxeCoop,1.0);
+
+        Item well = new Item("Well" , 1_000);
+        items.put(well,1.0);
+        Item shippingBin = new Item("Shipping Bin" , 250);
+        items.put(shippingBin,Double.POSITIVE_INFINITY);
 
 
         int startHour = 9;
