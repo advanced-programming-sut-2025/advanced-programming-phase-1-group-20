@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class HuggingFaceApiClient {
     private static final String API_URL = "https://api-inference.huggingface.co/models/gpt2";
-    private static final String API_KEY = "hf_...jmzX"; // Mock API key for testing
+    private static final String API_KEY = "hf_...jmzX";
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
@@ -217,9 +217,6 @@ public class HuggingFaceApiClient {
         return gson.toJson(jsonResponse);
     }
 
-    /**
-     * Processes the API response to extract the generated dialogue.
-     */
     private static String processResponse(String responseJson, NPC npc) {
         try {
             // Parse the JSON response
@@ -232,7 +229,7 @@ public class HuggingFaceApiClient {
             generatedText = generatedText.trim();
 
             // If the response is empty or too short, use a fallback
-            if (generatedText.isEmpty() || generatedText.length() < 5) {
+            if (generatedText.length() < 5) {
                 return getFallbackDialogue(npc);
             }
 
@@ -245,19 +242,13 @@ public class HuggingFaceApiClient {
 
 
     private static String getFallbackDialogue(NPC npc) {
-        switch (npc.getCharacter()) {
-            case KIND:
-                return "It's always a pleasure to see you around!";
-            case HARD_WORKING:
-                return "Hard work pays off, don't you think?";
-            case LAZY:
-                return "Why rush? Life is meant to be enjoyed slowly.";
-            case JEALOUS:
-                return "I see you're doing well for yourself...";
-            case GREEDY:
-                return "Got anything valuable to trade today?";
-            default:
-                return "Hello there! Nice weather we're having.";
-        }
+        return switch (npc.getCharacter()) {
+            case KIND -> "It's always a pleasure to see you around!";
+            case HARD_WORKING -> "Hard work pays off, don't you think?";
+            case LAZY -> "Why rush? Life is meant to be enjoyed slowly.";
+            case JEALOUS -> "I see you're doing well for yourself...";
+            case GREEDY -> "Got anything valuable to trade today?";
+            default -> "Hello there! Nice weather we're having.";
+        };
     }
 }

@@ -76,54 +76,35 @@ public enum ToolFunctionality {
             // Upgrade function for Axe
             (tool) -> {
                 Tool.ToolMaterial currentMaterial = tool.getMaterial();
-                switch (currentMaterial) {
-                    case BASIC:
-                        return Tool.ToolMaterial.COPPER;
-                    case COPPER:
-                        return Tool.ToolMaterial.IRON;
-                    case IRON:
-                        return Tool.ToolMaterial.GOLD;
-                    case GOLD:
-                        return Tool.ToolMaterial.IRIDIUM;
-                    default:
-                        return null; // Already at highest material
-                }
+                return switch (currentMaterial) {
+                    case BASIC -> Tool.ToolMaterial.COPPER;
+                    case COPPER -> Tool.ToolMaterial.IRON;
+                    case IRON -> Tool.ToolMaterial.GOLD;
+                    case GOLD -> Tool.ToolMaterial.IRIDIUM;
+                    default -> null; // Already at highest material
+                };
             },
             // Energy consumption function for Axe
             (material) -> {
-                switch (material) {
-                    case BASIC:
-                        return 5;
-                    case COPPER:
-                        return 4;
-                    case IRON:
-                        return 3;
-                    case GOLD:
-                        return 2;
-                    case IRIDIUM:
-                        return 1;
-                    default:
-                        return 5;
-                }
+                return switch (material) {
+                    case BASIC -> 5;
+                    case COPPER -> 4;
+                    case IRON -> 3;
+                    case GOLD -> 2;
+                    case IRIDIUM -> 1;
+                    default -> 5;
+                };
             },
             // Base sell price function for Axe
             (material) -> {
-                switch (material) {
-                    case BASIC:
-                        return 0;
-                    case COPPER:
-                        return 2000;
-                    case IRON:
-                        return 5000;
-                    case GOLD:
-                        return 10000;
-                    case IRIDIUM:
-                        return 25000;
-                    default:
-                        return 0;
-                }
+                return switch (material) {
+                    case BASIC -> 0;
+                    case COPPER -> 2000;
+                    case IRON -> 5000;
+                    case GOLD -> 10000;
+                    case IRIDIUM -> 25000;
+                };
             },
-            // Associated skill for Axe
             Skills.FORAGING
     ),
 
@@ -207,37 +188,23 @@ public enum ToolFunctionality {
             },
             // Energy consumption function for Watering Can
             (material) -> {
-                switch (material) {
-                    case BASIC:
-                        return 5;
-                    case COPPER:
-                        return 4;
-                    case IRON:
-                        return 3;
-                    case GOLD:
-                        return 2;
-                    case IRIDIUM:
-                        return 1;
-                    default:
-                        return 5;
-                }
+                return switch (material) {
+                    case BASIC -> 5;
+                    case COPPER -> 4;
+                    case IRON -> 3;
+                    case GOLD -> 2;
+                    case IRIDIUM -> 1;
+                };
             },
             // Base sell price function for Watering Can
             (material) -> {
-                switch (material) {
-                    case BASIC:
-                        return 0;
-                    case COPPER:
-                        return 2000;
-                    case IRON:
-                        return 5000;
-                    case GOLD:
-                        return 10000;
-                    case IRIDIUM:
-                        return 25000;
-                    default:
-                        return 0;
-                }
+                return switch (material) {
+                    case BASIC -> 0;
+                    case COPPER -> 2000;
+                    case IRON -> 5000;
+                    case GOLD -> 10000;
+                    case IRIDIUM -> 25000;
+                };
             },
             // Associated skill for Watering Can
             Skills.FARMING
@@ -488,7 +455,7 @@ public enum ToolFunctionality {
         this.baseSellPriceFunction = baseSellPriceFunction;
         this.associatedSkill = associatedSkill;
     }
-    
+
     public boolean use(Tool tool, Object... params) {
         return useFunction.apply(tool, params);
     }
