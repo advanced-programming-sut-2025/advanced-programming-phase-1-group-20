@@ -21,7 +21,6 @@ public class Lake implements Serializable {
     private final List<Fish> availableFish;
     private final Random random;
 
-
     public Lake(int x, int y, int width, int height, String name, LakeType type) {
         this.x = x;
         this.y = y;
@@ -66,7 +65,6 @@ public class Lake implements Serializable {
         }
         return false;
     }
-
 
     public List<Fish> fish(int fishingSkill, double rodMultiplier, Weather currentWeather) {
         List<Fish> caughtFish = new ArrayList<>();
@@ -114,7 +112,6 @@ public class Lake implements Serializable {
         return caughtFish;
     }
 
-    // Getters
     public int getX() {
         return x;
     }
