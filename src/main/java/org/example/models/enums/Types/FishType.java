@@ -2,7 +2,10 @@ package org.example.models.enums.Types;
 
 import org.example.models.enums.Seasons;
 
-
+/**
+ * Enum representing different types of fish available in the game.
+ * Each fish has specific properties such as name, price, quality, and season availability.
+ */
 public enum FishType {
     // Regular Fish by Season
     // Spring Fish
@@ -48,7 +51,12 @@ public enum FishType {
         this.description = description;
     }
 
-
+    /**
+     * Get a fish type by its name.
+     *
+     * @param name The name of the fish to retrieve
+     * @return The FishType with the given name, or null if not found
+     */
     public static FishType fromName(String name) {
         for (FishType type : FishType.values()) {
             if (type.getName().equals(name)) {
@@ -58,7 +66,14 @@ public enum FishType {
         return null;
     }
 
-
+    /**
+     * Get all fish available in a specific season.
+     *
+     * @param season          The season to check
+     * @param includeLegenday Whether to include legendary fish
+     * @param fishingSkill    The player's fishing skill level (legendary fish require max skill)
+     * @return Array of fish types available in the given season
+     */
     public static FishType[] getAvailableFish(Seasons season, boolean includeLegenday, int fishingSkill) {
         // Count fish available in this season
         int count = 0;
@@ -82,7 +97,12 @@ public enum FishType {
         return availableFish;
     }
 
-
+    /**
+     * Check if this fish is available in the given season.
+     *
+     * @param season The season to check
+     * @return true if the fish is available in the season, false otherwise
+     */
     public boolean isAvailableInSeason(Seasons season) {
         for (Seasons s : seasons) {
             if (s == season) {

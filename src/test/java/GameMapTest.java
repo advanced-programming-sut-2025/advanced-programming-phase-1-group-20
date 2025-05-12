@@ -8,7 +8,7 @@ import java.io.PrintStream;
 public class GameMapTest {
     @Test
     public void testPrintMap() {
-        GameMap gameMap = new GameMap(41, 31, null);
+        GameMap gameMap = new GameMap(61, 31, null);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
@@ -48,7 +48,7 @@ public class GameMapTest {
         } finally {
             System.setOut(originalOut);
         }
-        gameMap.printCurrentViewColored(20, 15, 20);
+        gameMap.printCurrentViewColored(30, 15, 30);
         System.out.println("testPrintMap: PASSED");
     }
 }

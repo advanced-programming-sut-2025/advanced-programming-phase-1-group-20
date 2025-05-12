@@ -19,8 +19,14 @@ public class Refrigerator {
         items.add(item);
     }
 
-    public boolean pickItem(Item item) {
-        return items.remove(item);
+    public Item pickItem(Item item) {
+        for (Item i : items) {
+            if (i.equals(item)) {
+                items.remove(i);
+                return i;
+            }
+        }
+        return null;
     }
 
     public boolean contains(Item item) {
