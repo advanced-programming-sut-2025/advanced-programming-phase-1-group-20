@@ -7,6 +7,7 @@ public enum MarketMenuCommands implements Command {
     ShowAllAvailableProducts(Pattern.compile("\\s*Show\\s+all\\s+available\\s+products\\s*")),
     Purchase(Pattern.compile("\\s*Purchase\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
     CheatAddDollars(Pattern.compile("\\s*cheat\\s+add\\s+-n\\s+(?<count>\\d+)\\s*")),
+    ToolUpgrade(Pattern.compile("^tools\\s+upgrade\\s+(?<toolName>.+)$")),
     None(null);
 
     private final Pattern pattern;

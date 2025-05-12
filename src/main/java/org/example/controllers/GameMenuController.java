@@ -124,7 +124,6 @@ public class GameMenuController implements Controller {
             case ToolEquip -> result = equipTool(args);
             case ToolShowCurrent -> result = showCurrentTool();
             case ToolShowAvailable -> result = showAvailableTools();
-            case ToolUpgrade -> result = upgradeTool(args);
             case ToolUse -> result = useTool(args);
 
             // Greenhouse-related commands
@@ -771,22 +770,6 @@ public class GameMenuController implements Controller {
                 sb.append("- ").append(tool.getName()).append("\n");
             }
             return Result.success(sb.toString());
-        }
-    }
-
-
-    private Result upgradeTool(String[] args) {
-        if (args == null || args.length < 1) {
-            return Result.error("Tool name not specified");
-        }
-
-        String toolName = args[0];
-        boolean success = player.upgradeTool(toolName);
-
-        if (success) {
-            return Result.success("Tool " + toolName + " upgraded successfully");
-        } else {
-            return Result.error("Failed to upgrade tool " + toolName + ". Make sure you are in a blacksmith and have enough resources.");
         }
     }
 

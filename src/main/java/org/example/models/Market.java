@@ -2,6 +2,7 @@ package org.example.models;
 
 import org.example.models.Items.Item;
 import org.example.models.MapDetails.Building;
+import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.enums.Seasons;
 
@@ -195,10 +196,7 @@ public class Market extends Building {
         }
     }
 
-    private boolean checkFishShop(Player player , Item item , double count){
-        if(!(item.getName().equals("Fish Smoker") || item.getName().equals("Trout Soup") || item.getName().equals("Bamboo Pole") || item.getName().equals("Training Rod"))) {
-            //TODO : check skills for these items.
-        }
+    private boolean checkFast(Player player , Item item , double count) {
         if(!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
@@ -208,17 +206,36 @@ public class Market extends Building {
         return false;
     }
 
-    private boolean checkPirreGeneralStore(Player player , Item item , double count){
-        if(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
+    private boolean checkFishShop(Player player , Item item , double count){
+        if(item.getName().equals("Fiberglass Rod")) {
+            if(!(player.getSkills().get(0).getLevel() > 2)){
+                return false;
+            }
+            return checkFast(player,item,count);
+        }
+        if(item.getName().equals("Iridium Rod")){
+            if(!(player.getSkills().get(0).getLevel() > 4)){
+                return false;
+            }
+            return checkFast(player,item,count);
+        }
+        return checkFast(player, item, count);
+    }
 
+    private boolean checkPirreGeneralStore(Player player , Item item , double count){
+        if(item.getName().equals("Large Pack")) {
+            if(!(player.getBackpack().getType() == Backpack.Type.Initial)){
+                return false;
+            }
+            return checkFast(player,item,count);
         }
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
-            return false;
+        if(item.getName().equals("Deluxe Pack")){
+           if(!(player.getBackpack().getType() == Backpack.Type.Big)){
+               return false;
+           }
+           return checkFast(player,item,count);
         }
-        if(item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
+        return checkFast(player, item, count);
     }
 
     private boolean checkBlackSmith(Player player, Item item, double count) {

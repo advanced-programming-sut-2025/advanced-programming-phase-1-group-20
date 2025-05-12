@@ -96,7 +96,15 @@ public class Backpack {
         return countItems() >= 12; // Default to Initial capacity
     }
 
-    enum Type {
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public enum Type {
         Initial,
         Big,
         Deluxe

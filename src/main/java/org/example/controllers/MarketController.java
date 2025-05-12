@@ -43,6 +43,7 @@ public class MarketController implements Controller {
             case ShowAllAvailableProducts -> showAllAvailableProducts();
             case Purchase -> result = purchase(args);
             case CheatAddDollars -> cheatAddDollars(args);
+            case ToolUpgrade -> result = upgradeTool(args);
             case None -> Result.error("Invalid input");
         }
         return result;
@@ -83,5 +84,20 @@ public class MarketController implements Controller {
     private void cheatAddDollars(String[] args) {
         int amount = Integer.parseInt(args[0]);
         player.increaseMoney(amount);
+    }
+
+    private Result upgradeTool(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Tool name not specified");
+        }
+
+        String toolName = args[0];
+        boolean success = player.upgradeTool(toolName);
+
+        if (success) {
+            return Result.success("Tool " + toolName + " upgraded successfully");
+        } else {
+            return Result.error("Failed to upgrade tool " + toolName + ". Make sure you are in a blacksmith and have enough resources.");
+        }
     }
 }
