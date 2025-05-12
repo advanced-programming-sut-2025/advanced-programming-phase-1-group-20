@@ -2,10 +2,10 @@ package org.example.models.Player;
 
 public class Skill {
     private int units;
-    private int maxLevel = 4;
+    private final int maxLevel = 4;
     private int level = 1;
-    private int adderUnit;
-    private String name;
+    private final int adderUnit;
+    private final String name;
 
     public Skill(int level, String name, int adderUnit) {
         this.level = level;
