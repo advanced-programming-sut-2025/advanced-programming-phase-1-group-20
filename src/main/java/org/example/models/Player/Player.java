@@ -172,18 +172,24 @@ public class Player {
 
 
     public String meetNPC(NPC npc) {
-        // Get the current date
+        if (!isNearby(npc)) {
+            return "You are too far away from " + npc.getName() + " to talk.";
+        }
         Date currentDate = org.example.models.App.getGame().getDate();
 
-        // Get or create the friendship with this NPC
         NPCFriendship friendship = npc.getFriendship(this);
 
-        // Talk to the NPC and get their response
         String response = friendship.talk(currentDate);
 
         return response;
     }
 
+    private boolean isNearby(NPC npc) {
+        // Check if the NPC is within a certain distance from the player
+        int distance = Math.abs(npc.getLocation().getX() - this.location.getX()) +
+                Math.abs(npc.getLocation().getY() - this.location.getY());
+        return distance <= 1;
+    }
 
     public Map<String, String> getNPCFriendships() {
         Map<String, String> friendships = new HashMap<>();
@@ -363,7 +369,7 @@ public class Player {
         return tools;
     }
 
-    public boolean upgradeTool(String toolName , Market market) {
+    public boolean upgradeTool(String toolName, Market market) {
         // Check if the tool is in the backpack
         Item item = backpack.getItem(toolName);
         if (item == null || !(item instanceof Tool)) {

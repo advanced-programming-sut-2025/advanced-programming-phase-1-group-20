@@ -51,7 +51,7 @@ public class QuestManager {
         initializeQuestsForRobin();
     }
 
- 
+
     private void initializeQuestsForSebastian() {
         List<Quest> sebastianQuests = new ArrayList<>();
 
@@ -451,9 +451,7 @@ public class QuestManager {
         return false;
     }
 
-    /**
-     * Get a quest by its ID.
-     */
+
     public Quest getQuest(int questId) {
         return allQuests.get(questId);
     }
