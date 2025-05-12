@@ -1466,7 +1466,6 @@ public class GameMenuController implements Controller {
             return Result.error("NPC with name " + npcName + " not found.");
         }
 
-        // Check if player is near the NPC
         Location playerLocation = player.getLocation();
         Location npcLocation = npcEnum.getLocation();
 
@@ -1476,19 +1475,14 @@ public class GameMenuController implements Controller {
             return Result.error("You need to be adjacent to " + npcName + " to talk to them.");
         }
 
-        // Create an NPC object from the enum
         NPC npc = createNPCFromEnum(npcEnum);
 
-        // Get the current date for time-appropriate dialogue
         Date currentDate = App.getGame().getDate();
 
-        // Use the player's meetNPC method to get the dialogue
         String response = player.meetNPC(npc);
 
-        // Format the response with the NPC's name
         String dialogue = npcName + ": " + response;
 
-        // For first-time meetings or low friendship levels, include background info
         Map<String, String> friendships = player.getNPCFriendships();
         if (!friendships.containsKey(npcName) || friendships.get(npcName).contains("Level: 0")) {
             dialogue += "\n\n" + npcEnum.getDescription();
@@ -1497,12 +1491,7 @@ public class GameMenuController implements Controller {
         return Result.success(dialogue);
     }
 
-    /**
-     * Creates an NPC object from an Npcs enum value
-     *
-     * @param npcEnum The Npcs enum value
-     * @return A new NPC object
-     */
+
     private NPC createNPCFromEnum(Npcs npcEnum) {
         // Create a new NPC with the properties from the enum
         HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
@@ -1561,20 +1550,16 @@ public class GameMenuController implements Controller {
             return Result.error("You need to be adjacent to " + npcName + " to give them a gift.");
         }
 
-        // Create an NPC object from the enum
         NPC npc = createNPCFromEnum(npcEnum);
 
-        // Use the player's giftNPC method to give the gift and get the response
         boolean success = player.giftNPC(npc, item);
 
         if (!success) {
             return Result.error("You can't gift that item to " + npcName + ".");
         }
 
-        // Get the current date for time-appropriate dialogue
         Date currentDate = App.getGame().getDate();
 
-        // Check if the item is a favorite of the NPC
         boolean isFavorite = npc.isFavoriteItem(item);
 
         // Get the NPC's friendship level
@@ -1585,7 +1570,6 @@ public class GameMenuController implements Controller {
         StringBuilder resultMessage = new StringBuilder();
         resultMessage.append("You gave ").append(itemName).append(" to ").append(npcName).append(".\n\n");
 
-        // Add the NPC's response
         if (isFavorite) {
             resultMessage.append(npcName).append(" loved your gift! Friendship increased by 200 points.");
         } else {
@@ -1639,7 +1623,6 @@ public class GameMenuController implements Controller {
                 result.append(questIndex).append(". [").append(quest.getNpc().getName()).append("] ");
                 result.append(quest.getTitle()).append(": ").append(quest.getDescription()).append("\n");
 
-                // Add requirements
                 result.append("   Requirements: ");
                 for (Map.Entry<Item, Integer> requirement : quest.getRequirements().entrySet()) {
                     result.append(requirement.getValue()).append(" ").append(requirement.getKey().getName()).append(", ");
@@ -1665,7 +1648,6 @@ public class GameMenuController implements Controller {
             }
         }
 
-        // Update quests based on current date and friendship levels
         questManager.updateQuestsForPlayer(player, App.getGame().getDate());
 
         return Result.success(result.toString());
@@ -1681,16 +1663,13 @@ public class GameMenuController implements Controller {
             QuestManager questManager = QuestManager.getInstance();
             List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
 
-            // Check if the quest index is valid
             if (questIndex < 1 || questIndex > activeQuests.size()) {
                 return Result.error("Invalid quest index. Please choose a number between 1 and " + activeQuests.size() + ".");
             }
 
-            // Get the quest
             Quest quest = activeQuests.get(questIndex - 1);
             Npcs npc = quest.getNpc();
 
-            // Check if player is near the NPC
             Location playerLocation = player.getLocation();
             Location npcLocation = npc.getLocation();
 
