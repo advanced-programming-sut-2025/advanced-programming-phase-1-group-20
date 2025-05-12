@@ -84,6 +84,15 @@ public enum PlantType {
         return null;
     }
 
+    public static PlantType fromSeed(String seed) {
+        for (PlantType type : PlantType.values()) {
+            if (type.getSeed().equals(seed)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }

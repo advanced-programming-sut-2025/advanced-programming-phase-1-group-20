@@ -24,4 +24,8 @@ public class Crop extends Item {
     public void showInfo() {
         type.showInfo();
     }
+
+    public Fruit getFruit() {
+        return new Fruit(getName() , getPrice() , getEnergy());
+    }
 }

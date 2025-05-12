@@ -109,6 +109,10 @@ public class Plant extends Item {
         return finished;
     }
 
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
     public boolean getMoisture() {
         return moisture;
     }
@@ -130,5 +134,12 @@ public class Plant extends Item {
         if (!finished) {
             updateDaysCounter();
         }
+    }
+
+    public Fruit getFruit() {
+        if(finished) {
+            return new Fruit(getName() , getPrice() , getEnergy());
+        }
+        return null;
     }
 }

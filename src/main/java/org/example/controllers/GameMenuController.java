@@ -13,6 +13,7 @@ import org.example.models.enums.Npcs;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
+import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
@@ -322,11 +323,18 @@ public class GameMenuController implements Controller {
     private Result plant(String[] args) {
         String seedName = args[0];
         String direction = args[1];
+
         int[] dir = getDirection(direction);
+        if(dir == null) {
+            return Result.error("Invalid direction");
+        }
+
+
         Item item = player.getBackpack().getItem(seedName);
         Location loc = player.getLocation();
         int x = loc.getX() + dir[1];
         int y = loc.getY() + dir[0];
+
         if (item == null) {
             return Result.error(seedName + " does not exist in backpack.");
         }
@@ -339,32 +347,55 @@ public class GameMenuController implements Controller {
         if (gMap.getItem(x, y) != null) {
             return Result.error("there is an item on the ground");
         }
+        if(!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
+            return Result.error("item is not plant");
+        }
 
-        if (seedName.equals("Mixed Seeds")) {
-            seedName = gameClock.getSeason().getRandomSeed();
-            item = ItemBuilder.build(seedName);
-            if (item == null) {
-                return Result.error("Item does not exist");
+
+        if(item instanceof Seed){
+            if (seedName.equals("Mixed Seeds")) {
+                seedName = gameClock.getSeason().getRandomSeed();
+                PlantType type = PlantType.fromSeed(seedName);
+                if(type == null) {
+                    return Result.error("Plant type not found");
+                }
+                item = new Plant(type);
             }
-        }
-        Item seedItem = ItemBuilder.build(seedName);
-        Seed seed = (Seed) seedItem;
-        Seasons[] seasons = seed.getSeason();
-        int counter = 0;
 
-        for (Seasons season : seasons) {
-            if (gameClock.getSeason() == season) {
-                counter++;
+            Item seedItem = ItemBuilder.build(seedName);
+            Seed seed = (Seed) seedItem;
+            Seasons[] seasons = seed.getSeason();
+            int counter = 0;
+
+            for (Seasons season : seasons) {
+                if (gameClock.getSeason() == season) {
+                    counter++;
+                }
             }
+
+            if (counter == 0) {
+                return Result.error("This seed is not for this season.");
+            }
+
+
+            gMap.placeItem(x, y, item);
         }
-
-        if (counter == 0) {
-            return Result.error("There seed is not for this season.");
+        else if(item instanceof Tree){
+            Tree tree = (Tree) item;
+            Seasons[] seasons = tree.getSeasons();
+            int counter = 0;
+            for (Seasons season : seasons) {
+                if (gameClock.getSeason() == season) {
+                    counter++;
+                }
+            }
+            if (counter == 0) {
+                return Result.error("This Tree is not for this season.");
+            }
+            gMap.placeItem(x, y, tree);
         }
-
-
-        gMap.placeItem(x, y, item);
         return Result.success(seedName + "planted successfully!");
+
     }
 
 
@@ -400,7 +431,7 @@ public class GameMenuController implements Controller {
                 dir[1] = -1;
                 break;
         }
-        return dir;
+        return null;
     }
 
 
@@ -410,6 +441,7 @@ public class GameMenuController implements Controller {
         int y = Integer.parseInt(args[1]);
 
         Location location = gMap.getItem(x, y);
+
         if (location == null || location.getItem() == null) {
             return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
         }
@@ -419,7 +451,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    //TODO : fertilize need to be completed
+    //we dont have fertilize
     private Result fertilize(String[] args) {
         String fertilizer = args[0];
         Item item = ItemBuilder.build(fertilizer);
@@ -448,6 +480,10 @@ public class GameMenuController implements Controller {
         String direction = args[0];
         Location location = player.getLocation();
         int[] dir = getDirection(direction);
+        if(dir == null) {
+            return Result.error("Invalid direction");
+        }
+
         int x = location.getX() + dir[1];
         int y = location.getY() + dir[0];
 
@@ -487,14 +523,43 @@ public class GameMenuController implements Controller {
         }
 
         Item item = targetLocation.getItem();
-        if (!((item instanceof Plant) || (item instanceof Tree))) {
+        if (!((item instanceof Plant) || (item instanceof Tree) || (item instanceof Crop))) {
             return Result.error("Item is not harvestable");
         }
         if (!item.getFinished()) {
             return Result.error("Plant is not ready yet");
         }
-        //TODO : check item im getting is correct or not.
-        player.getBackpack().add(item, 1);
+
+        if(item instanceof Tree) {
+            Tree tree = (Tree) item;
+            Item fruit = tree.getFruit();
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            player.getBackpack().add(fruit , 1);
+        }
+        if(item instanceof Plant) {
+            Plant plant = (Plant) item;
+            Item fruit = plant.getFruit();
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            player.getBackpack().add(fruit , 1);
+            if(plant.getOneTimeHarvest()){
+                gMap.placeItem(x , y , null);
+            }else{
+                plant.setFinished(false);
+            }
+        }
+        if(item instanceof Crop) {
+            Crop crop = (Crop) item;
+            Item fruit = crop.getFruit();
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            player.getBackpack().add(fruit , 1);
+            gMap.placeItem(x , y , null);
+        }
         return Result.success("Plant has been harvested!");
     }
 
@@ -526,6 +591,7 @@ public class GameMenuController implements Controller {
             return Result.error("Your backpack is full");
         }
 
+
         player.getBackpack().add(craftedItem, 1);
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
@@ -536,6 +602,11 @@ public class GameMenuController implements Controller {
         String itemName = args[0];
         String direction = args[1];
         int[] dir = getDirection(direction);
+
+        if(dir == null) {
+            return Result.error("Invalid direction");
+        }
+
         Location loc = player.getLocation();
         int x = loc.getX() + dir[1];
         int y = loc.getY() + dir[0];
@@ -551,6 +622,120 @@ public class GameMenuController implements Controller {
         }
 
         gMap.placeItem(x, y, item);
+
+
+        if(item instanceof CraftingItem) {
+            //it will be replaced as item.place() like a function pointer.
+            switch (item.getName()){
+                case "Cherry Bomb"->{
+                    for(int i = x-3 ; i <= x+3 ; i++){
+                        for(int j = y-3 ; j <= y+3 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                gMap.getItem(i , j).setItem(null);
+                            }
+                        }
+                    }
+                }
+                case "Bomb"->{
+                    for(int i = x-5 ; i <= x+5 ; i++){
+                        for(int j = y-5 ; j <= y+5 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                gMap.getItem(i , j).setItem(null);
+                            }
+                        }
+                    }
+                }
+                case "Mega Bomb"->{
+                    for(int i = x-7 ; i <= x+7 ; i++){
+                        for(int j = y-7 ; j <= y+7 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                gMap.getItem(i , j).setItem(null);
+                            }
+                        }
+                    }
+                }
+                case "Sprinkler"->{
+                    for(int i = x-4 ; i <= x+4 ; i++){
+                        for(int j = y-4 ; j <= y+4 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                Item check = gMap.getItem(i , j).getItem();
+                                if(check != null){
+                                    if(check instanceof Plant){
+                                        Plant plant = (Plant) check;
+                                        plant.setMoisture(true);
+                                    }else if(check instanceof Tree){
+                                        Tree tree = (Tree) check;
+                                        tree.setMoisture(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                case "Quality Sprinkler"->{
+                    for(int i = x-3 ; i <= x+8 ; i++){
+                        for(int j = y-3 ; j <= y+8 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                Item check = gMap.getItem(i , j).getItem();
+                                if(check != null){
+                                    if(check instanceof Plant){
+                                        Plant plant = (Plant) check;
+                                        plant.setMoisture(true);
+                                    }else if(check instanceof Tree){
+                                        Tree tree = (Tree) check;
+                                        tree.setMoisture(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                case "Iridium Sprinkler"->{
+                    for(int i = x-3 ; i <= x+24 ; i++){
+                        for(int j = y-3 ; j <= y+24 ; j++){
+                            if(gMap.getItem(i, j) != null){
+                                Item check = gMap.getItem(i , j).getItem();
+                                if(check != null){
+                                    if(check instanceof Plant){
+                                        Plant plant = (Plant) check;
+                                        plant.setMoisture(true);
+                                    }else if(check instanceof Tree){
+                                        Tree tree = (Tree) check;
+                                        tree.setMoisture(true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                case "Scarecrow"->{
+                    for(int i = x-3 ; i <= x+8 ; i++){
+                        for(int j = y-3 ; j <= y+8 ; j++){
+                            Item check = gMap.getItem(i , j).getItem();
+                            if(check != null){
+                                if(check instanceof Plant){
+                                    Plant plant = (Plant) check;
+                                    plant.setMoisture(true);
+                                }else if(check instanceof Tree){
+                                    Tree tree = (Tree) check;
+                                    tree.setMoisture(true);
+                                }
+                            }
+                        }
+                    }
+                }
+                case "Deluxe Scarecrow"->{
+                    for(int i = x-3 ; i <= x+12 ; i++){
+                        for(int j = y-3 ; j <= y+12 ; j++){
+
+                        }
+                    }
+                }
+                case "Bee House"->{
+
+                }
+            }
+        }
 
         return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
     }

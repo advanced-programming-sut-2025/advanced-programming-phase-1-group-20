@@ -19,6 +19,7 @@ public class CraftingItem extends Item {
         super(type.getName(), type.getBaseSellPrice());
         this.type = type;
         this.proccessingItem = null;
+        this.setPlacable(true);
     }
 
     public String getIngredients() {

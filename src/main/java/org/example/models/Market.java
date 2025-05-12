@@ -261,12 +261,22 @@ public class Market extends Building {
     }
 
     private boolean checkMarnieShop(Player player, Item item , double count) {
-        //TODO : this method needed to be completed after barns ready.
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
         return false;
     }
 
     private boolean checkCarpentersShop(Player player, Item item , double count) {
-        //TODO : this method needed to be completed after barns ready.
+        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if(item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
         return false;
     }
 

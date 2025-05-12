@@ -111,4 +111,8 @@ public class Tree extends Item {
         return new Mineral(MineralType.Coal);
     }
 
+    public Fruit getFruit() {
+        return new Fruit(getName(), getPrice(), getEnergy());
+    }
+
 }
