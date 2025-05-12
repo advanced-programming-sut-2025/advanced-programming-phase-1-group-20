@@ -373,6 +373,88 @@ public class Player {
         }
 
         Tool tool = (Tool) item;
+        switch (tool.getMaterial()){
+            case BASIC ->{
+                int cost = 1_000;
+                if(!toolName.equalsIgnoreCase("Trash Can")){
+                    cost = cost * 2;
+                }
+                if(getMoney() < cost){
+                    return false;
+                }
+                if(getBackpack().getItem("Cooper Bar") == null){
+                    return false;
+                }else{
+                    Item item1 = getBackpack().getItem("Cooper Bar");
+                    if(getBackpack().getInventory().get(item1) < 5){
+                        return false;
+                    }
+                }
+                decreaseMoney(getMoney() - cost);
+                getBackpack().remove(tool , 5);
+            }
+            case COPPER ->{
+                int cost = 2_500;
+                if(!toolName.equalsIgnoreCase("Trash Can")){
+                    cost = cost * 2;
+                }
+                if(getMoney() < cost){
+                    return false;
+                }
+                if(getBackpack().getItem("Iron Bar") == null){
+                    return false;
+                }else{
+                    Item item1 = getBackpack().getItem("Iron Bar");
+                    if(getBackpack().getInventory().get(item1) < 5){
+                        return false;
+                    }
+                }
+                decreaseMoney(getMoney() - cost);
+                getBackpack().remove(tool , 5);
+            }
+            case IRON ->{
+                int cost = 5_000;
+                if(!toolName.equalsIgnoreCase("Trash Can")){
+                    cost = cost * 2;
+                }
+                if(getMoney() < cost){
+                    return false;
+                }
+                if(getBackpack().getItem("Gold Bar") == null){
+                    return false;
+                }else{
+                    Item item1 = getBackpack().getItem("Gold Bar");
+                    if(getBackpack().getInventory().get(item1) < 5){
+                        return false;
+                    }
+                }
+                decreaseMoney(getMoney() - cost);
+                getBackpack().remove(tool , 5);
+            }
+            case GOLD ->{
+                int cost = 12_500;
+                if(!toolName.equalsIgnoreCase("Trash Can")){
+                    cost = cost * 2;
+                }
+                if(getMoney() < cost){
+                    return false;
+                }
+                if(getBackpack().getItem("Iridium Bar") == null){
+                    return false;
+                }else{
+                    Item item1 = getBackpack().getItem("Iridium Bar");
+                    if(getBackpack().getInventory().get(item1) < 5){
+                        return false;
+                    }
+                }
+                decreaseMoney(getMoney() - cost);
+                getBackpack().remove(tool , 5);
+            }
+            case IRIDIUM ->{
+                return false;
+            }
+        }
+
         Tool upgradedTool = tool.upgrade();
         if (upgradedTool == null) {
             return false;
