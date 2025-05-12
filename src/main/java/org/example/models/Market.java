@@ -273,10 +273,10 @@ public class Market extends Building {
     }
 
     private boolean checkCarpentersShop(Player player, Item item , double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
-        if(item.getPrice() * count <= player.getMoney()) {
+        if (item.getPrice() * count <= player.getMoney()) {
             return true;
         }
         return false;

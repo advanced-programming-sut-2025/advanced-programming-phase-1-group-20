@@ -22,7 +22,7 @@ public enum BarnTypes {
 //    public Barn createBarn() {
 //        return new Barn(capacity, productPerDay, buildCost);
 //    }
-c
+
     public int getCapacity() {
         return capacity;
     }
