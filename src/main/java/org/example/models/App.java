@@ -1,5 +1,6 @@
 package org.example.models;
 
+import org.example.controllers.NPCController;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.entities.Game;
@@ -42,6 +43,9 @@ public class App {
             }
 
             loadAllGames();
+
+            // Initialize the NPCController
+            NPCController.initialize();
 
             dataLoaded = true;
         }

@@ -1,18 +1,21 @@
 package org.example.models.entities;
 
-import org.example.models.App;
+import org.example.controllers.NPCController;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.enums.Charactristic;
 import org.example.models.enums.Jobs;
-import org.example.models.enums.Weather;
-import org.example.models.utils.HuggingFaceApiClient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class NPC extends Mob {
+    // Controller reference
+    private static NPCController controller;
     // Dialogue options based on different conditions
     private final List<String> morningDialogues;
     private final List<String> afternoonDialogues;
@@ -30,7 +33,6 @@ public class NPC extends Mob {
     private Map<Player, NPCFriendship> friendships;
     private Location location;
     private String description;
-
     // Flag to control whether to use AI-generated dialogues
     private boolean useAiDialogue = false;
 
@@ -54,6 +56,16 @@ public class NPC extends Mob {
 
         // Add default dialogues based on character
         initializeDefaultDialogues();
+    }
+
+    // Static method to get the controller
+    public static NPCController getController() {
+        return controller;
+    }
+
+    // Static method to set the controller
+    public static void setController(NPCController npcController) {
+        controller = npcController;
     }
 
     private void initializeDefaultDialogues() {
@@ -265,115 +277,18 @@ public class NPC extends Mob {
     }
 
     public String getDialogue(Date currentDate, int friendshipLevel) {
-        // If AI dialogue is enabled, use the Hugging Face API
-        if (useAiDialogue) {
-            try {
-                // Create context information for the AI
-                String context = createContextForAi(currentDate, friendshipLevel);
-
-                // Call the AI service to generate dialogue
-                return HuggingFaceApiClient.generateDialogue(this, context);
-            } catch (Exception e) {
-                System.err.println("Error using AI dialogue, falling back to predefined dialogues: " + e.getMessage());
-                // If AI fails, fall back to predefined dialogues
-                return getPreDefinedDialogue(currentDate, friendshipLevel);
-            }
-        } else {
-            return getPreDefinedDialogue(currentDate, friendshipLevel);
-        }
-    }
-
-
-    private String createContextForAi(Date currentDate, int friendshipLevel) {
-        StringBuilder context = new StringBuilder();
-
-        // Add time context
-        int hour = currentDate.getHour();
-        if (hour >= 6 && hour < 12) {
-            context.append("Time: Morning. ");
-        } else if (hour >= 12 && hour < 18) {
-            context.append("Time: Afternoon. ");
-        } else {
-            context.append("Time: Evening. ");
-        }
-
-        // Add weather context
-        try {
-            if (App.getGame() != null && App.getGame().getDate() != null) {
-                Weather currentWeather = App.getGame().getDate().getWeatherToday();
-                context.append("Weather: ").append(currentWeather).append(". ");
-            } else {
-                context.append("Weather: SUNNY. "); // Default weather
-            }
-        } catch (Exception e) {
-            // In test environment, App.getGame() might be null
-            context.append("Weather: SUNNY. "); // Default weather
-        }
-
-        // Add friendship level context
-        context.append("Friendship Level: ").append(friendshipLevel).append(" out of 3. ");
-
-        // Add character trait context
-        context.append("The NPC is ").append(character).append(". ");
-
-        return context.toString();
-    }
-
-
-    private String getPreDefinedDialogue(Date currentDate, int friendshipLevel) {
-        Random random = new Random();
-        List<String> appropriateDialogues = new ArrayList<>();
-
-        // Add time-based dialogues
-        int hour = currentDate.getHour();
-        if (hour >= 6 && hour < 12) {
-            appropriateDialogues.addAll(morningDialogues);
-        } else if (hour >= 12 && hour < 18) {
-            appropriateDialogues.addAll(afternoonDialogues);
-        } else {
-            appropriateDialogues.addAll(eveningDialogues);
-        }
-
-        // Add weather-based dialogues
-        try {
-            if (App.getGame() != null && App.getGame().getDate() != null &&
-                    App.getGame().getDate().getWeatherToday() == Weather.RAINY) {
-                appropriateDialogues.addAll(rainyDialogues);
-            }
-        } catch (Exception e) {
-            System.err.println("Warning: Could not check weather, using default dialogues");
-        }
-
-        if (friendshipLevel >= 1) {
-            appropriateDialogues.addAll(level1Dialogues);
-        }
-        if (friendshipLevel >= 2) {
-            appropriateDialogues.addAll(level2Dialogues);
-        }
-        if (friendshipLevel >= 3) {
-            appropriateDialogues.addAll(level3Dialogues);
-        }
-
-        // If no appropriate dialogues, return a default
-        if (appropriateDialogues.isEmpty()) {
-            return "Hello there!";
-        }
-
-        // Return a random dialogue from the appropriate ones
-        return appropriateDialogues.get(random.nextInt(appropriateDialogues.size()));
+        // Use the controller to get the dialogue
+        return controller.getDialogue(this, currentDate, friendshipLevel);
     }
 
     public boolean isFavoriteItem(Item item) {
-        return favoriteItems.contains(item);
+        // Use the controller to check if the item is a favorite
+        return controller.isFavoriteItem(this, item);
     }
 
     public Item getRandomGiftItem() {
-        if (giftItems.isEmpty()) {
-            return null;
-        }
-
-        Random random = new Random();
-        return giftItems.get(random.nextInt(giftItems.size()));
+        // Use the controller to get a random gift item
+        return controller.getRandomGiftItem(this);
     }
 
     public NPCFriendship getFriendship(Player player) {
@@ -383,25 +298,24 @@ public class NPC extends Mob {
         return friendships.get(player);
     }
 
-
     public void addFavoriteItem(Item item) {
-        if (!favoriteItems.contains(item)) {
-            favoriteItems.add(item);
-        }
+        // Use the controller to add a favorite item
+        controller.addFavoriteItem(this, item);
     }
 
     public void addGiftItem(Item item) {
-        if (!giftItems.contains(item)) {
-            giftItems.add(item);
-        }
+        // Use the controller to add a gift item
+        controller.addGiftItem(this, item);
     }
 
     public Location getLocation() {
-        return location;
+        // Use the controller to get the location
+        return controller.getLocation(this);
     }
 
     public void setLocation(Location location) {
-        this.location = location;
+        // Use the controller to set the location
+        controller.setLocation(this, location);
     }
 
     public String getDescription() {
@@ -436,13 +350,40 @@ public class NPC extends Mob {
         return missions;
     }
 
-
     public boolean isUseAiDialogue() {
         return useAiDialogue;
     }
 
-
     public void setUseAiDialogue(boolean useAiDialogue) {
         this.useAiDialogue = useAiDialogue;
+    }
+
+    // Getter methods for dialogue lists
+    public List<String> getMorningDialogues() {
+        return morningDialogues;
+    }
+
+    public List<String> getAfternoonDialogues() {
+        return afternoonDialogues;
+    }
+
+    public List<String> getEveningDialogues() {
+        return eveningDialogues;
+    }
+
+    public List<String> getRainyDialogues() {
+        return rainyDialogues;
+    }
+
+    public List<String> getLevel1Dialogues() {
+        return level1Dialogues;
+    }
+
+    public List<String> getLevel2Dialogues() {
+        return level2Dialogues;
+    }
+
+    public List<String> getLevel3Dialogues() {
+        return level3Dialogues;
     }
 }

@@ -147,24 +147,18 @@ public class Player {
 
 
     public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
-        // Check if the item is a tool (tools can't be gifted)
         if (item instanceof org.example.models.Items.Tool) {
             return false;
         }
 
-        // Get the current date
         Date currentDate = org.example.models.App.getGame().getDate();
 
-        // Get or create the friendship with this NPC
         NPCFriendship friendship = npc.getFriendship(this);
 
-        // Give the gift and get the response
         String response = friendship.giveGift(item, currentDate);
 
-        // Remove the item from the player's inventory
         backpack.remove(item, 1);
 
-        // Print the NPC's response
         System.out.println(npc.getName() + ": " + response);
 
         return true;
@@ -194,7 +188,6 @@ public class Player {
     public Map<String, String> getNPCFriendships() {
         Map<String, String> friendships = new HashMap<>();
 
-        // Use the Npcs enum values to get all NPCs
         for (org.example.models.enums.Npcs npcEnum : org.example.models.enums.Npcs.values()) {
             // Create an NPC instance from the enum
             NPC npc = createNPCFromEnum(npcEnum);

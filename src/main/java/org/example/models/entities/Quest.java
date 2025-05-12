@@ -41,9 +41,7 @@ public class Quest {
         this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
     }
 
-    /**
-     * Constructor for a quest with item reward.
-     */
+
     public Quest(int id, String title, String description, Npcs npc, Map<Item, Integer> requirements,
                  Item itemReward, int itemRewardQuantity, int requiredFriendshipLevel, int requiredDaysPassed) {
         this.id = id;
@@ -60,9 +58,6 @@ public class Quest {
         this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
     }
 
-    /**
-     * Constructor for a quest with both gold and item rewards.
-     */
     public Quest(int id, String title, String description, Npcs npc, Map<Item, Integer> requirements,
                  int goldReward, Item itemReward, int itemRewardQuantity,
                  int requiredFriendshipLevel, int requiredDaysPassed) {
@@ -158,9 +153,7 @@ public class Quest {
         return true;
     }
 
-    /**
-     * Checks if the quest can be activated based on friendship level and days passed.
-     */
+   
     public boolean canActivate(Player player, Date currentDate) {
         if (isActive || isCompleted) {
             return false;

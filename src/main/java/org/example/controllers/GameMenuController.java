@@ -1550,6 +1550,10 @@ public class GameMenuController implements Controller {
             return Result.error("You need to be adjacent to " + npcName + " to give them a gift.");
         }
 
+        if (item instanceof Tool) {
+            return Result.error("You can't gift tools to NPCs");
+        }
+
         NPC npc = createNPCFromEnum(npcEnum);
 
         boolean success = player.giftNPC(npc, item);
@@ -1562,11 +1566,9 @@ public class GameMenuController implements Controller {
 
         boolean isFavorite = npc.isFavoriteItem(item);
 
-        // Get the NPC's friendship level
         Map<String, String> friendships = player.getNPCFriendships();
         String friendshipInfo = friendships.getOrDefault(npcName, "Level: 0, Points: 0");
 
-        // Format a success message
         StringBuilder resultMessage = new StringBuilder();
         resultMessage.append("You gave ").append(itemName).append(" to ").append(npcName).append(".\n\n");
 
@@ -1576,10 +1578,19 @@ public class GameMenuController implements Controller {
             resultMessage.append(npcName).append(" appreciated your gift. Friendship increased by 50 points.");
         }
 
-        // Add the updated friendship level
         resultMessage.append("\n\nCurrent friendship with ").append(npcName).append(": ").append(friendshipInfo);
 
         return Result.success(resultMessage.toString());
+    }
+
+    private boolean isToolItem(Item item) {
+        String name = item.getName().toLowerCase();
+        return name.contains("axe") ||
+                name.contains("pickaxe") ||
+                name.contains("hoe") ||
+                name.contains("watering can") ||
+                name.contains("fishing rod") ||
+                name.contains("scythe");
     }
 
     private Result friendshipNPCList() {
@@ -1674,7 +1685,10 @@ public class GameMenuController implements Controller {
             Location npcLocation = npc.getLocation();
 
             int distance = Math.abs(playerLocation.xAxis - npcLocation.xAxis) + Math.abs(playerLocation.yAxis - npcLocation.yAxis);
-
+            if (quest.isCompleted()) {
+                return Result.error("This quest is alreaduy finished");
+            }
+            
             if (distance > 1) {
                 return Result.error("You need to be adjacent to " + npc.getName() + " to complete their quest.");
             }
