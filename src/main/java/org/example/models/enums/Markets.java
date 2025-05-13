@@ -624,8 +624,17 @@ public enum Markets {
 
         Item well = new Item("Well" , 1_000);
         items.put(well,1.0);
-        Item shippingBin = new Item("Shipping Bin" , 250);
-        items.put(shippingBin,Double.POSITIVE_INFINITY);
+        Item shippingBinRegular = new ShippingBin(ShippingBin.ShippingBinType.REGULAR);
+        items.put(shippingBinRegular,Double.POSITIVE_INFINITY);
+
+        Item shippingBinSilver = new ShippingBin(ShippingBin.ShippingBinType.SILVER);
+        items.put(shippingBinSilver,Double.POSITIVE_INFINITY);
+
+        Item shippingBinGold = new ShippingBin(ShippingBin.ShippingBinType.GOLD);
+        items.put(shippingBinGold,Double.POSITIVE_INFINITY);
+
+        Item shippingBinIridium = new ShippingBin(ShippingBin.ShippingBinType.IRIDIUM);
+        items.put(shippingBinIridium,Double.POSITIVE_INFINITY);
 
 
         int startHour = 9;
