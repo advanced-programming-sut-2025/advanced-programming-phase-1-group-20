@@ -6,10 +6,8 @@ import org.example.models.common.Result;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.MainMenuCommands;
+import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
-import org.example.views.GameMenu;
-import org.example.views.LoginRegisterMenu;
-import org.example.views.ProfileMenu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +23,7 @@ public class MainMenuController implements Controller {
 
     @Override
     public Result update(String input) {
-        if (isMenuNavigationCommand(input)) {
-            return processMenuNavigationCommand(input);
-        }
+
 
         MainMenuCommands command = MainMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
@@ -37,6 +33,8 @@ public class MainMenuController implements Controller {
             case None -> result = Result.error("invalid command");
             case NewGame -> result = newGame(args);
             case LoadGame -> result = loadGame();
+            case ShowCurrentMenu -> result = Result.success("Main menu");
+            case UserLogout -> result = logout();
         }
         if (result == null) {
             result = Result.success("Command executed successfully");
@@ -44,47 +42,6 @@ public class MainMenuController implements Controller {
         return result;
     }
 
-    private boolean isMenuNavigationCommand(String input) {
-        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
-    }
-
-    private Result processMenuNavigationCommand(String input) {
-        input = input.trim();
-
-        if (input.equals("show current menu")) {
-            return Result.success(appView.getCurrentMenuName());
-        } else if (input.equals("menu exit")) {
-            appView.navigateMenu(new LoginRegisterMenu(appView));
-            return Result.success("Exited to login menu");
-        } else if (input.startsWith("menu enter ")) {
-            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
-
-            if (menuName.equals("profile")) {
-                appView.navigateMenu(new ProfileMenu(appView, user));
-                return Result.success("Entered profile menu");
-            } else if (menuName.equals("game")) {
-                if (App.getGame() == null) {
-                    return Result.error("No active game");
-                }
-
-                Player player = App.getGame().getPlayers().stream()
-                        .filter(p -> p.getUser().equals(user))
-                        .findFirst()
-                        .orElse(null);
-
-                if (player == null) {
-                    return Result.error("User is not a player in the current game");
-                }
-
-                appView.navigateMenu(new GameMenu(appView, user, player));
-                return Result.success("Entered game menu");
-            } else {
-                return Result.error("Cannot navigate from main menu to " + menuName + " menu");
-            }
-        }
-
-        return Result.error("Invalid menu navigation command");
-    }
 
     //implementing methods
     public Result loadGame() {
@@ -156,4 +113,18 @@ public class MainMenuController implements Controller {
         App.setGame(newGame);
         return Result.success("New game created with " + users.size() + " players. Please select your map.");
     }
+
+    public Result logout() {
+        AutoLoginUtil.clearAutoLogin();
+
+        User user = App.getLoggedInUser();
+        if (user != null) {
+            user.setStayLoggedIn(false);
+            App.saveData();
+        }
+
+        App.setLoggedInUser(null);
+        return Result.success("logged out");
+    }
+
 }

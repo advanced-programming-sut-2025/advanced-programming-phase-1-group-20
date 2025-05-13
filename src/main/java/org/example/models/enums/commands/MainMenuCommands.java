@@ -5,6 +5,8 @@ import java.util.regex.Pattern;
 public enum MainMenuCommands implements Command {
     NewGame(Pattern.compile("^game\\s+new\\s+-u\\s+(\\S+)(\\s+\\S+)?(\\s+\\S+)?$")),
     LoadGame(Pattern.compile("^load\\s+game$")),
+    ShowCurrentMenu(Pattern.compile("^show current menu$")),
+    UserLogout(Pattern.compile("^user logout$")),
     None(null);
     private final Pattern pattern;
 

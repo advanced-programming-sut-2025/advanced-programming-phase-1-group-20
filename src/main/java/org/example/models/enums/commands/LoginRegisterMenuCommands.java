@@ -12,6 +12,8 @@ public enum LoginRegisterMenuCommands implements Command {
     AcceptPassword(Pattern.compile("^\\s*accept\\s+password\\s*$")),
     SetCustomPassword(Pattern.compile("^\\s*set\\s+password\\s+-p\\s+(\\S+)\\s+-c\\s+(\\S+)\\s*$")),
     GenerateNewPassword(Pattern.compile("^\\s*generate\\s+new\\s+password\\s*$")),
+    MenuExit(Pattern.compile("^menu exit$")),
+    ShowCurrentMenu(Pattern.compile("^show current menu$")),
     None(null);
     private final Pattern pattern;
 

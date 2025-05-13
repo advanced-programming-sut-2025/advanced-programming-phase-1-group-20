@@ -8,22 +8,13 @@ public enum MarketMenuCommands implements Command {
     Purchase(Pattern.compile("\\s*Purchase\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
     CheatAddDollars(Pattern.compile("\\s*cheat\\s+add\\s+-n\\s+(?<count>\\d+)\\s*")),
     ToolUpgrade(Pattern.compile("^tools\\s+upgrade\\s+(?<toolName>.+)$")),
+    ShowCurrentMenu(Pattern.compile("^show current menu$")),
     None(null);
 
     private final Pattern pattern;
 
     MarketMenuCommands(Pattern pattern) {
         this.pattern = pattern;
-    }
-
-    @Override
-    public Pattern getPattern() {
-        return this.pattern;
-    }
-
-    @Override
-    public boolean matches(String input) {
-        return pattern.matcher(input).matches();
     }
 
     public static MarketMenuCommands getCommand(String input) {
@@ -34,5 +25,15 @@ public enum MarketMenuCommands implements Command {
 
         }
         return None;
+    }
+
+    @Override
+    public Pattern getPattern() {
+        return this.pattern;
+    }
+
+    @Override
+    public boolean matches(String input) {
+        return pattern.matcher(input).matches();
     }
 }

@@ -45,17 +45,13 @@ public class AppView {
     }
 
     public String getCurrentMenuName() {
-        if (currentMenu instanceof LoginRegisterMenu) {
-            return "login";
-        } else if (currentMenu instanceof MainMenu) {
-            return "main";
-        } else if (currentMenu instanceof ProfileMenu) {
-            return "profile";
-        } else if (currentMenu instanceof GameMenu) {
-            return "game";
-        } else {
-            return "unknown";
-        }
+        return switch (currentMenu) {
+            case LoginRegisterMenu loginRegisterMenu -> "login";
+            case MainMenu mainMenu -> "main";
+            case ProfileMenu profileMenu -> "profile";
+            case GameMenu gameMenu -> "game";
+            case null, default -> "unknown";
+        };
     }
 
     public void navigateMenu(AppMenu menu) {

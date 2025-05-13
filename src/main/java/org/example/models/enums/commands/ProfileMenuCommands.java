@@ -10,6 +10,7 @@ public enum ProfileMenuCommands implements Command {
     GoToMain(Pattern.compile("^go\\s+to\\s+main$")),
     ShowUserInfo(Pattern.compile("^show\\s+user\\s+info$")),
     Logout(Pattern.compile("^logout$")),
+    ShowCurrentMenu(Pattern.compile("^show current menu$")),
     None(null);
 
     private final Pattern pattern;

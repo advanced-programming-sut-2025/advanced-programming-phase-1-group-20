@@ -7,11 +7,11 @@ import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
-import org.example.views.MainMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class LoginRegisterMenuController implements Controller {
@@ -28,10 +28,6 @@ public class LoginRegisterMenuController implements Controller {
 
     @Override
     public Result update(String input) {
-        // Check if the input is a menu navigation command
-        if (isMenuNavigationCommand(input)) {
-            return processMenuNavigationCommand(input);
-        }
 
         LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
@@ -43,40 +39,13 @@ public class LoginRegisterMenuController implements Controller {
             case ForgotPass -> result = forgotPassword(args);
             case PickSecurityQuestion -> result = pickSecurityQuestion(args, user);
             case AnswerSecurityQuestion -> result = answerSecurityQuestion(args, tempUsername);
+            case MenuExit -> exit();
+            case ShowCurrentMenu -> result = Result.success("Login-Register menu");
             case None -> result = Result.error("Invalid input");
         }
 
         appView.handleResult(result, command);
         return result;
-    }
-
-    private boolean isMenuNavigationCommand(String input) {
-        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
-    }
-
-    private Result processMenuNavigationCommand(String input) {
-        input = input.trim();
-
-        if (input.equals("show current menu")) {
-            return Result.success(appView.getCurrentMenuName());
-        } else if (input.equals("menu exit")) {
-            appView.exit();
-            return Result.success("Exiting application");
-        } else if (input.startsWith("menu enter ")) {
-            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
-
-            if (menuName.equals("main")) {
-                if (App.getLoggedInUser() == null) {
-                    return Result.error("You must be logged in to access the main menu");
-                }
-                appView.navigateMenu(new MainMenu(appView, App.getLoggedInUser()));
-                return Result.success("Entered main menu");
-            } else {
-                return Result.error("Cannot navigate from login menu to " + menuName + " menu");
-            }
-        }
-
-        return Result.error("Invalid menu navigation command");
     }
 
     public Result registerUser(String[] args) {
@@ -107,6 +76,17 @@ public class LoginRegisterMenuController implements Controller {
         if (password.equals("random")) {
             isRandom = true;
             password = generateRandomPassword();
+            System.out.println("your random password: " + password);
+            System.out.println("type confirm to accept, else to generate again");
+            while (true) {
+                if (new Scanner(System.in).nextLine().equals("confirm")) {
+                    break;
+                } else {
+                    password = generateRandomPassword();
+                    System.out.println("your random password: " + password);
+                    System.out.println("type confirm to accept, else to generate again");
+                }
+            }
         }
 
         if (!password.equals(passwordConfirm) && !isRandom) {
@@ -116,6 +96,7 @@ public class LoginRegisterMenuController implements Controller {
         if (!checkPasswordStrength(password).success()) {
             return Result.error(checkPasswordStrength(password).message());
         }
+
         Gender gender = Gender.getGenderByName(genderString);
         User newUser = new User(username, password, email, nickname, gender);
         user = newUser;
@@ -262,21 +243,7 @@ public class LoginRegisterMenuController implements Controller {
 
         return Result.success("logged in successfully");
     }
-
-    public Result logout() {
-        // Clear auto-login when logging out
-        AutoLoginUtil.clearAutoLogin();
-
-        User user = App.getLoggedInUser();
-        if (user != null) {
-            user.setStayLoggedIn(false);
-            App.saveData();
-        }
-
-        App.setLoggedInUser(null);
-        return Result.success("logged out");
-    }
-
+    
     public Result pickSecurityQuestion(String[] args, User user) {
         String questionNumberStr = args[0];
         String answer = args[1].trim();
@@ -318,5 +285,10 @@ public class LoginRegisterMenuController implements Controller {
         App.saveData();
 
         return Result.success("your new password is " + newPassword);
+    }
+
+    public void exit() {
+        // exit the application
+        System.exit(0);
     }
 }

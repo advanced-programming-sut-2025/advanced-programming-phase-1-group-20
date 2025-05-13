@@ -40,10 +40,6 @@ public class GameMenuController implements Controller {
 
     @Override
     public Result update(String input) {
-        // Check if the input is a menu navigation command
-        if (isMenuNavigationCommand(input)) {
-            return processMenuNavigationCommand(input);
-        }
 
         GameMenuCommands command = GameMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
@@ -164,6 +160,8 @@ public class GameMenuController implements Controller {
             case TradeList -> result = tradeList();
             case TradeResponse -> result = tradeResponse(args);
             case TradeHistory -> result = tradeHistory();
+
+            case ShowCurrentMenu -> result = Result.success("Game Menu");
 
             case None -> result = Result.error("Invalid command");
         }
@@ -325,7 +323,7 @@ public class GameMenuController implements Controller {
         String direction = args[1];
 
         int[] dir = getDirection(direction);
-        if(dir == null) {
+        if (dir == null) {
             return Result.error("Invalid direction");
         }
 
@@ -347,16 +345,16 @@ public class GameMenuController implements Controller {
         if (gMap.getItem(x, y) != null) {
             return Result.error("there is an item on the ground");
         }
-        if(!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
+        if (!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
             return Result.error("item is not plant");
         }
 
 
-        if(item instanceof Seed){
+        if (item instanceof Seed) {
             if (seedName.equals("Mixed Seeds")) {
                 seedName = gameClock.getSeason().getRandomSeed();
                 PlantType type = PlantType.fromSeed(seedName);
-                if(type == null) {
+                if (type == null) {
                     return Result.error("Plant type not found");
                 }
                 item = new Plant(type);
@@ -379,8 +377,7 @@ public class GameMenuController implements Controller {
 
 
             gMap.placeItem(x, y, item);
-        }
-        else if(item instanceof Tree){
+        } else if (item instanceof Tree) {
             Tree tree = (Tree) item;
             Seasons[] seasons = tree.getSeasons();
             int counter = 0;
@@ -480,7 +477,7 @@ public class GameMenuController implements Controller {
         String direction = args[0];
         Location location = player.getLocation();
         int[] dir = getDirection(direction);
-        if(dir == null) {
+        if (dir == null) {
             return Result.error("Invalid direction");
         }
 
@@ -530,35 +527,35 @@ public class GameMenuController implements Controller {
             return Result.error("Plant is not ready yet");
         }
 
-        if(item instanceof Tree) {
+        if (item instanceof Tree) {
             Tree tree = (Tree) item;
             Item fruit = tree.getFruit();
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit , 1);
+            player.getBackpack().add(fruit, 1);
         }
-        if(item instanceof Plant) {
+        if (item instanceof Plant) {
             Plant plant = (Plant) item;
             Item fruit = plant.getFruit();
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit , 1);
-            if(plant.getOneTimeHarvest()){
-                gMap.placeItem(x , y , null);
-            }else{
+            player.getBackpack().add(fruit, 1);
+            if (plant.getOneTimeHarvest()) {
+                gMap.placeItem(x, y, null);
+            } else {
                 plant.setFinished(false);
             }
         }
-        if(item instanceof Crop) {
+        if (item instanceof Crop) {
             Crop crop = (Crop) item;
             Item fruit = crop.getFruit();
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit , 1);
-            gMap.placeItem(x , y , null);
+            player.getBackpack().add(fruit, 1);
+            gMap.placeItem(x, y, null);
         }
         return Result.success("Plant has been harvested!");
     }
@@ -603,7 +600,7 @@ public class GameMenuController implements Controller {
         String direction = args[1];
         int[] dir = getDirection(direction);
 
-        if(dir == null) {
+        if (dir == null) {
             return Result.error("Invalid direction");
         }
 
@@ -624,34 +621,34 @@ public class GameMenuController implements Controller {
         gMap.placeItem(x, y, item);
 
 
-        if(item instanceof CraftingItem) {
+        if (item instanceof CraftingItem) {
             //it will be replaced as item.place() like a function pointer.
-            switch (item.getName()){
-                case "Cherry Bomb"->{
-                    gMap.bomb(x,y,3);
+            switch (item.getName()) {
+                case "Cherry Bomb" -> {
+                    gMap.bomb(x, y, 3);
                 }
-                case "Bomb"->{
-                    gMap.bomb(x,y,5);
+                case "Bomb" -> {
+                    gMap.bomb(x, y, 5);
                 }
-                case "Mega Bomb"->{
-                    gMap.bomb(x,y,7);
+                case "Mega Bomb" -> {
+                    gMap.bomb(x, y, 7);
                 }
-                case "Sprinkler"->{
-                    gMap.sprinkle(x,y,4);
+                case "Sprinkler" -> {
+                    gMap.sprinkle(x, y, 4);
                 }
-                case "Quality Sprinkler"->{
-                    gMap.sprinkle(x,y,8);
+                case "Quality Sprinkler" -> {
+                    gMap.sprinkle(x, y, 8);
                 }
-                case "Iridium Sprinkler"->{
-                    gMap.sprinkle(x,y,24);
+                case "Iridium Sprinkler" -> {
+                    gMap.sprinkle(x, y, 24);
                 }
-                case "Scarecrow"->{
-                    gMap.setScarecrow(x,y,8,true);
+                case "Scarecrow" -> {
+                    gMap.setScarecrow(x, y, 8, true);
                 }
-                case "Deluxe Scarecrow"->{
-                    gMap.setScarecrow(x,y,12,true);
+                case "Deluxe Scarecrow" -> {
+                    gMap.setScarecrow(x, y, 12, true);
                 }
-                case "Bee House"->{
+                case "Bee House" -> {
                     //TODO : bee house.
                 }
             }
@@ -1791,9 +1788,9 @@ public class GameMenuController implements Controller {
 
             int distance = Math.abs(playerLocation.xAxis - npcLocation.xAxis) + Math.abs(playerLocation.yAxis - npcLocation.yAxis);
             if (quest.isCompleted()) {
-                return Result.error("This quest is alreaduy finished");
+                return Result.error("This quest is already finished");
             }
-            
+
             if (distance > 1) {
                 return Result.error("You need to be adjacent to " + npc.getName() + " to complete their quest.");
             }

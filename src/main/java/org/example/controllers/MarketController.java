@@ -41,6 +41,7 @@ public class MarketController implements Controller {
             case Purchase -> result = purchase(args);
             case CheatAddDollars -> cheatAddDollars(args);
             case ToolUpgrade -> result = upgradeTool(args);
+            case ShowCurrentMenu -> result = Result.success("Market menu");
             case None -> Result.error("Invalid input");
         }
         return result;

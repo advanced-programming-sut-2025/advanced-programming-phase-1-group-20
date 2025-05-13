@@ -48,6 +48,9 @@ public class LoginRegisterMenu implements AppMenu {
             } else if (command == LoginRegisterMenuCommands.RegisterUser) {
                 System.out.println(result.message());
                 displaySecurityQuestions();
+            } else if (command == LoginRegisterMenuCommands.Login) {
+                appView.navigateMenu(new MainMenu(appView, App.getLoggedInUser()));
+                System.out.println(result.message());
             } else {
                 System.out.println(result.message());
             }

@@ -109,6 +109,9 @@ public enum GameMenuCommands implements Command {
     TradeList(Pattern.compile("^trade\\s+list$")),
     TradeResponse(Pattern.compile("^trade\\s+response\\s+(--accept|--reject)\\s+-i\\s+(?<id>\\d+)$")),
     TradeHistory(Pattern.compile("^trade\\s+history$")),
+
+    ShowCurrentMenu(Pattern.compile("^show current menu$")),
+
     None(null);
 
     private final Pattern pattern;
