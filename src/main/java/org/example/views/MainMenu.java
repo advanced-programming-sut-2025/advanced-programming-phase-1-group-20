@@ -3,6 +3,7 @@ package org.example.views;
 import org.example.controllers.MainMenuController;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
+import org.example.models.enums.commands.MainMenuCommands;
 
 public class MainMenu implements AppMenu {
     MainMenuController controller;
@@ -23,6 +24,15 @@ public class MainMenu implements AppMenu {
     @Override
     public void handleResult(Result result, Object command) {
         if (result == null) return;
+
+        if (command == MainMenuCommands.NewGame) {
+            if (result.success()) {
+                System.out.println("~~map selection phase~~");
+                while (true) {
+
+                }
+            }
+        }
 
         if (result.success()) {
             System.out.println(result.message());

@@ -125,7 +125,7 @@ public class LoginRegisterMenuController implements Controller {
 
         StringBuilder reason = new StringBuilder();
         if (!hasLower || !hasUpper || !hasDigit || !hasSpecial || !validLength) {
-            reason.append("weak password");
+            reason.append("weak password ");
             List<String> reasonStrings = new ArrayList<>();
             boolean oneError = false;
             if (!validLength) {
@@ -136,19 +136,20 @@ public class LoginRegisterMenuController implements Controller {
             if (!hasSpecial) {
                 if (oneError) reason.append(" ");
                 oneError = true;
-                reasonStrings.add("password doesn't have special character");
+                reason.append("password doesn't have special character");
             }
 
             if (!hasUpper) {
                 if (oneError) reason.append(" ");
                 oneError = true;
-                reasonStrings.add("password doesn't have upper case");
+                reason.append("password doesn't have upper case");
             }
 
             if (!hasLower) {
                 if (oneError) reason.append(" ");
-                reasonStrings.add("password doesn't have lower case");
+                reason.append("password doesn't have lower case");
             }
+
 
             return Result.error(reason.toString());
         }
@@ -243,7 +244,7 @@ public class LoginRegisterMenuController implements Controller {
 
         return Result.success("logged in successfully");
     }
-    
+
     public Result pickSecurityQuestion(String[] args, User user) {
         String questionNumberStr = args[0];
         String answer = args[1].trim();
@@ -269,7 +270,9 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("user not found");
         }
 
-        return Result.success(username);
+        tempUsername = user.getUsername();
+        String question = App.getSecurityQuestion(user.getSecurityQuestionIndex());
+        return Result.success(question);
     }
 
     public Result answerSecurityQuestion(String[] args, String username) {

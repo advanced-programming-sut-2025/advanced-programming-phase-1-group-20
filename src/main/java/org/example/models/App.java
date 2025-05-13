@@ -32,7 +32,7 @@ public class App {
     public static void initialize() {
         if (!dataLoaded) {
             users = FileStorage.loadUsers();
-
+            System.out.println("Loaded users: " + users.size());
             addSecurityQuestion();
 
             items = FileStorage.loadItems();
@@ -44,7 +44,6 @@ public class App {
 
             loadAllGames();
 
-            // Initialize the NPCController
             NPCController.initialize();
 
             dataLoaded = true;

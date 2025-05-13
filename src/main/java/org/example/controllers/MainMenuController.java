@@ -24,7 +24,6 @@ public class MainMenuController implements Controller {
     @Override
     public Result update(String input) {
 
-
         MainMenuCommands command = MainMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -39,6 +38,8 @@ public class MainMenuController implements Controller {
         if (result == null) {
             result = Result.success("Command executed successfully");
         }
+
+        appView.handleResult(result, command);
         return result;
     }
 
@@ -77,16 +78,17 @@ public class MainMenuController implements Controller {
         }
 
         List<User> users = new ArrayList<>();
-        users.add(this.user);
+        users.add(App.getLoggedInUser());
 
         for (String username : args) {
-            if (username != null && !username.isEmpty()) {
-                User user = App.getUser(username);
+            String trimmedUsername = username.trim();
+            if (!trimmedUsername.isEmpty()) {
+                User user = App.getUser(trimmedUsername);
                 if (user == null) {
-                    return Result.error("Invalid username: " + username);
+                    return Result.error("Invalid username: " + trimmedUsername);
                 }
                 if (App.isUserInGame(user)) {
-                    return Result.error(username + " is already in a game");
+                    return Result.error(trimmedUsername + " is already in a game");
                 }
                 if (!users.contains(user)) {
                     users.add(user);

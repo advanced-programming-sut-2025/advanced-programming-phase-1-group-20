@@ -3,7 +3,7 @@ package org.example.models.enums.commands;
 import java.util.regex.Pattern;
 
 public enum MainMenuCommands implements Command {
-    NewGame(Pattern.compile("^game\\s+new\\s+-u\\s+(\\S+)(\\s+\\S+)?(\\s+\\S+)?$")),
+    NewGame(Pattern.compile("^game new -u (\\S+)( \\S+)?( \\S+)?$")),
     LoadGame(Pattern.compile("^load\\s+game$")),
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
     UserLogout(Pattern.compile("^user logout$")),

@@ -10,7 +10,6 @@ import java.util.Scanner;
 public class AppView {
     public AppMenu currentMenu;
     public boolean exit = false;
-    public App appHandler;
     private Scanner scanner;
     private Game currentGame;
 
@@ -19,7 +18,6 @@ public class AppView {
 
         scanner = new Scanner(System.in);
 
-        // Check for auto-login
         boolean autoLoginSuccessful = AutoLoginUtil.checkAndPerformAutoLogin(this);
 
         if (!autoLoginSuccessful) {
@@ -29,8 +27,9 @@ public class AppView {
 
     public void appStart() {
         while (!exit) {
+            System.out.print(getCurrentMenuName() + "> ");
             String input = scanner.nextLine();
-
+            
             update(input);
 
             if (input.equalsIgnoreCase("exit")) {
@@ -40,8 +39,12 @@ public class AppView {
     }
 
     public void update(String input) {
-        // Pass all commands directly to the current menu
-        this.currentMenu.updateMenu(input);
+        if (currentMenu != null) {
+            this.currentMenu.updateMenu(input);
+        } else {
+            System.out.println("Error: No active menu controller");
+            this.currentMenu = new LoginRegisterMenu(this);
+        }
     }
 
     public String getCurrentMenuName() {

@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class FileStorage {
-    private static final String USER_DATA_FILE = "users.json";
+    private static final String USER_DATA_FILE = "src/main/DataBase/users.json";
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static boolean saveUsers(Map<String, User> users) {

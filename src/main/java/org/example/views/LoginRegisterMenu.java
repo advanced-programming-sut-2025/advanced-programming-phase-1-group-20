@@ -20,7 +20,7 @@ public class LoginRegisterMenu implements AppMenu {
 
     @Override
     public void updateMenu(String input) {
-        controller.update(input);
+        Result result = controller.update(input);
     }
 
     @Override
@@ -29,17 +29,15 @@ public class LoginRegisterMenu implements AppMenu {
 
         if (result.success()) {
             // Special handling for password recovery flow
-            if (command == LoginRegisterMenuCommands.ForgotPass && result.message().startsWith("security_question:")) {
+            if (command == LoginRegisterMenuCommands.ForgotPass) {
                 inPasswordRecoveryFlow = true;
-                String question = result.message().substring("security_question:".length());
+                String question = result.message();
                 displaySecurityQuestion(question);
-            } else if (command == LoginRegisterMenuCommands.AnswerSecurityQuestion &&
-                    result.message().startsWith("password_generated:")) {
-                String password = result.message().substring("password_generated:".length());
+            } else if (command == LoginRegisterMenuCommands.AnswerSecurityQuestion) {
+                String password = result.message();
                 displayPasswordOptions(password);
-            } else if (command == LoginRegisterMenuCommands.GenerateNewPassword &&
-                    result.message().startsWith("password_generated:")) {
-                String password = result.message().substring("password_generated:".length());
+            } else if (command == LoginRegisterMenuCommands.GenerateNewPassword) {
+                String password = result.message();
                 displayPasswordOptions(password);
             } else if (command == LoginRegisterMenuCommands.AcceptPassword ||
                     command == LoginRegisterMenuCommands.SetCustomPassword) {
