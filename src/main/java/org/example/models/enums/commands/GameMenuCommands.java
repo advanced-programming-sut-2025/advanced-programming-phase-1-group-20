@@ -30,7 +30,7 @@ public enum GameMenuCommands implements Command {
     Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
     ShowInventory(Pattern.compile("^inventory$")),
     ShowLocation(Pattern.compile("^location$")),
-    ShowEnergy(Pattern.compile("^energy$")),
+    ShowEnergy(Pattern.compile("^energy show$")),
     ShowMap(Pattern.compile("^map$")),
     PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     TestPrintMap(Pattern.compile("^test\\s+print\\s+map$")),

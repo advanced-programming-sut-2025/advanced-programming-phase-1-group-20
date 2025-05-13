@@ -1,6 +1,7 @@
 package org.example.views;
 
 import org.example.controllers.MainMenuController;
+import org.example.models.App;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.MainMenuCommands;
@@ -28,9 +29,12 @@ public class MainMenu implements AppMenu {
         if (command == MainMenuCommands.NewGame) {
             if (result.success()) {
                 System.out.println("~~map selection phase~~");
-                while (true) {
+            }
 
-                }
+            appView.navigateMenu(new GameMenu(appView, App.getLoggedInUser(), App.getGame().getCurrentPlayer()));
+        } else if (command == MainMenuCommands.ChangeMenu) {
+            if (result.success()) {
+                appView.navigateMenu(new ProfileMenu(appView, App.getLoggedInUser()));
             }
         }
 

@@ -11,6 +11,7 @@ public enum ProfileMenuCommands implements Command {
     ShowUserInfo(Pattern.compile("^show\\s+user\\s+info$")),
     Logout(Pattern.compile("^logout$")),
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
+    ChangeMenu(Pattern.compile("^menu enter (?<menuName>.*)$")),
     None(null);
 
     private final Pattern pattern;

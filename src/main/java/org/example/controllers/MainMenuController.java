@@ -34,6 +34,7 @@ public class MainMenuController implements Controller {
             case LoadGame -> result = loadGame();
             case ShowCurrentMenu -> result = Result.success("Main menu");
             case UserLogout -> result = logout();
+            case ChangeMenu -> result = changeMenu(args);
         }
         if (result == null) {
             result = Result.success("Command executed successfully");
@@ -129,4 +130,16 @@ public class MainMenuController implements Controller {
         return Result.success("logged out");
     }
 
+    public Result changeMenu(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("No menu specified");
+        }
+
+        String menuName = args[0].toLowerCase();
+        if (menuName != "profile menu") {
+            return Result.error("Only profile menu is supported");
+        }
+
+        return Result.success("entered profile menu");
+    }
 }

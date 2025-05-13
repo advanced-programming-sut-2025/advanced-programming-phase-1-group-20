@@ -7,6 +7,7 @@ public enum MainMenuCommands implements Command {
     LoadGame(Pattern.compile("^load\\s+game$")),
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
     UserLogout(Pattern.compile("^user logout$")),
+    ChangeMenu(Pattern.compile("^menu enter (?<menuName>.*)$")),
     None(null);
     private final Pattern pattern;
 

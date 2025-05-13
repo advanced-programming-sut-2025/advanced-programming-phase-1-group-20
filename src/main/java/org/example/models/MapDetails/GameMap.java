@@ -37,10 +37,10 @@ public class GameMap {
     private final Location[][] tiles;
     private final Market[] markets;
     private final Farm[] farms;
-    private Village village;
-    private int currentFarmIndex;
     private final Map<String, Character> symbolMap;
     private final Player currentPlayer;
+    private Village village;
+    private int currentFarmIndex;
     private List<Lake> lakes;
 
     public GameMap(int width, int height, Player player) {
@@ -149,16 +149,14 @@ public class GameMap {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("crop")) {
+                } else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
@@ -212,10 +210,10 @@ public class GameMap {
             }
         }
 
-        farm.markBuildingArea(tiles);
-        farm.markGreenHouseArea(tiles);
-        farm.markQuarry(tiles);
-        farm.markLake(tiles);
+//        farm.markBuildingArea(tiles);
+//        farm.markGreenHouseArea(tiles);
+//        farm.markQuarry(tiles);
+//        farm.markLake(tiles);
     }
 
 
@@ -233,15 +231,13 @@ public class GameMap {
             while (currentX != villageCenterX || currentY != villageCenterY) {
                 if (currentX < villageCenterX) {
                     currentX++;
-                }
-                else if (currentX > villageCenterX) {
+                } else if (currentX > villageCenterX) {
                     currentX--;
                 }
 
                 if (currentY < villageCenterY) {
                     currentY++;
-                }
-                else if (currentY > villageCenterY) {
+                } else if (currentY > villageCenterY) {
                     currentY--;
                 }
 
@@ -423,7 +419,7 @@ public class GameMap {
         return false;
     }
 
-    public void updatePlants(){
+    public void updatePlants() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 Location tile = tiles[x][y];
@@ -434,8 +430,7 @@ public class GameMap {
                         if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    }
-                    else if (tile.getItem() instanceof Plant) {
+                    } else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {
@@ -447,8 +442,8 @@ public class GameMap {
         }
     }
 
-    public void updateArtisans(Player player){
-        Map<Item , Integer> items = player.getBackpack().getInventory();
+    public void updateArtisans(Player player) {
+        Map<Item, Integer> items = player.getBackpack().getInventory();
         for (Item item : items.keySet()) {
             if (item instanceof CraftingItem) {
                 CraftingItem craftingItem = (CraftingItem) item;
@@ -505,8 +500,7 @@ public class GameMap {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -582,7 +576,7 @@ public class GameMap {
     }
 
     //Initializing markets.
-    private void initializeMarkets(){
+    private void initializeMarkets() {
         markets[0] = Markets.BLACKS_SMITH.createMarket();
         markets[1] = Markets.JOJA_MART.createMarket();
         markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
@@ -592,7 +586,7 @@ public class GameMap {
         markets[6] = Markets.STARDROP_SALOON.createMarket();
     }
 
-    public void setScarecrow (int x, int y, int r, boolean key) {
+    public void setScarecrow(int x, int y, int r, boolean key) {
         for (int i = x - r; i <= x + r; i++) {
             for (int j = y - r; j <= y + r; j++) {
                 Location tile = tiles[i][j];
@@ -604,17 +598,16 @@ public class GameMap {
     }
 
 
-    public void sprinkle(int x , int y , int r) {
-        for (int i = x-r ; i <= x+r ; i++) {
-            for (int j = y-r ; j <= y+r ; j++) {
+    public void sprinkle(int x, int y, int r) {
+        for (int i = x - r; i <= x + r; i++) {
+            for (int j = y - r; j <= y + r; j++) {
                 if (getItem(i, j) != null) {
-                    Item check = getItem(i ,j).getItem();
+                    Item check = getItem(i, j).getItem();
                     if (check != null) {
                         if (check instanceof Plant) {
                             Plant plant = (Plant) check;
                             plant.setMoisture(true);
-                        }
-                        else if (check instanceof Tree) {
+                        } else if (check instanceof Tree) {
                             Tree tree = (Tree) check;
                             tree.setMoisture(true);
                         }
@@ -624,19 +617,19 @@ public class GameMap {
         }
     }
 
-    public void bomb (int x , int y , int r) {
-        for (int i = x-r ; i <= x+r ; i++) {
-            for (int j = y-r ; j <= y+r ; j++) {
+    public void bomb(int x, int y, int r) {
+        for (int i = x - r; i <= x + r; i++) {
+            for (int j = y - r; j <= y + r; j++) {
                 if (getItem(i, j) != null) {
-                    getItem(i , j).setItem(null);
+                    getItem(i, j).setItem(null);
                 }
             }
         }
     }
 
     public boolean canBuildBarnOrCoop(int x, int y, int width, int height) {
-        for (int i = x - width ;i <= x + width ;i++) {
-            for (int j = y - height ;j <= y + height ;j++) {
+        for (int i = x - width; i <= x + width; i++) {
+            for (int j = y - height; j <= y + height; j++) {
                 Location tile = tiles[i][j];
                 if (tile.getItem() == null) {
                     return false;

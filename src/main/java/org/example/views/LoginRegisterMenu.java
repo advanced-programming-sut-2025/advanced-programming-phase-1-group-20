@@ -29,28 +29,30 @@ public class LoginRegisterMenu implements AppMenu {
 
         if (result.success()) {
             // Special handling for password recovery flow
-            if (command == LoginRegisterMenuCommands.ForgotPass) {
-                inPasswordRecoveryFlow = true;
-                String question = result.message();
-                displaySecurityQuestion(question);
-            } else if (command == LoginRegisterMenuCommands.AnswerSecurityQuestion) {
-                String password = result.message();
-                displayPasswordOptions(password);
-            } else if (command == LoginRegisterMenuCommands.GenerateNewPassword) {
-                String password = result.message();
-                displayPasswordOptions(password);
-            } else if (command == LoginRegisterMenuCommands.AcceptPassword ||
-                    command == LoginRegisterMenuCommands.SetCustomPassword) {
-                inPasswordRecoveryFlow = false;
-                System.out.println(result.message());
-            } else if (command == LoginRegisterMenuCommands.RegisterUser) {
-                System.out.println(result.message());
-                displaySecurityQuestions();
-            } else if (command == LoginRegisterMenuCommands.Login) {
-                appView.navigateMenu(new MainMenu(appView, App.getLoggedInUser()));
-                System.out.println(result.message());
-            } else {
-                System.out.println(result.message());
+            switch (command) {
+                case LoginRegisterMenuCommands.ForgotPass -> {
+                    inPasswordRecoveryFlow = true;
+                    String question = result.message();
+                    displaySecurityQuestion(question);
+                }
+                case LoginRegisterMenuCommands.AnswerSecurityQuestion,
+                     LoginRegisterMenuCommands.GenerateNewPassword -> {
+                    String password = result.message();
+                    displayPasswordOptions(password);
+                }
+                case LoginRegisterMenuCommands.AcceptPassword, LoginRegisterMenuCommands.SetCustomPassword -> {
+                    inPasswordRecoveryFlow = false;
+                    System.out.println(result.message());
+                }
+                case LoginRegisterMenuCommands.RegisterUser -> {
+                    System.out.println(result.message());
+                    displaySecurityQuestions();
+                }
+                case LoginRegisterMenuCommands.Login -> {
+                    appView.navigateMenu(new MainMenu(appView, App.getLoggedInUser()));
+                    System.out.println(result.message());
+                }
+                case null, default -> System.out.println(result.message());
             }
         } else {
             System.out.println("Error: " + result.message());

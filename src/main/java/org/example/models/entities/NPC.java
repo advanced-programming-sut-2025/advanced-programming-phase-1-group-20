@@ -277,12 +277,10 @@ public class NPC extends Mob {
     }
 
     public String getDialogue(Date currentDate, int friendshipLevel) {
-        // Use the controller to get the dialogue
         return controller.getDialogue(this, currentDate, friendshipLevel);
     }
 
     public boolean isFavoriteItem(Item item) {
-        // Use the controller to check if the item is a favorite
         return controller.isFavoriteItem(this, item);
     }
 

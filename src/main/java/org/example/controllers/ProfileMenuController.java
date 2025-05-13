@@ -6,8 +6,6 @@ import org.example.models.entities.User;
 import org.example.models.enums.commands.ProfileMenuCommands;
 import org.example.views.AppView;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class ProfileMenuController implements Controller {
@@ -31,8 +29,8 @@ public class ProfileMenuController implements Controller {
             case ChangePassword -> result = changePassword(args);
             case ChangeEmail -> result = changeEmail(args);
             case ShowUserInfo -> result = showUserInfo();
-            case Logout -> result = logout();
             case ShowCurrentMenu -> result = Result.success("Profile menu");
+            case ChangeMenu -> result = changeMenu(args);
             case None -> Result.error("Invalid input");
         }
         appView.handleResult(result, command);
@@ -133,7 +131,6 @@ public class ProfileMenuController implements Controller {
         User user = App.getLoggedInUser();
         user.setNickname(newNickname);
 
-        // Save changes to user data
         App.saveData();
 
         return Result.success("nickname changed successfully");
@@ -154,8 +151,7 @@ public class ProfileMenuController implements Controller {
 
         StringBuilder reason = new StringBuilder();
         if (!hasLower || !hasUpper || !hasDigit || !hasSpecial || !validLength) {
-            reason.append("weak password");
-            List<String> reasonStrings = new ArrayList<>();
+            reason.append("weak password\n");
             boolean oneError = false;
             if (!validLength) {
                 oneError = true;
@@ -163,20 +159,20 @@ public class ProfileMenuController implements Controller {
             }
 
             if (!hasSpecial) {
-                if (oneError) reason.append(" ");
+                if (oneError) reason.append("and also\n");
                 oneError = true;
-                reasonStrings.add("password doesn't have special character");
+                reason.append("password doesn't have special character");
             }
 
             if (!hasUpper) {
-                if (oneError) reason.append(" ");
+                if (oneError) reason.append("and also\n");
                 oneError = true;
-                reasonStrings.add("password doesn't have upper case");
+                reason.append("password doesn't have upper case");
             }
 
             if (!hasLower) {
-                if (oneError) reason.append(" ");
-                reasonStrings.add("password doesn't have lower case");
+                if (oneError) reason.append("and also\n");
+                reason.append("password doesn't have lower case");
             }
 
             return Result.error(reason.toString());
@@ -193,7 +189,7 @@ public class ProfileMenuController implements Controller {
     public Result showUserInfo() {
         User user = App.getLoggedInUser();
 
-        String userInfo = "~user info~" + "\n" +
+        String userInfo = "## user info ##" + "\n" +
                 "Username: " + user.getUsername() + "\n" +
                 "Nickname: " + user.getNickname() + "\n" +
                 "Most Money Earned: " + user.getMostEarnedMoney() + "\n" +
@@ -202,8 +198,12 @@ public class ProfileMenuController implements Controller {
         return Result.success(userInfo);
     }
 
-    public Result logout() {
-        App.logout();
-        return Result.success("logged out successfully");
+    public Result changeMenu(String[] args) {
+        String newMenu = args[0].toLowerCase();
+        if (!newMenu.equals("main menu")) {
+            return Result.error("you can only change to main menu");
+        }
+
+        return Result.success("menu changed to main menu successfully");
     }
 }

@@ -30,28 +30,6 @@ public class GameMenu implements AppMenu {
 
         if (result.success()) {
             if (command instanceof GameMenuCommands gameCommand) {
-
-                switch (gameCommand) {
-                    case ShowMap:
-                        displayMap();
-                        break;
-                    case ShowInventory:
-                        displayInventory();
-                        break;
-                    case ShowDateTime:
-                    case ShowTime:
-                    case ShowDate:
-                    case DayOfWeek:
-                    case ShowSeason:
-                    case ShowWeather:
-                    case ShowWeatherForecast:
-
-                        break;
-                    default:
-                        System.out.println(result.message());
-                        break;
-                }
-            } else {
                 System.out.println(result.message());
             }
         } else {

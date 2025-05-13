@@ -166,46 +166,17 @@ public class GameMenuController implements Controller {
             case None -> result = Result.error("Invalid command");
         }
 
-        if (result == null) {
-            result = Result.error("");
-        }
-
         appView.handleResult(result, command);
 
         return result;
-    }
-
-    private boolean isMenuNavigationCommand(String input) {
-        return input.trim().startsWith("menu ") || input.trim().equals("show current menu");
-    }
-
-    private Result processMenuNavigationCommand(String input) {
-        input = input.trim();
-
-        if (input.equals("show current menu")) {
-            return Result.success(appView.getCurrentMenuName());
-        } else if (input.equals("menu exit")) {
-            appView.navigateMenu(new MainMenu(appView, player.getUser()));
-            return Result.success("Exited to main menu");
-        } else if (input.startsWith("menu enter ")) {
-            String menuName = input.substring("menu enter ".length()).trim().toLowerCase();
-
-            if (menuName.equals("main")) {
-                appView.navigateMenu(new MainMenu(appView, player.getUser()));
-                return Result.success("Entered main menu");
-            } else {
-                return Result.error("Cannot navigate from game menu to " + menuName + " menu");
-            }
-        }
-
-        return Result.error("Invalid menu navigation command");
     }
 
     private void showInventory() {
         App.getGame().getCurrentPlayer().getBackpack().showInventory();
     }
     // TODO: add items should be checked -> Mostafa
-    //time related
+
+    // ====== time related ======
 
     public void showTime() {
         gameClock.displayTime();
@@ -306,7 +277,8 @@ public class GameMenuController implements Controller {
     }
 
 
-    //plants and foraging related
+    // ====== plants and foraging related ======
+
     private Result craftInfo(String[] args) {
         String name = args[0];
         Item item = ItemBuilder.build(name);
