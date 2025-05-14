@@ -19,6 +19,8 @@ import java.util.*;
 
 public class Farm {
 
+    public static final int width = 51;
+    public static final int height = 51;
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
@@ -31,9 +33,6 @@ public class Farm {
     private static final String PINK = "\u001B[38;5;200m";
     private static final String LIGHT_BLUE = "\u001B[94m";
     private static final String LIGHT_GREEN = "\u001B[92m";
-
-    public static final int width = 50;
-    public static final int height = 50;
     private final String name;
     private final Player owner;
     private final boolean farmType;
@@ -69,6 +68,34 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         initializeMarkets();
+    }
+
+    public static int calculateEnergyNeeded(Location from, Location to) {
+        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
+
+        int baseEnergyCost = 2;
+
+        return distance * baseEnergyCost;
+    }
+
+    public static Location findFurthestCanGo(Location from, Location to) {
+        int dx = to.getX() - from.getX();
+        int dy = to.getY() - from.getY();
+
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) {
+            return from; // Already at destination
+        }
+
+        double nx = dx / length;
+        double ny = dy / length;
+
+        int maxDistance = (int) (length * 0.5);
+
+        int newX = from.getX() + (int) (nx * maxDistance);
+        int newY = from.getY() + (int) (ny * maxDistance);
+
+        return new Location(newX, newY, from.getTile());
     }
 
     private void initializeSymbols() {
@@ -134,16 +161,14 @@ public class Farm {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("crop")) {
+                } else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
@@ -166,10 +191,10 @@ public class Farm {
                 Building b2 = new Building(0, 0, "house", "house");
                 return b2;
             case 2:
-                Building b3 = new Building(0, height - 4, "house", "house");
+                Building b3 = new Building(0, height - 5, "house", "house");
                 return b3;
             case 3:
-                Building b4 = new Building(width - 4, height - 4, "house", "house");
+                Building b4 = new Building(width - 5, height - 5, "house", "house");
                 return b4;
         }
         return null;
@@ -528,8 +553,7 @@ public class Farm {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -635,34 +659,6 @@ public class Farm {
         return true;
     }
 
-    public static int calculateEnergyNeeded(Location from, Location to) {
-        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
-
-        int baseEnergyCost = 2;
-
-        return distance * baseEnergyCost;
-    }
-
-    public static Location findFurthestCanGo(Location from, Location to) {
-        int dx = to.getX() - from.getX();
-        int dy = to.getY() - from.getY();
-
-        double length = Math.sqrt(dx * dx + dy * dy);
-        if (length == 0) {
-            return from; // Already at destination
-        }
-
-        double nx = dx / length;
-        double ny = dy / length;
-
-        int maxDistance = (int) (length * 0.5);
-
-        int newX = from.getX() + (int) (nx * maxDistance);
-        int newY = from.getY() + (int) (ny * maxDistance);
-
-        return new Location(newX, newY, from.getTile());
-    }
-
     private boolean isProtectedTile(String type) {
         if (type == null) {
             return false;
@@ -670,7 +666,7 @@ public class Farm {
         return type.equals("water") || type.equals("village") || type.equals("house");
     }
 
-        public List<Location> getPassableNeighbors(Location location) {
+    public List<Location> getPassableNeighbors(Location location) {
         List<Location> result = new ArrayList<>();
         int x = location.getX();
         int y = location.getY();

@@ -304,7 +304,7 @@ public class NPC extends Mob {
     }
 
     public void setLocation(Location location) {
-        controller.setLocation(this, location);
+        this.location = location;
     }
 
     public String getDescription() {
