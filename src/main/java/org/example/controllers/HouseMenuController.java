@@ -293,7 +293,7 @@ public class HouseMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(foodName))) {
             return Result.error(foodName + " does not exist in backpack");
         }
-        if (!(item instanceof Food || item instanceof ArtisanItem)) {
+        if (!(item instanceof Food || item instanceof ArtisanItem || item instanceof Fruit)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
         if(item instanceof ArtisanItem){
@@ -305,6 +305,12 @@ public class HouseMenuController implements Controller {
             }else{
                 return Result.success("Artisan item is not a food.");
             }
+        }
+        if(item instanceof Fruit){
+            Fruit fruit = (Fruit) item;
+            player.increaseEnergy(fruit.getEnergy());
+            player.getBackpack().remove(item , 1);
+            return Result.success("Food " + foodName + " eaten");
         }
         Food food = (Food) item;
         player.increaseEnergy(food.getEnergy());
