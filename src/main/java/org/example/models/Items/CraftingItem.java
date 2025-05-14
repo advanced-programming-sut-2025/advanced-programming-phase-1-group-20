@@ -3,6 +3,8 @@ package org.example.models.Items;
 
 import org.example.models.App;
 import org.example.models.Player.Backpack;
+import org.example.models.entities.animal.Fish;
+import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.*;
 
 import java.util.Map;
@@ -236,7 +238,44 @@ public class CraftingItem extends Item {
                 }
             }
         } else if (type.getName().equals("Fish Smoker")) {
-            //TODO : when fishes are ready.
+            String[] regexes = new String[] {
+                    "^\\s*1\\s+Salmon\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Sardine\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Shad\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Blue\\s+Discus\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Midnight\\s+Carp\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Squid\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Tuna\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Perch\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Flounder\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Lionfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Herring\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Ghostfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Tilapia\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Dorado\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Sunfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Rainbow\\s+Trout\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Legend\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Glacierfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Angler\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Crimsonfish\\s+1\\s+Coal\\s*$"
+            };
+
+
+            for(int i = 0; i < regexes.length; i++) {
+                Pattern pattern = Pattern.compile(regexes[i]);
+                Matcher matcher = pattern.matcher(items);
+                if (matcher.matches()) {
+                    String name = matcher.group(1);
+                    ArtisanItem artisanItem = new ArtisanItem(ArtisanType.SmokedFish);
+                    FishType fishType = FishType.fromName(name);
+                    Seasons[] seasons = fishType.getSeasons();
+                    Fish fish = new Fish(fishType , seasons[0]); // TODO. this is random...
+                    int baseSellPrice = fish.getBaseSellPrice() * 2;
+                    artisanItem.setBaseSellPrice(baseSellPrice);
+                    return artisanItem;
+                }
+            }
         } else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
                     "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
@@ -401,8 +440,34 @@ public class CraftingItem extends Item {
                 }
             }
         } else if (type.getName().equals("Fish Smoker")) {
-            //TODO: must check later
-            return "hmmm";
+            String[] regexes = new String[] {
+                    "^\\s*1\\s+Salmon\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Sardine\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Shad\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Blue\\s+Discus\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Midnight\\s+Carp\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Squid\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Tuna\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Perch\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Flounder\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Lionfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Herring\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Ghostfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Tilapia\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Dorado\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Sunfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Rainbow\\s+Trout\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Legend\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Glacierfish\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Angler\\s+1\\s+Coal\\s*$",
+                    "^\\s*1\\s+Crimsonfish\\s+1\\s+Coal\\s*$"
+            };
+
+            for (String regex : regexes) {
+                if (items.matches(regex)) {
+                    return regex;
+                }
+            }
         } else if (type.getName().equals("Furnace")) {
             String[] regexes = new String[]{
                     "^\\s*1\\s+Iron\\s+1\\s+Coal\\s*$", "^\\s*1\\s+Copper\\s+1\\s+Coal\\s*$",
