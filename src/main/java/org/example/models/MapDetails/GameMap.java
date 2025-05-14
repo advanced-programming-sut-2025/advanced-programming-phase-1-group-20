@@ -61,7 +61,7 @@ public class GameMap {
         return null;
     }
 
-    private boolean canPlayerModifyTile(Player player, int x, int y) {
+    boolean canPlayerModifyTile(Player player, int x, int y) {
         for (Farm farm : farms) {
             if (farm.contains(x, y) && farm.getOwner().equals(player)) {
                 return true;
@@ -89,12 +89,14 @@ public class GameMap {
         }
     }
 
-//    public void updateTurn(List<Player> players){
-//        //updating artisans each turn.
-//        for(Player player : players) {
-//            updateArtisans(player);
-//        }
-//    }
-    //TODO: چیکار میکنه دقیقا؟
+    public void updateTurn(List<Player> players){
+        for(Player player : players) {
+            Farm farm = getFarmByPlayer(player);
+            farm.updatePlants();
+            farm.updateArtisans();
+            farm.updateLakeFish();
+            village.updateShippingBin(player);
+        }
+    }
 
 }

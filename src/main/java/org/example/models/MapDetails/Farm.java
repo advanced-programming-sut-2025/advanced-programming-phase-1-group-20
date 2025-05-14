@@ -48,6 +48,7 @@ public class Farm {
     private final List<Coop> coops;
     private final Map<String, Character> symbolMap;
     private final Market[] markets = new Market[7];
+    private final List<ShippingBin> shippingBins;
 
     public Farm(String name, Player owner, boolean farmSelection, int farmIndex) {
         this.farmSelection = farmSelection;
@@ -63,6 +64,7 @@ public class Farm {
         this.lakes = createLakes();
         this.greenHouse = createGreenHouse();
         this.quarry = createQuarry();
+        this.shippingBins = new ArrayList<>();
 
         initializeFarm();
         initializeSymbols();
@@ -105,6 +107,12 @@ public class Farm {
         placeRandomObjects("stone", 100);
         placeRandomObjects("tree", 150);
         placeRandomObjects("crop", 100);
+    }
+
+    public void addShippingBin() {
+        ShippingBin newShippingBin = new ShippingBin();
+        shippingBins.add(newShippingBin);
+        markShippingBin(newShippingBin);
     }
 
     private void placeRandomObjects(String type, int count) {
@@ -335,6 +343,21 @@ public class Farm {
                 tiles[x][y] = new Location(x, y, TileType.COOP);
             }
         }
+    }
+
+    public void markShippingBin(ShippingBin shippingBin) {
+        Random rand = new Random();
+        int x = rand.nextInt(width);
+        int y = rand.nextInt(height);
+        TileType currentTile = tiles[x][y].getTile();
+        while (currentTile != TileType.GRASS) {
+            x = rand.nextInt(width);
+            y = rand.nextInt(height);
+            currentTile = tiles[x][y].getTile();
+        }
+
+        tiles[x][y].setTile(TileType.SHIPPING_BIN);
+        tiles[x][y].setItem(shippingBin);
     }
 
     public void addAnimal(Animal animal) {
@@ -672,6 +695,48 @@ public class Farm {
 
         return result;
     }
+
+    public boolean changeTile(int x, int y, TileType tileType, Player player) {
+        if (!contains(x, y)) {
+            return false;
+        }
+//        if (!isValidTileType(newType)) {
+//            return false;
+//        }
+
+        Location tile = tiles[x][y];
+
+        if (!App.getGame().getGameMap().canPlayerModifyTile(player, x, y)) {
+            return false;
+        }
+
+        if (isProtectedTile(tile.getType())) {
+            return false;
+        }
+//        if (requiresTool(tile.getType(), newType) && !player.hasRequiredTool(getRequiredTool(tile.getType(), newType))) {
+//            return false;
+//        }
+        //kasra
+
+        String previousType = tile.getType();
+        tile.setTile(tileType);
+        //handleTileChangeEffects(tile, previousType, newType);
+
+        return true;
+    }
+
+//    private void handleTileChangeEffects(Location tile, String previousType, String newType) {
+//        if (previousType.equals("tilled_soil") && !newType.equals("tilled_soil")) {
+//            //tile.setPlant(null);
+//            //kasra
+//        }
+//
+//        if ((previousType.equals("tree") || previousType.equals("stone")) &&
+//                (newType.equals("stump") || newType.equals("debris"))) {
+//            //player.addItemToInventory(new Item(previousType.equals("tree") ? "wood" : "stone", 1));
+//            //kasra
+//        }
+//    }
 
     public int getFarmIndex() {
         return farmIndex;

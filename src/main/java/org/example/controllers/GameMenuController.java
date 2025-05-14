@@ -34,7 +34,7 @@ public class GameMenuController implements Controller {
         this.appView = appView;
         this.player = player;
         this.gameClock = new Date();
-        this.gMap = new GameMap(100, 100, player);
+        this.gMap = new GameMap();
         // طول و عرض همینطوری گذاشته شده!
     }
 
@@ -304,10 +304,10 @@ public class GameMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
             return Result.error("Backpack does not contain " + seedName);
         }
-        if (!gMap.isShokhm(x, y)) {
+        if (!gMap.getFarmByPlayer(player).isShokhm(x, y)) {
             return Result.error("the land is not plowed!");
         }
-        if (gMap.getItem(x, y) != null) {
+        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
             return Result.error("there is an item on the ground");
         }
         if (!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
@@ -341,7 +341,7 @@ public class GameMenuController implements Controller {
             }
 
 
-            gMap.placeItem(x, y, item);
+            gMap.getFarmByPlayer(player).placeItem(x, y, item);
         } else if (item instanceof Tree) {
             Tree tree = (Tree) item;
             Seasons[] seasons = tree.getSeasons();
@@ -354,7 +354,7 @@ public class GameMenuController implements Controller {
             if (counter == 0) {
                 return Result.error("This Tree is not for this season.");
             }
-            gMap.placeItem(x, y, tree);
+            gMap.getFarmByPlayer(player).placeItem(x, y, tree);
         }
         return Result.success(seedName + "planted successfully!");
 
@@ -402,7 +402,7 @@ public class GameMenuController implements Controller {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
 
-        Location location = gMap.getItem(x, y);
+        Location location = gMap.getFarmByPlayer(player).getItem(x, y);
 
         if (location == null || location.getItem() == null) {
             return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
@@ -429,7 +429,7 @@ public class GameMenuController implements Controller {
             return Result.error("Backpack does not contain " + fertilizer);
         }
 
-        Location targetLocation = gMap.getItem(x, y);
+        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
         if (targetLocation == null || targetLocation.getItem() == null || !(targetLocation.getItem() instanceof Tool)) {
             return Result.error("Fertilizer" + fertilizer + " is not a tool");
         }
@@ -449,7 +449,7 @@ public class GameMenuController implements Controller {
         int x = location.getX() + dir[1];
         int y = location.getY() + dir[0];
 
-        Location targetLocation = gMap.getItem(x, y);
+        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
         if (targetLocation == null || targetLocation.getItem() == null) {
             return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
         }
@@ -479,7 +479,7 @@ public class GameMenuController implements Controller {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
 
-        Location targetLocation = gMap.getItem(x, y);
+        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
         if (targetLocation == null || targetLocation.getItem() == null) {
             return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
         }
@@ -510,12 +510,12 @@ public class GameMenuController implements Controller {
             }
             player.getBackpack().add(fruit, 1);
             if (plant.getOneTimeHarvest()) {
-                gMap.placeItem(x, y, null);
+                gMap.getFarmByPlayer(player).placeItem(x, y, null);
             } else {
                 plant.setFinished(false);
             }
             if(plant.getOneTimeHarvest()){
-                gMap.placeItem(x, y, null);
+                gMap.getFarmByPlayer(player).placeItem(x, y, null);
             }else{
                 plant.setStages(new int[]{1});
                 plant.setDaysCounter(plant.getRegrowthTime());
@@ -529,7 +529,7 @@ public class GameMenuController implements Controller {
                 return Result.error("fruit is not ready yet");
             }
             player.getBackpack().add(fruit, 1);
-            gMap.placeItem(x, y, null);
+            gMap.getFarmByPlayer(player).placeItem(x, y, null);
         }
         return Result.success("Plant has been harvested!");
     }
@@ -750,7 +750,7 @@ public class GameMenuController implements Controller {
             int y = Integer.parseInt(args[1]);
 
             // Check if the destination is valid
-            if (!gMap.isValidCoordinate(x, y)) {
+            if (!gMap.getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
             }
 
@@ -759,9 +759,9 @@ public class GameMenuController implements Controller {
 
             // Get the current location
             Location currentLocation = player.getLocation();
-            Location destination = new Location(x, y, gMap.getTile(x, y));
+            Location destination = new Location(x, y, gMap.getFarmByPlayer(player).getTile(x, y));
 
-            int energyNeeded = GameMap.calculateEnergyNeeded(currentLocation, destination);
+            int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
 
             // Check if the player has used too much energy this turn
             if (!player.canUseEnergy(energyNeeded)) {
@@ -774,7 +774,7 @@ public class GameMenuController implements Controller {
                 player.move(x, y);
                 return Result.success("Walked to (" + x + ", " + y + ")");
             } else {
-                Location furthestLocation = GameMap.findFurthestCanGo(currentLocation, destination);
+                Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
                 player.setEnergy(0);
                 player.move(furthestLocation.xAxis, furthestLocation.yAxis);
                 return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
@@ -796,7 +796,7 @@ public class GameMenuController implements Controller {
             int size = Integer.parseInt(args[2]);
 
             // Check if the coordinates are valid
-            if (!gMap.isValidCoordinate(x, y)) {
+            if (!gMap.getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
             }
 
@@ -806,7 +806,7 @@ public class GameMenuController implements Controller {
             }
 
             System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
-            gMap.printCurrentView(x, y, size);
+            gMap.getFarmByPlayer(player).printCurrentViewColored(x, y, size);
             System.out.println("Map printed successfully!");
 
             return Result.success("Map printed");
@@ -999,8 +999,6 @@ public class GameMenuController implements Controller {
         // The greenhouse is a 5x6 grid (without counting the wall)
         Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
         Location rightCorner = new Location(16, 15, TileType.GREENHOUSE);
-
-        gMap.addGreenhouse(leftCorner, rightCorner);
 
         return Result.success("Greenhouse built successfully! You can now plant crops regardless of the season.");
     }

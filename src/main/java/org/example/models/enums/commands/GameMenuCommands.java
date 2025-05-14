@@ -51,8 +51,6 @@ public enum GameMenuCommands implements Command {
     GiveWater(Pattern.compile("^give\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
 
-
-
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),
 
