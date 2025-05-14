@@ -18,10 +18,10 @@ public class MarketController implements Controller {
     private GameMap gMap;
     private Market market;
 
-    public MarketController(AppView appView, App app, Player player, Market market) {
+    public MarketController(AppView appView, App app, Player player, Market market , Date gameClock) {
         this.appView = appView;
         this.player = player;
-        this.gameClock = new Date();
+        this.gameClock = gameClock;
         this.gMap = new GameMap(100, 100, player);
         // طول و عرض همینطوری گذاشته شده!
         this.market = market;
@@ -43,8 +43,10 @@ public class MarketController implements Controller {
             case ToolUpgrade -> result = upgradeTool(args);
             case ShowCurrentMenu -> result = Result.success("Market menu");
             case Build -> result = build(args);
-            case None -> Result.error("Invalid input");
+            case None -> result = Result.error("Invalid input");
         }
+
+        appView.handleResult(result , command);
         return result;
     }
 

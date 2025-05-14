@@ -1,31 +1,35 @@
 package org.example.views;
 
-
+import org.example.controllers.HouseMenuController;
 import org.example.controllers.MarketController;
 import org.example.models.App;
+import org.example.models.MapDetails.Building;
+import org.example.models.MapDetails.GameMap;
 import org.example.models.Market;
 import org.example.models.Player.Player;
-import org.example.models.common.Date;
 import org.example.models.common.Result;
+import org.example.models.enums.commands.HouseMenuCommands;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
-import org.example.models.enums.commands.MarketMenuCommands;
 
-public class MarketMenu implements AppMenu {
+public class HouseMenu implements AppMenu{
     private AppView appView;
     private App app;
-    private MarketController controller;
+    private HouseMenuController controller;
     private Player player;
-    private Market market;
-    private Date gameClock;
+    private Building house;
+    private GameMap gameMap;
 
-
-    public MarketMenu(AppView appView, App app, Player player, Market market , Date gameClock) {
+    public HouseMenu(AppView appView, App app, HouseMenuController controller, Player player , Building house, GameMap gameMap) {
         this.appView = appView;
         this.app = app;
+        this.controller = controller;
         this.player = player;
-        this.market = market;
-        this.controller = new MarketController(appView, app, player, market , gameClock);
+        this.house = house;
+        this.gameMap = gameMap;
     }
+
+
+
 
     @Override
     public void updateMenu(String input) {
@@ -37,22 +41,11 @@ public class MarketMenu implements AppMenu {
         if (result == null) return;
 
         if (result.success()) {
-            if(command instanceof MarketMenuCommands) {
+            if(command instanceof HouseMenuCommands) {
                 System.out.println(result.message());
             }
-
         } else {
             System.out.println("Error: " + result.message());
         }
-    }
-
-
-
-    private void showAllProducts() {
-        market.showAllProducts();
-    }
-
-    private void showAllAvailableProducts() {
-        market.showAvailableProducts(gameClock.getSeason());
     }
 }
