@@ -14,9 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 public class NPC extends Mob {
-    // Controller reference
     private static NPCController controller;
-    // Dialogue options based on different conditions
     private final List<String> morningDialogues;
     private final List<String> afternoonDialogues;
     private final List<String> eveningDialogues;
@@ -33,7 +31,6 @@ public class NPC extends Mob {
     private Map<Player, NPCFriendship> friendships;
     private Location location;
     private String description;
-    // Flag to control whether to use AI-generated dialogues
     private boolean useAiDialogue = false;
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
@@ -54,16 +51,13 @@ public class NPC extends Mob {
         this.level2Dialogues = new ArrayList<>();
         this.level3Dialogues = new ArrayList<>();
 
-        // Add default dialogues based on character
         initializeDefaultDialogues();
     }
 
-    // Static method to get the controller
     public static NPCController getController() {
         return controller;
     }
 
-    // Static method to set the controller
     public static void setController(NPCController npcController) {
         controller = npcController;
     }
@@ -285,7 +279,6 @@ public class NPC extends Mob {
     }
 
     public Item getRandomGiftItem() {
-        // Use the controller to get a random gift item
         return controller.getRandomGiftItem(this);
     }
 
@@ -297,22 +290,18 @@ public class NPC extends Mob {
     }
 
     public void addFavoriteItem(Item item) {
-        // Use the controller to add a favorite item
         controller.addFavoriteItem(this, item);
     }
 
     public void addGiftItem(Item item) {
-        // Use the controller to add a gift item
         controller.addGiftItem(this, item);
     }
 
     public Location getLocation() {
-        // Use the controller to get the location
         return controller.getLocation(this);
     }
 
     public void setLocation(Location location) {
-        // Use the controller to set the location
         controller.setLocation(this, location);
     }
 
@@ -356,7 +345,6 @@ public class NPC extends Mob {
         this.useAiDialogue = useAiDialogue;
     }
 
-    // Getter methods for dialogue lists
     public List<String> getMorningDialogues() {
         return morningDialogues;
     }

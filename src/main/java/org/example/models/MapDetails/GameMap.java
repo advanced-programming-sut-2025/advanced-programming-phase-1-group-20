@@ -15,7 +15,7 @@ import java.util.*;
 
 public class GameMap {
 
-    private Farm[] farms;
+    private final Farm[] farms;
     private Village village;
 
     public GameMap() {
@@ -60,37 +60,6 @@ public class GameMap {
         }
         return null;
     }
-
-//        private void connectFarmsToVillage() {
-//        int villageCenterX = width / 2;
-//        int villageCenterY = height / 2;
-//
-//        for (Farm farm : farms) {
-//            int farmCenterX = farm.getStartX() + farm.getWidth() / 2;
-//            int farmCenterY = farm.getStartY() + farm.getHeight() / 2;
-//
-//            int currentX = farmCenterX;
-//            int currentY = farmCenterY;
-//
-//            while (currentX != villageCenterX || currentY != villageCenterY) {
-//                if (currentX < villageCenterX) {
-//                    currentX++;
-//                }
-//                else if (currentX > villageCenterX) {
-//                    currentX--;
-//                }
-//
-//                if (currentY < villageCenterY) {
-//                    currentY++;
-//                }
-//                else if (currentY > villageCenterY) {
-//                    currentY--;
-//                }
-//
-//                tiles[currentX][currentY] = new Location(currentX, currentY, TileType.PATH);
-//            }
-//        }
-//    }
 
     private boolean canPlayerModifyTile(Player player, int x, int y) {
         for (Farm farm : farms) {

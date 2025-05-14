@@ -3,6 +3,7 @@ package org.example.models.MapDetails;
 import org.example.models.Items.*;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
+import org.example.models.entities.NPC;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -29,7 +30,7 @@ public class Village {
     public static final int height = 50;
     private final Location[][] tiles;
     private final List<Building> buildings;
-    //private List<NPC> residents;
+    private List<NPC> residents;
     private final String name;
     //private List<Shop> shops;
     private final Map<String, Character> symbolMap;
@@ -39,7 +40,7 @@ public class Village {
         this.tiles = new Location[width][height];
         this.buildings = new ArrayList<>();
         this.symbolMap = new HashMap<>();
-        //this.residents = new ArrayList<>();
+        this.residents = new ArrayList<>();
         //this.shops = new ArrayList<>();
         initializeVillage();
         initializeSymbols();
@@ -129,7 +130,19 @@ public class Village {
     }
 
     private void initializeNPCs() {
-        //...
+        Random rand = new Random();
+        int count = 5;
+        int placed = 0;
+
+        while (placed < count) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            TileType currentTile = tiles[x][y].getTile();
+
+            if (currentTile == TileType.GRASS) {
+
+            }
+        }
     }
 
     private void initializeShops() {
