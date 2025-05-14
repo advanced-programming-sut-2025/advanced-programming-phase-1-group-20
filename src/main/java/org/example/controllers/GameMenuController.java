@@ -854,7 +854,7 @@ public class GameMenuController implements Controller {
         }
 
 
-        bin.increaseIncome(amount);
+        bin.increaseIncome(amount , player);
         return Result.success("your product: " + productName + " has been sold!");
     }
 
