@@ -99,6 +99,16 @@ public enum GameMenuCommands implements Command {
 
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
 
+
+    //cheats
+    CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favourits\\s+(?<characterName>\\S+)\\s*$")),
+
+    CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),
+    //cheats
+
+
+
+
     None(null);
 
     private final Pattern pattern;

@@ -4,6 +4,7 @@ import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.Items.Plant;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
@@ -155,6 +156,9 @@ public class GameMenuController implements Controller {
             case TradeHistory -> result = tradeHistory();
 
             case ShowCurrentMenu -> result = Result.success("Game Menu");
+
+            case CheatSetBackPackFull -> cheatBackPackFull();
+            case CheatAddFavourites -> cheatAddFavourites(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -1915,4 +1919,24 @@ public class GameMenuController implements Controller {
 
         return Result.success(sb.toString());
     }
+
+
+
+    //cheats:
+    private void cheatBackPackFull(){
+        player.getBackpack().setType(Backpack.Type.Deluxe);
+    }
+
+
+    private void cheatAddFavourites(String[] args) {
+        Npcs npcType = Npcs.fromName(args[0]);
+
+        for(String s : npcType.getFavoriteItems()){
+            Item item = ItemBuilder.build(s);
+            if(item!=null){
+                player.getBackpack().add(item , 1);
+            }
+        }
+    }
+
 }
