@@ -42,9 +42,15 @@ public class MarketController implements Controller {
             case CheatAddDollars -> cheatAddDollars(args);
             case ToolUpgrade -> result = upgradeTool(args);
             case ShowCurrentMenu -> result = Result.success("Market menu");
+            case Build -> result = build(args);
             case None -> Result.error("Invalid input");
         }
         return result;
+    }
+
+    private Result build(String[] args) {
+        String buildingName = args[0];
+        return Result.success("build successfully");
     }
 
     private void showAllProducts() {
@@ -78,6 +84,8 @@ public class MarketController implements Controller {
         return Result.success("Item purchased successfully");
     }
 
+
+
     private void cheatAddDollars(String[] args) {
         int amount = Integer.parseInt(args[0]);
         player.increaseMoney(amount);
@@ -94,7 +102,8 @@ public class MarketController implements Controller {
 
             if (success) {
                 return Result.success("Tool " + toolName + " upgraded successfully");
-            } else {
+            }
+            else {
                 return Result.error("Failed to upgrade tool " + toolName);
             }
         }
