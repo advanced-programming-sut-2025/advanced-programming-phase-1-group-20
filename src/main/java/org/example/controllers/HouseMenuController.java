@@ -227,14 +227,14 @@ public class HouseMenuController implements Controller {
                 if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
                     return Result.error("Backpack doesn't contain item");
                 }
-                // home.getRefrigerator().putItem(item)
+                 house.getRefrigerator().putItem(item , 1);
                 break;
             case "pick":
-//                Item item = home.pickItem(item);
-//                if(item == null){
-//                    return Result.error("Item not found");
-//                }
-//                player.getBackpack().add(item, 1);
+                Item item1 = house.getRefrigerator().pickItem(item);
+                if(item1 == null){
+                    return Result.error("Item not found");
+                }
+                player.getBackpack().add(item1, 1);
                 break;
         }
         return Result.success("Item " + itemName + " has been " + key + "ed");
@@ -247,30 +247,34 @@ public class HouseMenuController implements Controller {
     }
 
     private Result cookingPrepare(String[] args) {
-        //TODO : this function should be in HomeMenu.
         String name = args[0];
         Item item = ItemBuilder.build(name);
-        //TODO : checking refrigerator.
+
 
         if (player.getBackpack().isBackPackFull()) {
             return Result.error("Backpack is full");
         }
         if (item == null) {
-            return Result.error(name + " does not exist");
+            return Result.error(name + " does not exist in the game.");
         }
         if (!isCooking(item)) {
             return Result.error("Item is not a cooking item");
         }
-        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
-            return Result.error("Backpack is already cooking");
+        if (!(player.getBackpack().hasItems(Collections.singletonList(name)) || house.getRefrigerator().contains(item))) {
+            return Result.error("You don't have the item in this house(and your back pack).");
         }
-        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
-            return Result.error("Item doesn't exist in backpack");
-        }
+
 
         CookingItem cookingItem = (CookingItem) item;
         player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
+
+        if(player.getBackpack().hasItems(Collections.singletonList(name))){
+            player.getBackpack().remove(item , 1);
+        }else{
+            house.getRefrigerator().removeItem(item , 1);
+        }
+
         player.getBackpack().add(food, 1);
         return Result.success("Food " + food.getName() + " cooked");
     }
