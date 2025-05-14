@@ -1,9 +1,7 @@
 package org.example.models.MapDetails;
 
-import org.example.models.Items.Crop;
-import org.example.models.Items.Item;
-import org.example.models.Items.Mineral;
-import org.example.models.Items.Tree;
+import org.example.models.Items.*;
+import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
@@ -256,5 +254,25 @@ public class Village {
             }
             System.out.println();
         }
+    }
+
+    public void updateShippingBin(Player player) {
+        ShippingBin[] bins = new ShippingBin[4];
+        bins[0] = new ShippingBin();
+        bins[1] = new ShippingBin();
+        bins[2] = new ShippingBin();
+        bins[3] = new ShippingBin();
+
+        player.increaseMoney(bins[0].getIncome(player));
+        bins[1].updateShippingBin(player);
+
+        player.increaseMoney(bins[1].getIncome(player));
+        bins[1].updateShippingBin(player);
+
+        player.increaseMoney(bins[2].getIncome(player));
+        bins[2].updateShippingBin(player);
+
+        player.increaseMoney(bins[3].getIncome(player));
+        bins[3].updateShippingBin(player);
     }
 }

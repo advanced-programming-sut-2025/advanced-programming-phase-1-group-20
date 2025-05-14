@@ -15,15 +15,53 @@ import java.util.*;
 
 public class GameMap {
 
-    private final Farm[] farms;
-    private final Player currentPlayer;
+    private Farm[] farms;
+    private Village village;
 
-    public GameMap(Player player) {
+    public GameMap() {
         this.farms = new Farm[4];
-        this.currentPlayer = player;
+        this.village = null;
     }
 
-//    private void connectFarmsToVillage() {
+    public Farm[] getFarms() {
+        return farms;
+    }
+
+    public Village getVillage() {
+        return village;
+    }
+
+    public void setVillage(Village village) {
+        this.village = village;
+    }
+
+    public void addFarm(Farm farm) {
+        farms[farm.getFarmIndex()] = farm;
+    }
+
+    public Farm getFarmByIndex(int index) {
+        return farms[index];
+    }
+
+    public Farm getFarmByName(String name) {
+        for (Farm farm : farms) {
+            if (farm.getName().equals(name)) {
+                return farm;
+            }
+        }
+        return null;
+    }
+
+    public Farm getFarmByPlayer(Player player) {
+        for (Farm farm : farms) {
+            if (farm.getOwner().equals(player)) {
+                return farm;
+            }
+        }
+        return null;
+    }
+
+//        private void connectFarmsToVillage() {
 //        int villageCenterX = width / 2;
 //        int villageCenterY = height / 2;
 //
@@ -37,13 +75,15 @@ public class GameMap {
 //            while (currentX != villageCenterX || currentY != villageCenterY) {
 //                if (currentX < villageCenterX) {
 //                    currentX++;
-//                } else if (currentX > villageCenterX) {
+//                }
+//                else if (currentX > villageCenterX) {
 //                    currentX--;
 //                }
 //
 //                if (currentY < villageCenterY) {
 //                    currentY++;
-//                } else if (currentY > villageCenterY) {
+//                }
+//                else if (currentY > villageCenterY) {
 //                    currentY--;
 //                }
 //
@@ -52,90 +92,40 @@ public class GameMap {
 //        }
 //    }
 
-//    private boolean canPlayerModifyTile(Player player, int x, int y) {
-//        for (Farm farm : farms) {
-//            if (farm.contains(x, y) && farm.getOwner().equals(player)) {
-//                return true;
-//            }
-//        }
-//
-//        return tiles[x][y].getType().equals("path");
-//    }
+    private boolean canPlayerModifyTile(Player player, int x, int y) {
+        for (Farm farm : farms) {
+            if (farm.contains(x, y) && farm.getOwner().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    public boolean isInOtherPlayersFarm(Player player, int x, int y) {
+        for (Farm farm : farms) {
+            if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-//    public List<Location> getPassableNeighbors(Location location) {
-//        List<Location> result = new ArrayList<>();
-//        int x = location.getX();
-//        int y = location.getY();
-//
-//        int[][] directions = {
-//                {-1, -1}, {-1, 0}, {-1, 1},
-//                {0, -1}, {0, 1},
-//                {1, -1}, {1, 0}, {1, 1}
-//        };
-//
-//        for (int[] dir : directions) {
-//            int newX = x + dir[0];
-//            int newY = y + dir[1];
-//
-//            if (isInBounds(newX, newY)) {
-//                Location neighbor = tiles[newX][newY];
-//                if (isPassable(neighbor)) {
-//                    result.add(neighbor);
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
-
-//    public boolean isInOtherPlayersFarm(Player player, int x, int y) {
-//        for (Farm farm : farms) {
-//            if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-    //update part.
     public void updateDailyGameMap(List<Player> players) {
-        //this is a daily update (after every day)
-        updatePlants();
-        for(Player player : players) {
-            updateShippingBin(player);
-        }
-
-        //TODO : this method is not complete just need to get the shippingBins
-    }
-
-    public void updateTurn(List<Player> players){
-        //updating artisans each turn.
-        for(Player player : players) {
-            updateArtisans(player);
+        for (Player player : players) {
+            Farm farm = getFarmByPlayer(player);
+            farm.updatePlants();
+            farm.updateArtisans();
+            farm.updateLakeFish();
+            village.updateShippingBin(player);
         }
     }
 
-    public void updateShippingBin(Player player) {
-        //TODO : we must get this bin from map.
-        ShippingBin[] bins = new ShippingBin[4];
-        bins[0] = new ShippingBin();
-        bins[1] = new ShippingBin();
-        bins[2] = new ShippingBin();
-        bins[3] = new ShippingBin();
-
-        player.increaseMoney(bins[0].getIncome(player));
-        bins[1].updateShippingBin(player);
-
-
-        player.increaseMoney(bins[1].getIncome(player));
-        bins[1].updateShippingBin(player);
-
-        player.increaseMoney(bins[2].getIncome(player));
-        bins[2].updateShippingBin(player);
-
-        player.increaseMoney(bins[3].getIncome(player));
-        bins[3].updateShippingBin(player);
-    }
+//    public void updateTurn(List<Player> players){
+//        //updating artisans each turn.
+//        for(Player player : players) {
+//            updateArtisans(player);
+//        }
+//    }
+    //TODO: چیکار میکنه دقیقا؟
 
 }

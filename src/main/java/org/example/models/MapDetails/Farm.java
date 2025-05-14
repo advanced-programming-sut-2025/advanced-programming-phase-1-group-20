@@ -427,7 +427,7 @@ public class Farm {
     }
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
-        for (Farm farm : App.getGame().getMap().getFarms()) {
+        for (Farm farm : App.getGame().getGameMap().getFarms()) {
             if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
                 return true;
             }
@@ -458,8 +458,8 @@ public class Farm {
         }
     }
 
-    public void updateArtisans(Player player) {
-        Map<Item, Integer> items = player.getBackpack().getInventory();
+    public void updateArtisans() {
+        Map<Item, Integer> items = owner.getBackpack().getInventory();
         for (Item item : items.keySet()) {
             if (item instanceof CraftingItem) {
                 CraftingItem craftingItem = (CraftingItem) item;
@@ -553,8 +553,8 @@ public class Farm {
         }
     }
 
-    public void updateLakeFish(Player player) {
-        int fishingSkill = player.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
+    public void updateLakeFish() {
+        int fishingSkill = owner.getSkillLevel(org.example.models.enums.PlayerEnums.Skills.FISHING);
         for (Lake lake : lakes) {
             lake.updateAvailableFish(org.example.models.App.getGame().getDate().getSeason(), fishingSkill);
         }
@@ -563,7 +563,7 @@ public class Farm {
     private void checkSeasonChange(org.example.models.common.Date oldDate, Date newDate) {
         if (oldDate.getSeason() != newDate.getSeason()) {
             for (Player player : org.example.models.App.getGame().getPlayers()) {
-                updateLakeFish(player);
+                updateLakeFish();
             }
         }
     }
@@ -647,4 +647,33 @@ public class Farm {
         return type.equals("water") || type.equals("village") || type.equals("house");
     }
 
+        public List<Location> getPassableNeighbors(Location location) {
+        List<Location> result = new ArrayList<>();
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                Location neighbor = tiles[newX][newY];
+                if (isPassable(neighbor)) {
+                    result.add(neighbor);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public int getFarmIndex() {
+        return farmIndex;
+    }
 }

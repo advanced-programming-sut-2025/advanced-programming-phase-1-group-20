@@ -21,7 +21,7 @@ public class Game implements Serializable {
     private boolean saved;
     private GameMap gameMap;
 
-    public Game(List<Player> players, Player creator) {
+    public Game(List<Player> players, Player creator, GameMap gameMap) {
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
@@ -31,6 +31,7 @@ public class Game implements Serializable {
         this.mapSelections = new HashMap<>();
         this.terminateVotes = new HashMap<>();
         this.saved = false;
+        this.gameMap = gameMap;
 
         for (Player player : players) {
             mapSelections.put(player, -1);
@@ -50,6 +51,10 @@ public class Game implements Serializable {
         return date;
     }
 
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
@@ -65,6 +70,8 @@ public class Game implements Serializable {
     public void setMapSelectionPhase(boolean inMapSelectionPhase) {
         this.inMapSelectionPhase = inMapSelectionPhase;
     }
+
+
 
     public boolean allPlayersSelectedMap() {
         for (Player player : players) {
