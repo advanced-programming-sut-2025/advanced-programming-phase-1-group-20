@@ -1,58 +1,133 @@
 package org.example.models.MapDetails;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.List;
+import org.example.models.Items.Crop;
+import org.example.models.Items.Item;
+import org.example.models.Items.Mineral;
+import org.example.models.Items.Tree;
+import org.example.models.common.Location;
+import org.example.models.enums.Types.CropType;
+import org.example.models.enums.Types.MineralType;
+import org.example.models.enums.Types.TileType;
+import org.example.models.enums.Types.TreeType;
+
+import java.util.*;
 
 public class Village {
-    private final int centerX;
-    private final int centerY;
-    private final int radius;
-    private final Map<String, Tile> tiles;
+
+    private static final String RESET = "\u001B[0m";
+    private static final String GREEN = "\u001B[32m";
+    private static final String BLUE = "\u001B[34m";
+    private static final String RED = "\u001B[31m";
+    private static final String GRAY = "\u001B[37m";
+    private static final String CYAN = "\u001B[36m";
+    private static final String YELLOW = "\u001B[33m";
+    private static final String BROWN = "\u001B[38;5;94m";
+    private static final String PURPLE = "\u001B[35m";
+    private static final String PINK = "\u001B[38;5;200m";
+    private static final String LIGHT_BLUE = "\u001B[94m";
+    private static final String LIGHT_GREEN = "\u001B[92m";
+
+    public static final int width = 50;
+    public static final int height = 50;
+    private final Location[][] tiles;
     private final List<Building> buildings;
     //private List<NPC> residents;
     private final String name;
     //private List<Shop> shops;
+    private final Map<String, Character> symbolMap;
 
-    public Village(int centerX, int centerY, int radius, String name) {
-        this.centerX = centerX;
-        this.centerY = centerY;
-        this.radius = radius;
+    public Village(String name) {
         this.name = name;
-        this.tiles = new HashMap<>();
+        this.tiles = new Location[width][height];
         this.buildings = new ArrayList<>();
+        this.symbolMap = new HashMap<>();
         //this.residents = new ArrayList<>();
         //this.shops = new ArrayList<>();
         initializeVillage();
+        initializeSymbols();
+    }
+
+    private void initializeSymbols() {
+        symbolMap.put("grass", '.');
+        symbolMap.put("tilled_soil", '=');
+        symbolMap.put("tree", 'T');
+        symbolMap.put("crop", 'C');
+        symbolMap.put("stone", 'S');
+        symbolMap.put("path", '#');
+        symbolMap.put("lake", '~');
+        symbolMap.put("quarry", 'Q');
+        symbolMap.put("greenhouse", 'G');
+        symbolMap.put("village", 'V');
+        symbolMap.put("building", 'H');
+        symbolMap.put("coop", 'C');
+        symbolMap.put("barn", 'B');
+        symbolMap.put("empty", ' ');
     }
 
     private void initializeVillage() {
-        for (int x = centerX - radius; x <= centerX + radius; x++) {
-            for (int y = centerY - radius; y <= centerY + radius; y++) {
-                if (Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) <= Math.pow(radius, 2)) {
-                    String type = "path";
-
-                    if (Math.abs(x - centerX) <= 2 && Math.abs(y - centerY) <= 2) {
-                        type = "plaza";
-                    }
-
-                    //tiles.put(getTileKey(x, y), new Location(x, y, type));
-                    //will be complete
-                }
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                tiles[x][y] = new Location(x, y, TileType.GRASS);
             }
         }
 
         initializeBuildings();
         initializeNPCs();
         initializeShops();
+
+//        placeRandomObjects("stone", 100);
+//        placeRandomObjects("tree", 150);
+//        placeRandomObjects("crop", 100);
+        //TODO: درخت و سنگ داره یا نه؟
+    }
+
+    private void placeRandomObjects(String type, int count) {
+        Random rand = new Random();
+        int placed = 0;
+
+        while (placed < count) {
+            int x = rand.nextInt(width);
+            int y = rand.nextInt(height);
+            TileType currentTile = tiles[x][y].getTile();
+
+            if (currentTile == TileType.GRASS) {
+                tiles[x][y].setType(type);
+
+                if (type.equals("tree")) {
+                    tiles[x][y].setTile(TileType.TREE);
+
+                    TreeType[] types = TreeType.values();
+                    TreeType randomType = types[rand.nextInt(types.length)];
+                    Tree tree = new Tree(randomType);
+                    tiles[x][y].setItem(tree);
+                }
+                else if (type.equals("crop")) {
+                    tiles[x][y].setTile(TileType.CROP);
+
+                    CropType[] types = CropType.values();
+                    CropType randomType = types[rand.nextInt(types.length)];
+                    Crop crop = new Crop(randomType);
+                    tiles[x][y].setItem(crop);
+                }
+                else if (type.equals("stone")) {
+                    tiles[x][y].setTile(TileType.STONE);
+
+                    MineralType[] types = MineralType.values();
+                    MineralType randomType = types[rand.nextInt(types.length)];
+                    Mineral stone = new Mineral(randomType);
+                    tiles[x][y].setItem(stone);
+                }
+
+                placed++;
+            }
+        }
     }
 
     private void initializeBuildings() {
-        buildings.add(new Building(centerX - 5, centerY - 3, "Town Hall", "public"));
-        buildings.add(new Building(centerX + 3, centerY - 4, "Blacksmith", "shop"));
-        buildings.add(new Building(centerX - 2, centerY + 4, "General Store", "shop"));
-        buildings.add(new Building(centerX + 4, centerY + 2, "Stardrop Saloon", "public"));
+        buildings.add(new Building(0, 0, "Town Hall", "public"));
+        buildings.add(new Building(width - 4, 0, "Blacksmith", "shop"));
+        buildings.add(new Building(0, height - 4, "General Store", "shop"));
+        buildings.add(new Building(width - 4, height - 4, "Stardrop Saloon", "public"));
     }
 
     private void initializeNPCs() {
@@ -67,8 +142,12 @@ public class Village {
         return x + "," + y;
     }
 
-    public Tile getTile(int x, int y) {
-        return tiles.get(getTileKey(x, y));
+    public TileType getTile(int x, int y) {
+        if (contains(x, y)) {
+            Location location = tiles[x][y];
+            return location.getTile();
+        }
+        return null;
     }
 
     public boolean setTile(int x, int y, Tile tile) {
@@ -79,8 +158,27 @@ public class Village {
         return false;
     }
 
+    private boolean isValidTileType(String type) {
+        return symbolMap.containsKey(type);
+    }
+
+    public Location getItem(int x, int y) {
+        if (!contains(x, y)) return null;
+        return tiles[x][y];
+    }
+
+    public void placeItem(int x, int y, Item item) {
+        Location tile = tiles[x][y];
+        tile.setItem(item);
+    }
+
+    public boolean isPassable(Location location) {
+        TileType type = location.getTile();
+        return type == TileType.GRASS || type == TileType.PATH;
+    }
+
     public boolean contains(int x, int y) {
-        return Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2) <= Math.pow(radius, 2);
+        return x >= 0 && x < width && y >= 0 && y < height;
     }
 
     public void addBuilding(Building building) {
@@ -117,5 +215,46 @@ public class Village {
 
     public void printVillageInfo() {
         //...
+    }
+
+    public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
+        int startX = 0;
+        int endX = Math.min(width - 1, centerX + viewRadius);
+        int startY = 0;
+        int endY = Math.min(height - 1, centerY + viewRadius);
+
+        for (int y = startY; y <= endY; y++) {
+            for (int x = startX; x <= endX; x++) {
+                Location tile = tiles[x][y];
+                String type = tile.getType();
+                char symbol = symbolMap.getOrDefault(type, '?');
+
+                String color = switch (type) {
+                    case "grass" -> GREEN;
+                    case "tilled_soil" -> YELLOW;
+                    case "tree" -> GREEN;
+                    case "crop" -> LIGHT_GREEN;
+                    case "stone" -> GRAY;
+                    case "lake" -> BLUE;
+                    case "path" -> YELLOW;
+                    case "coop" -> PINK;
+                    case "barn" -> LIGHT_BLUE;
+                    case "greenhouse" -> BROWN;
+                    case "quarry" -> RED;
+                    case "village" -> PURPLE;
+                    case "bridge" -> CYAN;
+                    case "empty" -> RESET;
+                    default -> RESET;
+                };
+
+                if (x == centerX && y == centerY) {
+                    System.out.print(RED + "@ " + RESET);
+                }
+                else {
+                    System.out.print(color + symbol + " " + RESET);
+                }
+            }
+            System.out.println();
+        }
     }
 }

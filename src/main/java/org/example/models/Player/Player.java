@@ -27,16 +27,16 @@ public class Player {
 
     private User user;
     private int energy;
-    private List<Skill> skills;
+    private final List<Skill> skills;
     private boolean energyUnlimited;
     private boolean hasCollapsed;
     private Location location;
     private int money;
     private Player spouse;
     private boolean isMarried;
-    private List<CraftingItem> craftingItems;
-    private List<CookingItem> cookingItems;
-    private Backpack backpack;
+    private final List<CraftingItem> craftingItems;
+    private final List<CookingItem> cookingItems;
+    private final Backpack backpack;
     private Tool currentTool;
     private Date rejectDate;
     private boolean energySet = true;
@@ -94,7 +94,6 @@ public class Player {
         return friendships;
     }
 
-
     public boolean talkTo(Player player, String message) {
         return getFriendship(player).talk(message, this);
     }
@@ -102,7 +101,6 @@ public class Player {
     public boolean tradeWith(Player player, boolean success) {
         return getFriendship(player).trade(success);
     }
-
 
     public boolean hugMob(Player player) {
         return getFriendship(player).hug(this);
@@ -112,11 +110,9 @@ public class Player {
         return getFriendship(player).giveBouquet(this);
     }
 
-
     public boolean proposeMarriageTo(Player player) {
         return getFriendship(player).proposeMarriage(this);
     }
-
 
     public boolean isMarriedTo(Player player) {
         return friendships.containsKey(player) && friendships.get(player).isMarried();
@@ -144,7 +140,6 @@ public class Player {
     public void doMission() {
         //checking around for NPC's , and doing missions.
     }
-
 
     public boolean giftNPC(NPC npc, org.example.models.Items.Item item) {
         if (item instanceof org.example.models.Items.Tool) {
@@ -239,11 +234,13 @@ public class Player {
     public void move(int x, int y) {
         //checking the Tile around.
         //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
+        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
         TileType tile = TileType.GRASS;
         //etc
         if (tile == TileType.WATER) {
             //implementing func.
         }
+        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
 //        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
 //        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
         int energyNeeded = 10;
@@ -254,6 +251,7 @@ public class Player {
         } else {
             // Update the player's location
             this.location = new Location(x, y, TileType.GRASS);
+            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
 
             // Consume energy
             if (!energyUnlimited) {
