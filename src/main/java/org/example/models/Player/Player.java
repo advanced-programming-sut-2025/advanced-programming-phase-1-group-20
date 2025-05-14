@@ -130,7 +130,7 @@ public class Player {
 
     public void fishingRod(GameMap gMap, int x, int y) {
         //checking the Tile around.
-        TileType tile = gMap.getTile(x + 1, y);
+        TileType tile = gMap.getFarmByPlayer(this).getTile(x + 1, y);
         //etc
         if (tile == TileType.WATER) {
             //implementing func.

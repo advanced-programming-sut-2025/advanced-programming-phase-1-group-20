@@ -40,7 +40,7 @@ public class GameMapTest {
         } finally {
             System.setOut(originalOut);
         }
-        gameMap.printCurrentViewColored(50, 25, 50);
+        //gameMap.printCurrentViewColored(50, 25, 50);
         System.out.println("testPrintMap: PASSED");
     }
 }

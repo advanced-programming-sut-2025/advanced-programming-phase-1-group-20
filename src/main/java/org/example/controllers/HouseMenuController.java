@@ -155,42 +155,42 @@ public class HouseMenuController implements Controller {
         if (item == null) {
             return Result.error("Item " + itemName + " does not exist in backpack");
         }
-        if (gMap.getItem(x, y) != null) {
+        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
             return Result.error("there is Item already in the ground!");
         }
         if (!item.isPlacable()) {
             return Result.error("Item " + itemName + " is not a placeable item");
         }
 
-        gMap.placeItem(x, y, item);
+        gMap.getFarmByPlayer(player).placeItem(x, y, item);
 
 
         if (item instanceof CraftingItem) {
             //it will be replaced as item.place() like a function pointer.
             switch (item.getName()) {
                 case "Cherry Bomb" -> {
-                    gMap.bomb(x, y, 3);
+                    gMap.getFarmByPlayer(player).bomb(x, y, 3);
                 }
                 case "Bomb" -> {
-                    gMap.bomb(x, y, 5);
+                    gMap.getFarmByPlayer(player).bomb(x, y, 5);
                 }
                 case "Mega Bomb" -> {
-                    gMap.bomb(x, y, 7);
+                    gMap.getFarmByPlayer(player).bomb(x, y, 7);
                 }
                 case "Sprinkler" -> {
-                    gMap.sprinkle(x, y, 4);
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 4);
                 }
                 case "Quality Sprinkler" -> {
-                    gMap.sprinkle(x, y, 8);
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 8);
                 }
                 case "Iridium Sprinkler" -> {
-                    gMap.sprinkle(x, y, 24);
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 24);
                 }
                 case "Scarecrow" -> {
-                    gMap.setScarecrow(x, y, 8, true);
+                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 8, true);
                 }
                 case "Deluxe Scarecrow" -> {
-                    gMap.setScarecrow(x, y, 12, true);
+                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
                 }
                 case "Bee House" -> {
                     //TODO : bee house.
