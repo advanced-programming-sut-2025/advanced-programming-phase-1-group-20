@@ -420,14 +420,21 @@ public class GameMap {
     }
 
     //update part.
-    public void updateGameMap(List<Player> players) {
+    public void updateDailyGameMap(List<Player> players) {
+        //this is a daily update (after every day)
         updatePlants();
         for(Player player : players) {
-            updateArtisans(player);
             updateShippingBin(player);
         }
 
         //TODO : this method is not complete just need to get the shippingBins
+    }
+
+    public void updateTurn(List<Player> players){
+        //updating artisans each turn.
+        for(Player player : players) {
+            updateArtisans(player);
+        }
     }
 
     public void updatePlants() {

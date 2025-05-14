@@ -87,9 +87,9 @@ public class Game implements Serializable {
         // Reset energy used in the current turn for the current player
         currentPlayer.resetEnergyUsedInTurn();
 
-//        for(Player player : players) {
-//            gameMap.updateArtisans(player);
-//        }
+
+        //update parts for each turn:
+        updateTurns();
 
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
@@ -98,6 +98,14 @@ public class Game implements Serializable {
         if (currentPlayerIndex == 0) {
             date.advanceTime(1 , gameMap);
         }
+    }
+
+    public void updateDailyGame(){
+        gameMap.updateDailyGameMap(players);
+    }
+
+    public void updateTurns(){
+        gameMap.updateTurn(players);
     }
 
     public void voteToTerminate(Player player, boolean vote) {
