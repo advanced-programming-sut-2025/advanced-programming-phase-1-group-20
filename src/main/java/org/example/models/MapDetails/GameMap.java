@@ -627,7 +627,7 @@ public class GameMap {
         }
     }
 
-    public boolean canBuildBarnOrCoop(int x, int y, int width, int height) {
+    public boolean canBuild(int x, int y, int width, int height) {
         for (int i = x - width; i <= x + width; i++) {
             for (int j = y - height; j <= y + height; j++) {
                 Location tile = tiles[i][j];
