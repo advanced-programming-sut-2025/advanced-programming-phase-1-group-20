@@ -29,7 +29,7 @@ public class AppView {
         while (!exit) {
             System.out.print(getCurrentMenuName() + "> ");
             String input = scanner.nextLine();
-            
+
             update(input);
 
             if (input.equalsIgnoreCase("exit")) {
@@ -91,5 +91,9 @@ public class AppView {
         // if (currentGame != null) {
         //     currentGame.saveGame();
         // }
+    }
+
+    public String getInput() {
+        return scanner.nextLine();
     }
 }

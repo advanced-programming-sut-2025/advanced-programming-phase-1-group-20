@@ -40,7 +40,8 @@ public enum GameMenuCommands implements Command {
     energyUnlimited(Pattern.compile("^energy unlimited$")),
 
     // saving related
-    SaveGame(Pattern.compile("^save$")), AutoSave(Pattern.compile("^autosave$")),
+    SaveGame(Pattern.compile("^save$")),
+    AutoSave(Pattern.compile("^autosave$")),
 
     // plants and foraging related
     CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")),
@@ -59,8 +60,8 @@ public enum GameMenuCommands implements Command {
 
     // tool commands
     ToolEquip(Pattern.compile("^tools\\s+equip\\s+(?<toolName>.+)$")),
-    ToolShowCurrent(Pattern.compile("^tools\\s+show\\s+current$")),
-    ToolShowAvailable(Pattern.compile("^tools\\s+show\\s+available$")),
+    ToolShowCurrent(Pattern.compile("^show\\s+current\\s+tool$")),
+    ToolShowAvailable(Pattern.compile("^show\\s+available\\s+tools$")),
     ToolUse(Pattern.compile("^tools\\s+use\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
 
     // greenhouse related

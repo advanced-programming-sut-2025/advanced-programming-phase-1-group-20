@@ -23,20 +23,19 @@ import java.util.List;
 import java.util.Map;
 
 public class Player {
+    private final List<Skill> skills;
+    private final List<CraftingItem> craftingItems;
+    private final List<CookingItem> cookingItems;
+    private final Backpack backpack;
     private Map<Player, Friendship> friendships;
-
     private User user;
     private int energy;
-    private final List<Skill> skills;
     private boolean energyUnlimited;
     private boolean hasCollapsed;
     private Location location;
     private int money;
     private Player spouse;
     private boolean isMarried;
-    private final List<CraftingItem> craftingItems;
-    private final List<CookingItem> cookingItems;
-    private final Backpack backpack;
     private Tool currentTool;
     private Date rejectDate;
     private boolean energySet = true;
@@ -130,7 +129,7 @@ public class Player {
 
     public void fishingRod(GameMap gMap, int x, int y) {
         //checking the Tile around.
-        TileType tile = gMap.getFarmByPlayer(this).getTile(x + 1, y);
+        TileType tile = gMap.getFarmByPlayer(App.getGame().getCurrentPlayer()).getTile(x + 1, y);
         //etc
         if (tile == TileType.WATER) {
             //implementing func.
@@ -382,120 +381,120 @@ public class Player {
 
         Tool tool = (Tool) item;
 
-        switch (tool.getMaterial()){
-            case BASIC ->{
+        switch (tool.getMaterial()) {
+            case BASIC -> {
                 int cost = 1_000;
                 Item cooper;
-                if(!toolName.equalsIgnoreCase("Trash Can")){
-                    cooper = new Item("Cooper Tool" , 5_000);
+                if (!toolName.equalsIgnoreCase("Trash Can")) {
+                    cooper = new Item("Cooper Tool", 5_000);
                     cost = cost * 2;
-                }else{
-                    cooper = new Item("Copper Trash Can" , 1_000);
+                } else {
+                    cooper = new Item("Copper Trash Can", 1_000);
                 }
 
-                if(!market.checkItem(this , cooper , 1)){
+                if (!market.checkItem(this, cooper, 1)) {
                     return false;
                 }
 
-                if(getMoney() < cost){
+                if (getMoney() < cost) {
                     return false;
                 }
-                if(getBackpack().getItem("Cooper Bar") == null){
+                if (getBackpack().getItem("Cooper Bar") == null) {
                     return false;
-                }else{
+                } else {
                     Item item1 = getBackpack().getItem("Cooper Bar");
-                    if(getBackpack().getInventory().get(item1) < 5){
+                    if (getBackpack().getInventory().get(item1) < 5) {
                         return false;
                     }
                 }
                 decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool , 5);
+                getBackpack().remove(tool, 5);
             }
-            case COPPER ->{
+            case COPPER -> {
                 Item iron;
                 int cost = 2_500;
-                if(!toolName.equalsIgnoreCase("Trash Can")){
-                    iron = new Item("Iron Tool" , 5_000);
+                if (!toolName.equalsIgnoreCase("Trash Can")) {
+                    iron = new Item("Iron Tool", 5_000);
                     cost = cost * 2;
-                }else{
-                    iron = new Item("Iron Trash Can" , 2_500);
+                } else {
+                    iron = new Item("Iron Trash Can", 2_500);
                 }
 
-                if(!market.checkItem(this , iron , 1)){
+                if (!market.checkItem(this, iron, 1)) {
                     return false;
                 }
 
-                if(getMoney() < cost){
+                if (getMoney() < cost) {
                     return false;
                 }
-                if(getBackpack().getItem("Iron Bar") == null){
+                if (getBackpack().getItem("Iron Bar") == null) {
                     return false;
-                }else{
+                } else {
                     Item item1 = getBackpack().getItem("Iron Bar");
-                    if(getBackpack().getInventory().get(item1) < 5){
+                    if (getBackpack().getInventory().get(item1) < 5) {
                         return false;
                     }
                 }
                 decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool , 5);
+                getBackpack().remove(tool, 5);
             }
-            case IRON ->{
+            case IRON -> {
                 Item gold;
                 int cost = 5_000;
-                if(!toolName.equalsIgnoreCase("Trash Can")){
-                    gold = new Item("Gold Tool" , 10_000);
+                if (!toolName.equalsIgnoreCase("Trash Can")) {
+                    gold = new Item("Gold Tool", 10_000);
                     cost = cost * 2;
-                }else{
-                    gold = new Item("Gold Trash Can" , 5_000);
+                } else {
+                    gold = new Item("Gold Trash Can", 5_000);
                 }
 
-                if(!market.checkItem(this,gold , 1)){
+                if (!market.checkItem(this, gold, 1)) {
                     return false;
                 }
 
-                if(getMoney() < cost){
+                if (getMoney() < cost) {
                     return false;
                 }
-                if(getBackpack().getItem("Gold Bar") == null){
+                if (getBackpack().getItem("Gold Bar") == null) {
                     return false;
-                }else{
+                } else {
                     Item item1 = getBackpack().getItem("Gold Bar");
-                    if(getBackpack().getInventory().get(item1) < 5){
+                    if (getBackpack().getInventory().get(item1) < 5) {
                         return false;
                     }
                 }
                 decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool , 5);
+                getBackpack().remove(tool, 5);
             }
-            case GOLD ->{
+            case GOLD -> {
                 Item iridium;
                 int cost = 12_500;
-                if(!toolName.equalsIgnoreCase("Trash Can")){
-                    iridium = new Item("Iridium Tool" , 25_000);
+                if (!toolName.equalsIgnoreCase("Trash Can")) {
+                    iridium = new Item("Iridium Tool", 25_000);
                     cost = cost * 2;
-                }else{
-                    iridium = new Item("Iridium Trash Can" , 12_500);
+                } else {
+                    iridium = new Item("Iridium Trash Can", 12_500);
                 }
 
-                if(!market.checkItem(this,iridium , 1)){
+                if (!market.checkItem(this, iridium, 1)) {
                     return false;
                 }
 
-                if(getMoney() < cost){
+                if (getMoney() < cost) {
                     return false;
                 }
-                if(getBackpack().getItem("Iridium Bar") == null){
+                if (getBackpack().getItem("Iridium Bar") == null) {
                     return false;
-                }else{
+                } else {
                     Item item1 = getBackpack().getItem("Iridium Bar");
-                    if(getBackpack().getInventory().get(item1) < 5){
+                    if (getBackpack().getInventory().get(item1) < 5) {
                         return false;
                     }
                 }
                 decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool , 5);
+                getBackpack().remove(tool, 5);
             }
-            case IRIDIUM ->{
+            case IRIDIUM -> {
                 return false;
             }
         }

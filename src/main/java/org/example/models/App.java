@@ -29,6 +29,9 @@ public class App {
     //    private static Lists for game
     private static List<Item> items = new ArrayList<>();
 
+
+    private static boolean isMapSelectionPhase = false;
+
     public static void initialize() {
         if (!dataLoaded) {
             users = FileStorage.loadUsers();
@@ -224,4 +227,13 @@ public class App {
         saveCurrentGame();
         return game;
     }
+
+    public static void toggleMapSelectionPhase() {
+        isMapSelectionPhase = !isMapSelectionPhase;
+    }
+
+    public static boolean isMapSelectionPhase() {
+        return isMapSelectionPhase;
+    }
+    
 }

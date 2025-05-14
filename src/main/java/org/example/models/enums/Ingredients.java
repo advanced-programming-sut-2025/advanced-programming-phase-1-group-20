@@ -1,7 +1,5 @@
 package org.example.models.enums;
 
-import org.example.models.Items.Item;
-
 import java.util.Map;
 
 public enum Ingredients {
@@ -37,10 +35,5 @@ public enum Ingredients {
 
     public Map<String, Integer> getIngredients() {
         return ingredients;
-    }
-
-    public Item[] getIngridents() {
-        // Implementation later:
-        return new Item[]{};
     }
 }

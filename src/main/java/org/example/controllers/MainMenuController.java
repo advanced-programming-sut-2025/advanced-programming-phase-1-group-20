@@ -136,7 +136,7 @@ public class MainMenuController implements Controller {
         }
 
         String menuName = args[0].toLowerCase();
-        if (menuName != "profile menu") {
+        if (!menuName.equals("profile menu")) {
             return Result.error("Only profile menu is supported");
         }
 

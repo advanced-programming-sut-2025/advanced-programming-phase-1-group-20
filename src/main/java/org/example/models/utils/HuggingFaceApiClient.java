@@ -9,14 +9,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 
 public class HuggingFaceApiClient {
-    private static final String API_URL = "https://api-inference.huggingface.co/models/gpt2";
-    private static final String API_KEY = "hf_...jmzX";
+    private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
+    private static final String API_KEY = "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";
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
@@ -52,25 +50,22 @@ public class HuggingFaceApiClient {
 
     private static String callHuggingFaceApi(String prompt) throws Exception {
         // Prepare the request body
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("inputs", prompt);
-        requestBody.put("parameters", Map.of(
-                "max_length", 50,
-                "temperature", 0.7,
-                "top_p", 0.9,
-                "return_full_text", false
-        ));
-
-        String requestBodyJson = gson.toJson(requestBody);
+        String body = "{\"model\": \"deepseek/deepseek-chat-v3-0324:free\",\n" +
+                "  \"messages\": [\n" +
+                "    {\n" +
+                "      \"role\": \"user\",\n" +
+                "      \"content\": \"" + prompt + "\"\n" +
+                "    }\n" +
+                "  ]}";
 
         // Build the HTTP request
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
                 .header("Authorization", "Bearer " + API_KEY)
                 .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson))
+                .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
-
+        System.out.println("Sending request: " + request);
         // Send the request asynchronously
         CompletableFuture<HttpResponse<String>> responseFuture =
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
@@ -78,6 +73,7 @@ public class HuggingFaceApiClient {
         // Wait for the response
         HttpResponse<String> response = responseFuture.get();
 
+//        System.out.println(response.body());
         // Check if the request was successful
         if (response.statusCode() == 200) {
             return response.body();
@@ -220,10 +216,14 @@ public class HuggingFaceApiClient {
     private static String processResponse(String responseJson, NPC npc) {
         try {
             // Parse the JSON response
-            JsonObject jsonResponse = gson.fromJson(responseJson, JsonObject.class);
-
+//            System.out.println(responseJson);
+            JsonObject json = gson.fromJson(responseJson, JsonObject.class);
+            String generatedText = json
+                    .getAsJsonArray("choices")
+                    .get(0).getAsJsonObject()
+                    .getAsJsonObject("message")
+                    .get("content").getAsString();
             // Extract the generated text
-            String generatedText = jsonResponse.get("generated_text").getAsString();
 
             // Clean up the text (remove any unwanted artifacts)
             generatedText = generatedText.trim();
@@ -236,6 +236,7 @@ public class HuggingFaceApiClient {
             return generatedText;
         } catch (Exception e) {
             System.err.println("Error processing API response: " + e.getMessage());
+            e.printStackTrace();
             return getFallbackDialogue(npc);
         }
     }

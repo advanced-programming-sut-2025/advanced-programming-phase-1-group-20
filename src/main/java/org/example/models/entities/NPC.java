@@ -31,7 +31,7 @@ public class NPC extends Mob {
     private Map<Player, NPCFriendship> friendships;
     private Location location;
     private String description;
-    private boolean useAiDialogue = false;
+    private boolean useAiDialogue = true;
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
@@ -52,6 +52,8 @@ public class NPC extends Mob {
         this.level3Dialogues = new ArrayList<>();
 
         initializeDefaultDialogues();
+
+        controller = new NPCController();
     }
 
     public static NPCController getController() {
