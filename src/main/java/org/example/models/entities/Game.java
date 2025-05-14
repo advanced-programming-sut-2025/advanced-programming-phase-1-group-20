@@ -151,9 +151,11 @@ public class Game implements Serializable {
     }
 
     public boolean isPlayerInGame(User user) {
-        for (Player player : players) {
-            if (player.getUser().equals(user)) {
-                return true;
+        if(players!=null) {
+            for (Player player : players) {
+                if (player.getUser().equals(user)) {
+                    return true;
+                }
             }
         }
         return false;

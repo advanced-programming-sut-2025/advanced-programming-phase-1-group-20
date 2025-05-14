@@ -221,6 +221,7 @@ public class App {
     }
 
     public static Game findGameForUser(User user) {
+
         for (Game game : allGames) {
             if (game.isPlayerInGame(user)) {
                 return game;

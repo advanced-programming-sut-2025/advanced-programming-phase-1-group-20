@@ -10,7 +10,9 @@ import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class MainMenuController implements Controller {
     AppView appView;
@@ -82,7 +84,9 @@ public class MainMenuController implements Controller {
         List<User> users = new ArrayList<>();
         users.add(App.getLoggedInUser());
 
-        for (String username : args) {
+        String[] cleaned = Arrays.stream(args).filter(Objects::nonNull).toArray(String[]::new);
+
+        for (String username : cleaned) {
             String trimmedUsername = username.trim();
             if (!trimmedUsername.isEmpty()) {
                 User user = App.getUser(trimmedUsername);
