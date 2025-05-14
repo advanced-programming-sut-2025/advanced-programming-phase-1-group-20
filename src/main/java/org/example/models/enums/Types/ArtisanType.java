@@ -17,11 +17,11 @@ public enum ArtisanType {
     Coal("Coal", "A combustible rock that is useful for crafting and smelting.", 15, 1, "10 Wood", 50, "Charcoal Klin"),
     Pickles("Pickles", "A jar of your home-made pickles.", 0, 6, "1 any Vegetable", 0, "Preserves Jar"),
     Jelly("Jelly", "Gooey.", 0, 3 * 24, "1 any Fruit", 0, "Preserves Jar"),
-    SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, "1 any Fish + Coal", 0, "Fish Smoker"),// TODO : check sell price && energy later
-    IronBar("Iron bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"), // TODO : check sell price
-    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace"), // TODO: check sell price
-    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace"), // TODO: check sell price
-    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace"), // TODO: check sell price
+    SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, "1 any Fish + Coal", 0, "Fish Smoker"),
+    IronBar("Iron bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"),
+    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace"),
+    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace"),
+    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace"),
     Cloth("Cloth", "A bolt of fine wool cloth.", 0, 4, "1 Wool", 470, "Loom"),
     Mayonnaise("Mayonnaise", "It looks spreadable.", 50, 3, "1 Egg or 1 Large Egg", 190, "Mayonnaise Machine"),
     DuckMayonnaise("Duck Mayonnaise", "It's a rich, yellow mayonnaise.", 75, 3, "1 Duck Egg", 37, "Mayonnaise Machine"),

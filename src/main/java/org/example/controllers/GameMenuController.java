@@ -726,14 +726,24 @@ public class GameMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(foodName))) {
             return Result.error(foodName + " does not exist in backpack");
         }
-        if (!(item instanceof Food)) {
-            return Result.error("Item is not a Food");
+        if (!(item instanceof Food || item instanceof ArtisanItem)) {
+            return Result.error("Item is not a Food or ArtisanItem");
+        }
+        if(item instanceof ArtisanItem){
+            ArtisanItem artisanItem = (ArtisanItem) item;
+            if(artisanItem.getEnergy() > 0){
+                player.increaseEnergy(artisanItem.getEnergy());
+                player.getBackpack().remove(item , 1);
+                return Result.success("Food " + foodName + " eaten");
+            }else{
+                return Result.success("Artisan item is not a food.");
+            }
         }
         Food food = (Food) item;
         player.increaseEnergy(food.getEnergy());
-        player.getBackpack().remove(food, 1);
+        player.getBackpack().remove(item, 1);
         //TODO : adding buffer.
-        return Result.success("Food " + food.getName() + " eaten");
+        return Result.success("Food " + foodName + " eaten");
     }
 
 
