@@ -25,10 +25,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GameMenuController implements Controller {
-    private AppView appView;
-    private Player player;
-    private Date gameClock;
-    private GameMap gMap;
+    private final AppView appView;
+    private final Player player;
+    private final Date gameClock;
+    private final GameMap gMap;
 
     public GameMenuController(AppView appView, Player player) {
         this.appView = appView;
