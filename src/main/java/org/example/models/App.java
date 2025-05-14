@@ -78,7 +78,10 @@ public class App {
     }
 
     private static void saveGame(Game game, String filePath) {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(game, writer);
         } catch (IOException e) {
@@ -115,7 +118,10 @@ public class App {
     }
 
     private static Game loadGame(String filePath) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .excludeFieldsWithoutExposeAnnotation()
+                .create();
+
         try (FileReader reader = new FileReader(filePath)) {
             return gson.fromJson(reader, Game.class);
         } catch (IOException e) {
