@@ -875,7 +875,7 @@ public class GameMenuController implements Controller {
                 }
             }
 
-            Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex);
+            Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex - 1);
             App.getGame().getGameMap().addFarm(newFarm);
 
             game.selectMap(player, mapIndex);

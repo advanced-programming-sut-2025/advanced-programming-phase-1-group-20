@@ -185,7 +185,7 @@ public class Farm {
     public Building createBuilding() {
         switch (farmIndex) {
             case 0:
-                Building b1 = new Building(width - 4, 0, "house", "house");
+                Building b1 = new Building(width - 5, 0, "house", "house");
                 return b1;
             case 1:
                 Building b2 = new Building(0, 0, "house", "house");
@@ -209,10 +209,10 @@ public class Farm {
                 GreenHouse g2 = new GreenHouse(width - 5, 0);
                 return g2;
             case 2:
-                GreenHouse g3 = new GreenHouse(width - 5, height - 5);
+                GreenHouse g3 = new GreenHouse(width - 5, height - 6);
                 return g3;
             case 3:
-                GreenHouse g4 = new GreenHouse(1, height - 5);
+                GreenHouse g4 = new GreenHouse(1, height - 6);
                 return g4;
         }
         return null;
@@ -221,7 +221,7 @@ public class Farm {
     public Quarry createQuarry() {
         switch (farmIndex) {
             case 0:
-                Quarry q1 = new Quarry(width - 3, height - 4);
+                Quarry q1 = new Quarry(width - 5, height - 4);
                 return q1;
             case 1:
                 Quarry q2 = new Quarry(0, height - 4);
@@ -230,7 +230,7 @@ public class Farm {
                 Quarry q3 = new Quarry(0, 1);
                 return q3;
             case 3:
-                Quarry q4 = new Quarry(width - 3, 1);
+                Quarry q4 = new Quarry(width - 5, 1);
                 return q4;
         }
         return null;
@@ -241,46 +241,46 @@ public class Farm {
         switch (farmIndex) {
             case 0:
                 if (farmType) {
-                    Lake l11 = new Lake(width / 2 + 2, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
-                    Lake l12 = new Lake(width / 2 + 7, height / 2 + 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                    Lake l11 = new Lake(width / 2 + 2, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l12 = new Lake(width / 2 + 7, height / 2 + 3, 3, 3, "lake", Lake.LakeType.RIVER);
                     lakes.add(l11);
                     lakes.add(l12);
                     return lakes;
                 }
-                Lake l1 = new Lake(width / 2 + 2, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                Lake l1 = new Lake(width / 2 + 2, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
                 lakes.add(l1);
                 return lakes;
             case 1:
                 if (farmType) {
-                    Lake l21 = new Lake(width / 2 - 6, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
-                    Lake l22 = new Lake(width / 2 - 1, height / 2 + 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                    Lake l21 = new Lake(width / 2 - 6, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l22 = new Lake(width / 2 - 1, height / 2 + 3, 3, 3, "lake", Lake.LakeType.RIVER);
                     lakes.add(l21);
                     lakes.add(l22);
                     return lakes;
                 }
-                Lake l2 = new Lake(width / 2 - 6, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
+                Lake l2 = new Lake(width / 2 - 6, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
                 lakes.add(l2);
                 return lakes;
             case 2:
                 if (farmType) {
-                    Lake l31 = new Lake(width / 2 - 6, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
-                    Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 5, 5, "lake", Lake.LakeType.RIVER);
+                    Lake l31 = new Lake(width / 2 - 6, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 3, 3, "lake", Lake.LakeType.RIVER);
                     lakes.add(l31);
                     lakes.add(l32);
                     return lakes;
                 }
-                Lake l3 = new Lake(width / 2 - 6, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
+                Lake l3 = new Lake(width / 2 - 6, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
                 lakes.add(l3);
                 return lakes;
             case 3:
                 if (farmType) {
-                    Lake l41 = new Lake(width / 2 + 2, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
-                    Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 5, 5, "lake", Lake.LakeType.RIVER);
+                    Lake l41 = new Lake(width / 2 + 2, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 3, 3, "lake", Lake.LakeType.RIVER);
                     lakes.add(l41);
                     lakes.add(l42);
                     return lakes;
                 }
-                Lake l4 = new Lake(width / 2 + 2, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
+                Lake l4 = new Lake(width / 2 + 2, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
                 lakes.add(l4);
                 return lakes;
         }
