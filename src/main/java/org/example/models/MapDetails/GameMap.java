@@ -59,16 +59,6 @@ public class GameMap {
         //initializeLakes();
     }
 
-    public static int calculateEnergyNeeded(Location from, Location to) {
-        // Calculate Manhattan distance (|x1 - x2| + |y1 - y2|)
-        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
-
-        // Base energy cost per tile
-        int baseEnergyCost = 2;
-
-        return distance * baseEnergyCost;
-    }
-
     public static Location findFurthestCanGo(Location from, Location to) {
         // Calculate the direction vector
         int dx = to.getX() - from.getX();
