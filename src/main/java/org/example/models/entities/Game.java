@@ -21,7 +21,7 @@ public class Game implements Serializable {
     private boolean saved;
     private GameMap gameMap;
 
-    public Game(List<Player> players, Player creator, GameMap gameMap) {
+    public Game(List<Player> players, Player creator) {
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
@@ -31,7 +31,7 @@ public class Game implements Serializable {
         this.mapSelections = new HashMap<>();
         this.terminateVotes = new HashMap<>();
         this.saved = false;
-        this.gameMap = gameMap;
+        this.gameMap = new GameMap();
 
         for (Player player : players) {
             mapSelections.put(player, -1);
@@ -96,7 +96,7 @@ public class Game implements Serializable {
 
 
         //update parts for each turn:
-        updateTurns();
+        //updateTurns();
 
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
@@ -111,9 +111,9 @@ public class Game implements Serializable {
         gameMap.updateDailyGameMap(players);
     }
 
-    public void updateTurns(){
-        gameMap.updateTurn(players);
-    }
+//    public void updateTurns(){
+//        gameMap.updateTurn(players);
+//    }
 
     public void voteToTerminate(Player player, boolean vote) {
         terminateVotes.put(player, vote);

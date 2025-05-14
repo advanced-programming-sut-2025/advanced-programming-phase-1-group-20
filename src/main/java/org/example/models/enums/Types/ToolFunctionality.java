@@ -17,12 +17,10 @@ public enum ToolFunctionality {
                 GameMap gameMap = (GameMap) params[1];
                 Player player = (Player) params[2];
 
-                // Get the target tile coordinates based on the player's location and direction
                 Location playerLocation = player.getLocation();
                 int targetX = playerLocation.xAxis;
                 int targetY = playerLocation.yAxis;
 
-                // Adjust coordinates based on direction
                 switch (direction.toLowerCase()) {
                     case "north" -> targetY--;
                     case "south" -> targetY++;
@@ -46,28 +44,26 @@ public enum ToolFunctionality {
                     }
                     default -> {
                         return false;
-                    } // Invalid direction
+                    }
                 }
 
-                // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
                     return false;
                 }
 
-                // Check the tile type and perform the appropriate action
-                TileType tileType = gameMap.getTile(targetX, targetY);
+                TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
 
                 // 1. Cut down trees for regular wood and some tree essences
                 if (tileType == TileType.TREE) {
                     // Change the tile to grass
-                    return gameMap.changeTile(targetX, targetY, "GRASS", player);
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
                 }
 
                 // 2. Remove branches on the ground
-                Location tile = gameMap.getItem(targetX, targetY);
+                Location tile = gameMap.getFarmByPlayer(player).getItem(targetX, targetY);
                 if (tile != null) {
                     // Clear the tile
-                    gameMap.placeItem(targetX, targetY, null);
+                    gameMap.getFarmByPlayer(player).placeItem(targetX, targetY, null);
                     return true;
                 }
 
@@ -148,12 +144,12 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
                     return false;
                 }
 
                 // Check the tile type and perform the appropriate action
-                TileType tileType = gameMap.getTile(targetX, targetY);
+                TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
 
                 // 1. Fill the watering can with water if the tile is water
                 if (tileType == TileType.WATER) {
@@ -163,7 +159,7 @@ public enum ToolFunctionality {
 
                 // 2. Water crops if the tile is tilled soil with a crop
                 // Check if the tile is tilled soil
-                if (gameMap.isShokhm(targetX, targetY)) {
+                if (gameMap.getFarmByPlayer(player).isShokhm(targetX, targetY)) {
                     // Water the crop (implementation depends on the game mechanics)
                     return true;
                 }
@@ -250,15 +246,16 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
                     return false;
                 }
 
                 // Check if the tile is grass and can be tilled
-                TileType tileType = gameMap.getTile(targetX, targetY);
+                TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
                 if (tileType == TileType.GRASS) {
                     // Till the soil
-                    return gameMap.changeTile(targetX, targetY, "SHOKHM", player);
+                    // TODO: make shokhmed
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.TREE, player);
                 }
 
                 return false;
@@ -357,20 +354,22 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.isValidCoordinate(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
                     return false;
                 }
 
                 // Check if the tile is a rock or ore
-                TileType tileType = gameMap.getTile(targetX, targetY);
+                TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
                 if (tileType == TileType.STONE ||
                         tileType == TileType.IRON_ORE ||
                         tileType == TileType.GOLD_ORE ||
                         tileType == TileType.DIAMOND_ORE ||
                         tileType == TileType.EMERALD_ORE) {
+
                     // Break the rock/ore
-                    return gameMap.changeTile(targetX, targetY, "GRASS", player);
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
                 }
+
 
                 return false;
             },

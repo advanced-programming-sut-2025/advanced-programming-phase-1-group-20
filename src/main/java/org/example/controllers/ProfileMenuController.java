@@ -19,7 +19,6 @@ public class ProfileMenuController implements Controller {
 
     @Override
     public Result update(String input) {
-
         ProfileMenuCommands command = ProfileMenuCommands.getCommand(input);
         String[] args = command.parseInput(input);
         Result result = null;
@@ -54,7 +53,7 @@ public class ProfileMenuController implements Controller {
         user.setUsername(newUsername);
 
         App.saveData();
-
+        
         return Result.success("username changed successfully");
     }
 

@@ -3,6 +3,7 @@ package org.example.models.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.entities.User;
 import org.example.models.enums.Types.*;
@@ -19,6 +20,8 @@ import java.util.Map;
 
 public class FileStorage {
     private static final String USER_DATA_FILE = "src/main/DataBase/users.json";
+    private static final String GAME_DATA_FILE = "src/main/DataBase/games.json";
+
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public static boolean saveUsers(Map<String, User> users) {
@@ -47,6 +50,17 @@ public class FileStorage {
             return new HashMap<>();
         }
     }
+
+    public static void saveGames() throws IOException {
+        File file = new File(GAME_DATA_FILE);
+        try (FileWriter writer = new FileWriter(GAME_DATA_FILE)) {
+            gson.toJson(App.getAllGames(), writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    public static
 
 
     public static List<Item> loadItems() {

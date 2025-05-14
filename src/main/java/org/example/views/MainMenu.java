@@ -27,13 +27,10 @@ public class MainMenu implements AppMenu {
         if (result == null) return;
 
         if (command == MainMenuCommands.NewGame) {
-            if (result.success()) {
-                System.out.println("~~map selection phase~~");
-            }
-
             appView.navigateMenu(new GameMenu(appView, App.getLoggedInUser(), App.getGame().getCurrentPlayer()));
         } else if (command == MainMenuCommands.ChangeMenu) {
             if (result.success()) {
+                App.toggleMapSelectionPhase();
                 appView.navigateMenu(new ProfileMenu(appView, App.getLoggedInUser()));
             }
         }

@@ -75,18 +75,13 @@ public class Quest {
         this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
     }
 
-    /**
-     * Creates a requirement map from a single item and quantity.
-     */
     public static Map<Item, Integer> createRequirement(Item item, int quantity) {
         Map<Item, Integer> requirements = new HashMap<>();
         requirements.put(item, quantity);
         return requirements;
     }
 
-    /**
-     * Checks if the player has the required items for this quest.
-     */
+
     public boolean hasRequiredItems(Player player) {
         for (Map.Entry<Item, Integer> requirement : requirements.entrySet()) {
             Item requiredItem = requirement.getKey();
@@ -107,9 +102,7 @@ public class Quest {
         return true;
     }
 
-    /**
-     * Completes the quest, removing required items from player's inventory and giving rewards.
-     */
+
     public boolean complete(Player player) {
         if (!isActive || isCompleted || !hasRequiredItems(player)) {
             return false;
@@ -153,7 +146,7 @@ public class Quest {
         return true;
     }
 
-   
+
     public boolean canActivate(Player player, Date currentDate) {
         if (isActive || isCompleted) {
             return false;
@@ -186,9 +179,7 @@ public class Quest {
         return true;
     }
 
-    /**
-     * Activates the quest if it meets the requirements.
-     */
+
     public boolean activate(Player player, Date currentDate) {
         if (canActivate(player, currentDate)) {
             isActive = true;
@@ -249,10 +240,7 @@ public class Quest {
     public Date getActivationDate() {
         return activationDate;
     }
-
-    /**
-     * Sets the activation date for time-based quests.
-     */
+    
     public void setActivationDate(Date date) {
         this.activationDate = date;
     }
