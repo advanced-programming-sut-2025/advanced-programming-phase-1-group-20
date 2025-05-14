@@ -78,12 +78,7 @@ public class MainMenuController implements Controller {
         if (args == null || args.length < 1) {
             return Result.error("No usernames specified");
         }
-
-        if (args.length != 3) {
-            return Result.error("you must specify three users");
-        }
-
-
+        
         List<User> users = new ArrayList<>();
         users.add(App.getLoggedInUser());
 
