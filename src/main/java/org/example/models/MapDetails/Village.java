@@ -1,9 +1,11 @@
 package org.example.models.MapDetails;
 
+import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.entities.NPC;
+import org.example.models.enums.Npcs;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -71,7 +73,7 @@ public class Village {
 
         initializeBuildings();
         initializeNPCs();
-        initializeShops();
+        //initializeShops();
 
 //        placeRandomObjects("stone", 100);
 //        placeRandomObjects("tree", 150);
@@ -98,14 +100,16 @@ public class Village {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("crop")) {
+                }
+                else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
@@ -134,17 +138,22 @@ public class Village {
         while (placed < count) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
-            TileType currentTile = tiles[x][y].getTile();
+            Location location = tiles[x][y];
+            TileType currentTile = location.getTile();
 
             if (currentTile == TileType.GRASS) {
-
+                Npcs[] types = Npcs.values();
+                Npcs npcType = types[rand.nextInt(types.length)];
+                NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
+                npc.setLocation(location);
+                placed++;
             }
         }
     }
 
-    private void initializeShops() {
-        //...
-    }
+//    private void initializeShops() {
+//        //...
+//    }
 
     private String getTileKey(int x, int y) {
         return x + "," + y;

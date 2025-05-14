@@ -27,7 +27,14 @@ public class MainMenu implements AppMenu {
         if (result == null) return;
 
         if (command == MainMenuCommands.NewGame) {
+            if (!result.success()) {
+                System.out.println("Error: " + result.message());
+                return;
+            }
+
             appView.navigateMenu(new GameMenu(appView, App.getLoggedInUser(), App.getGame().getCurrentPlayer()));
+            System.out.println(result.message());
+            App.toggleMapSelectionPhase();
         } else if (command == MainMenuCommands.ChangeMenu) {
             if (result.success()) {
                 App.toggleMapSelectionPhase();

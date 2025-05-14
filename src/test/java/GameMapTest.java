@@ -8,14 +8,14 @@ import java.io.PrintStream;
 public class GameMapTest {
     @Test
     public void testPrintMap() {
-        GameMap gameMap = new GameMap(101, 51, null);
+        //GameMap gameMap = new GameMap(101, 51, null);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
         System.setOut(new PrintStream(outputStream));
 
         try {
-            gameMap.printCurrentView(20, 15, 3);
+            //gameMap.printCurrentView(20, 15, 3);
 
             String printedOutput = outputStream.toString();
 

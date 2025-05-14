@@ -196,7 +196,7 @@ public class Player {
         return friendships;
     }
 
-    private NPC createNPCFromEnum(org.example.models.enums.Npcs npcEnum) {
+    public NPC createNPCFromEnum(org.example.models.enums.Npcs npcEnum) {
         HashMap<Integer, HashMap<org.example.models.Items.Item, Integer>> missions = new HashMap<>();
         NPC npc = new NPC(npcEnum.getCharacteristic(), npcEnum.getName(), npcEnum.getJob(), missions);
 

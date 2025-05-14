@@ -84,5 +84,18 @@
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
+  },
+  "taha": {
+    "gender": "Female",
+    "username": "taha",
+    "password": "aeI/wAutVYVQwhLTlNdZIJB7ZkrnjLUbCV6MTTdrCnE\u003d",
+    "email": "man.kooniam@kir.com",
+    "nickname": "taha",
+    "stayLoggedIn": true,
+    "securityQuestionIndex": 1,
+    "securityAnswer": "karaj",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
   }
 }
