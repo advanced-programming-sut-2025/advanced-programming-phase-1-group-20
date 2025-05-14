@@ -1,5 +1,7 @@
 package org.example.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.example.controllers.NPCController;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
@@ -17,7 +19,7 @@ import java.util.Map;
 public class App {
     // File paths for saving games
     private static final String GAMES_DIRECTORY = "saved_games";
-    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.ser";
+    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.json";
     // TODO: add the saving methods
     // static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
@@ -64,7 +66,7 @@ public class App {
         // Save all games to files
         for (int i = 0; i < allGames.size(); i++) {
             Game game = allGames.get(i);
-            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".ser");
+            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".json");
         }
     }
 
@@ -76,10 +78,11 @@ public class App {
     }
 
     private static void saveGame(Game game, String filePath) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
-            oos.writeObject(game);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try (FileWriter writer = new FileWriter(filePath)) {
+            gson.toJson(game, writer);
         } catch (IOException e) {
-            System.err.println("Error saving game: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -87,7 +90,7 @@ public class App {
         allGames = new ArrayList<>();
         File directory = new File(GAMES_DIRECTORY);
         if (directory.exists()) {
-            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".ser"));
+            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".json"));
             if (files != null) {
                 for (File file : files) {
                     Game game = loadGame(file.getPath());
@@ -112,10 +115,11 @@ public class App {
     }
 
     private static Game loadGame(String filePath) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
-            return (Game) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Error loading game: " + e.getMessage());
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(filePath)) {
+            return gson.fromJson(reader, Game.class);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -197,7 +201,7 @@ public class App {
         // Delete the saved game file
         for (int i = 0; i < allGames.size(); i++) {
             if (allGames.get(i) == game) {
-                File file = new File(GAMES_DIRECTORY + "/game_" + i + ".ser");
+                File file = new File(GAMES_DIRECTORY + "/game_" + i + ".json");
                 if (file.exists()) {
                     file.delete();
                 }
