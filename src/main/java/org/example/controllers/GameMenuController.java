@@ -304,6 +304,9 @@ public class GameMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
             return Result.error("Backpack does not contain " + seedName);
         }
+        if(gMap.getFarmByPlayer(player).contains(x,y)){
+            return Result.error("this is not your farm!!!");
+        }
         if (!gMap.getFarmByPlayer(player).isShokhm(x, y)) {
             return Result.error("the land is not plowed!");
         }

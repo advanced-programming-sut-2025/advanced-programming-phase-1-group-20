@@ -17,7 +17,6 @@ public class Plant extends Item {
     private int healthGet;
     private Seasons[] seasons;
     private boolean harvestable;
-    private boolean giantable;
 
 
     public Plant(String name, int price, String source, int[] stage, int totalHarvest,
@@ -34,7 +33,7 @@ public class Plant extends Item {
         this.healthGet = healthGet;
         this.seasons = season;
         this.harvestable = harvestable;
-        this.giantable = giantable;
+        setGiantable(giantable);
     }
 
     public String getName() {
@@ -64,18 +63,9 @@ public class Plant extends Item {
 
     }
 
-    public void putPlant(Location location) {
-        if (!this.giantable) {
-            //handling adding objects into map :: waiting for taha
-        } else {
-            //for example
-            Location rightCorner = new Location(location.xAxis + 1, location.yAxis + 1, TileType.GRASS);
-            //handling adding one obj into four squares.
-        }
-    }
 
     public void harvestPlant(Location location) {
-        if (!this.giantable) {
+        if (!isGiantable()) {
             //handling removing objects into map :: waiting for taha
             if (this.oneTimeHarvest) {
 
@@ -108,10 +98,6 @@ public class Plant extends Item {
 
     private Seasons[] getSeasons() {
         return this.seasons;
-    }
-
-    private boolean isGiantable() {
-        return this.giantable;
     }
 
     private void showPlants(Location location) {

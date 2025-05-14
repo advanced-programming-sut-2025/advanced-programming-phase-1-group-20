@@ -472,7 +472,109 @@ public class Farm {
     public void placeItem(int x, int y, Item item) {
         Location tile = tiles[x][y];
         tile.setItem(item);
+        if(item.isGiantable()){
+            if(checkFourDirectionsForGiants(x,y,item.getName()) == 1){
+                Plant[] plants = new Plant[4];
+                for(int i = x-1;i < x;i++){
+                    for(int j = y;j < y+1;j++){
+                        plants[i] = (Plant) getItem(i,j).getItem();
+                    }
+                }
+
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+
+                for(int i = x-1;i < x;i++){
+                    for(int j = y;j < y+1;j++){
+                        plants[i].isGiant(stage);
+                        plants[i].setDaysCounter(0);
+                    }
+                }
+
+            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
+                Plant[] plants = new Plant[4];
+                for(int i = x-1;i < x;i++){
+                    for(int j = y-1;j < y;j++){
+                        plants[i] = (Plant) getItem(i,j).getItem();
+                    }
+                }
+
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+
+                for(int i = x-1;i < x;i++){
+                    for(int j = y-1;j < y;j++){
+                        plants[i].isGiant(stage);
+                        plants[i].setDaysCounter(0);
+                    }
+                }
+            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 3){
+                Plant[] plants = new Plant[4];
+                for(int i = x;i < x+1;i++){
+                    for(int j = y-1;j < y;j++){
+                        plants[i] = (Plant) getItem(i,j).getItem();
+                    }
+                }
+
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+
+                for(int i = x;i < x+1;i++){
+                    for(int j = y-1;j < y;j++){
+                        plants[i].isGiant(stage);
+                        plants[i].setDaysCounter(0);
+                    }
+                }
+            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 4){
+                Plant[] plants = new Plant[4];
+                for(int i = x;i < x+1;i++){
+                    for(int j = y;j < y+1;j++){
+                        plants[i] = (Plant) getItem(i,j).getItem();
+                    }
+                }
+
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+
+                for(int i = x;i < x+1;i++){
+                    for(int j = y;j < y+1;j++){
+                        plants[i].isGiant(stage);
+                        plants[i].setDaysCounter(0);
+                    }
+                }
+            }
+        }
     }
+
+    public int checkFourDirectionsForGiants(int x , int y , String itemName) {
+        int[][] DIRECTIONS = {
+                {-1, 1},  // 1: NE
+                {-1, -1}, // 2: NW
+                {1, -1},  // 3: SW
+                {1, 1}    // 4: SE
+        };
+
+        for(int dir = 0;dir < DIRECTIONS.length;dir++){
+            int dx = DIRECTIONS[dir][0];
+            int dy = DIRECTIONS[dir][1];
+
+            int x1 = x + dx;
+            int y1 = y;
+            int x2 = x + dx;
+            int y2 = y + dy;
+            int x3 = x;
+            int y3 = y + dy;
+
+            if (contains(x1,y1) &&
+                    contains(x2,y2) &&
+                    contains(x3,y3)) {
+
+                if (getItem(x1,y1).getItem().getName() == itemName &&
+                        getItem(x2,y2).getItem().getName() == itemName &&
+                        getItem(x3,y3).getItem().getName() == itemName) {
+                    return dir + 1; // 1 to 4
+                }
+            }
+        }
+        return 0;
+    }
+
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : App.getGame().getGameMap().getFarms()) {

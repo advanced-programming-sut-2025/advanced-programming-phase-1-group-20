@@ -6,13 +6,22 @@ public class Item {
     private int price;
     private String description;
     private boolean placable;
+    private boolean giantable;
 
+    public boolean isGiantable() {
+        return giantable;
+    }
+
+    public void setGiantable(boolean giantable) {
+        this.giantable = giantable;
+    }
 
     public Item(String name, int baseSellPrice) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
         this.price = baseSellPrice;
         this.placable = false;
+        this.giantable = false;
     }
 
     public Item(String name, int baseSellPrice, String description) {

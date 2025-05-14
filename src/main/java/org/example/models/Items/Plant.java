@@ -10,6 +10,7 @@ public class Plant extends Item {
     private boolean finished;
     private boolean moisture;
     private int moistureCounter;
+    private boolean isGiant;
 
     public Plant(PlantType type) {
         super(type.getName(), type.getBaseSellPrice());
@@ -19,6 +20,8 @@ public class Plant extends Item {
         finished = false;
         moisture = true;
         moistureCounter = 0;
+        isGiant = false;
+        setGiantable(type.isGiantable());
     }
 
     public String getSeed() {
@@ -75,6 +78,9 @@ public class Plant extends Item {
         System.out.println("is Moisture: " + moisture);
     }
 
+    public void setStage(int stage) {
+        this.stage = stage;
+    }
 
     public void addStage() {
         if (stage < getStages().length) {
@@ -135,6 +141,16 @@ public class Plant extends Item {
 
     public void setDaysCounter(int daysCounter) {
         this.daysCounter = daysCounter;
+    }
+
+    public boolean getIsGiant() {
+        return isGiant;
+    }
+
+    public void isGiant(int stage) {
+        setStage(stage);
+
+        isGiant = true;
     }
 
     @Override
