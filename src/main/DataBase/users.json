@@ -72,5 +72,17 @@
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
+  },
+  "valid_user1": {
+    "gender": "Male",
+    "username": "valid_user1",
+    "password": "oQnjaUetVt4dyhzEnw74rJrZp7GqDfQfs8TLc8H/Aeo\u003d",
+    "email": "test@email.com",
+    "nickname": "TestUser",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
   }
 }

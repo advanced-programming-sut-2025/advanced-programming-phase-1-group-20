@@ -29,6 +29,10 @@ public class Plant extends Item {
         return type.getStage();
     }
 
+    public void setStages(int[] stages) {
+        type.setStage(stages);
+    }
+
     public int getTotalHarvestTime() {
         return type.getTotalHarvestTime();
     }
@@ -127,6 +131,10 @@ public class Plant extends Item {
 
     public void setMoistureCounter(int moistureCounter) {
         this.moistureCounter = moistureCounter;
+    }
+
+    public void setDaysCounter(int daysCounter) {
+        this.daysCounter = daysCounter;
     }
 
     @Override

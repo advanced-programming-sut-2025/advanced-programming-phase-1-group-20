@@ -506,6 +506,8 @@ public class GameMenuController implements Controller {
                 return Result.error("fruit is not ready yet");
             }
             player.getBackpack().add(fruit, 1);
+            tree.setFruitCounter(0);
+            tree.setFruitFinished(false);
         }
         if (item instanceof Plant) {
             Plant plant = (Plant) item;
@@ -517,6 +519,13 @@ public class GameMenuController implements Controller {
             if (plant.getOneTimeHarvest()) {
                 gMap.placeItem(x, y, null);
             } else {
+                plant.setFinished(false);
+            }
+            if(plant.getOneTimeHarvest()){
+                gMap.placeItem(x, y, null);
+            }else{
+                plant.setStages(new int[]{1});
+                plant.setDaysCounter(plant.getRegrowthTime());
                 plant.setFinished(false);
             }
         }

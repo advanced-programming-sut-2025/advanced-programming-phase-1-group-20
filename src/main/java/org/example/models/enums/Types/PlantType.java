@@ -49,7 +49,7 @@ public enum PlantType {
     ;
     private final String name;
     private final String seed;
-    private final int[] stage;
+    private int[] stage;
     private final int totalHarvestTime;
     private final boolean oneTimeHarvest;
     private final int regrowthTime;
@@ -103,6 +103,10 @@ public enum PlantType {
 
     public int[] getStage() {
         return stage;
+    }
+
+    public void setStage(int[] stage) {
+        this.stage = stage;
     }
 
     public int getTotalHarvestTime() {

@@ -7,6 +7,9 @@ import org.example.models.enums.Types.TreeType;
 public class Tree extends Item {
     private TreeType type;
     private int[] stages;
+    private int fruitCounter;
+    private int fruitCycle;
+    private boolean isFruitFinished;
     private int stage;
     private int daysCounter;
     private boolean finished;
@@ -18,6 +21,9 @@ public class Tree extends Item {
         this.type = type;
         stages = new int[]{7, 7, 7, 7};
         this.stage = 0;
+        fruitCycle = 4;
+        fruitCounter = fruitCycle;
+        isFruitFinished = false;
         this.daysCounter = 0;
         this.finished = false;
         moisture = true;
@@ -58,6 +64,12 @@ public class Tree extends Item {
             stage++;
         } else if (stage == stages.length) {
             finished = true;
+            if(fruitCounter < fruitCycle) {
+                fruitCounter++;
+            }
+            else if(fruitCounter == fruitCycle) {
+                isFruitFinished = true;
+            }
         }
     }
 
@@ -81,9 +93,7 @@ public class Tree extends Item {
 
     @Override
     public void updateItem() {
-        if (!finished) {
-            updateDaysCounter();
-        }
+        updateDaysCounter();
     }
 
     public boolean getFinished() {
@@ -106,13 +116,39 @@ public class Tree extends Item {
         this.moistureCounter = moistureCounter;
     }
 
+    public boolean isFruitFinished() {
+        return isFruitFinished;
+    }
+
+    public void setFruitFinished(boolean fruitFinished) {
+        isFruitFinished = fruitFinished;
+    }
+
+    public int getFruitCycle() {
+        return fruitCycle;
+    }
+
+    public void setFruitCycle(int fruitCycle) {
+        this.fruitCycle = fruitCycle;
+    }
+
+    public int getFruitCounter() {
+        return fruitCounter;
+    }
+
+    public void setFruitCounter(int fruitCounter) {
+        this.fruitCounter = fruitCounter;
+    }
 
     public Item burnTree() {
         return new Mineral(MineralType.Coal);
     }
 
     public Fruit getFruit() {
-        return new Fruit(getName(), getPrice(), getEnergy());
+        if(isFruitFinished){
+            return new Fruit(getFruitName(), getPrice(), getEnergy());
+        }
+        return null;
     }
 
 }
