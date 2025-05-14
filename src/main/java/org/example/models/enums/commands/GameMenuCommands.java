@@ -70,7 +70,7 @@ public enum GameMenuCommands implements Command {
     ArtisanGet(Pattern.compile("^artisan\\s+get\\s+(?<artisanName>.+)$")),
 
     // sell command
-    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s+-n\\s+(?<count>\\d+)\\s*")),
+    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s*(?:-n\\s+(?<count>\\d+))?\\s*")),
 
     // tool commands
     ToolEquip(Pattern.compile("^tools\\s+equip\\s+(?<toolName>.+)$")),

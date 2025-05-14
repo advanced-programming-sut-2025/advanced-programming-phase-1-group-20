@@ -115,7 +115,7 @@ public class GameMenuController implements Controller {
             case ArtisanGet -> result = artisanGet(args);
 
             //sell command:
-            case SellProduct -> sellProduct(args);
+            case SellProduct -> result = sellProduct(args);
 
             // tool commands
             case ToolEquip -> result = equipTool(args);
@@ -796,11 +796,50 @@ public class GameMenuController implements Controller {
     }
 
     //sell Function:
-    private void sellProduct(String[] args) {
+    private Result sellProduct(String[] args) {
         String productName = args[0];
-        int count = Integer.parseInt(args[1]);
-        // checkTrashBin();
+        if(!player.getBackpack().hasItems(Collections.singletonList(productName))) {
+            return Result.error(productName + " does not exist in your backpack");
+        }
+        Item item = player.getBackpack().getItem(productName);
+        int count;
+        if(args[1] != null) {
+            count = Integer.parseInt(args[1]);
+        }else{
+            count = player.getBackpack().getInventory().get(item);
+        }
+
+        ShippingBin bin = new ShippingBin();
+        //gMap.getItemNearby()
+        if(bin==null){
+            return Result.error("There is no shipping bin nearby!");
+        }
+        int amount;
+        if(item.getPrice() != 0){
+            amount = count * item.getPrice();
+        }else{
+            amount = count * 100;
+        }
+
+
+        //checking instance
+        if(item instanceof Tool){
+            Tool tool = (Tool) item;
+            switch (tool.getMaterial()){
+                case BASIC -> amount*=1;
+                case IRON -> amount*=  2;
+                case COPPER -> amount*=2;
+                case GOLD -> amount*= 3;
+                case IRIDIUM -> amount*=4;
+            }
+        }
+
+
+        bin.increaseIncome(amount);
+        return Result.success("your product: " + productName + " has been sold!");
     }
+
+
 
     // TODO: map showing + map related commands
 

@@ -268,7 +268,6 @@ public class CraftingItem extends Item {
             }
         } else if (type.getName().equals("Loom")) {
             String regex = "^\\s*1\\s+Wool\\s*$";
-            // TODO
             if (items.matches(regex)) {
                 return new ArtisanItem(ArtisanType.Cloth);
             }
