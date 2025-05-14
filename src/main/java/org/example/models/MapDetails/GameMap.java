@@ -419,6 +419,17 @@ public class GameMap {
         return false;
     }
 
+    //update part.
+    public void updateGameMap(List<Player> players) {
+        updatePlants();
+        for(Player player : players) {
+            updateArtisans(player);
+            updateShippingBin(player);
+        }
+
+        //TODO : this method is not complete just need to get the shippingBins
+    }
+
     public void updatePlants() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -450,6 +461,28 @@ public class GameMap {
                 craftingItem.updateArtisan();
             }
         }
+    }
+
+    public void updateShippingBin(Player player) {
+        //TODO : we must get this bin from map.
+        ShippingBin[] bins = new ShippingBin[4];
+        bins[0] = new ShippingBin();
+        bins[1] = new ShippingBin();
+        bins[2] = new ShippingBin();
+        bins[3] = new ShippingBin();
+
+        player.increaseMoney(bins[0].getIncome(player));
+        bins[1].updateShippingBin(player);
+
+
+        player.increaseMoney(bins[1].getIncome(player));
+        bins[1].updateShippingBin(player);
+
+        player.increaseMoney(bins[2].getIncome(player));
+        bins[2].updateShippingBin(player);
+
+        player.increaseMoney(bins[3].getIncome(player));
+        bins[3].updateShippingBin(player);
     }
 
     public void addGreenhouse(Location leftCorner, Location rightCorner) {

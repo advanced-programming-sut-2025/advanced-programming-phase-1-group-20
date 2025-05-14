@@ -87,9 +87,9 @@ public class Game implements Serializable {
         // Reset energy used in the current turn for the current player
         currentPlayer.resetEnergyUsedInTurn();
 
-        for(Player player : players) {
-            gameMap.updateArtisans(player);
-        }
+//        for(Player player : players) {
+//            gameMap.updateArtisans(player);
+//        }
 
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
