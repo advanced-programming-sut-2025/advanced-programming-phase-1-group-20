@@ -13,7 +13,7 @@ public class ShippingBin extends Item{
     }
 
     public int getIncome(Player player) {
-        return playerIntegerMap.get(player);
+        return playerIntegerMap.getOrDefault(player , 0);
     }
 
     public void setIncome(int income , Player player) {
@@ -21,7 +21,7 @@ public class ShippingBin extends Item{
     }
 
     public void increaseIncome(int amount , Player player) {
-        playerIntegerMap.putIfAbsent(player, playerIntegerMap.get(player) + amount);
+        playerIntegerMap.putIfAbsent(player, playerIntegerMap.getOrDefault(player , 0) + amount);
     }
 
     public void updateShippingBin(Player player) {
