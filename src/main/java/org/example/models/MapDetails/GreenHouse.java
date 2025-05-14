@@ -9,16 +9,16 @@ import java.util.List;
 
 
 public class GreenHouse {
-    private final int x;
-    private final int y;
     private static final int height = 6;
     private static final int width = 5;
-    private String name;
+    private final int x;
+    private final int y;
     private final List<Plant> greenHousePlants;
     private final Weather weather;
     private final boolean isBuilt;
+    private String name;
 
-
+    
     public GreenHouse(int x, int y) {
         this.x = x;
         this.y = y;

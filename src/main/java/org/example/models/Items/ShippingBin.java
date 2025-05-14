@@ -5,7 +5,7 @@ import org.example.models.Player.Player;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ShippingBin extends Item{
+public class ShippingBin extends Item {
     private Map<Player , Integer> playerIntegerMap;
     public ShippingBin() {
         super("Shipping Bin", 250);

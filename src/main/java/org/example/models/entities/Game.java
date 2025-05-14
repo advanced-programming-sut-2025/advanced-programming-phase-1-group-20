@@ -94,25 +94,17 @@ public class Game implements Serializable {
         // Reset energy used in the current turn for the current player
         currentPlayer.resetEnergyUsedInTurn();
 
-
-        //update parts for each turn:
-        updateTurns();
+        for (Player player : players) {
+//            gameMap.updateArtisans(player);
+        }
 
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
 
         // If we've gone through all players, advance the game time by 1 hour
         if (currentPlayerIndex == 0) {
-            date.advanceTime(1 , gameMap);
+            date.advanceTime(1, gameMap);
         }
-    }
-
-    public void updateDailyGame(){
-        gameMap.updateDailyGameMap(players);
-    }
-
-    public void updateTurns(){
-        gameMap.updateTurn(players);
     }
 
     public void voteToTerminate(Player player, boolean vote) {

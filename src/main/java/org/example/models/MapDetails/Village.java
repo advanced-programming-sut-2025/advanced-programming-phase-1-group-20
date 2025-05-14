@@ -13,6 +13,8 @@ import java.util.*;
 
 public class Village {
 
+    public static final int width = 50;
+    public static final int height = 50;
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
@@ -25,15 +27,12 @@ public class Village {
     private static final String PINK = "\u001B[38;5;200m";
     private static final String LIGHT_BLUE = "\u001B[94m";
     private static final String LIGHT_GREEN = "\u001B[92m";
-
-    public static final int width = 50;
-    public static final int height = 50;
     private final Location[][] tiles;
     private final List<Building> buildings;
-    private List<NPC> residents;
     private final String name;
     //private List<Shop> shops;
     private final Map<String, Character> symbolMap;
+    private List<NPC> residents;
 
     public Village(String name) {
         this.name = name;
@@ -99,16 +98,14 @@ public class Village {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                }
-                else if (type.equals("crop")) {
+                } else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                }
-                else if (type.equals("stone")) {
+                } else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
@@ -161,13 +158,13 @@ public class Village {
         return null;
     }
 
-    public boolean setTile(int x, int y, Tile tile) {
-        if (contains(x, y)) {
-            tiles.put(getTileKey(x, y), tile);
-            return true;
-        }
-        return false;
-    }
+//    public boolean setTile(int x, int y, Tile tile) {
+//        if (contains(x, y)) {
+//            tiles.put(getTileKey(x, y), tile);
+//            return true;
+//        }
+//        return false;
+//    }
 
     private boolean isValidTileType(String type) {
         return symbolMap.containsKey(type);
@@ -260,8 +257,7 @@ public class Village {
 
                 if (x == centerX && y == centerY) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }

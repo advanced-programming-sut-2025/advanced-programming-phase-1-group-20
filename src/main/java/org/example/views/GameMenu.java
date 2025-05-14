@@ -1,6 +1,7 @@
 package org.example.views;
 
 import org.example.controllers.GameMenuController;
+import org.example.models.App;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
@@ -17,6 +18,15 @@ public class GameMenu implements AppMenu {
         this.user = user;
         this.player = player;
         controller = new GameMenuController(appView, player);
+
+        if (App.isMapSelectionPhase()) {
+            System.out.println("~~map selection phase~~");
+        }
+        while (App.isMapSelectionPhase()) {
+            String input = appView.getInput();
+
+            App.toggleMapSelectionPhase();
+        }
     }
 
     @Override
@@ -37,12 +47,4 @@ public class GameMenu implements AppMenu {
         }
     }
 
-    private void displayMap() {
-        // TODO: Implement map display
-    }
-
-    private void displayInventory() {
-        System.out.println("Inventory: ");
-        // TODO: Implement  inventory display
-    }
 }

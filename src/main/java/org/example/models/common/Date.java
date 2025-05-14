@@ -54,7 +54,7 @@ public class Date {
 
     public void cheatThor(Location location, GameMap gameMap) {
         //TODO : burning trees.
-//        gameMap.thor(location);
+//        App.getGame().getMap().thor(location);
         System.out.println("Thor has struck the location");
     }
 
@@ -106,7 +106,6 @@ public class Date {
 
     // changing the day
     public void goTomorrow(GameMap gameMap) {
-//        advanceDays(1, gameMap);
         this.day++;
         this.weatherToday = weatherTomorrow;
         updateWeatherTomorrow();
@@ -171,8 +170,8 @@ public class Date {
             return 0;
         }
 
-        long currentTotalDays = ((long) (year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day;
-        long rejectTotalDays = ((long) (rejectDate.year - 1) * 4 * daysPerSeason) + (rejectDate.season * daysPerSeason) + rejectDate.day;
+        long currentTotalDays = ((long) (year - 1) * 4 * daysPerSeason) + ((long) season * daysPerSeason) + day;
+        long rejectTotalDays = ((long) (rejectDate.year - 1) * 4 * daysPerSeason) + ((long) rejectDate.season * daysPerSeason) + rejectDate.day;
 
         // Return the difference
         return currentTotalDays - rejectTotalDays;

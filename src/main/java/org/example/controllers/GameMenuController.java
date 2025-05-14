@@ -1436,11 +1436,9 @@ public class GameMenuController implements Controller {
                 missions
         );
 
-        // Set the NPC's location and description
         npc.setLocation(npcEnum.getLocation());
         npc.setDescription(npcEnum.getDescription());
 
-        // Add favorite items
         for (String itemName : npcEnum.getFavoriteItems()) {
             Item item = App.getItem(itemName);
             if (item != null) {
