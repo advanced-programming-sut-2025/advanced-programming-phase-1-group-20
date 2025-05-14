@@ -36,7 +36,7 @@ public class Farm {
     public static final int height = 50;
     private final String name;
     private final Player owner;
-    private final boolean farmSelection;
+    private final boolean farmType;
     private final int farmIndex;
     private final Location[][] tiles;
     private final List<Animal> animals;
@@ -50,8 +50,8 @@ public class Farm {
     private final Market[] markets = new Market[7];
     private final List<ShippingBin> shippingBins;
 
-    public Farm(String name, Player owner, boolean farmSelection, int farmIndex) {
-        this.farmSelection = farmSelection;
+    public Farm(String name, Player owner, boolean farmType, int farmIndex) {
+        this.farmType = farmType;
         this.farmIndex = farmIndex;
         this.name = name;
         this.owner = owner;
@@ -215,7 +215,7 @@ public class Farm {
         List<Lake> lakes = new ArrayList<>();
         switch (farmIndex) {
             case 0:
-                if (farmSelection) {
+                if (farmType) {
                     Lake l11 = new Lake(width / 2 + 2, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
                     Lake l12 = new Lake(width / 2 + 7, height / 2 + 3, 5, 5, "lake", Lake.LakeType.RIVER);
                     lakes.add(l11);
@@ -226,7 +226,7 @@ public class Farm {
                 lakes.add(l1);
                 return lakes;
             case 1:
-                if (farmSelection) {
+                if (farmType) {
                     Lake l21 = new Lake(width / 2 - 6, height / 2 - 3, 5, 5, "lake", Lake.LakeType.RIVER);
                     Lake l22 = new Lake(width / 2 - 1, height / 2 + 3, 5, 5, "lake", Lake.LakeType.RIVER);
                     lakes.add(l21);
@@ -237,7 +237,7 @@ public class Farm {
                 lakes.add(l2);
                 return lakes;
             case 2:
-                if (farmSelection) {
+                if (farmType) {
                     Lake l31 = new Lake(width / 2 - 6, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
                     Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 5, 5, "lake", Lake.LakeType.RIVER);
                     lakes.add(l31);
@@ -248,7 +248,7 @@ public class Farm {
                 lakes.add(l3);
                 return lakes;
             case 3:
-                if (farmSelection) {
+                if (farmType) {
                     Lake l41 = new Lake(width / 2 + 2, height / 2, 5, 5, "lake", Lake.LakeType.RIVER);
                     Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 5, 5, "lake", Lake.LakeType.RIVER);
                     lakes.add(l41);

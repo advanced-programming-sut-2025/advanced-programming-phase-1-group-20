@@ -18,11 +18,11 @@ public class MarketController implements Controller {
     private GameMap gMap;
     private Market market;
 
-    public MarketController(AppView appView, App app, Player player, Market market , Date gameClock) {
+    public MarketController(AppView appView, App app, Player player, Market market, Date gameClock) {
         this.appView = appView;
         this.player = player;
         this.gameClock = gameClock;
-        this.gMap = new GameMap(100, 100, player);
+//        this.gMap = new GameMap(100, 100, player);
         // طول و عرض همینطوری گذاشته شده!
         this.market = market;
         market.initializeTotalStock(gameClock.getSeason());
@@ -46,7 +46,7 @@ public class MarketController implements Controller {
             case None -> result = Result.error("Invalid input");
         }
 
-        appView.handleResult(result , command);
+        appView.handleResult(result, command);
         return result;
     }
 
@@ -87,7 +87,6 @@ public class MarketController implements Controller {
     }
 
 
-
     private void cheatAddDollars(String[] args) {
         int amount = Integer.parseInt(args[0]);
         player.increaseMoney(amount);
@@ -104,8 +103,7 @@ public class MarketController implements Controller {
 
             if (success) {
                 return Result.success("Tool " + toolName + " upgraded successfully");
-            }
-            else {
+            } else {
                 return Result.error("Failed to upgrade tool " + toolName);
             }
         }

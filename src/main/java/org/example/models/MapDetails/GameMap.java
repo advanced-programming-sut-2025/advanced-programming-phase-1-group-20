@@ -1,17 +1,8 @@
 package org.example.models.MapDetails;
 
-import org.example.models.Items.*;
-import org.example.models.Market;
 import org.example.models.Player.Player;
-import org.example.models.common.Date;
-import org.example.models.common.Location;
-import org.example.models.enums.Markets;
-import org.example.models.enums.Types.CropType;
-import org.example.models.enums.Types.MineralType;
-import org.example.models.enums.Types.TileType;
-import org.example.models.enums.Types.TreeType;
 
-import java.util.*;
+import java.util.List;
 
 public class GameMap {
 
@@ -89,8 +80,8 @@ public class GameMap {
         }
     }
 
-    public void updateTurn(List<Player> players){
-        for(Player player : players) {
+    public void updateTurn(List<Player> players) {
+        for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
             farm.updatePlants();
             farm.updateArtisans();

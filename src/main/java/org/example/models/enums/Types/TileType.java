@@ -10,6 +10,7 @@ public enum TileType {
     IRON_ORE,
     BARN,
     COOP,
+    PLOWED,
     CROP,
     GOLD_ORE,
     DIAMOND_ORE,

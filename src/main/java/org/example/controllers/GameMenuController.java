@@ -12,7 +12,6 @@ import org.example.models.common.Result;
 import org.example.models.entities.*;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.PlantType;
 import org.example.models.enums.Types.TileType;
@@ -99,13 +98,11 @@ public class GameMenuController implements Controller {
             case CraftingShowRecipes -> craftingShowRecipes();
 
 
-
             case CookingShowRecipes -> cookingShowRecipes();
             case EatFood -> result = eatFood(args);
             case ShowEnergy -> result = showEnergy();
             case setEnergy -> result = setEnergy(args);
             case energyUnlimited -> result = energyUnlimited();
-
 
 
             //sell command:
@@ -518,9 +515,9 @@ public class GameMenuController implements Controller {
             } else {
                 plant.setFinished(false);
             }
-            if(plant.getOneTimeHarvest()){
+            if (plant.getOneTimeHarvest()) {
                 gMap.getFarmByPlayer(player).placeItem(x, y, null);
-            }else{
+            } else {
                 plant.setStages(new int[]{1});
                 plant.setDaysCounter(plant.getRegrowthTime());
                 plant.setFinished(false);
@@ -554,7 +551,6 @@ public class GameMenuController implements Controller {
     }
 
 
-
     private boolean isCooking(Item item) {
         return item instanceof CookingItem;
     }
@@ -572,13 +568,13 @@ public class GameMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if(item instanceof ArtisanItem){
+        if (item instanceof ArtisanItem) {
             ArtisanItem artisanItem = (ArtisanItem) item;
-            if(artisanItem.getEnergy() > 0){
+            if (artisanItem.getEnergy() > 0) {
                 player.increaseEnergy(artisanItem.getEnergy());
-                player.getBackpack().remove(item , 1);
+                player.getBackpack().remove(item, 1);
                 return Result.success("Food " + foodName + " eaten");
-            }else{
+            } else {
                 return Result.success("Artisan item is not a food.");
             }
         }
@@ -623,47 +619,46 @@ public class GameMenuController implements Controller {
     //sell Function:
     private Result sellProduct(String[] args) {
         String productName = args[0];
-        if(!player.getBackpack().hasItems(Collections.singletonList(productName))) {
+        if (!player.getBackpack().hasItems(Collections.singletonList(productName))) {
             return Result.error(productName + " does not exist in your backpack");
         }
         Item item = player.getBackpack().getItem(productName);
         int count;
-        if(args[1] != null) {
+        if (args[1] != null) {
             count = Integer.parseInt(args[1]);
-        }else{
+        } else {
             count = player.getBackpack().getInventory().get(item);
         }
 
         ShippingBin bin = new ShippingBin();
         //gMap.getItemNearby()
-        if(bin==null){
+        if (bin == null) {
             return Result.error("There is no shipping bin nearby!");
         }
         int amount;
-        if(item.getPrice() != 0){
+        if (item.getPrice() != 0) {
             amount = count * item.getPrice();
-        }else{
+        } else {
             amount = count * 100;
         }
 
 
         //checking instance
-        if(item instanceof Tool){
+        if (item instanceof Tool) {
             Tool tool = (Tool) item;
-            switch (tool.getMaterial()){
-                case BASIC -> amount*=1;
-                case IRON -> amount*=  2;
-                case COPPER -> amount*=2;
-                case GOLD -> amount*= 3;
-                case IRIDIUM -> amount*=4;
+            switch (tool.getMaterial()) {
+                case BASIC -> amount *= 1;
+                case IRON -> amount *= 2;
+                case COPPER -> amount *= 2;
+                case GOLD -> amount *= 3;
+                case IRIDIUM -> amount *= 4;
             }
         }
 
 
-        bin.increaseIncome(amount , player);
+        bin.increaseIncome(amount, player);
         return Result.success("your product: " + productName + " has been sold!");
     }
-
 
 
     // TODO: map showing + map related commands
@@ -800,17 +795,17 @@ public class GameMenuController implements Controller {
             int size = Integer.parseInt(args[2]);
 
             // Check if the coordinates are valid
-            if (!gMap.getFarmByPlayer(player).contains(x, y)) {
+            if (!App.getGame().getGameMap().getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
             }
 
             // Check if the location is in another player's farm
-            if (gMap.isInOtherPlayersFarm(player, x, y)) {
+            if (App.getGame().getGameMap().isInOtherPlayersFarm(player, x, y)) {
                 return Result.error("You cannot view another player's farm");
             }
 
             System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
-            gMap.getFarmByPlayer(player).printCurrentViewColored(x, y, size);
+            App.getGame().getGameMap().getFarmByPlayer(player).printCurrentViewColored(x, y, size);
             System.out.println("Map printed successfully!");
 
             return Result.success("Map printed");
@@ -837,6 +832,7 @@ public class GameMenuController implements Controller {
     }
 
     private Result selectMap(String[] args) {
+
         if (args == null || args.length < 1) {
             return Result.error("Map number not specified");
         }
@@ -850,19 +846,33 @@ public class GameMenuController implements Controller {
             return Result.error("Map selection phase is over");
         }
 
-        if (game.getCurrentPlayer() != player) {
-            return Result.error("It's not your turn to select a map");
-        }
-
         try {
             int mapNumber = Integer.parseInt(args[0]);
             if (mapNumber < 1 || mapNumber > 4) {
                 return Result.error("Invalid map number. Please choose a number between 1 and 4.");
             }
 
+            System.out.println("what type of map do you want to select? (two lakes | bigger quarry)");
+            boolean farmType;
+
+            while (true) {
+                String input = new Scanner(System.in).nextLine().trim();
+                if (input.matches("two\\s+lakes") || input.matches("bigger\\s+quarry")) {
+                    if (input.matches("two\\s+lakes")) {
+                        farmType = true;
+                        System.out.println("Selected two lakes");
+                    } else {
+                        farmType = false;
+                        System.out.println("Selected bigger quarry");
+                    }
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please try again.");
+                }
+            }
+
             game.selectMap(player, mapNumber);
 
-            // Move to the next player's turn
             game.nextTurn(gMap);
 
             // If all players have selected a map, start the game
