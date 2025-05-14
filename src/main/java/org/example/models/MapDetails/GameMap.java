@@ -11,7 +11,7 @@ public class GameMap {
 
     public GameMap() {
         this.farms = new Farm[4];
-        this.village = null;
+        this.village = new Village("Shemroon");
     }
 
     public Farm[] getFarms() {
@@ -20,10 +20,6 @@ public class GameMap {
 
     public Village getVillage() {
         return village;
-    }
-
-    public void setVillage(Village village) {
-        this.village = village;
     }
 
     public void addFarm(Farm farm) {

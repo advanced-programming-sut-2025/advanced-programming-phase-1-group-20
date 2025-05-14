@@ -24,8 +24,15 @@ public class GameMenu implements AppMenu {
         }
         while (App.isMapSelectionPhase()) {
             String input = appView.getInput();
+            if (GameMenuCommands.getCommand(input) != GameMenuCommands.SelectMap) {
+                System.out.println("you can only choose map in this phase");
+                continue;
+            }
+            controller.update(input);
 
-            App.toggleMapSelectionPhase();
+           if (App.allChose()) {
+                App.toggleMapSelectionPhase();
+           }
         }
     }
 

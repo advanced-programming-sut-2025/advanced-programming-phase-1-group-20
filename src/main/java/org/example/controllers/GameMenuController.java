@@ -3,6 +3,7 @@ package org.example.controllers;
 import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.Items.Plant;
+import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
@@ -28,14 +29,12 @@ public class GameMenuController implements Controller {
     private final AppView appView;
     private final Player player;
     private final Date gameClock;
-    private final GameMap gMap;
+    private final GameMap gMap = App.getGame().getGameMap();
 
     public GameMenuController(AppView appView, Player player) {
         this.appView = appView;
         this.player = player;
         this.gameClock = new Date();
-        this.gMap = new GameMap();
-        // طول و عرض همینطوری گذاشته شده!
     }
 
     @Override
@@ -831,7 +830,7 @@ public class GameMenuController implements Controller {
         return Result.success("Map legend displayed");
     }
 
-    private Result selectMap(String[] args) {
+    public Result selectMap(String[] args) {
 
         if (args == null || args.length < 1) {
             return Result.error("Map number not specified");
@@ -847,12 +846,12 @@ public class GameMenuController implements Controller {
         }
 
         try {
-            int mapNumber = Integer.parseInt(args[0]);
-            if (mapNumber < 1 || mapNumber > 4) {
+            int mapIndex = Integer.parseInt(args[0]);
+            if (mapIndex < 1 || mapIndex > 4) {
                 return Result.error("Invalid map number. Please choose a number between 1 and 4.");
             }
 
-            System.out.println("what type of map do you want to select? (two lakes | bigger quarry)");
+            System.out.println("What type of map do you want to select? (two lakes | bigger quarry)");
             boolean farmType;
 
             while (true) {
@@ -861,28 +860,33 @@ public class GameMenuController implements Controller {
                     if (input.matches("two\\s+lakes")) {
                         farmType = true;
                         System.out.println("Selected two lakes");
-                    } else {
+                    }
+                    else {
                         farmType = false;
                         System.out.println("Selected bigger quarry");
                     }
                     break;
-                } else {
+                }
+                else {
                     System.out.println("Invalid input. Please try again.");
                 }
             }
 
-            game.selectMap(player, mapNumber);
+            Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex);
+            App.getGame().getGameMap().addFarm(newFarm);
 
+            game.selectMap(player, mapIndex);
             game.nextTurn(gMap);
 
             // If all players have selected a map, start the game
             if (game.allPlayersSelectedMap()) {
-                game.setMapSelectionPhase(false);
+                App.makeAllChose();
                 return Result.success("All players have selected their maps. The game has started!");
             }
 
-            return Result.success("Map " + mapNumber + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
-        } catch (NumberFormatException e) {
+            return Result.success("Map " + mapIndex + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
+        }
+        catch (NumberFormatException e) {
             return Result.error("Invalid map number format");
         }
     }

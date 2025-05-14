@@ -26,6 +26,8 @@ public class App {
     private static boolean dataLoaded = false;
     private static List<Game> allGames = new ArrayList<>();
     private static Game currentGame;
+    private static boolean allChose = false;
+
     //    private static Lists for game
     private static List<Item> items = new ArrayList<>();
 
@@ -235,5 +237,12 @@ public class App {
     public static boolean isMapSelectionPhase() {
         return isMapSelectionPhase;
     }
-    
+
+    public static boolean allChose() {
+        return allChose;
+    }
+
+    public static void makeAllChose() {
+        allChose = true;
+    }
 }
