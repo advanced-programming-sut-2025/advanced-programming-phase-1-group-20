@@ -17,6 +17,7 @@ public enum TileType {
     PATH,
     BUILDING,
     LAKE,
+    SHIPPING_BIN,
     QUARRY,
     EMERALD_ORE,
     GREENHOUSE;
