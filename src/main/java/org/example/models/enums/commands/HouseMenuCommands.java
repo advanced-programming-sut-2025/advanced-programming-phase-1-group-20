@@ -20,6 +20,8 @@ public enum HouseMenuCommands implements Command {
     // artisan related
     ArtisanUse(Pattern.compile("^artisan\\s+use\\s+(?<artisanName>.+)\\s+(?<itemName>.+)$")),
     ArtisanGet(Pattern.compile("^artisan\\s+get\\s+(?<artisanName>.+)$")),
+
+    EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
     None(null);
 
     private final Pattern pattern;

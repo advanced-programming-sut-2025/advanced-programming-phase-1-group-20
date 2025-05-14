@@ -58,6 +58,8 @@ public class HouseMenuController implements Controller {
             //artisan-related commands
             case ArtisanUse -> result = artisanUse(args);
             case ArtisanGet -> result = artisanGet(args);
+
+            case EatFood -> result = eatFood(args);
             case None -> result = Result.error("Invalid input");
         }
 
