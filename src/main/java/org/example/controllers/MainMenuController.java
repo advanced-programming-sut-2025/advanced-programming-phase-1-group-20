@@ -75,16 +75,10 @@ public class MainMenuController implements Controller {
     }
 
     public Result newGame(String[] args) {
-        System.out.println("mamadddddd");
         if (args == null || args.length < 1) {
             return Result.error("No usernames specified");
         }
-
-        if (args.length != 3) {
-            return Result.error("you must specify three users");
-        }
-
-
+        
         List<User> users = new ArrayList<>();
         users.add(App.getLoggedInUser());
 
@@ -120,6 +114,7 @@ public class MainMenuController implements Controller {
 
         Game newGame = new Game(players, creator);
         App.setGame(newGame);
+        App.getGame().getGameMap().getVillage().initializeNPCs();
         return Result.success("New game created with " + users.size() + " players. Please select your map.");
     }
 
