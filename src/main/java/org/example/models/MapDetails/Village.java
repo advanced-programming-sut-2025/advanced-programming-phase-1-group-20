@@ -4,6 +4,7 @@ import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
+import org.example.models.entities.Game;
 import org.example.models.entities.NPC;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Types.CropType;
@@ -72,7 +73,7 @@ public class Village {
         }
 
         initializeBuildings();
-        initializeNPCs();
+//        initializeNPCs();
         //initializeShops();
 
 //        placeRandomObjects("stone", 100);
@@ -142,10 +143,13 @@ public class Village {
             if (currentTile == TileType.GRASS) {
                 Npcs[] types = Npcs.values();
                 Npcs npcType = types[rand.nextInt(types.length)];
-                NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
-                residents.add(npc);
-                npc.setLocation(location);
-                placed++;
+                Game game = App.getGame();
+                if(game != null) {
+                    NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
+                    residents.add(npc);
+                    npc.setLocation(location);
+                    placed++;
+                }
             }
         }
     }

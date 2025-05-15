@@ -120,8 +120,8 @@ public class GameMenuController implements Controller {
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
             case TeleportToVillage -> result = teleportToVillage();
-//            case TeleportToMarket -> result = teleportToMarket(args);
-//            case TeleportToHome -> result = teleportToHome();
+            case TeleportToMarket -> result = teleportToMarket(args);
+            case TeleportToHome -> result = teleportToHome();
 
             case HelpReadingMap -> result = helpReadingMap();
 
@@ -165,6 +165,14 @@ public class GameMenuController implements Controller {
         appView.handleResult(result, command);
 
         return result;
+    }
+
+    private Result teleportToHome() {
+        return Result.error("");
+    }
+
+    private Result teleportToMarket(String[] args) {
+        return Result.success("");
     }
 
     private void showInventory() {
