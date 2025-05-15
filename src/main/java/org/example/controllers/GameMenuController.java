@@ -624,11 +624,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-
-    private boolean isCooking(Item item) {
-        return item instanceof CookingItem;
-    }
-
     //this method is completed now
     private Result eatFood(String[] args) {
 
