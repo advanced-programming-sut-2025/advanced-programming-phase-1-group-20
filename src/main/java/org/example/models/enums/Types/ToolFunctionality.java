@@ -159,7 +159,7 @@ public enum ToolFunctionality {
 
                 // 2. Water crops if the tile is tilled soil with a crop
                 // Check if the tile is tilled soil
-                if (gameMap.getFarmByPlayer(player).isShokhm(targetX, targetY)) {
+                if (gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
                     // Water the crop (implementation depends on the game mechanics)
                     return true;
                 }
@@ -254,8 +254,8 @@ public enum ToolFunctionality {
                 TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
                 if (tileType == TileType.GRASS) {
                     // Till the soil
-                    // TODO: make shokhmed
-                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.TREE, player);
+
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.PLOWED, player);
                 }
 
                 return false;

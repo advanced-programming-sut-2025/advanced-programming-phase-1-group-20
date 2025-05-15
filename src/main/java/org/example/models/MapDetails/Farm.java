@@ -460,9 +460,9 @@ public class Farm {
         return null;
     }
 
-    public boolean isShokhm(int x, int y) {
+    public boolean isPlowed(int x, int y) {
         if (!contains(x, y)) return false;
-        return tiles[x][y].getShokhm();
+        return tiles[x][y].getTile() == TileType.PLOWED;
     }
 
     private boolean isValidTileType(String type) {
@@ -495,7 +495,8 @@ public class Farm {
                     }
                 }
 
-            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
+            }
+            else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
                 Plant[] plants = new Plant[4];
                 for(int i = x-1;i < x;i++){
                     for(int j = y-1;j < y;j++){
@@ -942,20 +943,20 @@ public class Farm {
         return farmIndex;
     }
 
-
     public void thor(Location location) {
         int x = location.getX();
         int y = location.getY();
-        for(int i = x ; i < x + 4 ; i++){
-            for(int j = y ; j < y + 4 ; j++){
+        for (int i = x ; i < x + 4 ; i++) {
+            for (int j = y ; j < y + 4 ; j++) {
                 Location tile = tiles[i][j];
-                if(contains(i,j)){
-                    if(tile.getTile() != null){
-                        if(tile.getTile() != TileType.GREENHOUSE){
-                            if(tile.getItem() instanceof Tree){
+                if (contains(i,j)) {
+                    if (tile.getTile() != null) {
+                        if (tile.getTile() != TileType.GREENHOUSE) {
+                            if (tile.getItem() instanceof Tree) {
                                 Tree tree = (Tree) tile.getItem();
                                 tile.setItem(tree.burnTree());
                                 tiles[i][j].setTile(TileType.GRASS);
+                                tiles[i][j].setType("grass");
                             }
                         }
                     }
