@@ -983,6 +983,7 @@ public class GameMenuController implements Controller {
 
             if (game.allPlayersSelectedMap()) {
                 App.makeAllChose();
+                game.nextTurn(gMap);
                 return Result.success("All players have selected their maps. The game has started!");
             } else {
                 game.nextTurn(gMap);
