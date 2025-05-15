@@ -536,7 +536,9 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit, 1);
+            if(!player.getBackpack().add(fruit, 1)){
+                return Result.error("Backpack is full!");
+            }
             tree.setFruitCounter(0);
             tree.setFruitFinished(false);
             player.getSkills().get(0).updateLevel();
@@ -547,14 +549,13 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit, 1);
-            if (plant.getOneTimeHarvest()) {
-                gMap.getFarmByPlayer(player).placeItem(x, y, null);
-            } else {
-                plant.setFinished(false);
+            if(!player.getBackpack().add(fruit, 1)){
+                return Result.error("Backpack is full!");
             }
             if (plant.getOneTimeHarvest()) {
-                gMap.getFarmByPlayer(player).placeItem(x, y, null);
+                gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
+                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+                gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
             } else {
                 plant.setStages(new int[]{1});
                 plant.setDaysCounter(plant.getRegrowthTime());
@@ -568,8 +569,12 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            player.getBackpack().add(fruit, 1);
-            gMap.getFarmByPlayer(player).placeItem(x, y, null);
+            if(!player.getBackpack().add(fruit, 1)){
+                return Result.error("Backpack is full!");
+            }
+            gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
+            gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+            gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
             player.getSkills().get(2).updateLevel();
         }
         return Result.success("Plant has been harvested!");
