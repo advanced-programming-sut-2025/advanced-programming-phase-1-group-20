@@ -71,8 +71,6 @@ public class Game implements Serializable {
         this.inMapSelectionPhase = inMapSelectionPhase;
     }
 
-
-
     public boolean allPlayersSelectedMap() {
         for (Player player : players) {
             if (mapSelections.get(player) == -1) {
@@ -96,18 +94,18 @@ public class Game implements Serializable {
 
 
         //update parts for each turn:
-        //updateTurns();
+//        updateTurns();
 
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
         currentPlayer = players.get(currentPlayerIndex);
 
         // If we've gone through all players, advance the game time by 1 hour
         if (currentPlayerIndex == 0) {
-            date.advanceTime(1 , gameMap);
+            date.advanceTime(1, gameMap);
         }
     }
 
-    public void updateDailyGame(){
+    public void updateDailyGame() {
         gameMap.updateDailyGameMap(players);
     }
 
@@ -151,7 +149,7 @@ public class Game implements Serializable {
     }
 
     public boolean isPlayerInGame(User user) {
-        if(players!=null) {
+        if (players != null) {
             for (Player player : players) {
                 if (player.getUser().equals(user)) {
                     return true;

@@ -27,13 +27,11 @@ import java.util.regex.Pattern;
 
 public class GameMenuController implements Controller {
     private final AppView appView;
-    private final Player player = App.getGame().getCurrentPlayer();
     private final Date gameClock;
-    private final GameMap gMap = App.getGame().getGameMap();
 
     public GameMenuController(AppView appView, Player player) {
         this.appView = appView;
-        this.gameClock = new Date();
+        this.gameClock = App.getGame().getDate();
     }
 
     @Override
@@ -170,13 +168,13 @@ public class GameMenuController implements Controller {
     private void cheatTeleport(String[] args) {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
-        Location location = player.getCurrentFarm().getItem(x, y);
+        Location location = App.getGame().getCurrentPlayer().getCurrentFarm().getItem(x, y);
         System.out.println(location.getTile().toString());
-        System.out.println(player.getCurrentFarm().getFarmIndex());
-        System.out.println(player.getUser().getUsername());
+        System.out.println(App.getGame().getCurrentPlayer().getCurrentFarm().getFarmIndex());
+        System.out.println(App.getGame().getCurrentPlayer().getUser().getUsername());
         if (location.getTile() == TileType.GRASS) {
             System.out.println("hey");
-            player.setLocation(location);
+            App.getGame().getCurrentPlayer().setLocation(location);
         }
     }
 
@@ -247,7 +245,7 @@ public class GameMenuController implements Controller {
             if (hours < 0) {
                 return Result.error("Cannot advance time by negative values");
             }
-            gameClock.advanceTime(hours, gMap);
+            gameClock.advanceTime(hours, App.getGame().getGameMap());
             return Result.success("Time advanced by " + hours + " hours");
         } catch (NumberFormatException e) {
             return Result.error("Invalid number format for hours");
@@ -262,7 +260,7 @@ public class GameMenuController implements Controller {
         try {
             int days = Integer.parseInt(args[0]);
 
-            gameClock.advanceDays(days, gMap);
+            gameClock.advanceDays(days, App.getGame().getGameMap());
             return Result.success("Date advanced by " + days + " days");
         } catch (NumberFormatException e) {
             return Result.error("Invalid number format for days");
@@ -285,7 +283,7 @@ public class GameMenuController implements Controller {
             int y = Integer.parseInt(coordinates[1].trim());
 
             Location location = new Location(x, y, null);
-            player.getCurrentFarm().thor(location);
+            App.getGame().getCurrentPlayer().getCurrentFarm().thor(location);
             gameClock.cheatThor(location);
 
             return Result.success("Thor has struck at location (" + x + "," + y + ")");
@@ -317,8 +315,9 @@ public class GameMenuController implements Controller {
             return Result.error("Invalid direction");
         }
 
-
-        Item item = player.getBackpack().getItem(seedName);
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+        Item item = App.getGame().getCurrentPlayer().getBackpack().getItem(seedName);
         Location loc = player.getLocation();
         int x = loc.getX() + dir[1];
         int y = loc.getY() + dir[0];
@@ -426,10 +425,11 @@ public class GameMenuController implements Controller {
     }
 
 
-    //this method is completed.
     private Result showPlant(String[] args) {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
 
         Location location = gMap.getFarmByPlayer(player).getItem(x, y);
 
@@ -445,6 +445,9 @@ public class GameMenuController implements Controller {
 
     //we dont have fertilize
     private Result fertilize(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         String fertilizer = args[0];
         Item item = ItemBuilder.build(fertilizer);
         Location location = player.getLocation();
@@ -469,6 +472,8 @@ public class GameMenuController implements Controller {
 
 
     private Result giveWater(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
         String direction = args[0];
         Location location = player.getLocation();
         int[] dir = getDirection(direction);
@@ -507,6 +512,8 @@ public class GameMenuController implements Controller {
 
     //this method is completed.
     private Result harvest(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
 
@@ -571,6 +578,9 @@ public class GameMenuController implements Controller {
 
     //this method is completed
     private void craftingShowRecipes() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         List<CraftingItem> craftingItems = player.getCraftingItems();
         for (CraftingItem craftingItem : craftingItems) {
             craftingItem.showInfo();
@@ -578,6 +588,9 @@ public class GameMenuController implements Controller {
     }
 
     private void cookingShowRecipes() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         for (CookingItem cookingItem : player.getCookingItems()) {
             cookingItem.showInfo();
         }
@@ -590,6 +603,10 @@ public class GameMenuController implements Controller {
 
     //this method is completed now
     private Result eatFood(String[] args) {
+
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         String foodName = args[0];
         Item item = ItemBuilder.build(foodName);
         if (item == null) {
@@ -636,6 +653,10 @@ public class GameMenuController implements Controller {
 
 
     public boolean checkItems(String items, CraftingItem craftingItem) {
+
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         String regex = craftingItem.checkRegex(items);
         if (regex != null) {
             Pattern pattern = Pattern.compile(regex);
@@ -651,6 +672,9 @@ public class GameMenuController implements Controller {
 
     //sell Function:
     private Result sellProduct(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         String productName = args[0];
         if (!player.getBackpack().hasItems(Collections.singletonList(productName))) {
             return Result.error(productName + " does not exist in your backpack");
@@ -699,6 +723,9 @@ public class GameMenuController implements Controller {
     // Tool-related methods
 
     private Result equipTool(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("Tool name not specified");
         }
@@ -714,6 +741,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result showCurrentTool() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Tool currentTool = player.getCurrentTool();
 
         if (currentTool == null) {
@@ -725,6 +755,9 @@ public class GameMenuController implements Controller {
 
 
     private Result showAvailableTools() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         List<Tool> tools = player.getAvailableTools();
 
         if (tools.isEmpty()) {
@@ -740,6 +773,9 @@ public class GameMenuController implements Controller {
 
 
     private Result useTool(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("Direction not specified");
         }
@@ -772,6 +808,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result teleportToVillage() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Farm farm = player.getCurrentFarm();
         if (farm == null) {
             return Result.error("shasidiiii");
@@ -786,7 +825,11 @@ public class GameMenuController implements Controller {
     }
 
     private Result walk(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 2) {
+
             return Result.error("Coordinates not specified");
         }
 
@@ -834,6 +877,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result printMap(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 3) {
             return Result.error("Coordinates or size not specified");
         }
@@ -885,6 +931,9 @@ public class GameMenuController implements Controller {
     }
 
     public Result selectMap(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("Map number not specified");
         }
@@ -929,7 +978,7 @@ public class GameMenuController implements Controller {
             player.setCurrentVillage(village);
             App.getGame().getGameMap().addFarm(newFarm);
 
-            game.selectMap(player, mapIndex);
+            game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
 
             if (game.allPlayersSelectedMap()) {
                 App.makeAllChose();
@@ -945,6 +994,9 @@ public class GameMenuController implements Controller {
 
 
     private Result exitGame() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Game game = App.getGame();
         if (game == null) {
             return Result.error("No active game");
@@ -964,6 +1016,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result nextTurn() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Game game = App.getGame();
         if (game == null) {
             return Result.error("No active game");
@@ -984,6 +1039,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result voteTerminate(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("Vote (yes/no) not specified");
         }
@@ -1022,6 +1080,9 @@ public class GameMenuController implements Controller {
 
     // TODO: check if the items required are right
     private Result greenhouseBuild() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         int requiredWood = 500;
         int requiredStone = 1000;
 
@@ -1457,6 +1518,9 @@ public class GameMenuController implements Controller {
 
     // NPC-related methods
     private Result meetNPC(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("NPC name not specified");
         }
@@ -1518,6 +1582,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result giftNPC(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 2) {
             return Result.error("NPC name or item not specified");
         }
@@ -1594,6 +1661,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result friendshipNPCList() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         // Get the actual NPC friendships from the player
         Map<String, String> friendships = player.getNPCFriendships();
 
@@ -1620,6 +1690,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result questsList() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         QuestManager questManager = QuestManager.getInstance();
         List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
 
@@ -1665,6 +1738,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result questsFinish(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 1) {
             return Result.error("Quest index not specified");
         }
@@ -1788,6 +1864,9 @@ public class GameMenuController implements Controller {
     // Trade-related methods
 
     private Result startTrade() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Game game = App.getGame();
         if (game == null) {
             return Result.error("No active game");
@@ -1820,6 +1899,9 @@ public class GameMenuController implements Controller {
 
 
     private Result tradeRequest(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 4) {
             return Result.error("Invalid trade request format");
         }
@@ -1912,6 +1994,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result tradeList() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         List<TradeRequest> pendingRequests = TradeManager.getInstance().getPendingTradeRequestsForPlayer(player);
 
         if (pendingRequests.isEmpty()) {
@@ -1927,6 +2012,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result tradeResponse(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         if (args == null || args.length < 2) {
             return Result.error("Invalid trade response format");
         }
@@ -1968,6 +2056,9 @@ public class GameMenuController implements Controller {
     }
 
     private Result tradeHistory() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         List<TradeRequest> history = TradeManager.getInstance().getTradeHistoryForPlayer(player);
 
         if (history.isEmpty()) {
@@ -1985,11 +2076,17 @@ public class GameMenuController implements Controller {
 
     //cheats:
     private void cheatBackPackFull() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         player.getBackpack().setType(Backpack.Type.Deluxe);
     }
 
 
     private void cheatAddFavourites(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
         Npcs npcType = Npcs.fromName(args[0]);
 
         for (String s : npcType.getFavoriteItems()) {
