@@ -40,7 +40,6 @@ public class Lake implements Serializable {
         availableFish.clear();
         FishType[] seasonalFish = FishType.getAvailableFish(currentSeason, true, fishingSkill);
 
-        // Add seasonal fish to the lake based on lake type
         for (FishType fishType : seasonalFish) {
 
             if (!fishType.isLegendary() || canHaveLegendaryFish(fishType)) {
@@ -51,7 +50,6 @@ public class Lake implements Serializable {
     }
 
     private boolean canHaveLegendaryFish(FishType fishType) {
-        // Each legendary fish is found in a specific lake
         if (fishType == FishType.CRIMSONFISH && name.equals("Ocean")) {
             return true;
         }
@@ -73,7 +71,6 @@ public class Lake implements Serializable {
     public List<Fish> fish(int fishingSkill, double rodMultiplier, Weather currentWeather) {
         List<Fish> caughtFish = new ArrayList<>();
 
-        // Calculate the number of fish to catch
         double weatherMultiplier;
         if (currentWeather == Weather.SUNNY) {
             weatherMultiplier = 1.5;
@@ -90,31 +87,27 @@ public class Lake implements Serializable {
 
         double r = random.nextDouble();
         int fishCount = (int) Math.ceil((2 + r * weatherMultiplier * (fishingSkill + 1)));
-        fishCount = Math.min(fishCount, 6); // Maximum 6 fish
+        fishCount = Math.min(fishCount, 6);
 
-        // Catch the fish
         for (int i = 0; i < fishCount; i++) {
             if (!availableFish.isEmpty()) {
-                // Randomly select a fish
                 Fish baseFish = availableFish.get(random.nextInt(availableFish.size()));
 
-                // Calculate fish quality
                 int qualityScore = (int) ((random.nextDouble() * (fishingSkill + 2) * rodMultiplier) / (fishCount - 7));
                 int quality;
                 if (qualityScore >= 5) {
-                    quality = 3; // Iridium
+                    quality = 3;
                 }
                 else if (qualityScore >= 3) {
-                    quality = 2; // Gold
+                    quality = 2;
                 }
                 else if (qualityScore >= 1) {
-                    quality = 1; // Silver
+                    quality = 1;
                 }
                 else {
-                    quality = 0; // Normal
+                    quality = 0;
                 }
 
-                // Create the caught fish with the calculated quality
                 caughtFish.add(new Fish(baseFish.getType(), quality, baseFish.getSeason()));
             }
         }

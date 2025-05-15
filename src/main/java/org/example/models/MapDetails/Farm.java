@@ -495,7 +495,8 @@ public class Farm {
                     }
                 }
 
-            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
+            }
+            else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
                 Plant[] plants = new Plant[4];
                 for(int i = x-1;i < x;i++){
                     for(int j = y-1;j < y;j++){
