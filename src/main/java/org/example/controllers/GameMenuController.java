@@ -70,6 +70,7 @@ public class GameMenuController implements Controller {
             // Player Related
             case ShowInventory -> showInventory();
 
+
             // Map related commands
 
 
@@ -92,6 +93,7 @@ public class GameMenuController implements Controller {
             case HowMuchWater -> result = howMuchWater();
             case GiveWater -> result = giveWater(args);
             case Harvest -> result = harvest(args);
+            case AddItem -> result = addItem(args);
 
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
@@ -271,7 +273,7 @@ public class GameMenuController implements Controller {
     }
 
     public Result cheatThor(String[] args) {
-        if (args == null || args.length < 2) {
+        if (args == null || args.length < 1) {
             return Result.error("Location not properly specified. Use: cheat Thor -l <x,y>");
         }
 
@@ -285,8 +287,8 @@ public class GameMenuController implements Controller {
             int x = Integer.parseInt(coordinates[0].trim());
             int y = Integer.parseInt(coordinates[1].trim());
 
-            Location location = new Location(x, y, null);
-            player.getCurrentFarm().thor(location);
+            Location location = player.getCurrentFarm().getItem(x, y);
+            gMap.getFarmByPlayer(player).thor(location);
             gameClock.cheatThor(location);
 
             return Result.success("Thor has struck at location (" + x + "," + y + ")");
@@ -330,7 +332,7 @@ public class GameMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
             return Result.error("Backpack does not contain " + seedName);
         }
-        if(gMap.getFarmByPlayer(player).contains(x,y)){
+        if(!gMap.getFarmByPlayer(player).contains(x,y)){
             return Result.error("this is not your farm!!!");
         }
         if (!gMap.getFarmByPlayer(player).isShokhm(x, y)) {
@@ -423,7 +425,7 @@ public class GameMenuController implements Controller {
                 dir[1] = -1;
                 break;
         }
-        return null;
+        return dir;
     }
 
 
@@ -567,6 +569,17 @@ public class GameMenuController implements Controller {
             player.getSkills().get(2).updateLevel();
         }
         return Result.success("Plant has been harvested!");
+    }
+
+    private Result addItem(String[] args) {
+        String itemName = args[0];
+        int count = Integer.parseInt(args[1]);
+        Item item = ItemBuilder.build(itemName);
+        if (item == null) {
+            return Result.error("Item does not exist");
+        }
+        player.getBackpack().add(item, count);
+        return Result.success(count + " " + itemName + " has been added to the backpack");
     }
 
 
@@ -964,7 +977,7 @@ public class GameMenuController implements Controller {
         }
 
         // Save the game
-        App.saveCurrentGame();
+//        App.saveCurrentGame();
 
         // Return to main menu
         appView.navigateMenu(new MainMenu(appView, player.getUser()));

@@ -49,12 +49,13 @@ public enum GameMenuCommands implements Command {
 
     // plants and foraging related
     CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")),
-    Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+)\\s+" + "(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
+    Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+?)\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     HowMuchWater(Pattern.compile("^howmuch\\s+water$")),
     GiveWater(Pattern.compile("^give\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+    AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),

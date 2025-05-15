@@ -957,6 +957,7 @@ public class Farm {
                                 Tree tree = (Tree) tile.getItem();
                                 tile.setItem(tree.burnTree());
                                 tiles[i][j].setTile(TileType.GRASS);
+                                tiles[i][j].setType("grass");
                             }
                         }
                     }
