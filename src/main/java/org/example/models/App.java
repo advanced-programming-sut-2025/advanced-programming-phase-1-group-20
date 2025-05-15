@@ -1,5 +1,10 @@
 package org.example.models;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.example.controllers.NPCController;
@@ -16,10 +21,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.example.models.savegame.GameSerializer.createKryo;
+
 public class App {
     // File paths for saving games
     private static final String GAMES_DIRECTORY = "saved_games";
-    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.json";
+    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.bin";
     // TODO: add the saving methods
     // static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
@@ -66,7 +73,7 @@ public class App {
         // Save all games to files
         for (int i = 0; i < allGames.size(); i++) {
             Game game = allGames.get(i);
-            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".json");
+            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".bin");
         }
     }
 
@@ -78,14 +85,11 @@ public class App {
     }
 
     private static void saveGame(Game game, String filePath) {
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
-
-        try (FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(game, writer);
+        Kryo kryo = createKryo();
+        try (Output output = new Output(new FileOutputStream(filePath))) {
+            kryo.writeObject(output, game);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to save game", e);
         }
     }
 
@@ -93,7 +97,7 @@ public class App {
         allGames = new ArrayList<>();
         File directory = new File(GAMES_DIRECTORY);
         if (directory.exists()) {
-            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".json"));
+            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".bin"));
             if (files != null) {
                 for (File file : files) {
                     Game game = loadGame(file.getPath());
@@ -118,15 +122,11 @@ public class App {
     }
 
     private static Game loadGame(String filePath) {
-        Gson gson = new GsonBuilder()
-                .excludeFieldsWithoutExposeAnnotation()
-                .create();
-
-        try (FileReader reader = new FileReader(filePath)) {
-            return gson.fromJson(reader, Game.class);
+        Kryo kryo = createKryo();
+        try (Input input = new Input(new FileInputStream(filePath))) {
+            return kryo.readObject(input, Game.class);
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Failed to load game", e);
         }
     }
 
