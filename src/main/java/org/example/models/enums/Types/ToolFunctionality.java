@@ -254,8 +254,8 @@ public enum ToolFunctionality {
                 TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
                 if (tileType == TileType.GRASS) {
                     // Till the soil
-                    // TODO: make shokhmed
-                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.TREE, player);
+
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.PLOWED, player);
                 }
 
                 return false;
