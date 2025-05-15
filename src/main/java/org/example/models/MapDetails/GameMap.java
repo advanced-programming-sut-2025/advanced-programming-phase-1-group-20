@@ -59,8 +59,10 @@ public class GameMap {
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : farms) {
-            if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
-                return true;
+            if(player.getCurrentFarm() != farm) {
+                if (!farm.contains(x, y) || farm.getOwner().getUser().getUsername().equals(player.getUser().getUsername())) {
+                    return true;
+                }
             }
         }
         return false;

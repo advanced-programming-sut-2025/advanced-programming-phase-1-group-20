@@ -888,7 +888,6 @@ public class GameMenuController implements Controller {
             int x = Integer.parseInt(args[0]);
             int y = Integer.parseInt(args[1]);
             int size = Integer.parseInt(args[2]);
-
             // Check if the coordinates are valid
             if (!App.getGame().getGameMap().getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
