@@ -2,7 +2,6 @@ package org.example.controllers;
 
 import org.example.models.App;
 import org.example.models.Items.*;
-import org.example.models.Items.Plant;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.MapDetails.Village;
@@ -28,13 +27,12 @@ import java.util.regex.Pattern;
 
 public class GameMenuController implements Controller {
     private final AppView appView;
-    private final Player player;
+    private final Player player = App.getGame().getCurrentPlayer();
     private final Date gameClock;
     private final GameMap gMap = App.getGame().getGameMap();
 
     public GameMenuController(AppView appView, Player player) {
         this.appView = appView;
-        this.player = player;
         this.gameClock = new Date();
     }
 
@@ -331,7 +329,7 @@ public class GameMenuController implements Controller {
         if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
             return Result.error("Backpack does not contain " + seedName);
         }
-        if(gMap.getFarmByPlayer(player).contains(x,y)){
+        if (gMap.getFarmByPlayer(player).contains(x, y)) {
             return Result.error("this is not your farm!!!");
         }
         if (!gMap.getFarmByPlayer(player).isShokhm(x, y)) {
@@ -823,16 +821,14 @@ public class GameMenuController implements Controller {
                     return Result.error("You've used too much energy");
                 }
                 return Result.success("Walked to (" + x + ", " + y + ")");
-            }
-            else {
+            } else {
                 Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
                 player.setEnergy(0);
                 player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
                 return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
                         furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates");
         }
     }
@@ -866,8 +862,7 @@ public class GameMenuController implements Controller {
             System.out.println("Map printed successfully!");
 
             return Result.success("Map printed");
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates or size");
         }
     }
@@ -890,7 +885,6 @@ public class GameMenuController implements Controller {
     }
 
     public Result selectMap(String[] args) {
-
         if (args == null || args.length < 1) {
             return Result.error("Map number not specified");
         }
@@ -936,15 +930,14 @@ public class GameMenuController implements Controller {
             App.getGame().getGameMap().addFarm(newFarm);
 
             game.selectMap(player, mapIndex);
-            game.nextTurn(gMap);
 
-            // If all players have selected a map, start the game
             if (game.allPlayersSelectedMap()) {
                 App.makeAllChose();
                 return Result.success("All players have selected their maps. The game has started!");
+            } else {
+                game.nextTurn(gMap);
+                return Result.success("Map " + mapIndex + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
             }
-
-            return Result.success("Map " + mapIndex + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
         } catch (NumberFormatException e) {
             return Result.error("Invalid map number format");
         }
