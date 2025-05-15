@@ -232,7 +232,7 @@ public class Village {
         //...
     }
 
-    public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
+    public void printCurrentViewColored(int centerX, int centerY, int viewRadius, Player player) {
         int startX = 0;
         int endX = Math.min(width - 1, centerX + viewRadius);
         int startY = 0;
@@ -262,9 +262,10 @@ public class Village {
                     default -> RESET;
                 };
 
-                if (x == centerX && y == centerY) {
+                if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
                     System.out.print(RED + "@ " + RESET);
-                } else {
+                }
+                else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -291,4 +292,9 @@ public class Village {
         player.increaseMoney(bins[3].getIncome(player));
         bins[3].updateShippingBin(player);
     }
+
+    public Location[][] getTiles() {
+        return tiles;
+    }
+
 }

@@ -68,6 +68,7 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         initializeMarkets();
+        setInitialOwnerLocation();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -76,6 +77,11 @@ public class Farm {
         int baseEnergyCost = 2;
 
         return distance * baseEnergyCost;
+    }
+
+    public void setInitialOwnerLocation() {
+        Location location = tiles[width / 2][height / 2];
+        owner.setLocation(location);
     }
 
     public static Location findFurthestCanGo(Location from, Location to) {
@@ -632,6 +638,7 @@ public class Farm {
         for (int y = startY; y <= endY; y++) {
             for (int x = startX; x <= endX; x++) {
                 Location tile = tiles[x][y];
+                Location ownerLocation = owner.getLocation();
                 String type = tile.getType();
                 char symbol = symbolMap.getOrDefault(type, '?');
 
@@ -652,15 +659,16 @@ public class Farm {
                     case "empty" -> RESET;
                     default -> RESET;
                 };
-
-                if (x == centerX && y == centerY) {
+                if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
                     System.out.print(RED + "@ " + RESET);
-                } else {
+                }
+                else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
             System.out.println();
         }
+
     }
 
     public boolean isInWater(int x, int y) {
@@ -835,6 +843,101 @@ public class Farm {
 //            //kasra
 //        }
 //    }
+
+    public int walk(int x, int y) {
+        Location initialLocation = owner.getLocation();
+        Location finalLocation = tiles[x][y];
+
+        if (!contains(x, y)) {
+            return -1;
+        }
+
+        if (finalLocation.getTile() != TileType.GRASS) {
+            return -1;
+        }
+
+        Queue<Location> queue = new LinkedList<>();
+        Map<Location, Location> parentMap = new HashMap<>();
+        Map<Location, Integer> distanceMap = new HashMap<>();
+        Set<Location> visited = new HashSet<>();
+
+        queue.add(initialLocation);
+        visited.add(initialLocation);
+        distanceMap.put(initialLocation, 0);
+        boolean found = false;
+
+        while (!queue.isEmpty()) {
+            Location current = queue.poll();
+
+            if (current.getX() == x && current.getY() == y) {
+                found = true;
+                break;
+            }
+
+            int[][] directions = {
+                    {-1, -1}, {-1, 0}, {-1, 1},
+                    {0, -1},          {0, 1},
+                    {1, -1},  {1, 0}, {1, 1}
+            };
+
+            for (int[] dir : directions) {
+                int newX = current.getX() + dir[0];
+                int newY = current.getY() + dir[1];
+
+                if (!contains(newX, newY)) {
+                    continue;
+                }
+
+                Location neighbor = tiles[newX][newY];
+
+                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    parentMap.put(neighbor, current);
+                    distanceMap.put(neighbor, distanceMap.get(current) + 1);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        if (!found) {
+            return -1;
+        }
+
+        int totalDistance = distanceMap.get(finalLocation);
+        int requiredEnergy = (int) Math.ceil(totalDistance / 20.0);
+
+        if (owner.getEnergy() < requiredEnergy) {
+
+            Location current = finalLocation;
+            int remainingEnergy = owner.getEnergy();
+            Location furthestReachable = initialLocation;
+
+            while (current != initialLocation && remainingEnergy > 0) {
+                int currentDistance = distanceMap.get(current);
+                int currentEnergyNeeded = (int) Math.ceil(currentDistance / 20.0);
+
+                if (currentEnergyNeeded <= remainingEnergy) {
+                    furthestReachable = current;
+                    break;
+                }
+
+                current = parentMap.get(current);
+            }
+
+            int actualDistance = distanceMap.get(furthestReachable);
+            int energyUsed = (int) Math.ceil(actualDistance / 20.0);
+
+            owner.setEnergy(owner.getEnergy() - energyUsed);
+            owner.setLocation(furthestReachable);
+
+            return actualDistance;
+        }
+        else {
+            owner.setEnergy(owner.getEnergy() - requiredEnergy);
+            owner.setLocation(finalLocation);
+            return totalDistance;
+        }
+    }
 
     public int getFarmIndex() {
         return farmIndex;

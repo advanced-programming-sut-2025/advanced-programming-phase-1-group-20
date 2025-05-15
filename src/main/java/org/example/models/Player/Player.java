@@ -5,7 +5,9 @@ import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.MapDetails.Village;
 import org.example.models.Market;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
@@ -33,6 +35,8 @@ public class Player {
     private boolean energyUnlimited;
     private boolean hasCollapsed;
     private Location location;
+    private Farm currentFarm;
+    private boolean isInVillage;
     private int money;
     private Player spouse;
     private boolean isMarried;
@@ -57,6 +61,7 @@ public class Player {
         this.energy = 200;
         this.hasCollapsed = false;
         this.friendships = new HashMap<>();
+        this.isInVillage = false;
 
         // Initialize basic tools
         backpack.add(new Tool("Basic Hoe", 0, "A basic hoe for tilling soil.",
@@ -76,6 +81,22 @@ public class Player {
         this.isMarried = false;
         rejectDate = null;
         equipTool("Basic Hoe");
+    }
+
+    public boolean getIsInVillage() {
+        return isInVillage;
+    }
+
+    public Farm getCurrentFarm() {
+        return currentFarm;
+    }
+
+    public void setCurrentFarm(Farm currentFarm) {
+        this.currentFarm = currentFarm;
+    }
+
+    public void setIsInVillage(boolean isInVillage) {
+        this.isInVillage = isInVillage;
     }
 
     public Friendship getFriendship(Player player) {
@@ -230,35 +251,35 @@ public class Player {
     public void showArtisanItems() {
     }
 
-    public void move(int x, int y) {
-        //checking the Tile around.
-        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
-        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
-        TileType tile = TileType.GRASS;
-        //etc
-        if (tile == TileType.WATER) {
-            //implementing func.
-        }
-        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
-//        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
-//        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
-        int energyNeeded = 10;
-        if (10 > energy) {
-            this.hasCollapsed = true;
-            this.energy = 0;
-//            this.location = furthestCanGo;
-        } else {
-            // Update the player's location
-            this.location = new Location(x, y, TileType.GRASS);
-            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
-
-            // Consume energy
-            if (!energyUnlimited) {
-                this.energy -= energyNeeded;
-                this.energyUsedInTurn += energyNeeded;
-            }
-        }
-    }
+//    public void move(int x, int y) {
+//        //checking the Tile around.
+//        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
+//        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
+//        TileType tile = TileType.GRASS;
+//        //etc
+//        if (tile == TileType.WATER) {
+//            //implementing func.
+//        }
+//        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
+////        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
+////        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
+//        int energyNeeded = 10;
+//        if (10 > energy) {
+//            this.hasCollapsed = true;
+//            this.energy = 0;
+////            this.location = furthestCanGo;
+//        } else {
+//            // Update the player's location
+//            this.location = new Location(x, y, TileType.GRASS);
+//            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
+//
+//            // Consume energy
+//            if (!energyUnlimited) {
+//                this.energy -= energyNeeded;
+//                this.energyUsedInTurn += energyNeeded;
+//            }
+//        }
+//    }
 
     public void addCraftingItem(CraftingItem craftingItem) {
         craftingItems.add(craftingItem);
@@ -631,5 +652,86 @@ public class Player {
 
     public boolean craftingExists(String name) {
         return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public boolean checkTeleportToVillage() {
+        int x = getLocation().getX();
+        int y = getLocation().getY();
+        Farm farm = getCurrentFarm();
+
+        switch (farm.getFarmIndex()) {
+            case 0:
+                if (x == 0 && y == Farm.height - 1) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 1:
+                if (x == Farm.width - 1 && y == Farm.height - 1) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 2:
+                if (x == Farm.width - 1 && y == 0) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 3:
+                if (x == 0 && y == 0) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    private void teleportToVillage() {
+        int villageX;
+        int villageY;
+        Farm farm = getCurrentFarm();
+
+        switch (farm.getFarmIndex()) {
+            case 0:
+                villageX = 0;
+                villageY = Village.width - 1;
+                break;
+
+            case 1:
+                villageX = 0;
+                villageY = 0;
+                break;
+
+            case 2:
+                villageX = 0;
+                villageY = Village.height - 1;
+                break;
+
+            case 3:
+                villageX = Village.width - 1;
+                villageY = Village.height - 1;
+                break;
+
+            default:
+                villageX = 25;
+                villageY = 25;
+        }
+
+        setIsInVillage(true);
+//        setCurrentFarm(null);
+
+//        Location villageLocation = village.tiles[villageX][villageY];
+//        setLocation(villageLocation);
+
     }
 }
