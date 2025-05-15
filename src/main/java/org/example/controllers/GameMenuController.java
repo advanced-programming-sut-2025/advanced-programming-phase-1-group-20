@@ -331,9 +331,9 @@ public class GameMenuController implements Controller {
         if (gMap.getFarmByPlayer(player).contains(x, y)) {
             return Result.error("this is not your farm!!!");
         }
-//        if (!gMap.getFarmByPlayer(player).is(x, y)) {
-//            return Result.error("the land is not plowed!");
-//        }
+        if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
+            return Result.error("the land is not plowed!");
+        }
         if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
             return Result.error("there is an item on the ground");
         }
@@ -520,6 +520,10 @@ public class GameMenuController implements Controller {
         Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
         if (targetLocation == null || targetLocation.getItem() == null) {
             return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
+        }
+
+        if(player.getCurrentTool().getType() != Tool.ToolType.HOE) {
+            return Result.error("You must equip HOE first");
         }
 
         Item item = targetLocation.getItem();
