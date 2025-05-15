@@ -980,6 +980,8 @@ public class GameMenuController implements Controller {
 
             game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
 
+            gMap.addFarm(newFarm);
+
             if (game.allPlayersSelectedMap()) {
                 App.makeAllChose();
                 return Result.success("All players have selected their maps. The game has started!");
