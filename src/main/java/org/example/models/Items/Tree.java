@@ -56,7 +56,8 @@ public class Tree extends Item {
 
     @Override
     public void showInfo() {
-
+        type.showInfo();
+        System.out.println("is Moisture: " + moisture);
     }
 
     public void addStage() {
