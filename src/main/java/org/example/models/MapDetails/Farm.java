@@ -662,7 +662,9 @@ public class Farm {
                 if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
                     System.out.print(RED + "@ " + RESET);
                 }
-                System.out.print(color + symbol + " " + RESET);
+                else {
+                    System.out.print(color + symbol + " " + RESET);
+                }
             }
             System.out.println();
         }

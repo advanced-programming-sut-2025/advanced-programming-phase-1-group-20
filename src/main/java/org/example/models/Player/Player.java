@@ -5,6 +5,7 @@ import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
+import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Market;
 import org.example.models.common.Date;
@@ -33,9 +34,11 @@ public class Player {
     private boolean energyUnlimited;
     private boolean hasCollapsed;
     private Location location;
+    private Farm currentFarm;
+    private boolean isInVillage;
     private int money;
     private Player spouse;
-    private boolean isMarried;
+    private boolean isMarried;a
     private Tool currentTool;
     private Date rejectDate;
     private boolean energySet = true;
@@ -57,6 +60,7 @@ public class Player {
         this.energy = 200;
         this.hasCollapsed = false;
         this.friendships = new HashMap<>();
+        this.isInVillage = false;
 
         // Initialize basic tools
         backpack.add(new Tool("Basic Hoe", 0, "A basic hoe for tilling soil.",
@@ -76,6 +80,22 @@ public class Player {
         this.isMarried = false;
         rejectDate = null;
         equipTool("Basic Hoe");
+    }
+
+    public boolean getIsInVillage() {
+        return isInVillage;
+    }
+
+    public Farm getCurrentFarm() {
+        return currentFarm;
+    }
+
+    public void setCurrentFarm(Farm currentFarm) {
+        this.currentFarm = currentFarm;
+    }
+
+    public void setIsInVillage(boolean isInVillage) {
+        this.isInVillage = isInVillage;
     }
 
     public Friendship getFriendship(Player player) {
@@ -635,5 +655,57 @@ public class Player {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public boolean checkTeleportToVillage() {
+        int x = getLocation().getX();
+        int y = getLocation().getY();
+        Farm farm = getCurrentFarm();
+
+        switch (farm.getFarmIndex()) {
+            case 0:
+                if (x == 0 && y == farm.height - 1) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 1:
+                if (x == 0 && y == 0) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 2:
+                if (x == farm.width - 1 && y == 0) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+
+            case 3:
+                if (x == farm.width - 1 && y == farm.height - 1) {
+                    teleportToVillage();
+                    return true;
+                }
+                break;
+        }
+
+        return false;
+    }
+
+    private void teleportToVillage() {
+        int villageX = 25;
+        int villageY = 25;
+
+        setIsInVillage(true);
+        setCurrentFarm(null);
+
+        // ایجاد لوکیشن جدید در دهکده
+        Location villageLocation = new Location(villageX, villageY, TileType.VILLAGE);
+        setLocation(villageLocation);
+
+        System.out.println("به دهکده خوش آمدید!");
     }
 }
