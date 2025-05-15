@@ -18,7 +18,6 @@ import org.example.models.enums.Types.TreeType;
 import java.util.*;
 
 public class Farm {
-
     public static final int width = 51;
     public static final int height = 51;
     private static final String RESET = "\u001B[0m";

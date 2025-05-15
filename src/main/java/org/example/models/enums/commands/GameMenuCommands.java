@@ -28,10 +28,9 @@ public enum GameMenuCommands implements Command {
 
     // player related
     Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
-    ShowInventory(Pattern.compile("^inventory$")),
+    ShowInventory(Pattern.compile("^show inventory$")),
     ShowLocation(Pattern.compile("^location$")),
     ShowEnergy(Pattern.compile("^energy show$")),
-    ShowMap(Pattern.compile("^map$")),
     PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     TestPrintMap(Pattern.compile("^test\\s+print\\s+map$")),
     HelpReadingMap(Pattern.compile("^help\\s+reading\\s+map$")),
@@ -108,8 +107,6 @@ public enum GameMenuCommands implements Command {
     CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
     CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),
     //cheats
-
-
 
 
     None(null);
