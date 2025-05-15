@@ -772,12 +772,12 @@ public class GameMenuController implements Controller {
             // Check if the player has enough energy
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
                 // Move the player
-                player.move(x, y);
+                player.getCurrentFarm().walk(x, y);
                 return Result.success("Walked to (" + x + ", " + y + ")");
             } else {
                 Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
                 player.setEnergy(0);
-                player.move(furthestLocation.xAxis, furthestLocation.yAxis);
+                player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
                 return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
                         furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
             }

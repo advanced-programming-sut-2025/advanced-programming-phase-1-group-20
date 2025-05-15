@@ -56,7 +56,7 @@ public class App {
                 directory.mkdirs();
             }
 
-            loadAllGames();
+//            loadAllGames();
 
             NPCController.initialize();
 
