@@ -53,6 +53,10 @@ public class Tree extends Item {
         return type.getSeasons();
     }
 
+    public int[] getStages() {
+        return stages;
+    }
+
     public void setStage(int stage) {
         this.stage = stage;
     }

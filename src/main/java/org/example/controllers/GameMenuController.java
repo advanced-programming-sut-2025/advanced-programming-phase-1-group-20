@@ -462,9 +462,23 @@ public class GameMenuController implements Controller {
             return Result.error("Backpack does not contain " + fertilizer);
         }
 
+        if(!gMap.getFarmByPlayer(player).contains(x,y)) {
+            return Result.error("You are not in the farm");
+        }
+
         Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
-        if (targetLocation == null || targetLocation.getItem() == null || !(targetLocation.getItem() instanceof Tool)) {
-            return Result.error("Fertilizer" + fertilizer + " is not a tool");
+        if(!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
+            return Result.error("Targeted location is not a plant");
+        }
+        Item targetItem = targetLocation.getItem();
+        if(targetItem instanceof Plant){
+            Plant plantItem = (Plant) targetItem;
+            plantItem.setStage(plantItem.getStages().length - 1);
+            plantItem.setDaysCounter(0);
+        }else if (targetItem instanceof Tree){
+            Tree treeItem = (Tree) targetItem;
+            treeItem.setStage(treeItem.getStages().length - 1);
+            treeItem.setDaysCounter(0);
         }
         player.getSkills().get(0).updateLevel();
         return Result.success("fertilized successfully with" + fertilizer);
