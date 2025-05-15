@@ -119,6 +119,9 @@ public class GameMenuController implements Controller {
             // Walking and map commands
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
+            case TeleportToVillage -> result = teleportToVillage();
+//            case TeleportToMarket -> result = teleportToMarket(args);
+//            case TeleportToHome -> result = teleportToHome();
 
             case HelpReadingMap -> result = helpReadingMap();
 
@@ -740,6 +743,19 @@ public class GameMenuController implements Controller {
         }
     }
 
+    private Result teleportToVillage() {
+        Farm farm = player.getCurrentFarm();
+        if (farm == null) {
+            return Result.error("You are not in specefic map");
+        }
+        if (player.getIsInVillage()) {
+            return Result.error("You can't teleport to a village because you are in a village");
+        }
+        if (!player.checkTeleportToVillage()) {
+            return Result.error("You are not in specefic map");
+        }
+        return Result.success("teleported to a village");
+    }
 
     private Result walk(String[] args) {
         if (args == null || args.length < 2) {

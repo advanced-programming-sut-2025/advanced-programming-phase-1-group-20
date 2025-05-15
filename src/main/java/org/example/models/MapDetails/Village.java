@@ -72,7 +72,7 @@ public class Village {
         }
 
         initializeBuildings();
-//        initializeNPCs();
+        initializeNPCs();
         //initializeShops();
 
 //        placeRandomObjects("stone", 100);
@@ -143,6 +143,7 @@ public class Village {
                 Npcs[] types = Npcs.values();
                 Npcs npcType = types[rand.nextInt(types.length)];
                 NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
+                residents.add(npc);
                 npc.setLocation(location);
                 placed++;
             }
@@ -262,6 +263,11 @@ public class Village {
                     default -> RESET;
                 };
 
+                for (NPC npc : residents) {
+                    if (x == npc.getLocation().getX() && y == npc.getLocation().getY()) {
+                        System.out.println(GREEN + "N " + RESET);
+                    }
+                }
                 if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
                     System.out.print(RED + "@ " + RESET);
                 }

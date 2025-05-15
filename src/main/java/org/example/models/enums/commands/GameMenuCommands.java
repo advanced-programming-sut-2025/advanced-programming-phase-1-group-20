@@ -38,6 +38,10 @@ public enum GameMenuCommands implements Command {
     EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
     setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
     energyUnlimited(Pattern.compile("^energy unlimited$")),
+    TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
+    TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),
+    TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
+            "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon)$")),
 
     // saving related
     SaveGame(Pattern.compile("^save$")),
