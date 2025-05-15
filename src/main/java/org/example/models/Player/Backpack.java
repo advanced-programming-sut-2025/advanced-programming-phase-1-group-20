@@ -16,6 +16,7 @@ public class Backpack {
     }
 
     public boolean add(Item item, int quantity) {
+        System.out.println("hmm");
         if (type == Type.Initial) {
             if (countItems() == 12) {
                 return false;

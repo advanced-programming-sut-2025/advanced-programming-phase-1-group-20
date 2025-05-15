@@ -25,6 +25,10 @@ public class Crop extends Item {
         type.showInfo();
     }
 
+    public boolean getFinished() {
+        return true;
+    }
+
     public Fruit getFruit() {
         return new Fruit(getName() , getPrice() , getEnergy());
     }
