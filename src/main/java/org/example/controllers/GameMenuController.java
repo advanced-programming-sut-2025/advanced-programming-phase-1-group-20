@@ -549,11 +549,16 @@ public class GameMenuController implements Controller {
         }
         if (item instanceof Plant) {
             Plant plant = (Plant) item;
-            Item fruit = plant.getFruit();
+            Fruit fruit = plant.getFruit();
+            int amount = 1;
+            if(plant.getIsGiant()){
+                amount = 10;
+                fruit.setEnergy(fruit.getEnergy()*4);
+            }
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            if(!player.getBackpack().add(fruit, 1)){
+            if(!player.getBackpack().add(fruit, amount)){
                 return Result.error("Backpack is full!");
             }
             if (plant.getOneTimeHarvest()) {
