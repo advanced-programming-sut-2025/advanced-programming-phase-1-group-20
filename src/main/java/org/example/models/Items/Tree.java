@@ -53,6 +53,13 @@ public class Tree extends Item {
         return type.getSeasons();
     }
 
+    public void setStage(int stage) {
+        this.stage = stage;
+    }
+
+    public void setDaysCounter(int daysCounter) {
+        this.daysCounter = daysCounter;
+    }
 
     @Override
     public void showInfo() {

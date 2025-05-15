@@ -965,11 +965,56 @@ public class Farm {
         }
     }
 
-//    public int numberOfPlants() {
-//        for (int x = 0; x < width; x++) {
-//            for (int y = 0; y < height; y++) {
-//
-//            }
-//        }
-//    }
+    public int numberOfPlants() {
+        int counter = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if(tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Plant || tiles[x][y].getItem() instanceof Crop) {
+                    if(!tiles[x][y].isScarecrowThere()){
+                        counter++;
+                    }
+                }
+            }
+        }
+        return counter;
+    }
+
+    public void attackOfTheCrows(){
+        int numberOfCrows = numberOfPlants()/16;
+        for(int i = 0 ; i < numberOfCrows ; i++) {
+            attackOfSingleCrow();
+        }
+    }
+
+
+    public ArrayList<Location> allItemsForCrows() {
+        ArrayList<Location> locations = new ArrayList<>();
+        for(int x = 0 ; x < width ; x++) {
+            for(int y = 0 ; y < height ; y++) {
+                if((tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Crop || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()){
+                    locations.add(tiles[x][y]);
+                }
+            }
+        }
+        return locations;
+    }
+
+    public void attackOfSingleCrow(){
+        Random random = new Random();
+        int a = random.nextInt(3);
+        if(a==0){
+            ArrayList<Location> locations = allItemsForCrows();
+            int index = random.nextInt(locations.size());
+            Location location = locations.get(index);
+            if(location.getItem() instanceof Tree) {
+                Tree tree = (Tree) location.getItem();
+                tree.setStage(0);
+                tree.setDaysCounter(0);
+            }else if(location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
+                location.setItem(null);
+                location.setTile(TileType.GRASS);
+                location.setType("grass");
+            }
+        }
+    }
 }

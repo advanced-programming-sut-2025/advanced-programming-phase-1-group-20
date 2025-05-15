@@ -71,8 +71,13 @@ public class GameMap {
     public void updateDailyGameMap(List<Player> players) {
         for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
+
             farm.updatePlants();
+            farm.attackOfTheCrows();
+
+            //it only updates for one hour each night for game to be easy to render.
             farm.updateArtisans();
+
             farm.updateLakeFish();
             village.updateShippingBin(player);
         }
@@ -81,7 +86,7 @@ public class GameMap {
     public void updateTurn(List<Player> players) {
         for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
-            farm.updatePlants();
+//            farm.updatePlants(); this only need to be update daily
             farm.updateArtisans();
             farm.updateLakeFish();
             village.updateShippingBin(player);
