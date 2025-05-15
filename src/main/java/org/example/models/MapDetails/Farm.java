@@ -460,9 +460,9 @@ public class Farm {
         return null;
     }
 
-    public boolean isShokhm(int x, int y) {
+    public boolean isPlowed(int x, int y) {
         if (!contains(x, y)) return false;
-        return tiles[x][y].getShokhm();
+        return tiles[x][y].getTile() == TileType.PLOWED;
     }
 
     private boolean isValidTileType(String type) {
