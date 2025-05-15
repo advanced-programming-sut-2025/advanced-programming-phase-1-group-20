@@ -73,12 +73,13 @@ public class Village {
         }
 
         initializeBuildings();
+        markBuildings();
 //        initializeNPCs();
-        //initializeShops();
+//        initializeShops();
 
-//        placeRandomObjects("stone", 100);
-//        placeRandomObjects("tree", 150);
-//        placeRandomObjects("crop", 100);
+        placeRandomObjects("stone", 100);
+        placeRandomObjects("tree", 150);
+        placeRandomObjects("crop", 100);
         //TODO: درخت و سنگ داره یا نه؟
     }
 
@@ -125,8 +126,23 @@ public class Village {
     private void initializeBuildings() {
         buildings.add(new Building(1, 0, "Town Hall", "public"));
         buildings.add(new Building(width - 5, 0, "Blacksmith", "shop"));
-        buildings.add(new Building(1, height - 4, "General Store", "shop"));
-        buildings.add(new Building(width - 5, height - 4, "Stardrop Saloon", "public"));
+        buildings.add(new Building(1, height - 5, "General Store", "shop"));
+        buildings.add(new Building(width - 5, height - 5, "Stardrop Saloon", "public"));
+    }
+
+    public void markBuildings() {
+        for (Building b : buildings) {
+            int buildingX = b.getX();
+            int buildingY = b.getY();
+            int buildingWidth = b.getWidth();
+            int buildingHeight = b.getHeight();
+
+            for (int y = buildingY; y < buildingY + buildingHeight; y++) {
+                for (int x = buildingX; x < buildingX + buildingWidth; x++) {
+                    tiles[x][y] = new Location(x, y, TileType.BUILDING);
+                }
+            }
+        }
     }
 
     public void initializeNPCs() {
@@ -267,11 +283,11 @@ public class Village {
                     default -> RESET;
                 };
 
-                for (NPC npc : residents) {
-                    if (x == npc.getLocation().getX() && y == npc.getLocation().getY()) {
-                        System.out.println(GREEN + "N " + RESET);
-                    }
-                }
+//                for (NPC npc : residents) {
+//                    if (x == npc.getLocation().getX() && y == npc.getLocation().getY()) {
+//                        System.out.println(GREEN + "N " + RESET);
+//                    }
+//                }
                 if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
                     System.out.print(RED + "@ " + RESET);
                 }

@@ -105,7 +105,7 @@ public enum GameMenuCommands implements Command {
 
     //cheats
     CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favourits\\s+(?<characterName>\\S+)\\s*$")),
-
+    CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
     CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),
     //cheats
 

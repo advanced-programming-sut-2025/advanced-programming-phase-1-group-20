@@ -5,6 +5,7 @@ import org.example.models.Items.*;
 import org.example.models.Items.Plant;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.MapDetails.Village;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
@@ -65,7 +66,6 @@ public class GameMenuController implements Controller {
             case ShowWeatherForecast -> showWeatherForecast();
             case SetWeather -> result = setWeather(args);
             case CheatThor -> result = cheatThor(args);
-
 
             // Player Related
             case ShowInventory -> showInventory();
@@ -158,6 +158,7 @@ public class GameMenuController implements Controller {
 
             case CheatSetBackPackFull -> cheatBackPackFull();
             case CheatAddFavourites -> cheatAddFavourites(args);
+            case CheatTeleport -> cheatTeleport(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -165,6 +166,19 @@ public class GameMenuController implements Controller {
         appView.handleResult(result, command);
 
         return result;
+    }
+
+    private void cheatTeleport(String[] args) {
+        int x = Integer.parseInt(args[0]);
+        int y = Integer.parseInt(args[1]);
+        Location location = player.getCurrentFarm().getItem(x, y);
+        System.out.println(location.getTile().toString());
+        System.out.println(player.getCurrentFarm().getFarmIndex());
+        System.out.println(player.getUser().getUsername());
+        if (location.getTile() == TileType.GRASS) {
+            System.out.println("hey");
+            player.setLocation(location);
+        }
     }
 
     private Result teleportToHome() {
@@ -754,7 +768,7 @@ public class GameMenuController implements Controller {
     private Result teleportToVillage() {
         Farm farm = player.getCurrentFarm();
         if (farm == null) {
-            return Result.error("You are not in specefic map");
+            return Result.error("shasidiiii");
         }
         if (player.getIsInVillage()) {
             return Result.error("You can't teleport to a village because you are in a village");
@@ -835,12 +849,17 @@ public class GameMenuController implements Controller {
                 return Result.error("You cannot view another player's farm");
             }
 
-            System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
+            //System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
+            if (player.getIsInVillage()) {
+                App.getGame().getGameMap().getVillage().printCurrentViewColored(x, y, size, player);
+                return Result.success("Village printed");
+            }
             App.getGame().getGameMap().getFarmByPlayer(player).printCurrentViewColored(x, y, size);
             System.out.println("Map printed successfully!");
 
             return Result.success("Map printed");
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             return Result.error("Invalid coordinates or size");
         }
     }
@@ -906,6 +925,8 @@ public class GameMenuController implements Controller {
 
             Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex - 1);
             player.setCurrentFarm(newFarm);
+            Village village = App.getGame().getGameMap().getVillage();
+            player.setCurrentVillage(village);
             App.getGame().getGameMap().addFarm(newFarm);
 
             game.selectMap(player, mapIndex);

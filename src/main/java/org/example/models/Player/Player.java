@@ -36,6 +36,7 @@ public class Player {
     private boolean hasCollapsed;
     private Location location;
     private Farm currentFarm;
+    private Village currentVillage;
     private boolean isInVillage;
     private int money;
     private Player spouse;
@@ -89,6 +90,10 @@ public class Player {
 
     public Farm getCurrentFarm() {
         return currentFarm;
+    }
+
+    public void setCurrentVillage(Village currentVillage) {
+        this.currentVillage = currentVillage;
     }
 
     public void setCurrentFarm(Farm currentFarm) {
@@ -703,8 +708,8 @@ public class Player {
 
         switch (farm.getFarmIndex()) {
             case 0:
-                villageX = 0;
-                villageY = Village.width - 1;
+                villageX = Village.width - 1;
+                villageY = 0;
                 break;
 
             case 1:
@@ -730,8 +735,8 @@ public class Player {
         setIsInVillage(true);
 //        setCurrentFarm(null);
 
-//        Location villageLocation = village.tiles[villageX][villageY];
-//        setLocation(villageLocation);
+        Location villageLocation = currentVillage.getItem(villageX, villageY);
+        setLocation(villageLocation);
 
     }
 }
