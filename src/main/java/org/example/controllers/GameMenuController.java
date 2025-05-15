@@ -1020,11 +1020,12 @@ public class GameMenuController implements Controller {
         GameMap gMap = App.getGame().getGameMap();
 
         Game game = App.getGame();
+
         if (game == null) {
             return Result.error("No active game");
         }
 
-        if (game.isInMapSelectionPhase()) {
+        if (!App.allChose()) {
             return Result.error("Cannot advance turn during map selection phase");
         }
 
