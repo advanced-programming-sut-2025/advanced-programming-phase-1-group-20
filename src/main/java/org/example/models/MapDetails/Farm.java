@@ -942,4 +942,24 @@ public class Farm {
     public int getFarmIndex() {
         return farmIndex;
     }
+
+
+    public void thor(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+        for(int i = x ; i < x + 4 ; i++){
+            for(int j = y ; j < y + 4 ; j++){
+                Location tile = tiles[i][j];
+                if(contains(i,j)){
+                    if(tile.getTile() != null){
+                        if(tile.getItem() instanceof Tree){
+                            Tree tree = (Tree) tile.getItem();
+                            tile.setItem(tree.burnTree());
+                            tiles[i][j].setTile(TileType.GRASS);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

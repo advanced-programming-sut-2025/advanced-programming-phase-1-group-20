@@ -52,9 +52,8 @@ public class Date {
         }
     }
 
-    public void cheatThor(Location location, GameMap gameMap) {
+    public void cheatThor(Location location) {
         //TODO : burning trees.
-//        App.getGame().getMap().thor(location);
         System.out.println("Thor has struck the location");
     }
 

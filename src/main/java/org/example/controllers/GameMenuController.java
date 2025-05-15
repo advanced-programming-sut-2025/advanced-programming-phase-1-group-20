@@ -286,7 +286,8 @@ public class GameMenuController implements Controller {
             int y = Integer.parseInt(coordinates[1].trim());
 
             Location location = new Location(x, y, null);
-            gameClock.cheatThor(location, gMap);
+            player.getCurrentFarm().thor(location);
+            gameClock.cheatThor(location);
 
             return Result.success("Thor has struck at location (" + x + "," + y + ")");
         } catch (NumberFormatException e) {
