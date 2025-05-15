@@ -847,16 +847,15 @@ public class Farm {
         Location finalLocation = tiles[x][y];
 
         if (!contains(x, y)) {
-            System.out.println("Cannot walk to (" + x + "," + y + ") - Out of bounds");
             return -1;
         }
 
         if (finalLocation.getTile() != TileType.GRASS) {
-            System.out.println("Cannot walk to (" + x + "," + y + ") - Destination is not grass");
             return -1;
         }
 
         Queue<Location> queue = new LinkedList<>();
+        Map<Location, Location> parentMap = new HashMap<>();
         Map<Location, Integer> distanceMap = new HashMap<>();
         Set<Location> visited = new HashSet<>();
 
@@ -891,30 +890,50 @@ public class Farm {
 
                 if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
                     visited.add(neighbor);
+                    parentMap.put(neighbor, current);
                     distanceMap.put(neighbor, distanceMap.get(current) + 1);
                     queue.add(neighbor);
                 }
             }
         }
 
-        if (found) {
-            int distance = distanceMap.get(finalLocation);
-            owner.setLocation(finalLocation);
+        if (!found) {
+            return -1;
+        }
 
-            /*
-            System.out.println("Path:");
+        int totalDistance = distanceMap.get(finalLocation);
+        int requiredEnergy = (int) Math.ceil(totalDistance / 20.0);
+
+        if (owner.getEnergy() < requiredEnergy) {
+
             Location current = finalLocation;
-            while (current != null) {
-                System.out.println("(" + current.getX() + "," + current.getY() + ")");
+            int remainingEnergy = owner.getEnergy();
+            Location furthestReachable = initialLocation;
+
+            while (current != initialLocation && remainingEnergy > 0) {
+                int currentDistance = distanceMap.get(current);
+                int currentEnergyNeeded = (int) Math.ceil(currentDistance / 20.0);
+
+                if (currentEnergyNeeded <= remainingEnergy) {
+                    furthestReachable = current;
+                    break;
+                }
+
                 current = parentMap.get(current);
             }
-            */
 
-            return distance;
+            int actualDistance = distanceMap.get(furthestReachable);
+            int energyUsed = (int) Math.ceil(actualDistance / 20.0);
+
+            owner.setEnergy(owner.getEnergy() - energyUsed);
+            owner.setLocation(furthestReachable);
+
+            return actualDistance;
         }
         else {
-            System.out.println("Cannot reach (" + x + "," + y + ") - No path available");
-            return -1;
+            owner.setEnergy(owner.getEnergy() - requiredEnergy);
+            owner.setLocation(finalLocation);
+            return totalDistance;
         }
     }
 
