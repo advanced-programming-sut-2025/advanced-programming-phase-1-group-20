@@ -331,9 +331,9 @@ public class GameMenuController implements Controller {
         if (gMap.getFarmByPlayer(player).contains(x, y)) {
             return Result.error("this is not your farm!!!");
         }
-        if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
-            return Result.error("the land is not plowed!");
-        }
+//        if (!gMap.getFarmByPlayer(player).is(x, y)) {
+//            return Result.error("the land is not plowed!");
+//        }
         if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
             return Result.error("there is an item on the ground");
         }
@@ -536,10 +536,7 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            boolean stack = player.getBackpack().add(fruit, 1);
-            if(!stack){
-                return Result.error("Backpack is full!");
-            }
+            player.getBackpack().add(fruit, 1);
             tree.setFruitCounter(0);
             tree.setFruitFinished(false);
             player.getSkills().get(0).updateLevel();
@@ -550,14 +547,14 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            boolean stack = player.getBackpack().add(fruit, 1);
-            if(!stack){
-                return Result.error("Backpack is full!");
+            player.getBackpack().add(fruit, 1);
+            if (plant.getOneTimeHarvest()) {
+                gMap.getFarmByPlayer(player).placeItem(x, y, null);
+            } else {
+                plant.setFinished(false);
             }
             if (plant.getOneTimeHarvest()) {
                 gMap.getFarmByPlayer(player).placeItem(x, y, null);
-                gMap.getFarmByPlayer(player).getItem(x,y).setTile(TileType.GRASS);
-                gMap.getFarmByPlayer(player).getItem(x,y).setType("grass");
             } else {
                 plant.setStages(new int[]{1});
                 plant.setDaysCounter(plant.getRegrowthTime());
@@ -571,13 +568,8 @@ public class GameMenuController implements Controller {
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            boolean stack = player.getBackpack().add(fruit, 1);
-            if(!stack){
-                return Result.error("Backpack is full!");
-            }
-            gMap.getFarmByPlayer(player).getItem(x,y).setItem(null);
-            gMap.getFarmByPlayer(player).getItem(x,y).setType("grass");
-            gMap.getFarmByPlayer(player).getItem(x,y).setTile(TileType.GRASS);
+            player.getBackpack().add(fruit, 1);
+            gMap.getFarmByPlayer(player).placeItem(x, y, null);
             player.getSkills().get(2).updateLevel();
         }
         return Result.success("Plant has been harvested!");
