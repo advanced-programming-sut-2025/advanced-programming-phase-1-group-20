@@ -123,10 +123,10 @@ public class Village {
     }
 
     private void initializeBuildings() {
-        buildings.add(new Building(0, 0, "Town Hall", "public"));
-        buildings.add(new Building(width - 4, 0, "Blacksmith", "shop"));
-        buildings.add(new Building(0, height - 4, "General Store", "shop"));
-        buildings.add(new Building(width - 4, height - 4, "Stardrop Saloon", "public"));
+        buildings.add(new Building(1, 0, "Town Hall", "public"));
+        buildings.add(new Building(width - 5, 0, "Blacksmith", "shop"));
+        buildings.add(new Building(1, height - 4, "General Store", "shop"));
+        buildings.add(new Building(width - 5, height - 4, "Stardrop Saloon", "public"));
     }
 
     public void initializeNPCs() {

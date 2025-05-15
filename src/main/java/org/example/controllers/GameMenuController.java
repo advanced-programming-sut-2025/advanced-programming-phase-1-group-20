@@ -784,7 +784,8 @@ public class GameMenuController implements Controller {
 
             // Get the current location
             Location currentLocation = player.getLocation();
-            Location destination = new Location(x, y, gMap.getFarmByPlayer(player).getTile(x, y));
+            //Location destination = new Location(x, y, gMap.getFarmByPlayer(player).getTile(x, y));
+            Location destination = player.getCurrentFarm().getItem(x, y);
 
             int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
 
@@ -796,16 +797,20 @@ public class GameMenuController implements Controller {
             // Check if the player has enough energy
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
                 // Move the player
-                player.getCurrentFarm().walk(x, y);
+                if (player.getCurrentFarm().walk(x, y) <= 0) {
+                    return Result.error("You've used too much energy");
+                }
                 return Result.success("Walked to (" + x + ", " + y + ")");
-            } else {
+            }
+            else {
                 Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
                 player.setEnergy(0);
                 player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
                 return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
                         furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
             }
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             return Result.error("Invalid coordinates");
         }
     }
@@ -900,6 +905,7 @@ public class GameMenuController implements Controller {
             }
 
             Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex - 1);
+            player.setCurrentFarm(newFarm);
             App.getGame().getGameMap().addFarm(newFarm);
 
             game.selectMap(player, mapIndex);

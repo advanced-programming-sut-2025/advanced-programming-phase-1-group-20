@@ -209,7 +209,7 @@ public class Farm {
     public GreenHouse createGreenHouse() {
         switch (farmIndex) {
             case 0:
-                GreenHouse g1 = new GreenHouse(1, 0);
+                GreenHouse g1 = new GreenHouse(0, 0);
                 return g1;
             case 1:
                 GreenHouse g2 = new GreenHouse(width - 5, 0);
@@ -233,7 +233,7 @@ public class Farm {
                 Quarry q2 = new Quarry(0, height - 4);
                 return q2;
             case 2:
-                Quarry q3 = new Quarry(0, 1);
+                Quarry q3 = new Quarry(0, 0);
                 return q3;
             case 3:
                 Quarry q4 = new Quarry(width - 5, 1);
@@ -906,7 +906,7 @@ public class Farm {
         int totalDistance = distanceMap.get(finalLocation);
         int requiredEnergy = (int) Math.ceil(totalDistance / 20.0);
 
-        if (owner.getEnergy() < requiredEnergy) {
+        if (owner.getEnergy() < requiredEnergy || !owner.isEnergyUnlimited()) {
 
             Location current = finalLocation;
             int remainingEnergy = owner.getEnergy();
