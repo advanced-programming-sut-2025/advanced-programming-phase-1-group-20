@@ -632,4 +632,8 @@ public class Player {
     public boolean craftingExists(String name) {
         return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
     }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
 }

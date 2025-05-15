@@ -68,6 +68,7 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         initializeMarkets();
+        setInitialOwnerLocation();
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -76,6 +77,11 @@ public class Farm {
         int baseEnergyCost = 2;
 
         return distance * baseEnergyCost;
+    }
+
+    public void setInitialOwnerLocation() {
+        Location location = tiles[width / 2][height / 2];
+        owner.setLocation(location);
     }
 
     public static Location findFurthestCanGo(Location from, Location to) {
@@ -632,6 +638,7 @@ public class Farm {
         for (int y = startY; y <= endY; y++) {
             for (int x = startX; x <= endX; x++) {
                 Location tile = tiles[x][y];
+                Location ownerLocation = owner.getLocation();
                 String type = tile.getType();
                 char symbol = symbolMap.getOrDefault(type, '?');
 
@@ -652,15 +659,14 @@ public class Farm {
                     case "empty" -> RESET;
                     default -> RESET;
                 };
-
-                if (x == centerX && y == centerY) {
+                if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
                     System.out.print(RED + "@ " + RESET);
-                } else {
-                    System.out.print(color + symbol + " " + RESET);
                 }
+                System.out.print(color + symbol + " " + RESET);
             }
             System.out.println();
         }
+
     }
 
     public boolean isInWater(int x, int y) {
