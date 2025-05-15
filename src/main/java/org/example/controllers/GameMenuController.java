@@ -78,6 +78,7 @@ public class GameMenuController implements Controller {
 
             // saving related commands
             case SaveGame -> {
+                App.saveData();
                 result = Result.success("Game saved successfully");
             }
             case AutoSave -> {
@@ -931,14 +932,12 @@ public class GameMenuController implements Controller {
                     if (input.matches("two\\s+lakes")) {
                         farmType = true;
                         System.out.println("Selected two lakes");
-                    }
-                    else {
+                    } else {
                         farmType = false;
                         System.out.println("Selected bigger quarry");
                     }
                     break;
-                }
-                else {
+                } else {
                     System.out.println("Invalid input. Please try again.");
                 }
             }
@@ -959,8 +958,7 @@ public class GameMenuController implements Controller {
             }
 
             return Result.success("Map " + mapIndex + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             return Result.error("Invalid map number format");
         }
     }
@@ -2005,9 +2003,8 @@ public class GameMenuController implements Controller {
     }
 
 
-
     //cheats:
-    private void cheatBackPackFull(){
+    private void cheatBackPackFull() {
         player.getBackpack().setType(Backpack.Type.Deluxe);
     }
 
@@ -2015,10 +2012,10 @@ public class GameMenuController implements Controller {
     private void cheatAddFavourites(String[] args) {
         Npcs npcType = Npcs.fromName(args[0]);
 
-        for(String s : npcType.getFavoriteItems()){
+        for (String s : npcType.getFavoriteItems()) {
             Item item = ItemBuilder.build(s);
-            if(item!=null){
-                player.getBackpack().add(item , 1);
+            if (item != null) {
+                player.getBackpack().add(item, 1);
             }
         }
     }
