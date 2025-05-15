@@ -842,6 +842,82 @@ public class Farm {
 //        }
 //    }
 
+    public int walk(int x, int y) {
+        Location initialLocation = owner.getLocation();
+        Location finalLocation = tiles[x][y];
+
+        if (!contains(x, y)) {
+            System.out.println("Cannot walk to (" + x + "," + y + ") - Out of bounds");
+            return -1;
+        }
+
+        if (finalLocation.getTile() != TileType.GRASS) {
+            System.out.println("Cannot walk to (" + x + "," + y + ") - Destination is not grass");
+            return -1;
+        }
+
+        Queue<Location> queue = new LinkedList<>();
+        Map<Location, Integer> distanceMap = new HashMap<>();
+        Set<Location> visited = new HashSet<>();
+
+        queue.add(initialLocation);
+        visited.add(initialLocation);
+        distanceMap.put(initialLocation, 0);
+        boolean found = false;
+
+        while (!queue.isEmpty()) {
+            Location current = queue.poll();
+
+            if (current.getX() == x && current.getY() == y) {
+                found = true;
+                break;
+            }
+
+            int[][] directions = {
+                    {-1, -1}, {-1, 0}, {-1, 1},
+                    {0, -1},          {0, 1},
+                    {1, -1},  {1, 0}, {1, 1}
+            };
+
+            for (int[] dir : directions) {
+                int newX = current.getX() + dir[0];
+                int newY = current.getY() + dir[1];
+
+                if (!contains(newX, newY)) {
+                    continue;
+                }
+
+                Location neighbor = tiles[newX][newY];
+
+                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    distanceMap.put(neighbor, distanceMap.get(current) + 1);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        if (found) {
+            int distance = distanceMap.get(finalLocation);
+            owner.setLocation(finalLocation);
+
+            /*
+            System.out.println("Path:");
+            Location current = finalLocation;
+            while (current != null) {
+                System.out.println("(" + current.getX() + "," + current.getY() + ")");
+                current = parentMap.get(current);
+            }
+            */
+
+            return distance;
+        }
+        else {
+            System.out.println("Cannot reach (" + x + "," + y + ") - No path available");
+            return -1;
+        }
+    }
+
     public int getFarmIndex() {
         return farmIndex;
     }

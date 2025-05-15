@@ -291,4 +291,5 @@ public class Village {
         player.increaseMoney(bins[3].getIncome(player));
         bins[3].updateShippingBin(player);
     }
+
 }
