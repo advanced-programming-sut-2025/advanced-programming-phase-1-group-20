@@ -336,7 +336,7 @@ public class GameMenuController implements Controller {
         if(!gMap.getFarmByPlayer(player).contains(x,y)){
             return Result.error("this is not your farm!!!");
         }
-        if (!gMap.getFarmByPlayer(player).isShokhm(x, y)) {
+        if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
             return Result.error("the land is not plowed!");
         }
         if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {

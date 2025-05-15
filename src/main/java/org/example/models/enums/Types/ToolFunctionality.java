@@ -159,7 +159,7 @@ public enum ToolFunctionality {
 
                 // 2. Water crops if the tile is tilled soil with a crop
                 // Check if the tile is tilled soil
-                if (gameMap.getFarmByPlayer(player).isShokhm(targetX, targetY)) {
+                if (gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
                     // Water the crop (implementation depends on the game mechanics)
                     return true;
                 }
