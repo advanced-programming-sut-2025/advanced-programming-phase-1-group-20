@@ -293,4 +293,8 @@ public class Village {
         bins[3].updateShippingBin(player);
     }
 
+    public Location[][] getTiles() {
+        return tiles;
+    }
+
 }

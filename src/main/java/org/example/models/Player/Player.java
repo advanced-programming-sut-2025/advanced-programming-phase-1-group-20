@@ -7,6 +7,7 @@ import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.MapDetails.Village;
 import org.example.models.Market;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
@@ -38,7 +39,7 @@ public class Player {
     private boolean isInVillage;
     private int money;
     private Player spouse;
-    private boolean isMarried;a
+    private boolean isMarried;
     private Tool currentTool;
     private Date rejectDate;
     private boolean energySet = true;
@@ -250,35 +251,35 @@ public class Player {
     public void showArtisanItems() {
     }
 
-    public void move(int x, int y) {
-        //checking the Tile around.
-        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
-        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
-        TileType tile = TileType.GRASS;
-        //etc
-        if (tile == TileType.WATER) {
-            //implementing func.
-        }
-        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
-//        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
-//        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
-        int energyNeeded = 10;
-        if (10 > energy) {
-            this.hasCollapsed = true;
-            this.energy = 0;
-//            this.location = furthestCanGo;
-        } else {
-            // Update the player's location
-            this.location = new Location(x, y, TileType.GRASS);
-            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
-
-            // Consume energy
-            if (!energyUnlimited) {
-                this.energy -= energyNeeded;
-                this.energyUsedInTurn += energyNeeded;
-            }
-        }
-    }
+//    public void move(int x, int y) {
+//        //checking the Tile around.
+//        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
+//        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
+//        TileType tile = TileType.GRASS;
+//        //etc
+//        if (tile == TileType.WATER) {
+//            //implementing func.
+//        }
+//        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
+////        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
+////        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
+//        int energyNeeded = 10;
+//        if (10 > energy) {
+//            this.hasCollapsed = true;
+//            this.energy = 0;
+////            this.location = furthestCanGo;
+//        } else {
+//            // Update the player's location
+//            this.location = new Location(x, y, TileType.GRASS);
+//            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
+//
+//            // Consume energy
+//            if (!energyUnlimited) {
+//                this.energy -= energyNeeded;
+//                this.energyUsedInTurn += energyNeeded;
+//            }
+//        }
+//    }
 
     public void addCraftingItem(CraftingItem craftingItem) {
         craftingItems.add(craftingItem);
@@ -664,28 +665,28 @@ public class Player {
 
         switch (farm.getFarmIndex()) {
             case 0:
-                if (x == 0 && y == farm.height - 1) {
+                if (x == 0 && y == Farm.height - 1) {
                     teleportToVillage();
                     return true;
                 }
                 break;
 
             case 1:
-                if (x == 0 && y == 0) {
+                if (x == Farm.width - 1 && y == Farm.height - 1) {
                     teleportToVillage();
                     return true;
                 }
                 break;
 
             case 2:
-                if (x == farm.width - 1 && y == 0) {
+                if (x == Farm.width - 1 && y == 0) {
                     teleportToVillage();
                     return true;
                 }
                 break;
 
             case 3:
-                if (x == farm.width - 1 && y == farm.height - 1) {
+                if (x == 0 && y == 0) {
                     teleportToVillage();
                     return true;
                 }
@@ -696,16 +697,41 @@ public class Player {
     }
 
     private void teleportToVillage() {
-        int villageX = 25;
-        int villageY = 25;
+        int villageX;
+        int villageY;
+        Farm farm = getCurrentFarm();
+
+        switch (farm.getFarmIndex()) {
+            case 0:
+                villageX = 0;
+                villageY = Village.width - 1;
+                break;
+
+            case 1:
+                villageX = 0;
+                villageY = 0;
+                break;
+
+            case 2:
+                villageX = 0;
+                villageY = Village.height - 1;
+                break;
+
+            case 3:
+                villageX = Village.width - 1;
+                villageY = Village.height - 1;
+                break;
+
+            default:
+                villageX = 25;
+                villageY = 25;
+        }
 
         setIsInVillage(true);
-        setCurrentFarm(null);
+//        setCurrentFarm(null);
 
-        // ایجاد لوکیشن جدید در دهکده
-        Location villageLocation = new Location(villageX, villageY, TileType.VILLAGE);
-        setLocation(villageLocation);
+//        Location villageLocation = village.tiles[villageX][villageY];
+//        setLocation(villageLocation);
 
-        System.out.println("به دهکده خوش آمدید!");
     }
 }
