@@ -1535,7 +1535,7 @@ public class GameMenuController implements Controller {
             return Result.error("NPC with name " + npcName + " not found.");
         }
 
-        Item item = App.getItem(itemName);
+        Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
             return Result.error("Item " + itemName + " not found.");
         }
