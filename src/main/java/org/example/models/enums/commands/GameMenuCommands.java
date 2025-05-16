@@ -67,7 +67,7 @@ public enum GameMenuCommands implements Command {
 
     // Walking and map commands
     Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
-    PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
+    PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+),(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
     TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
             "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
@@ -100,7 +100,7 @@ public enum GameMenuCommands implements Command {
     StartTrade(Pattern.compile("^start\\s+trade$")),
     TradeRequest(Pattern.compile("^trade\\s+-u\\s+(?<username>\\S+)\\s+-t\\s+(?<type>request|offer)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)(\\s+-p\\s+(?<price>\\d+))?(\\s+-ti\\s+(?<targetItem>.+)\\s+-ta\\s+(?<targetAmount>\\d+))?$")),
     TradeList(Pattern.compile("^trade\\s+list$")),
-    TradeResponse(Pattern.compile("^trade\\s+response\\s+(--accept|--reject)\\s+-i\\s+(?<id>\\d+)$")),
+    TradeResponse(Pattern.compile("^trade\\s+response\\s+(-accept|-reject)\\s+-i\\s+(?<id>\\d+)$")),
     TradeHistory(Pattern.compile("^trade\\s+history$")),
 
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
@@ -127,7 +127,7 @@ public enum GameMenuCommands implements Command {
     CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
     CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
     CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
-    
+
     None(null);
 
     private final Pattern pattern;
