@@ -22,5 +22,6 @@ public enum TileType {
     QUARRY,
     SHIPPING_BIN,
     EMERALD_ORE,
+    CONSTRUCTED_GREENHOUSE,
     GREENHOUSE;
 }
