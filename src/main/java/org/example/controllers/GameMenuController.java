@@ -93,6 +93,7 @@ public class GameMenuController implements Controller {
             case GiveWater -> result = giveWater(args);
             case Harvest -> result = harvest(args);
             case PlaceItem -> result = placeItem(args);
+            case AddItem -> result = addItem(args);
 
 
             //crafting related commands
@@ -658,14 +659,37 @@ public class GameMenuController implements Controller {
         return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
     }
 
+    private Result addItem(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        String itemName = args[0];
+        int count = Integer.parseInt(args[1]);
+        Item item = ItemBuilder.build(itemName);
+        if (item == null) {
+            return Result.error("Item does not exist");
+        }
+        if(item instanceof CookingItem){
+            player.addCookingItem((CookingItem) item);
+        }
+        if(item instanceof CraftingItem){
+            player.addCraftingItem((CraftingItem) item);
+        }
+        player.getBackpack().add(item, count);
+        return Result.success(count + " " + itemName + " has been added to the backpack");
+    }
+
 
     //this method is completed
     private void craftingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
         List<CraftingItem> craftingItems = player.getCraftingItems();
         if(!craftingItems.isEmpty()) {
+            int count = 1;
             for (CraftingItem craftingItem : craftingItems) {
+                System.out.println("------------------------");
+                System.out.println("crafting item: " + count);
                 craftingItem.showInfo();
+                System.out.println("------------------------");
+                count++;
             }
         }else{
             System.out.println("There is no crafting items for player");
@@ -675,8 +699,13 @@ public class GameMenuController implements Controller {
     private void cookingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
         if(!player.getCraftingItems().isEmpty()) {
+            int count = 1;
             for (CookingItem cookingItem : player.getCookingItems()) {
+                System.out.println("------------------------");
+                System.out.println("cooking item: " + count);
                 cookingItem.showInfo();
+                System.out.println("------------------------");
+                count++;
             }
         }else{
             System.out.println("There is no cooking items for player");

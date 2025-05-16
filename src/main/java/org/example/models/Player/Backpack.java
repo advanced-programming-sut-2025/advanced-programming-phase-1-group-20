@@ -1,5 +1,6 @@
 package org.example.models.Player;
 
+import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 
 import java.util.HashMap;
