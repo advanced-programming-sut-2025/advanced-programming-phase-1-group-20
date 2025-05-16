@@ -1066,6 +1066,32 @@ public class Farm {
         return null;
     }
 
+    public ShippingBin shippingBinAround (Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},           {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (ShippingBin shippingBin : shippingBins) {
+                    if (location.getItem().equals(shippingBin)) {
+                        return shippingBin;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public Lake getLakeAt(int x, int y) {
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
