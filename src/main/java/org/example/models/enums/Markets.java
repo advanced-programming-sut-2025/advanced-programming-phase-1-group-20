@@ -733,7 +733,7 @@ public enum Markets {
 
     private static Market createFishShop() {
         int x = 43;
-        int y = 48;
+        int y = 45;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
