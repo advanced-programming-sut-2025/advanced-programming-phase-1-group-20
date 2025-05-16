@@ -32,6 +32,18 @@ public class Farm {
     private static final String PINK = "\u001B[38;5;200m";
     private static final String LIGHT_BLUE = "\u001B[94m";
     private static final String LIGHT_GREEN = "\u001B[92m";
+    private static final String BG_RESET = "\u001B[0m";
+    private static final String BG_GREEN = "\u001B[42m";
+    private static final String BG_BLUE = "\u001B[44m";
+    private static final String BG_RED = "\u001B[41m";
+    private static final String BG_GRAY = "\u001B[47m";
+    private static final String BG_CYAN = "\u001B[46m";
+    private static final String BG_YELLOW = "\u001B[43m";
+    private static final String BG_PURPLE = "\u001B[45m";
+    private static final String BG_BROWN = "\u001B[48;5;94m";
+    private static final String BG_PINK = "\u001B[48;5;200m";
+    private static final String BG_LIGHT_BLUE = "\u001B[48;5;39m";
+    private static final String BG_LIGHT_GREEN = "\u001B[48;5;120m";
     private final String name;
     private final Player owner;
     private final boolean farmType;
