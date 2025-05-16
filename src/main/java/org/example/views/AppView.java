@@ -12,7 +12,6 @@ public class AppView {
     public AppMenu currentMenu;
     public boolean exit = false;
     private Game currentGame;
-    
 
     public AppView() {
         App.initialize();
@@ -55,6 +54,7 @@ public class AppView {
             case ProfileMenu profileMenu -> "profile";
             case GameMenu gameMenu -> "game";
             case MarketMenu marketMenu -> "market";
+            case HouseMenu houseMenu -> "house";
             case null, default -> "unknown";
         };
     }
