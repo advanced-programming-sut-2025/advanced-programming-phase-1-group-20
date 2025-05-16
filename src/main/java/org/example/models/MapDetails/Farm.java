@@ -796,6 +796,10 @@ public class Farm {
         markets[6] = Markets.STARDROP_SALOON.createMarket();
     }
 
+    public Market[] getMarkets() {
+        return markets;
+    }
+
     public void setScarecrow(int x, int y, int r, boolean key) {
         for (int i = x - r; i <= x + r; i++) {
             for (int j = y - r; j <= y + r; j++) {

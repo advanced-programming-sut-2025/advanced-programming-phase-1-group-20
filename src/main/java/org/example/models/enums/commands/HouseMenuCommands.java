@@ -7,8 +7,6 @@ public enum HouseMenuCommands implements Command {
     // crafting related
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CraftingCraft(Pattern.compile("^crafting\\s+craft\\s+(?<itemName>.+)$")),
-    PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" +
-            "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
 
@@ -22,6 +20,8 @@ public enum HouseMenuCommands implements Command {
     ArtisanGet(Pattern.compile("^artisan\\s+get\\s+(?<artisanName>.+)$")),
 
     EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
+
+    GetOut(Pattern.compile("^get\\s+out$")),
     None(null);
 
     private final Pattern pattern;

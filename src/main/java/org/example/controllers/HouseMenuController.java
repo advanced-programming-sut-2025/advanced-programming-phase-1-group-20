@@ -11,6 +11,7 @@ import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.commands.HouseMenuCommands;
 import org.example.views.AppView;
+import org.example.views.GameMenu;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,20 +20,15 @@ import java.util.regex.Pattern;
 
 public class HouseMenuController implements Controller {
     private AppView appView;
-    private App app;
-    private MarketController controller;
     private Player player;
     private Building house;
-    private GameMap gMap;
 
-    public HouseMenuController(AppView appView, App app, MarketController controller, Player player, Building house, GameMap gMap) {
+    public HouseMenuController(AppView appView , Player player, Building house) {
         this.appView = appView;
-        this.app = app;
-        this.controller = controller;
         this.player = player;
         this.house = house;
-        this.gMap = gMap;
     }
+
 
 
     @Override
@@ -42,28 +38,30 @@ public class HouseMenuController implements Controller {
         Result result = null;
 
         switch (command) {
-            // crafting related commands
+            //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
             case CraftingCraft -> result = craftItem(args);
-            case PlaceItem -> result = placeItem(args);
             case AddItem -> result = addItem(args);
 
 
-            // cooking related commands
+            //cooking related commands
             case AddRefrigerator -> result = addRefrigerator(args);
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> result = cookingPrepare(args);
 
-            // artisan-related commands
+            //artisan-related commands
             case ArtisanUse -> result = artisanUse(args);
             case ArtisanGet -> result = artisanGet(args);
 
             case EatFood -> result = eatFood(args);
+
+            case GetOut -> getOut();
             case None -> result = Result.error("Invalid input");
         }
 
 
-        appView.handleResult(result, command);
+
+        appView.handleResult(result , command);
         return result;
     }
 
@@ -106,8 +104,12 @@ public class HouseMenuController implements Controller {
     //this method is completed
     private void craftingShowRecipes() {
         List<CraftingItem> craftingItems = player.getCraftingItems();
-        for (CraftingItem craftingItem : craftingItems) {
-            craftingItem.showInfo();
+        if(!craftingItems.isEmpty()) {
+            for (CraftingItem craftingItem : craftingItems) {
+                craftingItem.showInfo();
+            }
+        }else{
+            System.out.println("There is no crafting items for the player");
         }
     }
 
@@ -137,67 +139,7 @@ public class HouseMenuController implements Controller {
     }
 
 
-    private Result placeItem(String[] args) {
-        String itemName = args[0];
-        String direction = args[1];
-        int[] dir = getDirection(direction);
 
-        if (dir == null) {
-            return Result.error("Invalid direction");
-        }
-
-        Location loc = player.getLocation();
-        int x = loc.getX() + dir[1];
-        int y = loc.getY() + dir[0];
-        Item item = player.getBackpack().getItem(itemName);
-        if (item == null) {
-            return Result.error("Item " + itemName + " does not exist in backpack");
-        }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
-            return Result.error("there is Item already in the ground!");
-        }
-        if (!item.isPlacable()) {
-            return Result.error("Item " + itemName + " is not a placeable item");
-        }
-
-        gMap.getFarmByPlayer(player).placeItem(x, y, item);
-
-
-        if (item instanceof CraftingItem) {
-            //it will be replaced as item.place() like a function pointer.
-            switch (item.getName()) {
-                case "Cherry Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 3);
-                }
-                case "Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 5);
-                }
-                case "Mega Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 7);
-                }
-                case "Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 4);
-                }
-                case "Quality Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 8);
-                }
-                case "Iridium Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 24);
-                }
-                case "Scarecrow" -> {
-                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 8, true);
-                }
-                case "Deluxe Scarecrow" -> {
-                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
-                }
-                case "Bee House" -> {
-                    //TODO : bee house.
-                }
-            }
-        }
-
-        return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
-    }
 
 
     private Result addItem(String[] args) {
@@ -225,11 +167,11 @@ public class HouseMenuController implements Controller {
                 if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
                     return Result.error("Backpack doesn't contain item");
                 }
-                house.getRefrigerator().putItem(item, 1);
+                 house.getRefrigerator().putItem(item , 1);
                 break;
             case "pick":
                 Item item1 = house.getRefrigerator().pickItem(item);
-                if (item1 == null) {
+                if(item1 == null){
                     return Result.error("Item not found");
                 }
                 player.getBackpack().add(item1, 1);
@@ -267,10 +209,10 @@ public class HouseMenuController implements Controller {
         player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
 
-        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
-            player.getBackpack().remove(item, 1);
-        } else {
-            house.getRefrigerator().removeItem(item, 1);
+        if(player.getBackpack().hasItems(Collections.singletonList(name))){
+            player.getBackpack().remove(item , 1);
+        }else{
+            house.getRefrigerator().removeItem(item , 1);
         }
 
         player.getBackpack().add(food, 1);
@@ -294,20 +236,20 @@ public class HouseMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem || item instanceof Fruit)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if (item instanceof ArtisanItem) {
+        if(item instanceof ArtisanItem){
             ArtisanItem artisanItem = (ArtisanItem) item;
-            if (artisanItem.getEnergy() > 0) {
+            if(artisanItem.getEnergy() > 0){
                 player.increaseEnergy(artisanItem.getEnergy());
-                player.getBackpack().remove(item, 1);
+                player.getBackpack().remove(item , 1);
                 return Result.success("Food " + foodName + " eaten");
-            } else {
+            }else{
                 return Result.success("Artisan item is not a food.");
             }
         }
-        if (item instanceof Fruit) {
+        if(item instanceof Fruit){
             Fruit fruit = (Fruit) item;
             player.increaseEnergy(fruit.getEnergy());
-            player.getBackpack().remove(item, 1);
+            player.getBackpack().remove(item , 1);
             return Result.success("Food " + foodName + " eaten");
         }
         Food food = (Food) item;
@@ -367,6 +309,12 @@ public class HouseMenuController implements Controller {
         }
         player.getBackpack().add(item, 1);
         return Result.success("Artisan item " + item.getName() + " arrived");
+    }
+
+
+    public void getOut(){
+        System.out.println("hala har ghabrestooni mikhay beri boro .");
+        appView.navigateMenu(new GameMenu(appView , player.getUser() , player));
     }
 
 }
