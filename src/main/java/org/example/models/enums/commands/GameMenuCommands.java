@@ -14,17 +14,12 @@ public enum GameMenuCommands implements Command {
     ShowTime(Pattern.compile("^time$")),
     ShowDate(Pattern.compile("^date$")),
     ShowDateTime(Pattern.compile("^clock$|^datetime$")),
-    AdvanceTime(Pattern.compile("^cheat\\s+advance\\s+time\\s+(\\d+)h?$")), // cheat command
-    AdvanceDate(Pattern.compile("^cheat\\s+advance\\s+date\\s+(\\d+)d?$")), // cheat command
     DayOfWeek(Pattern.compile("^day\\s+of\\s+(the\\s+)?week$")),
 
     // weather related
     ShowSeason(Pattern.compile("^season$")),
     ShowWeather(Pattern.compile("^weather$")),
     ShowWeatherForecast(Pattern.compile("^weather\\s+forecast$")),
-    SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")), // cheat code
-    CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")), // cheat code
-
 
     // player related
     Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
@@ -85,7 +80,7 @@ public enum GameMenuCommands implements Command {
     GiftHistory(Pattern.compile("^gift\\s+history\\s+-u\\s+(?<username>\\S+)$")),
     HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\S+)$")),
     FlowerPlayer(Pattern.compile("^flower\\s+-u\\s+(?<username>\\S+)$")),
-    AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>\\S+)$")),
+    AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>.+)$")),
     RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
 
     // NPC-related commands
@@ -106,6 +101,12 @@ public enum GameMenuCommands implements Command {
 
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
 
+    // animal
+    PetAnimal(Pattern.compile("^pet\\s+-n\\s+(?<name>.+)$")),
+    ShepherdAnimals(Pattern.compile("^shepherd\\s+animals\\s+-n\\s+(?<name>.+)\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
+    FeedHay(Pattern.compile("^feed\\s+hay\\s+-n\\s+(?<name>.+)$")),
+    CheckProducts(Pattern.compile("^produces$")),
+
     //cheats
     CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favorites\\s+(?<characterName>\\S+)\\s*$")),
     CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
@@ -113,14 +114,15 @@ public enum GameMenuCommands implements Command {
     CheatTeleportHome(Pattern.compile("^cheat\\s+teleport\\s+house$")),
     CheatTeleportMarkets(Pattern.compile("^cheat\\s+teleport\\s+markets\\s+-m\\s+(Black Smith|Joja Mart|Pierre General Store|Carpenters Shop|Fish Shop|Marnie Shop|Star drop Saloon)$")),
     CheatBuildGreenHouse(Pattern.compile("^cheat build green house$")),
-
-    PetAnimal(Pattern.compile("^pet\\s+-n\\s+(?<name>.+)$")),
-    ShepherdAnimals(Pattern.compile("^shepherd\\s+animals\\s+-n\\s+(?<name>.+)\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
-    FeedHay(Pattern.compile("^feed\\s+hay\\s+-n\\s+(?<name>.+)$")),
-    CheckProducts(Pattern.compile("^produces$")),
-
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
-    CheatGiveAllRecipe(Pattern.compile("^give\\s+recipes$")),
+    CheatGiveAllRecipe(Pattern.compile("^give\\s+recepies$")),
+    CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
+    CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
+    CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
+    AdvanceTime(Pattern.compile("^cheat\\s+advance\\s+time\\s+(\\d+)h?$")), // cheat command
+    AdvanceDate(Pattern.compile("^cheat\\s+advance\\s+date\\s+(\\d+)d?$")), // cheat command
+    SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")), // cheat code
+    CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")), // cheat code
 
     None(null);
 

@@ -1,10 +1,7 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Items.Item;
-import org.example.models.Items.Plant;
-import org.example.models.Items.Seed;
-import org.example.models.Items.Tree;
+import org.example.models.Items.*;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
@@ -12,6 +9,7 @@ import org.example.models.common.Result;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.PlantType;
+import org.example.models.enums.Types.TileType;
 
 import java.util.Collections;
 
@@ -194,5 +192,81 @@ public class PlantController {
         player.getSkills().get(0).updateLevel();
         return Result.success("fertilized successfully with" + fertilizer);
     }
+
+    public Result harvest(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+        int x = Integer.parseInt(args[0]);
+        int y = Integer.parseInt(args[1]);
+
+        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
+        if (targetLocation == null || targetLocation.getItem() == null) {
+            return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
+        }
+
+        if (player.getCurrentTool().getType() != Tool.ToolType.HOE) {
+            return Result.error("You must equip HOE first");
+        }
+
+        Item item = targetLocation.getItem();
+        if (!((item instanceof Plant) || (item instanceof Tree) || (item instanceof Crop))) {
+            return Result.error("Item is not harvestable");
+        }
+        if (!item.getFinished()) {
+            return Result.error("Plant is not ready yet");
+        }
+
+        if (item instanceof Tree tree) {
+            Item fruit = tree.getFruit();
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            if (!player.getBackpack().add(fruit, 1)) {
+                return Result.error("Backpack is full!");
+            }
+            tree.setFruitCounter(0);
+            tree.setFruitFinished(false);
+            player.getSkills().get(0).updateLevel();
+        }
+        if (item instanceof Plant plant) {
+            Fruit fruit = plant.getFruit();
+            int amount = 1;
+            if (plant.getIsGiant()) {
+                amount = 10;
+                fruit.setEnergy(fruit.getEnergy() * 4);
+            }
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            if (!player.getBackpack().add(fruit, amount)) {
+                return Result.error("Backpack is full!");
+            }
+            if (plant.getOneTimeHarvest()) {
+                gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
+                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+                gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
+            } else {
+                plant.setStages(new int[]{1});
+                plant.setDaysCounter(plant.getRegrowthTime());
+                plant.setFinished(false);
+            }
+            player.getSkills().get(0).updateLevel();
+        }
+        if (item instanceof Crop crop) {
+            Item fruit = crop.getFruit();
+            if (fruit == null) {
+                return Result.error("fruit is not ready yet");
+            }
+            if (!player.getBackpack().add(fruit, 1)) {
+                return Result.error("Backpack is full!");
+            }
+            gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
+            gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+            gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
+            player.getSkills().get(2).updateLevel();
+        }
+        return Result.success("Plant has been harvested!");
+    }
+
 
 }

@@ -68,8 +68,6 @@ public class GameMenuController implements Controller {
             // Player Related
             case ShowInventory -> showInventory();
 
-            // Map related commands
-            // Farm related commands
 
             // saving related commands
             case SaveGame -> {
@@ -79,7 +77,6 @@ public class GameMenuController implements Controller {
             case AutoSave -> {
                 result = Result.success("Auto-save completed");
             }
-
 
             //plants and foraging related commands
             case CraftInfo -> result = craftInfo(args);
@@ -163,11 +160,14 @@ public class GameMenuController implements Controller {
             case CheatTeleportHome -> cheatTeleportHome();
             case CheatTeleportMarkets -> cheatTeleportMarkets(args);
             case CheatBuildGreenHouse -> builddd();
+            case CheatGiveItems -> cheatGiveItems();
+            case CheatFriendShipLevel -> result = cheatFriendShipLevel(args);
+            case CheatIncreateFriendshipLevel -> result = increaseFRLEVEL(args);
+            case CheatIncreaseXP -> result = increaseXP(args);
 
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
-            case CheatGiveItems -> cheatGiveItems();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -295,7 +295,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-
     // ====== plants and foraging related ======
 
     private Result craftInfo(String[] args) {
@@ -399,86 +398,17 @@ public class GameMenuController implements Controller {
 
 
     private Result howMuchWater() {
+        Player player = App.getGame().getCurrentPlayer();
+        // TODO:
         return Result.success("How much water has been cheated");
     }
 
 
     //this method is completed.
     private Result harvest(String[] args) {
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-        int x = Integer.parseInt(args[0]);
-        int y = Integer.parseInt(args[1]);
-
-        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
-        if (targetLocation == null || targetLocation.getItem() == null) {
-            return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
-        }
-
-        if (player.getCurrentTool().getType() != Tool.ToolType.HOE) {
-            return Result.error("You must equip HOE first");
-        }
-
-        Item item = targetLocation.getItem();
-        if (!((item instanceof Plant) || (item instanceof Tree) || (item instanceof Crop))) {
-            return Result.error("Item is not harvestable");
-        }
-        if (!item.getFinished()) {
-            return Result.error("Plant is not ready yet");
-        }
-
-        if (item instanceof Tree tree) {
-            Item fruit = tree.getFruit();
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
-            }
-            if (!player.getBackpack().add(fruit, 1)) {
-                return Result.error("Backpack is full!");
-            }
-            tree.setFruitCounter(0);
-            tree.setFruitFinished(false);
-            player.getSkills().get(0).updateLevel();
-        }
-        if (item instanceof Plant plant) {
-            Fruit fruit = plant.getFruit();
-            int amount = 1;
-            if (plant.getIsGiant()) {
-                amount = 10;
-                fruit.setEnergy(fruit.getEnergy() * 4);
-            }
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
-            }
-            if (!player.getBackpack().add(fruit, amount)) {
-                return Result.error("Backpack is full!");
-            }
-            if (plant.getOneTimeHarvest()) {
-                gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
-                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
-                gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
-            } else {
-                plant.setStages(new int[]{1});
-                plant.setDaysCounter(plant.getRegrowthTime());
-                plant.setFinished(false);
-            }
-            player.getSkills().get(0).updateLevel();
-        }
-        if (item instanceof Crop crop) {
-            Item fruit = crop.getFruit();
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
-            }
-            if (!player.getBackpack().add(fruit, 1)) {
-                return Result.error("Backpack is full!");
-            }
-            gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
-            gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
-            gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
-            player.getSkills().get(2).updateLevel();
-        }
-        return Result.success("Plant has been harvested!");
+        PlantController plantController = new PlantController();
+        return plantController.harvest(args);
     }
-
 
     private Result placeItem(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
@@ -594,9 +524,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    // this method is completed now
     private Result eatFood(String[] args) {
-
         Player player = App.getGame().getCurrentPlayer();
 
         String foodName = args[0];
@@ -641,8 +569,7 @@ public class GameMenuController implements Controller {
         App.getGame().getCurrentPlayer().setEnergyUnlimited();
         return Result.success("energy unlimited");
     }
-
-
+    
     // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
@@ -682,14 +609,12 @@ public class GameMenuController implements Controller {
         return Result.success("your product: " + productName + " has been sold!");
     }
 
-
     // TODO: map showing + map related commands
 
     // Tool-related methods
 
     private Result equipTool(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 1) {
             return Result.error("Tool name not specified");
@@ -707,7 +632,6 @@ public class GameMenuController implements Controller {
 
     private Result showCurrentTool() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         Tool currentTool = player.getCurrentTool();
 
@@ -721,7 +645,6 @@ public class GameMenuController implements Controller {
 
     private Result showAvailableTools() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         List<Tool> tools = player.getAvailableTools();
 
@@ -1867,7 +1790,6 @@ public class GameMenuController implements Controller {
 
     private Result startTrade() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         Game game = App.getGame();
         if (game == null) {
@@ -1930,9 +1852,9 @@ public class GameMenuController implements Controller {
         }
 
         // Get the item
-        Item item = App.getItem(itemName);
+        Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
-            return Result.error("Item " + itemName + " not found");
+            return Result.error("Item " + itemName + " not found in the backpack");
         }
 
         // Check if the amount is valid
@@ -2071,6 +1993,22 @@ public class GameMenuController implements Controller {
         return Result.success(sb.toString());
     }
 
+    // ======= Animals ======
+
+    private Result petAnimal(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.petAnimal(args);
+    }
+
+    private Result shepherdAnimals(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.shepherdAnimals(args);
+    }
+
+    private Result feedHay(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.feedHay(args);
+    }
 
     //cheats:
     private void cheatBackPackFull() {
@@ -2154,22 +2092,61 @@ public class GameMenuController implements Controller {
         }
     }
 
+    public Result cheatFriendShipLevel(String[] args) {
+        String name = args[0];
+        Player player = App.getGame().getCurrentPlayer();
+        Player player2 = App.getGame().getPlayer(App.getUser(name));
+        Friendship friendship = player.getFriendship(player2);
+        return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
+    }
+
+    public Result increaseFRLEVEL(String[] args) {
+        String name = args[0];
+        String amount = args[1];
+        int level = Integer.parseInt(amount);
+        Player player = App.getGame().getCurrentPlayer();
+        Player player2 = App.getGame().getPlayer(App.getUser(name));
+        Friendship friendship = player.getFriendship(player2);
+        friendship.increaseFriendShipLevel(level);
+        return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
+    }
+
+
+    public Result increaseXP(String[] args) {
+        String name = args[0];
+        String amount = args[1];
+        int level = Integer.parseInt(amount);
+        Player player = App.getGame().getCurrentPlayer();
+        Player player2 = App.getGame().getPlayer(App.getUser(name));
+        Friendship friendship = player.getFriendship(player2);
+        friendship.increaseXp(level);
+        return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
+    }
+
     private void cheatGiveItems() {
+        Player player = App.getGame().getCurrentPlayer();
 
-    }
+        Item weddingRing = new Item("Wedding Ring", 2000, "A special ring for proposing marriage.");
+        player.getBackpack().add(weddingRing, 1);
 
-    private Result petAnimal(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.petAnimal(args);
-    }
+        Item diamond = new Item("Wood", 750, "A rare and valuable wood.");
+        player.getBackpack().add(diamond, 3);
 
-    private Result shepherdAnimals(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.shepherdAnimals(args);
-    }
+        Item starfruit = new Item("Coffee", 750, "An exotic, sweet fruit that grows in hot, humid weather.");
+        player.getBackpack().add(starfruit, 5);
 
-    private Result feedHay(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.feedHay(args);
+        Item ancientSeed = new Item("Salad", 500, "salad");
+        player.getBackpack().add(ancientSeed, 2);
+
+        Item iridiumBar = new Item("Iridium Bar", 1000, "A bar of refined iridium.");
+        player.getBackpack().add(iridiumBar, 3);
+
+        Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
+        player.getBackpack().add(flower, 5);
+
+        System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
+
+        System.out.println("\nCurrent inventory contents:");
+        showInventory();
     }
 }
