@@ -10,6 +10,8 @@ public enum MarketMenuCommands implements Command {
     ToolUpgrade(Pattern.compile("^tools\\s+upgrade\\s+(?<toolName>.+)$")),
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
     Build(Pattern.compile("^build\\s+-a\\s+(Barn|Big Barn|Deluxe Barn|Coop|Big Coop|Deluxe Coop|Well|Shipping Bin)\\s+-l\\s+(-?\\d+)\\s*,\\s*(-?\\d+)$")),
+
+    CheatGetOut(Pattern.compile("^get\\s+out$")),
     None(null);
 
     private final Pattern pattern;

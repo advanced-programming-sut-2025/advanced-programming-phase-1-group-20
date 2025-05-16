@@ -9,24 +9,21 @@ import org.example.models.common.Date;
 import org.example.models.common.Result;
 import org.example.models.enums.commands.MarketMenuCommands;
 import org.example.views.AppView;
+import org.example.views.GameMenu;
 
 public class MarketController implements Controller {
     private AppView appView;
-    private App app;
     private Player player;
-    private Date gameClock;
     private GameMap gMap;
     private Market market;
 
-    public MarketController(AppView appView, App app, Player player, Market market, Date gameClock) {
+    public MarketController(AppView appView, Player player, Market market) {
         this.appView = appView;
         this.player = player;
-        this.gameClock = gameClock;
 //        this.gMap = new GameMap(100, 100, player);
         // طول و عرض همینطوری گذاشته شده!
         this.market = market;
-        market.initializeTotalStock(gameClock.getSeason());
-        this.app = app;
+        market.initializeTotalStock(App.getGame().getDate().getSeason());
     }
 
     @Override
@@ -43,6 +40,8 @@ public class MarketController implements Controller {
             case ToolUpgrade -> result = upgradeTool(args);
             case ShowCurrentMenu -> result = Result.success("Market menu");
             case Build -> result = build(args);
+
+            case CheatGetOut -> getOut();
             case None -> result = Result.error("Invalid input");
         }
 
@@ -50,17 +49,12 @@ public class MarketController implements Controller {
         return result;
     }
 
-    private Result build(String[] args) {
-        String buildingName = args[0];
-        return Result.success("build successfully");
-    }
-
     private void showAllProducts() {
         market.showAllProducts();
     }
 
     private void showAllAvailableProducts() {
-        market.showAvailableProducts(gameClock.getSeason());
+        market.showAvailableProducts(App.getGame().getDate().getSeason());
     }
 
     private Result purchase(String[] args) {
@@ -110,5 +104,14 @@ public class MarketController implements Controller {
         return Result.error("You are not in Black Smith!");
     }
 
+    private Result build(String[] args) {
+        String buildingName = args[0];
+        return Result.success("build successfully");
+    }
+
+    private void getOut() {
+        System.out.println("You are out of market");
+        appView.navigateMenu(new GameMenu(appView , player.getUser() , player));
+    }
 
 }

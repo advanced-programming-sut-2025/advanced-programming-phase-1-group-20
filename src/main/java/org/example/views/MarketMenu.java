@@ -12,19 +12,16 @@ import org.example.models.enums.commands.MarketMenuCommands;
 
 public class MarketMenu implements AppMenu {
     private AppView appView;
-    private App app;
     private MarketController controller;
     private Player player;
     private Market market;
-    private Date gameClock;
 
 
-    public MarketMenu(AppView appView, App app, Player player, Market market , Date gameClock) {
+    public MarketMenu(AppView appView, Player player, Market market) {
         this.appView = appView;
-        this.app = app;
         this.player = player;
         this.market = market;
-        this.controller = new MarketController(appView, app, player, market , gameClock);
+        this.controller = new MarketController(appView, player, market);
     }
 
     @Override
@@ -47,12 +44,4 @@ public class MarketMenu implements AppMenu {
     }
 
 
-
-    private void showAllProducts() {
-        market.showAllProducts();
-    }
-
-    private void showAllAvailableProducts() {
-        market.showAvailableProducts(gameClock.getSeason());
-    }
 }

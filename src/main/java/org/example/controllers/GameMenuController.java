@@ -5,6 +5,7 @@ import org.example.models.Items.*;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.MapDetails.Village;
+import org.example.models.Market;
 import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
@@ -19,7 +20,9 @@ import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
+import org.example.views.HouseMenu;
 import org.example.views.MainMenu;
+import org.example.views.MarketMenu;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -89,6 +92,8 @@ public class GameMenuController implements Controller {
             case HowMuchWater -> result = howMuchWater();
             case GiveWater -> result = giveWater(args);
             case Harvest -> result = harvest(args);
+            case PlaceItem -> result = placeItem(args);
+
 
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
@@ -168,48 +173,7 @@ public class GameMenuController implements Controller {
         return result;
     }
 
-    private void cheatTeleportMarkets(String[] args) {
-        String marketName = args[0];
-        switch (marketName){
-            case "Black Smith"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Joja Mart"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Pierre General Store"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Carpenters Shop"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Fish Shop"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Marnie Shop"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-            case "Star drop Saloon"->{
-                System.out.println("Going to market " + marketName + " please wait...");
-            }
-        }
-    }
 
-    private void cheatTeleportHome() {
-    }
-
-    private void cheatTeleport(String[] args) {
-        int x = Integer.parseInt(args[0]);
-        int y = Integer.parseInt(args[1]);
-        Location location = App.getGame().getCurrentPlayer().getCurrentFarm().getItem(x, y);
-        System.out.println(location.getTile().toString());
-        System.out.println(App.getGame().getCurrentPlayer().getCurrentFarm().getFarmIndex());
-        System.out.println(App.getGame().getCurrentPlayer().getUser().getUsername());
-        if (location.getTile() == TileType.GRASS) {
-            System.out.println("hey");
-            App.getGame().getCurrentPlayer().setLocation(location);
-        }
-    }
 
     private Result teleportToHome() {
         return Result.error("");
@@ -634,6 +598,71 @@ public class GameMenuController implements Controller {
             player.getSkills().get(2).updateLevel();
         }
         return Result.success("Plant has been harvested!");
+    }
+
+
+    private Result placeItem(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+        String itemName = args[0];
+        String direction = args[1];
+        int[] dir = getDirection(direction);
+
+        if (dir == null) {
+            return Result.error("Invalid direction");
+        }
+
+        Location loc = player.getLocation();
+        int x = loc.getX() + dir[1];
+        int y = loc.getY() + dir[0];
+        Item item = player.getBackpack().getItem(itemName);
+        if (item == null) {
+            return Result.error("Item " + itemName + " does not exist in backpack");
+        }
+        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
+            return Result.error("there is Item already in the ground!");
+        }
+        if (!item.isPlacable()) {
+            return Result.error("Item " + itemName + " is not a placeable item");
+        }
+
+        gMap.getFarmByPlayer(player).placeItem(x, y, item);
+
+
+        if (item instanceof CraftingItem) {
+            //it will be replaced as item.place() like a function pointer.
+            switch (item.getName()) {
+                case "Cherry Bomb" -> {
+                    gMap.getFarmByPlayer(player).bomb(x, y, 3);
+                }
+                case "Bomb" -> {
+                    gMap.getFarmByPlayer(player).bomb(x, y, 5);
+                }
+                case "Mega Bomb" -> {
+                    gMap.getFarmByPlayer(player).bomb(x, y, 7);
+                }
+                case "Sprinkler" -> {
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 4);
+                }
+                case "Quality Sprinkler" -> {
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 8);
+                }
+                case "Iridium Sprinkler" -> {
+                    gMap.getFarmByPlayer(player).sprinkle(x, y, 24);
+                }
+                case "Scarecrow" -> {
+                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 8, true);
+                }
+                case "Deluxe Scarecrow" -> {
+                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
+                }
+                case "Bee House" -> {
+                    //TODO : bee house.
+                }
+            }
+        }
+
+        return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
     }
 
 
@@ -2153,6 +2182,72 @@ public class GameMenuController implements Controller {
             if (item != null) {
                 player.getBackpack().add(item, 1);
             }
+        }
+    }
+
+
+
+
+
+
+    //TODO : cheats:
+    private void cheatTeleportMarkets(String[] args) {
+        String marketName = args[0];
+        switch (marketName){
+            case "Black Smith"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[0]));
+            }
+            case "Joja Mart"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[1]));
+            }
+            case "Pierre General Store"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[2]));
+            }
+            case "Carpenters Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[3]));
+            }
+            case "Fish Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[4]));
+            }
+            case "Marnie Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[5]));
+            }
+            case "Star drop Saloon"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[6]));
+            }
+        }
+    }
+
+    private void cheatTeleportHome() {
+        System.out.println("You are in your home.");
+        appView.navigateMenu(new HouseMenu(appView , App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
+    }
+
+    private void cheatTeleport(String[] args) {
+        int x = Integer.parseInt(args[0]);
+        int y = Integer.parseInt(args[1]);
+        Location location = App.getGame().getCurrentPlayer().getCurrentFarm().getItem(x, y);
+        System.out.println(location.getTile().toString());
+        System.out.println(App.getGame().getCurrentPlayer().getCurrentFarm().getFarmIndex());
+        System.out.println(App.getGame().getCurrentPlayer().getUser().getUsername());
+        if (location.getTile() == TileType.GRASS) {
+            System.out.println("hey");
+            App.getGame().getCurrentPlayer().setLocation(location);
         }
     }
 

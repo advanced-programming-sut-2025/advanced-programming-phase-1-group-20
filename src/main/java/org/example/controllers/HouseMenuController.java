@@ -11,6 +11,7 @@ import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.commands.HouseMenuCommands;
 import org.example.views.AppView;
+import org.example.views.GameMenu;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,19 +20,13 @@ import java.util.regex.Pattern;
 
 public class HouseMenuController implements Controller {
     private AppView appView;
-    private App app;
-    private MarketController controller;
     private Player player;
     private Building house;
-    private GameMap gMap;
 
-    public HouseMenuController(AppView appView, App app, MarketController controller , Player player, Building house , GameMap gMap) {
+    public HouseMenuController(AppView appView , Player player, Building house) {
         this.appView = appView;
-        this.app = app;
-        this.controller = controller;
         this.player = player;
         this.house = house;
-        this.gMap = gMap;
     }
 
 
@@ -46,7 +41,6 @@ public class HouseMenuController implements Controller {
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
             case CraftingCraft -> result = craftItem(args);
-            case PlaceItem -> result = placeItem(args);
             case AddItem -> result = addItem(args);
 
 
@@ -60,6 +54,8 @@ public class HouseMenuController implements Controller {
             case ArtisanGet -> result = artisanGet(args);
 
             case EatFood -> result = eatFood(args);
+
+            case GetOut -> getOut();
             case None -> result = Result.error("Invalid input");
         }
 
@@ -139,67 +135,7 @@ public class HouseMenuController implements Controller {
     }
 
 
-    private Result placeItem(String[] args) {
-        String itemName = args[0];
-        String direction = args[1];
-        int[] dir = getDirection(direction);
 
-        if (dir == null) {
-            return Result.error("Invalid direction");
-        }
-
-        Location loc = player.getLocation();
-        int x = loc.getX() + dir[1];
-        int y = loc.getY() + dir[0];
-        Item item = player.getBackpack().getItem(itemName);
-        if (item == null) {
-            return Result.error("Item " + itemName + " does not exist in backpack");
-        }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
-            return Result.error("there is Item already in the ground!");
-        }
-        if (!item.isPlacable()) {
-            return Result.error("Item " + itemName + " is not a placeable item");
-        }
-
-        gMap.getFarmByPlayer(player).placeItem(x, y, item);
-
-
-        if (item instanceof CraftingItem) {
-            //it will be replaced as item.place() like a function pointer.
-            switch (item.getName()) {
-                case "Cherry Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 3);
-                }
-                case "Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 5);
-                }
-                case "Mega Bomb" -> {
-                    gMap.getFarmByPlayer(player).bomb(x, y, 7);
-                }
-                case "Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 4);
-                }
-                case "Quality Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 8);
-                }
-                case "Iridium Sprinkler" -> {
-                    gMap.getFarmByPlayer(player).sprinkle(x, y, 24);
-                }
-                case "Scarecrow" -> {
-                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 8, true);
-                }
-                case "Deluxe Scarecrow" -> {
-                    gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
-                }
-                case "Bee House" -> {
-                    //TODO : bee house.
-                }
-            }
-        }
-
-        return Result.success("Item " + itemName + " has been placed on " + "(" + x + "," + y + ")");
-    }
 
 
     private Result addItem(String[] args) {
@@ -369,6 +305,12 @@ public class HouseMenuController implements Controller {
         }
         player.getBackpack().add(item, 1);
         return Result.success("Artisan item " + item.getName() + " arrived");
+    }
+
+
+    public void getOut(){
+        System.out.println("hala har ghabrestooni mikhay beri boro .");
+        appView.navigateMenu(new GameMenu(appView , player.getUser() , player));
     }
 
 }

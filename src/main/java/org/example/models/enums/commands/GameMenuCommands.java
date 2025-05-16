@@ -56,6 +56,9 @@ public enum GameMenuCommands implements Command {
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
+    PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" +
+            "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
+
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),
 

@@ -13,19 +13,16 @@ import org.example.models.enums.commands.LoginRegisterMenuCommands;
 
 public class HouseMenu implements AppMenu{
     private AppView appView;
-    private App app;
     private HouseMenuController controller;
     private Player player;
     private Building house;
-    private GameMap gameMap;
 
-    public HouseMenu(AppView appView, App app, HouseMenuController controller, Player player , Building house, GameMap gameMap) {
+    public HouseMenu(AppView appView, Player player , Building house) {
         this.appView = appView;
-        this.app = app;
         this.controller = controller;
         this.player = player;
         this.house = house;
-        this.gameMap = gameMap;
+        controller = new HouseMenuController(appView , player , house);
     }
 
 
