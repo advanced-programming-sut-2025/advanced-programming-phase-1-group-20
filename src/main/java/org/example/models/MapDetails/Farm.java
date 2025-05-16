@@ -377,7 +377,7 @@ public class Farm {
 
         for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
             for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
-                tiles[x][y] = new Location(x, y, TileType.GREENHOUSE);
+                tiles[x][y] = new Location(x, y, TileType.CONSTRUCTED_GREENHOUSE);
             }
         }
     }
@@ -391,7 +391,7 @@ public class Farm {
 
         for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
             for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
-                tiles[x][y] = new Location(x, y, TileType.CONSTRUCTED_GREENHOUSE);
+                tiles[x][y] = new Location(x, y, TileType.GREENHOUSE);
             }
         }
     }
