@@ -27,7 +27,6 @@ public class HouseMenuController implements Controller {
         this.house = house;
     }
 
-
     @Override
     public Result update(String input) {
         HouseMenuCommands command = HouseMenuCommands.getCommand(input);
@@ -96,8 +95,6 @@ public class HouseMenuController implements Controller {
         return null;
     }
 
-
-    //this method is completed
     private void craftingShowRecipes() {
         List<CraftingItem> craftingItems = player.getCraftingItems();
         if (!craftingItems.isEmpty()) {
@@ -116,7 +113,7 @@ public class HouseMenuController implements Controller {
         CraftingType type = CraftingType.fromName(itemName);
         assert type != null;
         CraftingItem craftedItem = new CraftingItem(type);
-        if(!player.getCraftingItems().contains(craftedItem)) {
+        if (!player.getCraftingItems().contains(craftedItem)) {
             return Result.error("You cannot craft this item because you don't have the recipe!");
         }
         if (!craftedItem.canCraft(player.getBackpack())) {
@@ -126,8 +123,7 @@ public class HouseMenuController implements Controller {
         if (!player.getBackpack().add(craftedItem, 1)) {
             return Result.error("Your backpack is full");
         }
-
-
+        
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }

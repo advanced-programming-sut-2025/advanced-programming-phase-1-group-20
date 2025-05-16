@@ -295,7 +295,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-
     // ====== plants and foraging related ======
 
     private Result craftInfo(String[] args) {
@@ -570,8 +569,7 @@ public class GameMenuController implements Controller {
         App.getGame().getCurrentPlayer().setEnergyUnlimited();
         return Result.success("energy unlimited");
     }
-
-
+    
     // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
@@ -611,14 +609,12 @@ public class GameMenuController implements Controller {
         return Result.success("your product: " + productName + " has been sold!");
     }
 
-
     // TODO: map showing + map related commands
 
     // Tool-related methods
 
     private Result equipTool(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 1) {
             return Result.error("Tool name not specified");
@@ -636,7 +632,6 @@ public class GameMenuController implements Controller {
 
     private Result showCurrentTool() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         Tool currentTool = player.getCurrentTool();
 
@@ -650,7 +645,6 @@ public class GameMenuController implements Controller {
 
     private Result showAvailableTools() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         List<Tool> tools = player.getAvailableTools();
 
@@ -2015,7 +2009,7 @@ public class GameMenuController implements Controller {
         AnimalController animalController = new AnimalController();
         return animalController.feedHay(args);
     }
-    
+
     //cheats:
     private void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();

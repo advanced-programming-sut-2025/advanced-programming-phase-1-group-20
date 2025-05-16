@@ -18,9 +18,6 @@ public enum Skills {
     }
 
     public Skill creatSkill(int level) {
-        //this 3 getter constructor is for making arbitrary Skill for checking player skills during the game
-        //ر.ک :
-        // player.checkSkill()
         return new Skill(level, name, adderUnit);
     }
 

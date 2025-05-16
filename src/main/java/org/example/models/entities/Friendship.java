@@ -414,6 +414,4 @@ public class Friendship {
             return amount;
         }
     }
-
-
 }
