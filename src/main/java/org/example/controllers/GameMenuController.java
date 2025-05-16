@@ -2211,38 +2211,38 @@ public class GameMenuController implements Controller {
         switch (marketName){
             case "Black Smith"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[0]));
             }
             case "Joja Mart"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[1]));
             }
             case "Pierre General Store"->{
                 System.out.println("Going to market " + marketName + " please wait...");
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[2]));
             }
             case "Carpenters Shop"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[3]));
             }
             case "Fish Shop"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[4]));
             }
             case "Marnie Shop"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[5]));
             }
             case "Star drop Saloon"->{
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[6]));
             }
         }
