@@ -8,9 +8,9 @@ import org.example.models.utils.AutoLoginUtil;
 import java.util.Scanner;
 
 public class AppView {
+    private final Scanner scanner;
     public AppMenu currentMenu;
     public boolean exit = false;
-    private Scanner scanner;
     private Game currentGame;
 
     public AppView() {
