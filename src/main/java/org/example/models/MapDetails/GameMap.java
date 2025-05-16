@@ -1,6 +1,7 @@
 package org.example.models.MapDetails;
 
 import org.example.models.Player.Player;
+import org.example.models.Player.Skill;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,9 @@ public class GameMap {
             farm.updateArtisans();
             farm.updateLakeFish();
             village.updateShippingBin(player);
+            for(Skill skill : player.getSkills()) {
+                skill.updateState();
+            }
 
         }
     }
