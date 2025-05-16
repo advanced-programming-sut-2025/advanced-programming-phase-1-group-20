@@ -946,17 +946,11 @@ public class GameMenuController implements Controller {
             int x = Integer.parseInt(args[0]);
             int y = Integer.parseInt(args[1]);
 
-            // Check if the destination is valid
             if (!gMap.getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
             }
 
-            // Check if the destination is in another player's farm
-            // TODO: Implement this check
-
-            // Get the current location
             Location currentLocation = player.getLocation();
-            //Location destination = new Location(x, y, gMap.getFarmByPlayer(player).getTile(x, y));
             Location destination = player.getCurrentFarm().getItem(x, y);
 
             int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
@@ -972,14 +966,11 @@ public class GameMenuController implements Controller {
             }
 
 
-            // Check if the player has used too much energy this turn
             if (!player.canUseEnergy(energyNeeded)) {
                 return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
             }
 
-            // Check if the player has enough energy
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
-                // Move the player
                 if (player.getCurrentFarm().walk(x, y) <= 0) {
                     return Result.error("You've used too much energy");
                 }
