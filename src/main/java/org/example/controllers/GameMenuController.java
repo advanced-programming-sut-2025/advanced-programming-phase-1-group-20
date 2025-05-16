@@ -776,12 +776,13 @@ public class GameMenuController implements Controller {
         } else {
             count = player.getBackpack().getInventory().get(item);
         }
-
-        ShippingBin bin = new ShippingBin();
+//        ShippingBin bin = new ShippingBin();
+        ShippingBin bin = gMap.getFarmByPlayer(player).getShippingBinNearby(player.getLocation());
         //gMap.getItemNearby()
         if (bin == null) {
             return Result.error("There is no shipping bin nearby!");
         }
+        player.getBackpack().remove(item, count);
         int amount;
         if (item.getPrice() != 0) {
             amount = count * item.getPrice();

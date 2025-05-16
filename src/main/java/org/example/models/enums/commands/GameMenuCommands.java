@@ -64,7 +64,7 @@ public enum GameMenuCommands implements Command {
     Fishing(Pattern.compile("^fishing\\s+-p\\s+(\\s+)$")),
 
     // sell command
-    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+)\\s*(?:-n\\s+(?<count>\\d+))?\\s*")),
+    SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+?)(?:\\s+-n\\s+(?<count>\\d+))?\\s*")),
 
     // tool commands
     ToolEquip(Pattern.compile("^tools\\s+equip\\s+(?<toolName>.+)$")),
