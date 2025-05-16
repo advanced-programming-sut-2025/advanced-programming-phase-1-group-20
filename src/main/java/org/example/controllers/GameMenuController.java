@@ -1374,7 +1374,7 @@ public class GameMenuController implements Controller {
     }
 
     private boolean arePlayersNearEachOther(Player player1, Player player2) {
-        if (player1.getCurrentFarm() != player2.getCurrentFarm() || !(player1.getIsInVillage() && player2.getIsInVillage())) {
+        if (player1.getCurrentFarm() != player2.getCurrentFarm() && !(player1.getIsInVillage() && player2.getIsInVillage())) {
             return false;
         }
 
@@ -1724,7 +1724,6 @@ public class GameMenuController implements Controller {
 
     private Result giftNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 2) {
             return Result.error("NPC name or item not specified");

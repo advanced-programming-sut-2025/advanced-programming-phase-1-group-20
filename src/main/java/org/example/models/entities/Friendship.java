@@ -334,6 +334,11 @@ public class Friendship {
             return false;
         }
 
+        if (player1.getCurrentFarm() != player2.getCurrentFarm() && !(player1.getIsInVillage() && player2.getIsInVillage())) {
+            return false;
+        }
+
+
         Location loc1 = player1.getLocation();
         Location loc2 = player2.getLocation();
 
