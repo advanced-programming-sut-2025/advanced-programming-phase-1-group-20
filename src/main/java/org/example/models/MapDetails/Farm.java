@@ -135,7 +135,7 @@ public class Farm {
         return null;
     }
 
-    public Building getHouse(Location location) {
+    public Building getHouseAt(Location location) {
         int x = location.getX();
         int y = location.getY();
         Building building = getBuilding();
@@ -201,6 +201,10 @@ public class Farm {
         int newY = from.getY() + (int) (ny * maxDistance);
 
         return new Location(newX, newY, from.getTile());
+    }
+
+    public Building getHouse() {
+        return building;
     }
 
     private void initializeSymbols() {
@@ -681,7 +685,6 @@ public class Farm {
         }
         return 0;
     }
-
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : App.getGame().getGameMap().getFarms()) {
