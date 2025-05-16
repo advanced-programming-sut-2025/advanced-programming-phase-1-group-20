@@ -26,21 +26,6 @@ public class Fish extends Item implements Serializable {
         this(type, 0, season);
     }
 
-    private void setQualityViaQ(int q){
-        if(q == 0){
-            setQuality(Quality.Normal);
-        }
-        else if(q == 1){
-            setQuality(Quality.Silver);
-        }
-        else if(q == 2){
-            setQuality(Quality.Golden);
-        }
-        else if(q == 3){
-            setQuality(Quality.Iridium);
-        }
-    }
-
     private static int calculatePrice(int basePrice, int quality) {
         return switch (quality) {
             case 1 -> // Silver
@@ -54,6 +39,17 @@ public class Fish extends Item implements Serializable {
         };
     }
 
+    private void setQualityViaQ(int q) {
+        if (q == 0) {
+            setQuality(Quality.Normal);
+        } else if (q == 1) {
+            setQuality(Quality.Silver);
+        } else if (q == 2) {
+            setQuality(Quality.Golden);
+        } else if (q == 3) {
+            setQuality(Quality.Iridium);
+        }
+    }
 
     public String getQualityString() {
         return switch (q) {
@@ -90,10 +86,10 @@ public class Fish extends Item implements Serializable {
             info.append(" (**legendary**)");
         }
         info.append("\n");
-        info.append("Quality: ").append(getQualityString()).append("\n");
-        info.append("Value: ").append(getBaseSellPrice()).append("g").append("\n");
-        info.append("Description: ").append(getDescription()).append("\n");
-        info.append("Season: ").append(season);
+        info.append("   Quality: ").append(getQualityString()).append("\n");
+        info.append("   Value: ").append(getBaseSellPrice()).append("g").append("\n");
+        info.append("   Description: ").append(getDescription()).append("\n");
+        info.append("   Season: ").append(season);
 
         return info.toString();
     }

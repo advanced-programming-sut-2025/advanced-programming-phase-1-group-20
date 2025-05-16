@@ -1,8 +1,6 @@
 package org.example.controllers;
 
 import org.example.models.App;
-import org.example.models.Barn;
-import org.example.models.Coop;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
@@ -15,13 +13,11 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
-import org.example.models.entities.animal.BarnAnimal;
-import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.PlayerEnums.Skills;
-import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.*;
+import org.example.models.enums.Types.ItemBuilder;
+import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
@@ -172,7 +168,6 @@ public class GameMenuController implements Controller {
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
             case CheatGiveItems -> cheatGiveItems();
-            case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -315,83 +310,8 @@ public class GameMenuController implements Controller {
 
 
     private Result plant(String[] args) {
-        String seedName = args[0];
-        String direction = args[1];
-
-        int[] dir = getDirection(direction);
-        if (dir == null) {
-            return Result.error("Invalid direction");
-        }
-
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-        Item item = App.getGame().getCurrentPlayer().getBackpack().getItem(seedName);
-        Location loc = player.getLocation();
-        int x = loc.getX() + dir[1];
-        int y = loc.getY() + dir[0];
-
-        if (item == null) {
-            return Result.error(seedName + " does not exist in backpack.");
-        }
-        if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
-            return Result.error("Backpack does not contain " + seedName);
-        }
-        if (gMap.getFarmByPlayer(player).contains(x, y)) {
-            return Result.error("this is not your farm!!!");
-        }
-        if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
-            return Result.error("the land is not plowed!");
-        }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
-            return Result.error("there is an item on the ground");
-        }
-        if (!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
-            return Result.error("item is not plant");
-        }
-
-
-        if (item instanceof Seed) {
-            if (seedName.equals("Mixed Seeds")) {
-                seedName = gameClock.getSeason().getRandomSeed();
-                PlantType type = PlantType.fromSeed(seedName);
-                if (type == null) {
-                    return Result.error("Plant type not found");
-                }
-                item = new Plant(type);
-            }
-
-            Item seedItem = ItemBuilder.build(seedName);
-            Seed seed = (Seed) seedItem;
-            Seasons[] seasons = seed.getSeason();
-            int counter = 0;
-
-            for (Seasons season : seasons) {
-                if (gameClock.getSeason() == season) {
-                    counter++;
-                }
-            }
-
-            if (counter == 0) {
-                return Result.error("This seed is not for this season.");
-            }
-
-
-            gMap.getFarmByPlayer(player).placeItem(x, y, item);
-        } else if (item instanceof Tree tree) {
-            Seasons[] seasons = tree.getSeasons();
-            int counter = 0;
-            for (Seasons season : seasons) {
-                if (gameClock.getSeason() == season) {
-                    counter++;
-                }
-            }
-            if (counter == 0) {
-                return Result.error("This Tree is not for this season.");
-            }
-            gMap.getFarmByPlayer(player).placeItem(x, y, tree);
-        }
-        player.getSkills().get(0).updateLevel();
-        return Result.success(seedName + "planted successfully!");
+        PlantController plantController = new PlantController();
+        return plantController.plant(args);
     }
 
 
@@ -432,69 +352,15 @@ public class GameMenuController implements Controller {
 
 
     private Result showPlant(String[] args) {
-        int x = Integer.parseInt(args[0]);
-        int y = Integer.parseInt(args[1]);
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
-        Location location = gMap.getFarmByPlayer(player).getItem(x, y);
-
-        if (location == null || location.getItem() == null) {
-            return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
-        }
-        Item item = location.getItem();
-        item.showInfo();
-        player.getSkills().get(0).updateLevel();
-        return Result.success("");
+        PlantController plantController = new PlantController();
+        return plantController.showPlant(args);
     }
 
 
-    //we dont have fertilize
+    // we dont have fertilize
     private Result fertilize(String[] args) {
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
-        String fertilizer = args[0];
-        Item item = ItemBuilder.build(fertilizer);
-        Location location = player.getLocation();
-        String direction = args[1];
-        int[] dir = getDirection(direction);
-        int x = location.getX() + dir[1];
-        int y = location.getY() + dir[0];
-        if (item == null) {
-            return Result.error("Fertilizer" + fertilizer + " does not exist.");
-        }
-        if (!player.getBackpack().hasItems(Collections.singletonList(fertilizer))) {
-            return Result.error("Backpack does not contain " + fertilizer);
-        }
-
-        if (!gMap.getFarmByPlayer(player).contains(x, y)) {
-            return Result.error("You are not in the farm");
-        }
-
-        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
-        if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
-            return Result.error("Targeted location is not a plant");
-        }
-        if (!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
-            return Result.error("This item is not a fertilizer.");
-        }
-        Item targetItem = targetLocation.getItem();
-        if (targetItem instanceof Plant plantItem) {
-            if (item.getName().equals("Deluxe Retaining Soil")) {
-                plantItem.updateDaysCounter();
-            } else if (item.getName().equals("Speed-Gro")) {
-                plantItem.setMoistureGod(true);
-            }
-        } else if (targetItem instanceof Tree treeItem) {
-            if (item.getName().equals("Deluxe Retaining Soil")) {
-                treeItem.updateDaysCounter();
-            } else if (item.getName().equals("Speed-Gro")) {
-                treeItem.setMoistureGod(true);
-            }
-        }
-        player.getSkills().get(0).updateLevel();
-        return Result.success("fertilized successfully with" + fertilizer);
+        PlantController plantController = new PlantController();
+        return plantController.fertilize(args);
     }
 
 
@@ -957,7 +823,7 @@ public class GameMenuController implements Controller {
         StringBuilder result = new StringBuilder();
         result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
         for (Fish fish : caughtFish) {
-            result.append("~~~~").append(fish.getInfo()).append("\n");
+            result.append("~").append(fish.getInfo()).append("\n");
         }
 
         return Result.success(result.toString());
@@ -1002,7 +868,7 @@ public class GameMenuController implements Controller {
 
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
                 if (player.getCurrentFarm().walk(x, y) <= 0) {
-                    return Result.error("You've used too much energy");
+                    return Result.error("you can't stay on the destination tile");
                 }
                 return Result.success("Walked to (" + x + ", " + y + ")");
             } else {
@@ -2288,199 +2154,21 @@ public class GameMenuController implements Controller {
     }
 
     private void cheatGiveItems() {
-        Player player = App.getGame().getCurrentPlayer();
 
-        Item weddingRing = new Item("Wedding Ring", 2000, "A special ring for proposing marriage.");
-        player.getBackpack().add(weddingRing, 1);
-
-        Item diamond = new Item("Wood", 750, "A rare and valuable wood.");
-        player.getBackpack().add(diamond, 3);
-
-        Item starfruit = new Item("Coffee", 750, "An exotic, sweet fruit that grows in hot, humid weather.");
-        player.getBackpack().add(starfruit, 5);
-
-        Item ancientSeed = new Item("Salad", 500, "salad");
-        player.getBackpack().add(ancientSeed, 2);
-
-        Item iridiumBar = new Item("Iridium Bar", 1000, "A bar of refined iridium.");
-        player.getBackpack().add(iridiumBar, 3);
-
-        Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
-        player.getBackpack().add(flower, 5);
-
-        Tool rod = new Tool("iridium rod", 200, "hamin", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 0, Skills.FISHING);
-        player.getBackpack().add(rod, 1);
-        System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
-
-        System.out.println("\nCurrent inventory contents:");
-        showInventory();
     }
 
     private Result petAnimal(String[] args) {
-        String animalName = args[0];
-        Player player = App.getGame().getCurrentPlayer();
-        Farm farm = player.getCurrentFarm();
-
-        for (Barn barn : farm.getBarns()) {
-            for (BarnAnimal animal : barn.getAnimals()) {
-                if (animal.getName().equalsIgnoreCase(animalName)) {
-                    animal.increaseHappiness(15);
-                    return Result.success("You pet " + animalName + " and it seems happier!");
-                }
-            }
-        }
-
-        for (Coop coop : farm.getCoops()) {
-            for (CoopAnimal animal : coop.getAnimals()) {
-                if (animal.getName().equalsIgnoreCase(animalName)) {
-                    animal.increaseHappiness(15);
-                    return Result.success("You pet " + animalName + " and it seems happier!");
-                }
-            }
-        }
-
-        return Result.error("No animal found with the name: " + animalName);
+        AnimalController animalController = new AnimalController();
+        return animalController.petAnimal(args);
     }
 
     private Result shepherdAnimals(String[] args) {
-        String animalName = args[0];
-        int x = Integer.parseInt(args[1]);
-        int y = Integer.parseInt(args[2]);
-
-        Player player = App.getGame().getCurrentPlayer();
-        Farm farm = player.getCurrentFarm();
-
-        Weather currentWeather = gameClock.getWeatherToday();
-        if (currentWeather == Weather.RAINY || currentWeather == Weather.SNOWY || currentWeather == Weather.STORMY) {
-            return Result.error("Animals cannot go outside in " + currentWeather.toString().toLowerCase() + " weather.");
-        }
-
-        if (!farm.contains(x, y)) {
-            return Result.error("The specified location is outside the farm boundaries.");
-        }
-
-        if (farm.getTile(x, y) != TileType.GRASS) {
-            return Result.error("Animals can only be moved to grass tiles.");
-        }
-
-        BarnAnimal barnAnimal = null;
-        CoopAnimal coopAnimal = null;
-        Barn animalBarn = null;
-        Coop animalCoop = null;
-
-        for (Barn barn : farm.getBarns()) {
-            for (BarnAnimal animal : barn.getAnimals()) {
-                if (animal.getName().equalsIgnoreCase(animalName)) {
-                    barnAnimal = animal;
-                    animalBarn = barn;
-                    break;
-                }
-            }
-            if (barnAnimal != null) break;
-        }
-
-        if (barnAnimal == null) {
-            for (Coop coop : farm.getCoops()) {
-                for (CoopAnimal animal : coop.getAnimals()) {
-                    if (animal.getName().equalsIgnoreCase(animalName)) {
-                        coopAnimal = animal;
-                        animalCoop = coop;
-                        break;
-                    }
-                }
-                if (coopAnimal != null) break;
-            }
-        }
-
-
-        if (barnAnimal == null && coopAnimal == null) {
-            return Result.error("No animal found with the name: " + animalName);
-        }
-
-
-        if (barnAnimal != null) {
-            barnAnimal.increaseHappiness(8);
-            return Result.success(animalName + " has been moved to the specified location and is grazing happily.");
-        } else {
-            coopAnimal.increaseHappiness(8);
-            return Result.success(animalName + " has been moved to the specified location and is grazing happily.");
-        }
+        AnimalController animalController = new AnimalController();
+        return animalController.shepherdAnimals(args);
     }
 
     private Result feedHay(String[] args) {
-        String animalName = args[0];
-        Player player = App.getGame().getCurrentPlayer();
-        Farm farm = player.getCurrentFarm();
-
-        Backpack backpack = player.getBackpack();
-        Item hayItem = backpack.getItem("Hay");
-        if (hayItem == null) {
-            return Result.error("You don't have any hay in your inventory.");
-        }
-
-        BarnAnimal barnAnimal = null;
-        CoopAnimal coopAnimal = null;
-        Barn animalBarn = null;
-        Coop animalCoop = null;
-        int animalIndex = -1;
-
-        for (Barn barn : farm.getBarns()) {
-            for (int i = 0; i < barn.getAnimals().size(); i++) {
-                BarnAnimal animal = barn.getAnimals().get(i);
-                if (animal.getName().equalsIgnoreCase(animalName)) {
-                    barnAnimal = animal;
-                    animalBarn = barn;
-                    animalIndex = i;
-                    break;
-                }
-            }
-            if (barnAnimal != null) break;
-        }
-
-        if (barnAnimal == null) {
-            for (Coop coop : farm.getCoops()) {
-                for (int i = 0; i < coop.getAnimals().size(); i++) {
-                    CoopAnimal animal = coop.getAnimals().get(i);
-                    if (animal.getName().equalsIgnoreCase(animalName)) {
-                        coopAnimal = animal;
-                        animalCoop = coop;
-                        animalIndex = i;
-                        break;
-                    }
-                }
-                if (coopAnimal != null) break;
-            }
-        }
-
-        if (barnAnimal == null && coopAnimal == null) {
-            return Result.error("No animal found with the name: " + animalName);
-        }
-
-        backpack.remove(hayItem, 1);
-
-        if (barnAnimal != null) {
-            Result feedResult = animalBarn.feedAnimal(animalIndex);
-            if (feedResult.success()) {
-                return Result.success("You fed " + animalName + " with hay.");
-            } else {
-                return feedResult;
-            }
-        } else {
-            coopAnimal.increaseHappiness(5);
-            return Result.success("You fed " + animalName + " with hay.");
-        }
-    }
-
-    private void cheatGiveAllRecipe(){
-        Player player = App.getGame().getCurrentPlayer();
-        for(CraftingType type : CraftingType.values()) {
-            CraftingItem craftedItem = new CraftingItem(type);
-            player.getCraftingItems().add(craftedItem);
-        }
-
-        for(CookingType type : CookingType.values()) {
-            CookingItem cookingItem = new CookingItem(type);
-            player.getCookingItems().add(cookingItem);
-        }
+        AnimalController animalController = new AnimalController();
+        return animalController.feedHay(args);
     }
 }
