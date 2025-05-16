@@ -81,6 +81,8 @@ public class Player {
 
         this.isMarried = false;
         rejectDate = null;
+
+        energyUsedInTurn = 0;
         equipTool("Basic Hoe");
     }
 
@@ -88,20 +90,20 @@ public class Player {
         return isInVillage;
     }
 
-    public Farm getCurrentFarm() {
-        return currentFarm;
+    public void setIsInVillage(boolean isInVillage) {
+        this.isInVillage = isInVillage;
     }
 
-    public void setCurrentVillage(Village currentVillage) {
-        this.currentVillage = currentVillage;
+    public Farm getCurrentFarm() {
+        return currentFarm;
     }
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
     }
 
-    public void setIsInVillage(boolean isInVillage) {
-        this.isInVillage = isInVillage;
+    public void setCurrentVillage(Village currentVillage) {
+        this.currentVillage = currentVillage;
     }
 
     public Friendship getFriendship(Player player) {
@@ -272,7 +274,8 @@ public class Player {
 //        if (10 > energy) {
 //            this.hasCollapsed = true;
 //            this.energy = 0;
-////            this.location = furthestCanGo;
+
+    /// /            this.location = furthestCanGo;
 //        } else {
 //            // Update the player's location
 //            this.location = new Location(x, y, TileType.GRASS);
@@ -285,7 +288,6 @@ public class Player {
 //            }
 //        }
 //    }
-
     public void addCraftingItem(CraftingItem craftingItem) {
         craftingItems.add(craftingItem);
     }
@@ -355,6 +357,10 @@ public class Player {
         return location;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public boolean equipTool(String toolName) {
         Item item = backpack.getItem(toolName);
         if (item == null || !(item instanceof Tool)) {
@@ -373,7 +379,6 @@ public class Player {
     public Tool getCurrentTool() {
         return currentTool;
     }
-
 
     public List<Tool> getAvailableTools() {
         List<Tool> tools = new ArrayList<>();
@@ -580,7 +585,6 @@ public class Player {
         return success;
     }
 
-
     public int getSkillLevel(Skills skill) {
         if (skill == null) {
             return 0;
@@ -657,10 +661,6 @@ public class Player {
 
     public boolean craftingExists(String name) {
         return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
     }
 
     public boolean checkTeleportToVillage() {

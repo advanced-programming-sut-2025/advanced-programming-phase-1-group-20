@@ -1,32 +1,24 @@
 package org.example.views;
 
 import org.example.controllers.HouseMenuController;
-import org.example.controllers.MarketController;
-import org.example.models.App;
 import org.example.models.MapDetails.Building;
-import org.example.models.MapDetails.GameMap;
-import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
 import org.example.models.enums.commands.HouseMenuCommands;
-import org.example.models.enums.commands.LoginRegisterMenuCommands;
 
-public class HouseMenu implements AppMenu{
+public class HouseMenu implements AppMenu {
     private AppView appView;
     private HouseMenuController controller;
     private Player player;
     private Building house;
 
-    public HouseMenu(AppView appView, Player player , Building house) {
+    public HouseMenu(AppView appView, Player player, Building house) {
         this.appView = appView;
         this.controller = controller;
         this.player = player;
         this.house = house;
-        controller = new HouseMenuController(appView , player , house);
+        controller = new HouseMenuController(appView, player, house);
     }
-
-
-
 
     @Override
     public void updateMenu(String input) {
@@ -38,7 +30,7 @@ public class HouseMenu implements AppMenu{
         if (result == null) return;
 
         if (result.success()) {
-            if(command instanceof HouseMenuCommands) {
+            if (command instanceof HouseMenuCommands) {
                 System.out.println(result.message());
             }
         } else {

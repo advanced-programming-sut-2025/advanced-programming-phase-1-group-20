@@ -17,14 +17,12 @@ import org.example.models.entities.animal.Animal;
 import org.example.models.entities.animal.BarnAnimal;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.*;
-import org.example.models.enums.CoopAnimalTypes;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.PlayerEnums.Tools;
 import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class GameSerializer {
     public static Kryo createKryo() {
@@ -86,7 +84,7 @@ public class GameSerializer {
         kryo.register(BarnTypes.class);
         kryo.register(Cages.class);
         kryo.register(CookingType.class);
-        kryo.register(CoopAnimalTypes.class);
+//        kryo.register(CoopAnimalTypes.class);
         kryo.register(CraftingType.class);
         kryo.register(CropType.class);
         kryo.register(FishType.class);
@@ -114,8 +112,6 @@ public class GameSerializer {
         kryo.register(org.example.models.common.Location[].class);
 
 
-
-
         kryo.register(HashMap.class);
         kryo.register(java.util.ArrayList.class);
         kryo.register(java.util.LinkedList.class);
@@ -128,10 +124,6 @@ public class GameSerializer {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
-
-
-
 
         return kryo;
     }

@@ -30,16 +30,12 @@ public class MainMenuController implements Controller {
         String[] args = command.parseInput(input);
         Result result = null;
         switch (command) {
-            //implementing cases:
             case None -> result = Result.error("invalid command");
             case NewGame -> result = newGame(args);
             case LoadGame -> result = loadGame();
             case ShowCurrentMenu -> result = Result.success("Main menu");
             case UserLogout -> result = logout();
             case ChangeMenu -> result = changeMenu(args);
-        }
-        if (result == null) {
-            result = Result.success("Command executed successfully");
         }
 
         appView.handleResult(result, command);
@@ -80,7 +76,7 @@ public class MainMenuController implements Controller {
         if (args == null || args.length < 1) {
             return Result.error("No usernames specified");
         }
-        
+
         List<User> users = new ArrayList<>();
         users.add(App.getLoggedInUser());
 

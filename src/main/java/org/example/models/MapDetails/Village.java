@@ -156,12 +156,11 @@ public class Village {
 
         initializeBuildings();
         markBuildings();
-//        initializeNPCs();
+        initializeNPCs();
 //        initializeShops();
 
         placeRandomObjects("stone", 20);
         placeRandomObjects("tree", 20);
-        placeRandomObjects("crop", 20);
         //TODO: درخت و سنگ داره یا نه؟
     }
 
