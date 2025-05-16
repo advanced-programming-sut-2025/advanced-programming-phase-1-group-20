@@ -476,20 +476,20 @@ public class GameMenuController implements Controller {
         if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
             return Result.error("Targeted location is not a plant");
         }
-        if(!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
+        if (!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
             return Result.error("This item is not a fertilizer.");
         }
         Item targetItem = targetLocation.getItem();
         if (targetItem instanceof Plant plantItem) {
-            if(item.getName().equals("Deluxe Retaining Soil")) {
+            if (item.getName().equals("Deluxe Retaining Soil")) {
                 plantItem.updateDaysCounter();
-            }else if(item.getName().equals("Speed-Gro")) {
+            } else if (item.getName().equals("Speed-Gro")) {
                 plantItem.setMoistureGod(true);
             }
         } else if (targetItem instanceof Tree treeItem) {
-            if(item.getName().equals("Deluxe Retaining Soil")) {
+            if (item.getName().equals("Deluxe Retaining Soil")) {
                 treeItem.updateDaysCounter();
-            }else if(item.getName().equals("Speed-Gro")) {
+            } else if (item.getName().equals("Speed-Gro")) {
                 treeItem.setMoistureGod(true);
             }
         }
@@ -1375,7 +1375,7 @@ public class GameMenuController implements Controller {
     }
 
     private boolean arePlayersNearEachOther(Player player1, Player player2) {
-        if (player1.getCurrentFarm() != player2.getCurrentFarm()) {
+        if (player1.getCurrentFarm() != player2.getCurrentFarm() || !(player1.getIsInVillage() && player2.getIsInVillage())) {
             return false;
         }
 
