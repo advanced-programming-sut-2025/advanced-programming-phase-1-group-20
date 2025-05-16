@@ -923,7 +923,7 @@ public class GameMenuController implements Controller {
         if (farm == null) {
             return Result.error("you don't have a farm");
         }
-        if
+        return Result.success("fishing successfully");
     }
 
     private Result walk(String[] args) {
