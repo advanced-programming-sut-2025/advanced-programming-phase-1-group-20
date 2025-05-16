@@ -13,7 +13,9 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
+import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
+import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.PlantType;
@@ -926,11 +928,37 @@ public class GameMenuController implements Controller {
         if (lake == null) {
             return Result.error("you are not nearby a lake");
         }
-//        List<Fish> caughtFish = lake.fish();
-//        player.setFish(caughtFish);
-//        player.showFishInformation();
+        String poleName = args[0];
+        Tool currentTool = null;
+        for (Tool tool : player.getAvailableTools()) {
+            if (tool.getName().equalsIgnoreCase(poleName)) {
+                currentTool = tool;
+            }
+        }
+        if (currentTool == null) {
+            return Result.error("You don't have the following tool: " + poleName);
+        }
+        double poleMultiplier = switch (poleName.toLowerCase()) {
+            case "training rod" -> 0.1;
+            case "bamboo pole" -> 0.5;
+            case "fibergⅼass rod" -> 0.9;
+            case "iridium rod" -> 1.2;
+            default -> 0.1;
+        };
 
-        return Result.success("fishing: " + farm.getName());
+        List<Fish> caughtFish = lake.fish(player.getSkillLevel(Skills.FISHING), poleMultiplier);
+
+        for (Fish fish : caughtFish) {
+            player.addItem(fish);
+        }
+
+        StringBuilder result = new StringBuilder();
+        result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
+        for (Fish fish : caughtFish) {
+            result.append(" -").append(fish.getInfo()).append("\n");
+        }
+
+        return Result.success(result.toString());
     }
 
     private Result walk(String[] args) {

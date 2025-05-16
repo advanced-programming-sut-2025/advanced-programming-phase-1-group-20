@@ -1,6 +1,5 @@
 package org.example.models.Player;
 
-import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 
 import java.util.HashMap;
@@ -56,10 +55,11 @@ public class Backpack {
     }
 
     public void showInventory() {
+        System.out.println("~inventory~");
         for (Map.Entry<Item, Integer> entry : inventory.entrySet()) {
             Item item = entry.getKey();
             int quantity = entry.getValue();
-            System.out.println(item.getName() + ": " + quantity);
+            System.out.println(" " + item.getName() + ": " + quantity);
         }
     }
 
