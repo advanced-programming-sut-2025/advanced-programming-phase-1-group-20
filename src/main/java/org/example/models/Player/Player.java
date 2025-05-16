@@ -45,6 +45,7 @@ public class Player {
     private Date rejectDate;
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
+    private String playerColor;
 
     public Player(User user) {
         this.user = user;
@@ -84,6 +85,17 @@ public class Player {
 
         energyUsedInTurn = 0;
         equipTool("Basic Hoe");
+
+        // TODO: delete
+        this.money = 10000000;
+    }
+
+    public String getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(String color) {
+        playerColor = color;
     }
 
     public boolean getIsInVillage() {
@@ -733,10 +745,68 @@ public class Player {
         }
 
         setIsInVillage(true);
-//        setCurrentFarm(null);
 
         Location villageLocation = currentVillage.getItem(villageX, villageY);
         setLocation(villageLocation);
+    }
 
+    public boolean checkTeleportToFarm() {
+        if (!isInVillage) return false;
+
+        int x = getLocation().getX();
+        int y = getLocation().getY();
+
+        if (x == Village.width - 1 && y == 0) {
+            teleportToFarm(0);
+            return true;
+        } else if (x == 0 && y == 0) {
+            teleportToFarm(1);
+            return true;
+        } else if (x == 0 && y == Village.height - 1) {
+            teleportToFarm(2);
+            return true;
+        } else if (x == Village.width - 1 && y == Village.height - 1) {
+            teleportToFarm(3);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void teleportToFarm(int farmIndex) {
+        int farmX, farmY;
+
+        switch (farmIndex) {
+            case 0:
+                farmX = 0;
+                farmY = Farm.height - 1;
+                break;
+
+            case 1:
+                farmX = Farm.width - 1;
+                farmY = Farm.height - 1;
+                break;
+
+            case 2:
+                farmX = Farm.width - 1;
+                farmY = 0;
+                break;
+
+            case 3:
+                farmX = 0;
+                farmY = 0;
+                break;
+
+            default:
+                farmX = Farm.width / 2;
+                farmY = Farm.height / 2;
+        }
+
+        setIsInVillage(false);
+        Farm farm = App.getGame().getGameMap().getFarmByIndex(farmIndex);
+        setCurrentFarm(farm);
+
+        Location farmLocation = farm.getItem(farmX, farmY);
+        setLocation(farmLocation);
     }
 }

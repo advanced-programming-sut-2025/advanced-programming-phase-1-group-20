@@ -43,7 +43,7 @@ public class MainMenuController implements Controller {
     }
 
 
-    //implementing methods
+    // implementing methods
     public Result loadGame() {
         Game game = App.loadCurrentGame();
         if (game == null) {

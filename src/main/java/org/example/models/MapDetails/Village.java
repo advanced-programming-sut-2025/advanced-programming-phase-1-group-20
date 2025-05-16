@@ -31,7 +31,22 @@ public class Village {
     private static final String PURPLE = "\u001B[35m";
     private static final String PINK = "\u001B[38;5;200m";
     private static final String LIGHT_BLUE = "\u001B[94m";
+    private static final String BG_WHITE = "\u001B[47m";
     private static final String LIGHT_GREEN = "\u001B[92m";
+    private static final String BG_RESET = "\u001B[0m";
+    private static final String BG_GREEN = "\u001B[42m";
+    private static final String BG_BLUE = "\u001B[44m";
+    private static final String BG_BLACK = "\u001B[40m";
+    private static final String BG_BRIGHT_BLACK = "\u001B[100m";
+    private static final String BG_RED = "\u001B[41m";
+    private static final String BG_GRAY = "\u001B[47m";
+    private static final String BG_CYAN = "\u001B[46m";
+    private static final String BG_YELLOW = "\u001B[43m";
+    private static final String BG_PURPLE = "\u001B[45m";
+    private static final String BG_BROWN = "\u001B[48;5;94m";
+    private static final String BG_PINK = "\u001B[48;5;200m";
+    private static final String BG_LIGHT_BLUE = "\u001B[48;5;39m";
+    private static final String BG_LIGHT_GREEN = "\u001B[48;5;120m";
     private final Location[][] tiles;
     private final List<Building> buildings;
     private final String name;
@@ -54,18 +69,18 @@ public class Village {
     }
 
     private void initializeSymbols() {
-        symbolMap.put("grass", '.');
+        symbolMap.put("grass", ' ');
         symbolMap.put("tilled_soil", '=');
-        symbolMap.put("tree", 'T');
-        symbolMap.put("crop", 'C');
-        symbolMap.put("stone", 'S');
-        symbolMap.put("market", 'M');
+        symbolMap.put("tree", ' ');
+        symbolMap.put("crop", ' ');
+        symbolMap.put("stone", ' ');
         symbolMap.put("path", '#');
-        symbolMap.put("lake", '~');
+        symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
+        symbolMap.put("market", 'M');
+        symbolMap.put("shipping_bin", 'S');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
-        symbolMap.put("market", 'M');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
@@ -204,9 +219,9 @@ public class Village {
 
     private void initializeBuildings() {
         buildings.add(new Building(1, 0, "Town Hall", "public"));
-        buildings.add(new Building(width - 5, 0, "Blacksmith", "shop"));
+        buildings.add(new Building(width - 6, 0, "Blacksmith", "shop"));
         buildings.add(new Building(1, height - 5, "General Store", "shop"));
-        buildings.add(new Building(width - 5, height - 5, "Stardrop Saloon", "public"));
+        buildings.add(new Building(width - 6, height - 5, "Stardrop Saloon", "public"));
     }
 
     public void markBuildings() {
@@ -222,6 +237,33 @@ public class Village {
                 }
             }
         }
+    }
+
+    public Building getHouseAt(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+        List<Building> buildings = getBuildings();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},          {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Building building : buildings) {
+                    if (building.contains(newX, newY)) {
+                        return building;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public void initializeNPCs() {
@@ -369,7 +411,7 @@ public class Village {
         //...
     }
 
-    public void printCurrentViewColored(int centerX, int centerY, int viewRadius, Player player) {
+    public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
         int startX = 0;
         int endX = Math.min(width - 1, centerX + viewRadius);
         int startY = 0;
@@ -382,18 +424,21 @@ public class Village {
                 char symbol = symbolMap.getOrDefault(type, '?');
 
                 String color = switch (type) {
-                    case "grass" -> GREEN;
+                    case "grass" -> BG_LIGHT_GREEN;
                     case "tilled_soil" -> YELLOW;
-                    case "tree" -> GREEN;
-                    case "crop" -> LIGHT_GREEN;
-                    case "stone" -> GRAY;
-                    case "lake" -> BLUE;
-                    case "path" -> YELLOW;
-                    case "coop" -> PINK;
-                    case "barn" -> LIGHT_BLUE;
-                    case "greenhouse" -> BROWN;
-                    case "quarry" -> RED;
-                    case "village" -> PURPLE;
+                    case "tree" -> BG_GREEN;
+                    case "crop" -> BG_PINK;
+                    case "stone" -> BG_BRIGHT_BLACK;
+                    case "lake" -> BG_BLUE;
+                    case "path" -> BG_YELLOW;
+                    case "coop" -> BG_PINK;
+                    case "barn" -> BG_LIGHT_BLUE;
+                    case "market" -> BG_PINK;
+                    case "greenhouse" -> BG_BROWN;
+                    case "building" -> BG_WHITE;
+                    case "quarry" -> BG_RED;
+                    case "village" -> BG_PURPLE;
+                    case "shipping_bin" -> BG_CYAN;
                     case "bridge" -> CYAN;
                     case "empty" -> RESET;
                     default -> RESET;
@@ -404,10 +449,22 @@ public class Village {
 //                        System.out.println(GREEN + "N " + RESET);
 //                    }
 //                }
-                if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
-                    System.out.print(RED + "@ " + RESET);
-                } else {
-                    System.out.print(color + symbol + " " + RESET);
+                List<Player> players = App.getGame().getGameMap().getPlayers();
+                List<Player> playersInVillage = new ArrayList<>();
+                for (Player p : players) {
+                    if (p.getIsInVillage()) {
+                        playersInVillage.add(p);
+                    }
+                }
+                for (Player p : playersInVillage) {
+                    Location location = p.getLocation();
+                    String playerColor = p.getPlayerColor();
+                    if (x == location.getX() && y == location.getY()) {
+                        System.out.print(playerColor + "@ " + RESET);
+                    }
+                    else {
+                        System.out.print(color + symbol + " " + RESET);
+                    }
                 }
             }
             System.out.println();

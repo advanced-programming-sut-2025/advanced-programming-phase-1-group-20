@@ -21,9 +21,9 @@ public class Market extends Building {
     private String[] menu;
     private String name;
 
-    public Market(int x , int y , HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock,
+    public Market(int x, int y, HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock,
                   HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item,
-                    Double> winterStock, int startHour, int endHour, String[] menu , String name) {
+                    Double> winterStock, int startHour, int endHour, String[] menu, String name) {
         super(x, y, name, "market");
         this.permanentStock = permanentStock;
         this.springStock = springStock;
@@ -40,15 +40,15 @@ public class Market extends Building {
     }
 
 
-    public void initializeCounterStock(){
+    public void initializeCounterStock() {
         counterStock.putAll(springStock);
         counterStock.putAll(summerStock);
         counterStock.putAll(autumnStock);
         counterStock.putAll(winterStock);
     }
 
-    public void updateCounterStock(){
-        counterStock.replaceAll((key , value ) -> 0.0);
+    public void updateCounterStock() {
+        counterStock.replaceAll((key, value) -> 0.0);
     }
 
 
@@ -101,9 +101,10 @@ public class Market extends Building {
                 System.out.println("Description : " + item.getDescription());
                 System.out.println("Price       : " + item.getPrice());
                 double stock = permanentStock.get(item) - counterStock.get(item);
-                String formatedStock = String.format("%.0f" , stock);
+                String formatedStock = String.format("%.0f", stock);
                 System.out.println("Stock       : " + formatedStock);
                 c++;
+                System.out.println("~~~~~~~~~~~~~~~~~~~");
             }
         } else {
             System.out.println("------------------------------");
@@ -114,32 +115,32 @@ public class Market extends Building {
 
 
     public Item getItem(String name) {
-        for(Item item : permanentStock.keySet()) {
-            if(name.equals(item.getName())) {
+        for (Item item : permanentStock.keySet()) {
+            if (name.equals(item.getName())) {
                 return item;
             }
         }
 
-        for(Item item : springStock.keySet()) {
-            if(name.equals(item.getName())) {
+        for (Item item : springStock.keySet()) {
+            if (name.equals(item.getName())) {
                 return item;
             }
         }
 
-        for(Item item : summerStock.keySet()) {
-            if(name.equals(item.getName())) {
+        for (Item item : summerStock.keySet()) {
+            if (name.equals(item.getName())) {
                 return item;
             }
         }
 
-        for(Item item : autumnStock.keySet()) {
-            if(name.equals(item.getName())) {
+        for (Item item : autumnStock.keySet()) {
+            if (name.equals(item.getName())) {
                 return item;
             }
         }
 
-        for(Item item : winterStock.keySet()) {
-            if(name.equals(item.getName())) {
+        for (Item item : winterStock.keySet()) {
+            if (name.equals(item.getName())) {
                 return item;
             }
         }
@@ -179,8 +180,8 @@ public class Market extends Building {
     }
 
 
-    public boolean checkItem(Player player , Item item , double count) {
-        switch (name){
+    public boolean checkItem(Player player, Item item, double count) {
+        switch (name) {
             case "Fish Shop":
                 return checkFishShop(player, item, count);
             case "Pierre General Store":
@@ -200,79 +201,7 @@ public class Market extends Building {
         }
     }
 
-    private boolean checkFast(Player player , Item item , double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
-            return false;
-        }
-        if(item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkFishShop(Player player , Item item , double count){
-        if(item.getName().equals("Fiberglass Rod")) {
-            if(!(player.getSkills().get(0).getLevel() > 2)){
-                return false;
-            }
-            return checkFast(player,item,count);
-        }
-        if(item.getName().equals("Iridium Rod")){
-            if(!(player.getSkills().get(0).getLevel() > 4)){
-                return false;
-            }
-            return checkFast(player,item,count);
-        }
-        return checkFast(player, item, count);
-    }
-
-    private boolean checkPirreGeneralStore(Player player , Item item , double count){
-        if(item.getName().equals("Large Pack")) {
-            if(!(player.getBackpack().getType() == Backpack.Type.Initial)){
-                return false;
-            }
-            return checkFast(player,item,count);
-        }
-        if(item.getName().equals("Deluxe Pack")){
-           if(!(player.getBackpack().getType() == Backpack.Type.Big)){
-               return false;
-           }
-           return checkFast(player,item,count);
-        }
-        return checkFast(player, item, count);
-    }
-
-    private boolean checkBlackSmith(Player player, Item item, double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
-            return false;
-        }
-        if(item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkStarDropSaloon(Player player, Item item , double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
-            return false;
-        }
-        if(item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkMarnieShop(Player player, Item item , double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
-            return false;
-        }
-        if(item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkCarpentersShop(Player player, Item item , double count) {
+    private boolean checkFast(Player player, Item item, double count) {
         if (!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
@@ -282,71 +211,143 @@ public class Market extends Building {
         return false;
     }
 
-    private boolean checkJojaMarket(Player player, Item item , double count) {
-        if(!(count + counterStock.get(item) <= totalStock.get(item))) {
+    private boolean checkFishShop(Player player, Item item, double count) {
+        if (item.getName().equals("Fiberglass Rod")) {
+            if (!(player.getSkills().get(0).getLevel() > 2)) {
+                return false;
+            }
+            return checkFast(player, item, count);
+        }
+        if (item.getName().equals("Iridium Rod")) {
+            if (!(player.getSkills().get(0).getLevel() > 4)) {
+                return false;
+            }
+            return checkFast(player, item, count);
+        }
+        return checkFast(player, item, count);
+    }
+
+    private boolean checkPirreGeneralStore(Player player, Item item, double count) {
+        if (item.getName().equals("Large Pack")) {
+            if (!(player.getBackpack().getType() == Backpack.Type.Initial)) {
+                return false;
+            }
+            return checkFast(player, item, count);
+        }
+        if (item.getName().equals("Deluxe Pack")) {
+            if (!(player.getBackpack().getType() == Backpack.Type.Big)) {
+                return false;
+            }
+            return checkFast(player, item, count);
+        }
+        return checkFast(player, item, count);
+    }
+
+    private boolean checkBlackSmith(Player player, Item item, double count) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
-        if(item.getPrice() * count <= player.getMoney()) {
+        if (item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkStarDropSaloon(Player player, Item item, double count) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if (item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkMarnieShop(Player player, Item item, double count) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if (item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkCarpentersShop(Player player, Item item, double count) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if (item.getPrice() * count <= player.getMoney()) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkJojaMarket(Player player, Item item, double count) {
+        if (!(count + counterStock.get(item) <= totalStock.get(item))) {
+            return false;
+        }
+        if (item.getPrice() * count <= player.getMoney()) {
             return true;
         }
         return false;
     }
 
 
-    public void checkOut(Player player, Item item , double count) {
-        switch (name){
+    public void checkOut(Player player, Item item, double count) {
+        switch (name) {
             case "Fish Shop":
-                checkOutFishShop(player,item,count);
+                checkOutFishShop(player, item, count);
             case "Pierre General Store":
-                checkOutPirreGeneralStore(player,item,count);
+                checkOutPirreGeneralStore(player, item, count);
             case "Black Smith":
-                checkOutBlackSmith(player,item,count);
+                checkOutBlackSmith(player, item, count);
             case "Star Drop Saloon":
-                checkOutStarDropSaloon(player,item,count);
+                checkOutStarDropSaloon(player, item, count);
             case "Marnie Shop":
-                checkOutMarnieShop(player,item,count);
+                checkOutMarnieShop(player, item, count);
             case "Carpenters Shop":
-                checkOutCarpentersShop(player,item,count);
+                checkOutCarpentersShop(player, item, count);
             case "Joja Market":
-                checkOutJojaMarket(player,item,count);
+                checkOutJojaMarket(player, item, count);
         }
     }
 
-    private void checkOutFishShop(Player player, Item item , double count) {
-        player.decreaseMoney((int) (item.getPrice()*count));
+    private void checkOutFishShop(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
-    private void checkOutPirreGeneralStore(Player player, Item item , double count) {
-        if(item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
+    private void checkOutPirreGeneralStore(Player player, Item item, double count) {
+        if (item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
 
         }
-        player.decreaseMoney((int) (item.getPrice()*count));
+        player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
-    private void checkOutBlackSmith(Player player, Item item , double count) {
-        player.decreaseMoney((int) (item.getPrice()*count));
+    private void checkOutBlackSmith(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
-    private void checkOutStarDropSaloon(Player player, Item item , double count) {
-        player.decreaseMoney((int) (item.getPrice()*count));
+    private void checkOutStarDropSaloon(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
-    private void checkOutMarnieShop(Player player, Item item , double count) {
+    private void checkOutMarnieShop(Player player, Item item, double count) {
     }
 
-    private void checkOutCarpentersShop(Player player, Item item , double count) {
+    private void checkOutCarpentersShop(Player player, Item item, double count) {
     }
 
-    private void checkOutJojaMarket(Player player, Item item , double count) {
-        player.decreaseMoney((int) (item.getPrice()*count));
+    private void checkOutJojaMarket(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }

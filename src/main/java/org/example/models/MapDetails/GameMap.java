@@ -100,4 +100,12 @@ public class GameMap {
         }
     }
 
+    public List<Player> getPlayers() {
+        List<Player> players = new ArrayList<>();
+        for (Farm farm : farms) {
+            players.add(farm.getOwner());
+        }
+        return players;
+    }
+
 }

@@ -13,7 +13,9 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
+import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
+import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.PlantType;
@@ -926,11 +928,37 @@ public class GameMenuController implements Controller {
         if (lake == null) {
             return Result.error("you are not nearby a lake");
         }
-//        List<Fish> caughtFish = lake.fish();
-//        player.setFish(caughtFish);
-//        player.showFishInformation();
+        String poleName = args[0];
+        Tool currentTool = null;
+        for (Tool tool : player.getAvailableTools()) {
+            if (tool.getName().equalsIgnoreCase(poleName)) {
+                currentTool = tool;
+            }
+        }
+        if (currentTool == null) {
+            return Result.error("You don't have the following tool: " + poleName);
+        }
+        double poleMultiplier = switch (poleName.toLowerCase()) {
+            case "training rod" -> 0.1;
+            case "bamboo pole" -> 0.5;
+            case "fibergⅼass rod" -> 0.9;
+            case "iridium rod" -> 1.2;
+            default -> 0.1;
+        };
 
-        return Result.success("fishing: " + farm.getName());
+        List<Fish> caughtFish = lake.fish(player.getSkillLevel(Skills.FISHING), poleMultiplier);
+
+        for (Fish fish : caughtFish) {
+            player.addItem(fish);
+        }
+
+        StringBuilder result = new StringBuilder();
+        result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
+        for (Fish fish : caughtFish) {
+            result.append(" -").append(fish.getInfo()).append("\n");
+        }
+
+        return Result.success(result.toString());
     }
 
     private Result walk(String[] args) {
@@ -946,17 +974,11 @@ public class GameMenuController implements Controller {
             int x = Integer.parseInt(args[0]);
             int y = Integer.parseInt(args[1]);
 
-            // Check if the destination is valid
             if (!gMap.getFarmByPlayer(player).contains(x, y)) {
                 return Result.error("Invalid coordinates");
             }
 
-            // Check if the destination is in another player's farm
-            // TODO: Implement this check
-
-            // Get the current location
             Location currentLocation = player.getLocation();
-            //Location destination = new Location(x, y, gMap.getFarmByPlayer(player).getTile(x, y));
             Location destination = player.getCurrentFarm().getItem(x, y);
 
             int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
@@ -972,14 +994,11 @@ public class GameMenuController implements Controller {
             }
 
 
-            // Check if the player has used too much energy this turn
             if (!player.canUseEnergy(energyNeeded)) {
                 return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
             }
 
-            // Check if the player has enough energy
             if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
-                // Move the player
                 if (player.getCurrentFarm().walk(x, y) <= 0) {
                     return Result.error("You've used too much energy");
                 }
@@ -1020,7 +1039,7 @@ public class GameMenuController implements Controller {
 
             //System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
             if (player.getIsInVillage()) {
-                App.getGame().getGameMap().getVillage().printCurrentViewColored(x, y, size, player);
+                App.getGame().getGameMap().getVillage().printCurrentViewColored(x, y, size);
                 return Result.success("Village printed");
             }
             App.getGame().getGameMap().getFarmByPlayer(player).printCurrentViewColored(x, y, size);
@@ -1637,7 +1656,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-    // NPC-related methods
     private Result meetNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();

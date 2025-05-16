@@ -61,7 +61,7 @@ public enum GameMenuCommands implements Command {
 
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),
-    Fishing(Pattern.compile("^fishing\\s+-p\\s+(\\s+)$")),
+    Fishing(Pattern.compile("^fishing\\s+-p\\s+(.+)$")),
 
     // sell command
     SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+?)(?:\\s+-n\\s+(?<count>\\d+))?\\s*")),
@@ -105,15 +105,13 @@ public enum GameMenuCommands implements Command {
     TradeHistory(Pattern.compile("^trade\\s+history$")),
 
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
-
-
+    
     //cheats
-    CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favourits\\s+(?<characterName>\\S+)\\s*$")),
+    CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favorites\\s+(?<characterName>\\S+)\\s*$")),
     CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
     CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),
     CheatTeleportHome(Pattern.compile("^cheat\\s+teleport\\s+house$")),
     CheatTeleportMarkets(Pattern.compile("^cheat\\s+teleport\\s+markets\\s+-m\\s+(Black Smith|Joja Mart|Pierre General Store|Carpenters Shop|Fish Shop|Marnie Shop|Star drop Saloon)$")),
-    //cheats
 
 
     None(null);

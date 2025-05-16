@@ -53,6 +53,7 @@ public class AppView {
             case MainMenu mainMenu -> "main";
             case ProfileMenu profileMenu -> "profile";
             case GameMenu gameMenu -> "game";
+            case MarketMenu marketMenu -> "market";
             case null, default -> "unknown";
         };
     }

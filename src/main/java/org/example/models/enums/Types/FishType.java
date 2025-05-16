@@ -95,7 +95,6 @@ public enum FishType {
         return this.ordinal() >= CRIMSONFISH.ordinal();
     }
 
-    // Getters
     public String getName() {
         return name;
     }

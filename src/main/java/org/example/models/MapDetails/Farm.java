@@ -75,10 +75,26 @@ public class Farm {
         this.greenHouse = createGreenHouse();
         this.quarry = createQuarry();
         this.shippingBins = new ArrayList<>();
+        owner.setPlayerColor(setOwnerColor());
 
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
+    }
+
+    public String setOwnerColor() {
+        switch (farmIndex) {
+            case 0:
+                return BG_BLACK;
+            case 1:
+                return BG_PINK;
+            case 2:
+                return BG_WHITE;
+            case 3:
+                return BG_CYAN;
+            default:
+                return BG_RESET;
+        }
     }
 
     public Building getHouseAt(Location location) {
@@ -207,14 +223,16 @@ public class Farm {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("crop")) {
+                }
+                else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
@@ -702,12 +720,24 @@ public class Farm {
                     case "empty" -> RESET;
                     default -> RESET;
                 };
-                if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
-                    System.out.print(BG_BLACK + "@ " + RESET);
+                List<Player> players = App.getGame().getGameMap().getPlayers();
+                List<Player> playersInThisFarm = new ArrayList<>();
+                for (Player player : players) {
+                    if (player.getCurrentFarm().equals(this)) {
+                        playersInThisFarm.add(player);
+                    }
                 }
-                else {
-                    System.out.print(color + symbol + " " + RESET);
+                for (Player player : playersInThisFarm) {
+                    Location location = player.getLocation();
+                    String playerColor = player.getPlayerColor();
+                    if (x == location.getX() && y == location.getY()) {
+                        System.out.print(playerColor + "@ " + RESET);
+                    }
+                    else {
+                        System.out.print(color + symbol + " " + RESET);
+                    }
                 }
+
             }
             System.out.println();
         }
@@ -758,7 +788,8 @@ public class Farm {
                         if (check instanceof Plant) {
                             Plant plant = (Plant) check;
                             plant.setMoisture(true);
-                        } else if (check instanceof Tree) {
+                        }
+                        else if (check instanceof Tree) {
                             Tree tree = (Tree) check;
                             tree.setMoisture(true);
                         }
