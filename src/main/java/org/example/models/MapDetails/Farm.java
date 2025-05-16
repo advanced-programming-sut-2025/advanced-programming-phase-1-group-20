@@ -680,15 +680,6 @@ public class Farm {
         return false;
     }
 
-    public Lake getLakeAt(int x, int y) {
-        for (Lake lake : lakes) {
-            if (lake.contains(x, y)) {
-                return lake;
-            }
-        }
-        return null;
-    }
-
     private void initializeMarkets() {
         markets[0] = Markets.BLACKS_SMITH.createMarket();
         markets[1] = Markets.JOJA_MART.createMarket();
@@ -940,7 +931,7 @@ public class Farm {
         }
     }
 
-    public boolean hasAdjacentLake(Location location) {
+    public Lake lakeAround (Location location) {
         int x = location.getX();
         int y = location.getY();
 
@@ -955,13 +946,27 @@ public class Farm {
             int newY = y + dir[1];
 
             if (contains(newX, newY)) {
-                if (tiles[newX][newY].getTile() == TileType.LAKE) {
-                    return true;
+                for (Lake lake : lakes) {
+                    if (lake.contains(newX, newY)) {
+                        return lake;
+                    }
                 }
+//                if (tiles[newX][newY].getTile() == TileType.LAKE) {
+//                    return lake;
+//                }
             }
         }
 
-        return false;
+        return null;
+    }
+
+    public Lake getLakeAt(int x, int y) {
+        for (Lake lake : lakes) {
+            if (lake.contains(x, y)) {
+                return lake;
+            }
+        }
+        return null;
     }
 
     public int getFarmIndex() {
@@ -1010,7 +1015,6 @@ public class Farm {
             attackOfSingleCrow();
         }
     }
-
 
     public ArrayList<Location> allItemsForCrows() {
         ArrayList<Location> locations = new ArrayList<>();
