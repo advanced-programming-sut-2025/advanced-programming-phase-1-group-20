@@ -77,6 +77,7 @@ public class Village {
         symbolMap.put("path", '#');
         symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
+        symbolMap.put("market", 'M');
         symbolMap.put("shipping_bin", 'S');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
@@ -405,6 +406,7 @@ public class Village {
                     case "path" -> BG_YELLOW;
                     case "coop" -> BG_PINK;
                     case "barn" -> BG_LIGHT_BLUE;
+                    case "market" -> BG_PINK;
                     case "greenhouse" -> BG_BROWN;
                     case "building" -> BG_WHITE;
                     case "quarry" -> BG_RED;
