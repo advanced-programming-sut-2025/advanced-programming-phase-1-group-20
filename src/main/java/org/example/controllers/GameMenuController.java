@@ -662,20 +662,24 @@ public class GameMenuController implements Controller {
     //this method is completed
     private void craftingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
         List<CraftingItem> craftingItems = player.getCraftingItems();
-        for (CraftingItem craftingItem : craftingItems) {
-            craftingItem.showInfo();
+        if(!craftingItems.isEmpty()) {
+            for (CraftingItem craftingItem : craftingItems) {
+                craftingItem.showInfo();
+            }
+        }else{
+            System.out.println("There is no crafting items for player");
         }
     }
 
     private void cookingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
-        for (CookingItem cookingItem : player.getCookingItems()) {
-            cookingItem.showInfo();
+        if(!player.getCraftingItems().isEmpty()) {
+            for (CookingItem cookingItem : player.getCookingItems()) {
+                cookingItem.showInfo();
+            }
+        }else{
+            System.out.println("There is no cooking items for player");
         }
     }
 
@@ -683,7 +687,6 @@ public class GameMenuController implements Controller {
     private Result eatFood(String[] args) {
 
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         String foodName = args[0];
         Item item = ItemBuilder.build(foodName);

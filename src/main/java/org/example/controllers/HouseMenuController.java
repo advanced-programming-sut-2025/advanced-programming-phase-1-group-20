@@ -104,8 +104,12 @@ public class HouseMenuController implements Controller {
     //this method is completed
     private void craftingShowRecipes() {
         List<CraftingItem> craftingItems = player.getCraftingItems();
-        for (CraftingItem craftingItem : craftingItems) {
-            craftingItem.showInfo();
+        if(!craftingItems.isEmpty()) {
+            for (CraftingItem craftingItem : craftingItems) {
+                craftingItem.showInfo();
+            }
+        }else{
+            System.out.println("There is no crafting items for the player");
         }
     }
 
