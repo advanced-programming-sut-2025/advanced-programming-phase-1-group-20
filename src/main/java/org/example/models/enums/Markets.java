@@ -307,6 +307,12 @@ public enum Markets {
         Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
+        Item soil = new Item("Deluxe Retaining Soil" , 150 , "This soil has a 100% chance of staying watered overnight. Mix into tilled soil.");
+        items.put(soil, Double.POSITIVE_INFINITY);
+
+        Item speedGrow = new Item("Speed-Gro" , 100 , "Makes the plants grow 1 day earlier.");
+        items.put(speedGrow, Double.POSITIVE_INFINITY);
+
         Item oil = new ArtisanItem(ArtisanType.Oil);
         oil.setPrice(200);
         items.put(oil, Double.POSITIVE_INFINITY);

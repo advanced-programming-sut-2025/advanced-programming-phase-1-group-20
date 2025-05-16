@@ -11,6 +11,7 @@ public class Plant extends Item {
     private boolean moisture;
     private int moistureCounter;
     private boolean isGiant;
+    private boolean moistureGod;
 
     public Plant(PlantType type) {
         super(type.getName(), type.getBaseSellPrice());
@@ -93,9 +94,11 @@ public class Plant extends Item {
     public void updateDaysCounter() {
         int[] stages = getStages();
         if (daysCounter < stages[stage]) {
-            if(!moisture){
-                if(moistureCounter < 2){
-                    moistureCounter++;
+            if(!moistureGod){
+                if(!moisture){
+                    if(moistureCounter < 2){
+                        moistureCounter++;
+                    }
                 }
             }
             daysCounter++;
@@ -165,5 +168,13 @@ public class Plant extends Item {
             return new Fruit(getName() , getPrice() , getEnergy());
         }
         return null;
+    }
+
+    public boolean isMoistureGod() {
+        return moistureGod;
+    }
+
+    public void setMoistureGod(boolean moistureGod) {
+        this.moistureGod = moistureGod;
     }
 }
