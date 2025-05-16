@@ -291,10 +291,18 @@ public enum Markets {
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
 
-        //TODO : need to be added:
-        //Wedding Ring
-        //Dehydrator (Recipe)
-        //Grass Starter (Recipe)
+
+
+        Item weddingRing = new Item("Wedding Ring" , 10_000 , "It's used to ask for another farmer's hand in marriage. " +
+                "(Unlocked after reaching level 3 friendship with a player)");
+        items.put(weddingRing, 2.0);
+
+        Item dehydrator = new CraftingItem(CraftingType.Dehydrator);
+        dehydrator.setPrice(10_000);
+        items.put(dehydrator, 1.0);
+
+        Item grassStarter = new Item("Grass Starter" , 1000 , "A recipe to make Grass Starter");
+        items.put(grassStarter, 1.0);
 
         Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
@@ -308,7 +316,6 @@ public enum Markets {
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
 
-        new Tree(TreeType.AppleTree);
         Item appleSapling = new Tree(TreeType.AppleTree);
         appleSapling.setPrice(4_000);
         items.put(appleSapling, Double.POSITIVE_INFINITY);
@@ -642,6 +649,7 @@ public enum Markets {
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
 
 
         int startHour = 9;
