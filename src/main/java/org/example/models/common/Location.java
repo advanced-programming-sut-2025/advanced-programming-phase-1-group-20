@@ -38,6 +38,7 @@ public class Location {
             case LAKE -> this.type = "lake";
             case QUARRY -> this.type = "quarry";
             case VILLAGE -> this.type = "village";
+            case MARKET -> this.type = "market";
             default -> this.type = "?";
         }
     }
