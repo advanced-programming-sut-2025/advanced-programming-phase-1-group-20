@@ -225,14 +225,16 @@ public class Farm {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("crop")) {
+                }
+                else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();

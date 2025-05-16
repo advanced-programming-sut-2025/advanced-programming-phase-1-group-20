@@ -440,6 +440,7 @@ public class Village {
                     }
                 }
             }
+            System.out.println();
         }
     }
 
