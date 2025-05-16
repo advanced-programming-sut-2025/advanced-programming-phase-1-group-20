@@ -369,6 +369,7 @@ public class Farm {
 
     public void markConstructedGreenHouseArea() {
         GreenHouse g = getGreenHouse();
+        g.setIsConstructed();
         int greenHouseX = g.getX();
         int greenHouseY = g.getY();
         int greenHouseWidth = g.getWidth();

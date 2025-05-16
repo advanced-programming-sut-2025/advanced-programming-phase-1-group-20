@@ -15,6 +15,7 @@ public class GreenHouse {
     private final int y;
     private final List<Plant> greenHousePlants;
     private final Weather weather;
+    private boolean isConstructed;
     private final boolean isBuilt;
     private String name;
 
@@ -25,6 +26,15 @@ public class GreenHouse {
         this.greenHousePlants = new ArrayList<>();
         this.weather = Weather.GREENHOUSE;
         this.isBuilt = true;
+        this.isConstructed = false;
+    }
+
+    public boolean getIsConstructed() {
+        return isConstructed;
+    }
+
+    public void setIsConstructed() {
+        this.isConstructed = true;
     }
 
     public int getX() {
