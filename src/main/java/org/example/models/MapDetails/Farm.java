@@ -940,6 +940,30 @@ public class Farm {
         }
     }
 
+    public boolean hasAdjacentLake(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},           {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                if (tiles[newX][newY].getTile() == TileType.LAKE) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public int getFarmIndex() {
         return farmIndex;
     }
