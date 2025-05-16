@@ -733,13 +733,11 @@ public class Farm {
                     if (x == location.getX() && y == location.getY()) {
                         System.out.print(playerColor + "@ " + RESET);
                     }
+                    else {
+                        System.out.print(color + symbol + " " + RESET);
+                    }
                 }
-                if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
-                    System.out.print(owner.getPlayerColor() + "@ " + RESET);
-                }
-                else {
-                    System.out.print(color + symbol + " " + RESET);
-                }
+
             }
             System.out.println();
         }
