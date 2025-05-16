@@ -402,8 +402,7 @@ public class GameMenuController implements Controller {
 
 
             gMap.getFarmByPlayer(player).placeItem(x, y, item);
-        } else if (item instanceof Tree) {
-            Tree tree = (Tree) item;
+        } else if (item instanceof Tree tree) {
             Seasons[] seasons = tree.getSeasons();
             int counter = 0;
             for (Seasons season : seasons) {
@@ -495,21 +494,19 @@ public class GameMenuController implements Controller {
             return Result.error("Backpack does not contain " + fertilizer);
         }
 
-        if(!gMap.getFarmByPlayer(player).contains(x,y)) {
+        if (!gMap.getFarmByPlayer(player).contains(x, y)) {
             return Result.error("You are not in the farm");
         }
 
         Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
-        if(!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
+        if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
             return Result.error("Targeted location is not a plant");
         }
         Item targetItem = targetLocation.getItem();
-        if(targetItem instanceof Plant){
-            Plant plantItem = (Plant) targetItem;
+        if (targetItem instanceof Plant plantItem) {
             plantItem.setStage(plantItem.getStages().length - 1);
             plantItem.setDaysCounter(0);
-        }else if (targetItem instanceof Tree){
-            Tree treeItem = (Tree) targetItem;
+        } else if (targetItem instanceof Tree treeItem) {
             treeItem.setStage(treeItem.getStages().length - 1);
             treeItem.setDaysCounter(0);
         }
@@ -543,8 +540,7 @@ public class GameMenuController implements Controller {
         if (item instanceof Tree) {
             Tree tree = (Tree) item;
             tree.setMoisture(true);
-        } else if (item instanceof Plant) {
-            Plant plant = (Plant) item;
+        } else if (item instanceof Plant plant) {
             plant.setMoisture(true);
         }
         player.getSkills().get(0).updateLevel();
@@ -569,7 +565,7 @@ public class GameMenuController implements Controller {
             return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
         }
 
-        if(player.getCurrentTool().getType() != Tool.ToolType.HOE) {
+        if (player.getCurrentTool().getType() != Tool.ToolType.HOE) {
             return Result.error("You must equip HOE first");
         }
 
@@ -581,31 +577,29 @@ public class GameMenuController implements Controller {
             return Result.error("Plant is not ready yet");
         }
 
-        if (item instanceof Tree) {
-            Tree tree = (Tree) item;
+        if (item instanceof Tree tree) {
             Item fruit = tree.getFruit();
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            if(!player.getBackpack().add(fruit, 1)){
+            if (!player.getBackpack().add(fruit, 1)) {
                 return Result.error("Backpack is full!");
             }
             tree.setFruitCounter(0);
             tree.setFruitFinished(false);
             player.getSkills().get(0).updateLevel();
         }
-        if (item instanceof Plant) {
-            Plant plant = (Plant) item;
+        if (item instanceof Plant plant) {
             Fruit fruit = plant.getFruit();
             int amount = 1;
-            if(plant.getIsGiant()){
+            if (plant.getIsGiant()) {
                 amount = 10;
-                fruit.setEnergy(fruit.getEnergy()*4);
+                fruit.setEnergy(fruit.getEnergy() * 4);
             }
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            if(!player.getBackpack().add(fruit, amount)){
+            if (!player.getBackpack().add(fruit, amount)) {
                 return Result.error("Backpack is full!");
             }
             if (plant.getOneTimeHarvest()) {
@@ -619,13 +613,12 @@ public class GameMenuController implements Controller {
             }
             player.getSkills().get(0).updateLevel();
         }
-        if (item instanceof Crop) {
-            Crop crop = (Crop) item;
+        if (item instanceof Crop crop) {
             Item fruit = crop.getFruit();
             if (fruit == null) {
                 return Result.error("fruit is not ready yet");
             }
-            if(!player.getBackpack().add(fruit, 1)){
+            if (!player.getBackpack().add(fruit, 1)) {
                 return Result.error("Backpack is full!");
             }
             gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
@@ -908,6 +901,17 @@ public class GameMenuController implements Controller {
 
             int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
 
+            System.out.println("you need" + energyNeeded + " energy to reach your destination, do you want to proceed? (yes|no)");
+
+            String input = appView.getInput().toLowerCase();
+
+            if (input.equals("no")) {
+                return Result.success("you declined walk");
+            } else if (!input.equals("yes")) {
+                System.out.println("invalid input, try again");
+            }
+
+
             // Check if the player has used too much energy this turn
             if (!player.canUseEnergy(energyNeeded)) {
                 return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
@@ -1012,7 +1016,7 @@ public class GameMenuController implements Controller {
             boolean farmType;
 
             while (true) {
-                String input = new Scanner(System.in).nextLine().trim();
+                String input = appView.getInput();
                 if (input.matches("two\\s+lakes") || input.matches("bigger\\s+quarry")) {
                     if (input.matches("two\\s+lakes")) {
                         farmType = true;
@@ -1034,8 +1038,6 @@ public class GameMenuController implements Controller {
             App.getGame().getGameMap().addFarm(newFarm);
 
             game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
-
-            gMap.addFarm(newFarm);
 
             if (game.allPlayersSelectedMap()) {
                 App.makeAllChose();
@@ -1688,8 +1690,6 @@ public class GameMenuController implements Controller {
             return Result.error("You can't gift that item to " + npcName + ".");
         }
 
-        Date currentDate = App.getGame().getDate();
-
         boolean isFavorite = npc.isFavoriteItem(item);
 
         Map<String, String> friendships = player.getNPCFriendships();
@@ -1721,7 +1721,6 @@ public class GameMenuController implements Controller {
 
     private Result friendshipNPCList() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         // Get the actual NPC friendships from the player
         Map<String, String> friendships = player.getNPCFriendships();
@@ -1750,7 +1749,6 @@ public class GameMenuController implements Controller {
 
     private Result questsList() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         QuestManager questManager = QuestManager.getInstance();
         List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
@@ -1798,7 +1796,6 @@ public class GameMenuController implements Controller {
 
     private Result questsFinish(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 1) {
             return Result.error("Quest index not specified");
@@ -1959,7 +1956,6 @@ public class GameMenuController implements Controller {
 
     private Result tradeRequest(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 4) {
             return Result.error("Invalid trade request format");
@@ -2054,7 +2050,6 @@ public class GameMenuController implements Controller {
 
     private Result tradeList() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         List<TradeRequest> pendingRequests = TradeManager.getInstance().getPendingTradeRequestsForPlayer(player);
 
@@ -2072,7 +2067,6 @@ public class GameMenuController implements Controller {
 
     private Result tradeResponse(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 2) {
             return Result.error("Invalid trade response format");
@@ -2116,7 +2110,6 @@ public class GameMenuController implements Controller {
 
     private Result tradeHistory() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         List<TradeRequest> history = TradeManager.getInstance().getTradeHistoryForPlayer(player);
 
@@ -2136,7 +2129,6 @@ public class GameMenuController implements Controller {
     //cheats:
     private void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         player.getBackpack().setType(Backpack.Type.Deluxe);
     }
@@ -2144,7 +2136,6 @@ public class GameMenuController implements Controller {
 
     private void cheatAddFavourites(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         Npcs npcType = Npcs.fromName(args[0]);
 
