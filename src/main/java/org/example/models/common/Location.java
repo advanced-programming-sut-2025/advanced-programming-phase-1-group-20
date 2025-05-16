@@ -40,6 +40,7 @@ public class Location {
             case VILLAGE -> this.type = "village";
             case MARKET -> this.type = "market";
             case SHIPPING_BIN -> this.type = "shipping_bin";
+            case PLOWED -> this.type = "plowed";
             default -> this.type = "?";
         }
     }
