@@ -958,7 +958,7 @@ public class GameMenuController implements Controller {
         StringBuilder result = new StringBuilder();
         result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
         for (Fish fish : caughtFish) {
-            result.append(" -").append(fish.getInfo()).append("\n");
+            result.append("~~~~").append(fish.getInfo()).append("\n");
         }
 
         return Result.success(result.toString());
@@ -2309,6 +2309,8 @@ public class GameMenuController implements Controller {
         Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
 
+        Tool rod = new Tool("iridium rod", 200, "hamin", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 0, Skills.FISHING);
+        player.getBackpack().add(rod, 1);
         System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
 
         System.out.println("\nCurrent inventory contents:");

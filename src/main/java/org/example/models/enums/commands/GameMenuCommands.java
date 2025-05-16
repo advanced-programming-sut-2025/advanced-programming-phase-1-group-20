@@ -119,9 +119,8 @@ public enum GameMenuCommands implements Command {
     FeedHay(Pattern.compile("^feed\\s+hay\\s+-n\\s+(?<name>.+)$")),
     CheckProducts(Pattern.compile("^produces$")),
 
-
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
-    
+
     None(null);
 
     private final Pattern pattern;
