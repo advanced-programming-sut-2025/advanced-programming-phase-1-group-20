@@ -376,6 +376,10 @@ public class Friendship {
         return (player.equals(player1) ? player2 : player1);
     }
 
+    public void increaseFriendShipLevel(int amount) {
+        level += amount;
+    }
+
     public static class GiftRecord {
         private Item item;
         private Player sender;
@@ -410,4 +414,6 @@ public class Friendship {
             return amount;
         }
     }
+
+
 }

@@ -85,8 +85,7 @@ public enum GameMenuCommands implements Command {
     GiftHistory(Pattern.compile("^gift\\s+history\\s+-u\\s+(?<username>\\S+)$")),
     HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\S+)$")),
     FlowerPlayer(Pattern.compile("^flower\\s+-u\\s+(?<username>\\S+)$")),
-    AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>\\S+)$")),
-    RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
+    AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>.+)$")), RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
 
     // NPC-related commands
     MeetNPC(Pattern.compile("^meet\\s+NPC\\s+(?<npcName>\\S+)$")),
@@ -121,7 +120,10 @@ public enum GameMenuCommands implements Command {
 
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
     CheatGiveAllRecipe(Pattern.compile("^give\\s+recipes$")),
-
+    CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
+    CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
+    CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
+    
     None(null);
 
     private final Pattern pattern;
