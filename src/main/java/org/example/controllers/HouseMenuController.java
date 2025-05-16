@@ -145,13 +145,13 @@ public class HouseMenuController implements Controller {
     private Result addRefrigerator(String[] args) {
         String key = args[0];
         String itemName = args[1];
-        Item item = App.getItem(itemName);
+        Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
-            return Result.error(itemName + "does not exist");
+            return Result.error(itemName + " does not exist");
         }
         switch (key) {
             case "put":
-                if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
+                if (!player.getBackpack().hasItems(Collections.singletonList(itemName))) {
                     return Result.error("Backpack doesn't contain item");
                 }
                 house.getRefrigerator().putItem(item, 1);
@@ -212,7 +212,7 @@ public class HouseMenuController implements Controller {
     //this method is completed now
     private Result eatFood(String[] args) {
         String foodName = args[0];
-        Item item = ItemBuilder.build(foodName);
+        Item item = player.getBackpack().getItem(foodName);
         if (item == null) {
             return Result.error("Item does not exist");
         }
