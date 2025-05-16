@@ -83,6 +83,10 @@ public class MainMenuController implements Controller {
 
         String[] cleaned = Arrays.stream(args).filter(Objects::nonNull).toArray(String[]::new);
 
+        if (users.size() > 4) {
+            return Result.error("Too many users specified (maximum 4 including creator)");
+        }
+        
         for (String username : cleaned) {
             String trimmedUsername = username.trim();
             if (!trimmedUsername.isEmpty()) {
@@ -97,10 +101,6 @@ public class MainMenuController implements Controller {
                     users.add(user);
                 }
             }
-        }
-
-        if (users.size() > 4) {
-            return Result.error("Too many users specified (maximum 4 including creator)");
         }
 
         List<Player> players = new ArrayList<>();

@@ -46,7 +46,7 @@ public class Date {
         }
 
         this.hour += hours;
-        for(int i = 0 ; i < hours ; i++) {
+        for (int i = 0; i < hours; i++) {
             App.getGame().updateTurns();
         }
         while (this.hour >= 22) {
@@ -56,6 +56,7 @@ public class Date {
     }
 
     public void cheatThor(Location location) {
+        App.getGame().getGameMap().getFarmByPlayer(App.getGame().getCurrentPlayer()).thor(location);
         System.out.println("Thor has struck the location");
     }
 
@@ -70,7 +71,7 @@ public class Date {
         this.day += days;
 
         //updating daily map.
-        for(int i = 0 ; i < days ; i++) {
+        for (int i = 0; i < days; i++) {
             App.getGame().updateDailyGame();
         }
 

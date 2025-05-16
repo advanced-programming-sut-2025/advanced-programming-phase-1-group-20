@@ -230,8 +230,7 @@ public class HouseMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem || item instanceof Fruit)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if (item instanceof ArtisanItem) {
-            ArtisanItem artisanItem = (ArtisanItem) item;
+        if (item instanceof ArtisanItem artisanItem) {
             if (artisanItem.getEnergy() > 0) {
                 player.increaseEnergy(artisanItem.getEnergy());
                 player.getBackpack().remove(item, 1);
@@ -240,8 +239,7 @@ public class HouseMenuController implements Controller {
                 return Result.success("Artisan item is not a food.");
             }
         }
-        if (item instanceof Fruit) {
-            Fruit fruit = (Fruit) item;
+        if (item instanceof Fruit fruit) {
             player.increaseEnergy(fruit.getEnergy());
             player.getBackpack().remove(item, 1);
             return Result.success("Food " + foodName + " eaten");

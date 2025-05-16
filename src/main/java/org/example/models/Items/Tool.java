@@ -1,9 +1,11 @@
 package org.example.models.Items;
 
+import org.example.models.App;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Types.ToolFunctionality;
+import org.example.models.enums.Weather;
 
 public class Tool extends Item {
     private ToolType type;
@@ -87,8 +89,18 @@ public class Tool extends Item {
 
     public int getEnergyConsumption(int skillLevel) {
         // If the skill is at max level, reduce energy consumption by 1
+        // check energy consumption by weather
+
         if (skillLevel == 4) {
             return Math.max(0, energyConsumption - 1);
+        }
+
+        if (App.getGame().getDate().getWeatherToday().equals(Weather.RAINY) ||
+                App.getGame().getDate().getWeatherToday().equals(Weather.STORMY)) {
+            energyConsumption *= 1.5;
+        }
+        if (App.getGame().getDate().getWeatherToday().equals(Weather.SNOWY)) {
+            energyConsumption *= 2;
         }
         return energyConsumption;
     }
@@ -244,6 +256,7 @@ public class Tool extends Item {
     public int calculateReturnValue(int itemValue) {
         return (int) (itemValue * returnPercentage);
     }
+
 
     public enum ToolType {
         HOE, PICKAXE, AXE, WATERING_CAN, FISHING_ROD, SCYTHE, MILK_PAIL, SHEARS, TRASH_CAN

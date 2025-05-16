@@ -53,7 +53,7 @@ public class ProfileMenuController implements Controller {
         user.setUsername(newUsername);
 
         App.saveData();
-        
+
         return Result.success("username changed successfully");
     }
 
@@ -205,4 +205,9 @@ public class ProfileMenuController implements Controller {
 
         return Result.success("menu changed to main menu successfully");
     }
+
+//    public Result exit() {
+//
+//    }
 }
+

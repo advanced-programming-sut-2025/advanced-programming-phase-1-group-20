@@ -164,7 +164,7 @@ public class GameMenuController implements Controller {
             case CheatTeleport -> cheatTeleport(args);
             case CheatTeleportHome -> cheatTeleportHome();
             case CheatTeleportMarkets -> cheatTeleportMarkets(args);
-
+            case CheatBuildGreenHouse -> builddd();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -173,6 +173,11 @@ public class GameMenuController implements Controller {
 
         return result;
     }
+
+    public void builddd() {
+        App.getGame().getGameMap().getFarmByPlayer(App.getGame().getCurrentPlayer()).markConstructedGreenHouseArea();
+    }
+
 
     private Result teleportToHome() {
         return Result.error("");
@@ -280,7 +285,6 @@ public class GameMenuController implements Controller {
 
             Location location = new Location(x, y, null);
             App.getGame().getCurrentPlayer().getCurrentFarm().thor(location);
-            gameClock.cheatThor(location);
 
             return Result.success("Thor has struck at location (" + x + "," + y + ")");
         } catch (NumberFormatException e) {
@@ -380,7 +384,6 @@ public class GameMenuController implements Controller {
         }
         player.getSkills().get(0).updateLevel();
         return Result.success(seedName + "planted successfully!");
-
     }
 
 
@@ -707,7 +710,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    //this method is completed now
+    // this method is completed now
     private Result eatFood(String[] args) {
 
         Player player = App.getGame().getCurrentPlayer();
@@ -723,8 +726,7 @@ public class GameMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if (item instanceof ArtisanItem) {
-            ArtisanItem artisanItem = (ArtisanItem) item;
+        if (item instanceof ArtisanItem artisanItem) {
             if (artisanItem.getEnergy() > 0) {
                 player.increaseEnergy(artisanItem.getEnergy());
                 player.getBackpack().remove(item, 1);
@@ -757,7 +759,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    //sell Function:
+    // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -1132,9 +1134,6 @@ public class GameMenuController implements Controller {
             return Result.error("Only the game creator can exit the game");
         }
 
-        // Save the game
-        App.saveCurrentGame();
-
         // Return to main menu
         appView.navigateMenu(new MainMenu(appView, player.getUser()));
 
@@ -1247,12 +1246,9 @@ public class GameMenuController implements Controller {
             return Result.error("Not enough stone. You need " + requiredStone + " stone to build a greenhouse.");
         }
 
-
         player.getBackpack().remove(woodItem, requiredWood);
 
-
         player.getBackpack().remove(stoneItem, requiredStone);
-
 
         // The greenhouse is a 5x6 grid (without counting the wall)
         Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
@@ -2269,7 +2265,6 @@ public class GameMenuController implements Controller {
         System.out.println(App.getGame().getCurrentPlayer().getCurrentFarm().getFarmIndex());
         System.out.println(App.getGame().getCurrentPlayer().getUser().getUsername());
         if (location.getTile() == TileType.GRASS) {
-            System.out.println("hey");
             App.getGame().getCurrentPlayer().setLocation(location);
         }
     }

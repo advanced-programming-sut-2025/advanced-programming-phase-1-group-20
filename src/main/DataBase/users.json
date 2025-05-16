@@ -97,5 +97,18 @@
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
+  },
+  "radical": {
+    "gender": "Female",
+    "username": "radical",
+    "password": "yLgrYG91sw5RwKfAk44A45Md6ZF/RkD1b2pw/c1u+BM\u003d",
+    "email": "radical@yahoo.com",
+    "nickname": "amirhossein",
+    "stayLoggedIn": true,
+    "securityQuestionIndex": 1,
+    "securityAnswer": "kerman",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
   }
 }
