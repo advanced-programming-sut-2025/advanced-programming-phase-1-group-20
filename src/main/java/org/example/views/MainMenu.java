@@ -33,6 +33,7 @@ public class MainMenu implements AppMenu {
             }
 
             appView.navigateMenu(new GameMenu(appView, App.getLoggedInUser(), App.getGame().getCurrentPlayer()));
+//            System.out.println(result.message());
             App.toggleMapSelectionPhase();
         } else if (command == MainMenuCommands.ChangeMenu) {
             if (result.success()) {
