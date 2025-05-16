@@ -156,6 +156,9 @@ public class GameMenuController implements Controller {
             case CheatSetBackPackFull -> cheatBackPackFull();
             case CheatAddFavourites -> cheatAddFavourites(args);
             case CheatTeleport -> cheatTeleport(args);
+            case CheatTeleportHome -> cheatTeleportHome();
+            case CheatTeleportMarkets -> cheatTeleportMarkets(args);
+
 
             case None -> result = Result.error("Invalid command");
         }
@@ -163,6 +166,36 @@ public class GameMenuController implements Controller {
         appView.handleResult(result, command);
 
         return result;
+    }
+
+    private void cheatTeleportMarkets(String[] args) {
+        String marketName = args[0];
+        switch (marketName){
+            case "Black Smith"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Joja Mart"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Pierre General Store"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Carpenters Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Fish Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Marnie Shop"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+            case "Star drop Saloon"->{
+                System.out.println("Going to market " + marketName + " please wait...");
+            }
+        }
+    }
+
+    private void cheatTeleportHome() {
     }
 
     private void cheatTeleport(String[] args) {
