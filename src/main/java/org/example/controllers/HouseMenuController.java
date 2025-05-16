@@ -305,7 +305,6 @@ public class HouseMenuController implements Controller {
 
 
     public void getOut() {
-        System.out.println("hala har ghabrestooni mikhay beri boro .");
         appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
     }
 

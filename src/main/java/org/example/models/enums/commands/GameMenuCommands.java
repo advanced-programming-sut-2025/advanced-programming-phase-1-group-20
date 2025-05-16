@@ -114,6 +114,14 @@ public enum GameMenuCommands implements Command {
     CheatTeleportMarkets(Pattern.compile("^cheat\\s+teleport\\s+markets\\s+-m\\s+(Black Smith|Joja Mart|Pierre General Store|Carpenters Shop|Fish Shop|Marnie Shop|Star drop Saloon)$")),
     CheatBuildGreenHouse(Pattern.compile("^cheat build green house$")),
 
+    PetAnimal(Pattern.compile("^pet\\s+-n\\s+(?<name>.+)$")),
+    ShepherdAnimals(Pattern.compile("^shepherd\\s+animals\\s+-n\\s+(?<name>.+)\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
+    FeedHay(Pattern.compile("^feed\\s+hay\\s+-n\\s+(?<name>.+)$")),
+    CheckProducts(Pattern.compile("^produces$")),
+
+
+    CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
+    
     None(null);
 
     private final Pattern pattern;

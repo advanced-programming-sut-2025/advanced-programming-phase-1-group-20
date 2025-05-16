@@ -3,6 +3,7 @@ package org.example.models.entities;
 import org.example.models.App;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
+import org.example.models.common.Date;
 import org.example.models.common.Location;
 
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class Friendship {
     private List<String> chatHistory;
     private boolean bouquetGiven;
     private boolean married;
+    private boolean energyBoostedToday = false;
+    private Map<Long, int[]> lastInteractionDates = new HashMap<>();
 
     public Friendship(Player player1, Player player2) {
         this.player1 = player1;
@@ -52,7 +55,6 @@ public class Friendship {
         this.bouquetGiven = false;
         this.married = false;
     }
-
 
     public int getLevel() {
         return level;
@@ -105,7 +107,6 @@ public class Friendship {
         return false;
     }
 
-
     public boolean decreaseXp(int amount) {
         int oldLevel = level;
         xp -= amount;
@@ -124,7 +125,6 @@ public class Friendship {
         return false;
     }
 
-
     public boolean talk(String message, Player sender) {
         if (!areAdjacent(player1, player2)) {
             return false;
@@ -139,6 +139,11 @@ public class Friendship {
         chatHistory.add(sender.equals(player1) ? player1.getUser().getUsername() + ": " + message : player2.getUser().getUsername() + ": " + message);
 
         increaseXp(XP_TALK);
+
+        if (married) {
+            giveMarriageEnergyBoost();
+        }
+
         return true;
     }
 
@@ -158,6 +163,10 @@ public class Friendship {
             increaseXp(XP_TRADE_SUCCESS);
         } else {
             decreaseXp(XP_TRADE_FAILURE);
+        }
+
+        if (married) {
+            giveMarriageEnergyBoost();
         }
 
         return true;
@@ -183,6 +192,11 @@ public class Friendship {
         App.getGame().getCurrentPlayer().getBackpack().remove(item, amount);
         Player targetPlayer = (sender.equals(player1) ? player2 : player1);
         targetPlayer.getBackpack().add(item, amount);
+
+        if (married) {
+            giveMarriageEnergyBoost();
+        }
+
         return true;
     }
 
@@ -224,8 +238,11 @@ public class Friendship {
 
         lastInteractionTimes.put(key, System.currentTimeMillis());
 
-        // Increase XP
         increaseXp(XP_HUG);
+
+        if (married) {
+            giveMarriageEnergyBoost();
+        }
 
         return true;
     }
@@ -260,7 +277,26 @@ public class Friendship {
         xp = 0;
         married = true;
 
+        energyBoostedToday = false;
+
         return true;
+    }
+
+    public boolean giveMarriageEnergyBoost() {
+        if (!married || energyBoostedToday) {
+            return false;
+        }
+
+        player1.increaseEnergy(50);
+        player2.increaseEnergy(50);
+
+        energyBoostedToday = true;
+
+        return true;
+    }
+
+    public void resetDailyEnergyBoost() {
+        energyBoostedToday = false;
     }
 
     public boolean isMarried() {
@@ -284,6 +320,8 @@ public class Friendship {
             }
         }
 
+        resetDailyEnergyBoost();
+
         if (!interactedToday) {
             return decreaseXp(XP_DAILY_DECAY);
         }
@@ -291,22 +329,39 @@ public class Friendship {
         return false;
     }
 
-
     private boolean areAdjacent(Player player1, Player player2) {
+        if (player1 == null || player2 == null) {
+            return false;
+        }
+
         Location loc1 = player1.getLocation();
         Location loc2 = player2.getLocation();
 
-        int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
+        if (loc1 == null || loc2 == null) {
+            return false;
+        }
 
+        int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
 
         return distance <= 2;
     }
 
     private boolean isToday(long time) {
-        // TODO: Implement this method based on the game's time system
-        return true;
-    }
+        if (!lastInteractionDates.containsKey(time)) {
+            Date currentDate = App.getGame().getDate();
+            lastInteractionDates.put(time, new int[]{currentDate.getDay(), currentDate.getSeason().ordinal()});
+            return true;
+        }
 
+        Date currentDate = App.getGame().getDate();
+
+        int[] storedDate = lastInteractionDates.get(time);
+        int storedDay = storedDate[0];
+        int storedSeason = storedDate[1];
+
+        return storedDay == currentDate.getDay() &&
+                storedSeason == currentDate.getSeason().ordinal();
+    }
 
     private boolean hasInteractedToday(String key) {
         return lastInteractionTimes.containsKey(key) && isToday(lastInteractionTimes.get(key));

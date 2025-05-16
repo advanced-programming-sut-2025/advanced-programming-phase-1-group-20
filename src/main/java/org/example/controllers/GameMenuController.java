@@ -1,6 +1,8 @@
 package org.example.controllers;
 
 import org.example.models.App;
+import org.example.models.Barn;
+import org.example.models.Coop;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
@@ -13,6 +15,8 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.PlayerEnums.Skills;
@@ -165,6 +169,10 @@ public class GameMenuController implements Controller {
             case CheatTeleportHome -> cheatTeleportHome();
             case CheatTeleportMarkets -> cheatTeleportMarkets(args);
             case CheatBuildGreenHouse -> builddd();
+
+            case PetAnimal -> result = petAnimal(args);
+            case ShepherdAnimals -> result = shepherdAnimals(args);
+            case FeedHay -> result = feedHay(args);
 
             case None -> result = Result.error("Invalid command");
         }
@@ -1396,8 +1404,8 @@ public class GameMenuController implements Controller {
         if (App.getGame().getCurrentPlayer().getFriendship(targetPlayer).gift(item, App.getGame().getCurrentPlayer(), amount)) {
             return Result.success("You have gifted " + amount + " " + itemName + "to " + username + ".");
         } else {
-            if (arePlayersNearEachOther(App.getGame().getCurrentPlayer(), targetPlayer)) {
-                return Result.error("you must be near the target to gift them");
+            if (!arePlayersNearEachOther(App.getGame().getCurrentPlayer(), targetPlayer)) {
+                return Result.error("You must be near the target to gift them");
             } else if (App.getGame().getCurrentPlayer().getFriendship(targetPlayer).getLevel() < 1) {
                 return Result.error("You must be friends with " + username + " to gift them.");
             } else {
@@ -1657,15 +1665,15 @@ public class GameMenuController implements Controller {
         if (npcEnum == null) {
             return Result.error("NPC with name " + npcName + " not found.");
         }
-
-        Location playerLocation = player.getLocation();
-        Location npcLocation = npcEnum.getLocation();
-
-        int distance = Math.abs(playerLocation.xAxis - npcLocation.xAxis) + Math.abs(playerLocation.yAxis - npcLocation.yAxis);
-
-        if (distance > 1) {
-            return Result.error("You need to be adjacent to " + npcName + " to talk to them.");
-        }
+//
+//        Location playerLocation = player.getLocation();
+//        Location npcLocation = npcEnum.getLocation();
+//
+//        int distance = Math.abs(playerLocation.xAxis - npcLocation.xAxis) + Math.abs(playerLocation.yAxis - npcLocation.yAxis);
+//
+//        if (distance > 1) {
+//            return Result.error("You need to be adjacent to " + npcName + " to talk to them.");
+//        }
 
         NPC npc = createNPCFromEnum(npcEnum);
 
@@ -1673,16 +1681,15 @@ public class GameMenuController implements Controller {
 
         String response = player.meetNPC(npc);
 
-        String dialogue = npcName + ": " + response;
+        String dialogue = npcName + ": ";
 
         Map<String, String> friendships = player.getNPCFriendships();
         if (!friendships.containsKey(npcName) || friendships.get(npcName).contains("Level: 0")) {
-            dialogue += "\n\n" + npcEnum.getDescription();
+            dialogue += "\n" + npcEnum.getDescription();
         }
 
         return Result.success(dialogue);
     }
-
 
     private NPC createNPCFromEnum(Npcs npcEnum) {
         // Create a new NPC with the properties from the enum
@@ -2273,4 +2280,186 @@ public class GameMenuController implements Controller {
         }
     }
 
+
+    private void cheatGiveItems() {
+        Player player = App.getGame().getCurrentPlayer();
+
+        Item weddingRing = new Item("Wedding Ring", 2000, "A special ring for proposing marriage.");
+        player.getBackpack().add(weddingRing, 1);
+
+        Item diamond = new Item("Wood", 750, "A rare and valuable wood.");
+        player.getBackpack().add(diamond, 3);
+
+        Item starfruit = new Item("Coffee", 750, "An exotic, sweet fruit that grows in hot, humid weather.");
+        player.getBackpack().add(starfruit, 5);
+
+        Item ancientSeed = new Item("Salad", 500, "salad");
+        player.getBackpack().add(ancientSeed, 2);
+
+        Item iridiumBar = new Item("Iridium Bar", 1000, "A bar of refined iridium.");
+        player.getBackpack().add(iridiumBar, 3);
+
+        Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
+        player.getBackpack().add(flower, 5);
+
+        System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
+
+        System.out.println("\nCurrent inventory contents:");
+        showInventory();
+    }
+
+    private Result petAnimal(String[] args) {
+        String animalName = args[0];
+        Player player = App.getGame().getCurrentPlayer();
+        Farm farm = player.getCurrentFarm();
+
+        for (Barn barn : farm.getBarns()) {
+            for (BarnAnimal animal : barn.getAnimals()) {
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    animal.increaseHappiness(15);
+                    return Result.success("You pet " + animalName + " and it seems happier!");
+                }
+            }
+        }
+
+        for (Coop coop : farm.getCoops()) {
+            for (CoopAnimal animal : coop.getAnimals()) {
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    animal.increaseHappiness(15);
+                    return Result.success("You pet " + animalName + " and it seems happier!");
+                }
+            }
+        }
+
+        return Result.error("No animal found with the name: " + animalName);
+    }
+
+    private Result shepherdAnimals(String[] args) {
+        String animalName = args[0];
+        int x = Integer.parseInt(args[1]);
+        int y = Integer.parseInt(args[2]);
+
+        Player player = App.getGame().getCurrentPlayer();
+        Farm farm = player.getCurrentFarm();
+
+        Weather currentWeather = gameClock.getWeatherToday();
+        if (currentWeather == Weather.RAINY || currentWeather == Weather.SNOWY || currentWeather == Weather.STORMY) {
+            return Result.error("Animals cannot go outside in " + currentWeather.toString().toLowerCase() + " weather.");
+        }
+
+        if (!farm.contains(x, y)) {
+            return Result.error("The specified location is outside the farm boundaries.");
+        }
+
+        if (farm.getTile(x, y) != TileType.GRASS) {
+            return Result.error("Animals can only be moved to grass tiles.");
+        }
+
+        BarnAnimal barnAnimal = null;
+        CoopAnimal coopAnimal = null;
+        Barn animalBarn = null;
+        Coop animalCoop = null;
+
+        for (Barn barn : farm.getBarns()) {
+            for (BarnAnimal animal : barn.getAnimals()) {
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    barnAnimal = animal;
+                    animalBarn = barn;
+                    break;
+                }
+            }
+            if (barnAnimal != null) break;
+        }
+
+        if (barnAnimal == null) {
+            for (Coop coop : farm.getCoops()) {
+                for (CoopAnimal animal : coop.getAnimals()) {
+                    if (animal.getName().equalsIgnoreCase(animalName)) {
+                        coopAnimal = animal;
+                        animalCoop = coop;
+                        break;
+                    }
+                }
+                if (coopAnimal != null) break;
+            }
+        }
+
+
+        if (barnAnimal == null && coopAnimal == null) {
+            return Result.error("No animal found with the name: " + animalName);
+        }
+
+
+        if (barnAnimal != null) {
+            barnAnimal.increaseHappiness(8);
+            return Result.success(animalName + " has been moved to the specified location and is grazing happily.");
+        } else {
+            coopAnimal.increaseHappiness(8);
+            return Result.success(animalName + " has been moved to the specified location and is grazing happily.");
+        }
+    }
+
+    private Result feedHay(String[] args) {
+        String animalName = args[0];
+        Player player = App.getGame().getCurrentPlayer();
+        Farm farm = player.getCurrentFarm();
+
+        Backpack backpack = player.getBackpack();
+        Item hayItem = backpack.getItem("Hay");
+        if (hayItem == null) {
+            return Result.error("You don't have any hay in your inventory.");
+        }
+
+        BarnAnimal barnAnimal = null;
+        CoopAnimal coopAnimal = null;
+        Barn animalBarn = null;
+        Coop animalCoop = null;
+        int animalIndex = -1;
+
+        for (Barn barn : farm.getBarns()) {
+            for (int i = 0; i < barn.getAnimals().size(); i++) {
+                BarnAnimal animal = barn.getAnimals().get(i);
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    barnAnimal = animal;
+                    animalBarn = barn;
+                    animalIndex = i;
+                    break;
+                }
+            }
+            if (barnAnimal != null) break;
+        }
+
+        if (barnAnimal == null) {
+            for (Coop coop : farm.getCoops()) {
+                for (int i = 0; i < coop.getAnimals().size(); i++) {
+                    CoopAnimal animal = coop.getAnimals().get(i);
+                    if (animal.getName().equalsIgnoreCase(animalName)) {
+                        coopAnimal = animal;
+                        animalCoop = coop;
+                        animalIndex = i;
+                        break;
+                    }
+                }
+                if (coopAnimal != null) break;
+            }
+        }
+
+        if (barnAnimal == null && coopAnimal == null) {
+            return Result.error("No animal found with the name: " + animalName);
+        }
+
+        backpack.remove(hayItem, 1);
+
+        if (barnAnimal != null) {
+            Result feedResult = animalBarn.feedAnimal(animalIndex);
+            if (feedResult.success()) {
+                return Result.success("You fed " + animalName + " with hay.");
+            } else {
+                return feedResult;
+            }
+        } else {
+            coopAnimal.increaseHappiness(5);
+            return Result.success("You fed " + animalName + " with hay.");
+        }
+    }
 }
