@@ -216,6 +216,7 @@ public class Farm {
         symbolMap.put("path", '#');
         symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
+        symbolMap.put("shipping_bin", 'S');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("market", 'M');
         symbolMap.put("village", 'V');
@@ -761,6 +762,7 @@ public class Farm {
                     case "building" -> BG_WHITE;
                     case "quarry" -> BG_RED;
                     case "village" -> BG_PURPLE;
+                    case "shipping_bin" -> BG_CYAN;
                     case "bridge" -> CYAN;
                     case "empty" -> RESET;
                     default -> RESET;

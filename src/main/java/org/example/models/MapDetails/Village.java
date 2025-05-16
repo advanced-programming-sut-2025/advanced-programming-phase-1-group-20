@@ -78,9 +78,9 @@ public class Village {
 //        initializeNPCs();
 //        initializeShops();
 
-        placeRandomObjects("stone", 100);
-        placeRandomObjects("tree", 150);
-        placeRandomObjects("crop", 100);
+        placeRandomObjects("stone", 20);
+        placeRandomObjects("tree", 20);
+        placeRandomObjects("crop", 20);
         //TODO: درخت و سنگ داره یا نه؟
     }
 
