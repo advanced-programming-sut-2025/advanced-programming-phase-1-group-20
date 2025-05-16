@@ -24,7 +24,7 @@ public enum Markets {
 
     private static Market creatBlackSmith() {
         int x = 0;
-        int y = 0;
+        int y = 6;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -81,7 +81,7 @@ public enum Markets {
 
     private static Market createJojaMarket() {
         int x = 0;
-        int y = 0;
+        int y = 12;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -275,7 +275,7 @@ public enum Markets {
 
     private static Market createPierreGeneralStore() {
         int x = 0;
-        int y = 0;
+        int y = 18;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -592,7 +592,7 @@ public enum Markets {
 
     private static Market createCarpentersShop() {
         int x = 0;
-        int y = 0;
+        int y = 24;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -635,7 +635,7 @@ public enum Markets {
 
     private static Market createMarnieShop() {
         int x = 0;
-        int y = 0;
+        int y = 30;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -651,7 +651,7 @@ public enum Markets {
 
     private static Market createStarDropSaloon() {
         int x = 0;
-        int y = 0;
+        int y = 36;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -732,7 +732,7 @@ public enum Markets {
 
     private static Market createFishShop() {
         int x = 0;
-        int y = 0;
+        int y = 42;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();

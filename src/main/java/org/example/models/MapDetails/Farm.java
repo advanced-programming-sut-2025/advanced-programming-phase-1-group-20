@@ -67,7 +67,48 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         initializeMarkets();
+        markMarketAreas();
         setInitialOwnerLocation();
+    }
+
+    public void markMarketAreas() {
+        for (Market market : markets) {
+            if (market != null) {
+                markMarketArea(market);
+            }
+        }
+    }
+
+    private void markMarketArea(Market market) {
+        int marketX = market.getX();
+        int marketY = market.getY();
+        int marketWidth = 3;
+        int marketHeight = 3;
+
+        for (int y = marketY; y < marketY + marketHeight; y++) {
+            for (int x = marketX; x < marketX + marketWidth; x++) {
+                if (contains(x, y)) {
+                    tiles[x][y] = new Location(x, y, TileType.MARKET);
+                }
+            }
+        }
+    }
+
+    public Market getMarketAt(int x, int y) {
+        for (Market market : markets) {
+            if (market != null) {
+                int marketX = market.getX();
+                int marketY = market.getY();
+                int marketWidth = 3;
+                int marketHeight = 3;
+
+                if (x >= marketX && x < marketX + marketWidth &&
+                        y >= marketY && y < marketY + marketHeight) {
+                    return market;
+                }
+            }
+        }
+        return null;
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -89,7 +130,7 @@ public class Farm {
 
         double length = Math.sqrt(dx * dx + dy * dy);
         if (length == 0) {
-            return from; // Already at destination
+            return from;
         }
 
         double nx = dx / length;
@@ -602,7 +643,8 @@ public class Farm {
                         if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    } else if (tile.getItem() instanceof Plant) {
+                    }
+                    else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {

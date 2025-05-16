@@ -15,6 +15,7 @@ public enum TileType {
     GOLD_ORE,
     DIAMOND_ORE,
     VILLAGE,
+    MARKET,
     PATH,
     BUILDING,
     LAKE,
