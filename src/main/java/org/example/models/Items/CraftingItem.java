@@ -7,6 +7,9 @@ import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.*;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,7 +38,7 @@ public class CraftingItem extends Item {
 
 
     public boolean canCraft(Backpack inventory) {
-        Map<Item, Integer> items = inventory.getInventory();
+        Map<Item, Integer> items = new HashMap<>();
         String[] parts = type.getIngredients().split("\\+");
         for (String part : parts) {
             part = part.trim();
@@ -44,11 +47,16 @@ public class CraftingItem extends Item {
             int requiredItem = Integer.parseInt(itemData[0]);
             String itemName = itemData[1];
             itemName = itemName.trim();
-            Item item = App.getItem(itemName);
-            if (!items.containsKey(item) || requiredItem > items.get(item)) {
+            if (inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
                 return false;
             }
+            items.put(inventory.getItem(itemName), requiredItem);
         }
+        for (Item item : new HashSet<>(items.keySet())) {
+            inventory.remove(item, items.get(item));
+        }
+
+
         return true;
     }
 

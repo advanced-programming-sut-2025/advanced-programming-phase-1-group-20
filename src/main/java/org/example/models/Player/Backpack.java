@@ -72,6 +72,16 @@ public class Backpack {
         return null;
     }
 
+    public int getNumberOfItem(String name) {
+        for(Item item : inventory.keySet()) {
+            if (item.getName().equalsIgnoreCase(name)) {
+                return inventory.get(item);
+            }
+        }
+        return 0;
+
+    }
+
     // Check if the inventory has all the items in the list
     public boolean hasItems(List<String> names) {
         for (String name : names) {

@@ -461,10 +461,10 @@ public class Player {
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Iron Bar") == null) {
+                if (getBackpack().getItem("Iron") == null) {
                     return false;
                 } else {
-                    Item item1 = getBackpack().getItem("Iron Bar");
+                    Item item1 = getBackpack().getItem("Iron");
                     if (getBackpack().getInventory().get(item1) < 5) {
                         return false;
                     }

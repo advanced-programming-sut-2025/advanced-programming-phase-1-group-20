@@ -57,7 +57,7 @@ public enum Npcs {
             Charactristic.HARD_WORKING,
             Jobs.SELLER,
             new Location(30, 30, TileType.VILLAGE),
-            Arrays.asList("Spaghetti", "Wood", "Iron Bar"),
+            Arrays.asList("Spaghetti", "Wood", "Iron"),
             "The local carpenter who runs the carpentry shop. She's skilled at building and loves working with wood. " +
                     "She built her mountain home with her own hands and takes great pride in her craftsmanship. " +
                     "She works from dawn till dusk and believes there's no problem that can't be fixed with the right tools and enough effort."

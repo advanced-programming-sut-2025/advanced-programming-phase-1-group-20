@@ -125,12 +125,11 @@ public class HouseMenuController implements Controller {
             return Result.error("You don't have enough items for  this item");
         }
 
-        if (player.getBackpack().isBackPackFull()) {
+        if (!player.getBackpack().add(craftedItem, 1)) {
             return Result.error("Your backpack is full");
         }
 
 
-        player.getBackpack().add(craftedItem, 1);
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }

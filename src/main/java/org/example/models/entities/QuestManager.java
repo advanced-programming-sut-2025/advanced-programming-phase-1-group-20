@@ -350,14 +350,14 @@ public class QuestManager {
             allQuests.put(quest.getId(), quest);
         }
 
-        // Quest 3: Deliver 10 Iron Bars
-        Item ironBar = App.getItem("Iron Bar");
+        // Quest 3: Deliver 10 Irons
+        Item ironBar = App.getItem("Iron");
         if (ironBar != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(ironBar, 10);
             Quest quest = new Quest(
                     nextQuestId++,
                     "Iron for Tools",
-                    "Robin needs 10 Iron Bars to make new tools.",
+                    "Robin needs 10 Irons to make new tools.",
                     Npcs.ROBIN,
                     requirements,
                     1000, // 1,000 gold reward

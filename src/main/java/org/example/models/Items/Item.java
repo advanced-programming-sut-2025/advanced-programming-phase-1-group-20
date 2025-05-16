@@ -92,4 +92,17 @@ public class Item {
     public void setQuality(Quality quality) {
         this.quality = quality;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return name.equalsIgnoreCase(item.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.toLowerCase().hashCode(); // یا فقط name.hashCode() اگر حساس به حروف بزرگ/کوچک
+    }
 }

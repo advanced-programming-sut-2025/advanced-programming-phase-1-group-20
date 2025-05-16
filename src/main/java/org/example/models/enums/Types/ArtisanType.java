@@ -18,7 +18,7 @@ public enum ArtisanType {
     Pickles("Pickles", "A jar of your home-made pickles.", 0, 6, "1 any Vegetable", 0, "Preserves Jar"),
     Jelly("Jelly", "Gooey.", 0, 3 * 24, "1 any Fruit", 0, "Preserves Jar"),
     SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, "1 any Fish + Coal", 0, "Fish Smoker"),
-    IronBar("Iron bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"),
+    IronBar("Iron", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace"),
     CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace"),
     GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace"),
     IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace"),
