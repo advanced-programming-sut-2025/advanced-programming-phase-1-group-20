@@ -70,8 +70,6 @@ public class GameMenuController implements Controller {
             case ShowInventory -> showInventory();
 
             // Map related commands
-
-
             // Farm related commands
 
             // saving related commands
@@ -89,6 +87,7 @@ public class GameMenuController implements Controller {
             case Plant -> result = plant(args);
             case ShowPlant -> result = showPlant(args);
             case Fertilize -> result = fertilize(args);
+            case Fishing -> result = fishing(args);
             case HowMuchWater -> result = howMuchWater();
             case GiveWater -> result = giveWater(args);
             case Harvest -> result = harvest(args);
@@ -173,8 +172,6 @@ public class GameMenuController implements Controller {
 
         return result;
     }
-
-
 
     private Result teleportToHome() {
         return Result.error("");
@@ -915,6 +912,17 @@ public class GameMenuController implements Controller {
             return Result.error("You are not in specefic map");
         }
         return Result.success("teleported to a village");
+    }
+
+    private Result fishing(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        Location location = player.getLocation();
+        GameMap gMap = App.getGame().getGameMap();
+        Farm farm = gMap.getFarmByPlayer(player);
+        if (farm == null) {
+            return Result.error("you don't have a farm");
+        }
+        if
     }
 
     private Result walk(String[] args) {
