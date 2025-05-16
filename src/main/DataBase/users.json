@@ -63,24 +63,12 @@
   "kasri": {
     "gender": "Male",
     "username": "kasri",
-    "password": "RzTVuH7sItvaG1ewiB+oo1Dizib++NJiZ4DwMXNJn1E\u003d",
+    "password": "y6U36Jx5n8jClUXMVLWRclB01ACXZ1BkMWnasIH+GRQ\u003d",
     "email": "kasra@gmail.com",
     "nickname": "kasra",
     "stayLoggedIn": true,
     "securityQuestionIndex": 3,
     "securityAnswer": "NotJava",
-    "mostEarnedMoney": 0,
-    "gamesPlayed": 0,
-    "inventory": []
-  },
-  "valid_user1": {
-    "gender": "Male",
-    "username": "valid_user1",
-    "password": "oQnjaUetVt4dyhzEnw74rJrZp7GqDfQfs8TLc8H/Aeo\u003d",
-    "email": "test@email.com",
-    "nickname": "TestUser",
-    "stayLoggedIn": false,
-    "securityQuestionIndex": 0,
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []
@@ -94,6 +82,18 @@
     "stayLoggedIn": true,
     "securityQuestionIndex": 1,
     "securityAnswer": "karaj",
+    "mostEarnedMoney": 0,
+    "gamesPlayed": 0,
+    "inventory": []
+  },
+  "testuser": {
+    "gender": "Male",
+    "username": "testuser",
+    "password": "oQnjaUetVt4dyhzEnw74rJrZp7GqDfQfs8TLc8H/Aeo\u003d",
+    "email": "test@email.com",
+    "nickname": "TestUser",
+    "stayLoggedIn": false,
+    "securityQuestionIndex": 0,
     "mostEarnedMoney": 0,
     "gamesPlayed": 0,
     "inventory": []

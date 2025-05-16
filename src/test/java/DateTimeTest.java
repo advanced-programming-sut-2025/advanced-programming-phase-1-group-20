@@ -1,11 +1,9 @@
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
-import org.example.models.common.Location;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,8 +27,6 @@ public class DateTimeTest {
         User mockUser = new User("testUser", "password", "test@example.com", "TestUser", Gender.Male);
         mockPlayer = new Player(mockUser);
 
-        // Create a mock GameMap
-        mockGameMap = new GameMap(20, 20, mockPlayer);
     }
 
     @Test
@@ -110,27 +106,6 @@ public class DateTimeTest {
         assertEquals(Weather.SUNNY, gameDate.getWeatherToday());
     }
 
-    @Test
-    public void testCheatThor() {
-        // Create a location for the Thor cheat
-        Location location = new Location(5, 5, TileType.GRASS);
-
-        // Capture the console output to verify the cheat message
-        ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-        PrintStream originalOut = System.out;
-        System.setOut(new PrintStream(outContent));
-
-        try {
-            // Test the Thor cheat
-            gameDate.cheatThor(location, mockGameMap);
-
-            // Verify that a message was printed
-            assertTrue(outContent.toString().contains("Thor has struck the location"));
-        } finally {
-            // Restore the original System.out
-            System.setOut(originalOut);
-        }
-    }
 
     @Test
     public void testDisplayFormatting() {

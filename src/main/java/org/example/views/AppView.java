@@ -12,6 +12,7 @@ public class AppView {
     public AppMenu currentMenu;
     public boolean exit = false;
     private Game currentGame;
+    
 
     public AppView() {
         App.initialize();
