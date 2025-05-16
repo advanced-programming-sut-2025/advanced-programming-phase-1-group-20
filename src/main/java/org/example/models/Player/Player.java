@@ -16,7 +16,6 @@ import org.example.models.entities.NPC;
 import org.example.models.entities.NPCFriendship;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Skills;
-import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Types.ToolFunctionality;
 
 import java.util.ArrayList;
@@ -167,14 +166,6 @@ public class Player {
         energySet = false;
     }
 
-    public void fishingRod(GameMap gMap, int x, int y) {
-        //checking the Tile around.
-        TileType tile = gMap.getFarmByPlayer(App.getGame().getCurrentPlayer()).getTile(x + 1, y);
-        //etc
-        if (tile == TileType.WATER) {
-            //implementing func.
-        }
-    }
 
     public void doMission() {
         //checking around for NPC's , and doing missions.

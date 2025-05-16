@@ -72,7 +72,6 @@ public class NPCFriendship {
     }
 
     public Item checkForNPCGift(Date currentDate) {
-        // Use the controller to check for NPC gift
         return controller.checkForNPCGift(this, currentDate);
     }
 

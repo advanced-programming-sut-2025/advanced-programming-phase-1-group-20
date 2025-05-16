@@ -9,7 +9,7 @@ public class Food extends Item {
     private int energy;
     private String buffer;
 
-    public Food(String foodName, int baseSellPrice, int energy , String buffer) {
+    public Food(String foodName, int baseSellPrice, int energy, String buffer) {
         super(foodName, baseSellPrice);
         this.energy = energy;
         this.buffer = buffer;
@@ -24,28 +24,28 @@ public class Food extends Item {
         return buffer;
     }
 
-    public void setBuffer(Player player){
+    public void setBuffer(Player player) {
         String regex = "^(Max Energy|Farming|Mining|Fishing|Foraging)\\s*\\(\\s*(?<hours>\\d+)\\s+hours\\s*\\)$";
-        if(buffer.matches(regex)){
+        if (buffer.matches(regex)) {
             Pattern pattern = Pattern.compile(regex);
             Matcher matcher = pattern.matcher(buffer);
             String s = matcher.group(0);
             int hours = Integer.parseInt(matcher.group(1));
-            switch (s){
-                case "Max Energy"->{
+            switch (s) {
+                case "Max Energy" -> {
                     player.setEnergyUnlimited();
                 }
-                case "Farming"->{
-                    player.getSkills().get(0).maxSkill(hours , energy);
+                case "Farming" -> {
+                    player.getSkills().get(0).maxSkill(hours, energy);
                 }
-                case "Mining"->{
-                    player.getSkills().get(1).maxSkill(hours , energy);
+                case "Mining" -> {
+                    player.getSkills().get(1).maxSkill(hours, energy);
                 }
-                case "Foraging"->{
-                    player.getSkills().get(2).maxSkill(hours , energy);
+                case "Foraging" -> {
+                    player.getSkills().get(2).maxSkill(hours, energy);
                 }
-                case "Fishing"->{
-                    player.getSkills().get(3).maxSkill(hours , energy);
+                case "Fishing" -> {
+                    player.getSkills().get(3).maxSkill(hours, energy);
                 }
             }
         }

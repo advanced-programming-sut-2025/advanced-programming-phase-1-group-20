@@ -5,7 +5,6 @@ import org.example.models.Items.Item;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Market;
 import org.example.models.Player.Player;
-import org.example.models.common.Date;
 import org.example.models.common.Result;
 import org.example.models.enums.commands.MarketMenuCommands;
 import org.example.views.AppView;
@@ -20,8 +19,6 @@ public class MarketController implements Controller {
     public MarketController(AppView appView, Player player, Market market) {
         this.appView = appView;
         this.player = player;
-//        this.gMap = new GameMap(100, 100, player);
-        // طول و عرض همینطوری گذاشته شده!
         this.market = market;
         market.initializeTotalStock(App.getGame().getDate().getSeason());
     }
@@ -112,7 +109,7 @@ public class MarketController implements Controller {
 
     private void getOut() {
         System.out.println("You are out of market");
-        appView.navigateMenu(new GameMenu(appView , player.getUser() , player));
+        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
     }
 
 }
