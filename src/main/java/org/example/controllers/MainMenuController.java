@@ -8,6 +8,7 @@ import org.example.models.entities.User;
 import org.example.models.enums.commands.MainMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
 import org.example.views.AppView;
+import org.example.views.LoginRegisterMenu;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -128,6 +129,7 @@ public class MainMenuController implements Controller {
         }
 
         App.setLoggedInUser(null);
+        appView.navigateMenu(new LoginRegisterMenu(appView));
         return Result.success("logged out");
     }
 

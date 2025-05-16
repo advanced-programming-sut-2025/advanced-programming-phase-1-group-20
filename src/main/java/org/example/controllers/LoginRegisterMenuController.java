@@ -11,7 +11,6 @@ import org.example.views.AppView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.regex.Pattern;
 
 public class LoginRegisterMenuController implements Controller {
@@ -79,7 +78,7 @@ public class LoginRegisterMenuController implements Controller {
             System.out.println("your random password: " + password);
             System.out.println("type confirm to accept, else to generate again");
             while (true) {
-                if (new Scanner(System.in).nextLine().equals("confirm")) {
+                if (appView.getInput().equals("confirm")) {
                     break;
                 } else {
                     password = generateRandomPassword();
@@ -181,7 +180,7 @@ public class LoginRegisterMenuController implements Controller {
         return false;
     }
 
-    private String generateRandomPassword() {
+    public String generateRandomPassword() {
         String upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lower = "abcdefghijklmnopqrstuvwxyz";
         String digits = "0123456789";
@@ -293,5 +292,63 @@ public class LoginRegisterMenuController implements Controller {
     public void exit() {
         // exit the application
         System.exit(0);
+    }
+
+
+    public Result acceptPassword(String username, String password) {
+        if (username == null || password == null) {
+            return Result.error("Invalid username or password");
+        }
+
+        User user = App.getUser(username);
+        if (user == null) {
+            return Result.error("User not found");
+        }
+
+        user.setPassword(password);
+        App.saveData();
+
+        return Result.success("Password accepted successfully. You can now login with your new password.");
+    }
+
+    public Result setCustomPassword(String username, String password, String confirmation) {
+        if (username == null) {
+            return Result.error("Invalid username");
+        }
+
+        User user = App.getUser(username);
+        if (user == null) {
+            return Result.error("User not found");
+        }
+
+        if (!password.equals(confirmation)) {
+            return Result.error("Password confirmation does not match");
+        }
+
+        Result passwordStrengthResult = checkPasswordStrength(password);
+        if (!passwordStrengthResult.success()) {
+            return passwordStrengthResult;
+        }
+
+        user.setPassword(password);
+        App.saveData();
+
+        return Result.success("Custom password set successfully. You can now login with your new password.");
+    }
+
+
+    public Result generateNewPassword(String username) {
+        if (username == null) {
+            return Result.error("Invalid username");
+        }
+
+        User user = App.getUser(username);
+        if (user == null) {
+            return Result.error("User not found");
+        }
+
+        String newPassword = generateRandomPassword();
+
+        return Result.success("your new password is " + newPassword);
     }
 }

@@ -1,7 +1,6 @@
 package org.example.views;
 
 import org.example.controllers.GameMenuController;
-import org.example.models.App;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
@@ -18,22 +17,6 @@ public class GameMenu implements AppMenu {
         this.user = user;
         this.player = player;
         controller = new GameMenuController(appView, player);
-
-        if (App.isMapSelectionPhase()) {
-            System.out.println("~~map selection phase~~");
-        }
-        while (App.isMapSelectionPhase()) {
-            String input = appView.getInput();
-            if (GameMenuCommands.getCommand(input) != GameMenuCommands.SelectMap) {
-                System.out.println("you can only choose map in this phase");
-                continue;
-            }
-            controller.update(input);
-
-           if (App.allChose()) {
-                App.toggleMapSelectionPhase();
-           }
-        }
     }
 
     @Override
