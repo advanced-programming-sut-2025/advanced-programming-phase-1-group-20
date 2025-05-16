@@ -1628,7 +1628,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-    // NPC-related methods
     private Result meetNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();

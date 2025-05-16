@@ -75,10 +75,26 @@ public class Farm {
         this.greenHouse = createGreenHouse();
         this.quarry = createQuarry();
         this.shippingBins = new ArrayList<>();
+        owner.setPlayerColor(setOwnerColor());
 
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
+    }
+
+    public String setOwnerColor() {
+        switch (farmIndex) {
+            case 0:
+                return BG_BLACK;
+            case 1:
+                return BG_PINK;
+            case 2:
+                return BG_WHITE;
+            case 3:
+                return BG_CYAN;
+            default:
+                return BG_RESET;
+        }
     }
 
     public Building getHouseAt(Location location) {
@@ -105,6 +121,8 @@ public class Farm {
 
         return null;
     }
+
+
 
     public static int calculateEnergyNeeded(Location from, Location to) {
         int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
@@ -702,8 +720,22 @@ public class Farm {
                     case "empty" -> RESET;
                     default -> RESET;
                 };
+                List<Player> players = App.getGame().getGameMap().getPlayers();
+                List<Player> playersInThisFarm = new ArrayList<>();
+                for (Player player : players) {
+                    if (player.getCurrentFarm().equals(this)) {
+                        playersInThisFarm.add(player);
+                    }
+                }
+                for (Player player : playersInThisFarm) {
+                    Location location = player.getLocation();
+                    String playerColor = player.getPlayerColor();
+                    if (x == location.getX() && y == location.getY()) {
+                        System.out.print(playerColor + "@ " + RESET);
+                    }
+                }
                 if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
-                    System.out.print(BG_BLACK + "@ " + RESET);
+                    System.out.print(owner.getPlayerColor() + "@ " + RESET);
                 }
                 else {
                     System.out.print(color + symbol + " " + RESET);
@@ -758,7 +790,8 @@ public class Farm {
                         if (check instanceof Plant) {
                             Plant plant = (Plant) check;
                             plant.setMoisture(true);
-                        } else if (check instanceof Tree) {
+                        }
+                        else if (check instanceof Tree) {
                             Tree tree = (Tree) check;
                             tree.setMoisture(true);
                         }

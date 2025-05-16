@@ -45,6 +45,7 @@ public class Player {
     private Date rejectDate;
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
+    private String playerColor;
 
     public Player(User user) {
         this.user = user;
@@ -84,6 +85,14 @@ public class Player {
 
         energyUsedInTurn = 0;
         equipTool("Basic Hoe");
+    }
+
+    public void setPlayerColor(String color) {
+        playerColor = color;
+    }
+
+    public String getPlayerColor() {
+        return playerColor;
     }
 
     public boolean getIsInVillage() {

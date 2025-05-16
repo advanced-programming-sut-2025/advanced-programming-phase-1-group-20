@@ -369,7 +369,7 @@ public class Village {
         //...
     }
 
-    public void printCurrentViewColored(int centerX, int centerY, int viewRadius, Player player) {
+    public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
         int startX = 0;
         int endX = Math.min(width - 1, centerX + viewRadius);
         int startY = 0;
@@ -404,13 +404,24 @@ public class Village {
 //                        System.out.println(GREEN + "N " + RESET);
 //                    }
 //                }
-                if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
-                    System.out.print(RED + "@ " + RESET);
-                } else {
-                    System.out.print(color + symbol + " " + RESET);
+                List<Player> players = App.getGame().getGameMap().getPlayers();
+                List<Player> playersInVillage = new ArrayList<>();
+                for (Player p : players) {
+                    if (p.getIsInVillage()) {
+                        playersInVillage.add(p);
+                    }
+                }
+                for (Player p : playersInVillage) {
+                    Location location = p.getLocation();
+                    String playerColor = p.getPlayerColor();
+                    if (x == location.getX() && y == location.getY()) {
+                        System.out.print(playerColor + "@ " + RESET);
+                    }
+                    else {
+                        System.out.print(color + symbol + " " + RESET);
+                    }
                 }
             }
-            System.out.println();
         }
     }
 
