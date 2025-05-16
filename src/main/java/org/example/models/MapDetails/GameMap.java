@@ -72,6 +72,7 @@ public class GameMap {
         for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
 
+            //this only need to be update daily
             farm.updatePlants();
             farm.attackOfTheCrows();
 
@@ -86,10 +87,11 @@ public class GameMap {
     public void updateTurn(List<Player> players) {
         for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
-//            farm.updatePlants(); this only need to be update daily
+
             farm.updateArtisans();
             farm.updateLakeFish();
             village.updateShippingBin(player);
+
         }
     }
 

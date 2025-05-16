@@ -109,9 +109,9 @@ public class Game implements Serializable {
         gameMap.updateDailyGameMap(players);
     }
 
-//    public void updateTurns(){
-//        gameMap.updateTurn(players);
-//    }
+    public void updateTurns(){
+        gameMap.updateTurn(players);
+    }
 
     public void voteToTerminate(Player player, boolean vote) {
         terminateVotes.put(player, vote);
