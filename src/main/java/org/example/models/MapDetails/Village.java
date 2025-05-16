@@ -2,11 +2,15 @@ package org.example.models.MapDetails;
 
 import org.example.models.App;
 import org.example.models.Items.*;
+import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.entities.Game;
 import org.example.models.entities.NPC;
+import org.example.models.enums.Markets;
 import org.example.models.enums.Npcs;
+import org.example.models.Market;
+import org.example.models.enums.Markets;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -35,6 +39,7 @@ public class Village {
     private final String name;
     //private List<Shop> shops;
     private final Map<String, Character> symbolMap;
+    private final Market[] markets = new Market[7];
     private List<NPC> residents;
 
     public Village(String name) {
@@ -46,6 +51,8 @@ public class Village {
         //this.shops = new ArrayList<>();
         initializeVillage();
         initializeSymbols();
+        initializeMarkets();
+        markMarketAreas();
     }
 
     private void initializeSymbols() {
@@ -54,6 +61,7 @@ public class Village {
         symbolMap.put("tree", 'T');
         symbolMap.put("crop", 'C');
         symbolMap.put("stone", 'S');
+        symbolMap.put("market", 'M');
         symbolMap.put("path", '#');
         symbolMap.put("lake", '~');
         symbolMap.put("quarry", 'Q');
@@ -64,6 +72,79 @@ public class Village {
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
         symbolMap.put("empty", ' ');
+    }
+
+    public void markMarketAreas() {
+        for (Market market : markets) {
+            if (market != null) {
+                markMarketArea(market);
+            }
+        }
+    }
+
+    private void markMarketArea(Market market) {
+        int marketX = market.getX();
+        int marketY = market.getY();
+        int marketWidth = 3;
+        int marketHeight = 3;
+
+        for (int y = marketY; y < marketY + marketHeight; y++) {
+            for (int x = marketX; x < marketX + marketWidth; x++) {
+                if (contains(x, y)) {
+                    tiles[x][y] = new Location(x, y, TileType.MARKET);
+                }
+            }
+        }
+    }
+
+    public Market getMarketAt(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},          {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Market market : markets) {
+                    if (market != null && isInMarketArea(market, newX, newY)) {
+                        return market;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean isInMarketArea(Market market, int x, int y) {
+        int marketX = market.getX();
+        int marketY = market.getY();
+        int marketWidth = 3;
+        int marketHeight = 3;
+
+        return x >= marketX && x < marketX + marketWidth &&
+                y >= marketY && y < marketY + marketHeight;
+    }
+
+    private void initializeMarkets() {
+        markets[0] = Markets.BLACKS_SMITH.createMarket();
+        markets[1] = Markets.JOJA_MART.createMarket();
+        markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
+        markets[3] = Markets.CARPENTERS_SHOP.createMarket();
+        markets[4] = Markets.FISH_SHOP.createMarket();
+        markets[5] = Markets.MARNIE_SHOP.createMarket();
+        markets[6] = Markets.STARDROP_SALOON.createMarket();
+    }
+
+    public Market[] getMarkets() {
+        return markets;
     }
 
     private void initializeVillage() {

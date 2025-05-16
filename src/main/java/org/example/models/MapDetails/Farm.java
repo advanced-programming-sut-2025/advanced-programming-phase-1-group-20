@@ -4,12 +4,10 @@ import org.example.models.App;
 import org.example.models.Barn;
 import org.example.models.Coop;
 import org.example.models.Items.*;
-import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.animal.Animal;
-import org.example.models.enums.Markets;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -60,7 +58,6 @@ public class Farm {
     private final List<Barn> barns;
     private final List<Coop> coops;
     private final Map<String, Character> symbolMap;
-    private final Market[] markets = new Market[7];
     private final List<ShippingBin> shippingBins;
 
     public Farm(String name, Player owner, boolean farmType, int farmIndex) {
@@ -81,58 +78,7 @@ public class Farm {
 
         initializeFarm();
         initializeSymbols();
-        //initializeMarkets();
-        //markMarketAreas();
         setInitialOwnerLocation();
-    }
-
-    public void markMarketAreas() {
-        for (Market market : markets) {
-            if (market != null) {
-                markMarketArea(market);
-            }
-        }
-    }
-
-    private void markMarketArea(Market market) {
-        int marketX = market.getX();
-        int marketY = market.getY();
-        int marketWidth = 3;
-        int marketHeight = 3;
-
-        for (int y = marketY; y < marketY + marketHeight; y++) {
-            for (int x = marketX; x < marketX + marketWidth; x++) {
-                if (contains(x, y)) {
-                    tiles[x][y] = new Location(x, y, TileType.MARKET);
-                }
-            }
-        }
-    }
-
-    public Market getMarketAt(Location location) {
-        int x = location.getX();
-        int y = location.getY();
-
-        int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},          {0, 1},
-                {1, -1},  {1, 0}, {1, 1}
-        };
-
-        for (int[] dir : directions) {
-            int newX = x + dir[0];
-            int newY = y + dir[1];
-
-            if (contains(newX, newY)) {
-                for (Market market : markets) {
-                    if (market != null && isInMarketArea(market, newX, newY)) {
-                        return market;
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     public Building getHouseAt(Location location) {
@@ -158,16 +104,6 @@ public class Farm {
         }
 
         return null;
-    }
-
-    private boolean isInMarketArea(Market market, int x, int y) {
-        int marketX = market.getX();
-        int marketY = market.getY();
-        int marketWidth = 3;
-        int marketHeight = 3;
-
-        return x >= marketX && x < marketX + marketWidth &&
-                y >= marketY && y < marketY + marketHeight;
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -218,7 +154,6 @@ public class Farm {
         symbolMap.put("quarry", 'Q');
         symbolMap.put("shipping_bin", 'S');
         symbolMap.put("greenhouse", 'G');
-        symbolMap.put("market", 'M');
         symbolMap.put("village", 'V');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
@@ -786,20 +721,6 @@ public class Farm {
             }
         }
         return false;
-    }
-
-    private void initializeMarkets() {
-        markets[0] = Markets.BLACKS_SMITH.createMarket();
-        markets[1] = Markets.JOJA_MART.createMarket();
-        markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
-        markets[3] = Markets.CARPENTERS_SHOP.createMarket();
-        markets[4] = Markets.FISH_SHOP.createMarket();
-        markets[5] = Markets.MARNIE_SHOP.createMarket();
-        markets[6] = Markets.STARDROP_SALOON.createMarket();
-    }
-
-    public Market[] getMarkets() {
-        return markets;
     }
 
     public void setScarecrow(int x, int y, int r, boolean key) {
