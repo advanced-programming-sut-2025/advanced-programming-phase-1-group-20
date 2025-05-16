@@ -59,6 +59,7 @@ public class Village {
         symbolMap.put("quarry", 'Q');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
+        symbolMap.put("market", 'M');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
