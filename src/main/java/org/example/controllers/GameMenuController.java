@@ -1011,7 +1011,7 @@ public class GameMenuController implements Controller {
 
             //System.out.println("Printing map with center at (" + x + ", " + y + ") and radius " + size + ":");
             if (player.getIsInVillage()) {
-                App.getGame().getGameMap().getVillage().printCurrentViewColored(x, y, size, player);
+                App.getGame().getGameMap().getVillage().printCurrentViewColored(x, y, size);
                 return Result.success("Village printed");
             }
             App.getGame().getGameMap().getFarmByPlayer(player).printCurrentViewColored(x, y, size);
