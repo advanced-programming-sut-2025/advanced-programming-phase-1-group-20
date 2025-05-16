@@ -219,9 +219,9 @@ public class Village {
 
     private void initializeBuildings() {
         buildings.add(new Building(1, 0, "Town Hall", "public"));
-        buildings.add(new Building(width - 5, 0, "Blacksmith", "shop"));
+        buildings.add(new Building(width - 6, 0, "Blacksmith", "shop"));
         buildings.add(new Building(1, height - 5, "General Store", "shop"));
-        buildings.add(new Building(width - 5, height - 5, "Stardrop Saloon", "public"));
+        buildings.add(new Building(width - 6, height - 5, "Stardrop Saloon", "public"));
     }
 
     public void markBuildings() {
