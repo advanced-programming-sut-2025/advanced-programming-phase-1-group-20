@@ -900,10 +900,6 @@ public class GameMenuController implements Controller {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
-        Farm farm = player.getCurrentFarm();
-        if (farm == null) {
-            return Result.error("shasidiiii");
-        }
         if (player.getIsInVillage()) {
             return Result.error("You can't teleport to a village because you are in a village");
         }
@@ -1370,6 +1366,10 @@ public class GameMenuController implements Controller {
     }
 
     private boolean arePlayersNearEachOther(Player player1, Player player2) {
+        if (player1.getCurrentFarm() != player2.getCurrentFarm()) {
+            return false;
+        }
+
         Location loc1 = player1.getLocation();
         Location loc2 = player2.getLocation();
 
