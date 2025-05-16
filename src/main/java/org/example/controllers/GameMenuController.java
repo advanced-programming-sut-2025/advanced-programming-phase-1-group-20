@@ -16,6 +16,8 @@ import org.example.models.entities.*;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.PlayerEnums.Skills;
+import org.example.models.enums.Types.CookingType;
+import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
@@ -164,6 +166,7 @@ public class GameMenuController implements Controller {
             case CheatFriendShipLevel -> result = cheatFriendShipLevel(args);
             case CheatIncreateFriendshipLevel -> result = increaseFRLEVEL(args);
             case CheatIncreaseXP -> result = increaseXP(args);
+            case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
@@ -2148,5 +2151,18 @@ public class GameMenuController implements Controller {
 
         System.out.println("\nCurrent inventory contents:");
         showInventory();
+    }
+
+    private void cheatGiveAllRecipe(){
+        Player player = App.getGame().getCurrentPlayer();
+        for(CraftingType type : CraftingType.values()) {
+            CraftingItem craftedItem = new CraftingItem(type);
+            player.getCraftingItems().add(craftedItem);
+        }
+
+        for(CookingType type : CookingType.values()) {
+            CookingItem cookingItem = new CookingItem(type);
+            player.getCookingItems().add(cookingItem);
+        }
     }
 }
