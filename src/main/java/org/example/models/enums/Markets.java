@@ -24,8 +24,8 @@ public enum Markets {
     }
 
     private static Market creatBlackSmith() {
-        int x = 0;
-        int y = 6;
+        int x = 4;
+        int y = 0;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -81,7 +81,7 @@ public enum Markets {
     }
 
     private static Market createJojaMarket() {
-        int x = 0;
+        int x = 41;
         int y = 12;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
@@ -275,8 +275,8 @@ public enum Markets {
     }
 
     private static Market createPierreGeneralStore() {
-        int x = 0;
-        int y = 18;
+        int x = 15;
+        int y = 13;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -291,10 +291,18 @@ public enum Markets {
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
 
-        //TODO : need to be added:
-        //Wedding Ring
-        //Dehydrator (Recipe)
-        //Grass Starter (Recipe)
+
+
+        Item weddingRing = new Item("Wedding Ring" , 10_000 , "It's used to ask for another farmer's hand in marriage. " +
+                "(Unlocked after reaching level 3 friendship with a player)");
+        items.put(weddingRing, 2.0);
+
+        Item dehydrator = new CraftingItem(CraftingType.Dehydrator);
+        dehydrator.setPrice(10_000);
+        items.put(dehydrator, 1.0);
+
+        Item grassStarter = new Item("Grass Starter" , 1000 , "A recipe to make Grass Starter");
+        items.put(grassStarter, 1.0);
 
         Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
@@ -308,7 +316,6 @@ public enum Markets {
         items.put(vinegar, Double.POSITIVE_INFINITY);
 
 
-        new Tree(TreeType.AppleTree);
         Item appleSapling = new Tree(TreeType.AppleTree);
         appleSapling.setPrice(4_000);
         items.put(appleSapling, Double.POSITIVE_INFINITY);
@@ -592,8 +599,8 @@ public enum Markets {
     }
 
     private static Market createCarpentersShop() {
-        int x = 0;
-        int y = 24;
+        int x = 25;
+        int y = 18;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -635,13 +642,14 @@ public enum Markets {
     }
 
     private static Market createMarnieShop() {
-        int x = 0;
+        int x = 35;
         int y = 30;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
 
 
         int startHour = 9;
@@ -651,8 +659,8 @@ public enum Markets {
     }
 
     private static Market createStarDropSaloon() {
-        int x = 0;
-        int y = 36;
+        int x = 1;
+        int y = 31;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -732,8 +740,8 @@ public enum Markets {
     }
 
     private static Market createFishShop() {
-        int x = 0;
-        int y = 42;
+        int x = 43;
+        int y = 45;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();

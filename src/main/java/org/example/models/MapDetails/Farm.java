@@ -169,8 +169,9 @@ public class Farm {
         symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
         symbolMap.put("shipping_bin", 'S');
-        symbolMap.put("greenhouse", 'G');
+        symbolMap.put("greenhouse", ' ');
         symbolMap.put("plowed", ' ');
+        symbolMap.put("constructed_greenhouse", 'G');
         symbolMap.put("village", 'V');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
@@ -362,6 +363,21 @@ public class Farm {
         for (int y = buildingY; y < buildingY + buildingHeight; y++) {
             for (int x = buildingX; x < buildingX + buildingWidth; x++) {
                 tiles[x][y] = new Location(x, y, TileType.BUILDING);
+            }
+        }
+    }
+
+    public void markConstructedGreenHouseArea() {
+        GreenHouse g = getGreenHouse();
+        g.setIsConstructed();
+        int greenHouseX = g.getX();
+        int greenHouseY = g.getY();
+        int greenHouseWidth = g.getWidth();
+        int greenHouseHeight = g.getHeight();
+
+        for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
+            for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.CONSTRUCTED_GREENHOUSE);
             }
         }
     }
@@ -713,6 +729,7 @@ public class Farm {
                     case "coop" -> BG_PINK;
                     case "barn" -> BG_LIGHT_BLUE;
                     case "greenhouse" -> BG_BROWN;
+                    case "constructed_greenhouse" -> BG_BROWN;
                     case "building" -> BG_WHITE;
                     case "plowed" -> BG_BROWN;
                     case "quarry" -> BG_RED;

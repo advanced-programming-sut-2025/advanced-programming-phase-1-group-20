@@ -1,5 +1,7 @@
 package org.example.models;
 
+import org.example.models.Items.CookingItem;
+import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
 import org.example.models.MapDetails.Building;
 import org.example.models.Player.Backpack;
@@ -320,30 +322,145 @@ public class Market extends Building {
     }
 
     private void checkOutPirreGeneralStore(Player player, Item item, double count) {
-        if (item.getName().equals("Large Pack") || item.getName().equals("Deluxe Pack")) {
+        if (item.getName().equals("Large Pack")) {
+            if(player.getBackpack().getType() == Backpack.Type.Initial) {
+                player.getBackpack().setType(Backpack.Type.Big);
+                player.decreaseMoney((int) (item.getPrice() * count));
+                double stock = count + counterStock.get(item);
+                counterStock.put(item, stock);
+            }
+            return;
+        }
+        if(item.getName().equals("Deluxe Pack")){
+            if(player.getBackpack().getType() == Backpack.Type.Big) {
+                player.getBackpack().setType(Backpack.Type.Deluxe);
+                player.decreaseMoney((int) (item.getPrice() * count));
+                double stock = count + counterStock.get(item);
+                counterStock.put(item, stock);
+            }
+            return;
+        }
 
+        if(item.getName().equals("Dehydrator")){
+            player.addCraftingItem((CraftingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
         }
         player.decreaseMoney((int) (item.getPrice() * count));
+        boolean flag = player.getBackpack().add(item ,(int) count);
+        if (!flag) {
+            System.out.println("you dont have enough space in backpack");
+            return;
+        }
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
     private void checkOutBlackSmith(Player player, Item item, double count) {
-        player.decreaseMoney((int) (item.getPrice() * count));
+        boolean flag = player.getBackpack().add(item ,(int) count);
+        if (!flag) {
+            System.out.println("you dont have enough space in backpack");
+            return;
+        }
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
     private void checkOutStarDropSaloon(Player player, Item item, double count) {
+        if(item.getName().equals("hash browns")){
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+        if(item.getName().equals("Omelet")){
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+        if (item.getName().equals("pancakes")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
+        if (item.getName().equals("bread")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
+        if (item.getName().equals("Tortilla")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
+        if (item.getName().equals("Maki Roll")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
+        if (item.getName().equals("Triple Shot Espresso")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
+        if (item.getName().equals("Pizza")) {
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+        if(item.getName().equals("Cookie")){
+            player.addCookingItem((CookingItem) item);
+            player.decreaseMoney((int) (item.getPrice() * count));
+            double stock = count + counterStock.get(item);
+            counterStock.put(item, stock);
+            return;
+        }
+
         player.decreaseMoney((int) (item.getPrice() * count));
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);
     }
 
     private void checkOutMarnieShop(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
+        boolean flag = player.getBackpack().add(item ,(int) count);
+        if (!flag) {
+            System.out.println("you dont have enough space in backpack");
+            return;
+        }
+        double stock = count + counterStock.get(item);
+        counterStock.put(item, stock);
     }
 
     private void checkOutCarpentersShop(Player player, Item item, double count) {
+        player.decreaseMoney((int) (item.getPrice() * count));
+        boolean flag = player.getBackpack().add(item ,(int) count);
+        if (!flag) {
+            System.out.println("you dont have enough space in backpack");
+            return;
+        }
     }
 
     private void checkOutJojaMarket(Player player, Item item, double count) {
