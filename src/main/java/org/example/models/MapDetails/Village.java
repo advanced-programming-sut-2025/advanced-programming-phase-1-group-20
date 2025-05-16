@@ -239,6 +239,33 @@ public class Village {
         }
     }
 
+    public Building getHouseAt(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+        List<Building> buildings = getBuildings();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},          {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Building building : buildings) {
+                    if (building.contains(newX, newY)) {
+                        return building;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     public void initializeNPCs() {
         Random rand = new Random();
         int count = 5;

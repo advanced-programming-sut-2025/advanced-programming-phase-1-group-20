@@ -122,8 +122,6 @@ public class Farm {
         return null;
     }
 
-
-
     public static int calculateEnergyNeeded(Location from, Location to) {
         int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
 
