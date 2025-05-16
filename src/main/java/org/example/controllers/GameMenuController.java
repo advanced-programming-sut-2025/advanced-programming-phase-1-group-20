@@ -173,6 +173,7 @@ public class GameMenuController implements Controller {
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
+            case CheatGiveItems -> cheatGiveItems();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -476,20 +477,20 @@ public class GameMenuController implements Controller {
         if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
             return Result.error("Targeted location is not a plant");
         }
-        if(!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
+        if (!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
             return Result.error("This item is not a fertilizer.");
         }
         Item targetItem = targetLocation.getItem();
         if (targetItem instanceof Plant plantItem) {
-            if(item.getName().equals("Deluxe Retaining Soil")) {
+            if (item.getName().equals("Deluxe Retaining Soil")) {
                 plantItem.updateDaysCounter();
-            }else if(item.getName().equals("Speed-Gro")) {
+            } else if (item.getName().equals("Speed-Gro")) {
                 plantItem.setMoistureGod(true);
             }
         } else if (targetItem instanceof Tree treeItem) {
-            if(item.getName().equals("Deluxe Retaining Soil")) {
+            if (item.getName().equals("Deluxe Retaining Soil")) {
                 treeItem.updateDaysCounter();
-            }else if(item.getName().equals("Speed-Gro")) {
+            } else if (item.getName().equals("Speed-Gro")) {
                 treeItem.setMoistureGod(true);
             }
         }
@@ -909,10 +910,6 @@ public class GameMenuController implements Controller {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
-        Farm farm = player.getCurrentFarm();
-        if (farm == null) {
-            return Result.error("shasidiiii");
-        }
         if (player.getIsInVillage()) {
             return Result.error("You can't teleport to a village because you are in a village");
         }
@@ -961,7 +958,7 @@ public class GameMenuController implements Controller {
         StringBuilder result = new StringBuilder();
         result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
         for (Fish fish : caughtFish) {
-            result.append(" -").append(fish.getInfo()).append("\n");
+            result.append("~~~~").append(fish.getInfo()).append("\n");
         }
 
         return Result.success(result.toString());
@@ -1224,7 +1221,6 @@ public class GameMenuController implements Controller {
     // TODO: check if the items required are right
     private Result greenhouseBuild() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         int requiredWood = 500;
         int requiredStone = 1000;
@@ -1379,6 +1375,10 @@ public class GameMenuController implements Controller {
     }
 
     private boolean arePlayersNearEachOther(Player player1, Player player2) {
+        if (player1.getCurrentFarm() != player2.getCurrentFarm() && !(player1.getIsInVillage() && player2.getIsInVillage())) {
+            return false;
+        }
+
         Location loc1 = player1.getLocation();
         Location loc2 = player2.getLocation();
 
@@ -1400,9 +1400,13 @@ public class GameMenuController implements Controller {
         if (targetPlayer == null) {
             return Result.error("Player " + username + " not found.");
         }
-        Item item = App.getItem(itemName);
+        Item item = App.getGame().getCurrentPlayer().getBackpack().getItem(itemName);
         if (item == null) {
             return Result.error("Item " + itemName + " not found.");
+        }
+
+        if (item instanceof Tool) {
+            return Result.error("you cant gift tools to players");
         }
 
 
@@ -1721,7 +1725,6 @@ public class GameMenuController implements Controller {
 
     private Result giftNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 2) {
             return Result.error("NPC name or item not specified");
@@ -2306,6 +2309,8 @@ public class GameMenuController implements Controller {
         Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
 
+        Tool rod = new Tool("iridium rod", 200, "hamin", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 0, Skills.FISHING);
+        player.getBackpack().add(rod, 1);
         System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
 
         System.out.println("\nCurrent inventory contents:");
