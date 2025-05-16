@@ -1220,7 +1220,6 @@ public class GameMenuController implements Controller {
     // TODO: check if the items required are right
     private Result greenhouseBuild() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         int requiredWood = 500;
         int requiredStone = 1000;
@@ -1400,7 +1399,7 @@ public class GameMenuController implements Controller {
         if (targetPlayer == null) {
             return Result.error("Player " + username + " not found.");
         }
-        Item item = App.getItem(itemName);
+        Item item = App.getGame().getCurrentPlayer().getBackpack().getItem(itemName);
         if (item == null) {
             return Result.error("Item " + itemName + " not found.");
         }
