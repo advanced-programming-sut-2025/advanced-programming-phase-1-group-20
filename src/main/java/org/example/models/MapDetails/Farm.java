@@ -211,11 +211,11 @@ public class Farm {
         symbolMap.put("stone", ' ');
         symbolMap.put("path", '#');
         symbolMap.put("lake", ' ');
-        symbolMap.put("quarry", ' ');
-        symbolMap.put("greenhouse", ' ');
+        symbolMap.put("quarry", 'Q');
+        symbolMap.put("greenhouse", 'G');
         symbolMap.put("market", 'M');
         symbolMap.put("village", 'V');
-        symbolMap.put("building", ' ');
+        symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
         symbolMap.put("empty", ' ');
@@ -763,7 +763,7 @@ public class Farm {
                     default -> RESET;
                 };
                 if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
-                    System.out.print(BG_BLACK + "  " + RESET);
+                    System.out.print(BG_BLACK + "@ " + RESET);
                 }
                 else {
                     System.out.print(color + symbol + " " + RESET);
