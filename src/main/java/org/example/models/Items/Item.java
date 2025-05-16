@@ -85,5 +85,11 @@ public class Item {
         this.placable = placable;
     }
 
+    public Quality getQuality() {
+        return quality;
+    }
 
+    public void setQuality(Quality quality) {
+        this.quality = quality;
+    }
 }

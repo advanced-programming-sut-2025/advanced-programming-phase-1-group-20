@@ -3,25 +3,42 @@ package org.example.models.entities.animal;
 import org.example.models.Items.Item;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.FishType;
+import org.example.models.enums.Types.Quality;
 
 import java.io.Serializable;
 
 
 public class Fish extends Item implements Serializable {
     private final FishType type;
-    private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
+    private final int q; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
     private final Seasons season;
 
-    public Fish(FishType type, int quality, Seasons season) {
-        super(type.getName(), calculatePrice(type.getBasePrice(), quality));
+    public Fish(FishType type, int q, Seasons season) {
+        super(type.getName(), calculatePrice(type.getBasePrice(), q));
         this.type = type;
-        this.quality = quality;
+        this.q = q;
         this.season = season;
         setDescription(type.getDescription());
+        setQualityViaQ(q);
     }
 
     public Fish(FishType type, Seasons season) {
         this(type, 0, season);
+    }
+
+    private void setQualityViaQ(int q){
+        if(q == 0){
+            setQuality(Quality.Normal);
+        }
+        else if(q == 1){
+            setQuality(Quality.Silver);
+        }
+        else if(q == 2){
+            setQuality(Quality.Golden);
+        }
+        else if(q == 3){
+            setQuality(Quality.Iridium);
+        }
     }
 
     private static int calculatePrice(int basePrice, int quality) {
@@ -39,7 +56,7 @@ public class Fish extends Item implements Serializable {
 
 
     public String getQualityString() {
-        return switch (quality) {
+        return switch (q) {
             case 1 -> "Silver";
             case 2 -> "Gold";
             case 3 -> "Iridium";
@@ -53,7 +70,7 @@ public class Fish extends Item implements Serializable {
      * @return A symbol representing the quality (★, ★★, or ★★★)
      */
     public String getQualitySymbol() {
-        switch (quality) {
+        switch (q) {
             case 1:
                 return "★";
             case 2:
@@ -86,8 +103,8 @@ public class Fish extends Item implements Serializable {
         return type;
     }
 
-    public int getQuality() {
-        return quality;
+    public int getQ() {
+        return q;
     }
 
     public Seasons getSeason() {
