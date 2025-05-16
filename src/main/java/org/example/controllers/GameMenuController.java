@@ -21,9 +21,7 @@ import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.ItemBuilder;
-import org.example.models.enums.Types.PlantType;
-import org.example.models.enums.Types.TileType;
+import org.example.models.enums.Types.*;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
 import org.example.views.AppView;
@@ -174,6 +172,7 @@ public class GameMenuController implements Controller {
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
             case CheatGiveItems -> cheatGiveItems();
+            case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -2469,6 +2468,19 @@ public class GameMenuController implements Controller {
         } else {
             coopAnimal.increaseHappiness(5);
             return Result.success("You fed " + animalName + " with hay.");
+        }
+    }
+
+    private void cheatGiveAllRecipe(){
+        Player player = App.getGame().getCurrentPlayer();
+        for(CraftingType type : CraftingType.values()) {
+            CraftingItem craftedItem = new CraftingItem(type);
+            player.getCraftingItems().add(craftedItem);
+        }
+
+        for(CookingType type : CookingType.values()) {
+            CookingItem cookingItem = new CookingItem(type);
+            player.getCookingItems().add(cookingItem);
         }
     }
 }

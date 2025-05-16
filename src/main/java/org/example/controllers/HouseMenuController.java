@@ -112,11 +112,6 @@ public class HouseMenuController implements Controller {
 
     private Result craftItem(String[] args) {
         String itemName = args[0];
-        boolean exists = player.craftingExists(itemName);
-
-        if (exists) {
-            return Result.error("Crafting item: " + itemName + " does not exist");
-        }
 
         CraftingType type = CraftingType.fromName(itemName);
         assert type != null;

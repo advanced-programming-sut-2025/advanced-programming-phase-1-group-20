@@ -120,6 +120,7 @@ public enum GameMenuCommands implements Command {
     CheckProducts(Pattern.compile("^produces$")),
 
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
+    CheatGiveAllRecipe(Pattern.compile("^give\\s+recipes$")),
 
     None(null);
 
