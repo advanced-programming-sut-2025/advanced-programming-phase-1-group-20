@@ -1154,4 +1154,19 @@ public class Farm {
             }
         }
     }
+
+    public void setMoistureForRainyDays(){
+        for(int x = 0 ; x < width; x++){
+            for(int y = 0 ; y < height; y++){
+                if(tiles[x][y].getItem() instanceof Tree) {
+                    Tree tree = (Tree) tiles[x][y].getItem();
+                    tree.setMoisture(true);
+                }
+                else if(tiles[x][y].getItem() instanceof Plant){
+                    Plant plant = (Plant) tiles[x][y].getItem();
+                    plant.setMoisture(true);
+                }
+            }
+        }
+    }
 }
