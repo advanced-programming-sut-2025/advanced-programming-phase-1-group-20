@@ -307,6 +307,12 @@ public enum Markets {
         Item sugar = new Item("Sugar", 100, "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
+        Item soil = new Item("Deluxe Retaining Soil" , 150 , "This soil has a 100% chance of staying watered overnight. Mix into tilled soil.");
+        items.put(soil, Double.POSITIVE_INFINITY);
+
+        Item speedGrow = new Item("Speed-Gro" , 100 , "Makes the plants grow 1 day earlier.");
+        items.put(speedGrow, Double.POSITIVE_INFINITY);
+
         Item oil = new ArtisanItem(ArtisanType.Oil);
         oil.setPrice(200);
         items.put(oil, Double.POSITIVE_INFINITY);
@@ -623,11 +629,11 @@ public enum Markets {
         items.put(deluxeBarn,1.0);
 
 
-        Item coop = new Item("Barn" , 4_000);
+        Item coop = new Item("Coop" , 4_000);
         items.put(coop,1.0);
-        Item bigCoop = new Item("Big Barn" , 10_000);
+        Item bigCoop = new Item("Big Coop" , 10_000);
         items.put(bigCoop,1.0);
-        Item deluxeCoop = new Item("Deluxe Barn" , 20_000);
+        Item deluxeCoop = new Item("Deluxe Coop" , 20_000);
         items.put(deluxeCoop,1.0);
 
         Item well = new Item("Well" , 1_000);
@@ -649,6 +655,7 @@ public enum Markets {
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
 
 
 

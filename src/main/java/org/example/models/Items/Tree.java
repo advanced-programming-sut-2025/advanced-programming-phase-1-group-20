@@ -15,6 +15,7 @@ public class Tree extends Item {
     private boolean finished;
     private boolean moisture;
     private int moistureCounter;
+    private boolean moistureGod;
 
     public Tree(TreeType type) {
         super(type.getName(), type.getBaseSellPrice());
@@ -82,9 +83,11 @@ public class Tree extends Item {
 
     public void updateDaysCounter() {
         if (daysCounter < stages[stage]) {
-            if (!moisture) {
-                if (moistureCounter < 2) {
-                    moistureCounter++;
+            if(!moistureGod){
+                if (!moisture) {
+                    if (moistureCounter < 2) {
+                        moistureCounter++;
+                    }
                 }
             }
             daysCounter++;
@@ -162,4 +165,11 @@ public class Tree extends Item {
         return null;
     }
 
+    public boolean isMoistureGod() {
+        return moistureGod;
+    }
+
+    public void setMoistureGod(boolean moistureGod) {
+        this.moistureGod = moistureGod;
+    }
 }

@@ -476,13 +476,22 @@ public class GameMenuController implements Controller {
         if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
             return Result.error("Targeted location is not a plant");
         }
+        if(!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
+            return Result.error("This item is not a fertilizer.");
+        }
         Item targetItem = targetLocation.getItem();
         if (targetItem instanceof Plant plantItem) {
-            plantItem.setStage(plantItem.getStages().length - 1);
-            plantItem.setDaysCounter(0);
+            if(item.getName().equals("Deluxe Retaining Soil")) {
+                plantItem.updateDaysCounter();
+            }else if(item.getName().equals("Speed-Gro")) {
+                plantItem.setMoistureGod(true);
+            }
         } else if (targetItem instanceof Tree treeItem) {
-            treeItem.setStage(treeItem.getStages().length - 1);
-            treeItem.setDaysCounter(0);
+            if(item.getName().equals("Deluxe Retaining Soil")) {
+                treeItem.updateDaysCounter();
+            }else if(item.getName().equals("Speed-Gro")) {
+                treeItem.setMoistureGod(true);
+            }
         }
         player.getSkills().get(0).updateLevel();
         return Result.success("fertilized successfully with" + fertilizer);
