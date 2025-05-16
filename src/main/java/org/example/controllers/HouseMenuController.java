@@ -25,7 +25,7 @@ public class HouseMenuController implements Controller {
     private Building house;
     private GameMap gMap;
 
-    public HouseMenuController(AppView appView, App app, MarketController controller , Player player, Building house , GameMap gMap) {
+    public HouseMenuController(AppView appView, App app, MarketController controller, Player player, Building house, GameMap gMap) {
         this.appView = appView;
         this.app = app;
         this.controller = controller;
@@ -35,7 +35,6 @@ public class HouseMenuController implements Controller {
     }
 
 
-
     @Override
     public Result update(String input) {
         HouseMenuCommands command = HouseMenuCommands.getCommand(input);
@@ -43,19 +42,19 @@ public class HouseMenuController implements Controller {
         Result result = null;
 
         switch (command) {
-            //crafting related commands
+            // crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
             case CraftingCraft -> result = craftItem(args);
             case PlaceItem -> result = placeItem(args);
             case AddItem -> result = addItem(args);
 
 
-            //cooking related commands
+            // cooking related commands
             case AddRefrigerator -> result = addRefrigerator(args);
             case CookingShowRecipes -> cookingShowRecipes();
             case CookingPrepare -> result = cookingPrepare(args);
 
-            //artisan-related commands
+            // artisan-related commands
             case ArtisanUse -> result = artisanUse(args);
             case ArtisanGet -> result = artisanGet(args);
 
@@ -64,8 +63,7 @@ public class HouseMenuController implements Controller {
         }
 
 
-
-        appView.handleResult(result , command);
+        appView.handleResult(result, command);
         return result;
     }
 
@@ -227,11 +225,11 @@ public class HouseMenuController implements Controller {
                 if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
                     return Result.error("Backpack doesn't contain item");
                 }
-                 house.getRefrigerator().putItem(item , 1);
+                house.getRefrigerator().putItem(item, 1);
                 break;
             case "pick":
                 Item item1 = house.getRefrigerator().pickItem(item);
-                if(item1 == null){
+                if (item1 == null) {
                     return Result.error("Item not found");
                 }
                 player.getBackpack().add(item1, 1);
@@ -269,10 +267,10 @@ public class HouseMenuController implements Controller {
         player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
 
-        if(player.getBackpack().hasItems(Collections.singletonList(name))){
-            player.getBackpack().remove(item , 1);
-        }else{
-            house.getRefrigerator().removeItem(item , 1);
+        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
+            player.getBackpack().remove(item, 1);
+        } else {
+            house.getRefrigerator().removeItem(item, 1);
         }
 
         player.getBackpack().add(food, 1);
@@ -296,20 +294,20 @@ public class HouseMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem || item instanceof Fruit)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if(item instanceof ArtisanItem){
+        if (item instanceof ArtisanItem) {
             ArtisanItem artisanItem = (ArtisanItem) item;
-            if(artisanItem.getEnergy() > 0){
+            if (artisanItem.getEnergy() > 0) {
                 player.increaseEnergy(artisanItem.getEnergy());
-                player.getBackpack().remove(item , 1);
+                player.getBackpack().remove(item, 1);
                 return Result.success("Food " + foodName + " eaten");
-            }else{
+            } else {
                 return Result.success("Artisan item is not a food.");
             }
         }
-        if(item instanceof Fruit){
+        if (item instanceof Fruit) {
             Fruit fruit = (Fruit) item;
             player.increaseEnergy(fruit.getEnergy());
-            player.getBackpack().remove(item , 1);
+            player.getBackpack().remove(item, 1);
             return Result.success("Food " + foodName + " eaten");
         }
         Food food = (Food) item;

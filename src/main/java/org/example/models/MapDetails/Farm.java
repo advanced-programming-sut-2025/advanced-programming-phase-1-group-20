@@ -83,6 +83,34 @@ public class Farm {
         setInitialOwnerLocation();
     }
 
+    public static int calculateEnergyNeeded(Location from, Location to) {
+        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
+
+        int baseEnergyCost = 2;
+
+        return distance * baseEnergyCost;
+    }
+
+    public static Location findFurthestCanGo(Location from, Location to) {
+        int dx = to.getX() - from.getX();
+        int dy = to.getY() - from.getY();
+
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) {
+            return from;
+        }
+
+        double nx = dx / length;
+        double ny = dy / length;
+
+        int maxDistance = (int) (length * 0.5);
+
+        int newX = from.getX() + (int) (nx * maxDistance);
+        int newY = from.getY() + (int) (ny * maxDistance);
+
+        return new Location(newX, newY, from.getTile());
+    }
+
     public void markMarketAreas() {
         for (Market market : markets) {
             if (market != null) {
@@ -167,37 +195,9 @@ public class Farm {
                 y >= marketY && y < marketY + marketHeight;
     }
 
-    public static int calculateEnergyNeeded(Location from, Location to) {
-        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
-
-        int baseEnergyCost = 2;
-
-        return distance * baseEnergyCost;
-    }
-
     public void setInitialOwnerLocation() {
         Location location = tiles[width / 2][height / 2];
         owner.setLocation(location);
-    }
-
-    public static Location findFurthestCanGo(Location from, Location to) {
-        int dx = to.getX() - from.getX();
-        int dy = to.getY() - from.getY();
-
-        double length = Math.sqrt(dx * dx + dy * dy);
-        if (length == 0) {
-            return from;
-        }
-
-        double nx = dx / length;
-        double ny = dy / length;
-
-        int maxDistance = (int) (length * 0.5);
-
-        int newX = from.getX() + (int) (nx * maxDistance);
-        int newY = from.getY() + (int) (ny * maxDistance);
-
-        return new Location(newX, newY, from.getTile());
     }
 
     private void initializeSymbols() {
@@ -575,69 +575,68 @@ public class Farm {
     public void placeItem(int x, int y, Item item) {
         Location tile = tiles[x][y];
         tile.setItem(item);
-        if(item.isGiantable()){
-            if(checkFourDirectionsForGiants(x,y,item.getName()) == 1){
+        if (item.isGiantable()) {
+            if (checkFourDirectionsForGiants(x, y, item.getName()) == 1) {
                 Plant[] plants = new Plant[4];
-                for(int i = x-1;i < x;i++){
-                    for(int j = y;j < y+1;j++){
-                        plants[i] = (Plant) getItem(i,j).getItem();
+                for (int i = x - 1; i < x; i++) {
+                    for (int j = y; j < y + 1; j++) {
+                        plants[i] = (Plant) getItem(i, j).getItem();
                     }
                 }
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
 
-                for(int i = x-1;i < x;i++){
-                    for(int j = y;j < y+1;j++){
+                for (int i = x - 1; i < x; i++) {
+                    for (int j = y; j < y + 1; j++) {
                         plants[i].isGiant(stage);
                         plants[i].setDaysCounter(0);
                     }
                 }
 
-            }
-            else if(checkFourDirectionsForGiants(x,y,item.getName()) == 2){
+            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 2) {
                 Plant[] plants = new Plant[4];
-                for(int i = x-1;i < x;i++){
-                    for(int j = y-1;j < y;j++){
-                        plants[i] = (Plant) getItem(i,j).getItem();
+                for (int i = x - 1; i < x; i++) {
+                    for (int j = y - 1; j < y; j++) {
+                        plants[i] = (Plant) getItem(i, j).getItem();
                     }
                 }
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
 
-                for(int i = x-1;i < x;i++){
-                    for(int j = y-1;j < y;j++){
+                for (int i = x - 1; i < x; i++) {
+                    for (int j = y - 1; j < y; j++) {
                         plants[i].isGiant(stage);
                         plants[i].setDaysCounter(0);
                     }
                 }
-            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 3){
+            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 3) {
                 Plant[] plants = new Plant[4];
-                for(int i = x;i < x+1;i++){
-                    for(int j = y-1;j < y;j++){
-                        plants[i] = (Plant) getItem(i,j).getItem();
+                for (int i = x; i < x + 1; i++) {
+                    for (int j = y - 1; j < y; j++) {
+                        plants[i] = (Plant) getItem(i, j).getItem();
                     }
                 }
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
 
-                for(int i = x;i < x+1;i++){
-                    for(int j = y-1;j < y;j++){
+                for (int i = x; i < x + 1; i++) {
+                    for (int j = y - 1; j < y; j++) {
                         plants[i].isGiant(stage);
                         plants[i].setDaysCounter(0);
                     }
                 }
-            }else if(checkFourDirectionsForGiants(x,y,item.getName()) == 4){
+            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 4) {
                 Plant[] plants = new Plant[4];
-                for(int i = x;i < x+1;i++){
-                    for(int j = y;j < y+1;j++){
-                        plants[i] = (Plant) getItem(i,j).getItem();
+                for (int i = x; i < x + 1; i++) {
+                    for (int j = y; j < y + 1; j++) {
+                        plants[i] = (Plant) getItem(i, j).getItem();
                     }
                 }
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage() ,Math.max(plants[2].getStage() ,Math.max(plants[3].getStage() ,0)) ));
+                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
 
-                for(int i = x;i < x+1;i++){
-                    for(int j = y;j < y+1;j++){
+                for (int i = x; i < x + 1; i++) {
+                    for (int j = y; j < y + 1; j++) {
                         plants[i].isGiant(stage);
                         plants[i].setDaysCounter(0);
                     }
@@ -646,7 +645,7 @@ public class Farm {
         }
     }
 
-    public int checkFourDirectionsForGiants(int x , int y , String itemName) {
+    public int checkFourDirectionsForGiants(int x, int y, String itemName) {
         int[][] DIRECTIONS = {
                 {-1, 1},  // 1: NE
                 {-1, -1}, // 2: NW
@@ -654,7 +653,7 @@ public class Farm {
                 {1, 1}    // 4: SE
         };
 
-        for(int dir = 0;dir < DIRECTIONS.length;dir++){
+        for (int dir = 0; dir < DIRECTIONS.length; dir++) {
             int dx = DIRECTIONS[dir][0];
             int dy = DIRECTIONS[dir][1];
 
@@ -665,13 +664,13 @@ public class Farm {
             int x3 = x;
             int y3 = y + dy;
 
-            if (contains(x1,y1) &&
-                    contains(x2,y2) &&
-                    contains(x3,y3)) {
+            if (contains(x1, y1) &&
+                    contains(x2, y2) &&
+                    contains(x3, y3)) {
 
-                if (getItem(x1,y1).getItem().getName() == itemName &&
-                        getItem(x2,y2).getItem().getName() == itemName &&
-                        getItem(x3,y3).getItem().getName() == itemName) {
+                if (getItem(x1, y1).getItem().getName() == itemName &&
+                        getItem(x2, y2).getItem().getName() == itemName &&
+                        getItem(x3, y3).getItem().getName() == itemName) {
                     return dir + 1; // 1 to 4
                 }
             }
@@ -700,8 +699,7 @@ public class Farm {
                         if (!tree.getMoisture()) {
                             tile.setItem(null);
                         }
-                    }
-                    else if (tile.getItem() instanceof Plant) {
+                    } else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {
@@ -760,8 +758,7 @@ public class Farm {
                 };
                 if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
@@ -967,8 +964,8 @@ public class Farm {
 
             int[][] directions = {
                     {-1, -1}, {-1, 0}, {-1, 1},
-                    {0, -1},          {0, 1},
-                    {1, -1},  {1, 0}, {1, 1}
+                    {0, -1}, {0, 1},
+                    {1, -1}, {1, 0}, {1, 1}
             };
 
             for (int[] dir : directions) {
@@ -1022,22 +1019,21 @@ public class Farm {
             owner.setLocation(furthestReachable);
 
             return actualDistance;
-        }
-        else {
+        } else {
             owner.setEnergy(owner.getEnergy() - requiredEnergy);
             owner.setLocation(finalLocation);
             return totalDistance;
         }
     }
 
-    public Lake lakeAround (Location location) {
+    public Lake lakeAround(Location location) {
         int x = location.getX();
         int y = location.getY();
 
         int[][] directions = {
                 {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},           {0, 1},
-                {1, -1},  {1, 0}, {1, 1}
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -1075,10 +1071,10 @@ public class Farm {
     public void thor(Location location) {
         int x = location.getX();
         int y = location.getY();
-        for (int i = x ; i < x + 4 ; i++) {
-            for (int j = y ; j < y + 4 ; j++) {
+        for (int i = x; i < x + 4; i++) {
+            for (int j = y; j < y + 4; j++) {
                 Location tile = tiles[i][j];
-                if (contains(i,j)) {
+                if (contains(i, j)) {
                     if (tile.getTile() != null) {
                         if (tile.getTile() != TileType.GREENHOUSE) {
                             if (tile.getItem() instanceof Tree) {
@@ -1109,17 +1105,17 @@ public class Farm {
         return counter;
     }
 
-    public void attackOfTheCrows(){
-        int numberOfCrows = numberOfPlants()/16;
-        for (int i = 0 ; i < numberOfCrows ; i++) {
+    public void attackOfTheCrows() {
+        int numberOfCrows = numberOfPlants() / 16;
+        for (int i = 0; i < numberOfCrows; i++) {
             attackOfSingleCrow();
         }
     }
 
     public ArrayList<Location> allItemsForCrows() {
         ArrayList<Location> locations = new ArrayList<>();
-        for (int x = 0 ; x < width ; x++) {
-            for (int y = 0 ; y < height ; y++) {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
                 if ((tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Crop
                         || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()) {
                     locations.add(tiles[x][y]);
@@ -1129,7 +1125,7 @@ public class Farm {
         return locations;
     }
 
-    public void attackOfSingleCrow(){
+    public void attackOfSingleCrow() {
         Random random = new Random();
         int a = random.nextInt(3);
         if (a == 0) {
@@ -1140,8 +1136,7 @@ public class Farm {
                 Tree tree = (Tree) location.getItem();
                 tree.setStage(0);
                 tree.setDaysCounter(0);
-            }
-            else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
+            } else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
                 location.setItem(null);
                 location.setTile(TileType.GRASS);
                 location.setType("grass");

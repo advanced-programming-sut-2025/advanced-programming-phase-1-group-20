@@ -2,19 +2,19 @@ package org.example.models.MapDetails;
 
 import org.example.models.Player.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameMap {
-
-    private final Farm[] farms;
+    private final List<Farm> farms;
     private Village village;
 
     public GameMap() {
-        this.farms = new Farm[4];
+        this.farms = new ArrayList<>();
         this.village = new Village("Shemroon");
     }
 
-    public Farm[] getFarms() {
+    public List<Farm> getFarms() {
         return farms;
     }
 
@@ -23,11 +23,16 @@ public class GameMap {
     }
 
     public void addFarm(Farm farm) {
-        farms[farm.getFarmIndex()] = farm;
+        farms.add(farm);
     }
 
     public Farm getFarmByIndex(int index) {
-        return farms[index];
+        for (Farm farm : farms) {
+            if (farm.getFarmIndex() == index) {
+                return farm;
+            }
+        }
+        return null;
     }
 
     public Farm getFarmByName(String name) {
@@ -59,7 +64,7 @@ public class GameMap {
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : farms) {
-            if(player.getCurrentFarm() != farm) {
+            if (player.getCurrentFarm() != farm) {
                 if (!farm.contains(x, y) || farm.getOwner().getUser().getUsername().equals(player.getUser().getUsername())) {
                     return true;
                 }
