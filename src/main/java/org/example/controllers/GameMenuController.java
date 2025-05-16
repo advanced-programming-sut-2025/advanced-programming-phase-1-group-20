@@ -1404,6 +1404,10 @@ public class GameMenuController implements Controller {
             return Result.error("Item " + itemName + " not found.");
         }
 
+        if (item instanceof Tool) {
+            return Result.error("you cant gift tools to players");
+        }
+
 
         if (App.getGame().getCurrentPlayer().getFriendship(targetPlayer).gift(item, App.getGame().getCurrentPlayer(), amount)) {
             return Result.success("You have gifted " + amount + " " + itemName + "to " + username + ".");
