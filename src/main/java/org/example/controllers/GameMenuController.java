@@ -793,16 +793,7 @@ public class GameMenuController implements Controller {
 
 
         //checking instance
-        if (item instanceof Tool) {
-            Tool tool = (Tool) item;
-            switch (tool.getMaterial()) {
-                case BASIC -> amount *= 1;
-                case IRON -> amount *= 2;
-                case COPPER -> amount *= 2;
-                case GOLD -> amount *= 3;
-                case IRIDIUM -> amount *= 4;
-            }
-        }
+        amount *= (int) item.getQuality().getPercentage();
 
 
         bin.increaseIncome(amount, player);

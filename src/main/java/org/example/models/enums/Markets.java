@@ -2,6 +2,7 @@ package org.example.models.enums;
 
 import org.example.models.Items.*;
 import org.example.models.Market;
+import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
@@ -743,7 +744,22 @@ public enum Markets {
         fishSmoker.setPrice(10_000);
         items.put(fishSmoker, 1.0);
 
-//        Item rod = new Tool(Tool.ToolType.FISHING_ROD);
+        Item troutSoup = new Item("Trout Soup", 250, "Pretty salty.");
+        items.put(troutSoup, 1.0);
+
+        Item bambooPole = new Item("Bamboo Pole", 500, "Use in the water to catch fish.");
+        items.put(bambooPole, 1.0);
+
+        Item trainingRod = new Item("Training Rod", 25, "It's a lot easier to use than other rods, but can only catch basic fish.");
+        items.put(trainingRod, 1.0);
+
+        Item fiberglassRod = new Item("Fiberglass Rod", 1800, "Use in the water to catch fish.");
+        items.put(fiberglassRod, 1.0);
+
+        Item iridiumRod = new Item("Iridium Rod", 7500, "Use in the water to catch fish.");
+        items.put(iridiumRod, 1.0);
+
+        //        Item rod = new Tool(Tool.ToolType.FISHING_ROD);
 
 
         int startHour = 9;
