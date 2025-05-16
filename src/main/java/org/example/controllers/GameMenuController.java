@@ -173,6 +173,7 @@ public class GameMenuController implements Controller {
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
+            case CheatGiveItems -> cheatGiveItems();
 
             case None -> result = Result.error("Invalid command");
         }
