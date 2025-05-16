@@ -167,13 +167,13 @@ public class Village {
             }
         }
 
-        initializeBuildings();
-        markBuildings();
+        //initializeBuildings();
+        //markBuildings();
 //        initializeNPCs();
 //        initializeShops();
 
-        placeRandomObjects("stone", 20);
-        placeRandomObjects("tree", 20);
+        placeRandomObjects("stone", 100);
+        placeRandomObjects("tree", 100);
         //TODO: درخت و سنگ داره یا نه؟
     }
 
@@ -433,7 +433,7 @@ public class Village {
                     case "path" -> BG_YELLOW;
                     case "coop" -> BG_PINK;
                     case "barn" -> BG_LIGHT_BLUE;
-                    case "market" -> BG_PINK;
+                    case "market" -> BG_WHITE;
                     case "greenhouse" -> BG_BROWN;
                     case "building" -> BG_WHITE;
                     case "quarry" -> BG_RED;

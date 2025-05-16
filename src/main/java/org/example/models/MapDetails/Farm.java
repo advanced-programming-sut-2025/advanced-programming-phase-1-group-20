@@ -169,7 +169,9 @@ public class Farm {
         symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
         symbolMap.put("shipping_bin", 'S');
-        symbolMap.put("greenhouse", 'G');
+        symbolMap.put("greenhouse", ' ');
+        symbolMap.put("plowed", ' ');
+        symbolMap.put("constructed_greenhouse", 'G');
         symbolMap.put("village", 'V');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
@@ -305,46 +307,46 @@ public class Farm {
         switch (farmIndex) {
             case 0:
                 if (farmType) {
-                    Lake l11 = new Lake(width / 2 + 2, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
-                    Lake l12 = new Lake(width / 2 + 7, height / 2 + 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l11 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
+                    Lake l12 = new Lake(width / 2 + 7 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
                     lakes.add(l11);
                     lakes.add(l12);
                     return lakes;
                 }
-                Lake l1 = new Lake(width / 2 + 2, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                Lake l1 = new Lake(width / 2 + 5, height / 2 - 3, 6, 6, "lake", Lake.LakeType.RIVER);
                 lakes.add(l1);
                 return lakes;
             case 1:
                 if (farmType) {
-                    Lake l21 = new Lake(width / 2 - 6, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
-                    Lake l22 = new Lake(width / 2 - 1, height / 2 + 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l21 = new Lake(width / 2 - 6, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
+                    Lake l22 = new Lake(width / 2 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
                     lakes.add(l21);
                     lakes.add(l22);
                     return lakes;
                 }
-                Lake l2 = new Lake(width / 2 - 6, height / 2 - 3, 3, 3, "lake", Lake.LakeType.RIVER);
+                Lake l2 = new Lake(width / 2 - 6, height / 2 - 3, 6, 6, "lake", Lake.LakeType.RIVER);
                 lakes.add(l2);
                 return lakes;
             case 2:
                 if (farmType) {
-                    Lake l31 = new Lake(width / 2 - 6, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
-                    Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l31 = new Lake(width / 2 - 6, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
+                    Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 6, 6, "lake", Lake.LakeType.RIVER);
                     lakes.add(l31);
                     lakes.add(l32);
                     return lakes;
                 }
-                Lake l3 = new Lake(width / 2 - 6, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
+                Lake l3 = new Lake(width / 2 - 6, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
                 lakes.add(l3);
                 return lakes;
             case 3:
                 if (farmType) {
-                    Lake l41 = new Lake(width / 2 + 2, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
-                    Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 3, 3, "lake", Lake.LakeType.RIVER);
+                    Lake l41 = new Lake(width / 2 + 2, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
+                    Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 6, 6, "lake", Lake.LakeType.RIVER);
                     lakes.add(l41);
                     lakes.add(l42);
                     return lakes;
                 }
-                Lake l4 = new Lake(width / 2 + 2, height / 2, 3, 3, "lake", Lake.LakeType.RIVER);
+                Lake l4 = new Lake(width / 2 + 2, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
                 lakes.add(l4);
                 return lakes;
         }
@@ -361,6 +363,21 @@ public class Farm {
         for (int y = buildingY; y < buildingY + buildingHeight; y++) {
             for (int x = buildingX; x < buildingX + buildingWidth; x++) {
                 tiles[x][y] = new Location(x, y, TileType.BUILDING);
+            }
+        }
+    }
+
+    public void markConstructedGreenHouseArea() {
+        GreenHouse g = getGreenHouse();
+        g.setIsConstructed();
+        int greenHouseX = g.getX();
+        int greenHouseY = g.getY();
+        int greenHouseWidth = g.getWidth();
+        int greenHouseHeight = g.getHeight();
+
+        for (int y = greenHouseY; y < greenHouseY + greenHouseHeight; y++) {
+            for (int x = greenHouseX; x < greenHouseX + greenHouseWidth; x++) {
+                tiles[x][y] = new Location(x, y, TileType.CONSTRUCTED_GREENHOUSE);
             }
         }
     }
@@ -712,7 +729,9 @@ public class Farm {
                     case "coop" -> BG_PINK;
                     case "barn" -> BG_LIGHT_BLUE;
                     case "greenhouse" -> BG_BROWN;
+                    case "constructed_greenhouse" -> BG_BROWN;
                     case "building" -> BG_WHITE;
+                    case "plowed" -> BG_BROWN;
                     case "quarry" -> BG_RED;
                     case "village" -> BG_PURPLE;
                     case "shipping_bin" -> BG_CYAN;
