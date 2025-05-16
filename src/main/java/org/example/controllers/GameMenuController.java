@@ -13,7 +13,6 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
-import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.ItemBuilder;
@@ -502,7 +501,8 @@ public class GameMenuController implements Controller {
         if (item instanceof Tree) {
             Tree tree = (Tree) item;
             tree.setMoisture(true);
-        } else if (item instanceof Plant plant) {
+        } else {
+            Plant plant = (Plant) item;
             plant.setMoisture(true);
         }
         player.getSkills().get(0).updateLevel();

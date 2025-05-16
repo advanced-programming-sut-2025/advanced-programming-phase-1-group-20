@@ -9,8 +9,6 @@ import org.example.models.entities.Game;
 import org.example.models.entities.NPC;
 import org.example.models.enums.Markets;
 import org.example.models.enums.Npcs;
-import org.example.models.Market;
-import org.example.models.enums.Markets;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -103,8 +101,8 @@ public class Village {
 
         int[][] directions = {
                 {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},          {0, 1},
-                {1, -1},  {1, 0}, {1, 1}
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -156,7 +154,7 @@ public class Village {
 
         initializeBuildings();
         markBuildings();
-        initializeNPCs();
+//        initializeNPCs();
 //        initializeShops();
 
         placeRandomObjects("stone", 20);
@@ -230,23 +228,60 @@ public class Village {
         Random rand = new Random();
         int count = 5;
         int placed = 0;
+        int attempts = 0;
 
-        while (placed < count) {
-            int x = rand.nextInt(width);
-            int y = rand.nextInt(height);
-            Location location = tiles[x][y];
-            TileType currentTile = location.getTile();
+        // Initialize residents list if it's null
+        if (this.residents == null) {
+            this.residents = new ArrayList<>();
+        }
 
-            if (currentTile == TileType.GRASS) {
-                Npcs[] types = Npcs.values();
-                Npcs npcType = types[rand.nextInt(types.length)];
-                Game game = App.getGame();
-                if (game != null) {
-                    NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
-                    residents.add(npc);
+        // Get the game instance once to avoid repeated calls
+        Game game = App.getGame();
+        if (game == null || game.getCurrentPlayer() == null) {
+            System.err.println("Warning: Game or current player is null, NPCs not initialized");
+            return;
+        }
+
+        // First, collect all valid grass locations
+        List<Location> validLocations = new ArrayList<>();
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (tiles[x][y] != null && tiles[x][y].getTile() == TileType.GRASS) {
+                    validLocations.add(tiles[x][y]);
+                }
+            }
+        }
+
+        // If we don't have enough valid locations, log a warning and use what we have
+        if (validLocations.size() < count) {
+            System.out.println("Warning: Not enough grass tiles for NPCs. Found: " + validLocations.size());
+            count = Math.max(validLocations.size(), 1); // At least try to place one NPC
+        }
+
+        // If we have no valid locations at all, return early
+        if (validLocations.isEmpty()) {
+            System.err.println("Error: No valid grass tiles found for NPC placement");
+            return;
+        }
+
+        // Shuffle the valid locations to get random placement
+        Collections.shuffle(validLocations, rand);
+
+        // Place NPCs on the shuffled locations
+        for (int i = 0; i < count && i < validLocations.size(); i++) {
+            Location location = validLocations.get(i);
+            Npcs[] types = Npcs.values();
+            Npcs npcType = types[rand.nextInt(types.length)];
+
+            try {
+                NPC npc = game.getCurrentPlayer().createNPCFromEnum(npcType);
+                if (npc != null) {
                     npc.setLocation(location);
+                    residents.add(npc);
                     placed++;
                 }
+            } catch (Exception e) {
+                System.err.println("Error creating NPC: " + e.getMessage());
             }
         }
     }
