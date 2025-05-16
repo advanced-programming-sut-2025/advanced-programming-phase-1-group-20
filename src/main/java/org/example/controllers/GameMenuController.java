@@ -25,8 +25,6 @@ import org.example.views.MainMenu;
 import org.example.views.MarketMenu;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GameMenuController implements Controller {
     private final AppView appView;
@@ -664,10 +662,10 @@ public class GameMenuController implements Controller {
         if (item == null) {
             return Result.error("Item does not exist");
         }
-        if(item instanceof CookingItem){
+        if (item instanceof CookingItem) {
             player.addCookingItem((CookingItem) item);
         }
-        if(item instanceof CraftingItem){
+        if (item instanceof CraftingItem) {
             player.addCraftingItem((CraftingItem) item);
         }
         player.getBackpack().add(item, count);
@@ -679,7 +677,7 @@ public class GameMenuController implements Controller {
     private void craftingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
         List<CraftingItem> craftingItems = player.getCraftingItems();
-        if(!craftingItems.isEmpty()) {
+        if (!craftingItems.isEmpty()) {
             int count = 1;
             for (CraftingItem craftingItem : craftingItems) {
                 System.out.println("------------------------");
@@ -688,14 +686,14 @@ public class GameMenuController implements Controller {
                 System.out.println("------------------------");
                 count++;
             }
-        }else{
+        } else {
             System.out.println("There is no crafting items for player");
         }
     }
 
     private void cookingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
-        if(!player.getCraftingItems().isEmpty()) {
+        if (!player.getCraftingItems().isEmpty()) {
             int count = 1;
             for (CookingItem cookingItem : player.getCookingItems()) {
                 System.out.println("------------------------");
@@ -704,7 +702,7 @@ public class GameMenuController implements Controller {
                 System.out.println("------------------------");
                 count++;
             }
-        }else{
+        } else {
             System.out.println("There is no cooking items for player");
         }
     }
@@ -757,7 +755,6 @@ public class GameMenuController implements Controller {
         App.getGame().getCurrentPlayer().setEnergyUnlimited();
         return Result.success("energy unlimited");
     }
-
 
 
     //sell Function:
@@ -923,7 +920,9 @@ public class GameMenuController implements Controller {
         if (farm == null) {
             return Result.error("you don't have a farm");
         }
-        if
+//        if
+
+        return Result.success("fishing: " + farm.getName());
     }
 
     private Result walk(String[] args) {
@@ -2201,56 +2200,52 @@ public class GameMenuController implements Controller {
     }
 
 
-
-
-
-
     //TODO : cheats:
     private void cheatTeleportMarkets(String[] args) {
         String marketName = args[0];
-        switch (marketName){
-            case "Black Smith"->{
+        switch (marketName) {
+            case "Black Smith" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[0]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[0]));
             }
-            case "Joja Mart"->{
+            case "Joja Mart" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[1]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[1]));
             }
-            case "Pierre General Store"->{
+            case "Pierre General Store" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[2]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[2]));
             }
-            case "Carpenters Shop"->{
+            case "Carpenters Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[3]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[3]));
             }
-            case "Fish Shop"->{
+            case "Fish Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[4]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[4]));
             }
-            case "Marnie Shop"->{
+            case "Marnie Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[5]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[5]));
             }
-            case "Star drop Saloon"->{
+            case "Star drop Saloon" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
-                Market[] markets = App.getGame().getCurrentPlayer().getCurrentFarm().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView , App.getGame().getCurrentPlayer(), markets[6]));
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[6]));
             }
         }
     }
 
     private void cheatTeleportHome() {
         System.out.println("You are in your home.");
-        appView.navigateMenu(new HouseMenu(appView , App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
+        appView.navigateMenu(new HouseMenu(appView, App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
     }
 
     private void cheatTeleport(String[] args) {
