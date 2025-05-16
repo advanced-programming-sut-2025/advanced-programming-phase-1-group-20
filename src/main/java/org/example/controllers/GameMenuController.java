@@ -348,7 +348,7 @@ public class GameMenuController implements Controller {
                 dir[1] = -1;
                 break;
         }
-        return null;
+        return dir;
     }
 
 
@@ -426,11 +426,12 @@ public class GameMenuController implements Controller {
         Location loc = player.getLocation();
         int x = loc.getX() + dir[1];
         int y = loc.getY() + dir[0];
+        System.out.println("x: " + x + ", y: " + y);
         Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
             return Result.error("Item " + itemName + " does not exist in backpack");
         }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
+        if (gMap.getFarmByPlayer(player).getItem(x, y).getItem() != null) {
             return Result.error("there is Item already in the ground!");
         }
         if (!item.isPlacable()) {

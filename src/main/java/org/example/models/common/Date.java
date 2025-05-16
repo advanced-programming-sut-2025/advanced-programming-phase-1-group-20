@@ -112,6 +112,9 @@ public class Date {
     public void goTomorrow(GameMap gameMap) {
         this.day++;
         this.weatherToday = weatherTomorrow;
+        if (weatherToday == Weather.RAINY) {
+            App.getGame().getGameMap().setMoistureForRainyDaysFarms();
+        }
         updateWeatherTomorrow();
     }
 

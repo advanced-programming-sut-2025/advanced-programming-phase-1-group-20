@@ -112,4 +112,11 @@ public class GameMap {
         return players;
     }
 
+
+    public void setMoistureForRainyDaysFarms(){
+        for(Farm farm : farms) {
+            farm.setMoistureForRainyDays();
+        }
+    }
+
 }
