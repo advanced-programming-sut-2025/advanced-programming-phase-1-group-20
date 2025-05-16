@@ -3,10 +3,10 @@ package org.example.models.Items;
 import org.example.models.App;
 import org.example.models.Player.Backpack;
 import org.example.models.entities.animal.Fish;
-import org.example.models.enums.Ingredients;
 import org.example.models.enums.Types.CookingType;
 import org.example.models.enums.Types.ItemBuilder;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ public class CookingItem extends Item {
         this.type = type;
     }
 
-    public Ingredients getIngredients() {
+    public String getIngredients() {
         return type.getIngredient();
     }
 
@@ -39,8 +39,7 @@ public class CookingItem extends Item {
 
     public boolean canCook(Backpack inventory) {
         Map<Item, Integer> items = inventory.getInventory();
-        String[] parts = new String[]{type.getIngredient().toString()};
-        System.out.println(parts);
+        String[] parts = type.getIngredient().split("\\+");
         for (String part : parts) {
             part = part.trim();
             String[] itemData = part.split(" ", 2);
@@ -64,8 +63,8 @@ public class CookingItem extends Item {
                 items.putIfAbsent(inventory.getItem(itemName), requiredItem);
             }
         }
-        for(Item item : items.keySet()) {
-            inventory.remove(item , items.get(item));
+        for (Item item : new HashSet<>(items.keySet())) {
+            inventory.remove(item, items.get(item));
         }
         return true;
     }
