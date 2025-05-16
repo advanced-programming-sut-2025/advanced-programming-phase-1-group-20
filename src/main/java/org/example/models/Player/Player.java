@@ -85,14 +85,17 @@ public class Player {
 
         energyUsedInTurn = 0;
         equipTool("Basic Hoe");
-    }
 
-    public void setPlayerColor(String color) {
-        playerColor = color;
+        // TODO: delete
+        this.money = 10000000;
     }
 
     public String getPlayerColor() {
         return playerColor;
+    }
+
+    public void setPlayerColor(String color) {
+        playerColor = color;
     }
 
     public boolean getIsInVillage() {
@@ -756,16 +759,13 @@ public class Player {
         if (x == Village.width - 1 && y == 0) {
             teleportToFarm(0);
             return true;
-        }
-        else if (x == 0 && y == 0) {
+        } else if (x == 0 && y == 0) {
             teleportToFarm(1);
             return true;
-        }
-        else if (x == 0 && y == Village.height - 1) {
+        } else if (x == 0 && y == Village.height - 1) {
             teleportToFarm(2);
             return true;
-        }
-        else if (x == Village.width - 1 && y == Village.height - 1) {
+        } else if (x == Village.width - 1 && y == Village.height - 1) {
             teleportToFarm(3);
             return true;
         }

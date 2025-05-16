@@ -25,30 +25,26 @@ public class Fish extends Item implements Serializable {
     }
 
     private static int calculatePrice(int basePrice, int quality) {
-        switch (quality) {
-            case 1: // Silver
-                return (int) (basePrice * 1.25);
-            case 2: // Gold
-                return basePrice * 2;
-            case 3: // Iridium
-                return basePrice * 3;
-            default: // Normal
-                return basePrice;
-        }
+        return switch (quality) {
+            case 1 -> // Silver
+                    (int) (basePrice * 1.25);
+            case 2 -> // Gold
+                    basePrice * 2;
+            case 3 -> // Iridium
+                    basePrice * 3;
+            default -> // Normal
+                    basePrice;
+        };
     }
 
 
     public String getQualityString() {
-        switch (quality) {
-            case 1:
-                return "Silver";
-            case 2:
-                return "Gold";
-            case 3:
-                return "Iridium";
-            default:
-                return "Normal";
-        }
+        return switch (quality) {
+            case 1 -> "Silver";
+            case 2 -> "Gold";
+            case 3 -> "Iridium";
+            default -> "Normal";
+        };
     }
 
     /**
