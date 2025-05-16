@@ -72,9 +72,9 @@ public class Tree extends Item {
     }
 
     public void addStage() {
-        if (stage < stages.length) {
+        if (stage < stages.length - 1) {
             stage++;
-        } else if (stage == stages.length) {
+        } else if (stage == stages.length - 1) {
             finished = true;
             if(fruitCounter < fruitCycle) {
                 fruitCounter++;

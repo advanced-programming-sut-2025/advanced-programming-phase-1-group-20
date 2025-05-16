@@ -1,5 +1,7 @@
 package org.example.models.Items;
 
+import org.example.models.enums.Types.Quality;
+
 public class Item {
     private String name;
     private int baseSellPrice;
@@ -7,6 +9,7 @@ public class Item {
     private String description;
     private boolean placable;
     private boolean giantable;
+    private Quality quality;
 
     public boolean isGiantable() {
         return giantable;
@@ -22,6 +25,7 @@ public class Item {
         this.price = baseSellPrice;
         this.placable = false;
         this.giantable = false;
+        this.quality = Quality.Normal;
     }
 
     public Item(String name, int baseSellPrice, String description) {
@@ -80,4 +84,6 @@ public class Item {
     public void setPlacable(boolean placable) {
         this.placable = placable;
     }
+
+
 }

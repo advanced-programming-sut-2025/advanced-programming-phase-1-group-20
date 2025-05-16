@@ -36,7 +36,7 @@ public class MarketController implements Controller {
             case ShowAllProducts -> showAllProducts();
             case ShowAllAvailableProducts -> showAllAvailableProducts();
             case Purchase -> result = purchase(args);
-            case CheatAddDollars -> cheatAddDollars(args);
+            case CheatAddDollars -> result = cheatAddDollars(args);
             case ToolUpgrade -> result = upgradeTool(args);
             case ShowCurrentMenu -> result = Result.success("Market menu");
             case Build -> result = build(args);
@@ -81,9 +81,10 @@ public class MarketController implements Controller {
     }
 
 
-    private void cheatAddDollars(String[] args) {
+    private Result cheatAddDollars(String[] args) {
         int amount = Integer.parseInt(args[0]);
         player.increaseMoney(amount);
+        return Result.success("Cheat successfully executed amount: " + amount + " dollars");
     }
 
     private Result upgradeTool(String[] args) {

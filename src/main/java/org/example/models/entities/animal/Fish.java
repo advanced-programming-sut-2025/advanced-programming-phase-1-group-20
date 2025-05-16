@@ -3,6 +3,7 @@ package org.example.models.entities.animal;
 import org.example.models.Items.Item;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.FishType;
+import org.example.models.enums.Types.Quality;
 
 import java.io.Serializable;
 
@@ -12,7 +13,7 @@ import java.io.Serializable;
  */
 public class Fish extends Item implements Serializable {
     private final FishType type;
-    private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
+    private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium;
     private final Seasons season;
 
     /**
@@ -28,7 +29,10 @@ public class Fish extends Item implements Serializable {
         this.quality = quality;
         this.season = season;
         setDescription(type.getDescription());
+        setQuality();
     }
+
+
 
     /**
      * Create a new fish with normal quality.
