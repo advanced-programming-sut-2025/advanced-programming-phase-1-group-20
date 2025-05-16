@@ -94,21 +94,40 @@ public class Farm {
         }
     }
 
-    public Market getMarketAt(int x, int y) {
-        for (Market market : markets) {
-            if (market != null) {
-                int marketX = market.getX();
-                int marketY = market.getY();
-                int marketWidth = 3;
-                int marketHeight = 3;
+    public Market getMarketAt(Location location) {
+        int x = location.getX();
+        int y = location.getY();
 
-                if (x >= marketX && x < marketX + marketWidth &&
-                        y >= marketY && y < marketY + marketHeight) {
-                    return market;
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},          {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Market market : markets) {
+                    if (market != null && isInMarketArea(market, newX, newY)) {
+                        return market;
+                    }
                 }
             }
         }
+
         return null;
+    }
+
+    private boolean isInMarketArea(Market market, int x, int y) {
+        int marketX = market.getX();
+        int marketY = market.getY();
+        int marketWidth = 3;
+        int marketHeight = 3;
+
+        return x >= marketX && x < marketX + marketWidth &&
+                y >= marketY && y < marketY + marketHeight;
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
