@@ -28,7 +28,7 @@ public class AppView {
     public void appStart() {
         while (!exit) {
             System.out.print(getCurrentMenuName() + "> ");
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             update(input);
 
@@ -94,6 +94,6 @@ public class AppView {
     }
 
     public String getInput() {
-        return scanner.nextLine();
+        return scanner.nextLine().trim();
     }
 }

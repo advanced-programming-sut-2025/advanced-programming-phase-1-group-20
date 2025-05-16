@@ -31,10 +31,13 @@ public class Farm {
     private static final String PURPLE = "\u001B[35m";
     private static final String PINK = "\u001B[38;5;200m";
     private static final String LIGHT_BLUE = "\u001B[94m";
+    private static final String BG_WHITE = "\u001B[47m";
     private static final String LIGHT_GREEN = "\u001B[92m";
     private static final String BG_RESET = "\u001B[0m";
     private static final String BG_GREEN = "\u001B[42m";
     private static final String BG_BLUE = "\u001B[44m";
+    private static final String BG_BLACK = "\u001B[40m";
+    private static final String BG_BRIGHT_BLACK = "\u001B[100m";
     private static final String BG_RED = "\u001B[41m";
     private static final String BG_GRAY = "\u001B[47m";
     private static final String BG_CYAN = "\u001B[46m";
@@ -78,8 +81,8 @@ public class Farm {
 
         initializeFarm();
         initializeSymbols();
-        initializeMarkets();
-        markMarketAreas();
+        //initializeMarkets();
+        //markMarketAreas();
         setInitialOwnerLocation();
     }
 
@@ -132,7 +135,7 @@ public class Farm {
         return null;
     }
 
-    public Building getHouse(Location location) {
+    public Building getHouseAt(Location location) {
         int x = location.getX();
         int y = location.getY();
         Building building = getBuilding();
@@ -200,14 +203,18 @@ public class Farm {
         return new Location(newX, newY, from.getTile());
     }
 
+    public Building getHouse() {
+        return building;
+    }
+
     private void initializeSymbols() {
-        symbolMap.put("grass", '.');
+        symbolMap.put("grass", ' ');
         symbolMap.put("tilled_soil", '=');
-        symbolMap.put("tree", 'T');
-        symbolMap.put("crop", 'C');
-        symbolMap.put("stone", 'S');
+        symbolMap.put("tree", ' ');
+        symbolMap.put("crop", ' ');
+        symbolMap.put("stone", ' ');
         symbolMap.put("path", '#');
-        symbolMap.put("lake", '~');
+        symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("market", 'M');
@@ -679,7 +686,6 @@ public class Farm {
         return 0;
     }
 
-
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : App.getGame().getGameMap().getFarms()) {
             if (farm.contains(x, y) && !farm.getOwner().equals(player)) {
@@ -742,24 +748,25 @@ public class Farm {
                 char symbol = symbolMap.getOrDefault(type, '?');
 
                 String color = switch (type) {
-                    case "grass" -> GREEN;
+                    case "grass" -> BG_LIGHT_GREEN;
                     case "tilled_soil" -> YELLOW;
-                    case "tree" -> GREEN;
-                    case "crop" -> LIGHT_GREEN;
-                    case "stone" -> GRAY;
-                    case "lake" -> BLUE;
-                    case "path" -> YELLOW;
-                    case "coop" -> PINK;
-                    case "barn" -> LIGHT_BLUE;
-                    case "greenhouse" -> BROWN;
-                    case "quarry" -> RED;
-                    case "village" -> PURPLE;
+                    case "tree" -> BG_GREEN;
+                    case "crop" -> BG_PINK;
+                    case "stone" -> BG_BRIGHT_BLACK;
+                    case "lake" -> BG_BLUE;
+                    case "path" -> BG_YELLOW;
+                    case "coop" -> BG_PINK;
+                    case "barn" -> BG_LIGHT_BLUE;
+                    case "greenhouse" -> BG_BROWN;
+                    case "building" -> BG_WHITE;
+                    case "quarry" -> BG_RED;
+                    case "village" -> BG_PURPLE;
                     case "bridge" -> CYAN;
                     case "empty" -> RESET;
                     default -> RESET;
                 };
                 if (x == ownerLocation.getX() && y == ownerLocation.getY()) {
-                    System.out.print(RED + "@ " + RESET);
+                    System.out.print(BG_BLACK + "@ " + RESET);
                 }
                 else {
                     System.out.print(color + symbol + " " + RESET);

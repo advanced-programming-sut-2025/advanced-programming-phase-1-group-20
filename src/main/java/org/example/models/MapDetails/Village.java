@@ -59,6 +59,7 @@ public class Village {
         symbolMap.put("quarry", 'Q');
         symbolMap.put("greenhouse", 'G');
         symbolMap.put("village", 'V');
+        symbolMap.put("market", 'M');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
@@ -160,7 +161,7 @@ public class Village {
                 Npcs[] types = Npcs.values();
                 Npcs npcType = types[rand.nextInt(types.length)];
                 Game game = App.getGame();
-                if(game != null) {
+                if (game != null) {
                     NPC npc = App.getGame().getCurrentPlayer().createNPCFromEnum(npcType);
                     residents.add(npc);
                     npc.setLocation(location);
@@ -290,8 +291,7 @@ public class Village {
 //                }
                 if (x == player.getLocation().getX() && y == player.getLocation().getY()) {
                     System.out.print(RED + "@ " + RESET);
-                }
-                else {
+                } else {
                     System.out.print(color + symbol + " " + RESET);
                 }
             }
