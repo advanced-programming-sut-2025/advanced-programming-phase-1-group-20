@@ -1,235 +1,216 @@
 package org.example.models;
 
-import org.example.models.Items.Item;
-import org.example.models.MapDetails.Building;
+import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.animal.BarnAnimal;
-import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.BarnAnimalTypes;
 import org.example.models.enums.Types.BarnTypes;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Barn extends Building implements Serializable {
-    private static final int height = 7;
-    private static final int width = 4;
+public class Barn implements Serializable {
+    private int height = 7;
+    private int width = 4;
+    private BarnTypes type;
+    private Location location;
+    private List<BarnAnimal> animals;
     private int capacity;
-    private int productPerDay;
-    private final int buildCost;
-    private final List<BarnAnimal> animals;
-    private boolean hasHeater;
-    private boolean hasAutoFeeder;
+    private int animalCount;
+    private String name;
+    private int x;
+    private int y;
 
-    public Barn(int x, int y, String name, int capacity, int productPerDay, int buildCost) {
-        super(x, y, name, "barn");
-        this.capacity = capacity;
-        this.productPerDay = productPerDay;
-        this.buildCost = buildCost;
+    public Barn(BarnTypes type, Location location, String name) {
+        this.type = type;
+        this.location = location;
+        this.name = name;
         this.animals = new ArrayList<>();
-        this.hasHeater = false;
-        this.hasAutoFeeder = false;
+
+        // Set capacity based on barn type
+        switch (type) {
+            case NORMAL_BARN:
+                this.capacity = 4;
+                break;
+            case BIG_BARN:
+                this.capacity = 8;
+                break;
+            case DELUXE_BARN:
+                this.capacity = 12;
+                break;
+            default:
+                this.capacity = 4;
+        }
+
+        this.animalCount = 0;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    /**
+     * Add an animal to the barn
+     */
     public Result addAnimal(BarnAnimal animal) {
-        // Check if there is space
-        if (animals.size() >= capacity) {
-            return Result.error("The barn is at full capacity (" + capacity + " animals)");
+        if (animalCount >= capacity) {
+            return Result.error("This barn is full. Cannot add more animals.");
         }
 
-        // Check if this animal can live in this barn type
-        BarnTypes barnType = getBarnType();
-        if (!animal.canLiveIn(barnType)) {
-            return Result.error("This animal requires a better barn");
+        // Check if animal can live in this type of barn
+        if (!animal.canLiveIn(type)) {
+            return Result.error("This animal requires a better barn.");
         }
 
-        // Add the animal
         animals.add(animal);
-        return Result.success(animal.getName() + " added to the barn");
+        animalCount++;
+        return Result.success("Added " + animal.getName() + " to " + name);
     }
 
-    public Result removeAnimal(int index) {
-        if (index < 0 || index >= animals.size()) {
-            return Result.error("Invalid animal index");
-        }
-
-        BarnAnimal removed = animals.remove(index);
-        return Result.success(removed.getName() + " removed from the barn");
-    }
-
-
-    public List<Item> processDailyProduction(Seasons currentSeason) {
-        List<Item> products = new ArrayList<>();
-
-        // Update all animals
-        for (BarnAnimal animal : animals) {
-            // Skip pig production in winter
-            if (animal.getType() == BarnAnimalTypes.PIG && currentSeason == Seasons.WINTER) {
-                continue;
-            }
-
-            // Advance the day for the animal
-            animal.advanceDay();
-
-            // Auto-feed animals if auto-feeder is installed
-            if (hasAutoFeeder) {
-                animal.feed();
-                animal.increaseHappiness(3); // Auto feeders make animals slightly happier
-            }
-
-            // Adjust happiness
-            if (hasHeater) {
-                animal.increaseHappiness(5); // Heated barns make animals happier
-            } else if (currentSeason == Seasons.WINTER) {
-                animal.decreaseHappiness(2); // Cold barns make animals unhappy in winter
-            }
-
-            // Get product if available
-            Item product = animal.getProduct();
-            if (product != null) {
-                products.add(product);
+    /**
+     * Remove an animal from the barn
+     */
+    public Result removeAnimal(String animalName) {
+        for (int i = 0; i < animals.size(); i++) {
+            if (animals.get(i).getName().equalsIgnoreCase(animalName)) {
+                animals.remove(i);
+                animalCount--;
+                return Result.success(animalName + " has been removed from " + name);
             }
         }
-
-        return products;
+        return Result.error("No animal named " + animalName + " found in this barn.");
     }
 
     public Result feedAnimal(int index) {
         if (index < 0 || index >= animals.size()) {
-            return Result.error("Invalid animal index");
+            return Result.error("Invalid animal index.");
         }
 
         BarnAnimal animal = animals.get(index);
+        if (animal.isHasBeenFed()) {
+            return Result.error(animal.getName() + " has already been fed today.");
+        }
+
         animal.feed();
-        animal.increaseHappiness(5); // Feeding makes animals happier
-
-        return Result.success(animal.getName() + " has been fed");
+        return Result.success(animal.getName() + " has been fed.");
     }
 
-    public Result petAnimal(int index) {
-        if (index < 0 || index >= animals.size()) {
-            return Result.error("Invalid animal index");
+
+    public Result feedAllAnimals() {
+        if (animals.isEmpty()) {
+            return Result.error("There are no animals in this barn.");
         }
 
-        BarnAnimal animal = animals.get(index);
-        animal.increaseHappiness(10); // Petting makes animals significantly happier
+        int fedCount = 0;
+        for (BarnAnimal animal : animals) {
+            if (!animal.isHasBeenFed()) {
+                animal.feed();
+                fedCount++;
+            }
+        }
 
-        return Result.success(animal.getName() + " has been petted and is happier");
+        if (fedCount == 0) {
+            return Result.error("All animals have already been fed today.");
+        }
+
+        return Result.success("Fed " + fedCount + " animals in " + name);
     }
 
-    public int getAnimalCount() {
-        return animals.size();
+
+    public void nextDay() {
+        for (BarnAnimal animal : animals) {
+            animal.nextDay();
+        }
+    }
+
+    public void moveAnimalsInside() {
+        for (BarnAnimal animal : animals) {
+            if (animal.isOutside()) {
+                animal.moveInside();
+            }
+        }
+    }
+
+    public Result upgrade() {
+        switch (type) {
+            case NORMAL_BARN:
+                type = BarnTypes.BIG_BARN;
+                capacity = 8;
+                return Result.success(name + " upgraded to Big Barn");
+            case BIG_BARN:
+                type = BarnTypes.DELUXE_BARN;
+                capacity = 12;
+                return Result.success(name + " upgraded to Deluxe Barn");
+            case DELUXE_BARN:
+                return Result.error("This barn is already at maximum upgrade level.");
+            default:
+                return Result.error("Unknown barn type.");
+        }
+    }
+
+    // Getters and Setters
+    public BarnTypes getType() {
+        return type;
+    }
+
+    public void setType(BarnTypes type) {
+        this.type = type;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public List<BarnAnimal> getAnimals() {
+        return animals;
+    }
+
+    public void setAnimals(List<BarnAnimal> animals) {
+        this.animals = animals;
+        this.animalCount = animals.size();
     }
 
     public int getCapacity() {
         return capacity;
     }
 
-    public int getBuildCost() {
-        return buildCost;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
-    public List<BarnAnimal> getAnimals() {
-        return new ArrayList<>(animals); // Return a copy to prevent modification
+    public int getAnimalCount() {
+        return animalCount;
     }
 
-    public BarnTypes getBarnType() {
-        if (capacity == 12) {
-            return BarnTypes.DELUXE_BARN;
-        }
-        else if (capacity == 8) {
-            return BarnTypes.BIG_BARN;
-        }
-        else {
-            return BarnTypes.NORMAL_BARN;
-        }
+    public String getName() {
+        return name;
     }
 
-    public Result installHeater() {
-        if (hasHeater) {
-            return Result.error("Heater is already installed");
-        }
-
-        hasHeater = true;
-        return Result.success("Heater installed successfully");
-    }
-
-    public Result installAutoFeeder() {
-        if (hasAutoFeeder) {
-            return Result.error("Auto feeder is already installed");
-        }
-
-        hasAutoFeeder = true;
-        return Result.success("Auto feeder installed successfully");
-    }
-
-    public boolean hasHeater() {
-        return hasHeater;
-    }
-
-    public boolean hasAutoFeeder() {
-        return hasAutoFeeder;
-    }
-
-    public Result upgrade() {
-        BarnTypes currentType = getBarnType();
-
-        switch (currentType) {
-            case NORMAL_BARN:
-                // Upgrade to BIG_BARN
-                capacity = BarnTypes.BIG_BARN.getCapacity();
-                productPerDay = BarnTypes.BIG_BARN.getProductPerDay();
-                return Result.success("Upgraded to Big Barn successfully");
-
-            case BIG_BARN:
-                // Upgrade to DELUXE_BARN
-                capacity = BarnTypes.DELUXE_BARN.getCapacity();
-                productPerDay = BarnTypes.DELUXE_BARN.getProductPerDay();
-                return Result.success("Upgraded to Deluxe Barn successfully");
-
-            case DELUXE_BARN:
-                return Result.error("This barn is already at maximum level");
-
-            default:
-                return Result.error("Unknown barn type");
-        }
-    }
-
-    public int getUpgradeCost() {
-        BarnTypes currentType = getBarnType();
-
-        switch (currentType) {
-            case NORMAL_BARN:
-                return BarnTypes.BIG_BARN.getBuildCost() - BarnTypes.NORMAL_BARN.getBuildCost();
-
-            case BIG_BARN:
-                return BarnTypes.DELUXE_BARN.getBuildCost() - BarnTypes.BIG_BARN.getBuildCost();
-
-            case DELUXE_BARN:
-            default:
-                return 0; // Already at maximum level
-        }
-    }
-
-
-    public void displayBarnInfo() {
-        System.out.println("Barn Information:");
-        System.out.println("Type: " + getBarnType().getDisplayName());
-        System.out.println("Capacity: " + animals.size() + "/" + capacity);
-        System.out.println("Heater: " + (hasHeater ? "Installed" : "Not Installed"));
-        System.out.println("Auto Feeder: " + (hasAutoFeeder ? "Installed" : "Not Installed"));
-
-        if (animals.isEmpty()) {
-            System.out.println("No animals in this barn.");
-        } else {
-            System.out.println("\nAnimals:");
-            for (int i = 0; i < animals.size(); i++) {
-                BarnAnimal animal = animals.get(i);
-                System.out.println((i + 1) + ". " + animal.getName() +
-                        " - Happiness: " + animal.getHappinessLevel() + "%" +
-                        (animal.isHasBeenFed() ? " (Fed)" : " (Hungry)"));
-            }
-        }
+    public void setName(String name) {
+        this.name = name;
     }
 }

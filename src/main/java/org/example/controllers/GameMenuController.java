@@ -168,10 +168,15 @@ public class GameMenuController implements Controller {
             case CheatIncreaseXP -> result = increaseXP(args);
             case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 
+            // Animal-related commands
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
-
+            case CollectProduce -> result = collectProduce(args);
+            case ShowProduces -> result = showProduces();
+            case ShowAnimals -> result = showAnimals();
+            case SellAnimal -> result = sellAnimal(args);
+            case CheatSetFriendship -> result = setFriendship(args);
             case None -> result = Result.error("Invalid command");
         }
 
@@ -402,7 +407,7 @@ public class GameMenuController implements Controller {
 
     private Result howMuchWater() {
         Player player = App.getGame().getCurrentPlayer();
-        // TODO:
+        // TODO
         return Result.success("How much water has been cheated");
     }
 
@@ -572,7 +577,7 @@ public class GameMenuController implements Controller {
         App.getGame().getCurrentPlayer().setEnergyUnlimited();
         return Result.success("energy unlimited");
     }
-    
+
     // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
@@ -2013,6 +2018,31 @@ public class GameMenuController implements Controller {
         return animalController.feedHay(args);
     }
 
+    private Result collectProduce(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.collectProduce(args);
+    }
+
+    private Result showProduces() {
+        AnimalController animalController = new AnimalController();
+        return animalController.checkProduces();
+    }
+
+    private Result showAnimals() {
+        AnimalController animalController = new AnimalController();
+        return animalController.showAnimals();
+    }
+
+    private Result sellAnimal(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.sellAnimal(args);
+    }
+
+    private Result setFriendship(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.setFriendship(args);
+    }
+
     //cheats:
     private void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
@@ -2153,14 +2183,14 @@ public class GameMenuController implements Controller {
         showInventory();
     }
 
-    private void cheatGiveAllRecipe(){
+    private void cheatGiveAllRecipe() {
         Player player = App.getGame().getCurrentPlayer();
-        for(CraftingType type : CraftingType.values()) {
+        for (CraftingType type : CraftingType.values()) {
             CraftingItem craftedItem = new CraftingItem(type);
             player.getCraftingItems().add(craftedItem);
         }
 
-        for(CookingType type : CookingType.values()) {
+        for (CookingType type : CookingType.values()) {
             CookingItem cookingItem = new CookingItem(type);
             player.getCookingItems().add(cookingItem);
         }

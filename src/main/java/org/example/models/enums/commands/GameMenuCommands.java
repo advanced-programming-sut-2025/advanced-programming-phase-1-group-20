@@ -10,55 +10,50 @@ public enum GameMenuCommands implements Command {
     NextTurn(Pattern.compile("^next\\s+turn$")),
     VoteTerminate(Pattern.compile("^vote\\s+terminate\\s+(yes|no)$")),
 
-    // time related
+    // time-related commands
     ShowTime(Pattern.compile("^time$")),
     ShowDate(Pattern.compile("^date$")),
     ShowDateTime(Pattern.compile("^clock$|^datetime$")),
+    AdvanceTime(Pattern.compile("^cheat\\s+advance\\s+time\\s+(\\d+)h?$")),
+    AdvanceDate(Pattern.compile("^cheat\\s+advance\\s+date\\s+(\\d+)d?$")),
     DayOfWeek(Pattern.compile("^day\\s+of\\s+(the\\s+)?week$")),
-
-    // weather related
     ShowSeason(Pattern.compile("^season$")),
+
+    // Weather related commands
     ShowWeather(Pattern.compile("^weather$")),
     ShowWeatherForecast(Pattern.compile("^weather\\s+forecast$")),
+    SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")),
+    CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")),
 
-    // player related
-    Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
+    // Player Related
     ShowInventory(Pattern.compile("^show inventory$")),
-    ShowLocation(Pattern.compile("^location$")),
-    ShowEnergy(Pattern.compile("^energy show$")),
-    PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
-    TestPrintMap(Pattern.compile("^test\\s+print\\s+map$")),
-    HelpReadingMap(Pattern.compile("^help\\s+reading\\s+map$")),
-    EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
-    setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
-    energyUnlimited(Pattern.compile("^energy unlimited$")),
-    TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
-    TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),
-    TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
-            "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
 
-    // saving related
+    // saving related commands
     SaveGame(Pattern.compile("^save$")),
     AutoSave(Pattern.compile("^autosave$")),
 
-    // plants and foraging related
+    //plants and foraging related commands
     CraftInfo(Pattern.compile("^craftinfo\\s+-n\\s+(.+)$")),
     Plant(Pattern.compile("^plant\\s+-s\\s+(?<seedName>.+?)\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     ShowPlant(Pattern.compile("^showplant\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     Fertilize(Pattern.compile("^fertilize\\s+-f\\s+(?<fertilizerName>.+)\\s+-d\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
+    Fishing(Pattern.compile("^fishing\\s+-p\\s+(.+)$")),
     HowMuchWater(Pattern.compile("^howmuch\\s+water$")),
     GiveWater(Pattern.compile("^give\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
-    AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
-
     PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" +
             "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
+    AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
+    //crafting related commands
     CraftingShowRecipes(Pattern.compile("^crafting\\s+show\\s+recipes$")),
     CookingShowRecipes(Pattern.compile("^cooking\\s+show\\s+recipes$")),
-    Fishing(Pattern.compile("^fishing\\s+-p\\s+(.+)$")),
+    EatFood(Pattern.compile("^eat\\s+(?<foodName>.+)$")),
+    ShowEnergy(Pattern.compile("^energy show$")),
+    setEnergy(Pattern.compile("^energy set -v (\\d+)$")),
+    energyUnlimited(Pattern.compile("^energy unlimited$")),
 
-    // sell command
+    //sell command:
     SellProduct(Pattern.compile("\\s*sell\\s+(?<productName>.+?)(?:\\s+-n\\s+(?<count>\\d+))?\\s*")),
 
     // tool commands
@@ -67,10 +62,19 @@ public enum GameMenuCommands implements Command {
     ToolShowAvailable(Pattern.compile("^show\\s+available\\s+tools$")),
     ToolUse(Pattern.compile("^tools\\s+use\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
 
-    // greenhouse related
+    // Greenhouse-related commands
     GreenhouseBuild(Pattern.compile("^greenhouse\\s+build$")),
 
-    // Friendship-related commands
+    // Walking and map commands
+    Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
+    PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+)\\s+(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
+    TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
+    TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
+            "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
+    TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),
+    HelpReadingMap(Pattern.compile("^help\\s+reading\\s+map$")),
+
+    // player related commands
     FriendshipStatus(Pattern.compile("^friendships$")),
     TalkToPlayer(Pattern.compile("^talk\\s+-u\\s+(?<username>\\S+)\\s+-m\\s+(?<message>.+)$")),
     TalkHistory(Pattern.compile("^talk\\s+history\\s+-u\\s+(?<username>\\S+)$")),
@@ -81,7 +85,7 @@ public enum GameMenuCommands implements Command {
     HugPlayer(Pattern.compile("^hug\\s+-u\\s+(?<username>\\S+)$")),
     FlowerPlayer(Pattern.compile("^flower\\s+-u\\s+(?<username>\\S+)$")),
     AskToMarry(Pattern.compile("^ask\\s+marriage\\s+-u\\s+(?<username>\\S+)\\s+-r\\s+(?<ring>.+)$")),
-    RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")), // TODO: add marriage notification
+    RespondToMarry(Pattern.compile("^respond\\s+-(accept|reject)\\s+-u\\s+(?<username>\\S+)")),
 
     // NPC-related commands
     MeetNPC(Pattern.compile("^meet\\s+NPC\\s+(?<npcName>\\S+)$")),
@@ -101,11 +105,15 @@ public enum GameMenuCommands implements Command {
 
     ShowCurrentMenu(Pattern.compile("^show current menu$")),
 
-    // animal
+    // animal commands
     PetAnimal(Pattern.compile("^pet\\s+-n\\s+(?<name>.+)$")),
     ShepherdAnimals(Pattern.compile("^shepherd\\s+animals\\s+-n\\s+(?<name>.+)\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
     FeedHay(Pattern.compile("^feed\\s+hay\\s+-n\\s+(?<name>.+)$")),
-    CheckProducts(Pattern.compile("^produces$")),
+    CollectProduce(Pattern.compile("^collect\\s+produce\\s+-n\\s+(?<name>.+)$")),
+    ShowProduces(Pattern.compile("^produces$")),
+    ShowAnimals(Pattern.compile("^animals$")),
+    SellAnimal(Pattern.compile("^sell\\s+animal\\s+-n\\s+(?<name>.+)$")),
+    CheatSetFriendship(Pattern.compile("^cheat\\s+set\\s+friendship\\s+-n\\s+(?<name>.+)\\s+-c\\s+(?<amount>\\d+)$")),
 
     //cheats
     CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favorites\\s+(?<characterName>\\S+)\\s*$")),
@@ -119,11 +127,7 @@ public enum GameMenuCommands implements Command {
     CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
     CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
     CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
-    AdvanceTime(Pattern.compile("^cheat\\s+advance\\s+time\\s+(\\d+)h?$")), // cheat command
-    AdvanceDate(Pattern.compile("^cheat\\s+advance\\s+date\\s+(\\d+)d?$")), // cheat command
-    SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")), // cheat code
-    CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")), // cheat code
-
+    
     None(null);
 
     private final Pattern pattern;

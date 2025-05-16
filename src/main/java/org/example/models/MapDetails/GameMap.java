@@ -1,7 +1,11 @@
 package org.example.models.MapDetails;
 
+import org.example.models.Barn;
+import org.example.models.Coop;
 import org.example.models.Player.Player;
 import org.example.models.Player.Skill;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +91,8 @@ public class GameMap {
 
             farm.updateLakeFish();
             village.updateShippingBin(player);
+
+            processAnimalsEndOfDay(farm);
         }
     }
 
@@ -97,7 +103,7 @@ public class GameMap {
             farm.updateArtisans();
             farm.updateLakeFish();
             village.updateShippingBin(player);
-            for(Skill skill : player.getSkills()) {
+            for (Skill skill : player.getSkills()) {
                 skill.updateState();
             }
 
@@ -113,9 +119,53 @@ public class GameMap {
     }
 
 
-    public void setMoistureForRainyDaysFarms(){
-        for(Farm farm : farms) {
+    public void setMoistureForRainyDaysFarms() {
+        for (Farm farm : farms) {
             farm.setMoistureForRainyDays();
+        }
+    }
+
+    public void processAnimalsEndOfDay(Farm farm) {
+        // Process barn animals
+        for (Barn barn : farm.getBarns()) {
+            for (BarnAnimal animal : barn.getAnimals()) {
+                // Apply daily happiness changes
+                if (!animal.isHasBeenFed()) {
+                    animal.decreaseHappiness(20); // Decrease happiness if not fed
+                }
+
+                if (!animal.isOutside() && !animal.isPetToday()) {
+                    animal.decreaseHappiness(10); // Decrease happiness if not petted
+                }
+
+                // Reset daily flags
+                animal.setPetToday(false);
+                animal.setHasBeenFed(false);
+
+                // Advance animal's production timer
+                animal.advanceDay();
+            }
+        }
+
+        // Process coop animals
+        for (Coop coop : farm.getCoops()) {
+            for (CoopAnimal animal : coop.getAnimals()) {
+                // Apply daily happiness changes
+                if (!animal.isHasBeenFed()) {
+                    animal.decreaseHappiness(20); // Decrease happiness if not fed
+                }
+
+                if (!animal.isOutside() && !animal.isPetToday()) {
+                    animal.decreaseHappiness(10); // Decrease happiness if not petted
+                }
+
+                // Reset daily flags
+                animal.setPetToday(false);
+                animal.setHasBeenFed(false);
+
+                // Advance animal's production timer
+                animal.advanceDay();
+            }
         }
     }
 

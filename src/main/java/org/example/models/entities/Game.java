@@ -109,7 +109,7 @@ public class Game implements Serializable {
         gameMap.updateDailyGameMap(players);
     }
 
-    public void updateTurns(){
+    public void updateTurns() {
         gameMap.updateTurn(players);
     }
 

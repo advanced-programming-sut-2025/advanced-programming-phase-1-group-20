@@ -12,13 +12,36 @@ public class CoopAnimal extends Animal implements Serializable {
     private final CoopAnimalTypes type;
     private int happinessLevel;
     private int daysSinceLastProduction;
-
+    private boolean petToday = false;
+    private boolean fedToday = false;
+    private boolean isOutside = false;
+    private String name;
 
     public CoopAnimal(CoopAnimalTypes type) {
         super(type.getName(), type.getPrice());
         this.type = type;
         this.happinessLevel = 50; // Default happiness
         this.daysSinceLastProduction = 0;
+    }
+
+    public void moveInside() {
+        isOutside = !isOutside;
+    }
+
+    public boolean isPetToday() {
+        return petToday;
+    }
+
+    public void setPetToday(boolean petToday) {
+        this.petToday = petToday;
+    }
+
+    public boolean isOutside() {
+        return isOutside;
+    }
+
+    public void setOutside(boolean outside) {
+        this.isOutside = outside;
     }
 
     public Result produceItem() {
@@ -39,7 +62,6 @@ public class CoopAnimal extends Animal implements Serializable {
         return null;
     }
 
-
     public void increaseHappiness(int amount) {
         happinessLevel = Math.min(100, happinessLevel + amount);
     }
@@ -48,11 +70,9 @@ public class CoopAnimal extends Animal implements Serializable {
         happinessLevel = Math.max(0, happinessLevel - amount);
     }
 
-
     public void advanceDay() {
         daysSinceLastProduction++;
     }
-
 
     public boolean canLiveIn(Cages coopType) {
         // Animals can live in their minimum coop size or better
@@ -81,7 +101,6 @@ public class CoopAnimal extends Animal implements Serializable {
         return type.getMinimumCoopSize();
     }
 
-
     public int getProductionInterval() {
         return type.getProductionInterval();
     }
@@ -89,7 +108,6 @@ public class CoopAnimal extends Animal implements Serializable {
     public String getPrimaryProduct() {
         return type.getPrimaryProduct();
     }
-
 
     public int getPrimaryProductPrice() {
         return type.getPrimaryProductPrice();
@@ -99,7 +117,6 @@ public class CoopAnimal extends Animal implements Serializable {
         return type.getSecondaryProduct();
     }
 
-
     public int getSecondaryProductPrice() {
         return type.getSecondaryProductPrice();
     }
@@ -108,11 +125,9 @@ public class CoopAnimal extends Animal implements Serializable {
         return happinessLevel;
     }
 
-
     public String getDescription() {
         return type.getDescription();
     }
-
 
     public int getDaysSinceLastProduction() {
         return daysSinceLastProduction;
@@ -125,5 +140,53 @@ public class CoopAnimal extends Animal implements Serializable {
 
     public String getName() {
         return type.getName();
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isHasBeenFed() {
+        return fedToday;
+    }
+
+    public void setHasBeenFed(boolean hasBeenFed) {
+        this.fedToday = hasBeenFed;
+    }
+
+    public void feed() {
+        fedToday = true;
+        increaseHappiness(5);
+    }
+
+    public void nextDay() {
+        // Increase days since last production
+        daysSinceLastProduction++;
+
+        // Apply happiness modifiers
+        if (!fedToday) {
+            decreaseHappiness(20);
+        }
+
+        if (isOutside && !fedToday) {
+            // If outside, can eat grass
+            fedToday = true;
+            increaseHappiness(8);
+        }
+
+        if (isOutside) {
+            // Penalty for staying outside overnight
+            decreaseHappiness(20);
+        }
+
+        if (!petToday) {
+            // Penalty for not petting, scales with friendship
+            int penalty = 10 * happinessLevel / 200;
+            decreaseHappiness(penalty);
+        }
+
+        // Reset daily flags
+        fedToday = false;
+        petToday = false;
     }
 }
