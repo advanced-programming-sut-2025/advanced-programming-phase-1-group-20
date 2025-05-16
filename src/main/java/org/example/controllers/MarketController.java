@@ -104,6 +104,11 @@ public class MarketController implements Controller {
 
     private Result build(String[] args) {
         String buildingName = args[0];
+        if(!market.getName().equalsIgnoreCase("Carpenters Shop")) {
+            return Result.error("You are not in Carpenters Shop!");
+        }
+        Item barn = new Item("Barn" , 6_000);
+        market.checkItem(player, barn, 1);
         return Result.success("build successfully");
     }
 

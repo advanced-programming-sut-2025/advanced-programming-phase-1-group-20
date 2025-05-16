@@ -623,11 +623,11 @@ public enum Markets {
         items.put(deluxeBarn,1.0);
 
 
-        Item coop = new Item("Barn" , 4_000);
+        Item coop = new Item("Coop" , 4_000);
         items.put(coop,1.0);
-        Item bigCoop = new Item("Big Barn" , 10_000);
+        Item bigCoop = new Item("Big Coop" , 10_000);
         items.put(bigCoop,1.0);
-        Item deluxeCoop = new Item("Deluxe Barn" , 20_000);
+        Item deluxeCoop = new Item("Deluxe Coop" , 20_000);
         items.put(deluxeCoop,1.0);
 
         Item well = new Item("Well" , 1_000);
@@ -649,6 +649,7 @@ public enum Markets {
         HashMap<Item, Double> summerItems = new HashMap<>();
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
+
 
 
 
