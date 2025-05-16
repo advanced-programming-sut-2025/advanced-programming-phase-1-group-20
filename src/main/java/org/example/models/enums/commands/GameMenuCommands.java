@@ -107,6 +107,8 @@ public enum GameMenuCommands implements Command {
     CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favourits\\s+(?<characterName>\\S+)\\s*$")),
     CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
     CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),
+    CheatTeleportHome(Pattern.compile("^cheat\\s+teleport\\s+house$")),
+    CheatTeleportMarkets(Pattern.compile("^cheat\\s+teleport\\s+markets\\s+-m\\s+(Black Smith|Joja Mart|Pierre General Store|Carpenters Shop|Fish Shop|Marnie Shop|Star drop Saloon)$")),
     //cheats
 
 
