@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public class Fish extends Item implements Serializable {
     private final FishType type;
-    private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
+    private final int quality;
     private final Seasons season;
 
     public Fish(FishType type, int quality, Seasons season) {
@@ -25,13 +25,13 @@ public class Fish extends Item implements Serializable {
 
     private static int calculatePrice(int basePrice, int quality) {
         switch (quality) {
-            case 1: // Silver
+            case 1:
                 return (int) (basePrice * 1.25);
-            case 2: // Gold
+            case 2:
                 return basePrice * 2;
-            case 3: // Iridium
+            case 3:
                 return basePrice * 3;
-            default: // Normal
+            default:
                 return basePrice;
         }
     }
@@ -88,4 +88,5 @@ public class Fish extends Item implements Serializable {
     public boolean isLegendary() {
         return type.isLegendary();
     }
+
 }
