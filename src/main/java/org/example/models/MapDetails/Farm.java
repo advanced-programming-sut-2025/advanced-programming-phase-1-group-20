@@ -999,8 +999,9 @@ public class Farm {
         int counter = 0;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if(tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Plant || tiles[x][y].getItem() instanceof Crop) {
-                    if(!tiles[x][y].isScarecrowThere()){
+                if (tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Plant ||
+                        tiles[x][y].getItem() instanceof Crop) {
+                    if (!tiles[x][y].isScarecrowThere()) {
                         counter++;
                     }
                 }
@@ -1011,16 +1012,17 @@ public class Farm {
 
     public void attackOfTheCrows(){
         int numberOfCrows = numberOfPlants()/16;
-        for(int i = 0 ; i < numberOfCrows ; i++) {
+        for (int i = 0 ; i < numberOfCrows ; i++) {
             attackOfSingleCrow();
         }
     }
 
     public ArrayList<Location> allItemsForCrows() {
         ArrayList<Location> locations = new ArrayList<>();
-        for(int x = 0 ; x < width ; x++) {
-            for(int y = 0 ; y < height ; y++) {
-                if((tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Crop || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()){
+        for (int x = 0 ; x < width ; x++) {
+            for (int y = 0 ; y < height ; y++) {
+                if ((tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Crop
+                        || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()) {
                     locations.add(tiles[x][y]);
                 }
             }
@@ -1031,15 +1033,16 @@ public class Farm {
     public void attackOfSingleCrow(){
         Random random = new Random();
         int a = random.nextInt(3);
-        if(a==0){
+        if (a == 0) {
             ArrayList<Location> locations = allItemsForCrows();
             int index = random.nextInt(locations.size());
             Location location = locations.get(index);
-            if(location.getItem() instanceof Tree) {
+            if (location.getItem() instanceof Tree) {
                 Tree tree = (Tree) location.getItem();
                 tree.setStage(0);
                 tree.setDaysCounter(0);
-            }else if(location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
+            }
+            else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
                 location.setItem(null);
                 location.setTile(TileType.GRASS);
                 location.setType("grass");
