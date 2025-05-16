@@ -2276,7 +2276,6 @@ public class GameMenuController implements Controller {
         }
     }
 
-
     private void cheatGiveItems() {
         Player player = App.getGame().getCurrentPlayer();
 
