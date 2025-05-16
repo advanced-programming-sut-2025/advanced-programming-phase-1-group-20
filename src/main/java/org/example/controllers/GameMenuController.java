@@ -168,7 +168,6 @@ public class GameMenuController implements Controller {
             case PetAnimal -> result = petAnimal(args);
             case ShepherdAnimals -> result = shepherdAnimals(args);
             case FeedHay -> result = feedHay(args);
-            case CheatGiveItems -> cheatGiveItems();
 
             case None -> result = Result.error("Invalid command");
         }
@@ -1797,7 +1796,6 @@ public class GameMenuController implements Controller {
 
     private Result startTrade() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
 
         Game game = App.getGame();
         if (game == null) {
@@ -1860,9 +1858,9 @@ public class GameMenuController implements Controller {
         }
 
         // Get the item
-        Item item = App.getItem(itemName);
+        Item item = player.getBackpack().getItem(itemName);
         if (item == null) {
-            return Result.error("Item " + itemName + " not found");
+            return Result.error("Item " + itemName + " not found in the backpack");
         }
 
         // Check if the amount is valid
@@ -2001,7 +1999,23 @@ public class GameMenuController implements Controller {
         return Result.success(sb.toString());
     }
 
+    // ======= Animals ======
 
+    private Result petAnimal(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.petAnimal(args);
+    }
+
+    private Result shepherdAnimals(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.shepherdAnimals(args);
+    }
+
+    private Result feedHay(String[] args) {
+        AnimalController animalController = new AnimalController();
+        return animalController.feedHay(args);
+    }
+    
     //cheats:
     private void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
@@ -2140,20 +2154,5 @@ public class GameMenuController implements Controller {
 
         System.out.println("\nCurrent inventory contents:");
         showInventory();
-    }
-
-    private Result petAnimal(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.petAnimal(args);
-    }
-
-    private Result shepherdAnimals(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.shepherdAnimals(args);
-    }
-
-    private Result feedHay(String[] args) {
-        AnimalController animalController = new AnimalController();
-        return animalController.feedHay(args);
     }
 }
