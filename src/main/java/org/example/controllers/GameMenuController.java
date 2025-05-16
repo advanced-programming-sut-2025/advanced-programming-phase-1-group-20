@@ -4,6 +4,7 @@ import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
+import org.example.models.MapDetails.Lake;
 import org.example.models.MapDetails.Village;
 import org.example.models.Market;
 import org.example.models.Player.Backpack;
@@ -12,6 +13,7 @@ import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.entities.*;
+import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Npcs;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.ItemBuilder;
@@ -920,7 +922,13 @@ public class GameMenuController implements Controller {
         if (farm == null) {
             return Result.error("you don't have a farm");
         }
-//        if
+        Lake lake = farm.lakeAround(location);
+        if (lake == null) {
+            return Result.error("you are not nearby a lake");
+        }
+//        List<Fish> caughtFish = lake.fish();
+//        player.setFish(caughtFish);
+//        player.showFishInformation();
 
         return Result.success("fishing: " + farm.getName());
     }
