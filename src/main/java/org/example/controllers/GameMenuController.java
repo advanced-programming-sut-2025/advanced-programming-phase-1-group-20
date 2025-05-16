@@ -762,23 +762,6 @@ public class GameMenuController implements Controller {
     }
 
 
-    public boolean checkItems(String items, CraftingItem craftingItem) {
-
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
-        String regex = craftingItem.checkRegex(items);
-        if (regex != null) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(items);
-            String itemName = matcher.group(1);
-            if (player.getBackpack().hasItems(Collections.singletonList(itemName))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
 
     //sell Function:
     private Result sellProduct(String[] args) {
