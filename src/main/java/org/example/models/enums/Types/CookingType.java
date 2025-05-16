@@ -17,7 +17,7 @@ public enum CookingType {
     HashBrowns("hash browns", Ingredients.hashbrowns, 90, "Farming (5 hours)" , "Stardrop Saloon" ,  120),
     Pancakes("pancakes", Ingredients.pancakes, 90,"Foraging (11 hours)" , "Stardrop Saloon" ,  80),
     FruitSalad("fruit salad", Ingredients.fruitsalad, 263, "" , "Stardrop Saloon" ,  450),
-    RedPlate("red plate", Ingredients.redplate, 240, "max Energy +50 (3 hours)" , "Stardrop Saloon" , 400),
+    RedPlate("red plate", Ingredients.redplate, 240, "Max Energy + 50 (3 hours)" , "Stardrop Saloon" , 400),
     Bread("bread", Ingredients.bread, 50,"" , "Stardrop Saloon" , 60),
     SalmonDinner("salmon dinner", Ingredients.salmondinner, 125, "" , "Leah reward" , 300),
     VegetableMedley("vegetable medley", Ingredients.vegetablemedley, 165,"" , "Foraging Level 2" , 120),

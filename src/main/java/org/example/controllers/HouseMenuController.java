@@ -249,7 +249,7 @@ public class HouseMenuController implements Controller {
         Food food = (Food) item;
         player.increaseEnergy(food.getEnergy());
         player.getBackpack().remove(item, 1);
-        //TODO : adding buffer.
+        food.setBuffer(player);
         return Result.success("Food " + foodName + " eaten");
     }
 

@@ -6,11 +6,13 @@ public class Skill {
     private int level = 1;
     private final int adderUnit;
     private final String name;
+    private boolean buff;
 
     public Skill(int level, String name, int adderUnit) {
         this.level = level;
         this.name = name;
         this.adderUnit = adderUnit;
+        buff = false;
     }
 
     public void updateUnit() {
@@ -18,9 +20,12 @@ public class Skill {
     }
 
     public void updateLevel() {
+        level++;
     }
 
     public void maxSkill(int hour, int plus) {
+        buff = true;
+        level = maxLevel;
     }
 
     public String getName() {
