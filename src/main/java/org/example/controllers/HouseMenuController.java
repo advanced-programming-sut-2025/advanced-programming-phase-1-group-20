@@ -189,24 +189,23 @@ public class HouseMenuController implements Controller {
             return Result.error(name + " does not exist in the game.");
         }
         if (!isCooking(item)) {
-            return Result.error("Item is not a cooking item");
+            return Result.error("Item is not a recipe");
         }
-        if (!(player.getBackpack().hasItems(Collections.singletonList(name)) || house.getRefrigerator().contains(item))) {
-            return Result.error("You don't have the item in this house(and your back pack).");
+        if (!(player.getCookingItems().contains((CookingItem) item) || house.getRefrigerator().contains(item))) {
+            return Result.error("You don't have the item in this house (and your back pack).");
         }
 
 
         CookingItem cookingItem = (CookingItem) item;
-        player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
-
-        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
-            player.getBackpack().remove(item, 1);
-        } else {
-            house.getRefrigerator().removeItem(item, 1);
+        if(!cookingItem.canCook(player.getBackpack())) {
+            return Result.error("You don't have enough cooking item or correct recipe");
+        }
+        if(!player.getBackpack().add(food, 1)){
+            return Result.error("You don't have enough space in your backpack");
         }
 
-        player.getBackpack().add(food, 1);
+        player.decreaseEnergy(3);
         return Result.success("Food " + food.getName() + " cooked");
     }
 
