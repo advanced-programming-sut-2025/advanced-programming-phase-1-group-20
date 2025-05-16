@@ -132,7 +132,7 @@ public class Farm {
         return null;
     }
 
-    public Building getBuildingAt(Location location) {
+    public Building getHouse(Location location) {
         int x = location.getX();
         int y = location.getY();
         Building building = getBuilding();
@@ -210,6 +210,7 @@ public class Farm {
         symbolMap.put("lake", '~');
         symbolMap.put("quarry", 'Q');
         symbolMap.put("greenhouse", 'G');
+        symbolMap.put("market", 'M');
         symbolMap.put("village", 'V');
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
