@@ -6,9 +6,10 @@ import org.example.models.enums.Types.FishType;
 
 import java.io.Serializable;
 
+
 public class Fish extends Item implements Serializable {
     private final FishType type;
-    private final int quality;
+    private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
     private final Seasons season;
 
     public Fish(FishType type, int quality, Seasons season) {
@@ -25,16 +26,17 @@ public class Fish extends Item implements Serializable {
 
     private static int calculatePrice(int basePrice, int quality) {
         switch (quality) {
-            case 1:
+            case 1: // Silver
                 return (int) (basePrice * 1.25);
-            case 2:
+            case 2: // Gold
                 return basePrice * 2;
-            case 3:
+            case 3: // Iridium
                 return basePrice * 3;
-            default:
+            default: // Normal
                 return basePrice;
         }
     }
+
 
     public String getQualityString() {
         switch (quality) {
@@ -49,6 +51,11 @@ public class Fish extends Item implements Serializable {
         }
     }
 
+    /**
+     * Get a symbol representing the fish's quality.
+     *
+     * @return A symbol representing the quality (★, ★★, or ★★★)
+     */
     public String getQualitySymbol() {
         switch (quality) {
             case 1:
@@ -62,17 +69,23 @@ public class Fish extends Item implements Serializable {
         }
     }
 
-    public void showInfo() {
-        System.out.println("Fish: " + type.getName() + " " + getQualitySymbol());
-        System.out.println("Quality: " + getQualityString());
-        System.out.println("Value: " + getBaseSellPrice() + "g");
-        System.out.println("Description: " + getDescription());
-        System.out.println("Season: " + season);
+
+    public String getInfo() {
+        StringBuilder info = new StringBuilder();
+        info.append("Fish: ").append(type.getName()).append(" ").append(getQualitySymbol());
         if (type.isLegendary()) {
-            System.out.println("LEGENDARY FISH!");
+            info.append(" (**legendary**)");
         }
+        info.append("\n");
+        info.append("Quality: ").append(getQualityString()).append("\n");
+        info.append("Value: ").append(getBaseSellPrice()).append("g").append("\n");
+        info.append("Description: ").append(getDescription()).append("\n");
+        info.append("Season: ").append(season);
+
+        return info.toString();
     }
 
+    // Getters
     public FishType getType() {
         return type;
     }
@@ -88,5 +101,4 @@ public class Fish extends Item implements Serializable {
     public boolean isLegendary() {
         return type.isLegendary();
     }
-
 }

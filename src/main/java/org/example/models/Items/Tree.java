@@ -57,10 +57,6 @@ public class Tree extends Item {
         return stages;
     }
 
-    public void setStage(int stage) {
-        this.stage = stage;
-    }
-
     public void setDaysCounter(int daysCounter) {
         this.daysCounter = daysCounter;
     }
@@ -76,10 +72,9 @@ public class Tree extends Item {
             stage++;
         } else if (stage == stages.length) {
             finished = true;
-            if(fruitCounter < fruitCycle) {
+            if (fruitCounter < fruitCycle) {
                 fruitCounter++;
-            }
-            else if(fruitCounter == fruitCycle) {
+            } else if (fruitCounter == fruitCycle) {
                 isFruitFinished = true;
             }
         }
@@ -87,8 +82,8 @@ public class Tree extends Item {
 
     public void updateDaysCounter() {
         if (daysCounter < stages[stage]) {
-            if(!moisture){
-                if(moistureCounter < 2){
+            if (!moisture) {
+                if (moistureCounter < 2) {
                     moistureCounter++;
                 }
             }
@@ -101,6 +96,10 @@ public class Tree extends Item {
 
     public int getStage() {
         return stage;
+    }
+
+    public void setStage(int stage) {
+        this.stage = stage;
     }
 
     @Override
@@ -157,7 +156,7 @@ public class Tree extends Item {
     }
 
     public Fruit getFruit() {
-        if(isFruitFinished){
+        if (isFruitFinished) {
             return new Fruit(getFruitName(), getPrice(), getEnergy());
         }
         return null;

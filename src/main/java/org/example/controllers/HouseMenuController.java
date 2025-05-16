@@ -3,9 +3,7 @@ package org.example.controllers;
 import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Building;
-import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
-import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
@@ -23,12 +21,11 @@ public class HouseMenuController implements Controller {
     private Player player;
     private Building house;
 
-    public HouseMenuController(AppView appView , Player player, Building house) {
+    public HouseMenuController(AppView appView, Player player, Building house) {
         this.appView = appView;
         this.player = player;
         this.house = house;
     }
-
 
 
     @Override
@@ -60,8 +57,7 @@ public class HouseMenuController implements Controller {
         }
 
 
-
-        appView.handleResult(result , command);
+        appView.handleResult(result, command);
         return result;
     }
 
@@ -104,11 +100,11 @@ public class HouseMenuController implements Controller {
     //this method is completed
     private void craftingShowRecipes() {
         List<CraftingItem> craftingItems = player.getCraftingItems();
-        if(!craftingItems.isEmpty()) {
+        if (!craftingItems.isEmpty()) {
             for (CraftingItem craftingItem : craftingItems) {
                 craftingItem.showInfo();
             }
-        }else{
+        } else {
             System.out.println("There is no crafting items for the player");
         }
     }
@@ -123,6 +119,7 @@ public class HouseMenuController implements Controller {
         }
 
         CraftingType type = CraftingType.fromName(itemName);
+        assert type != null;
         CraftingItem craftedItem = new CraftingItem(type);
         if (!craftedItem.canCraft(player.getBackpack())) {
             return Result.error("You don't have enough items for  this item");
@@ -137,9 +134,6 @@ public class HouseMenuController implements Controller {
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }
-
-
-
 
 
     private Result addItem(String[] args) {
@@ -167,11 +161,11 @@ public class HouseMenuController implements Controller {
                 if (!player.getBackpack().hasItems(Collections.singletonList(key))) {
                     return Result.error("Backpack doesn't contain item");
                 }
-                 house.getRefrigerator().putItem(item , 1);
+                house.getRefrigerator().putItem(item, 1);
                 break;
             case "pick":
                 Item item1 = house.getRefrigerator().pickItem(item);
-                if(item1 == null){
+                if (item1 == null) {
                     return Result.error("Item not found");
                 }
                 player.getBackpack().add(item1, 1);
@@ -209,10 +203,10 @@ public class HouseMenuController implements Controller {
         player.decreaseEnergy(3);
         Food food = cookingItem.cook(player.getBackpack());
 
-        if(player.getBackpack().hasItems(Collections.singletonList(name))){
-            player.getBackpack().remove(item , 1);
-        }else{
-            house.getRefrigerator().removeItem(item , 1);
+        if (player.getBackpack().hasItems(Collections.singletonList(name))) {
+            player.getBackpack().remove(item, 1);
+        } else {
+            house.getRefrigerator().removeItem(item, 1);
         }
 
         player.getBackpack().add(food, 1);
@@ -236,20 +230,20 @@ public class HouseMenuController implements Controller {
         if (!(item instanceof Food || item instanceof ArtisanItem || item instanceof Fruit)) {
             return Result.error("Item is not a Food or ArtisanItem");
         }
-        if(item instanceof ArtisanItem){
+        if (item instanceof ArtisanItem) {
             ArtisanItem artisanItem = (ArtisanItem) item;
-            if(artisanItem.getEnergy() > 0){
+            if (artisanItem.getEnergy() > 0) {
                 player.increaseEnergy(artisanItem.getEnergy());
-                player.getBackpack().remove(item , 1);
+                player.getBackpack().remove(item, 1);
                 return Result.success("Food " + foodName + " eaten");
-            }else{
+            } else {
                 return Result.success("Artisan item is not a food.");
             }
         }
-        if(item instanceof Fruit){
+        if (item instanceof Fruit) {
             Fruit fruit = (Fruit) item;
             player.increaseEnergy(fruit.getEnergy());
-            player.getBackpack().remove(item , 1);
+            player.getBackpack().remove(item, 1);
             return Result.success("Food " + foodName + " eaten");
         }
         Food food = (Food) item;
@@ -312,9 +306,9 @@ public class HouseMenuController implements Controller {
     }
 
 
-    public void getOut(){
+    public void getOut() {
         System.out.println("hala har ghabrestooni mikhay beri boro .");
-        appView.navigateMenu(new GameMenu(appView , player.getUser() , player));
+        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
     }
 
 }
