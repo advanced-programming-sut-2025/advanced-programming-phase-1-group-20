@@ -773,7 +773,8 @@ public class Farm {
         if (type == null) {
             return false;
         }
-        return type.equals("water") || type.equals("village") || type.equals("house");
+        return type.equals("water") || type.equals("village") ||
+                type.equals("building") || type.equals("quarry") || type.equals("greenhouse");
     }
 
     public List<Location> getPassableNeighbors(Location location) {
