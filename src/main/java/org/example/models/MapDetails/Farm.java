@@ -323,7 +323,7 @@ public class Farm {
     public Quarry createQuarry() {
         switch (farmIndex) {
             case 0:
-                Quarry q1 = new Quarry(width - 5, height - 4);
+                Quarry q1 = new Quarry(width - 4, height - 4);
                 return q1;
             case 1:
                 Quarry q2 = new Quarry(0, height - 4);
@@ -332,7 +332,7 @@ public class Farm {
                 Quarry q3 = new Quarry(0, 0);
                 return q3;
             case 3:
-                Quarry q4 = new Quarry(width - 5, 1);
+                Quarry q4 = new Quarry(width - 4, 0);
                 return q4;
         }
         return null;
