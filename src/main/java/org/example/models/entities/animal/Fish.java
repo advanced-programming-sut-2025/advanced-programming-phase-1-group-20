@@ -6,22 +6,11 @@ import org.example.models.enums.Types.FishType;
 
 import java.io.Serializable;
 
-/**
- * Represents a fish in the game.
- * Extends the Item class, as fish are collectible items that can be stored in inventory.
- */
 public class Fish extends Item implements Serializable {
     private final FishType type;
     private final int quality; // 0 = normal, 1 = silver, 2 = gold, 3 = iridium
     private final Seasons season;
 
-    /**
-     * Create a new fish with a specific quality.
-     *
-     * @param type    The type of fish
-     * @param quality The quality of the fish (0-3)
-     * @param season  The season in which the fish was caught
-     */
     public Fish(FishType type, int quality, Seasons season) {
         super(type.getName(), calculatePrice(type.getBasePrice(), quality));
         this.type = type;
@@ -30,23 +19,10 @@ public class Fish extends Item implements Serializable {
         setDescription(type.getDescription());
     }
 
-    /**
-     * Create a new fish with normal quality.
-     *
-     * @param type   The type of fish
-     * @param season The season in which the fish was caught
-     */
     public Fish(FishType type, Seasons season) {
         this(type, 0, season);
     }
 
-    /**
-     * Calculate the price of the fish based on its base price and quality.
-     *
-     * @param basePrice The base price of the fish
-     * @param quality   The quality of the fish (0-3)
-     * @return The calculated price
-     */
     private static int calculatePrice(int basePrice, int quality) {
         switch (quality) {
             case 1: // Silver
@@ -60,11 +36,6 @@ public class Fish extends Item implements Serializable {
         }
     }
 
-    /**
-     * Get a string representation of the fish's quality.
-     *
-     * @return A string representing the quality (Normal, Silver, Gold, or Iridium)
-     */
     public String getQualityString() {
         switch (quality) {
             case 1:
@@ -78,11 +49,6 @@ public class Fish extends Item implements Serializable {
         }
     }
 
-    /**
-     * Get a symbol representing the fish's quality.
-     *
-     * @return A symbol representing the quality (★, ★★, or ★★★)
-     */
     public String getQualitySymbol() {
         switch (quality) {
             case 1:
@@ -96,10 +62,6 @@ public class Fish extends Item implements Serializable {
         }
     }
 
-    /**
-     * Display information about the fish.
-     */
-    @Override
     public void showInfo() {
         System.out.println("Fish: " + type.getName() + " " + getQualitySymbol());
         System.out.println("Quality: " + getQualityString());
@@ -111,7 +73,6 @@ public class Fish extends Item implements Serializable {
         }
     }
 
-    // Getters
     public FishType getType() {
         return type;
     }
