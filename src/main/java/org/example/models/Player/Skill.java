@@ -8,6 +8,7 @@ public class Skill {
     private final String name;
     private boolean buff;
     private int hours;
+    private int currentLevel;
 
     public Skill(int level, String name, int adderUnit) {
         this.level = level;
@@ -15,6 +16,7 @@ public class Skill {
         this.adderUnit = adderUnit;
         buff = false;
         hours = 0;
+        currentLevel = level;
     }
 
     public void updateUnit() {
@@ -26,6 +28,7 @@ public class Skill {
     }
 
     public void maxSkill(int hour, int plus) {
+        currentLevel = level;
         buff = true;
         level = maxLevel;
         this.hours = hour;
@@ -37,6 +40,7 @@ public class Skill {
                 hours--;
             }else{
                 buff = false;
+                level = currentLevel;
             }
         }
     }

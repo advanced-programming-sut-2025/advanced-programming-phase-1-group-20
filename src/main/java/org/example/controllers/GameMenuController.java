@@ -634,7 +634,6 @@ public class GameMenuController implements Controller {
 
 
         if (item instanceof CraftingItem) {
-            //it will be replaced as item.place() like a function pointer.
             switch (item.getName()) {
                 case "Cherry Bomb" -> {
                     gMap.getFarmByPlayer(player).bomb(x, y, 3);
@@ -659,9 +658,6 @@ public class GameMenuController implements Controller {
                 }
                 case "Deluxe Scarecrow" -> {
                     gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
-                }
-                case "Bee House" -> {
-                    //TODO : bee house.
                 }
             }
         }
