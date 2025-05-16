@@ -132,6 +132,31 @@ public class Farm {
         return null;
     }
 
+    public Building getBuildingAt(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+        Building building = getBuilding();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1},          {0, 1},
+                {1, -1},  {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                if (building.contains(newX, newY)) {
+                    return building;
+                }
+            }
+        }
+
+        return null;
+    }
+
     private boolean isInMarketArea(Market market, int x, int y) {
         int marketX = market.getX();
         int marketY = market.getY();
