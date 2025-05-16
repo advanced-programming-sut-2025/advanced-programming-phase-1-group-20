@@ -1070,7 +1070,7 @@ public class Farm {
         return null;
     }
 
-    public ShippingBin shippingBinAround (Location location) {
+    public ShippingBin getShippingBinNearby (Location location) {
         int x = location.getX();
         int y = location.getY();
 
