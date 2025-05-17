@@ -1169,4 +1169,14 @@ public class Farm {
         }
     }
 
+    public Barn getBarnByAnimal(Animal animal) {
+        for (Barn barn : barns) {
+            if (barn.getCapacity() > barn.getAnimalCount()) {
+                if (animal.)
+                return barn;
+            }
+        }
+        return null;
+    }
+
 }

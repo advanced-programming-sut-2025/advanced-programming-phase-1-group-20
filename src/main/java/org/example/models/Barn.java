@@ -26,6 +26,8 @@ public class Barn implements Serializable {
         this.location = location;
         this.name = name;
         this.animals = new ArrayList<>();
+        this.x = location.getX();
+        this.y = location.getY();
 
         switch (type) {
             case NORMAL_BARN:

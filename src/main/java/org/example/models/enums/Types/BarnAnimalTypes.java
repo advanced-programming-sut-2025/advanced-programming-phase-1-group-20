@@ -35,15 +35,10 @@ public enum BarnAnimalTypes {
         this.description = description;
     }
 
-    /**
-     * Determine which product this animal should produce
-     */
     public Item determineProduct(BarnAnimal animal) {
         Random random = new Random();
 
-        // Check if animal has enough happiness for secondary product
         if (secondaryProduct != null && animal.getHappinessLevel() >= 100) {
-            // Calculate chance of secondary product
             double chance = 1500.0 / (animal.getHappinessLevel() + (150 * (0.5 + random.nextDouble())));
 
             if (random.nextDouble() < chance) {
@@ -51,19 +46,13 @@ public enum BarnAnimalTypes {
             }
         }
 
-        // Otherwise return primary product
         return new Item(primaryProduct, primaryProductPrice);
     }
 
-    /**
-     * Check if this animal type requires a happiness check for production
-     */
     public boolean requiresHappiness() {
-        // Pigs need happiness check for truffle production
         return this == PIG;
     }
 
-    // Getters
     public String getName() {
         return name;
     }
