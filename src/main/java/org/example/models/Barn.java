@@ -27,7 +27,6 @@ public class Barn implements Serializable {
         this.name = name;
         this.animals = new ArrayList<>();
 
-        // Set capacity based on barn type
         switch (type) {
             case NORMAL_BARN:
                 this.capacity = 4;
@@ -69,9 +68,6 @@ public class Barn implements Serializable {
         this.y = y;
     }
 
-    /**
-     * Add an animal to the barn
-     */
     public Result addAnimal(BarnAnimal animal) {
         if (animalCount >= capacity) {
             return Result.error("This barn is full. Cannot add more animals.");
@@ -87,9 +83,6 @@ public class Barn implements Serializable {
         return Result.success("Added " + animal.getName() + " to " + name);
     }
 
-    /**
-     * Remove an animal from the barn
-     */
     public Result removeAnimal(String animalName) {
         for (int i = 0; i < animals.size(); i++) {
             if (animals.get(i).getName().equalsIgnoreCase(animalName)) {
@@ -114,7 +107,6 @@ public class Barn implements Serializable {
         animal.feed();
         return Result.success(animal.getName() + " has been fed.");
     }
-
 
     public Result feedAllAnimals() {
         if (animals.isEmpty()) {
@@ -168,7 +160,6 @@ public class Barn implements Serializable {
         }
     }
 
-    // Getters and Setters
     public BarnTypes getType() {
         return type;
     }
