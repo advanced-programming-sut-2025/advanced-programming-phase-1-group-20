@@ -8,6 +8,8 @@ import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.animal.Animal;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -1115,7 +1117,7 @@ public class Farm {
                         return coop;
                     }
                 }
-//                if (tiles[newX][newY].getTile() == TileType.COOP) {
+//                if (tiles[newX][newY].getTile() == TileType.COO) {
 //                    return lake;
 //                }
             }
@@ -1227,14 +1229,27 @@ public class Farm {
         }
     }
 
-//    public Barn getBarnByAnimal(Animal animal) {
-//        for (Barn barn : barns) {
-//            if (barn.getCapacity() > barn.getAnimalCount()) {
-//                if (animal.)
-//                return barn;
-//            }
-//        }
-//        return null;
-//    }
+    public Barn getBarnByAnimal(BarnAnimal animal) {
+        for (Barn barn : barns) {
+            if (barn.getCapacity() > barn.getAnimalCount()) {
+                if (animal.getBarnType().equals(barn.getType())) {
+                    return barn;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Coop getCoopByAnimal(CoopAnimal animal) {
+        for (Coop coop : coops) {
+            if (coop.getCapacity() > coop.getAnimalCount()) {
+                if (animal.getCoopType().equals(coop.getType())) {
+                    coop.addAnimal(animal);
+                }
+                return coop;
+            }
+        }
+        return null;
+    }
 
 }

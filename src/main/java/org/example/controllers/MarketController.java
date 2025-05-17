@@ -9,6 +9,11 @@ import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
+import org.example.models.entities.animal.Animal;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
+import org.example.models.enums.CoopAnimalTypes;
+import org.example.models.enums.Types.BarnAnimalTypes;
 import org.example.models.enums.Types.BarnTypes;
 import org.example.models.enums.Types.Cages;
 import org.example.models.enums.commands.MarketMenuCommands;
@@ -62,6 +67,8 @@ public class MarketController implements Controller {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
         Item item = market.getItem(productName);
+        Animal animal = getAnimalByName(item.getName());
+        Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
 
         if (item == null) {
             return Result.error("There is no such item as" + productName);
@@ -75,9 +82,22 @@ public class MarketController implements Controller {
             return Result.error("You don't have enough resources for this product");
         }
 
-        if(market.getName().equals("Marnies Shop")){
-            if(!(item.getName().equals("Shears") || item.getName().equals("Milk Pail"))){
-                //todo : Adding Animal in farm
+        if (market.getName().equals("Marnie Shop")) {
+            if (!(item.getName().equals("Shears") || item.getName().equals("Milk Pail"))) {
+                if (animal instanceof BarnAnimal) {
+                    Barn barn = farm.getBarnByAnimal((BarnAnimal) animal);
+                    if (barn == null) {
+                        return Result.error("there is no farm for add animal");
+                    }
+                    barn.addAnimal((BarnAnimal) animal);
+                }
+                else if (animal instanceof CoopAnimal) {
+                    Coop coop = farm.getCoopByAnimal((CoopAnimal) animal);
+                    if (coop == null) {
+                        return Result.error("there is no coop for add animal");
+                    }
+                    coop.addAnimal((CoopAnimal) animal);
+                }
             }
         }
         market.checkOut(player, item, count);
@@ -85,6 +105,37 @@ public class MarketController implements Controller {
 
 
         return Result.success("Item purchased successfully");
+    }
+
+    private Animal getAnimalByName(String name) {
+        Animal animal = null;
+        switch (name) {
+            case "Pig"-> {
+                animal = new BarnAnimal(BarnAnimalTypes.PIG , "Pig");
+            }
+            case "Sheep"-> {
+                animal = new BarnAnimal(BarnAnimalTypes.SHEEP , "Sheep");
+            }
+            case "Cow" -> {
+                animal = new BarnAnimal(BarnAnimalTypes.COW , "Cow");
+            }
+            case "Goat" -> {
+                animal = new BarnAnimal(BarnAnimalTypes.GOAT , "Goat");
+            }
+            case "Chicken" -> {
+                animal = new CoopAnimal(CoopAnimalTypes.CHICKEN, "Chicken");
+            }
+            case "Duck" -> {
+                animal = new CoopAnimal(CoopAnimalTypes.DUCK, "Duck");
+            }
+            case "Rabbit" -> {
+                animal = new CoopAnimal(CoopAnimalTypes.RABBIT, "Rabbit");
+            }
+            case "Dinosaur" -> {
+                animal = new CoopAnimal(CoopAnimalTypes.DINOSAUR, "Dinosaur");
+            }
+        }
+        return animal;
     }
 
 
