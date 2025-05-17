@@ -96,13 +96,11 @@ public class GameMenuController implements Controller {
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
 
-
             case CookingShowRecipes -> cookingShowRecipes();
             case EatFood -> result = eatFood(args);
             case ShowEnergy -> result = showEnergy();
             case setEnergy -> result = setEnergy(args);
             case energyUnlimited -> result = energyUnlimited();
-
 
             //sell command:
             case SellProduct -> result = sellProduct(args);
@@ -122,7 +120,6 @@ public class GameMenuController implements Controller {
             case TeleportToVillage -> result = teleportToVillage();
             case TeleportToMarket -> result = teleportToMarket(args);
             case TeleportToHome -> result = teleportToHome();
-
             case HelpReadingMap -> result = helpReadingMap();
 
             // player related commands

@@ -451,6 +451,13 @@ public class Farm {
         }
     }
 
+    public void cheatShippingBin(ShippingBin shippingBin, int x, int y) {
+        shippingBins.add(shippingBin);
+        tiles[x][y].setTile(TileType.SHIPPING_BIN);
+        tiles[x][y].updateTypeFromTile();
+        tiles[x][y].setItem(shippingBin);
+    }
+
     public void markShippingBin(ShippingBin shippingBin) {
         Random rand = new Random();
         int x = rand.nextInt(width);
