@@ -114,7 +114,7 @@ public class MarketController implements Controller {
             return Result.error("You can't build barn because you don't have enough resources!");
         }
 
-        //implement building barn (checking collision) in map
+        //implement building barn (checking collision) in map && i made a location in line 108 look.
         return Result.success("build successfully");
     }
 
