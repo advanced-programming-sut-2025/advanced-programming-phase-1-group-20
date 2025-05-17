@@ -1,5 +1,6 @@
 package org.example.models.enums.Types;
 
+import org.example.models.Items.Item;
 import org.example.models.Items.Tool;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
@@ -55,7 +56,7 @@ public enum ToolFunctionality {
 
                 // 1. Cut down trees for regular wood and some tree essences
                 if (tileType == TileType.TREE) {
-                    // Change the tile to grass
+                    player.getBackpack().add(new Item("Wood", 20), 100);
                     return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
                 }
 
