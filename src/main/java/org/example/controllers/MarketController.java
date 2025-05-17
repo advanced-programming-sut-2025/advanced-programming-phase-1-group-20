@@ -1,11 +1,16 @@
 package org.example.controllers;
 
 import org.example.models.App;
+import org.example.models.Barn;
+import org.example.models.Coop;
 import org.example.models.Items.Item;
+import org.example.models.MapDetails.Farm;
 import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Location;
 import org.example.models.common.Result;
+import org.example.models.enums.Types.BarnTypes;
+import org.example.models.enums.Types.Cages;
 import org.example.models.enums.commands.MarketMenuCommands;
 import org.example.views.AppView;
 import org.example.views.GameMenu;
@@ -116,12 +121,64 @@ public class MarketController implements Controller {
         if(!buildBarn(buildingName)) {
             return Result.error("You can't build barn because you don't have enough resources!");
         }
+        Barn barn = getBarnByName(buildingName, location);
+        Coop coop = getCoopByName(buildingName, location);
+        Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
+        if (barn != null && coop == null) {
+            if (!farm.canBuild(barn.getX(), barn.getY(), barn.getWidth(), barn.getHeight())) {
+                return Result.error("You can't build barn because you don't have enough space!");
+            }
+            farm.addBarn(barn);
+        }
+        else if (coop != null && barn == null) {
+            if (!farm.canBuild(coop.getX(), coop.getY(), coop.getWidth(), coop.getHeight())) {
+                return Result.error("You can't build coop because you don't have enough space!");
+            }
+            farm.addCoop(coop);
+        }
 
-        //implement building barn (checking collision) in map && i made a location in line 108 look.
         return Result.success("build successfully");
     }
 
+    private Barn getBarnByName(String buildingName, Location location) {
+        switch (buildingName) {
+            case "Barn" -> {
+                Barn newBarn = new Barn(BarnTypes.NORMAL_BARN, location, buildingName);
+                return newBarn;
+            }
+            case "Big Barn" -> {
+                Barn newBarn = new Barn(BarnTypes.BIG_BARN, location, buildingName);
+                return newBarn;
+            }
+            case "Deluxe Barn" -> {
+                Barn newBarn = new Barn(BarnTypes.DELUXE_BARN, location, buildingName);
+                return newBarn;
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
 
+    private Coop getCoopByName(String buildingName, Location location) {
+        switch (buildingName) {
+            case "Coop" -> {
+                Coop newCoop = new Coop(Cages.NORMAL_COOP, location, buildingName);
+                return newCoop;
+            }
+            case "Big Coop" -> {
+                Coop newCoop = new Coop(Cages.BIG_CAGE, location, buildingName);
+                return newCoop;
+            }
+            case "Deluxe Coop" -> {
+                Coop newCoop = new Coop(Cages.DELUXE_CAGE, location, buildingName);
+                return newCoop;
+            }
+            default -> {
+                return null;
+            }
+        }
+    }
 
     private boolean buildBarn(String buildingName) {
         if(buildingName.equalsIgnoreCase("Barn")) {
