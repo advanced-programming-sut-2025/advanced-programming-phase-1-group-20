@@ -1,6 +1,7 @@
 package org.example.models.enums.Types;
 
 import org.example.models.Items.*;
+import org.example.models.entities.animal.Fish;
 
 public class ItemBuilder {
     public static Item build(String name) {
@@ -31,6 +32,14 @@ public class ItemBuilder {
         TreeType treeType = TreeType.fromName(name);
         if (treeType != null) {
             return new Tree(treeType);
+        }
+        FishType fishType = FishType.fromName(name);
+        if (fishType != null) {
+            return new Fish(fishType, fishType.getSeasons()[0]);
+        }
+        ArtisanType artisanType = ArtisanType.fromName(name);
+        if (artisanType != null) {
+            return new ArtisanItem(artisanType);
         }
         return null;
     }

@@ -5,6 +5,7 @@ import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.enums.Npcs;
+import org.example.models.enums.Types.ItemBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class QuestManager {
         List<Quest> sebastianQuests = new ArrayList<>();
 
         // Quest 1: Deliver 50 Iron (
-        Item ironOre = App.getItem("Iron Ore");
+        Item ironOre = new Item("Iron Ore", 10);
         if (ironOre != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(ironOre, 50);
             Quest quest = new Quest(
@@ -69,7 +70,7 @@ public class QuestManager {
         }
 
         // Quest 2: Deliver a Pumpkin Pie
-        Item pumpkinPie = App.getItem("Pumpkin Pie");
+        Item pumpkinPie = ItemBuilder.build("Pumpkin Pie");
         if (pumpkinPie != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(pumpkinPie, 1);
             Quest quest = new Quest(
@@ -115,7 +116,7 @@ public class QuestManager {
         List<Quest> abigailQuests = new ArrayList<>();
 
         // Quest 1: Deliver a Gold Bar
-        Item goldBar = App.getItem("Gold Bar");
+        Item goldBar = ItemBuilder.build("Gold Bar");
         if (goldBar != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(goldBar, 1);
             Quest quest = new Quest(
@@ -135,7 +136,7 @@ public class QuestManager {
         }
 
         // Quest 2: Deliver a Pumpkin
-        Item pumpkin = App.getItem("Pumpkin");
+        Item pumpkin = ItemBuilder.build("Pumpkin");
         if (pumpkin != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(pumpkin, 1);
             Quest quest = new Quest(
@@ -155,7 +156,7 @@ public class QuestManager {
         }
 
         // Quest 3: Deliver 50 Wheat
-        Item wheat = App.getItem("Wheat");
+        Item wheat = ItemBuilder.build("Wheat");
         if (wheat != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(wheat, 50);
             Quest quest = new Quest(
@@ -201,7 +202,7 @@ public class QuestManager {
         }
 
         // Quest 2: Deliver a Salmon
-        Item salmon = App.getItem("Salmon");
+        Item salmon = ItemBuilder.build("Salmon");
         if (salmon != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(salmon, 1);
             Quest quest = new Quest(
@@ -221,7 +222,7 @@ public class QuestManager {
         }
 
         // Quest 3: Deliver a Bottle of Wine
-        Item wine = App.getItem("Wine");
+        Item wine = ItemBuilder.build("Wine");
         if (wine != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(wine, 1);
             Quest quest = new Quest(
@@ -248,7 +249,7 @@ public class QuestManager {
         List<Quest> leahQuests = new ArrayList<>();
 
         // Quest 1: Deliver 10 Hardwood
-        Item hardwood = App.getItem("Hardwood");
+        Item hardwood = App.getItem("Hardwood"); //TODO
         if (hardwood != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(hardwood, 10);
             Quest quest = new Quest(
@@ -268,7 +269,7 @@ public class QuestManager {
         }
 
         // Quest 2: Deliver a Salmon
-        Item salmon = App.getItem("Salmon");
+        Item salmon = ItemBuilder.build("Salmon");
         if (salmon != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(salmon, 1);
             Quest quest = new Quest(
@@ -288,7 +289,7 @@ public class QuestManager {
         }
 
         // Quest 3: Deliver a Bottle of Wine
-        Item wine = App.getItem("Wine");
+        Item wine = ItemBuilder.build("Wine");
         if (wine != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(wine, 1);
             Quest quest = new Quest(
@@ -314,7 +315,7 @@ public class QuestManager {
         List<Quest> robinQuests = new ArrayList<>();
 
         // Quest 1: Deliver 1000 Wood
-        Item wood = App.getItem("Wood");
+        Item wood = ItemBuilder.build("Wood");
         if (wood != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(wood, 1000);
             Quest quest = new Quest(
@@ -351,7 +352,7 @@ public class QuestManager {
         }
 
         // Quest 3: Deliver 10 Irons
-        Item ironBar = App.getItem("Iron");
+        Item ironBar = ItemBuilder.build("Iron Bar");
         if (ironBar != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(ironBar, 10);
             Quest quest = new Quest(
@@ -393,12 +394,11 @@ public class QuestManager {
 
     private void activateInitialQuests(Player player) {
         for (Map.Entry<Npcs, List<Quest>> entry : npcQuests.entrySet()) {
-            if (!entry.getValue().isEmpty()) {
-                Quest initialQuest = entry.getValue().get(0);
-                if (initialQuest.getRequiredFriendshipLevel() == 0 && initialQuest.getRequiredDaysPassed() == 0) {
-                    initialQuest.setActivationDate(App.getGame().getDate());
-                    initialQuest.activate(player, App.getGame().getDate());
-                    playerQuests.get(player).add(initialQuest);
+            for (Quest quest : entry.getValue()) {
+                if (quest.getRequiredFriendshipLevel() == 0 && quest.getRequiredDaysPassed() == 0) {
+                    quest.setActivationDate(App.getGame().getDate());
+                    quest.activate(player, App.getGame().getDate());
+                    playerQuests.get(player).add(quest);
                 }
             }
         }
