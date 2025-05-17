@@ -448,10 +448,12 @@ public class Market extends Building {
 
     private void checkOutMarnieShop(Player player, Item item, double count) {
         player.decreaseMoney((int) (item.getPrice() * count));
-        boolean flag = player.getBackpack().add(item ,(int) count);
-        if (!flag) {
-            System.out.println("you dont have enough space in backpack");
-            return;
+        if(item.getName().equals("Shears") || item.getName().equals("Milk Pail")){
+            boolean flag = player.getBackpack().add(item ,(int) count);
+            if (!flag) {
+                System.out.println("you dont have enough space in backpack");
+                return;
+            }
         }
         double stock = count + counterStock.get(item);
         counterStock.put(item, stock);

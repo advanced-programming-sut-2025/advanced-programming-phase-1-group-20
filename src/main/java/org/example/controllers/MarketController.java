@@ -74,6 +74,12 @@ public class MarketController implements Controller {
         if (!market.checkItem(player, item, count)) {
             return Result.error("You don't have enough resources for this product");
         }
+
+        if(market.getName().equals("Marnies Shop")){
+            if(!(item.getName().equals("Shears") || item.getName().equals("Milk Pail"))){
+                //todo : Adding Animal in farm
+            }
+        }
         market.checkOut(player, item, count);
         player.getBackpack().add(item, (int) count);
 
