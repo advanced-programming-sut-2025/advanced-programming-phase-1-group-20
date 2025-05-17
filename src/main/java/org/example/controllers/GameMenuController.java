@@ -118,6 +118,7 @@ public class GameMenuController implements Controller {
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
             case TeleportToVillage -> result = teleportToVillage();
+            case TeleportToFarm -> result = teleportToFarm();
             case TeleportToMarket -> result = teleportToMarket(args);
             case TeleportToHome -> result = teleportToHome();
             case HelpReadingMap -> result = helpReadingMap();
@@ -700,6 +701,18 @@ public class GameMenuController implements Controller {
         }
     }
 
+    private Result teleportToFarm() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+        if (!player.getIsInVillage()) {
+            return Result.error("You are not in a village");
+        }
+        if (!player.checkTeleportToFarm()) {
+            return Result.error("You can't teleport to a farm");
+        }
+        return Result.success("teleported to a farm");
+    }
+
     private Result teleportToVillage() {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -708,7 +721,7 @@ public class GameMenuController implements Controller {
             return Result.error("You can't teleport to a village because you are in a village");
         }
         if (!player.checkTeleportToVillage()) {
-            return Result.error("You are not in specefic map");
+            return Result.error("You are not in specific map");
         }
         return Result.success("teleported to a village");
     }
