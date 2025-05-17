@@ -217,6 +217,12 @@ public class Farm {
         while (placed < count) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
+            if ((x == 0 && y == 0) ||
+                    (x == width - 1 && y == 0) ||
+                    (x == 0 && y == height - 1) ||
+                    (x == width - 1 && y == height - 1)) {
+                continue;
+            }
             TileType currentTile = tiles[x][y].getTile();
 
             if (currentTile == TileType.GRASS) {
