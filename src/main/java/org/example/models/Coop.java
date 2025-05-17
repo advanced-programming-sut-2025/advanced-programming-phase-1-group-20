@@ -18,8 +18,8 @@ public class Coop implements Serializable {
     private String name;
     private int x;
     private int y;
-    private int width = 4;
-    private int height = 7;
+    private int width = 3;
+    private int height = 6;
 
     public Coop(Cages type, Location location, String name) {
         this.type = type;

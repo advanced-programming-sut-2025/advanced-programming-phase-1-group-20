@@ -67,12 +67,12 @@ public class MarketController implements Controller {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
         Item item = market.getItem(productName);
-        Animal animal = getAnimalByName(item.getName());
-        Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
 
         if (item == null) {
             return Result.error("There is no such item as" + productName);
         }
+        Animal animal = getAnimalByName(item.getName());
+        Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
 
         if (!market.containsItem(item, count)) {
             return Result.error("Item not in stock");

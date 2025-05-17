@@ -102,9 +102,8 @@ public class Market extends Building {
                 System.out.println("Name        : " + item.getName());
                 System.out.println("Description : " + item.getDescription());
                 System.out.println("Price       : " + item.getPrice());
-                double stock = permanentStock.get(item) - counterStock.get(item);
-                String formatedStock = String.format("%.0f", stock);
-                System.out.println("Stock       : " + formatedStock);
+                double stock = permanentStock.get(item);
+                System.out.println("Stock       : " + stock);
                 c++;
                 System.out.println("~~~~~~~~~~~~~~~~~~~");
             }
