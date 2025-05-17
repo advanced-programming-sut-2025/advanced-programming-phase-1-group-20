@@ -623,10 +623,10 @@ public class Farm {
 
     public int checkFourDirectionsForGiants(int x, int y, String itemName) {
         int[][] DIRECTIONS = {
-                {-1, 1},  // 1: NE
-                {-1, -1}, // 2: NW
-                {1, -1},  // 3: SW
-                {1, 1}    // 4: SE
+                {-1, 1},
+                {-1, -1},
+                {1, -1},
+                {1, 1}
         };
 
         for (int dir = 0; dir < DIRECTIONS.length; dir++) {
@@ -1066,6 +1066,64 @@ public class Farm {
         return null;
     }
 
+    public Barn getBarnAround(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Barn barn : barns) {
+                    if (barn.contains(newX, newY)) {
+                        return barn;
+                    }
+                }
+//                if (tiles[newX][newY].getTile() == TileType.BARN) {
+//                    return lake;
+//                }
+            }
+        }
+
+        return null;
+    }
+
+    public Coop getCoopAround(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Coop coop : coops) {
+                    if (coop.contains(newX, newY)) {
+                        return coop;
+                    }
+                }
+//                if (tiles[newX][newY].getTile() == TileType.COOP) {
+//                    return lake;
+//                }
+            }
+        }
+
+        return null;
+    }
+
     public Lake getLakeAt(int x, int y) {
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
@@ -1169,14 +1227,14 @@ public class Farm {
         }
     }
 
-    public Barn getBarnByAnimal(Animal animal) {
-        for (Barn barn : barns) {
-            if (barn.getCapacity() > barn.getAnimalCount()) {
-                if (animal.)
-                return barn;
-            }
-        }
-        return null;
-    }
+//    public Barn getBarnByAnimal(Animal animal) {
+//        for (Barn barn : barns) {
+//            if (barn.getCapacity() > barn.getAnimalCount()) {
+//                if (animal.)
+//                return barn;
+//            }
+//        }
+//        return null;
+//    }
 
 }

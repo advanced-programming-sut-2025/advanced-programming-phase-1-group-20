@@ -70,6 +70,10 @@ public class Barn implements Serializable {
         this.y = y;
     }
 
+    public boolean contains(int checkX, int checkY) {
+        return checkX >= x && checkX < x + width && checkY >= y && checkY < y + height;
+    }
+
     public Result addAnimal(BarnAnimal animal) {
         if (animalCount >= capacity) {
             return Result.error("This barn is full. Cannot add more animals.");
