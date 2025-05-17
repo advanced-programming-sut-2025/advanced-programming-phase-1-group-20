@@ -266,6 +266,103 @@ public class Village {
         return null;
     }
 
+    public int walk(int x, int y) {
+        Player owner = App.getGame().getCurrentPlayer();
+        Location initialLocation = owner.getLocation();
+        Location finalLocation = tiles[x][y];
+
+        if (!contains(x, y)) {
+            return -1;
+        }
+
+        if (finalLocation.getTile() != TileType.GRASS) {
+            return -1;
+        }
+
+        Queue<Location> queue = new LinkedList<>();
+        Map<Location, Location> parentMap = new HashMap<>();
+        Map<Location, Integer> distanceMap = new HashMap<>();
+        Set<Location> visited = new HashSet<>();
+
+        queue.add(initialLocation);
+        visited.add(initialLocation);
+        distanceMap.put(initialLocation, 0);
+        boolean found = false;
+
+        while (!queue.isEmpty()) {
+            Location current = queue.poll();
+
+            if (current.getX() == x && current.getY() == y) {
+                found = true;
+                break;
+            }
+
+            int[][] directions = {
+                    {-1, -1}, {-1, 0}, {-1, 1},
+                    {0, -1}, {0, 1},
+                    {1, -1}, {1, 0}, {1, 1}
+            };
+
+            for (int[] dir : directions) {
+                int newX = current.getX() + dir[0];
+                int newY = current.getY() + dir[1];
+
+                if (!contains(newX, newY)) {
+                    continue;
+                }
+
+                Location neighbor = tiles[newX][newY];
+
+                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    parentMap.put(neighbor, current);
+                    distanceMap.put(neighbor, distanceMap.get(current) + 1);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        if (!found) {
+            return -1;
+        }
+
+        int totalDistance = distanceMap.get(finalLocation);
+        int requiredEnergy = (int) Math.ceil(totalDistance / 20.0);
+
+        if (owner.getEnergy() < requiredEnergy || !owner.isEnergyUnlimited()) {
+
+            Location current = finalLocation;
+            int remainingEnergy = owner.getEnergy();
+            Location furthestReachable = initialLocation;
+
+            while (current != initialLocation && remainingEnergy > 0) {
+                int currentDistance = distanceMap.get(current);
+                int currentEnergyNeeded = (int) Math.ceil(currentDistance / 20.0);
+
+                if (currentEnergyNeeded <= remainingEnergy) {
+                    furthestReachable = current;
+                    break;
+                }
+
+                current = parentMap.get(current);
+            }
+
+            int actualDistance = distanceMap.get(furthestReachable);
+            int energyUsed = (int) Math.ceil(actualDistance / 20.0);
+
+            owner.setEnergy(owner.getEnergy() - energyUsed);
+            owner.setLocation(furthestReachable);
+            App.getGame().getCurrentPlayer().setEnergy(owner.getEnergy() - energyUsed);
+            App.getGame().getCurrentPlayer().setLocation(furthestReachable);
+
+            return actualDistance;
+        } else {
+            owner.setEnergy(owner.getEnergy() - requiredEnergy);
+            owner.setLocation(finalLocation);
+            return totalDistance;
+        }
+    }
+
     public void initializeNPCs() {
         Random rand = new Random();
         int count = 5;
@@ -409,6 +506,26 @@ public class Village {
 
     public void printVillageInfo() {
         //...
+    }
+
+    public static Location findFurthestCanGo(Location from, Location to) {
+        int dx = to.getX() - from.getX();
+        int dy = to.getY() - from.getY();
+
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) {
+            return from;
+        }
+
+        double nx = dx / length;
+        double ny = dy / length;
+
+        int maxDistance = (int) (length * 0.5);
+
+        int newX = from.getX() + (int) (nx * maxDistance);
+        int newY = from.getY() + (int) (ny * maxDistance);
+
+        return new Location(newX, newY, from.getTile());
     }
 
     public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {

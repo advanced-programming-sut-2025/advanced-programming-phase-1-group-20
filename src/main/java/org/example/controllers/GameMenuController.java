@@ -796,7 +796,8 @@ public class GameMenuController implements Controller {
 
             if (input.equals("no")) {
                 return Result.success("you declined walk");
-            } else if (!input.equals("yes")) {
+            }
+            else if (!input.equals("yes")) {
                 System.out.println("invalid input, try again");
             }
 
@@ -805,18 +806,36 @@ public class GameMenuController implements Controller {
                 return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
             }
 
-            if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
-                if (player.getCurrentFarm().walk(x, y) <= 0) {
-                    return Result.error("you can't stay on the destination tile");
+            if (!player.getIsInVillage()) {
+                if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
+                    if (player.getCurrentFarm().walk(x, y) <= 0) {
+                        return Result.error("you can't stay on the destination tile");
+                    }
+                    return Result.success("Walked to (" + x + ", " + y + ")");
+                } else {
+                    Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
+                    player.setEnergy(0);
+                    player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
+                    return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
+                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
-                return Result.success("Walked to (" + x + ", " + y + ")");
-            } else {
-                Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
-                player.setEnergy(0);
-                player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
-                return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
-                        furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
             }
+            else {
+                if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
+                    if (gMap.getVillage().walk(x, y) <= 0) {
+                        return Result.error("you can't stay on the destination tile");
+                    }
+                    return Result.success("Walked to (" + x + ", " + y + ")");
+                } else {
+                    Location furthestLocation = gMap.getVillage().findFurthestCanGo(currentLocation, destination);
+                    player.setEnergy(0);
+                    gMap.getVillage().walk(furthestLocation.xAxis, furthestLocation.yAxis);
+                    return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
+                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
+                }
+            }
+
+
         } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates");
         }
