@@ -56,6 +56,10 @@ public class Friendship {
         this.married = false;
     }
 
+    public Friendship() {
+
+    }
+
     public int getLevel() {
         return level;
     }
@@ -98,7 +102,6 @@ public class Friendship {
 
             if (level == LEVEL_4) {
                 married = true;
-                // TODO: Handle marriage logic
             }
 
             return true;

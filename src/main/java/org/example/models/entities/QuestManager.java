@@ -50,7 +50,6 @@ public class QuestManager {
 
     private void initializeQuestsForSebastian() {
         List<Quest> sebastianQuests = new ArrayList<>();
-
         // Quest 1: Deliver 50 Iron (
         Item ironOre = new Item("Iron Ore", 10);
         if (ironOre != null) {

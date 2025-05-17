@@ -6,10 +6,20 @@ import org.example.models.entities.animal.BarnAnimal;
 import java.util.Random;
 
 public enum BarnAnimalTypes {
-    COW("Cow", 1500, "Milk", 125, "Large Milk", 250, BarnTypes.NORMAL_BARN, 1, "A friendly cow that produces milk daily."),
-    GOAT("Goat", 4000, "Goat Milk", 340, "Large Goat Milk", 680, BarnTypes.BIG_BARN, 2, "Produces goat milk every other day."),
-    SHEEP("Sheep", 8000, "Wool", 340, "Deluxe Wool", 680, BarnTypes.BIG_BARN, 3, "Produces wool every 3 days if sheared with shears."),
-    PIG("Pig", 16000, "Truffle", 1250, null, 0, BarnTypes.DELUXE_BARN, 5, "Finds truffles outside on non-rainy days.");
+    COW("Cow",
+            1500,
+            "Milk", 125,
+            "Large Milk", 250,
+            BarnTypes.NORMAL_BARN, 1,
+            "A friendly cow that produces milk daily."),
+    GOAT("Goat",
+            4000,
+            "Goat Milk", 340,
+            "Large Goat Milk", 680, BarnTypes.BIG_BARN, 2, "Produces goat milk every other day."),
+    SHEEP("Sheep",
+            8000, "Wool", 340, "Deluxe Wool", 680, BarnTypes.BIG_BARN, 3, "Produces wool every 3 days if sheared with shears."),
+    PIG("Pig",
+            16000, "Truffle", 1250, null, 0, BarnTypes.DELUXE_BARN, 5, "Finds truffles outside on non-rainy days.");
 
     private final String name;
     private final int price;

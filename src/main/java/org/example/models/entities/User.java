@@ -13,7 +13,7 @@ public class User implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private final Gender gender;
+    private Gender gender;
     private String username;
     private String password;
     private String email;
@@ -35,6 +35,10 @@ public class User implements Serializable {
         this.inventory = new ArrayList<>();
         this.mostEarnedMoney = 0;
         this.gamesPlayed = 0;
+    }
+
+    public User() {
+
     }
 
     public String getUsername() {

@@ -1,9 +1,7 @@
 package org.example.controllers;
 
-import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Building;
-import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
 import org.example.models.enums.Types.CraftingType;
@@ -123,7 +121,7 @@ public class HouseMenuController implements Controller {
         if (!player.getBackpack().add(craftedItem, 1)) {
             return Result.error("Your backpack is full");
         }
-        
+
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }
@@ -194,10 +192,10 @@ public class HouseMenuController implements Controller {
 
         CookingItem cookingItem = (CookingItem) item;
         Food food = cookingItem.cook(player.getBackpack());
-        if(!cookingItem.canCook(player.getBackpack())) {
+        if (!cookingItem.canCook(player.getBackpack())) {
             return Result.error("You don't have enough cooking item or correct recipe");
         }
-        if(!player.getBackpack().add(food, 1)){
+        if (!player.getBackpack().add(food, 1)) {
             return Result.error("You don't have enough space in your backpack");
         }
 
@@ -259,11 +257,11 @@ public class HouseMenuController implements Controller {
             return Result.error(artisanName + " is not a CraftingItem");
         }
         CraftingItem craftingItem = (CraftingItem) item;
-        if(!craftingItem.checkRegex(items)){
+        if (!craftingItem.checkRegex(items)) {
             return Result.error("Your recipe doesn't match the pattern");
         }
 
-        if(!checkPlayersItems(items , item.getName())){
+        if (!checkPlayersItems(items, item.getName())) {
             return Result.error("You don't have enough items for this artisan");
         }
 
@@ -274,29 +272,28 @@ public class HouseMenuController implements Controller {
     }
 
 
-    public boolean checkPlayersItems(String items , String market){
+    public boolean checkPlayersItems(String items, String market) {
         Map<Item, Integer> itemMap = new HashMap<>();
-        if(market.equals("Fish Smoker")){
+        if (market.equals("Fish Smoker")) {
             String regex = "^\\s*1\\s+(\\S+)\\s+1\\s+Coal\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(items);
                 String fishName = matcher.group(0);
-                if(player.getBackpack().getItem(fishName) == null || player.getBackpack().getItem("Coal") == null){
+                if (player.getBackpack().getItem(fishName) == null || player.getBackpack().getItem("Coal") == null) {
                     return false;
                 }
                 itemMap.put(player.getBackpack().getItem("Coal"), 1);
                 itemMap.put(player.getBackpack().getItem(fishName), 1);
             }
-        }
-        else if(market.equals("Furnace")){
+        } else if (market.equals("Furnace")) {
             String regex = "^\\s*1\\s+(\\S+)\\s+1\\s+Coal\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(items);
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     String oreName = matcher.group(1);
-                    if(player.getBackpack().getItem(oreName) == null || player.getBackpack().getItem("Coal") == null){
+                    if (player.getBackpack().getItem(oreName) == null || player.getBackpack().getItem("Coal") == null) {
                         System.out.println("here in false" + oreName);
                         return false;
                     }
@@ -305,20 +302,18 @@ public class HouseMenuController implements Controller {
                 }
             }
 
-        }
-        else if(market.equals("Bee House")){
+        } else if (market.equals("Bee House")) {
             return true;
-        }
-        else{
+        } else {
             String regex = "^\\s*(\\d+)\\s+(.+?)\\s*$";
-            if(items.matches(regex)){
+            if (items.matches(regex)) {
                 Pattern pattern = Pattern.compile(regex);
                 Matcher matcher = pattern.matcher(items);
-                if(matcher.matches()){
+                if (matcher.matches()) {
                     int itemCount = Integer.parseInt(matcher.group(1));
                     String itemName = matcher.group(2).trim();
                     Item item = player.getBackpack().getItem(itemName);
-                    if(item == null || player.getBackpack().getInventory().get(item) < itemCount){
+                    if (item == null || player.getBackpack().getInventory().get(item) < itemCount) {
                         return false;
                     }
                     itemMap.put(player.getBackpack().getItem(itemName), itemCount);

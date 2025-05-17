@@ -18,8 +18,8 @@ import java.util.*;
 
 public class Village {
 
-    public static final int width = 50;
-    public static final int height = 50;
+    public static final int width = 51;
+    public static final int height = 51;
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
@@ -47,12 +47,12 @@ public class Village {
     private static final String BG_PINK = "\u001B[48;5;200m";
     private static final String BG_LIGHT_BLUE = "\u001B[48;5;39m";
     private static final String BG_LIGHT_GREEN = "\u001B[48;5;120m";
-    private final Location[][] tiles;
-    private final List<Building> buildings;
-    private final String name;
-    //private List<Shop> shops;
-    private final Map<String, Character> symbolMap;
     private final Market[] markets = new Market[7];
+    private Location[][] tiles;
+    private List<Building> buildings;
+    private String name;
+    //private List<Shop> shops;
+    private Map<String, Character> symbolMap;
     private List<NPC> residents;
 
     public Village(String name) {
@@ -66,6 +66,10 @@ public class Village {
         initializeSymbols();
         initializeMarkets();
         markMarketAreas();
+    }
+
+    public Village() {
+
     }
 
     private void initializeSymbols() {
@@ -184,6 +188,12 @@ public class Village {
         while (placed < count) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
+            if ((x == 0 && y == 0) ||
+                    (x == width - 1 && y == 0) ||
+                    (x == 0 && y == height - 1) ||
+                    (x == width - 1 && y == height - 1)) {
+                continue;
+            }
             TileType currentTile = tiles[x][y].getTile();
 
             if (currentTile == TileType.GRASS) {
@@ -246,8 +256,8 @@ public class Village {
 
         int[][] directions = {
                 {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},          {0, 1},
-                {1, -1},  {1, 0}, {1, 1}
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -264,6 +274,103 @@ public class Village {
         }
 
         return null;
+    }
+
+    public int walk(int x, int y) {
+        Player owner = App.getGame().getCurrentPlayer();
+        Location initialLocation = owner.getLocation();
+        Location finalLocation = tiles[x][y];
+
+        if (!contains(x, y)) {
+            return -1;
+        }
+
+        if (finalLocation.getTile() != TileType.GRASS) {
+            return -1;
+        }
+
+        Queue<Location> queue = new LinkedList<>();
+        Map<Location, Location> parentMap = new HashMap<>();
+        Map<Location, Integer> distanceMap = new HashMap<>();
+        Set<Location> visited = new HashSet<>();
+
+        queue.add(initialLocation);
+        visited.add(initialLocation);
+        distanceMap.put(initialLocation, 0);
+        boolean found = false;
+
+        while (!queue.isEmpty()) {
+            Location current = queue.poll();
+
+            if (current.getX() == x && current.getY() == y) {
+                found = true;
+                break;
+            }
+
+            int[][] directions = {
+                    {-1, -1}, {-1, 0}, {-1, 1},
+                    {0, -1}, {0, 1},
+                    {1, -1}, {1, 0}, {1, 1}
+            };
+
+            for (int[] dir : directions) {
+                int newX = current.getX() + dir[0];
+                int newY = current.getY() + dir[1];
+
+                if (!contains(newX, newY)) {
+                    continue;
+                }
+
+                Location neighbor = tiles[newX][newY];
+
+                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    parentMap.put(neighbor, current);
+                    distanceMap.put(neighbor, distanceMap.get(current) + 1);
+                    queue.add(neighbor);
+                }
+            }
+        }
+
+        if (!found) {
+            return -1;
+        }
+
+        int totalDistance = distanceMap.get(finalLocation);
+        int requiredEnergy = (int) Math.ceil(totalDistance / 20.0);
+
+        if (owner.getEnergy() < requiredEnergy || !owner.isEnergyUnlimited()) {
+
+            Location current = finalLocation;
+            int remainingEnergy = owner.getEnergy();
+            Location furthestReachable = initialLocation;
+
+            while (current != initialLocation && remainingEnergy > 0) {
+                int currentDistance = distanceMap.get(current);
+                int currentEnergyNeeded = (int) Math.ceil(currentDistance / 20.0);
+
+                if (currentEnergyNeeded <= remainingEnergy) {
+                    furthestReachable = current;
+                    break;
+                }
+
+                current = parentMap.get(current);
+            }
+
+            int actualDistance = distanceMap.get(furthestReachable);
+            int energyUsed = (int) Math.ceil(actualDistance / 20.0);
+
+            owner.setEnergy(owner.getEnergy() - energyUsed);
+            owner.setLocation(furthestReachable);
+            App.getGame().getCurrentPlayer().setEnergy(owner.getEnergy() - energyUsed);
+            App.getGame().getCurrentPlayer().setLocation(furthestReachable);
+
+            return actualDistance;
+        } else {
+            owner.setEnergy(owner.getEnergy() - requiredEnergy);
+            owner.setLocation(finalLocation);
+            return totalDistance;
+        }
     }
 
     public void initializeNPCs() {
@@ -411,6 +518,26 @@ public class Village {
         //...
     }
 
+    public static Location findFurthestCanGo(Location from, Location to) {
+        int dx = to.getX() - from.getX();
+        int dy = to.getY() - from.getY();
+
+        double length = Math.sqrt(dx * dx + dy * dy);
+        if (length == 0) {
+            return from;
+        }
+
+        double nx = dx / length;
+        double ny = dy / length;
+
+        int maxDistance = (int) (length * 0.5);
+
+        int newX = from.getX() + (int) (nx * maxDistance);
+        int newY = from.getY() + (int) (ny * maxDistance);
+
+        return new Location(newX, newY, from.getTile());
+    }
+
     public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
         int startX = 0;
         int endX = Math.min(width - 1, centerX + viewRadius);
@@ -461,8 +588,7 @@ public class Village {
                     String playerColor = p.getPlayerColor();
                     if (x == location.getX() && y == location.getY()) {
                         System.out.print(playerColor + "@ " + RESET);
-                    }
-                    else {
+                    } else {
                         System.out.print(color + symbol + " " + RESET);
                     }
                 }

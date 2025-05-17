@@ -70,7 +70,6 @@ public class GameMenuController implements Controller {
             // Player Related
             case ShowInventory -> showInventory();
 
-
             // saving related commands
             case SaveGame -> {
                 App.saveData();
@@ -80,7 +79,6 @@ public class GameMenuController implements Controller {
                 result = Result.success("Auto-save completed");
             }
 
-            //plants and foraging related commands
             case CraftInfo -> result = craftInfo(args);
             case Plant -> result = plant(args);
             case ShowPlant -> result = showPlant(args);
@@ -91,7 +89,6 @@ public class GameMenuController implements Controller {
             case Harvest -> result = harvest(args);
             case PlaceItem -> result = placeItem(args);
             case AddItem -> result = addItem(args);
-
 
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
@@ -118,6 +115,7 @@ public class GameMenuController implements Controller {
             case Walk -> result = walk(args);
             case PrintMap -> result = printMap(args);
             case TeleportToVillage -> result = teleportToVillage();
+            case TeleportToFarm -> result = teleportToFarm();
             case TeleportToMarket -> result = teleportToMarket(args);
             case TeleportToHome -> result = teleportToHome();
             case HelpReadingMap -> result = helpReadingMap();
@@ -161,7 +159,7 @@ public class GameMenuController implements Controller {
             case CheatBuildGreenHouse -> builddd();
             case CheatGiveItems -> cheatGiveItems();
             case CheatFriendShipLevel -> result = cheatFriendShipLevel(args);
-            case CheatIncreateFriendshipLevel -> result = increaseFRLEVEL(args);
+            case CheatIncreaseFriendshipLevel -> result = increaseFRLEVEL(args);
             case CheatIncreaseXP -> result = increaseXP(args);
             case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 
@@ -575,7 +573,6 @@ public class GameMenuController implements Controller {
         return Result.success("energy unlimited");
     }
 
-    // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -700,6 +697,18 @@ public class GameMenuController implements Controller {
         }
     }
 
+    private Result teleportToFarm() {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+        if (!player.getIsInVillage()) {
+            return Result.error("You are not in a village");
+        }
+        if (!player.checkTeleportToFarm()) {
+            return Result.error("You can't teleport to a farm");
+        }
+        return Result.success("teleported to a farm");
+    }
+
     private Result teleportToVillage() {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -708,7 +717,7 @@ public class GameMenuController implements Controller {
             return Result.error("You can't teleport to a village because you are in a village");
         }
         if (!player.checkTeleportToVillage()) {
-            return Result.error("You are not in specefic map");
+            return Result.error("You are not in specific map");
         }
         return Result.success("teleported to a village");
     }
@@ -786,7 +795,8 @@ public class GameMenuController implements Controller {
 
             if (input.equals("no")) {
                 return Result.success("you declined walk");
-            } else if (!input.equals("yes")) {
+            }
+            else if (!input.equals("yes")) {
                 System.out.println("invalid input, try again");
             }
 
@@ -795,18 +805,36 @@ public class GameMenuController implements Controller {
                 return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
             }
 
-            if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
-                if (player.getCurrentFarm().walk(x, y) <= 0) {
-                    return Result.error("you can't stay on the destination tile");
+            if (!player.getIsInVillage()) {
+                if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
+                    if (player.getCurrentFarm().walk(x, y) <= 0) {
+                        return Result.error("you can't stay on the destination tile");
+                    }
+                    return Result.success("Walked to (" + x + ", " + y + ")");
+                } else {
+                    Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
+                    player.setEnergy(0);
+                    player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
+                    return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
+                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
-                return Result.success("Walked to (" + x + ", " + y + ")");
-            } else {
-                Location furthestLocation = gMap.getFarmByPlayer(player).findFurthestCanGo(currentLocation, destination);
-                player.setEnergy(0);
-                player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
-                return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
-                        furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
             }
+            else {
+                if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
+                    if (gMap.getVillage().walk(x, y) <= 0) {
+                        return Result.error("you can't stay on the destination tile");
+                    }
+                    return Result.success("Walked to (" + x + ", " + y + ")");
+                } else {
+                    Location furthestLocation = gMap.getVillage().findFurthestCanGo(currentLocation, destination);
+                    player.setEnergy(0);
+                    gMap.getVillage().walk(furthestLocation.xAxis, furthestLocation.yAxis);
+                    return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
+                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
+                }
+            }
+
+
         } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates");
         }
@@ -1962,14 +1990,14 @@ public class GameMenuController implements Controller {
                     (request.isAccepted() ? "accepted" : "rejected"));
         }
 
-        if (response.equals("--accept")) {
+        if (response.equals("-accept")) {
             boolean success = TradeManager.getInstance().acceptTradeRequest(id, player);
             if (success) {
                 return Result.success("Trade request accepted");
             } else {
                 return Result.error("Failed to accept trade request. Make sure you have the required items or money.");
             }
-        } else if (response.equals("--reject")) {
+        } else if (response.equals("-reject")) {
             boolean success = TradeManager.getInstance().rejectTradeRequest(id, player);
             if (success) {
                 return Result.success("Trade request rejected");
@@ -2173,6 +2201,8 @@ public class GameMenuController implements Controller {
 
         Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
+        Tool pole = new Tool("iridium rod", 100, "haha", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 5, Skills.FISHING);
+        player.getBackpack().add(pole, 5);
 
         System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
 

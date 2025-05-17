@@ -7,8 +7,18 @@ import org.example.models.enums.Types.Cages;
 import java.util.Random;
 
 public enum CoopAnimalTypes {
-    CHICKEN("Chicken", 800, "Egg", 50, "Large Egg", 100, Cages.NORMAL_COOP, 1, "A friendly chicken that lays eggs daily."),
-    DUCK("Duck", 1200, "Duck Egg", 95, "Duck Feather", 250, Cages.BIG_CAGE, 2, "Produces duck eggs every other day. May occasionally drop feathers."),
+    CHICKEN("Chicken",
+            800,
+            "Egg", 50,
+            "Large Egg", 100,
+            Cages.NORMAL_COOP, 1,
+            "A friendly chicken that lays eggs daily."),
+    DUCK("Duck",
+            1200,
+            "Duck Egg", 95,
+            "Duck Feather", 250,
+            Cages.BIG_CAGE, 2,
+            "Produces duck eggs every other day. May occasionally drop feathers."),
     RABBIT("Rabbit", 4000, "Wool", 150, "Rabbit's Foot", 1000, Cages.DELUXE_CAGE, 4, "Produces wool every 4 days. May rarely produce a rabbit's foot."),
     DINOSAUR("Dinosaur", 100000, "Dinosaur Egg", 350, null, 0, Cages.DELUXE_CAGE, 7, "A rare dinosaur that lays prehistoric eggs once a week.");
 

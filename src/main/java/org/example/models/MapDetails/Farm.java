@@ -170,6 +170,7 @@ public class Farm {
         symbolMap.put("path", '#');
         symbolMap.put("lake", ' ');
         symbolMap.put("quarry", 'Q');
+        symbolMap.put("branch", 'X');
         symbolMap.put("shipping_bin", 'S');
         symbolMap.put("greenhouse", ' ');
         symbolMap.put("plowed", ' ');
@@ -200,6 +201,7 @@ public class Farm {
         placeRandomObjects("stone", 100);
         placeRandomObjects("tree", 150);
         placeRandomObjects("crop", 100);
+        placeRandomObjects("branch", 50);
     }
 
     public void addShippingBin() {
@@ -215,6 +217,12 @@ public class Farm {
         while (placed < count) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
+            if ((x == 0 && y == 0) ||
+                    (x == width - 1 && y == 0) ||
+                    (x == 0 && y == height - 1) ||
+                    (x == width - 1 && y == height - 1)) {
+                continue;
+            }
             TileType currentTile = tiles[x][y].getTile();
 
             if (currentTile == TileType.GRASS) {
@@ -227,20 +235,25 @@ public class Farm {
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
                     tiles[x][y].setItem(tree);
-                } else if (type.equals("crop")) {
+                }
+                else if (type.equals("crop")) {
                     tiles[x][y].setTile(TileType.CROP);
 
                     CropType[] types = CropType.values();
                     CropType randomType = types[rand.nextInt(types.length)];
                     Crop crop = new Crop(randomType);
                     tiles[x][y].setItem(crop);
-                } else if (type.equals("stone")) {
+                }
+                else if (type.equals("stone")) {
                     tiles[x][y].setTile(TileType.STONE);
 
                     MineralType[] types = MineralType.values();
                     MineralType randomType = types[rand.nextInt(types.length)];
                     Mineral stone = new Mineral(randomType);
                     tiles[x][y].setItem(stone);
+                }
+                else if (type.equals("branch")) {
+                    tiles[x][y].setTile(TileType.BRANCH);
                 }
 
                 placed++;
@@ -740,6 +753,7 @@ public class Farm {
                     case "lake" -> BG_BLUE;
                     case "path" -> BG_YELLOW;
                     case "coop" -> BG_PINK;
+                    case "branch" -> BG_BROWN;
                     case "barn" -> BG_LIGHT_BLUE;
                     case "greenhouse" -> BG_BROWN;
                     case "constructed_greenhouse" -> BG_BROWN;

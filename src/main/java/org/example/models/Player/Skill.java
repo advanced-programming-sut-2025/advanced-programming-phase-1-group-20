@@ -1,11 +1,11 @@
 package org.example.models.Player;
 
 public class Skill {
+    private int maxLevel = 4;
+    private String name;
+    private int adderUnit;
     private int units;
-    private final int maxLevel = 4;
     private int level = 1;
-    private final int adderUnit;
-    private final String name;
     private boolean buff;
     private int hours;
     private int currentLevel;
@@ -17,6 +17,10 @@ public class Skill {
         buff = false;
         hours = 0;
         currentLevel = level;
+    }
+
+    public Skill() {
+
     }
 
     public void updateUnit() {
@@ -34,11 +38,11 @@ public class Skill {
         this.hours = hour;
     }
 
-    public void updateState(){
-        if(buff){
-            if(hours > 1){
+    public void updateState() {
+        if (buff) {
+            if (hours > 1) {
                 hours--;
-            }else{
+            } else {
                 buff = false;
                 level = currentLevel;
             }

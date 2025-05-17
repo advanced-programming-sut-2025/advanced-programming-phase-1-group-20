@@ -10,16 +10,20 @@ import java.util.List;
 import java.util.Map;
 
 public class Game implements Serializable {
-    private final List<Player> players;
-    private Player currentPlayer;
-    private Date date;
+    private transient List<Player> players;
+    private transient Player currentPlayer;
+    private transient Date date;
     private int currentPlayerIndex;
     private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections;
-    private Map<Player, Boolean> terminateVotes;
-    private Player gameCreator;
+    private transient Map<Player, Integer> mapSelections;
+    private transient Map<Player, Boolean> terminateVotes;
+    private transient Player gameCreator;
     private boolean saved;
-    private GameMap gameMap;
+    private transient GameMap gameMap;
+
+    public Game() {
+    }
+
 
     public Game(List<Player> players, Player creator) {
         this.players = players;

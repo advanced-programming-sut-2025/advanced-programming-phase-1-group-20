@@ -1,13 +1,11 @@
 package org.example.models.Items;
 
-import org.example.models.App;
 import org.example.models.Player.Backpack;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Types.CookingType;
 import org.example.models.enums.Types.ItemBuilder;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 public class CookingItem extends Item {
@@ -49,10 +47,10 @@ public class CookingItem extends Item {
             if (itemName.startsWith("any")) {
                 itemName = itemName.replace("any ", "");
                 Item item = ItemBuilder.build(itemName);
-                if(!(item instanceof Fish)) {
+                if (!(item instanceof Fish)) {
                     return false;
                 }
-                if(inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
+                if (inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
                     return false;
                 }
             } else {
@@ -70,11 +68,11 @@ public class CookingItem extends Item {
     }
 
     public Food cook(Backpack inventory) {
-        return new Food(getName(), getBaseSellPrice(), getEnergy() , getBuffer());
+        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer());
     }
 
-    public Food getFood(){
-        return new Food(getName(), getBaseSellPrice(), getEnergy() , getBuffer());
+    public Food getFood() {
+        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer());
     }
 
 

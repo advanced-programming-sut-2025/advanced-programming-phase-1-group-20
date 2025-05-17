@@ -1,33 +1,23 @@
 package org.example.models;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import org.example.controllers.NPCController;
 import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
-import org.example.models.utils.AutoLoginUtil;
 import org.example.models.utils.FileStorage;
+import org.example.models.utils.GameSaveLoadManager;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.example.models.savegame.GameSerializer.createKryo;
-
 public class App {
-    // File paths for saving games
-    private static final String GAMES_DIRECTORY = "saved_games";
-    private static final String CURRENT_GAME_FILE = GAMES_DIRECTORY + "/current_game.bin";
-    // TODO: add the saving methods
-    // static structure for saving App Data
+    // File paths for saving games (now delegated to GameSaveLoadManager)
+
+    // Static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
     private static User loggedInUser;
     private static Map<Integer, String> securityQuestions = new HashMap<>();
@@ -36,9 +26,8 @@ public class App {
     private static Game currentGame;
     private static boolean allChose = false;
 
-    //    private static Lists for game
+    // Lists for game
     private static List<Item> items = new ArrayList<>();
-
 
     private static boolean isMapSelectionPhase = false;
 
@@ -50,16 +39,35 @@ public class App {
 
             items = FileStorage.loadItems();
 
-            File directory = new File(GAMES_DIRECTORY);
-            if (!directory.exists()) {
-                directory.mkdirs();
-            }
+            // Initialize save directory
+            GameSaveLoadManager.initialize();
 
-//            loadAllGames();
+            // Load all saved games
+            GameSaveLoadManager.loadAllGames();
 
             NPCController.initialize();
 
             dataLoaded = true;
+
+            // Check if there is an autosave that might need to be recovered
+            checkForAutosaveRecovery();
+        }
+    }
+
+    /**
+     * Checks if there is an autosave file that might need to be recovered
+     * This is useful after a crash or unexpected shutdown
+     */
+    private static void checkForAutosaveRecovery() {
+        File autosaveFile = new File("saved_games/autosave.bin");
+        if (autosaveFile.exists()) {
+            // Check if the autosave is more recent than the current game
+            File currentGameFile = new File("saved_games/current_game.bin");
+
+            if (!currentGameFile.exists() || autosaveFile.lastModified() > currentGameFile.lastModified()) {
+                // Autosave is more recent or current game doesn't exist
+                System.out.println("Found more recent autosave. Use loadAutosave() to recover it.");
+            }
         }
     }
 
@@ -70,63 +78,31 @@ public class App {
 
     public static void saveAllGames() {
         // Save all games to files
-        for (int i = 0; i < allGames.size(); i++) {
-            Game game = allGames.get(i);
-            saveGame(game, GAMES_DIRECTORY + "/game_" + i + ".bin");
+        for (Game game : allGames) {
+            if (game != null) {
+                GameSaveLoadManager.saveGameWithName(game, "game_" + allGames.indexOf(game));
+            }
         }
     }
 
     public static void saveCurrentGame() {
         if (currentGame != null) {
             currentGame.setSaved(true);
-            saveGame(currentGame, CURRENT_GAME_FILE);
-        }
-    }
-
-    private static void saveGame(Game game, String filePath) {
-        Kryo kryo = createKryo();
-        try (Output output = new Output(new FileOutputStream(filePath))) {
-            kryo.writeObject(output, game);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to save game", e);
+            GameSaveLoadManager.saveCurrentGame();
         }
     }
 
     public static void loadAllGames() {
-        allGames = new ArrayList<>();
-        File directory = new File(GAMES_DIRECTORY);
-        if (directory.exists()) {
-            File[] files = directory.listFiles((dir, name) -> name.startsWith("game_") && name.endsWith(".bin"));
-            if (files != null) {
-                for (File file : files) {
-                    Game game = loadGame(file.getPath());
-                    if (game != null) {
-                        allGames.add(game);
-                    }
-                }
-            }
-        }
+        GameSaveLoadManager.loadAllGames();
     }
 
     public static Game loadCurrentGame() {
-        File file = new File(CURRENT_GAME_FILE);
-        if (file.exists()) {
-            Game game = loadGame(CURRENT_GAME_FILE);
-            if (game != null) {
-                currentGame = game;
-                return game;
-            }
+        Game game = GameSaveLoadManager.loadCurrentGame();
+        if (game != null) {
+            currentGame = game;
+            return game;
         }
         return null;
-    }
-
-    private static Game loadGame(String filePath) {
-        Kryo kryo = createKryo();
-        try (Input input = new Input(new FileInputStream(filePath))) {
-            return kryo.readObject(input, Game.class);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to load game", e);
-        }
     }
 
     public static void addUser(User user) {
@@ -145,7 +121,7 @@ public class App {
 
     public static void logout() {
         loggedInUser = null;
-        AutoLoginUtil.clearAutoLogin();
+        org.example.models.utils.AutoLoginUtil.clearAutoLogin();
     }
 
     public static User getUser(String username) {
@@ -156,7 +132,6 @@ public class App {
         }
         return null;
     }
-
 
     public static Map<String, User> getUsers() {
         return users;
@@ -206,10 +181,7 @@ public class App {
         // Delete the saved game file
         for (int i = 0; i < allGames.size(); i++) {
             if (allGames.get(i) == game) {
-                File file = new File(GAMES_DIRECTORY + "/game_" + i + ".json");
-                if (file.exists()) {
-                    file.delete();
-                }
+                GameSaveLoadManager.deleteSavedGame("saved_games/game_" + i + ".bin");
                 break;
             }
         }
@@ -220,7 +192,6 @@ public class App {
     }
 
     public static Game findGameForUser(User user) {
-
         for (Game game : allGames) {
             if (game.isPlayerInGame(user)) {
                 return game;
@@ -254,5 +225,74 @@ public class App {
 
     public static void makeAllChose() {
         allChose = true;
+    }
+
+    /**
+     * Performs an autosave operation
+     *
+     * @return true if autosave was successful
+     */
+    public static boolean autosave() {
+        if (currentGame != null) {
+            return GameSaveLoadManager.autosave();
+        }
+        return false;
+    }
+
+    /**
+     * Save game with a custom name
+     *
+     * @param saveName The custom name for the save file
+     * @return true if save was successful
+     */
+    public static boolean saveGameWithName(String saveName) {
+        if (currentGame != null) {
+            return GameSaveLoadManager.saveGameWithName(currentGame, saveName);
+        }
+        return false;
+    }
+
+    /**
+     * Load game by name
+     *
+     * @param saveName The name of the save file to load
+     * @return The loaded game or null if loading failed
+     */
+    public static Game loadGameByName(String saveName) {
+        String filePath = "saved_games/" + saveName + ".bin";
+        Game game = GameSaveLoadManager.loadGame(filePath);
+        if (game != null) {
+            currentGame = game;
+        }
+        return game;
+    }
+
+    /**
+     * Get a list of all saved games
+     *
+     * @return List of save file names without extensions
+     */
+    public static List<String> getSavedGamesList() {
+        List<String> saveNames = new ArrayList<>();
+        List<File> saveFiles = GameSaveLoadManager.listSavedGames();
+
+        for (File file : saveFiles) {
+            String fileName = file.getName();
+            // Remove .bin extension
+            saveNames.add(fileName.substring(0, fileName.lastIndexOf('.')));
+        }
+
+        return saveNames;
+    }
+
+    public static boolean deleteSavedGame(String saveName) {
+        String filePath = "saved_games/" + saveName + ".bin";
+        return GameSaveLoadManager.deleteSavedGame(filePath);
+    }
+
+    public static void shutdown() {
+        saveData();
+
+        System.out.println("Application shutdown completed. All data saved.");
     }
 }
