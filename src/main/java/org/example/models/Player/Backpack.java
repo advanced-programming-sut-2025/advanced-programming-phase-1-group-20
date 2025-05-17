@@ -73,7 +73,7 @@ public class Backpack {
     }
 
     public int getNumberOfItem(String name) {
-        for(Item item : inventory.keySet()) {
+        for (Item item : inventory.keySet()) {
             if (item.getName().equalsIgnoreCase(name)) {
                 return inventory.get(item);
             }
@@ -113,6 +113,15 @@ public class Backpack {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public boolean hasToolOfType(String type) {
+        for (Item item : inventory.keySet()) {
+            if (item.getName().contains(type)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public enum Type {

@@ -2,7 +2,6 @@ package org.example.controllers;
 
 import org.example.models.App;
 import org.example.models.Items.Item;
-import org.example.models.MapDetails.GameMap;
 import org.example.models.Market;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
@@ -13,7 +12,6 @@ import org.example.views.GameMenu;
 public class MarketController implements Controller {
     private AppView appView;
     private Player player;
-    private GameMap gMap;
     private Market market;
 
     public MarketController(AppView appView, Player player, Market market) {
@@ -104,10 +102,10 @@ public class MarketController implements Controller {
 
     private Result build(String[] args) {
         String buildingName = args[0];
-        if(!market.getName().equalsIgnoreCase("Carpenters Shop")) {
+        if (!market.getName().equalsIgnoreCase("Carpenters Shop")) {
             return Result.error("You are not in Carpenters Shop!");
         }
-        Item barn = new Item("Barn" , 6_000);
+        Item barn = new Item("Barn", 6_000);
         market.checkItem(player, barn, 1);
         return Result.success("build successfully");
     }

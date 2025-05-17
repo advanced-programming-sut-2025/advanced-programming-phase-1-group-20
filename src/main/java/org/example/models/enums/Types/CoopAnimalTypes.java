@@ -6,145 +6,63 @@ import org.example.models.enums.Types.Cages;
 
 import java.util.Random;
 
-
 public enum CoopAnimalTypes {
-    CHICKEN(
-            "Chicken",
-            800,
-            1, // Every day
-            Cages.NORMAL_COOP,
-            "Egg", 50, // Primary product
-            "Large Egg", 95, // Secondary product
-            "Lives in a COOP which has a capacity of 4. Chickens produce a product every morning if they are well taken care of. Note that chickens can also live in upgraded coops.",
-            (animal) -> {
-                // Happiness directly correlates to chance of large egg
-                // At 100 happiness, 50% chance of large egg
-                // At 0 happiness, 0% chance of large egg
-                Random random = new Random();
-                int chance = random.nextInt(100);
-                boolean produceLargeEgg = chance < (animal.getHappinessLevel() / 2);
-
-                if (produceLargeEgg) {
-                    return new Item(animal.getSecondaryProduct(), animal.getSecondaryProductPrice(), "A high-quality large egg");
-                } else {
-                    return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A regular egg");
-                }
-            }
-    ),
-
-    DUCK(
-            "Duck",
-            1200,
-            2, // Every 2 days
-            Cages.BIG_CAGE,
-            "Duck Egg", 95, // Primary product
-            "Duck Feather", 250, // Secondary product
-            "Requires a BIG COOP to live in, which has a capacity of 8. Ducks produce a product every 2 days. Happier ducks are more likely to produce feathers. Note that ducks can also live in DELUXE COOP.",
-            (animal) -> {
-                // Higher happiness increases chance of feather
-                // At 100 happiness, 40% chance of feather
-                // At 0 happiness, 0% chance of feather
-                Random random = new Random();
-                int chance = random.nextInt(100);
-                boolean produceFeather = chance < (animal.getHappinessLevel() * 0.4);
-
-                if (produceFeather) {
-                    return new Item(animal.getSecondaryProduct(), animal.getSecondaryProductPrice(), "A beautiful duck feather");
-                } else {
-                    return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A nutritious duck egg");
-                }
-            }
-    ),
-
-    RABBIT(
-            "Rabbit",
-            8000,
-            4, // Every 4 days
-            Cages.DELUXE_CAGE,
-            "Wool", 340, // Primary product
-            "Rabbit's Foot", 565, // Secondary product
-            "Requires a DELUXE COOP to live in, which has a capacity of 12. Rabbits produce a product every 4 days. Rabbit happiness increases the chance that its product will be a rabbit's foot.",
-            (animal) -> {
-                // Higher happiness increases chance of rabbit's foot
-                // At 100 happiness, 25% chance of rabbit's foot
-                // At 0 happiness, 0% chance of rabbit's foot
-                Random random = new Random();
-                int chance = random.nextInt(100);
-                boolean produceRabbitFoot = chance < (animal.getHappinessLevel() * 0.25);
-
-                if (produceRabbitFoot) {
-                    return new Item(animal.getSecondaryProduct(), animal.getSecondaryProductPrice(), "A lucky rabbit's foot");
-                } else {
-                    return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "Soft rabbit wool");
-                }
-            }
-    ),
-
-    DINOSAUR(
-            "Dinosaur",
-            14000,
-            7, // Every 7 days
-            Cages.BIG_CAGE,
-            "Dinosaur Egg", 350, // Primary product
-            null, 0, // No secondary product
-            "Requires a BIG COOP to live in, which has a capacity of 8. Dinosaurs produce an egg every 7 days.",
-            (animal) -> {
-                // Dinosaurs only produce dinosaur eggs
-                return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A rare dinosaur egg");
-            }
-    );
+    CHICKEN("Chicken", 800, "Egg", 50, "Large Egg", 100, Cages.NORMAL_COOP, 1, "A friendly chicken that lays eggs daily."),
+    DUCK("Duck", 1200, "Duck Egg", 95, "Duck Feather", 250, Cages.BIG_CAGE, 2, "Produces duck eggs every other day. May occasionally drop feathers."),
+    RABBIT("Rabbit", 4000, "Wool", 150, "Rabbit's Foot", 1000, Cages.DELUXE_CAGE, 4, "Produces wool every 4 days. May rarely produce a rabbit's foot."),
+    DINOSAUR("Dinosaur", 100000, "Dinosaur Egg", 350, null, 0, Cages.DELUXE_CAGE, 7, "A rare dinosaur that lays prehistoric eggs once a week.");
 
     private final String name;
     private final int price;
-    private final int productionInterval;
-    private final Cages minimumCoopSize;
     private final String primaryProduct;
     private final int primaryProductPrice;
     private final String secondaryProduct;
     private final int secondaryProductPrice;
+    private final Cages minimumCoopSize;
+    private final int productionInterval;
     private final String description;
-    private final ProductionFunction productionFunction;
 
-    CoopAnimalTypes(String name, int price, int productionInterval,
-                    Cages minimumCoopSize, String primaryProduct, int primaryProductPrice,
-                    String secondaryProduct, int secondaryProductPrice, String description,
-                    ProductionFunction productionFunction) {
+    CoopAnimalTypes(String name, int price, String primaryProduct, int primaryProductPrice,
+                    String secondaryProduct, int secondaryProductPrice, Cages minimumCoopSize,
+                    int productionInterval, String description) {
         this.name = name;
         this.price = price;
-        this.productionInterval = productionInterval;
-        this.minimumCoopSize = minimumCoopSize;
         this.primaryProduct = primaryProduct;
         this.primaryProductPrice = primaryProductPrice;
         this.secondaryProduct = secondaryProduct;
         this.secondaryProductPrice = secondaryProductPrice;
+        this.minimumCoopSize = minimumCoopSize;
+        this.productionInterval = productionInterval;
         this.description = description;
-        this.productionFunction = productionFunction;
     }
 
-
-    public CoopAnimal createAnimal() {
-        return new CoopAnimal(this);
-    }
-
-
+    /**
+     * Determine which product this animal should produce
+     */
     public Item determineProduct(CoopAnimal animal) {
-        return productionFunction.produceItem(animal);
+        Random random = new Random();
+
+        // Check if animal has enough happiness for secondary product
+        if (secondaryProduct != null && animal.getHappinessLevel() >= 100) {
+            // Calculate chance of secondary product
+            double chance = 1500.0 / (animal.getHappinessLevel() + (150 * (0.5 + random.nextDouble())));
+
+            if (random.nextDouble() < chance) {
+                return new Item(secondaryProduct, secondaryProductPrice);
+            }
+        }
+
+        // Otherwise return primary product
+        return new Item(primaryProduct, primaryProductPrice);
     }
 
+    // Getters
     public String getName() {
         return name;
     }
 
     public int getPrice() {
         return price;
-    }
-
-    public int getProductionInterval() {
-        return productionInterval;
-    }
-
-    public Cages getMinimumCoopSize() {
-        return minimumCoopSize;
     }
 
     public String getPrimaryProduct() {
@@ -163,13 +81,15 @@ public enum CoopAnimalTypes {
         return secondaryProductPrice;
     }
 
-    public String getDescription() {
-        return description;
+    public Cages getMinimumCoopSize() {
+        return minimumCoopSize;
     }
 
+    public int getProductionInterval() {
+        return productionInterval;
+    }
 
-    @FunctionalInterface
-    public interface ProductionFunction {
-        Item produceItem(CoopAnimal animal);
+    public String getDescription() {
+        return description;
     }
 }

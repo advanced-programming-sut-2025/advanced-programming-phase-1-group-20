@@ -36,11 +36,9 @@ public class NPCController {
                 // Create context information for the AI
                 String context = createContextForAi(npc, currentDate, friendshipLevel);
 
-                // Call the AI service to generate dialogue
                 return HuggingFaceApiClient.generateDialogue(npc, context);
             } catch (Exception e) {
                 System.err.println("Error using AI dialogue, falling back to predefined dialogues: " + e.getMessage());
-                // If AI fails, fall back to predefined dialogues
                 return getPreDefinedDialogue(npc, currentDate, friendshipLevel);
             }
         } else {

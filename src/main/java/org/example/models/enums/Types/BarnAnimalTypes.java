@@ -6,149 +6,70 @@ import org.example.models.entities.animal.BarnAnimal;
 import java.util.Random;
 
 public enum BarnAnimalTypes {
-    COW(
-            "Cow",
-            15000,
-            1, // Daily production
-            BarnTypes.NORMAL_BARN,
-            "Milk", 125,
-            "Large Milk", 190,
-            "Cows live in a barn and produce milk every day. You need a Milk Pail to collect it.",
-            false, // Doesn't require happiness check
-            (animal) -> {
-                Random random = new Random();
-                int chance = random.nextInt(100);
-                boolean produceLargeMilk = chance < (animal.getHappinessLevel() / 2);
-
-                if (produceLargeMilk) {
-                    return new Item(animal.getSecondaryProduct(), animal.getSecondaryProductPrice(), "A high-quality large milk");
-                } else {
-                    return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A regular milk");
-                }
-            }
-    ),
-
-    GOAT(
-            "Goat",
-            4000,
-            2, // Every 2 days
-            BarnTypes.BIG_BARN,
-            "Goat Milk", 225,
-            "Large Goat Milk", 345,
-            "Goats produce milk every 2 days when fed. You need a Milk Pail to collect it.",
-            false, // Doesn't require happiness check
-            (animal) -> {
-                Random random = new Random();
-                int chance = random.nextInt(100);
-                boolean produceLargeMilk = chance < (animal.getHappinessLevel() / 2);
-
-                if (produceLargeMilk) {
-                    return new Item(animal.getSecondaryProduct(), animal.getSecondaryProductPrice(), "A high-quality large goat milk");
-                } else {
-                    return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A regular goat milk");
-                }
-            }
-    ),
-
-    SHEEP(
-            "Sheep",
-            8000,
-            3, // Every 3 days
-            BarnTypes.DELUXE_BARN,
-            "Wool", 340,
-            null, 0, // No secondary product
-            "Sheep produce wool every 3 days when fed and if their happiness is at least 70%. You need Shears to collect it.",
-            true, // Requires happiness check
-            (animal) -> {
-                // Sheep only produce one type of wool
-                return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "Soft sheep wool");
-            }
-    ),
-
-    PIG(
-            "Pig",
-            16000,
-            1, // Daily in non-winter seasons
-            BarnTypes.DELUXE_BARN,
-            "Truffle", 625,
-            null, 0, // No secondary product
-            "Pigs find truffles when they leave the barn. They don't produce during winter when they stay inside.",
-            false, // Doesn't require happiness check
-            (animal) -> {
-                // Check if it's winter - would need to be implemented in a full system
-                // For now, just return the truffle
-                return new Item(animal.getPrimaryProduct(), animal.getPrimaryProductPrice(), "A rare and valuable truffle");
-            }
-    );
+    COW("Cow", 1500, "Milk", 125, "Large Milk", 250, BarnTypes.NORMAL_BARN, 1, "A friendly cow that produces milk daily."),
+    GOAT("Goat", 4000, "Goat Milk", 340, "Large Goat Milk", 680, BarnTypes.BIG_BARN, 2, "Produces goat milk every other day."),
+    SHEEP("Sheep", 8000, "Wool", 340, "Deluxe Wool", 680, BarnTypes.BIG_BARN, 3, "Produces wool every 3 days if sheared with shears."),
+    PIG("Pig", 16000, "Truffle", 1250, null, 0, BarnTypes.DELUXE_BARN, 5, "Finds truffles outside on non-rainy days.");
 
     private final String name;
     private final int price;
-    private final int productionInterval;
-    private final BarnTypes minimumBarnType;
     private final String primaryProduct;
     private final int primaryProductPrice;
     private final String secondaryProduct;
     private final int secondaryProductPrice;
+    private final BarnTypes minimumBarnType;
+    private final int productionInterval;
     private final String description;
-    private final boolean requiresHappiness;
-    private final ProductionFunction productionFunction;
 
-    BarnAnimalTypes(
-            String name,
-            int price,
-            int productionInterval,
-            BarnTypes minimumBarnType,
-            String primaryProduct,
-            int primaryProductPrice,
-            String secondaryProduct,
-            int secondaryProductPrice,
-            String description,
-            boolean requiresHappiness,
-            ProductionFunction productionFunction) {
+    BarnAnimalTypes(String name, int price, String primaryProduct, int primaryProductPrice,
+                    String secondaryProduct, int secondaryProductPrice, BarnTypes minimumBarnType,
+                    int productionInterval, String description) {
         this.name = name;
         this.price = price;
-        this.productionInterval = productionInterval;
-        this.minimumBarnType = minimumBarnType;
         this.primaryProduct = primaryProduct;
         this.primaryProductPrice = primaryProductPrice;
         this.secondaryProduct = secondaryProduct;
         this.secondaryProductPrice = secondaryProductPrice;
+        this.minimumBarnType = minimumBarnType;
+        this.productionInterval = productionInterval;
         this.description = description;
-        this.requiresHappiness = requiresHappiness;
-        this.productionFunction = productionFunction;
     }
 
-    public static BarnAnimalTypes fromName(String name) {
-        for (BarnAnimalTypes type : BarnAnimalTypes.values()) {
-            if (type.getName().equalsIgnoreCase(name)) {
-                return type;
+    /**
+     * Determine which product this animal should produce
+     */
+    public Item determineProduct(BarnAnimal animal) {
+        Random random = new Random();
+
+        // Check if animal has enough happiness for secondary product
+        if (secondaryProduct != null && animal.getHappinessLevel() >= 100) {
+            // Calculate chance of secondary product
+            double chance = 1500.0 / (animal.getHappinessLevel() + (150 * (0.5 + random.nextDouble())));
+
+            if (random.nextDouble() < chance) {
+                return new Item(secondaryProduct, secondaryProductPrice);
             }
         }
-        return null;
+
+        // Otherwise return primary product
+        return new Item(primaryProduct, primaryProductPrice);
     }
 
-    public BarnAnimal createAnimal() {
-        return new BarnAnimal(this);
+    /**
+     * Check if this animal type requires a happiness check for production
+     */
+    public boolean requiresHappiness() {
+        // Pigs need happiness check for truffle production
+        return this == PIG;
     }
 
-    public Item determineProduct(BarnAnimal animal) {
-        return productionFunction.produceItem(animal);
-    }
-
+    // Getters
     public String getName() {
         return name;
     }
 
     public int getPrice() {
         return price;
-    }
-
-    public int getProductionInterval() {
-        return productionInterval;
-    }
-
-    public BarnTypes getMinimumBarnType() {
-        return minimumBarnType;
     }
 
     public String getPrimaryProduct() {
@@ -167,16 +88,15 @@ public enum BarnAnimalTypes {
         return secondaryProductPrice;
     }
 
+    public BarnTypes getMinimumBarnType() {
+        return minimumBarnType;
+    }
+
+    public int getProductionInterval() {
+        return productionInterval;
+    }
+
     public String getDescription() {
         return description;
-    }
-
-    public boolean requiresHappiness() {
-        return requiresHappiness;
-    }
-
-    @FunctionalInterface
-    public interface ProductionFunction {
-        Item produceItem(BarnAnimal animal);
     }
 }
