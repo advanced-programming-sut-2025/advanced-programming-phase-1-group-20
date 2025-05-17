@@ -23,5 +23,6 @@ public enum TileType {
     SHIPPING_BIN,
     EMERALD_ORE,
     CONSTRUCTED_GREENHOUSE,
+    BRANCH,
     GREENHOUSE;
 }
