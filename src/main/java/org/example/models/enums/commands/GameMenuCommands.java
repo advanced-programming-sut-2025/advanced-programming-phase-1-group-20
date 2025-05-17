@@ -69,6 +69,7 @@ public enum GameMenuCommands implements Command {
     Walk(Pattern.compile("^walk\\s+-l\\s+(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$")),
     PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+),(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
+    TeleportToFarm(Pattern.compile("^teleport\\s+to\\s+farm$")),
     TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
             "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
     TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),
@@ -125,7 +126,7 @@ public enum GameMenuCommands implements Command {
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
     CheatGiveAllRecipe(Pattern.compile("^give\\s+recepies$")),
     CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
-    CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
+    CheatIncreaseFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
     CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
 
     None(null);
