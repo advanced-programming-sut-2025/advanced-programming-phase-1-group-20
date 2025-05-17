@@ -672,13 +672,21 @@ public class Farm {
                         tile.getItem().updateItem();
                         Tree tree = (Tree) tile.getItem();
                         if (!tree.getMoisture()) {
-                            tile.setItem(null);
+                            if(tree.getMoistureCounter() >= 2){
+                                tile.setItem(null);
+                                tiles[x][y].setTile(TileType.GRASS);
+                                tiles[x][y].setType("grass");
+                            }
                         }
                     } else if (tile.getItem() instanceof Plant) {
                         tile.getItem().updateItem();
                         Plant plant = (Plant) tile.getItem();
                         if (!plant.getMoisture()) {
-                            tile.setItem(null);
+                            if(plant.getMoistureCounter() >= 2){
+                                tile.setItem(null);
+                                tiles[x][y].setTile(TileType.GRASS);
+                                tiles[x][y].setType("grass");
+                            }
                         }
                     }
                 }
