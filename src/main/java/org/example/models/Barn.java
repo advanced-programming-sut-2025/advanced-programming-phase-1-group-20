@@ -26,6 +26,8 @@ public class Barn implements Serializable {
         this.location = location;
         this.name = name;
         this.animals = new ArrayList<>();
+        this.x = location.getX();
+        this.y = location.getY();
 
         switch (type) {
             case NORMAL_BARN:
@@ -66,6 +68,10 @@ public class Barn implements Serializable {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public boolean contains(int checkX, int checkY) {
+        return checkX >= x && checkX < x + width && checkY >= y && checkY < y + height;
     }
 
     public Result addAnimal(BarnAnimal animal) {

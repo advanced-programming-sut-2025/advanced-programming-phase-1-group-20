@@ -8,6 +8,8 @@ import org.example.models.Player.Player;
 import org.example.models.common.Date;
 import org.example.models.common.Location;
 import org.example.models.entities.animal.Animal;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TileType;
@@ -449,6 +451,13 @@ public class Farm {
         }
     }
 
+    public void cheatShippingBin(ShippingBin shippingBin, int x, int y) {
+        shippingBins.add(shippingBin);
+        tiles[x][y].setTile(TileType.SHIPPING_BIN);
+        tiles[x][y].updateTypeFromTile();
+        tiles[x][y].setItem(shippingBin);
+    }
+
     public void markShippingBin(ShippingBin shippingBin) {
         Random rand = new Random();
         int x = rand.nextInt(width);
@@ -623,10 +632,10 @@ public class Farm {
 
     public int checkFourDirectionsForGiants(int x, int y, String itemName) {
         int[][] DIRECTIONS = {
-                {-1, 1},  // 1: NE
-                {-1, -1}, // 2: NW
-                {1, -1},  // 3: SW
-                {1, 1}    // 4: SE
+                {-1, 1},
+                {-1, -1},
+                {1, -1},
+                {1, 1}
         };
 
         for (int dir = 0; dir < DIRECTIONS.length; dir++) {
@@ -1074,6 +1083,64 @@ public class Farm {
         return null;
     }
 
+    public Barn getBarnAround(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Barn barn : barns) {
+                    if (barn.contains(newX, newY)) {
+                        return barn;
+                    }
+                }
+//                if (tiles[newX][newY].getTile() == TileType.BARN) {
+//                    return lake;
+//                }
+            }
+        }
+
+        return null;
+    }
+
+    public Coop getCoopAround(Location location) {
+        int x = location.getX();
+        int y = location.getY();
+
+        int[][] directions = {
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
+        };
+
+        for (int[] dir : directions) {
+            int newX = x + dir[0];
+            int newY = y + dir[1];
+
+            if (contains(newX, newY)) {
+                for (Coop coop : coops) {
+                    if (coop.contains(newX, newY)) {
+                        return coop;
+                    }
+                }
+//                if (tiles[newX][newY].getTile() == TileType.COO) {
+//                    return lake;
+//                }
+            }
+        }
+
+        return null;
+    }
+
     public Lake getLakeAt(int x, int y) {
         for (Lake lake : lakes) {
             if (lake.contains(x, y)) {
@@ -1175,6 +1242,29 @@ public class Farm {
                 }
             }
         }
+    }
+
+    public Barn getBarnByAnimal(BarnAnimal animal) {
+        for (Barn barn : barns) {
+            if (barn.getCapacity() > barn.getAnimalCount()) {
+                if (animal.getBarnType().equals(barn.getType())) {
+                    return barn;
+                }
+            }
+        }
+        return null;
+    }
+
+    public Coop getCoopByAnimal(CoopAnimal animal) {
+        for (Coop coop : coops) {
+            if (coop.getCapacity() > coop.getAnimalCount()) {
+                if (animal.getCoopType().equals(coop.getType())) {
+                    coop.addAnimal(animal);
+                }
+                return coop;
+            }
+        }
+        return null;
     }
 
 }

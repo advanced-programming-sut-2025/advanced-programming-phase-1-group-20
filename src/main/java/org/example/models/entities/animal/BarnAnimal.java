@@ -221,6 +221,10 @@ public class BarnAnimal extends Animal implements Serializable {
         }
     }
 
+    public BarnAnimalTypes getBarnType() {
+        return type;
+    }
+
     public void advanceDay() {
         
     }
