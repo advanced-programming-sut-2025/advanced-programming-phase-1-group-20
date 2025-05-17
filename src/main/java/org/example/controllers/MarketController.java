@@ -110,7 +110,7 @@ public class MarketController implements Controller {
             return Result.error("You are not in Carpenters Shop!");
         }
 
-        if(!buildBarn(buildingName, location)) {
+        if(!buildBarn(buildingName)) {
             return Result.error("You can't build barn because you don't have enough resources!");
         }
 
@@ -120,7 +120,7 @@ public class MarketController implements Controller {
 
 
 
-    private boolean buildBarn(String buildingName , Location location) {
+    private boolean buildBarn(String buildingName) {
         if(buildingName.equalsIgnoreCase("Barn")) {
             int money = player.getMoney();
             int woodCount = player.getBackpack().getNumberOfItem("Wood");
