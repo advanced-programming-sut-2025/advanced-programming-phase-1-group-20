@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Player {
-    private final List<Skill> skills;
-    private final List<CraftingItem> craftingItems;
-    private final List<CookingItem> cookingItems;
-    private final Backpack backpack;
+    private List<Skill> skills;
+    private List<CraftingItem> craftingItems;
+    private List<CookingItem> cookingItems;
+    private Backpack backpack;
     private Map<Player, Friendship> friendships;
     private User user;
     private int energy;
@@ -45,6 +45,9 @@ public class Player {
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
     private String playerColor;
+
+    public Player() {
+    }
 
     public Player(User user) {
         this.user = user;

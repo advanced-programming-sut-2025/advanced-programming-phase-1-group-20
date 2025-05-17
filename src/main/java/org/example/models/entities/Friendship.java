@@ -56,6 +56,10 @@ public class Friendship {
         this.married = false;
     }
 
+    public Friendship() {
+
+    }
+
     public int getLevel() {
         return level;
     }

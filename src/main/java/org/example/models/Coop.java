@@ -12,7 +12,7 @@ import java.util.List;
 public class Coop implements Serializable {
     private Cages type;
     private Location location;
-    private List<CoopAnimal> animals;
+    private transient List<CoopAnimal> animals;
     private int capacity;
     private int animalCount;
     private String name;
@@ -20,6 +20,10 @@ public class Coop implements Serializable {
     private int y;
     private int width = 4;
     private int height = 7;
+
+    public Coop() {
+
+    }
 
     public Coop(Cages type, Location location, String name) {
         this.type = type;

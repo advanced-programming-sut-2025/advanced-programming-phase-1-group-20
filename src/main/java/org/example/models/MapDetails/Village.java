@@ -47,12 +47,12 @@ public class Village {
     private static final String BG_PINK = "\u001B[48;5;200m";
     private static final String BG_LIGHT_BLUE = "\u001B[48;5;39m";
     private static final String BG_LIGHT_GREEN = "\u001B[48;5;120m";
-    private final Location[][] tiles;
-    private final List<Building> buildings;
-    private final String name;
-    //private List<Shop> shops;
-    private final Map<String, Character> symbolMap;
     private final Market[] markets = new Market[7];
+    private Location[][] tiles;
+    private List<Building> buildings;
+    private String name;
+    //private List<Shop> shops;
+    private Map<String, Character> symbolMap;
     private List<NPC> residents;
 
     public Village(String name) {
@@ -66,6 +66,10 @@ public class Village {
         initializeSymbols();
         initializeMarkets();
         markMarketAreas();
+    }
+
+    public Village() {
+
     }
 
     private void initializeSymbols() {
@@ -246,8 +250,8 @@ public class Village {
 
         int[][] directions = {
                 {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},          {0, 1},
-                {1, -1},  {1, 0}, {1, 1}
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -461,8 +465,7 @@ public class Village {
                     String playerColor = p.getPlayerColor();
                     if (x == location.getX() && y == location.getY()) {
                         System.out.print(playerColor + "@ " + RESET);
-                    }
-                    else {
+                    } else {
                         System.out.print(color + symbol + " " + RESET);
                     }
                 }

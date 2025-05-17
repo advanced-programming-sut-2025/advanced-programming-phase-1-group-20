@@ -57,6 +57,10 @@ public class Tool extends Item {
         this.functionality = null;
     }
 
+    public Tool() {
+        super("tool", 0, "A basic tool.");
+    }
+
     private static int getWateringCanCapacity(ToolMaterial material) {
         return switch (material) {
             case BASIC -> 40;

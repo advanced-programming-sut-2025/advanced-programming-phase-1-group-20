@@ -86,7 +86,7 @@ public class MainMenuController implements Controller {
         if (users.size() > 4) {
             return Result.error("Too many users specified (maximum 4 including creator)");
         }
-        
+
         for (String username : cleaned) {
             String trimmedUsername = username.trim();
             if (!trimmedUsername.isEmpty()) {

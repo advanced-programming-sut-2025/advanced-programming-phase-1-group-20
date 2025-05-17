@@ -11,14 +11,6 @@ public class Item {
     private boolean giantable;
     private Quality quality;
 
-    public boolean isGiantable() {
-        return giantable;
-    }
-
-    public void setGiantable(boolean giantable) {
-        this.giantable = giantable;
-    }
-
     public Item(String name, int baseSellPrice) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
@@ -32,6 +24,14 @@ public class Item {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
         this.description = description;
+    }
+
+    public boolean isGiantable() {
+        return giantable;
+    }
+
+    public void setGiantable(boolean giantable) {
+        this.giantable = giantable;
     }
 
     public String getDescription() {

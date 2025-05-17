@@ -1,7 +1,6 @@
 package org.example.models.Items;
 
 
-import org.example.models.App;
 import org.example.models.Player.Backpack;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Seasons;
@@ -9,7 +8,6 @@ import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -244,7 +242,7 @@ public class CraftingItem extends Item {
                 }
             }
         } else if (type.getName().equals("Fish Smoker")) {
-            String[] regexes = new String[] {
+            String[] regexes = new String[]{
                     "^\\s*1\\s+Salmon\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Sardine\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Shad\\s+1\\s+Coal\\s*$",
@@ -268,7 +266,7 @@ public class CraftingItem extends Item {
             };
 
 
-            for(int i = 0; i < regexes.length; i++) {
+            for (int i = 0; i < regexes.length; i++) {
                 Pattern pattern = Pattern.compile(regexes[i]);
                 Matcher matcher = pattern.matcher(items);
                 if (matcher.matches()) {
@@ -276,7 +274,7 @@ public class CraftingItem extends Item {
                     ArtisanItem artisanItem = new ArtisanItem(ArtisanType.SmokedFish);
                     FishType fishType = FishType.fromName(name);
                     Seasons[] seasons = fishType.getSeasons();
-                    Fish fish = new Fish(fishType , seasons[0]); // TODO. this is random...
+                    Fish fish = new Fish(fishType, seasons[0]); // TODO. this is random...
                     int baseSellPrice = fish.getBaseSellPrice() * 2;
                     artisanItem.setBaseSellPrice(baseSellPrice);
                     return artisanItem;
@@ -446,7 +444,7 @@ public class CraftingItem extends Item {
                 }
             }
         } else if (type.getName().equals("Fish Smoker")) {
-            String[] regexes = new String[] {
+            String[] regexes = new String[]{
                     "^\\s*1\\s+Salmon\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Sardine\\s+1\\s+Coal\\s*$",
                     "^\\s*1\\s+Shad\\s+1\\s+Coal\\s*$",

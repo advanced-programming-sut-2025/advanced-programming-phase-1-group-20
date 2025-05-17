@@ -11,17 +11,18 @@ import org.example.models.enums.Seasons;
 import java.util.HashMap;
 
 public class Market extends Building {
-    private final HashMap<Item, Double> permanentStock;
-    private final HashMap<Item, Double> springStock;
-    private final HashMap<Item, Double> summerStock;
-    private final HashMap<Item, Double> autumnStock;
-    private final HashMap<Item, Double> winterStock;
-    HashMap<Item, Double> totalStock;
-    HashMap<Item, Double> counterStock;
+    private transient HashMap<Item, Double> counterStock;
+    private transient HashMap<Item, Double> totalStock;
+    private transient HashMap<Item, Double> permanentStock;
+    private transient HashMap<Item, Double> springStock;
+    private transient HashMap<Item, Double> summerStock;
+    private transient HashMap<Item, Double> autumnStock;
+    private transient HashMap<Item, Double> winterStock;
     private int startHour;
     private int endHour;
     private String[] menu;
     private String name;
+
 
     public Market(int x, int y, HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock,
                   HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item,
@@ -41,6 +42,9 @@ public class Market extends Building {
         initializeCounterStock();
     }
 
+    public Market() {
+        super(0, 0, "Market", "market");
+    }
 
     public void initializeCounterStock() {
         counterStock.putAll(springStock);
@@ -276,7 +280,7 @@ public class Market extends Building {
     }
 
     private boolean checkCarpentersShop(Player player, Item item, double count) {
-        if(item.getName().equals("Barn")){
+        if (item.getName().equals("Barn")) {
             //TODO : check woods and stones.
         }
         if (!(count + counterStock.get(item) <= totalStock.get(item))) {
@@ -326,7 +330,7 @@ public class Market extends Building {
 
     private void checkOutPirreGeneralStore(Player player, Item item, double count) {
         if (item.getName().equals("Large Pack")) {
-            if(player.getBackpack().getType() == Backpack.Type.Initial) {
+            if (player.getBackpack().getType() == Backpack.Type.Initial) {
                 player.getBackpack().setType(Backpack.Type.Big);
                 player.decreaseMoney((int) (item.getPrice() * count));
                 double stock = count + counterStock.get(item);
@@ -334,8 +338,8 @@ public class Market extends Building {
             }
             return;
         }
-        if(item.getName().equals("Deluxe Pack")){
-            if(player.getBackpack().getType() == Backpack.Type.Big) {
+        if (item.getName().equals("Deluxe Pack")) {
+            if (player.getBackpack().getType() == Backpack.Type.Big) {
                 player.getBackpack().setType(Backpack.Type.Deluxe);
                 player.decreaseMoney((int) (item.getPrice() * count));
                 double stock = count + counterStock.get(item);
@@ -344,7 +348,7 @@ public class Market extends Building {
             return;
         }
 
-        if(item.getName().equals("Dehydrator")){
+        if (item.getName().equals("Dehydrator")) {
             player.addCraftingItem((CraftingItem) item);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
@@ -352,7 +356,7 @@ public class Market extends Building {
             return;
         }
         player.decreaseMoney((int) (item.getPrice() * count));
-        boolean flag = player.getBackpack().add(item ,(int) count);
+        boolean flag = player.getBackpack().add(item, (int) count);
         if (!flag) {
             System.out.println("you dont have enough space in backpack");
             return;
@@ -362,7 +366,7 @@ public class Market extends Building {
     }
 
     private void checkOutBlackSmith(Player player, Item item, double count) {
-        boolean flag = player.getBackpack().add(item ,(int) count);
+        boolean flag = player.getBackpack().add(item, (int) count);
         if (!flag) {
             System.out.println("you dont have enough space in backpack");
             return;
@@ -372,14 +376,14 @@ public class Market extends Building {
     }
 
     private void checkOutStarDropSaloon(Player player, Item item, double count) {
-        if(item.getName().equals("hash browns")){
+        if (item.getName().equals("hash browns")) {
             player.addCookingItem((CookingItem) item);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
             return;
         }
-        if(item.getName().equals("Omelet")){
+        if (item.getName().equals("Omelet")) {
             player.addCookingItem((CookingItem) item);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
@@ -433,7 +437,7 @@ public class Market extends Building {
             counterStock.put(item, stock);
             return;
         }
-        if(item.getName().equals("Cookie")){
+        if (item.getName().equals("Cookie")) {
             player.addCookingItem((CookingItem) item);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
@@ -448,7 +452,7 @@ public class Market extends Building {
 
     private void checkOutMarnieShop(Player player, Item item, double count) {
         player.decreaseMoney((int) (item.getPrice() * count));
-        boolean flag = player.getBackpack().add(item ,(int) count);
+        boolean flag = player.getBackpack().add(item, (int) count);
         if (!flag) {
             System.out.println("you dont have enough space in backpack");
             return;
@@ -458,7 +462,7 @@ public class Market extends Building {
     }
 
     private void checkOutCarpentersShop(Player player, Item item, double count) {
-        if(item.getName().equals("Barn")){
+        if (item.getName().equals("Barn")) {
             //TODO : remove items needed.
 
 
@@ -467,7 +471,7 @@ public class Market extends Building {
         }
         //TODO : check out all barns
         player.decreaseMoney((int) (item.getPrice() * count));
-        boolean flag = player.getBackpack().add(item ,(int) count);
+        boolean flag = player.getBackpack().add(item, (int) count);
         if (!flag) {
             System.out.println("you dont have enough space in backpack");
             return;
