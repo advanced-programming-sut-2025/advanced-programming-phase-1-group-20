@@ -3,6 +3,7 @@ package org.example.controllers;
 import org.example.models.App;
 import org.example.models.Items.*;
 import org.example.models.MapDetails.Building;
+import org.example.models.Player.Backpack;
 import org.example.models.Player.Player;
 import org.example.models.common.Result;
 import org.example.models.enums.Types.CraftingType;
@@ -11,8 +12,7 @@ import org.example.models.enums.commands.HouseMenuCommands;
 import org.example.views.AppView;
 import org.example.views.GameMenu;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -248,7 +248,7 @@ public class HouseMenuController implements Controller {
     public Result artisanUse(String[] args) {
         String artisanName = args[0];
         String items = args[1];
-        Item item = ItemBuilder.build(artisanName);
+        Item item = player.getBackpack().getItem(artisanName);
         if (item == null) {
             return Result.error(artisanName + " does not exist");
         }
@@ -258,32 +258,83 @@ public class HouseMenuController implements Controller {
         if (!(item instanceof CraftingItem)) {
             return Result.error(artisanName + " is not a CraftingItem");
         }
-
         CraftingItem craftingItem = (CraftingItem) item;
-        if (!checkItems(items, craftingItem)) {
-            return Result.error("You don't have enough items for crafting");
+        if(!craftingItem.checkRegex(items)){
+            return Result.error("Your recipe doesn't match the pattern");
         }
+
+        if(!checkPlayersItems(items , item.getName())){
+            return Result.error("You don't have enough items for this artisan");
+        }
+
         craftingItem.proccessItem(items);
         ArtisanItem artisanItem = (ArtisanItem) craftingItem.getProccessingItem();
+
         return Result.success(artisanItem.getName() + " is now in process estimated turns : " + artisanItem.getProcessingTime());
     }
 
-    public boolean checkItems(String items, CraftingItem craftingItem) {
-        String regex = craftingItem.checkRegex(items);
-        if (regex != null) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(items);
-            String itemName = matcher.group(1);
-            if (player.getBackpack().hasItems(Collections.singletonList(itemName))) {
-                return true;
+
+    public boolean checkPlayersItems(String items , String market){
+        Map<Item, Integer> itemMap = new HashMap<>();
+        if(market.equals("Fish Smoker")){
+            String regex = "^\\s*1\\s+(\\S+)\\s+1\\s+Coal\\s*$";
+            if(items.matches(regex)){
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(items);
+                String fishName = matcher.group(0);
+                if(player.getBackpack().getItem(fishName) == null || player.getBackpack().getItem("Coal") == null){
+                    return false;
+                }
+                itemMap.put(player.getBackpack().getItem("Coal"), 1);
+                itemMap.put(player.getBackpack().getItem(fishName), 1);
             }
         }
-        return false;
+        else if(market.equals("Furnace")){
+            String regex = "^\\s*1\\s+(\\S+)\\s+1\\s+Coal\\s*$";
+            if(items.matches(regex)){
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(items);
+                if(matcher.matches()){
+                    String oreName = matcher.group(1);
+                    if(player.getBackpack().getItem(oreName) == null || player.getBackpack().getItem("Coal") == null){
+                        System.out.println("here in false" + oreName);
+                        return false;
+                    }
+                    itemMap.put(player.getBackpack().getItem("Coal"), 1);
+                    itemMap.put(player.getBackpack().getItem(oreName), 1);
+                }
+            }
+
+        }
+        else if(market.equals("Bee House")){
+            return true;
+        }
+        else{
+            String regex = "^\\s*(\\d+)\\s+(.+?)\\s*$";
+            if(items.matches(regex)){
+                Pattern pattern = Pattern.compile(regex);
+                Matcher matcher = pattern.matcher(items);
+                if(matcher.matches()){
+                    int itemCount = Integer.parseInt(matcher.group(1));
+                    String itemName = matcher.group(2).trim();
+                    Item item = player.getBackpack().getItem(itemName);
+                    if(item == null || player.getBackpack().getInventory().get(item) < itemCount){
+                        return false;
+                    }
+                    itemMap.put(player.getBackpack().getItem(itemName), itemCount);
+                }
+            }
+        }
+
+        for (Item item1 : new HashSet<>(itemMap.keySet())) {
+            player.getBackpack().remove(item1, itemMap.get(item1));
+        }
+        return true;
     }
 
     public Result artisanGet(String[] args) {
         String artisanName = args[0];
-        CraftingItem craftingItem = (CraftingItem) ItemBuilder.build(artisanName);
+        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
         if (craftingItem == null) {
             return Result.error(artisanName + " does not exist");
         }
