@@ -83,12 +83,12 @@ public class Tree extends Item {
 
     public void updateDaysCounter() {
         if (daysCounter < stages[stage]) {
-            if(!moistureGod){
+            if (!moistureGod) {
                 if (!moisture) {
                     if (moistureCounter < 2) {
                         moistureCounter++;
                     }
-                }else{
+                } else {
                     moisture = false;
                     moistureCounter = 0;
                 }

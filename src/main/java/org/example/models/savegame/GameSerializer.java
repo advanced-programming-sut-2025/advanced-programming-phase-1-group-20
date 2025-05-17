@@ -36,12 +36,6 @@ import java.util.Map;
  * using Kryo serialization library.
  */
 public class GameSerializer {
-    /**
-     * Creates and configures a Kryo instance for serialization of the game.
-     * Registers all relevant classes needed to serialize/deserialize game objects.
-     *
-     * @return Configured Kryo instance
-     */
     public static Kryo createKryo() {
         Kryo kryo = new Kryo();
         kryo.setReferences(true);

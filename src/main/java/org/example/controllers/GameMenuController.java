@@ -575,7 +575,6 @@ public class GameMenuController implements Controller {
         return Result.success("energy unlimited");
     }
 
-    // sell Function:
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -1962,14 +1961,14 @@ public class GameMenuController implements Controller {
                     (request.isAccepted() ? "accepted" : "rejected"));
         }
 
-        if (response.equals("--accept")) {
+        if (response.equals("-accept")) {
             boolean success = TradeManager.getInstance().acceptTradeRequest(id, player);
             if (success) {
                 return Result.success("Trade request accepted");
             } else {
                 return Result.error("Failed to accept trade request. Make sure you have the required items or money.");
             }
-        } else if (response.equals("--reject")) {
+        } else if (response.equals("-reject")) {
             boolean success = TradeManager.getInstance().rejectTradeRequest(id, player);
             if (success) {
                 return Result.success("Trade request rejected");
@@ -2173,6 +2172,8 @@ public class GameMenuController implements Controller {
 
         Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
+        Tool pole = new Tool("iridium rod", 100, "haha", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 5, Skills.FISHING);
+        player.getBackpack().add(pole, 5);
 
         System.out.println("Cheat activated! Added Wedding Ring and other valuable items to your inventory.");
 

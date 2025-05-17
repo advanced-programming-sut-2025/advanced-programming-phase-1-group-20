@@ -102,7 +102,6 @@ public class Friendship {
 
             if (level == LEVEL_4) {
                 married = true;
-                // TODO: Handle marriage logic
             }
 
             return true;

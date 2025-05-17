@@ -31,7 +31,7 @@ public class NPC extends Mob {
     private Map<Player, NPCFriendship> friendships;
     private Location location;
     private String description;
-    private boolean useAiDialogue = true;
+    private boolean useAiDialogue = false;
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
@@ -300,7 +300,7 @@ public class NPC extends Mob {
     }
 
     public Location getLocation() {
-        return controller.getLocation(this);
+        return this.location;
     }
 
     public void setLocation(Location location) {
