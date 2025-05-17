@@ -4,6 +4,7 @@ import org.example.models.App;
 import org.example.models.Items.Item;
 import org.example.models.Market;
 import org.example.models.Player.Player;
+import org.example.models.common.Location;
 import org.example.models.common.Result;
 import org.example.models.enums.commands.MarketMenuCommands;
 import org.example.views.AppView;
@@ -102,12 +103,109 @@ public class MarketController implements Controller {
 
     private Result build(String[] args) {
         String buildingName = args[0];
+        int x = Integer.parseInt(args[1]);
+        int y = Integer.parseInt(args[2]);
+        Location location = App.getGame().getGameMap().getFarmByPlayer(player).getItem(x,y);
         if (!market.getName().equalsIgnoreCase("Carpenters Shop")) {
             return Result.error("You are not in Carpenters Shop!");
         }
-        Item barn = new Item("Barn", 6_000);
-        market.checkItem(player, barn, 1);
+
+        if(!buildBarn(buildingName, location)) {
+            return Result.error("You can't build barn because you don't have enough resources!");
+        }
+
+        //implement building barn (checking collision) in map
         return Result.success("build successfully");
+    }
+
+
+
+    private boolean buildBarn(String buildingName , Location location) {
+        if(buildingName.equalsIgnoreCase("Barn")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            //todo : important note this is not manteghi... backpack doesn't have this much space change this if you want in tahvil.
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 6000 && woodCount > 350 && stone > 150) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Big Barn")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 12_000 && woodCount > 450 && stone > 200) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Deluxe Barn")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 25_000 && woodCount > 550 && stone > 300) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Coop")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 4000 && woodCount > 300 && stone > 300) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Big Coop")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 10_000 && woodCount > 400 && stone > 150) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Deluxe Coop")) {
+            int money = player.getMoney();
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item wood = player.getBackpack().getItem("Wood");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 20_000 && woodCount > 500 && stone > 200) {
+                player.getBackpack().remove(stoneItem , stone);
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Well")) {
+            int money = player.getMoney();
+            int stone = player.getBackpack().getNumberOfItem("Stone");
+            Item stoneItem = player.getBackpack().getItem("Stone");
+            if(money > 1000 && stone > 70) {
+                player.getBackpack().remove(stoneItem , stone);
+                return true;
+            }
+        }else if(buildingName.equalsIgnoreCase("Shipping Bin")) {
+            int money = player.getMoney();
+            Item wood = player.getBackpack().getItem("Wood");
+            int woodCount = player.getBackpack().getNumberOfItem("Wood");
+            if(money > 250 && woodCount > 150){
+                player.getBackpack().remove(wood , woodCount);
+                return true;
+            }
+        }
+        return false;
     }
 
     private void getOut() {
