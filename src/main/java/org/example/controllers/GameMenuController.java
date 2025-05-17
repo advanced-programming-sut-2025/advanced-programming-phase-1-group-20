@@ -70,7 +70,6 @@ public class GameMenuController implements Controller {
             // Player Related
             case ShowInventory -> showInventory();
 
-
             // saving related commands
             case SaveGame -> {
                 App.saveData();
@@ -80,7 +79,6 @@ public class GameMenuController implements Controller {
                 result = Result.success("Auto-save completed");
             }
 
-            //plants and foraging related commands
             case CraftInfo -> result = craftInfo(args);
             case Plant -> result = plant(args);
             case ShowPlant -> result = showPlant(args);
@@ -91,7 +89,6 @@ public class GameMenuController implements Controller {
             case Harvest -> result = harvest(args);
             case PlaceItem -> result = placeItem(args);
             case AddItem -> result = addItem(args);
-
 
             //crafting related commands
             case CraftingShowRecipes -> craftingShowRecipes();
@@ -162,7 +159,7 @@ public class GameMenuController implements Controller {
             case CheatBuildGreenHouse -> builddd();
             case CheatGiveItems -> cheatGiveItems();
             case CheatFriendShipLevel -> result = cheatFriendShipLevel(args);
-            case CheatIncreateFriendshipLevel -> result = increaseFRLEVEL(args);
+            case CheatIncreaseFriendshipLevel -> result = increaseFRLEVEL(args);
             case CheatIncreaseXP -> result = increaseXP(args);
             case CheatGiveAllRecipe -> cheatGiveAllRecipe();
 

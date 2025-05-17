@@ -126,7 +126,7 @@ public enum GameMenuCommands implements Command {
     CheatGiveItems(Pattern.compile("^cheat\\s+give\\s+items$")),
     CheatGiveAllRecipe(Pattern.compile("^give\\s+recepies$")),
     CheatFriendShipLevel(Pattern.compile("^friendship level (?<name>.+)$")),
-    CheatIncreateFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
+    CheatIncreaseFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
     CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
 
     None(null);
