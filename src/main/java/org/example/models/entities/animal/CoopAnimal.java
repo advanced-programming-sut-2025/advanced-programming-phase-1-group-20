@@ -17,8 +17,8 @@ public class CoopAnimal extends Animal implements Serializable {
     private boolean isOutside = false;
     private String name;
 
-    public CoopAnimal(CoopAnimalTypes type) {
-        super(type.getName(), type.getPrice());
+    public CoopAnimal(CoopAnimalTypes type, String name) {
+        super(name, type.getPrice());
         this.type = type;
         this.happinessLevel = 50; // Default happiness
         this.daysSinceLastProduction = 0;
@@ -93,7 +93,7 @@ public class CoopAnimal extends Animal implements Serializable {
         }
     }
 
-    public CoopAnimalTypes getType() {
+    public CoopAnimalTypes getCoopType() {
         return type;
     }
 

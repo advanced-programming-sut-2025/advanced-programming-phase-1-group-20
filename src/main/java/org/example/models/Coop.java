@@ -65,12 +65,15 @@ public class Coop implements Serializable {
         return height;
     }
 
+    public boolean contains(int checkX, int checkY) {
+        return checkX >= x && checkX < x + width && checkY >= y && checkY < y + height;
+    }
+
     public Result addAnimal(CoopAnimal animal) {
         if (animalCount >= capacity) {
             return Result.error("This coop is full. Cannot add more animals.");
         }
 
-        // Check if animal can live in this type of coop
         if (!animal.canLiveIn(type)) {
             return Result.error("This animal requires a better coop.");
         }

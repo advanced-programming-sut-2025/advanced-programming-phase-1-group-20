@@ -2,6 +2,9 @@ package org.example.models.enums;
 
 import org.example.models.Items.*;
 import org.example.models.Market;
+import org.example.models.entities.animal.Animal;
+import org.example.models.entities.animal.BarnAnimal;
+import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.enums.PlayerEnums.Skills;
 import org.example.models.enums.Types.*;
 
@@ -656,7 +659,43 @@ public enum Markets {
         HashMap<Item, Double> autumnItems = new HashMap<>();
         HashMap<Item, Double> winterItems = new HashMap<>();
 
+        Item shears = new Tool("Shears" , 1_000 , "Use this to collect wool from sheep", Tool.ToolType.SHEARS , Tool.ToolMaterial.BASIC , 8 , Skills.FARMING );
+        items.put(shears, 1.0);
 
+        Item milkPail = new Tool("Milk Pail" , 1_000 , "Gather milk from your animals." , Tool.ToolType.MILK_PAIL , Tool.ToolMaterial.BASIC , 5 , Skills.FARMING );
+        items.put(milkPail, 1.0);
+
+        Item chicken = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.CHICKEN, "Chicken");
+        chicken.setPrice(800);
+        items.put(chicken, 2.0);
+
+        Item cow = new BarnAnimal(BarnAnimalTypes.COW , "Cow");
+        cow.setPrice(1_500);
+        items.put(cow, 2.0);
+
+        Item goat = new BarnAnimal( BarnAnimalTypes.GOAT , "Goat");
+        goat.setPrice(4_000);
+        items.put(goat, 2.0);
+
+        Item duck = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.DUCK, "Duck");
+        duck.setPrice(1_200);
+        items.put(duck, 2.0);
+
+        Item sheep = new BarnAnimal( BarnAnimalTypes.SHEEP, "Sheep");
+        sheep.setPrice(8_000);
+        items.put(sheep, 2.0);
+
+        Item rabbit = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.RABBIT, "Rabbit");
+        rabbit.setPrice(8_500);
+        items.put(rabbit, 2.0);
+
+        Item dinosaur = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.DINOSAUR, "Dinosaur");
+        dinosaur.setPrice(14_000);
+        items.put(dinosaur, 2.0);
+
+        Item pig = new BarnAnimal(BarnAnimalTypes.PIG, "Pig");
+        pig.setPrice(16_000);
+        items.put(pig, 2.0);
 
 
         int startHour = 9;

@@ -99,6 +99,9 @@ public class Plant extends Item {
                     if(moistureCounter < 2){
                         moistureCounter++;
                     }
+                }else{
+                    moisture = false;
+                    moistureCounter = 0;
                 }
             }
             daysCounter++;
