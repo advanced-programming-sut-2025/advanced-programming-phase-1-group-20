@@ -1,4 +1,3 @@
-import org.example.models.MapDetails.GameMap;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -31,7 +30,7 @@ public class GameMapTest {
             if (lines.length != 7) { // 2*3 + 1 = 7 lines for radius 3
                 throw new AssertionError("Expected 7 lines in the printed map, but got " + lines.length);
             }
-            
+
 
             System.out.println("[DEBUG_LOG] Map printed successfully:");
             System.out.println("[DEBUG_LOG] " + printedOutput);

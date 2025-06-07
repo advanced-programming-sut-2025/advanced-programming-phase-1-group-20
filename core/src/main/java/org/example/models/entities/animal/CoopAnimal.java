@@ -2,7 +2,7 @@ package org.example.models.entities.animal;
 
 import org.example.models.Items.Item;
 import org.example.models.common.Result;
-import org.example.models.enums.CoopAnimalTypes;
+import org.example.models.enums.Types.CoopAnimalTypes;
 import org.example.models.enums.Types.Cages;
 
 import java.io.Serializable;

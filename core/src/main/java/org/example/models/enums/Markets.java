@@ -2,7 +2,6 @@ package org.example.models.enums;
 
 import org.example.models.Items.*;
 import org.example.models.Market;
-import org.example.models.entities.animal.Animal;
 import org.example.models.entities.animal.BarnAnimal;
 import org.example.models.entities.animal.CoopAnimal;
 import org.example.models.enums.PlayerEnums.Skills;
@@ -665,7 +664,7 @@ public enum Markets {
         Item milkPail = new Tool("Milk Pail" , 1_000 , "Gather milk from your animals." , Tool.ToolType.MILK_PAIL , Tool.ToolMaterial.BASIC , 5 , Skills.FARMING );
         items.put(milkPail, 1.0);
 
-        Item chicken = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.CHICKEN, "Chicken");
+        Item chicken = new CoopAnimal(CoopAnimalTypes.CHICKEN, "Chicken");
         chicken.setPrice(800);
         items.put(chicken, 2.0);
 
@@ -677,7 +676,7 @@ public enum Markets {
         goat.setPrice(4_000);
         items.put(goat, 2.0);
 
-        Item duck = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.DUCK, "Duck");
+        Item duck = new CoopAnimal(CoopAnimalTypes.DUCK, "Duck");
         duck.setPrice(1_200);
         items.put(duck, 2.0);
 
@@ -685,11 +684,11 @@ public enum Markets {
         sheep.setPrice(8_000);
         items.put(sheep, 2.0);
 
-        Item rabbit = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.RABBIT, "Rabbit");
+        Item rabbit = new CoopAnimal(CoopAnimalTypes.RABBIT, "Rabbit");
         rabbit.setPrice(8_500);
         items.put(rabbit, 2.0);
 
-        Item dinosaur = new CoopAnimal(org.example.models.enums.CoopAnimalTypes.DINOSAUR, "Dinosaur");
+        Item dinosaur = new CoopAnimal(CoopAnimalTypes.DINOSAUR, "Dinosaur");
         dinosaur.setPrice(14_000);
         items.put(dinosaur, 2.0);
 

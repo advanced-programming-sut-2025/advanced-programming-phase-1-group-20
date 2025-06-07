@@ -12,7 +12,7 @@ import org.example.models.common.Result;
 import org.example.models.entities.animal.Animal;
 import org.example.models.entities.animal.BarnAnimal;
 import org.example.models.entities.animal.CoopAnimal;
-import org.example.models.enums.CoopAnimalTypes;
+import org.example.models.enums.Types.CoopAnimalTypes;
 import org.example.models.enums.Types.BarnAnimalTypes;
 import org.example.models.enums.Types.BarnTypes;
 import org.example.models.enums.Types.Cages;

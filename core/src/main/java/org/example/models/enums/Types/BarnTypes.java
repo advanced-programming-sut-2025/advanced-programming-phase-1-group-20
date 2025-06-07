@@ -1,28 +1,25 @@
 package org.example.models.enums.Types;
 
-import org.example.models.Coop;
-
-public enum Cages {
-    NORMAL_COOP(4, 1, "Coop", 4000),
-    BIG_CAGE(8, 1, "Big Coop", 10000),
-    DELUXE_CAGE(12, 2, "Deluxe Coop", 20000);
+public enum BarnTypes {
+    NORMAL_BARN(4, 1, "Barn", 6000),
+    BIG_BARN(8, 1, "Big Barn", 12000),
+    DELUXE_BARN(12, 2, "Deluxe Barn", 25000);
 
     private final int capacity;
     private final int productPerDay;
     private final String displayName;
     private final int buildCost;
 
-    Cages(int capacity, int productPerDay, String displayName, int buildCost) {
+    BarnTypes(int capacity, int productPerDay, String displayName, int buildCost) {
         this.capacity = capacity;
         this.productPerDay = productPerDay;
         this.displayName = displayName;
         this.buildCost = buildCost;
     }
 
-//    public Coop createCage() {
-//        return new Coop(capacity, productPerDay, buildCost);
+//    public Barn createBarn() {
+//        return new Barn(capacity, productPerDay, buildCost);
 //    }
-    //TODO: کامنتش کردم بعدا باید درستش کرد همینه که هست :)
 
     public int getCapacity() {
         return capacity;

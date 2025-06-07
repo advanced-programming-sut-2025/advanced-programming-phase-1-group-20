@@ -1,4 +1,5 @@
 import org.example.controllers.LoginRegisterMenuController;
+import org.example.models.App;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.views.AppView;

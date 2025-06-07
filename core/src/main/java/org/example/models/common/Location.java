@@ -1,7 +1,6 @@
 package org.example.models.common;
 
 import org.example.models.Items.Item;
-import org.example.models.MapDetails.GameMap;
 import org.example.models.enums.Types.TileType;
 
 public class Location {

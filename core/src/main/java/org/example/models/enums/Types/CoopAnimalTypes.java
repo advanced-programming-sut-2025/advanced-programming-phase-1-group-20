@@ -1,8 +1,7 @@
-package org.example.models.enums;
+package org.example.models.enums.Types;
 
 import org.example.models.Items.Item;
 import org.example.models.entities.animal.CoopAnimal;
-import org.example.models.enums.Types.Cages;
 
 import java.util.Random;
 

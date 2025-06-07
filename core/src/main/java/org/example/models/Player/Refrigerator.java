@@ -1,9 +1,8 @@
 package org.example.models.Player;
 
 import org.example.models.Items.Item;
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Refrigerator {
