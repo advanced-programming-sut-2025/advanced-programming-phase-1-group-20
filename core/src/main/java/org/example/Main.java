@@ -31,7 +31,7 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
         stage = new Stage(new FitViewport(640, 480));
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        skin = new Skin(Gdx.files.internal("assets/ui/uiskin.json"));
 
         Window window = new Window("Example screen", skin, "border");
         window.defaults().pad(4f);
