@@ -1,7 +1,5 @@
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
-eclipse.project.name = appName + '-core'
-
 dependencies {
+  // Existing dependencies
   api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
   api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
@@ -11,4 +9,22 @@ dependencies {
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
+
+  // Kryo Serialization Library
+  implementation "com.esotericsoftware:kryo:5.0.0"
+  implementation "com.esotericsoftware:reflectasm:1.11.9"
+  implementation "org.objenesis:objenesis:3.3"
+  implementation "com.esotericsoftware:minlog:1.3.1"
+
+  implementation "com.google.code.gson:gson:2.10.1"
+}
+
+// اگر هنوز تعریف نشده، ورژن‌ها را در فایل build.gradle اصلی یا settings.gradle تعریف کنید
+ext {
+  // ... سایر ورژن‌ها
+  kryoVersion = "5.0.0" // از آخرین نسخه پایدار استفاده کنید
+  reflectasmVersion = "1.11.9"
+  objenesisVersion = "3.3"
+  minlogVersion = "1.3.1"
+  gsonVersion = "2.10.1"
 }
