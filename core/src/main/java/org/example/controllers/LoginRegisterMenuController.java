@@ -6,7 +6,8 @@ import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
-import org.example.views.AppView;
+import org.example.views.LoginRegisterMenuScreen;
+import org.example.views.MainMenuScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,38 +15,22 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 public class LoginRegisterMenuController implements Controller {
-    private AppView appView;
     private User user;
     private String tempUsername;
+    private LoginRegisterMenuScreen view;
 
-    public LoginRegisterMenuController(AppView appView, User user) {
-        this.appView = appView;
+    public LoginRegisterMenuController(User user) {
         this.user = user;
 
         App.initialize();
     }
 
-    @Override
-    public Result update(String input) {
-
-        LoginRegisterMenuCommands command = LoginRegisterMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-
-        switch (command) {
-            case RegisterUser -> result = registerUser(args);
-            case Login -> result = login(args);
-            case ForgotPass -> result = forgotPassword(args);
-            case PickSecurityQuestion -> result = pickSecurityQuestion(args, user);
-            case AnswerSecurityQuestion -> result = answerSecurityQuestion(args, tempUsername);
-            case MenuExit -> exit();
-            case ShowCurrentMenu -> result = Result.success("Login-Register menu");
-            case None -> result = Result.error("Invalid input");
-        }
-
-        appView.handleResult(result, command);
-        return result;
+    public void setView(LoginRegisterMenuScreen view) {
+        this.view = view;
     }
+
+    @Override
+    public void setupListeners() {}
 
     public Result registerUser(String[] args) {
         String username = args[0];
@@ -78,7 +63,9 @@ public class LoginRegisterMenuController implements Controller {
             System.out.println("your random password: " + password);
             System.out.println("type confirm to accept, else to generate again");
             while (true) {
-                if (appView.getInput().equals("confirm")) {
+                //TODO : change this
+                String input =  "appView.getInput()";
+                if (input.equals("confirm")) {
                     break;
                 } else {
                     password = generateRandomPassword();

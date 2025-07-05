@@ -4,37 +4,18 @@ import org.example.models.App;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.ProfileMenuCommands;
-import org.example.views.AppView;
 
 import java.util.regex.Pattern;
 
 public class ProfileMenuController implements Controller {
-    private AppView appView;
     private User user;
 
-    public ProfileMenuController(AppView appView, User user) {
-        this.appView = appView;
+    public ProfileMenuController(User user) {
         this.user = user;
     }
 
     @Override
-    public Result update(String input) {
-        ProfileMenuCommands command = ProfileMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-        switch (command) {
-            case ChangeUsername -> result = changeUsername(args);
-            case ChangeNickname -> result = changeNickname(args);
-            case ChangePassword -> result = changePassword(args);
-            case ChangeEmail -> result = changeEmail(args);
-            case ShowUserInfo -> result = showUserInfo();
-            case ShowCurrentMenu -> result = Result.success("Profile menu");
-            case ChangeMenu -> result = changeMenu(args);
-            case None -> Result.error("Invalid input");
-        }
-        appView.handleResult(result, command);
-        return result;
-    }
+    public void setupListeners() {}
 
     public Result changeUsername(String[] args) {
         String newUsername = args[0];

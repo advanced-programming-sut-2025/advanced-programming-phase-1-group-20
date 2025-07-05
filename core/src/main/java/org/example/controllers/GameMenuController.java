@@ -22,163 +22,19 @@ import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
 import org.example.models.enums.commands.GameMenuCommands;
-import org.example.views.AppView;
-import org.example.views.HouseMenu;
-import org.example.views.MainMenu;
-import org.example.views.MarketMenu;
+
 
 import java.util.*;
 
 public class GameMenuController implements Controller {
-    private final AppView appView;
     private final Date gameClock;
 
-    public GameMenuController(AppView appView, Player player) {
-        this.appView = appView;
+    public GameMenuController(Player player) {
         this.gameClock = App.getGame().getDate();
     }
 
-    @Override
-    public Result update(String input) {
 
-        GameMenuCommands command = GameMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-
-        switch (command) {
-            // game related commands
-            case SelectMap -> result = selectMap(args);
-            case ExitGame -> result = exitGame();
-            case NextTurn -> result = nextTurn();
-            case VoteTerminate -> result = voteTerminate(args);
-
-            // time-related commands
-            case ShowTime -> showTime();
-            case ShowDate -> showDate();
-            case ShowDateTime -> showDateTime();
-            case AdvanceTime -> result = advanceTime(args);
-            case AdvanceDate -> result = advanceDate(args);
-            case DayOfWeek -> showDayOfWeek();
-            case ShowSeason -> showSeason();
-
-            // Weather related commands
-            case ShowWeather -> showWeather();
-            case ShowWeatherForecast -> showWeatherForecast();
-            case SetWeather -> result = setWeather(args);
-            case CheatThor -> result = cheatThor(args);
-
-            // Player Related
-            case ShowInventory -> showInventory();
-
-            // saving related commands
-            case SaveGame -> {
-                App.saveData();
-                result = Result.success("Game saved successfully");
-            }
-            case AutoSave -> {
-                result = Result.success("Auto-save completed");
-            }
-
-            case CraftInfo -> result = craftInfo(args);
-            case Plant -> result = plant(args);
-            case ShowPlant -> result = showPlant(args);
-            case Fertilize -> result = fertilize(args);
-            case Fishing -> result = fishing(args);
-            case HowMuchWater -> result = howMuchWater();
-            case GiveWater -> result = giveWater(args);
-            case Harvest -> result = harvest(args);
-            case PlaceItem -> result = placeItem(args);
-            case AddItem -> result = addItem(args);
-
-            //crafting related commands
-            case CraftingShowRecipes -> craftingShowRecipes();
-
-            case CookingShowRecipes -> cookingShowRecipes();
-            case EatFood -> result = eatFood(args);
-            case ShowEnergy -> result = showEnergy();
-            case setEnergy -> result = setEnergy(args);
-            case energyUnlimited -> result = energyUnlimited();
-
-            //sell command:
-            case SellProduct -> result = sellProduct(args);
-
-            // tool commands
-            case ToolEquip -> result = equipTool(args);
-            case ToolShowCurrent -> result = showCurrentTool();
-            case ToolShowAvailable -> result = showAvailableTools();
-            case ToolUse -> result = useTool(args);
-
-            // Greenhouse-related commands
-            case GreenhouseBuild -> result = greenhouseBuild();
-
-            // Walking and map commands
-            case Walk -> result = walk(args);
-            case PrintMap -> result = printMap(args);
-            case TeleportToVillage -> result = teleportToVillage();
-            case TeleportToFarm -> result = teleportToFarm();
-            case TeleportToMarket -> result = teleportToMarket(args);
-            case TeleportToHome -> result = teleportToHome();
-            case HelpReadingMap -> result = helpReadingMap();
-
-            // player related commands
-            case FriendshipStatus -> result = friendShipsStatus();
-            case TalkToPlayer -> result = talkToPlayer(args);
-            case TalkHistory -> result = talkHistory(args);
-            case GiftToPlayer -> result = giftToPlayer(args);
-            case GiftList -> result = giftList();
-            case GiftRate -> result = giftRate(args);
-            case GiftHistory -> result = giftHistory(args);
-            case HugPlayer -> result = hugPlayer(args);
-            case FlowerPlayer -> result = flowerPlayer(args);
-            case AskToMarry -> result = askMarriage(args);
-            case RespondToMarry -> result = respondToMarriage(args);
-
-            // NPC-related commands
-            case MeetNPC -> result = meetNPC(args);
-            case GiftNPC -> result = giftNPC(args);
-            case FriendshipNPCList -> result = friendshipNPCList();
-
-            // Quest-related commands
-            case QuestsList -> result = questsList();
-            case QuestsFinish -> result = questsFinish(args);
-
-            // Trade-related commands
-            case StartTrade -> result = startTrade();
-            case TradeRequest -> result = tradeRequest(args);
-            case TradeList -> result = tradeList();
-            case TradeResponse -> result = tradeResponse(args);
-            case TradeHistory -> result = tradeHistory();
-
-            case ShowCurrentMenu -> result = Result.success("Game Menu");
-
-            case CheatSetBackPackFull -> cheatBackPackFull();
-            case CheatAddFavourites -> cheatAddFavourites(args);
-            case CheatTeleport -> cheatTeleport(args);
-            case CheatTeleportHome -> cheatTeleportHome();
-            case CheatTeleportMarkets -> cheatTeleportMarkets(args);
-            case CheatBuildGreenHouse -> builddd();
-            case CheatGiveItems -> cheatGiveItems();
-            case CheatFriendShipLevel -> result = cheatFriendShipLevel(args);
-            case CheatIncreaseFriendshipLevel -> result = increaseFRLEVEL(args);
-            case CheatIncreaseXP -> result = increaseXP(args);
-            case CheatGiveAllRecipe -> cheatGiveAllRecipe();
-
-            // Animal-related commands
-            case PetAnimal -> result = petAnimal(args);
-            case ShepherdAnimals -> result = shepherdAnimals(args);
-            case FeedHay -> result = feedHay(args);
-            case CollectProduce -> result = collectProduce(args);
-            case ShowProduces -> result = showProduces();
-            case ShowAnimals -> result = showAnimals();
-            case SellAnimal -> result = sellAnimal(args);
-            case CheatSetFriendship -> result = setFriendship(args);
-            case None -> result = Result.error("Invalid command");
-        }
-
-        appView.handleResult(result, command);
-
-        return result;
-    }
+    public void setupListeners() {}
 
     public void builddd() {
         App.getGame().getGameMap().getFarmByPlayer(App.getGame().getCurrentPlayer()).markConstructedGreenHouseArea();
@@ -791,7 +647,7 @@ public class GameMenuController implements Controller {
 
             System.out.println("you need" + energyNeeded + " energy to reach your destination, do you want to proceed? (yes|no)");
 
-            String input = appView.getInput().toLowerCase();
+            String input = "no"; //appView.getInput().toLowerCase();
 
             if (input.equals("no")) {
                 return Result.success("you declined walk");
@@ -920,7 +776,8 @@ public class GameMenuController implements Controller {
             boolean farmType;
 
             while (true) {
-                String input = appView.getInput();
+                //TODO : get the input out of appview
+                String input = "appView.getInput()";
                 if (input.matches("two\\s+lakes") || input.matches("bigger\\s+quarry")) {
                     if (input.matches("two\\s+lakes")) {
                         farmType = true;
@@ -971,7 +828,8 @@ public class GameMenuController implements Controller {
         }
 
         // Return to main menu
-        appView.navigateMenu(new MainMenu(appView, player.getUser()));
+        //TODO : change this
+//        appView.navigateMenu(new MainMenu(appView, player.getUser()));
 
         return Result.success("Game saved and exited");
     }
@@ -1033,7 +891,8 @@ public class GameMenuController implements Controller {
         // If all players voted to terminate, remove the game
         if (game.allPlayersVotedToTerminate()) {
             App.removeGame(game);
-            appView.navigateMenu(new MainMenu(appView, player.getUser()));
+            //TODO : change this
+//            appView.navigateMenu(new MainMenu(appView, player.getUser()));
             return Result.success("All players voted to terminate the game. Game terminated.");
         }
 
@@ -2097,45 +1956,53 @@ public class GameMenuController implements Controller {
             case "Black Smith" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[0]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[0]));
             }
             case "Joja Mart" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[1]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[1]));
             }
             case "Pierre General Store" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[2]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[2]));
             }
             case "Carpenters Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[3]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[3]));
             }
             case "Fish Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[4]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[4]));
             }
             case "Marnie Shop" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[5]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[5]));
             }
             case "Star drop Saloon" -> {
                 System.out.println("Going to market " + marketName + " please wait...");
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[6]));
+                //TODO : change this
+//                appView.navigateMenu(new MarketMenu(appView, App.getGame().getCurrentPlayer(), markets[6]));
             }
         }
     }
 
     private void cheatTeleportHome() {
         System.out.println("You are in your home.");
-        appView.navigateMenu(new HouseMenu(appView, App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
+        //TODO : change this
+//        appView.navigateMenu(new HouseMenu(appView, App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
     }
 
     private void cheatTeleport(String[] args) {

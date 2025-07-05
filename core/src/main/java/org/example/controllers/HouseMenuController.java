@@ -7,56 +7,23 @@ import org.example.models.common.Result;
 import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.commands.HouseMenuCommands;
-import org.example.views.AppView;
-import org.example.views.GameMenu;
+
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HouseMenuController implements Controller {
-    private AppView appView;
     private Player player;
     private Building house;
 
-    public HouseMenuController(AppView appView, Player player, Building house) {
-        this.appView = appView;
+    public HouseMenuController(Player player, Building house) {
         this.player = player;
         this.house = house;
     }
 
     @Override
-    public Result update(String input) {
-        HouseMenuCommands command = HouseMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-
-        switch (command) {
-            //crafting related commands
-            case CraftingShowRecipes -> craftingShowRecipes();
-            case CraftingCraft -> result = craftItem(args);
-            case AddItem -> result = addItem(args);
-
-
-            //cooking related commands
-            case AddRefrigerator -> result = addRefrigerator(args);
-            case CookingShowRecipes -> cookingShowRecipes();
-            case CookingPrepare -> result = cookingPrepare(args);
-
-            //artisan-related commands
-            case ArtisanUse -> result = artisanUse(args);
-            case ArtisanGet -> result = artisanGet(args);
-
-            case EatFood -> result = eatFood(args);
-
-            case GetOut -> getOut();
-            case None -> result = Result.error("Invalid input");
-        }
-
-
-        appView.handleResult(result, command);
-        return result;
-    }
+    public void setupListeners() {}
 
     private int[] getDirection(String direction) {
         int[] dir = new int[]{0, 0};
@@ -343,7 +310,8 @@ public class HouseMenuController implements Controller {
 
 
     public void getOut() {
-        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
+        //TODO : change this
+//        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
     }
 
 }

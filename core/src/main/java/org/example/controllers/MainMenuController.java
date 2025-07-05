@@ -7,8 +7,8 @@ import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.MainMenuCommands;
 import org.example.models.utils.AutoLoginUtil;
-import org.example.views.AppView;
-import org.example.views.LoginRegisterMenu;
+import org.example.views.MainMenuScreen;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,32 +16,19 @@ import java.util.List;
 import java.util.Objects;
 
 public class MainMenuController implements Controller {
-    AppView appView;
-    User user;
+    private MainMenuScreen view;
+    private User user;
 
-    public MainMenuController(AppView appView, User user) {
-        this.appView = appView;
+    public MainMenuController(User user) {
         this.user = user;
     }
 
-    @Override
-    public Result update(String input) {
-
-        MainMenuCommands command = MainMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-        switch (command) {
-            case None -> result = Result.error("invalid command");
-            case NewGame -> result = newGame(args);
-            case LoadGame -> result = loadGame();
-            case ShowCurrentMenu -> result = Result.success("Main menu");
-            case UserLogout -> result = logout();
-            case ChangeMenu -> result = changeMenu(args);
-        }
-
-        appView.handleResult(result, command);
-        return result;
+    public void setView(MainMenuScreen view) {
+        this.view = view;
     }
+
+    @Override
+    public void setupListeners() {}
 
 
     // implementing methods
@@ -129,7 +116,8 @@ public class MainMenuController implements Controller {
         }
 
         App.setLoggedInUser(null);
-        appView.navigateMenu(new LoginRegisterMenu(appView));
+        //TODO : change this
+//        appView.navigateMenu(new LoginRegisterMenu(appView));
         return Result.success("logged out");
     }
 

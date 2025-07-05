@@ -17,43 +17,20 @@ import org.example.models.enums.Types.BarnAnimalTypes;
 import org.example.models.enums.Types.BarnTypes;
 import org.example.models.enums.Types.Cages;
 import org.example.models.enums.commands.MarketMenuCommands;
-import org.example.views.AppView;
-import org.example.views.GameMenu;
+
 
 public class MarketController implements Controller {
-    private AppView appView;
     private Player player;
     private Market market;
 
-    public MarketController(AppView appView, Player player, Market market) {
-        this.appView = appView;
+    public MarketController(Player player, Market market) {
         this.player = player;
         this.market = market;
         market.initializeTotalStock(App.getGame().getDate().getSeason());
     }
 
     @Override
-    public Result update(String input) {
-        MarketMenuCommands command = MarketMenuCommands.getCommand(input);
-        String[] args = command.parseInput(input);
-        Result result = null;
-
-        switch (command) {
-            case ShowAllProducts -> showAllProducts();
-            case ShowAllAvailableProducts -> showAllAvailableProducts();
-            case Purchase -> result = purchase(args);
-            case CheatAddDollars -> result = cheatAddDollars(args);
-            case ToolUpgrade -> result = upgradeTool(args);
-            case ShowCurrentMenu -> result = Result.success("Market menu");
-            case Build -> result = build(args);
-
-            case CheatGetOut -> getOut();
-            case None -> result = Result.error("Invalid input");
-        }
-
-        appView.handleResult(result, command);
-        return result;
-    }
+    public void setupListeners() {}
 
     private void showAllProducts() {
         market.showAllProducts();
@@ -332,7 +309,8 @@ public class MarketController implements Controller {
 
     private void getOut() {
         System.out.println("You are out of market");
-        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
+        //TODO : change this
+//        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
     }
 
 }

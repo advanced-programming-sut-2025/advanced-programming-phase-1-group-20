@@ -2,8 +2,7 @@ package org.example.models.utils;
 
 import org.example.models.App;
 import org.example.models.entities.User;
-import org.example.views.AppView;
-import org.example.views.MainMenu;
+
 
 import java.io.File;
 import java.io.FileReader;
@@ -30,7 +29,7 @@ public class AutoLoginUtil {
     }
 
 
-    public static boolean checkAndPerformAutoLogin(AppView appView) {
+    public static boolean checkAndPerformAutoLogin() {
         File file = new File(AUTO_LOGIN_FILE);
         if (!file.exists()) {
             return false;
@@ -48,7 +47,8 @@ public class AutoLoginUtil {
 
             if (user != null && user.isStayLoggedIn()) {
                 App.setLoggedInUser(user);
-                appView.navigateMenu(new MainMenu(appView, user));
+                //TODO : change this
+//                appView.navigateMenu(new MainMenu(appView, user));
                 return true;
             }
         } catch (IOException e) {
