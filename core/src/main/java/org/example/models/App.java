@@ -7,22 +7,21 @@ import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.utils.FileStorage;
 import org.example.models.utils.GameSaveLoadManager;
+import org.example.models.utils.MongoDBConnection;
 
-import java.io.File;
+import java.io.File; // این ایمپورت دیگر ضروری نیست اگر منطق فایل حذف شود
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class App {
-    // File paths for saving games (now delegated to GameSaveLoadManager)
-
     // Static structure for saving App Data
     private static Map<String, User> users = new HashMap<>();
     private static User loggedInUser;
     private static Map<Integer, String> securityQuestions = new HashMap<>();
     private static boolean dataLoaded = false;
-    private static List<Game> allGames = new ArrayList<>();
+    private static List<Game> allGames = new ArrayList<>(); // **** متد get/set برای این اضافه شد ****
     private static Game currentGame;
     private static boolean allChose = false;
 
@@ -37,50 +36,45 @@ public class App {
             System.out.println("Loaded users: " + users.size());
             addSecurityQuestion();
 
+            // اگر loadItems() هنوز از فایل می‌خواند، باید به FileStorage/MongoDB منتقل شود.
+            // در غیر این صورت، مطمئن شوید که این متد آیتم‌ها را از یک منبع ثابت یا MongoDB بارگذاری می‌کند.
+            // فعلاً فرض می‌کنیم FileStorage.loadItems() به درستی کار می‌کند.
             items = FileStorage.loadItems();
 
-            // Initialize save directory
+            // Initialize save manager (برای MongoDB)
             GameSaveLoadManager.initialize();
 
-            // Load all saved games
-            GameSaveLoadManager.loadAllGames();
+            // Load all saved games from MongoDB
+            GameSaveLoadManager.loadAllGames(); // این متد App.setAllGames را فراخوانی می‌کند.
 
             NPCController.initialize();
 
             dataLoaded = true;
 
-            // Check if there is an autosave that might need to be recovered
-            checkForAutosaveRecovery();
-        }
-    }
-
-    /**
-     * Checks if there is an autosave file that might need to be recovered
-     * This is useful after a crash or unexpected shutdown
-     */
-    private static void checkForAutosaveRecovery() {
-        File autosaveFile = new File("saved_games/autosave.bin");
-        if (autosaveFile.exists()) {
-            // Check if the autosave is more recent than the current game
-            File currentGameFile = new File("saved_games/current_game.bin");
-
-            if (!currentGameFile.exists() || autosaveFile.lastModified() > currentGameFile.lastModified()) {
-                // Autosave is more recent or current game doesn't exist
-                System.out.println("Found more recent autosave. Use loadAutosave() to recover it.");
-            }
+            // **** checkForAutosaveRecovery() - حذف شده، زیرا منطق آن برای فایل‌های .bin بود. ****
+            // این منطق باید در GameSaveLoadManager پیاده سازی شود اگر بخواهید Autosave را از MongoDB چک کنید.
         }
     }
 
     public static void saveData() {
         FileStorage.saveUsers(users);
-        saveAllGames();
+        saveAllGames(); // این متد حالا بازی‌ها را در MongoDB ذخیره می‌کند
     }
 
     public static void saveAllGames() {
-        // Save all games to files
+        // ذخیره تمام بازی‌ها در MongoDB
+        // هر بازی در لیست allGames باید نام saveName خود را داشته باشد.
         for (Game game : allGames) {
             if (game != null) {
-                GameSaveLoadManager.saveGameWithName(game, "game_" + allGames.indexOf(game));
+                // اگر saveName تنظیم نشده بود، یک نام پیش‌فرض یا بر اساس ID بدهید
+                if (game.getSaveName() == null || game.getSaveName().isEmpty()) {
+                    // مثال: game.setSaveName("user_" + game.getPlayer().getUser().getUsername() + "_game_" + System.currentTimeMillis());
+                    // این بخش نیاز به منطق دقیق‌تری دارد که چگونه نام منحصر به فرد را برای بازی جدید تولید کنید.
+                    // می‌توانید آن را به GameSaveLoadManager بسپارید.
+                    GameSaveLoadManager.saveGameWithName(game, null); // GameSaveLoadManager نام را تولید می‌کند
+                } else {
+                    GameSaveLoadManager.saveGameWithName(game, game.getSaveName());
+                }
             }
         }
     }
@@ -88,10 +82,18 @@ public class App {
     public static void saveCurrentGame() {
         if (currentGame != null) {
             currentGame.setSaved(true);
+            // اطمینان حاصل کنید currentGame.saveName تنظیم شده است قبل از فراخوانی GameSaveLoadManager.saveCurrentGame()
+            if (currentGame.getSaveName() == null || currentGame.getSaveName().isEmpty()) {
+                currentGame.setSaveName("current_game"); // نام پیش‌فرض برای current game
+            }
             GameSaveLoadManager.saveCurrentGame();
         }
     }
 
+    // این متد قبلاً به GameSaveLoadManager.loadAllGames() ارجاع می‌داد.
+    // اگر می‌خواهید App.allGames را پس از بارگذاری به‌روز کنید، باید از App.setAllGames استفاده کنید.
+    // GameSaveLoadManager.loadAllGames() قبلاً App.setAllGames را صدا می‌زند.
+    @Deprecated // این متد ممکن است دیگر نیازی نباشد اگر GameSaveLoadManager.loadAllGames() مستقیم لیست App را مدیریت می‌کند.
     public static void loadAllGames() {
         GameSaveLoadManager.loadAllGames();
     }
@@ -100,6 +102,12 @@ public class App {
         Game game = GameSaveLoadManager.loadCurrentGame();
         if (game != null) {
             currentGame = game;
+            // اگر بازی با نام "current_game" بارگذاری شد، saveName آن را تنظیم کنید
+            game.setSaveName("current_game");
+            // مطمئن شوید که بازی بارگذاری شده به allGames اضافه می‌شود اگر هنوز نبود
+            if (!allGames.contains(game)) {
+                allGames.add(game);
+            }
             return game;
         }
         return null;
@@ -107,7 +115,6 @@ public class App {
 
     public static void addUser(User user) {
         users.put(user.getUsername(), user);
-        // Save data whenever a user is added
         saveData();
     }
 
@@ -125,12 +132,7 @@ public class App {
     }
 
     public static User getUser(String username) {
-        for (User user : users.values()) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
-        }
-        return null;
+        return users.get(username); // استفاده مستقیم از Map برای کارایی
     }
 
     public static Map<String, User> getUsers() {
@@ -139,12 +141,13 @@ public class App {
 
     public static void removeUser(User user) {
         users.remove(user.getUsername());
+        saveData(); // پس از حذف کاربر، داده‌ها را ذخیره کنید
     }
 
     public static void addSecurityQuestion() {
         securityQuestions.put(0, "Whats was the name of your best friend in high school");
         securityQuestions.put(1, "In which city did your parents meet?");
-        securityQuestions.put(2, "Whats your favorite band of music?"); // guns 'n roses
+        securityQuestions.put(2, "Whats your favorite band of music?");
         securityQuestions.put(3, "Whats your favorite programming language?");
     }
 
@@ -153,48 +156,62 @@ public class App {
     }
 
     public static List<String> getSecurityQuestions() {
-        return (List<String>) securityQuestions.values();
+        return new ArrayList<>(securityQuestions.values()); // برگرداندن یک کپی از لیست
     }
 
     public static Item getItem(String itemName) {
         return items.stream().filter(item -> item.getName().equals(itemName))
-                .findFirst().orElse(null);
+            .findFirst().orElse(null);
     }
 
+    // این متد در GameSaveLoadManager.java به App.setGame() تغییر کرده است.
+    // اما اگر از بیرون App نیز game را ست می‌کنید، این متد صحیح است.
     public static Game getGame() {
         return currentGame;
     }
 
     public static void setGame(Game game) {
-        currentGame = game;
-        if (!allGames.contains(game)) {
+        App.currentGame = game;
+        if (game != null && !allGames.contains(game)) { // اگر بازی null نیست و قبلاً در لیست نیست
             allGames.add(game);
         }
     }
 
     public static void removeGame(Game game) {
+        if (game == null) return;
+
+        // حذف از لیست App
         allGames.remove(game);
         if (currentGame == game) {
             currentGame = null;
         }
 
-        // Delete the saved game file
-        for (int i = 0; i < allGames.size(); i++) {
-            if (allGames.get(i) == game) {
-                GameSaveLoadManager.deleteSavedGame("saved_games/game_" + i + ".bin");
-                break;
-            }
+        // **** حذف ذخیره بازی از MongoDB ****
+        // نیاز داریم که game.getSaveName() نام صحیح را برگرداند.
+        // GameSaveLoadManager.deleteSavedGame اکنون فقط نام ذخیره را می‌پذیرد.
+        if (game.getSaveName() != null && !game.getSaveName().isEmpty()) {
+            GameSaveLoadManager.deleteSavedGame(game.getSaveName());
+        } else {
+            System.err.println("Cannot delete game from MongoDB: saveName is null or empty for game: " + game);
         }
     }
 
+    // این متد از قبل وجود داشت و App.allGames را برمی‌گرداند.
     public static List<Game> getAllGames() {
         return allGames;
     }
 
+    public static void setAllGames(List<Game> allGames) {
+        App.allGames = allGames;
+    }
+
+    // این متد نیاز به متد User.equals() برای کارکرد صحیح دارد
     public static Game findGameForUser(User user) {
-        for (Game game : allGames) {
-            if (game.isPlayerInGame(user)) {
-                return game;
+        if (allGames != null && user != null) {
+            for (Game game : allGames) {
+                if (game != null && game.isPlayerInGame(user)) {
+                    return game;
+                }
             }
         }
         return null;
@@ -206,8 +223,12 @@ public class App {
 
     public static Game createNewGame(List<Player> players, Player creator) {
         Game game = new Game(players, creator);
-        setGame(game);
-        saveCurrentGame();
+        // هنگام ایجاد بازی جدید، یک saveName اولیه برای آن تنظیم کنید
+        game.setSaveName("new_game_" + System.currentTimeMillis()); // نام موقت و منحصر به فرد
+        setGame(game); // این متد بازی را به currentGame و allGames اضافه می‌کند.
+        saveCurrentGame(); // این بازی را در MongoDB با نام "current_game" ذخیره می‌کند
+        // شما همچنین می‌توانید این بازی جدید را با saveName خود نیز ذخیره کنید:
+        // GameSaveLoadManager.saveGameWithName(game, game.getSaveName());
         return game;
     }
 
@@ -227,11 +248,6 @@ public class App {
         allChose = true;
     }
 
-    /**
-     * Performs an autosave operation
-     *
-     * @return true if autosave was successful
-     */
     public static boolean autosave() {
         if (currentGame != null) {
             return GameSaveLoadManager.autosave();
@@ -239,60 +255,42 @@ public class App {
         return false;
     }
 
-    /**
-     * Save game with a custom name
-     *
-     * @param saveName The custom name for the save file
-     * @return true if save was successful
-     */
     public static boolean saveGameWithName(String saveName) {
         if (currentGame != null) {
+            currentGame.setSaveName(saveName); // نام ذخیره را در شیء Game تنظیم کنید
             return GameSaveLoadManager.saveGameWithName(currentGame, saveName);
         }
         return false;
     }
 
-    /**
-     * Load game by name
-     *
-     * @param saveName The name of the save file to load
-     * @return The loaded game or null if loading failed
-     */
     public static Game loadGameByName(String saveName) {
-        String filePath = "saved_games/" + saveName + ".bin";
-        Game game = GameSaveLoadManager.loadGame(filePath);
+        // دیگر نیازی به filePath و ".bin" نیست.
+        Game game = GameSaveLoadManager.loadGame(saveName);
         if (game != null) {
             currentGame = game;
+            game.setSaveName(saveName); // نام ذخیره را پس از بارگذاری تنظیم کنید
+            // مطمئن شوید که بازی بارگذاری شده به allGames اضافه می‌شود اگر هنوز نبود
+            if (!allGames.contains(game)) {
+                allGames.add(game);
+            }
         }
         return game;
     }
 
-    /**
-     * Get a list of all saved games
-     *
-     * @return List of save file names without extensions
-     */
-    public static List<String> getSavedGamesList() {
-        List<String> saveNames = new ArrayList<>();
-        List<File> saveFiles = GameSaveLoadManager.listSavedGames();
-
-        for (File file : saveFiles) {
-            String fileName = file.getName();
-            // Remove .bin extension
-            saveNames.add(fileName.substring(0, fileName.lastIndexOf('.')));
-        }
-
-        return saveNames;
-    }
-
     public static boolean deleteSavedGame(String saveName) {
-        String filePath = "saved_games/" + saveName + ".bin";
-        return GameSaveLoadManager.deleteSavedGame(filePath);
+        boolean deleted = GameSaveLoadManager.deleteSavedGame(saveName);
+        if (deleted) {
+            allGames.removeIf(game -> game.getSaveName() != null && game.getSaveName().equals(saveName));
+            if (currentGame != null && currentGame.getSaveName() != null && currentGame.getSaveName().equals(saveName)) {
+                currentGame = null;
+            }
+        }
+        return deleted;
     }
 
     public static void shutdown() {
         saveData();
-
+        MongoDBConnection.closeConnection();
         System.out.println("Application shutdown completed. All data saved.");
     }
 }

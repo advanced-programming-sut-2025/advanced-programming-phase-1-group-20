@@ -3,145 +3,137 @@ package org.example.models.entities;
 import org.example.models.MapDetails.GameMap;
 import org.example.models.Player.Player;
 import org.example.models.common.Date;
+import org.example.models.enums.Seasons; // اگر این‌ها فیلدهای شما هستند باید اضافه شوند
+import org.example.models.enums.Weather; // اگر این‌ها فیلدهای شما هستند باید اضافه شوند
 
-import java.io.Serializable;
+import java.io.Serializable; // دیگر نیازی به Serializable نیست اگر Kryo حذف شده است، اما می‌توانید نگه دارید.
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList; // اگر players همیشه باید مقداردهی اولیه شود
 
-public class Game implements Serializable {
-    private transient List<Player> players;
-    private transient Player currentPlayer;
-    private transient Date date;
+import java.util.Objects; // برای equals و hashCode
+
+public class Game implements Serializable { // Serializable را می‌توانید حذف کنید.
+    private List<Player> players; // **** حذف transient ****
+    private Player currentPlayer; // **** حذف transient ****
+    private Date date; // **** حذف transient ****
     private int currentPlayerIndex;
     private boolean inMapSelectionPhase;
-    private transient Map<Player, Integer> mapSelections;
-    private transient Map<Player, Boolean> terminateVotes;
-    private transient Player gameCreator;
+    private Map<Player, Integer> mapSelections; // **** حذف transient ****
+    private Map<Player, Boolean> terminateVotes; // **** حذف transient ****
+    private Player gameCreator; // **** حذف transient ****
     private boolean saved;
-    private transient GameMap gameMap;
+    private GameMap gameMap; // **** حذف transient ****
+    private String saveName; // **** اضافه شده: برای نگهداری نام ذخیره در شیء بازی ****
 
+    // **** سازنده بدون آرگومان (No-Argument Constructor) - ضروری برای Gson ****
     public Game() {
+        // مقداردهی اولیه ایمن فیلدها برای جلوگیری از NullPointerException پس از deserialization
+        this.players = new ArrayList<>();
+        this.date = new Date(); // اطمینان حاصل کنید Date هم سازنده بدون آرگومان دارد
+        this.mapSelections = new HashMap<>();
+        this.terminateVotes = new HashMap<>();
+        // سایر فیلدها با مقادیر پیش فرض یا null مقداردهی می‌شوند
     }
 
 
     public Game(List<Player> players, Player creator) {
+        // ابتدا سازنده بدون آرگومان را صدا بزنید تا فیلدها مقداردهی اولیه شوند
+        this();
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
-        this.currentPlayer = players.get(currentPlayerIndex);
-        this.date = new Date();
-        this.inMapSelectionPhase = true;
-        this.mapSelections = new HashMap<>();
-        this.terminateVotes = new HashMap<>();
-        this.saved = false;
-        this.gameMap = new GameMap();
-
-        for (Player player : players) {
-            mapSelections.put(player, -1);
-            terminateVotes.put(player, false);
+        if (players != null && !players.isEmpty()) {
+            this.currentPlayer = players.get(currentPlayerIndex);
         }
+        // date از سازنده بدون آرگومان مقداردهی شده
+        this.inMapSelectionPhase = true;
+        // mapSelections و terminateVotes از سازنده بدون آرگومان مقداردهی شده‌اند
+        this.saved = false;
+        // gameMap از سازنده بدون آرگومان مقداردهی شده
 
-        for (int i = 0; i < players.size(); i++) {
-            for (int j = i + 1; j < players.size(); j++) {
-                Player player1 = players.get(i);
-                Player player2 = players.get(j);
-                player1.getFriendship(player2);
+        if (players != null) {
+            for (Player player : players) {
+                mapSelections.put(player, -1);
+                terminateVotes.put(player, false);
+            }
+
+            for (int i = 0; i < players.size(); i++) {
+                for (int j = i + 1; j < players.size(); j++) {
+                    Player player1 = players.get(i);
+                    Player player2 = players.get(j);
+                    // مطمئن شوید getFriendship(Player) در Player به درستی کار می‌کند
+                    player1.getFriendship(player2);
+                }
             }
         }
     }
 
-    public Date getDate() {
-        return date;
+    // Getters and Setters for all fields (بسیار مهم برای Gson)
+
+    public List<Player> getPlayers() {
+        return players;
     }
 
-    public GameMap getGameMap() {
-        return gameMap;
+    public void setPlayers(List<Player> players) {
+        this.players = players;
     }
 
     public Player getCurrentPlayer() {
         return currentPlayer;
     }
 
-    public List<Player> getPlayers() {
-        return players;
+    public void setCurrentPlayer(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        this.currentPlayerIndex = currentPlayerIndex;
     }
 
     public boolean isInMapSelectionPhase() {
         return inMapSelectionPhase;
     }
 
-    public void setMapSelectionPhase(boolean inMapSelectionPhase) {
+    public void setInMapSelectionPhase(boolean inMapSelectionPhase) {
         this.inMapSelectionPhase = inMapSelectionPhase;
     }
 
-    public boolean allPlayersSelectedMap() {
-        for (Player player : players) {
-            if (mapSelections.get(player) == -1) {
-                return false;
-            }
-        }
-        return true;
+    public Map<Player, Integer> getMapSelections() {
+        return mapSelections;
     }
 
-    public void selectMap(Player player, int mapNumber) {
-        mapSelections.put(player, mapNumber);
+    public void setMapSelections(Map<Player, Integer> mapSelections) {
+        this.mapSelections = mapSelections;
     }
 
-    public int getMapSelection(Player player) {
-        return mapSelections.getOrDefault(player, -1);
+    public Map<Player, Boolean> getTerminateVotes() {
+        return terminateVotes;
     }
 
-    public void nextTurn(GameMap gameMap) {
-        // Reset energy used in the current turn for the current player
-        currentPlayer.resetEnergyUsedInTurn();
-
-
-        //update parts for each turn:
-//        updateTurns();
-
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
-        currentPlayer = players.get(currentPlayerIndex);
-
-        // If we've gone through all players, advance the game time by 1 hour
-        if (currentPlayerIndex == 0) {
-            date.advanceTime(1, gameMap);
-        }
-    }
-
-    public void updateDailyGame() {
-        gameMap.updateDailyGameMap(players);
-    }
-
-    public void updateTurns() {
-        gameMap.updateTurn(players);
-    }
-
-    public void voteToTerminate(Player player, boolean vote) {
-        terminateVotes.put(player, vote);
-    }
-
-    public boolean allPlayersVotedToTerminate() {
-        for (Boolean vote : terminateVotes.values()) {
-            if (!vote) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void resetTerminateVotes() {
-        for (Player player : players) {
-            terminateVotes.put(player, false);
-        }
+    public void setTerminateVotes(Map<Player, Boolean> terminateVotes) {
+        this.terminateVotes = terminateVotes;
     }
 
     public Player getGameCreator() {
         return gameCreator;
     }
 
-    public void setGameCreator(Player player) {
-        this.gameCreator = player;
+    public void setGameCreator(Player gameCreator) {
+        this.gameCreator = gameCreator;
     }
 
     public boolean isSaved() {
@@ -152,10 +144,100 @@ public class Game implements Serializable {
         this.saved = saved;
     }
 
-    public boolean isPlayerInGame(User user) {
-        if (players != null) {
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    public void setGameMap(GameMap gameMap) {
+        this.gameMap = gameMap;
+    }
+
+    // **** متد getSaveName() و setSaveName() ****
+    public String getSaveName() {
+        return saveName;
+    }
+
+    public void setSaveName(String saveName) {
+        this.saveName = saveName;
+    }
+
+    // سایر متدهای شما...
+    public boolean allPlayersSelectedMap() {
+        if (players == null || mapSelections == null) return false; // Null check
+        for (Player player : players) {
+            if (mapSelections.getOrDefault(player, -1) == -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void selectMap(Player player, int mapNumber) {
+        if (mapSelections != null) {
+            mapSelections.put(player, mapNumber);
+        }
+    }
+
+    public int getMapSelection(Player player) {
+        return mapSelections != null ? mapSelections.getOrDefault(player, -1) : -1;
+    }
+
+    public void nextTurn(GameMap gameMap) {
+        if (currentPlayer != null) { // Null check
+            currentPlayer.resetEnergyUsedInTurn();
+        }
+
+        if (players != null && !players.isEmpty()) { // Null and empty check
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            currentPlayer = players.get(currentPlayerIndex);
+        }
+
+
+        if (currentPlayerIndex == 0 && date != null) { // Null check for date
+            date.advanceTime(1, gameMap);
+        }
+    }
+
+    public void updateDailyGame() {
+        if (gameMap != null && players != null) { // Null check
+            gameMap.updateDailyGameMap(players);
+        }
+    }
+
+    public void updateTurns() {
+        if (gameMap != null && players != null) { // Null check
+            gameMap.updateTurn(players);
+        }
+    }
+
+    public void voteToTerminate(Player player, boolean vote) {
+        if (terminateVotes != null) { // Null check
+            terminateVotes.put(player, vote);
+        }
+    }
+
+    public boolean allPlayersVotedToTerminate() {
+        if (terminateVotes == null) return false; // Null check
+        for (Boolean vote : terminateVotes.values()) {
+            if (!vote) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void resetTerminateVotes() {
+        if (players != null && terminateVotes != null) { // Null check
             for (Player player : players) {
-                if (player.getUser().equals(user)) {
+                terminateVotes.put(player, false);
+            }
+        }
+    }
+
+    public boolean isPlayerInGame(User user) {
+        if (players != null && user != null) {
+            for (Player player : players) {
+                if (player != null && player.getUser() != null && player.getUser().equals(user)) {
                     return true;
                 }
             }
@@ -164,11 +246,27 @@ public class Game implements Serializable {
     }
 
     public Player getPlayer(User user) {
-        for (Player player : players) {
-            if (player.getUser().equals(user)) {
-                return player;
+        if (players != null && user != null) {
+            for (Player player : players) {
+                if (player != null && player.getUser() != null && player.getUser().equals(user)) {
+                    return player;
+                }
             }
         }
         return null;
+    }
+
+    // پیاده‌سازی صحیح equals و hashCode بر اساس saveName
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Game game1 = (Game) o;
+        return Objects.equals(saveName, game1.saveName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(saveName);
     }
 }

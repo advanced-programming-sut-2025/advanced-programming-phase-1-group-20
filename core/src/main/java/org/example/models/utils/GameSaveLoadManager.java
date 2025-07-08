@@ -1,237 +1,184 @@
 package org.example.models.utils;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.ReplaceOptions;
+import org.bson.Document;
 import org.example.models.App;
 import org.example.models.entities.Game;
-import org.example.models.savegame.GameSerializer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * This utility class manages saving and loading game data
- * using Kryo serialization.
- */
 public class GameSaveLoadManager {
-    // Directory where saves are stored
-    private static final String SAVE_DIRECTORY = "saved_games";
+    private static MongoCollection<Document> gamesCollection;
+    private static final String GAME_DATA_FIELD = "gameDataJson";
+    private static final String SAVE_NAME_FIELD = "saveName";
+    private static final String TIMESTAMP_FIELD = "timestamp";
 
-    // File extension for saved games
-    private static final String SAVE_EXTENSION = ".bin";
+    private static final Gson gson = new GsonBuilder().create();
 
-    // Current game file name
-    private static final String CURRENT_GAME_FILE = SAVE_DIRECTORY + "/current_game" + SAVE_EXTENSION;
-
-    // Autosave file name
-    private static final String AUTOSAVE_FILE = SAVE_DIRECTORY + "/autosave" + SAVE_EXTENSION;
-
-    /**
-     * Initializes the save directory structure if it doesn't exist.
-     */
-    public static void initialize() {
-        File directory = new File(SAVE_DIRECTORY);
-        if (!directory.exists()) {
-            directory.mkdirs();
+    private static void initializeCollection() {
+        if (gamesCollection == null) {
+            gamesCollection = MongoDBConnection.getDatabase().getCollection("games");
         }
     }
 
-    /**
-     * Saves the current game to the default location.
-     *
-     * @return true if save was successful, false otherwise
-     */
+    public static void initialize() {
+        initializeCollection();
+        System.out.println("GameSaveLoadManager initialized for MongoDB.");
+    }
+
     public static boolean saveCurrentGame() {
         if (App.getGame() != null) {
-            App.getGame().setSaved(true);
-            return saveGame(App.getGame(), CURRENT_GAME_FILE);
+            Game game = App.getGame();
+            game.setSaved(true);
+            return saveGameInternal(game, "current_game", true);
         }
         return false;
     }
 
-    /**
-     * Performs an autosave of the current game.
-     *
-     * @return true if autosave was successful, false otherwise
-     */
     public static boolean autosave() {
         if (App.getGame() != null) {
-            return saveGame(App.getGame(), AUTOSAVE_FILE);
+            return saveGameInternal(App.getGame(), "autosave", true);
         }
         return false;
     }
 
-    /**
-     * Saves a game with a custom name.
-     *
-     * @param game     The game to save
-     * @param saveName The name for the save file (without extension)
-     * @return true if save was successful, false otherwise
-     */
-    public static boolean saveGameWithName(Game game, String saveName) {
-        // Sanitize the filename to remove any invalid characters
-        saveName = saveName.replaceAll("[^a-zA-Z0-9-_]", "_");
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String filename = SAVE_DIRECTORY + "/" + saveName + "_" + timestamp + SAVE_EXTENSION;
+    public static boolean saveGameWithName(Game game, String customSaveName) {
+        String cleanSaveName = customSaveName.replaceAll("[^a-zA-Z0-9-_]", "_");
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()); // **** تغییر در اینجا: استفاده از Date ****
+        String uniqueSaveName = cleanSaveName + "_" + timestamp;
 
-        boolean saved = saveGame(game, filename);
+        boolean saved = saveGameInternal(game, uniqueSaveName, false);
         if (saved) {
-            // Add the game to the list of all games if it's not already there
-            if (!App.getAllGames().contains(game)) {
+            if (App.getAllGames() != null && !App.getAllGames().contains(game)) {
                 App.getAllGames().add(game);
             }
         }
         return saved;
     }
 
-    /**
-     * Core method for saving a game to a specified file.
-     *
-     * @param game     The game to save
-     * @param filePath The path where the game should be saved
-     * @return true if save was successful, false otherwise
-     */
-    public static boolean saveGame(Game game, String filePath) {
-        Kryo kryo = GameSerializer.createKryo();
-        try (Output output = new Output(new FileOutputStream(filePath))) {
-            kryo.writeObject(output, game);
-            System.out.println("Game saved successfully to: " + filePath);
+    private static boolean saveGameInternal(Game game, String identifier, boolean replaceExisting) {
+        initializeCollection();
+        try {
+            String gameJson = gson.toJson(game);
+
+            Document gameDoc = new Document(SAVE_NAME_FIELD, identifier)
+                .append(GAME_DATA_FIELD, gameJson)
+                .append(TIMESTAMP_FIELD, new Date()); // **** تغییر در اینجا: استفاده از Date ****
+
+            if (replaceExisting) {
+                gamesCollection.replaceOne(Filters.eq(SAVE_NAME_FIELD, identifier), gameDoc, new ReplaceOptions().upsert(true));
+            } else {
+                gamesCollection.insertOne(gameDoc);
+            }
+
+            System.out.println("Game saved successfully to MongoDB with identifier: " + identifier);
             return true;
-        } catch (IOException e) {
-            System.err.println("Failed to save game: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Failed to save game to MongoDB: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     * Loads the current game from the default location.
-     *
-     * @return The loaded game, or null if loading failed
-     */
     public static Game loadCurrentGame() {
-        File file = new File(CURRENT_GAME_FILE);
-        if (file.exists()) {
-            Game game = loadGame(CURRENT_GAME_FILE);
-            if (game != null) {
-                App.setGame(game);
-                return game;
-            }
-        }
-        return null;
+        return loadGame("current_game");
     }
 
-    /**
-     * Loads an autosaved game.
-     *
-     * @return The loaded game, or null if loading failed
-     */
     public static Game loadAutosave() {
-        File file = new File(AUTOSAVE_FILE);
-        if (file.exists()) {
-            Game game = loadGame(AUTOSAVE_FILE);
-            if (game != null) {
+        return loadGame("autosave");
+    }
+
+    public static Game loadGame(String identifier) {
+        initializeCollection();
+        try {
+            Document gameDoc = gamesCollection.find(Filters.eq(SAVE_NAME_FIELD, identifier)).first();
+            if (gameDoc != null) {
+                String gameJson = gameDoc.getString(GAME_DATA_FIELD);
+                Game game = gson.fromJson(gameJson, Game.class);
                 App.setGame(game);
+                System.out.println("Game loaded successfully from MongoDB: " + identifier);
                 return game;
             }
+        } catch (Exception e) {
+            System.err.println("Failed to load game from MongoDB: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
 
-    /**
-     * Loads a game from a specific file.
-     *
-     * @param filePath The path to the saved game file
-     * @return The loaded game, or null if loading failed
-     */
-    public static Game loadGame(String filePath) {
-        Kryo kryo = GameSerializer.createKryo();
-        try (Input input = new Input(new FileInputStream(filePath))) {
-            Game game = kryo.readObject(input, Game.class);
-            return game;
-        } catch (IOException e) {
-            System.err.println("Failed to load game: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Lists all available saved games.
-     *
-     * @return A list of saved game files
-     */
-    public static List<File> listSavedGames() {
-        List<File> savedGames = new ArrayList<>();
-        File directory = new File(SAVE_DIRECTORY);
-
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles((dir, name) -> name.endsWith(SAVE_EXTENSION) &&
-                    !name.equals("current_game" + SAVE_EXTENSION) &&
-                    !name.equals("autosave" + SAVE_EXTENSION));
-            if (files != null) {
-                for (File file : files) {
-                    savedGames.add(file);
-                }
+    public static List<String> listSavedGames() {
+        initializeCollection();
+        List<String> saveNames = new ArrayList<>();
+        try {
+            for (Document doc : gamesCollection.find(
+                Filters.and(
+                    Filters.ne(SAVE_NAME_FIELD, "current_game"),
+                    Filters.ne(SAVE_NAME_FIELD, "autosave")
+                )
+            ).sort(new Document(TIMESTAMP_FIELD, -1))) {
+                saveNames.add(doc.getString(SAVE_NAME_FIELD));
             }
+            System.out.println("Listed saved games from MongoDB: " + saveNames.size());
+        } catch (Exception e) {
+            System.err.println("Failed to list saved games from MongoDB: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        return savedGames;
+        return saveNames;
     }
 
-    /**
-     * Loads all saved games into the App's game list.
-     */
     public static void loadAllGames() {
-        App.getAllGames().clear();
-        File directory = new File(SAVE_DIRECTORY);
-
-        if (directory.exists() && directory.isDirectory()) {
-            File[] files = directory.listFiles((dir, name) -> name.endsWith(SAVE_EXTENSION));
-            if (files != null) {
-                for (File file : files) {
-                    Game game = loadGame(file.getPath());
-                    if (game != null) {
+        initializeCollection();
+        if (App.getAllGames() != null) {
+            App.getAllGames().clear();
+        } else {
+            App.setAllGames(new ArrayList<>());
+        }
+        try {
+            for (Document doc : gamesCollection.find()) {
+                if (!doc.getString(SAVE_NAME_FIELD).equals("current_game") &&
+                    !doc.getString(SAVE_NAME_FIELD).equals("autosave")) {
+                    Game game = loadGame(doc.getString(SAVE_NAME_FIELD));
+                    if (game != null && !App.getAllGames().contains(game)) {
                         App.getAllGames().add(game);
                     }
                 }
             }
+            System.out.println("Loaded all unique games into App from MongoDB.");
+        } catch (Exception e) {
+            System.err.println("Failed to load all games into App from MongoDB: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Deletes a saved game.
-     *
-     * @param filePath The path to the saved game file
-     * @return true if deletion was successful, false otherwise
-     */
-    public static boolean deleteSavedGame(String filePath) {
+    public static boolean deleteSavedGame(String identifier) {
+        initializeCollection();
         try {
-            Path path = Paths.get(filePath);
-            return Files.deleteIfExists(path);
-        } catch (IOException e) {
-            System.err.println("Failed to delete saved game: " + e.getMessage());
+            long deletedCount = gamesCollection.deleteOne(Filters.eq(SAVE_NAME_FIELD, identifier)).getDeletedCount();
+            if (deletedCount > 0) {
+                System.out.println("Saved game '" + identifier + "' deleted successfully from MongoDB.");
+                if (App.getAllGames() != null) {
+                    App.getAllGames().removeIf(game -> game.getSaveName() != null && game.getSaveName().equals(identifier));
+                }
+                return true;
+            } else {
+                System.out.println("No game found to delete with identifier: " + identifier);
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to delete saved game from MongoDB: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
 
-    /**
-     * Checks if a game is saved.
-     *
-     * @param game The game to check
-     * @return true if the game is saved, false otherwise
-     */
     public static boolean isGameSaved(Game game) {
         return game != null && game.isSaved();
     }

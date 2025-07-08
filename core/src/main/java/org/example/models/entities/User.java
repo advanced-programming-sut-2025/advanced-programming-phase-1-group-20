@@ -119,6 +119,10 @@ public class User implements Serializable {
         return gamesPlayed;
     }
 
+    public void setGamesPlayed(int gamesPlayed) {
+        this.gamesPlayed = gamesPlayed;
+    }
+
     public void playGame() {
         gamesPlayed++;
     }
@@ -128,11 +132,19 @@ public class User implements Serializable {
         return this.gender;
     }
 
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
     public List<Item> getInventory() {
         if (inventory == null) {
             inventory = new ArrayList<>();
         }
         return inventory;
+    }
+
+    public void setInventory(List<Item> inventory) {
+        this.inventory = inventory;
     }
 
     public void addToInventory(Item item) {
