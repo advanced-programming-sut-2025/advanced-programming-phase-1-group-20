@@ -49,10 +49,6 @@ public class LoginRegisterMenuScreen implements Screen {
 
     private TextButton backToMainRegisterButton;
 
-
-
-
-
     public LoginRegisterMenuScreen(LoginRegisterMenuController controller , Skin skin) {
         this.controller = controller;
         this.skin = skin;

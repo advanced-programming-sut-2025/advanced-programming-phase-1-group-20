@@ -13,9 +13,6 @@ public class Main extends Game {
     private static Main game;
     private static SpriteBatch batch;
 
-
-
-
     @Override
     public void create() {
         game = this;

@@ -72,7 +72,6 @@ public class GameSaveLoadManager {
             Document gameDoc = new Document(SAVE_NAME_FIELD, identifier)
                 .append(GAME_DATA_FIELD, gameJson)
                 .append(TIMESTAMP_FIELD, new Date()); // **** تغییر در اینجا: استفاده از Date ****
-
             if (replaceExisting) {
                 gamesCollection.replaceOne(Filters.eq(SAVE_NAME_FIELD, identifier), gameDoc, new ReplaceOptions().upsert(true));
             } else {

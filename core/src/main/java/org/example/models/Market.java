@@ -295,10 +295,7 @@ public class Market extends Building {
         if (!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
-        if (item.getPrice() * count <= player.getMoney()) {
-            return true;
-        }
-        return false;
+        return item.getPrice() * count <= player.getMoney();
     }
 
 
