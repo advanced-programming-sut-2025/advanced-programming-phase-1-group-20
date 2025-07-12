@@ -8,16 +8,19 @@ import org.example.views.LoginRegisterMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
 public class WelcomeMenuController {
-    private final WelcomeMenuScreen screen;
+    private WelcomeMenuScreen screen;
     private final GameAssetManager assetManager;
 
     private int currentImageIndex = 0;
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
-    public WelcomeMenuController(WelcomeMenuScreen screen) {
-        this.screen = screen;
+    public WelcomeMenuController() {
         this.assetManager = GameAssetManager.getGameAssetManager();
+    }
+
+    public void setScreen(WelcomeMenuScreen screen) {
+        this.screen = screen;
     }
 
     public void update(float delta) {

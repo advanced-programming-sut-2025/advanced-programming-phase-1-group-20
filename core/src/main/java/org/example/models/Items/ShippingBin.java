@@ -6,25 +6,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShippingBin extends Item {
-    private Map<Player , Integer> playerIntegerMap;
+    private Map<String , Integer> playerIntegerMap;
     public ShippingBin() {
         super("Shipping Bin", 250);
-        playerIntegerMap = new HashMap<Player , Integer>();
+        playerIntegerMap = new HashMap<>();
     }
 
     public int getIncome(Player player) {
-        return playerIntegerMap.getOrDefault(player , 0);
+        return playerIntegerMap.getOrDefault(player.getUser().getUsername() , 0);
     }
 
     public void setIncome(int income , Player player) {
-        playerIntegerMap.putIfAbsent(player, income);
+        playerIntegerMap.putIfAbsent(player.getUser().getUsername(), income);
     }
 
     public void increaseIncome(int amount , Player player) {
-        playerIntegerMap.putIfAbsent(player, playerIntegerMap.getOrDefault(player , 0) + amount);
+        playerIntegerMap.putIfAbsent(player.getUser().getUsername(), playerIntegerMap.getOrDefault(player , 0) + amount);
     }
 
     public void updateShippingBin(Player player) {
-        playerIntegerMap.putIfAbsent(player, 0);
+        playerIntegerMap.putIfAbsent(player.getUser().getUsername(), 0);
     }
 }

@@ -3,10 +3,12 @@ package org.example;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.example.controllers.LoginRegisterMenuController;
+import org.example.controllers.WelcomeMenuController;
 import org.example.models.App;
 import org.example.models.entities.User;
 import org.example.utils.GameAssetManager;
 import org.example.views.LoginRegisterMenuScreen;
+import org.example.views.WelcomeMenuScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
@@ -18,7 +20,10 @@ public class Main extends Game {
         game = this;
         batch = new SpriteBatch();
         App.initialize();
-        getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(null) , GameAssetManager.getGameAssetManager().getSkin()));
+        WelcomeMenuController welcomeMenuController = new WelcomeMenuController();
+        WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController, GameAssetManager.getGameAssetManager().getSkin());
+        welcomeMenuController.setScreen(welcomeMenuScreen);
+        getGame().setScreen(welcomeMenuScreen);
 
     }
 
