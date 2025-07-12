@@ -191,11 +191,9 @@ public class Game implements Serializable { // Serializable را می‌توان
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             currentPlayer = players.get(currentPlayerIndex);
         }
-
-
-        if (currentPlayerIndex == 0 && date != null) { // Null check for date
-            date.advanceTime(1, gameMap);
-        }
+//        if (currentPlayerIndex == 0 && date != null) { // Null check for date
+//            date.advanceTime(1, gameMap);
+//        }
     }
 
     public void updateDailyGame() {
