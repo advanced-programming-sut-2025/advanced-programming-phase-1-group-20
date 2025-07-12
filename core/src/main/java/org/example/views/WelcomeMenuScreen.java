@@ -41,7 +41,7 @@ public class WelcomeMenuScreen implements Screen {
         table.bottom().padBottom(180);
 
         signUpButton = new TextButton("SIGN UP", skin);
-        loginButton = new TextButton("LOG IN", skin);
+        loginButton = new TextButton("LOGIN", skin);
         exitButton = new TextButton("EXIT", skin);
 
         table.add(signUpButton).pad(10);
