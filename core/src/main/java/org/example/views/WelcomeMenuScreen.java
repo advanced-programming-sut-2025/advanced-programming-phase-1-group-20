@@ -87,9 +87,9 @@ public class WelcomeMenuScreen implements Screen {
 
     public void show() {
         Gdx.input.setInputProcessor(stage);
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("all/cursor.png"));
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pixmap, 0, 0));
-        pixmap.dispose();
+//        Pixmap pixmap = new Pixmap(Gdx.files.internal("all/cursor.png"));
+//        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pixmap, 0, 0));
+//        pixmap.dispose();
     }
 
     public void resize(int width, int height) {
