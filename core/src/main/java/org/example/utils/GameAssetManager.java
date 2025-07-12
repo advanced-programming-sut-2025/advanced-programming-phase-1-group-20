@@ -9,7 +9,7 @@ public class GameAssetManager {
     private final Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
     private final Texture[] welcomeMenuImages = new Texture[20];
 
-    public static GameAssetManager getGameAssetManager(){
+    public static GameAssetManager getGameAssetManager() {
         if (gameAssetManager == null) {
             gameAssetManager = new GameAssetManager();
         }
@@ -23,12 +23,22 @@ public class GameAssetManager {
     }
 
     public Texture getWelcomeMenuTexture(int index) {
-        return welcomeMenuImages[index - 1];
+        return welcomeMenuImages[index];
+    }
+
+    public int getWelcomeMenuImagesCount() {
+        return welcomeMenuImages.length;
     }
 
     public Skin getSkin() {
         return skin;
     }
 
-
+    public void disposeWelcomeMenuTextures() {
+        for (Texture texture : welcomeMenuImages) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+    }
 }
