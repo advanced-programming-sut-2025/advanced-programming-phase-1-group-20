@@ -1,7 +1,10 @@
 package org.example.controllers;
 
 import com.badlogic.gdx.graphics.Texture;
+import org.example.Main;
+import org.example.models.entities.User;
 import org.example.utils.GameAssetManager;
+import org.example.views.LoginRegisterMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
 public class WelcomeMenuController {
@@ -32,6 +35,11 @@ public class WelcomeMenuController {
     }
 
     public void handleLoginButton() {
+        Main.getGame().getScreen().dispose();
+        User user = new User();
+        //user? WTF!!
+        Main.getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(user),
+            GameAssetManager.getGameAssetManager().getSkin()));
     }
 
     public void handleSignUpButton() {
