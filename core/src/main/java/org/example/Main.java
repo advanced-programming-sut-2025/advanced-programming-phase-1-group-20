@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.example.controllers.LoginRegisterMenuController;
 import org.example.controllers.WelcomeMenuController;
 import org.example.models.App;
+import org.example.models.common.Date;
 import org.example.models.entities.User;
 import org.example.utils.GameAssetManager;
 import org.example.views.LoginRegisterMenuScreen;
@@ -24,7 +25,6 @@ public class Main extends Game {
         WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController, GameAssetManager.getGameAssetManager().getSkin());
         welcomeMenuController.setScreen(welcomeMenuScreen);
         getGame().setScreen(welcomeMenuScreen);
-
     }
 
     @Override

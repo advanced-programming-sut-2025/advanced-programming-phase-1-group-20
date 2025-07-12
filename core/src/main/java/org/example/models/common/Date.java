@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Date {
+public class Date implements Runnable {
     private final Map<Seasons, List<Weather>> weatherMap;
     private final int daysPerSeason = 28;
     private int day; // days (1-28)
@@ -20,6 +20,7 @@ public class Date {
     private int hour;
     private Weather weatherToday;
     private Weather weatherTomorrow;
+    private boolean running = true;
 
     public Date() {
         this.day = 1; // first day of spring
@@ -30,6 +31,12 @@ public class Date {
         initialWeatherMap();
         updateWeatherToday();
         updateWeatherTomorrow();
+
+        Thread timeThread = new Thread(this);
+        timeThread.setDaemon(true);
+        timeThread.start();
+
+        displayTime();
     }
 
     private void initialWeatherMap() {
@@ -59,7 +66,6 @@ public class Date {
         App.getGame().getGameMap().getFarmByPlayer(App.getGame().getCurrentPlayer()).thor(location);
         System.out.println("Thor has struck the location");
     }
-
 
     public void advanceDays(int days, GameMap gameMap) {
         if (days < 0) {
@@ -94,6 +100,23 @@ public class Date {
         updateWeatherTomorrow();
     }
 
+    @Override
+    public void run() {
+        while (running) {
+            try {
+                Thread.sleep( 6 * 60 * 1000);
+                advanceTime(1, App.getGame().getGameMap());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Time thread interrupted");
+            }
+        }
+    }
+
+    public void stop() {
+        running = false;
+    }
+
     private void updateWeatherToday() {
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
@@ -108,7 +131,6 @@ public class Date {
         this.weatherTomorrow = possibleWeather.get(randomIndex);
     }
 
-    // changing the day
     public void goTomorrow(GameMap gameMap) {
         this.day++;
         this.weatherToday = weatherTomorrow;
@@ -183,4 +205,12 @@ public class Date {
         // Return the difference
         return currentTotalDays - rejectTotalDays;
     }
-}
+
+    private String getCurrentTimeString() {
+        return String.format("Year %d, %s %02d, %02d:00", year, getSeason(), day, hour);
+    }
+
+    private void log() {
+        System.out.println("[LOG - " + getCurrentTimeString() + "] " + "time advanced");
+        displayWeather();
+    }}
