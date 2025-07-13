@@ -12,7 +12,7 @@ public class CookingItem extends Item {
     private CookingType type;
 
     public CookingItem(CookingType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
         this.type = type;
     }
 
@@ -68,12 +68,14 @@ public class CookingItem extends Item {
     }
 
     public Food cook(Backpack inventory) {
-        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer());
+        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer() , getImageFilepath());
     }
 
     public Food getFood() {
-        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer());
+        return new Food(getName(), getBaseSellPrice(), getEnergy(), getBuffer() , getImageFilepath());
     }
+
+
 
 
     public void showInfo() {

@@ -9,8 +9,8 @@ public class Food extends Item {
     private int energy;
     private String buffer;
 
-    public Food(String foodName, int baseSellPrice, int energy, String buffer) {
-        super(foodName, baseSellPrice);
+    public Food(String foodName, int baseSellPrice, int energy, String buffer , String imageFilepath) {
+        super(foodName, baseSellPrice , imageFilepath);
         this.energy = energy;
         this.buffer = buffer;
     }

@@ -14,7 +14,7 @@ public class Plant extends Item {
     private boolean moistureGod;
 
     public Plant(PlantType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilePath());
         this.type = type;
         this.stage = 0;
         daysCounter = 0;
@@ -168,7 +168,7 @@ public class Plant extends Item {
 
     public Fruit getFruit() {
         if(finished) {
-            return new Fruit(getName() , getPrice() , getEnergy());
+            return new Fruit(getName() , getPrice() , getEnergy() , getImageFilepath());
         }
         return null;
     }

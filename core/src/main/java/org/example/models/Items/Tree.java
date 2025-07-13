@@ -18,7 +18,7 @@ public class Tree extends Item {
     private boolean moistureGod;
 
     public Tree(TreeType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilePath());
         this.type = type;
         stages = new int[]{7, 7, 7, 7};
         this.stage = 0;
@@ -163,7 +163,8 @@ public class Tree extends Item {
 
     public Fruit getFruit() {
         if (isFruitFinished) {
-            return new Fruit(getFruitName(), getPrice(), getEnergy());
+            String path = getImageFilepath();
+            return new Fruit(getFruitName(), getPrice(), getEnergy() , path);
         }
         return null;
     }

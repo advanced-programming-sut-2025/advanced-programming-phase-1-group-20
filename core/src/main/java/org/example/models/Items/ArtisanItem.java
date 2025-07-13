@@ -6,7 +6,7 @@ public class ArtisanItem extends Item {
     private ArtisanType type;
 
     public ArtisanItem(ArtisanType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
         this.type = type;
         this.setPlacable(true);
     }

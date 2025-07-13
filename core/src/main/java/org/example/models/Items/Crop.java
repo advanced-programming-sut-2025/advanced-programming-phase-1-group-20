@@ -7,7 +7,7 @@ public class Crop extends Item {
     private CropType type;
 
     public Crop(CropType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilePath());
         this.type = type;
     }
 
@@ -30,6 +30,6 @@ public class Crop extends Item {
     }
 
     public Fruit getFruit() {
-        return new Fruit(getName() , getPrice() , getEnergy());
+        return new Fruit(getName() , getPrice() , getEnergy() , getImageFilepath());
     }
 }

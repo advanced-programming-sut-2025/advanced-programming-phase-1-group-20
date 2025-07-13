@@ -11,12 +11,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameMap {
+    private final String background;
     private final List<Farm> farms;
     private Village village;
 
     public GameMap() {
+        this.background = "simple_background.png";
         this.farms = new ArrayList<>();
         this.village = new Village("Shemroon");
+    }
+
+    public String getBackground() {
+        return background;
     }
 
     public List<Farm> getFarms() {

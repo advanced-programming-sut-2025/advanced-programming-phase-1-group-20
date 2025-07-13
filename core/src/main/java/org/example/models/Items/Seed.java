@@ -8,7 +8,7 @@ public class Seed extends Item {
     private SeedType type;
 
     public Seed(SeedType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilePath());
         this.type = type;
     }
 

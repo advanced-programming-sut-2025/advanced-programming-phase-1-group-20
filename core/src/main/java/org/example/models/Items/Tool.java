@@ -25,7 +25,8 @@ public class Tool extends Item {
 
     // Constructor for most tools
     public Tool(String name, int baseSellPrice, String description, ToolType type, ToolMaterial material, int energyConsumption, Skills associatedSkill, ToolFunctionality functionality) {
-        super(name, baseSellPrice, description);
+        //TODO : adding correct file path
+        super(name, baseSellPrice, "" , description);
         this.type = type;
         this.material = material;
         this.energyConsumption = energyConsumption;

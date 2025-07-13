@@ -7,7 +7,8 @@ public class Animal extends Item {
     private int price;
 
     public Animal(String name, int price) {
-        super(name , price);
+        //TODO : adding correct file path
+        super(name , price , "");
         this.name = name;
         this.price = price;
     }

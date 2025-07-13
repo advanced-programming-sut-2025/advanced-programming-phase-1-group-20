@@ -77,7 +77,8 @@ public class BarnAnimal extends Animal implements Serializable {
         }
 
         // Create the product
-        Item product = new Item(productName, (int) (productPrice * priceMultiplier));
+        //TODO : adding correct file path
+        Item product = new Item(productName, (int) (productPrice * priceMultiplier) , "");
         product.setQuality(quality);
 
         // Reset production counter
@@ -226,6 +227,6 @@ public class BarnAnimal extends Animal implements Serializable {
     }
 
     public void advanceDay() {
-        
+
     }
 }

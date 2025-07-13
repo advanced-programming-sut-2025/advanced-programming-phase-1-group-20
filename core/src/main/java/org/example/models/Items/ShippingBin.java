@@ -8,7 +8,8 @@ import java.util.Map;
 public class ShippingBin extends Item {
     private Map<String , Integer> playerIntegerMap;
     public ShippingBin() {
-        super("Shipping Bin", 250);
+        //TODO : adding correct image file path
+        super("Shipping Bin", 250 , "");
         playerIntegerMap = new HashMap<>();
     }
 

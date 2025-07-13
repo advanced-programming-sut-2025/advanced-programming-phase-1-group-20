@@ -51,7 +51,8 @@ public class QuestManager {
     private void initializeQuestsForSebastian() {
         List<Quest> sebastianQuests = new ArrayList<>();
         // Quest 1: Deliver 50 Iron (
-        Item ironOre = new Item("Iron Ore", 10);
+        //TODO : adding correct file path
+        Item ironOre = new Item("Iron Ore", 10 , "");
         if (ironOre != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(ironOre, 50);
             Quest quest = new Quest(

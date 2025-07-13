@@ -2051,22 +2051,28 @@ public class GameMenuController implements Controller {
     private void cheatGiveItems() {
         Player player = App.getGame().getCurrentPlayer();
 
-        Item weddingRing = new Item("Wedding Ring", 2000, "A special ring for proposing marriage.");
+        //TODO : adding correct image file path
+        Item weddingRing = new Item("Wedding Ring", 2000, "" , "A special ring for proposing marriage.");
         player.getBackpack().add(weddingRing, 1);
 
-        Item diamond = new Item("Wood", 750, "A rare and valuable wood.");
+        //TODO : adding correct image file path
+        Item diamond = new Item("Wood", 750, "" ,"A rare and valuable wood.");
         player.getBackpack().add(diamond, 3);
 
-        Item starfruit = new Item("Coffee", 750, "An exotic, sweet fruit that grows in hot, humid weather.");
+        //TODO : adding correct image file path
+        Item starfruit = new Item("Coffee", 750, "" , "An exotic, sweet fruit that grows in hot, humid weather.");
         player.getBackpack().add(starfruit, 5);
 
-        Item ancientSeed = new Item("Salad", 500, "salad");
+        //TODO : adding correct image file path
+        Item ancientSeed = new Item("Salad", 500,"", "salad");
         player.getBackpack().add(ancientSeed, 2);
 
-        Item iridiumBar = new Item("Iridium Bar", 1000, "A bar of refined iridium.");
+        //TODO : adding correct image file path
+        Item iridiumBar = new Item("Iridium Bar", 1000, "" , "A bar of refined iridium.");
         player.getBackpack().add(iridiumBar, 3);
 
-        Item flower = new Item("Flower", 100, "A beautiful flower for gifting.");
+        //TODO : adding correct image file path
+        Item flower = new Item("Flower", 100, "" ,"A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
         Tool pole = new Tool("iridium rod", 100, "haha", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 5, Skills.FISHING);
         player.getBackpack().add(pole, 5);

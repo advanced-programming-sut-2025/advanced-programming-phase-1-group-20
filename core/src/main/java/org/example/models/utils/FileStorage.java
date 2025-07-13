@@ -91,12 +91,13 @@ public class FileStorage {
                     for (Document itemDoc : loadedInventoryList) {
                         String itemName = itemDoc.getString("name");
                         Integer itemPrice = itemDoc.getInteger("price");
+                        String imageFilePath = itemDoc.getString("imageFilePath");
                         String itemDescription = itemDoc.getString("description");
 
                         // اینجا فرض شده که Item دارای سازنده‌ای مانند new Item(name, price, description) است.
                         // شما باید این قسمت را با روش ساخت اشیاء Item در پروژه‌تان تطبیق دهید.
                         // ممکن است نیاز به استفاده از ItemBuilder.buildItem(name) یا سازنده دیگری داشته باشید.
-                        Item loadedItem = new Item(itemName, itemPrice != null ? itemPrice : 0, itemDescription);
+                        Item loadedItem = new Item(itemName, itemPrice != null ? itemPrice : 0, imageFilePath , itemDescription);
                         inventoryItems.add(loadedItem);
                     }
                 }

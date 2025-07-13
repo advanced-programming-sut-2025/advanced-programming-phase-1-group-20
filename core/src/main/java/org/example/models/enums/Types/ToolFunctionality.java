@@ -56,7 +56,7 @@ public enum ToolFunctionality {
 
                 // 1. Cut down trees for regular wood and some tree essences
                 if (tileType == TileType.TREE) {
-                    player.getBackpack().add(new Item("Wood", 20), 100);
+                    player.getBackpack().add(new Item("Wood", 20 , "Trees/Wood.png"), 100);
                     return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
                 }
 

@@ -4,6 +4,7 @@ import org.example.models.enums.Types.Quality;
 
 public class Item {
     private String name;
+    private String imageFilepath;
     private int baseSellPrice;
     private int price;
     private String description;
@@ -11,18 +12,21 @@ public class Item {
     private boolean giantable;
     private Quality quality;
 
-    public Item(String name, int baseSellPrice) {
+    public Item(String name, int baseSellPrice , String imageFilepath) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
         this.price = baseSellPrice;
         this.placable = false;
         this.giantable = false;
         this.quality = Quality.Normal;
+        this.imageFilepath = imageFilepath;
     }
 
-    public Item(String name, int baseSellPrice, String description) {
+
+    public Item(String name, int baseSellPrice, String imageFilepath , String description) {
         this.name = name;
         this.baseSellPrice = baseSellPrice;
+        this.imageFilepath = imageFilepath;
         this.description = description;
     }
 
@@ -91,6 +95,10 @@ public class Item {
 
     public void setQuality(Quality quality) {
         this.quality = quality;
+    }
+
+    public String getImageFilepath() {
+        return imageFilepath;
     }
 
     @Override

@@ -57,12 +57,14 @@ public enum CoopAnimalTypes {
             double chance = 1500.0 / (animal.getHappinessLevel() + (150 * (0.5 + random.nextDouble())));
 
             if (random.nextDouble() < chance) {
-                return new Item(secondaryProduct, secondaryProductPrice);
+                //TODO : adding correct image file path
+                return new Item(secondaryProduct, secondaryProductPrice , "");
             }
         }
 
         // Otherwise return primary product
-        return new Item(primaryProduct, primaryProductPrice);
+        //TODO : adding correct image file path
+        return new Item(primaryProduct, primaryProductPrice , "");
     }
 
     // Getters

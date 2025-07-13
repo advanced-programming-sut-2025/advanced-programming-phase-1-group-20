@@ -19,7 +19,7 @@ public class CraftingItem extends Item {
 
 
     public CraftingItem(CraftingType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
         this.type = type;
         this.proccessingItem = null;
         this.setPlacable(true);

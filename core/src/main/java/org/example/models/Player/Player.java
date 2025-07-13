@@ -423,10 +423,10 @@ public class Player {
                 int cost = 1_000;
                 Item cooper;
                 if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cooper = new Item("Cooper Tool", 5_000);
+                    cooper = new Item("Cooper Tool", 5_000 , "");
                     cost = cost * 2;
                 } else {
-                    cooper = new Item("Copper Trash Can", 1_000);
+                    cooper = new Item("Copper Trash Can", 1_000 , "");
                 }
 
                 if (!market.checkItem(this, cooper, 1)) {
@@ -451,10 +451,12 @@ public class Player {
                 Item iron;
                 int cost = 2_500;
                 if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    iron = new Item("Iron Tool", 5_000);
+                    //TODO : adding correct image file path
+                    iron = new Item("Iron Tool", 5_000 , "");
                     cost = cost * 2;
                 } else {
-                    iron = new Item("Iron Trash Can", 2_500);
+                    //TODO : adding correct image file path
+                    iron = new Item("Iron Trash Can", 2_500 , "");
                 }
 
                 if (!market.checkItem(this, iron, 1)) {
@@ -479,10 +481,10 @@ public class Player {
                 Item gold;
                 int cost = 5_000;
                 if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    gold = new Item("Gold Tool", 10_000);
+                    gold = new Item("Gold Tool", 10_000 , "");
                     cost = cost * 2;
                 } else {
-                    gold = new Item("Gold Trash Can", 5_000);
+                    gold = new Item("Gold Trash Can", 5_000 , "");
                 }
 
                 if (!market.checkItem(this, gold, 1)) {
@@ -507,10 +509,12 @@ public class Player {
                 Item iridium;
                 int cost = 12_500;
                 if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    iridium = new Item("Iridium Tool", 25_000);
+                    //TODO : adding correct image file path
+                    iridium = new Item("Iridium Tool", 25_000 , "");
                     cost = cost * 2;
                 } else {
-                    iridium = new Item("Iridium Trash Can", 12_500);
+                    //TODO : adding correct image file path
+                    iridium = new Item("Iridium Trash Can", 12_500 , "");
                 }
 
                 if (!market.checkItem(this, iridium, 1)) {

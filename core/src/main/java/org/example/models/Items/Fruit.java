@@ -2,8 +2,8 @@ package org.example.models.Items;
 
 public class Fruit extends Item {
     private int energy;
-    public Fruit(String name , int price , int energy) {
-        super(name , price);
+    public Fruit(String name , int price , int energy , String imageFilepath) {
+        super(name , price , imageFilepath);
         this.energy = energy;
     }
 

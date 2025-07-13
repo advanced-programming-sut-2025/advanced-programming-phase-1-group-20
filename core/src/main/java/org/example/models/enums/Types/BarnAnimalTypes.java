@@ -52,11 +52,13 @@ public enum BarnAnimalTypes {
             double chance = 1500.0 / (animal.getHappinessLevel() + (150 * (0.5 + random.nextDouble())));
 
             if (random.nextDouble() < chance) {
-                return new Item(secondaryProduct, secondaryProductPrice);
+                //TODO : adding correct image file path
+                return new Item(secondaryProduct, secondaryProductPrice , "");
             }
         }
 
-        return new Item(primaryProduct, primaryProductPrice);
+        //TODO : adding correct image file path
+        return new Item(primaryProduct, primaryProductPrice , "");
     }
 
     public boolean requiresHappiness() {

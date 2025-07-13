@@ -7,7 +7,7 @@ public class Mineral extends Item {
     private MineralType type;
 
     public Mineral(MineralType type) {
-        super(type.getName(), type.getBaseSellPrice());
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
         this.type = type;
     }
 
