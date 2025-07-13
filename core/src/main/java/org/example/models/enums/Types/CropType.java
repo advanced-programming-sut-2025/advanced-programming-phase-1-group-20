@@ -5,7 +5,7 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum CropType {
-    CommonMushroom("Common Mushroom", new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, 40, 38, "") ,
+    CommonMushroom("Common Mushroom", new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, 40, 38, "Crafting/Common_Mushroom.png") ,
     Daffodil("Daffodil", new Seasons[]{Seasons.SPRING}, 30, 0, "") ,
     Dandelion("Dandelion", new Seasons[]{Seasons.SPRING}, 40, 25, "") ,
     Leek("Leek", new Seasons[]{Seasons.SPRING}, 60, 40, "") ,
