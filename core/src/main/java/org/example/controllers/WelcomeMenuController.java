@@ -44,5 +44,10 @@ public class WelcomeMenuController {
     }
 
     public void handleSignUpButton() {
+        Main.getGame().getScreen().dispose();
+        LoginRegisterMenuScreen registerScreen = new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
+            GameAssetManager.getGameAssetManager().getSkin());
+        Main.getGame().setScreen(registerScreen);
+        registerScreen.showRegisterFormDirectly();
     }
 }

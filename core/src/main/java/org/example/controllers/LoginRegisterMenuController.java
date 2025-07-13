@@ -1,13 +1,16 @@
 package org.example.controllers;
 
+import org.example.Main;
 import org.example.models.App;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.utils.AutoLoginUtil;
+import org.example.utils.GameAssetManager;
 import org.example.views.LoginRegisterMenuScreen;
 import org.example.views.MainMenuScreen;
+import org.example.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -275,6 +278,12 @@ public class LoginRegisterMenuController implements Controller {
     public void exit() {
         // exit the application
         System.exit(0);
+    }
+
+    public void goBackToWelcome() {
+        Main.getGame().getScreen().dispose();
+        Main.getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+            GameAssetManager.getGameAssetManager().getSkin()));
     }
 
 
