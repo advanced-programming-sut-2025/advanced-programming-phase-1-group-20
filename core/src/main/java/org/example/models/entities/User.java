@@ -24,6 +24,8 @@ public class User implements Serializable {
     private int mostEarnedMoney;
     private int gamesPlayed;
     private List<Item> inventory;
+    private String jwtToken;
+    private long tokenExpirationTime;
 
     public User(String username, String password, String email, String nickname, Gender gender) {
         this.username = username;
@@ -158,5 +160,29 @@ public class User implements Serializable {
         if (inventory != null) {
             inventory.remove(item);
         }
+    }
+
+
+    public String getJwtToken() {
+        return jwtToken;
+    }
+
+
+    public void setJwtToken(String jwtToken) {
+        this.jwtToken = jwtToken;
+    }
+
+    public long getTokenExpirationTime() {
+        return tokenExpirationTime;
+    }
+
+
+    public void setTokenExpirationTime(long tokenExpirationTime) {
+        this.tokenExpirationTime = tokenExpirationTime;
+    }
+
+
+    public boolean isTokenValid() {
+        return jwtToken != null && tokenExpirationTime > System.currentTimeMillis();
     }
 }

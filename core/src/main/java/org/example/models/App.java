@@ -8,6 +8,7 @@ import org.example.models.entities.User;
 import org.example.utils.FileStorage;
 import org.example.utils.GameSaveLoadManager;
 import org.example.utils.MongoDBConnection;
+import org.example.utils.auth.JWTUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -126,7 +127,12 @@ public class App {
     }
 
     public static void logout() {
-        loggedInUser = null;
+        if (loggedInUser != null) {
+            // Clear the JWT token and expiration time
+            loggedInUser.setJwtToken(null);
+            loggedInUser.setTokenExpirationTime(0);
+            loggedInUser = null;
+        }
         org.example.utils.AutoLoginUtil.clearAutoLogin();
     }
 
@@ -291,5 +297,88 @@ public class App {
         saveData();
         MongoDBConnection.closeConnection();
         System.out.println("Application shutdown completed. All data saved.");
+    }
+
+    public static User validateUserToken(String token) {
+        if (token == null || token.isEmpty()) {
+            System.out.println("Token validation failed: Token is null or empty");
+            return null;
+        }
+
+        // Check token status
+        String tokenStatus = JWTUtils.getTokenStatus(token);
+        if (!tokenStatus.equals(JWTUtils.TOKEN_VALID)) {
+            System.out.println("Token validation failed: " + JWTUtils.getTokenStatusMessage(tokenStatus));
+            return null;
+        }
+
+        // Extract username from token
+        String username = JWTUtils.extractUsername(token);
+        if (username == null) {
+            System.out.println("Token validation failed: Could not extract username");
+            return null;
+        }
+
+        // Get user by username
+        User user = getUser(username);
+        if (user == null) {
+            System.out.println("Token validation failed: User not found");
+            return null;
+        }
+
+        // Check if the token matches the one stored in the user object
+        if (!token.equals(user.getJwtToken())) {
+            System.out.println("Token validation failed: Token does not match stored token");
+            return null;
+        }
+
+        // Check if the token is still valid (not expired)
+        if (!user.isTokenValid()) {
+            System.out.println("Token validation failed: Token has expired");
+            return null;
+        }
+
+        // Check if token is close to expiration (less than 1 hour remaining)
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = user.getTokenExpirationTime();
+        long oneHour = 60 * 60 * 1000;
+
+        if (expirationTime - currentTime < oneHour) {
+            // Refresh the token
+            String newToken = JWTUtils.refreshToken(token);
+            if (newToken != null) {
+                user.setJwtToken(newToken);
+                user.setTokenExpirationTime(JWTUtils.extractExpirationTime(newToken));
+                System.out.println("Token refreshed successfully");
+                saveData();
+            }
+        }
+
+        return user;
+    }
+
+    public static boolean authenticateWithToken(String token) {
+        User user = validateUserToken(token);
+        if (user != null) {
+            setLoggedInUser(user);
+            System.out.println("User authenticated successfully with token");
+            return true;
+        }
+        return false;
+    }
+
+    public static String getUserTokenStatus(String username) {
+        User user = getUser(username);
+        if (user == null) {
+            return null;
+        }
+
+        String token = user.getJwtToken();
+        if (token == null || token.isEmpty()) {
+            return "No token available";
+        }
+
+        String tokenStatus = JWTUtils.getTokenStatus(token);
+        return JWTUtils.getTokenStatusMessage(tokenStatus);
     }
 }

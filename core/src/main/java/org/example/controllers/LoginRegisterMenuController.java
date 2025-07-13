@@ -1,18 +1,21 @@
 package org.example.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.example.Main;
 import org.example.models.App;
 import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
-import org.example.models.enums.commands.LoginRegisterMenuCommands;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.GameAssetManager;
+import org.example.utils.auth.JWTUtils;
 import org.example.views.LoginRegisterMenuScreen;
-import org.example.views.MainMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 import java.util.regex.Pattern;
@@ -205,7 +208,6 @@ public class LoginRegisterMenuController implements Controller {
             stayLoggedIn = false;
         }
 
-
         User user = App.getUser(username);
 
         if (user == null) {
@@ -215,6 +217,20 @@ public class LoginRegisterMenuController implements Controller {
         if (!user.verifyPassword(password)) {
             return Result.error("wrong password");
         }
+
+        // Generate JWT token for the user
+        String token = JWTUtils.generateToken(username);
+
+        // Extract expiration time from token using the utility method
+        long expirationTime = JWTUtils.extractExpirationTime(token);
+
+        if (expirationTime == 0) {
+            return Result.error("failed to generate valid authentication token");
+        }
+
+        // Store token and expiration time in user object
+        user.setJwtToken(token);
+        user.setTokenExpirationTime(expirationTime);
 
         user.setStayLoggedIn(stayLoggedIn);
         App.setLoggedInUser(user);
@@ -227,7 +243,12 @@ public class LoginRegisterMenuController implements Controller {
 
         App.saveData();
 
-        return Result.success("logged in successfully");
+        // Calculate time until token expiration for user feedback
+        long currentTime = System.currentTimeMillis();
+        long timeUntilExpiration = expirationTime - currentTime;
+        long hoursUntilExpiration = timeUntilExpiration / (60 * 60 * 1000);
+
+        return Result.success("logged in successfully. Your session will expire in " + hoursUntilExpiration + " hours.");
     }
 
     public Result pickSecurityQuestion(String[] args, User user) {

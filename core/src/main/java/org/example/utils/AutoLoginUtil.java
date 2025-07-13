@@ -28,9 +28,16 @@ public class AutoLoginUtil {
     }
 
 
+    /**
+     * Checks if there's a saved auto-login username and attempts to log in the user.
+     * Validates the JWT token before logging in to ensure it's still valid.
+     *
+     * @return true if auto-login was successful, false otherwise
+     */
     public static boolean checkAndPerformAutoLogin() {
         File file = new File(AUTO_LOGIN_FILE);
         if (!file.exists()) {
+            System.out.println("Auto-login file not found");
             return false;
         }
 
@@ -38,20 +45,54 @@ public class AutoLoginUtil {
             char[] buf = new char[1024];
             int len = reader.read(buf);
             if (len <= 0) {
+                System.out.println("Auto-login file is empty");
                 return false;
             }
 
             String username = new String(buf, 0, len).trim();
             User user = App.getUser(username);
 
-            if (user != null && user.isStayLoggedIn()) {
-                App.setLoggedInUser(user);
-                //TODO : change this
-//                appView.navigateMenu(new MainMenu(appView, user));
-                return true;
+            if (user == null) {
+                System.out.println("User not found for auto-login: " + username);
+                clearAutoLogin(); // Clear invalid auto-login
+                return false;
             }
+
+            if (!user.isStayLoggedIn()) {
+                System.out.println("User has not enabled stay logged in: " + username);
+                clearAutoLogin(); // Clear invalid auto-login
+                return false;
+            }
+
+            // Check if the user has a valid JWT token
+            String token = user.getJwtToken();
+            if (token == null || token.isEmpty()) {
+                System.out.println("No JWT token found for user: " + username);
+                clearAutoLogin(); // Clear invalid auto-login
+                return false;
+            }
+
+            // Validate the token and get its status
+            String tokenStatus = App.getUserTokenStatus(username);
+            if (tokenStatus == null || !tokenStatus.equals("Token is valid")) {
+                System.out.println("Invalid JWT token for user: " + username + " - " + tokenStatus);
+                clearAutoLogin(); // Clear invalid auto-login
+                return false;
+            }
+
+            // Token is valid, authenticate the user
+            boolean authenticated = App.authenticateWithToken(token);
+            if (!authenticated) {
+                System.out.println("Failed to authenticate user with token: " + username);
+                clearAutoLogin(); // Clear invalid auto-login
+                return false;
+            }
+
+            System.out.println("Auto-login successful for user: " + username);
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("Error reading auto-login file: " + e.getMessage());
         }
 
         return false;
