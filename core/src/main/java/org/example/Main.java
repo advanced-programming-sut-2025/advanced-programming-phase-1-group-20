@@ -1,6 +1,9 @@
 package org.example;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.example.controllers.LoginRegisterMenuController;
 import org.example.controllers.WelcomeMenuController;
@@ -20,6 +23,14 @@ public class Main extends Game {
     public void create() {
         game = this;
         batch = new SpriteBatch();
+
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor.png"));
+        int xHotspot = 0;
+        int yHotspot = 0;
+
+        Cursor customCursor = Gdx.graphics.newCursor(pixmap, xHotspot, yHotspot);
+        Gdx.graphics.setCursor(customCursor);
+
         App.initialize();
         WelcomeMenuController welcomeMenuController = new WelcomeMenuController();
         WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController, GameAssetManager.getGameAssetManager().getSkin());

@@ -15,13 +15,10 @@ import java.util.Random;
 import java.util.regex.Pattern;
 
 public class LoginRegisterMenuController implements Controller {
-    private User user;
     private String tempUsername;
     private LoginRegisterMenuScreen view;
 
-    public LoginRegisterMenuController(User user) {
-        this.user = user;
-
+    public LoginRegisterMenuController() {
         App.initialize();
     }
 
@@ -85,7 +82,6 @@ public class LoginRegisterMenuController implements Controller {
 
         Gender gender = Gender.getGenderByName(genderString);
         User newUser = new User(username, password, email, nickname, gender);
-        user = newUser;
         App.addUser(newUser);
 
         return Result.success("user registered successfully");

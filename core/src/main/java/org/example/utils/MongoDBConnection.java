@@ -1,4 +1,4 @@
-package org.example.models.utils;
+package org.example.utils;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

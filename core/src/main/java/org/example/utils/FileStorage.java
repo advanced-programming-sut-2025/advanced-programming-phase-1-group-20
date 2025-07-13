@@ -1,4 +1,4 @@
-package org.example.models.utils;
+package org.example.utils;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
@@ -9,10 +9,10 @@ import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.Types.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class FileStorage {
     private static MongoCollection<Document> usersCollection;
