@@ -83,7 +83,7 @@ public class LoginRegisterMenuScreen implements Screen {
     }
 
     private void setupRegisterForm() {
-        registerTitle = new Label("CREATE ACCOUNT", skin, "title");
+        registerTitle = new Label("CREATE ACCOUNT", skin);
         registerTitle.setColor(Color.WHITE);
 
         randomPasswordLabel = new Label("Tip: Type 'random' in password field for auto-generated password", skin);
@@ -120,7 +120,7 @@ public class LoginRegisterMenuScreen implements Screen {
     }
 
     private void setupLoginForm() {
-        loginTitle = new Label("LOGIN", skin, "title");
+        loginTitle = new Label("LOGIN", skin);
         loginTitle.setColor(Color.WHITE);
 
         loginUsernameField = new TextField("", skin);
@@ -191,7 +191,7 @@ public class LoginRegisterMenuScreen implements Screen {
         mainTable.clear();
         mainTable.center();
 
-        Label title = new Label("WELCOME", skin, "title");
+        Label title = new Label("WELCOME", skin);
         title.setColor(Color.WHITE);
 
         mainTable.add(title).padBottom(50).row();
