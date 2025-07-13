@@ -1,8 +1,7 @@
-package org.example.models.utils;
+package org.example.utils;
 
 import org.example.models.App;
 import org.example.models.entities.User;
-
 
 import java.io.File;
 import java.io.FileReader;

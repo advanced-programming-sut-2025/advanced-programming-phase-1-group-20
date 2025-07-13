@@ -1,4 +1,4 @@
-package org.example.models.auth;
+package org.example.utils.auth;
 
 public class authentication {
 }
