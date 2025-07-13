@@ -9,7 +9,7 @@ import org.example.models.entities.NPC;
 import org.example.models.entities.NPCFriendship;
 import org.example.models.enums.Charactristic;
 import org.example.models.enums.Weather;
-import org.example.models.utils.HuggingFaceApiClient;
+import org.example.utils.HuggingFaceApiClient;
 
 import java.util.ArrayList;
 import java.util.List;

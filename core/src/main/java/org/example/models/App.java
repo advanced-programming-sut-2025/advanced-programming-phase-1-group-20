@@ -5,11 +5,10 @@ import org.example.models.Items.Item;
 import org.example.models.Player.Player;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
-import org.example.models.utils.FileStorage;
-import org.example.models.utils.GameSaveLoadManager;
-import org.example.models.utils.MongoDBConnection;
+import org.example.utils.FileStorage;
+import org.example.utils.GameSaveLoadManager;
+import org.example.utils.MongoDBConnection;
 
-import java.io.File; // این ایمپورت دیگر ضروری نیست اگر منطق فایل حذف شود
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +20,7 @@ public class App {
     private static User loggedInUser;
     private static Map<Integer, String> securityQuestions = new HashMap<>();
     private static boolean dataLoaded = false;
-    private static List<Game> allGames = new ArrayList<>(); // **** متد get/set برای این اضافه شد ****
+    private static List<Game> allGames = new ArrayList<>();
     private static Game currentGame;
     private static boolean allChose = false;
 
@@ -128,11 +127,11 @@ public class App {
 
     public static void logout() {
         loggedInUser = null;
-        org.example.models.utils.AutoLoginUtil.clearAutoLogin();
+        org.example.utils.AutoLoginUtil.clearAutoLogin();
     }
 
     public static User getUser(String username) {
-        return users.get(username); // استفاده مستقیم از Map برای کارایی
+        return users.get(username);
     }
 
     public static Map<String, User> getUsers() {
@@ -141,7 +140,7 @@ public class App {
 
     public static void removeUser(User user) {
         users.remove(user.getUsername());
-        saveData(); // پس از حذف کاربر، داده‌ها را ذخیره کنید
+        saveData();
     }
 
     public static void addSecurityQuestion() {

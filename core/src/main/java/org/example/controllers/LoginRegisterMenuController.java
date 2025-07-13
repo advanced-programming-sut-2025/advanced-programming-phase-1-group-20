@@ -5,7 +5,7 @@ import org.example.models.common.Result;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.models.enums.commands.LoginRegisterMenuCommands;
-import org.example.models.utils.AutoLoginUtil;
+import org.example.utils.AutoLoginUtil;
 import org.example.views.LoginRegisterMenuScreen;
 import org.example.views.MainMenuScreen;
 

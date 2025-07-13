@@ -2,7 +2,7 @@ package org.example.models.entities;
 
 import org.example.models.Items.Item;
 import org.example.models.enums.PlayerEnums.Gender;
-import org.example.models.utils.PasswordUtils;
+import org.example.utils.PasswordUtils;
 
 import java.io.Serial;
 import java.io.Serializable;

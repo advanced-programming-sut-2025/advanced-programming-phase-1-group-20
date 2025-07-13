@@ -6,7 +6,7 @@ import org.example.models.common.Result;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.commands.MainMenuCommands;
-import org.example.models.utils.AutoLoginUtil;
+import org.example.utils.AutoLoginUtil;
 import org.example.views.MainMenuScreen;
 
 
