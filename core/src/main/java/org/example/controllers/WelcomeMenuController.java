@@ -39,9 +39,7 @@ public class WelcomeMenuController {
 
     public void handleLoginButton() {
         Main.getGame().getScreen().dispose();
-        User user = new User();
-        //user? WTF!!
-        Main.getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(user),
+        Main.getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
             GameAssetManager.getGameAssetManager().getSkin()));
     }
 

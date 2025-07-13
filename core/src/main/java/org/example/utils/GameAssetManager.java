@@ -16,6 +16,10 @@ public class GameAssetManager {
         return gameAssetManager;
     }
 
+    GameAssetManager() {
+        loadWelcomeMenuTextures();
+    }
+
     public void loadWelcomeMenuTextures() {
         for (int i = 0; i < 20; i++) {
             welcomeMenuImages[i] = new Texture(Gdx.files.internal("WelcomeMenu/" + (i + 1) + ".png"));
