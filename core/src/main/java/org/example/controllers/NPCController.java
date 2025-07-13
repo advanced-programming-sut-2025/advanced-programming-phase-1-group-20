@@ -9,7 +9,7 @@ import org.example.models.entities.NPC;
 import org.example.models.entities.NPCFriendship;
 import org.example.models.enums.Charactristic;
 import org.example.models.enums.Weather;
-import org.example.utils.HuggingFaceApiClient;
+import org.example.utils.npcAI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +36,7 @@ public class NPCController {
                 // Create context information for the AI
                 String context = createContextForAi(npc, currentDate, friendshipLevel);
 
-                return HuggingFaceApiClient.generateDialogue(npc, context);
+                return npcAI.generateDialogue(npc, context);
             } catch (Exception e) {
                 System.err.println("Error using AI dialogue, falling back to predefined dialogues: " + e.getMessage());
                 return getPreDefinedDialogue(npc, currentDate, friendshipLevel);

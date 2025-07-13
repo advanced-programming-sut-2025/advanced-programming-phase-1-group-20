@@ -28,7 +28,7 @@ public class NPC extends Mob {
     private HashMap<Integer, HashMap<Item, Integer>> missions;
     private List<Item> favoriteItems;
     private List<Item> giftItems;
-    private Map<Player, NPCFriendship> friendships;
+    private Map<String, NPCFriendship> friendships;
     private Location location;
     private String description;
     private boolean useAiDialogue = false;
@@ -285,10 +285,10 @@ public class NPC extends Mob {
     }
 
     public NPCFriendship getFriendship(Player player) {
-        if (!friendships.containsKey(player)) {
-            friendships.put(player, new NPCFriendship(player, this));
+        if (!friendships.containsKey(player.getUser().getUsername())) {
+            friendships.put(player.getUser().getUsername(), new NPCFriendship(player, this));
         }
-        return friendships.get(player);
+        return friendships.get(player.getUser().getUsername());
     }
 
     public void addFavoriteItem(Item item) {

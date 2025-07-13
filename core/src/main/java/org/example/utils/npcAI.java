@@ -12,7 +12,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 
-public class HuggingFaceApiClient {
+public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
     private static final String API_KEY = "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";
     private static final HttpClient client = HttpClient.newBuilder()
