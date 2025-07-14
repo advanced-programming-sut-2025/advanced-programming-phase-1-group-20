@@ -71,7 +71,7 @@ public class GameMenuController implements Controller {
         return Result.success("");
     }
 
-    private void showInventory() {
+    public void showInventory() {
         App.getGame().getCurrentPlayer().getBackpack().showInventory();
     }
     // TODO: add items should be checked -> Mostafa
@@ -880,46 +880,46 @@ public class GameMenuController implements Controller {
         return Result.success("Turn advanced. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn.");
     }
 
-//    private Result voteTerminate(String[] args) {
-//        Player player = App.getGame().getCurrentPlayer();
-//        GameMap gMap = App.getGame().getGameMap();
-//
-//        if (args == null || args.length < 1) {
-//            return Result.error("Vote (yes/no) not specified");
-//        }
-//
-//        Game game = App.getGame();
-//        if (game == null) {
-//            return Result.error("No active game");
-//        }
-//
-//        if (game.isInMapSelectionPhase()) {
-//            return Result.error("Cannot vote during map selection phase");
-//        }
-//
-//        String vote = args[0].toLowerCase();
-//        boolean voteValue;
-//
-//        if (vote.equals("yes")) {
-//            voteValue = true;
-//        } else if (vote.equals("no")) {
-//            voteValue = false;
-//        } else {
-//            return Result.error("Invalid vote. Please specify 'yes' or 'no'.");
-//        }
-//
-//        game.voteToTerminate(player, voteValue);
-//
-//        // If all players voted to terminate, remove the game
-//        if (game.allPlayersVotedToTerminate()) {
-//            App.removeGame(game);
-//            //TODO : change this
-////            appView.navigateMenu(new MainMenu(appView, player.getUser()));
-//            return Result.success("All players voted to terminate the game. Game terminated.");
-//        }
-//
-//        return Result.success("Vote recorded. Waiting for other players to vote.");
-//    }
+    public Result voteTerminate(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        GameMap gMap = App.getGame().getGameMap();
+
+        if (args == null || args.length < 1) {
+            return Result.error("Vote (yes/no) not specified");
+        }
+
+        Game game = App.getGame();
+        if (game == null) {
+            return Result.error("No active game");
+        }
+
+        if (game.isInMapSelectionPhase()) {
+            return Result.error("Cannot vote during map selection phase");
+        }
+
+        String vote = args[0].toLowerCase();
+        boolean voteValue;
+
+        if (vote.equals("yes")) {
+            voteValue = true;
+        } else if (vote.equals("no")) {
+            voteValue = false;
+        } else {
+            return Result.error("Invalid vote. Please specify 'yes' or 'no'.");
+        }
+
+        game.voteToTerminate(player, voteValue);
+
+        // If all players voted to terminate, remove the game
+        if (game.allPlayersVotedToTerminate()) {
+            App.removeGame(game);
+            //TODO : change this
+//            appView.navigateMenu(new MainMenu(appView, player.getUser()));
+            return Result.success("All players voted to terminate the game. Game terminated.");
+        }
+
+        return Result.success("Vote recorded. Waiting for other players to vote.");
+    }
 
     // TODO: check if the items required are right
     public Result greenhouseBuild() {
@@ -1972,7 +1972,7 @@ public class GameMenuController implements Controller {
 
 
     //TODO : cheats:
-    private void cheatTeleportMarkets(String[] args) {
+    public void cheatTeleportMarkets(String[] args) {
         String marketName = args[0];
         switch (marketName) {
             case "Black Smith" -> {
