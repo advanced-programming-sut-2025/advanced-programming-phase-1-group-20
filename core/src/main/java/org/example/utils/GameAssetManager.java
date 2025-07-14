@@ -7,6 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 public class GameAssetManager {
     private static GameAssetManager gameAssetManager;
     private final Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+    private final Texture signUpTitleTexture = new Texture("Titles/signUp.png");
+    private final Texture loginTitleTexture = new Texture("Titles/login.png");
+    private final Texture newTitleTexture = new Texture("Titles/new.png");
+    private final Texture loadTitleTexture = new Texture("Titles/load.png");
+    private final Texture exitTitleTexture = new Texture("Titles/exit.png");
+    private final Texture backTitleTexture = new Texture("Titles/back.png");
+    private final Texture developedByTitleTexture = new Texture("Titles/developedBy.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
 
     public static GameAssetManager getGameAssetManager() {
