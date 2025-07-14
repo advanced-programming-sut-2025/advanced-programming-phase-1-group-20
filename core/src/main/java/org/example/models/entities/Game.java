@@ -14,60 +14,55 @@ import java.util.ArrayList; // اگر players همیشه باید مقدارده
 
 import java.util.Objects; // برای equals و hashCode
 
-public class Game implements Serializable { // Serializable را می‌توانید حذف کنید.
-    private List<Player> players; // **** حذف transient ****
-    private Player currentPlayer; // **** حذف transient ****
-    private Date date; // **** حذف transient ****
+public class Game implements Serializable {
+    private List<Player> players;
+    private Player currentPlayer;
+    private Date date;
     private int currentPlayerIndex;
     private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections; // **** حذف transient ****
-    private Map<Player, Boolean> terminateVotes; // **** حذف transient ****
-    private Player gameCreator; // **** حذف transient ****
+//    private Map<Player, Integer> mapSelections;
+//    private Map<Player, Boolean> terminateVotes;
+    private Player gameCreator;
     private boolean saved;
-    private GameMap gameMap; // **** حذف transient ****
-    private String saveName; // **** اضافه شده: برای نگهداری نام ذخیره در شیء بازی ****
+    private GameMap gameMap;
+    private String saveName;
 
-    // **** سازنده بدون آرگومان (No-Argument Constructor) - ضروری برای Gson ****
+
     public Game() {
-        // مقداردهی اولیه ایمن فیلدها برای جلوگیری از NullPointerException پس از deserialization
-        this.players = new ArrayList<>();
-        this.date = new Date(); // اطمینان حاصل کنید Date هم سازنده بدون آرگومان دارد
-        this.mapSelections = new HashMap<>();
-        this.terminateVotes = new HashMap<>();
-        // سایر فیلدها با مقادیر پیش فرض یا null مقداردهی می‌شوند
+
+
+
     }
 
 
     public Game(List<Player> players, Player creator) {
-        // ابتدا سازنده بدون آرگومان را صدا بزنید تا فیلدها مقداردهی اولیه شوند
-        this();
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
-        if (players != null && !players.isEmpty()) {
-            this.currentPlayer = players.get(currentPlayerIndex);
-        }
-        // date از سازنده بدون آرگومان مقداردهی شده
-        this.inMapSelectionPhase = true;
-        // mapSelections و terminateVotes از سازنده بدون آرگومان مقداردهی شده‌اند
-        this.saved = false;
-        // gameMap از سازنده بدون آرگومان مقداردهی شده
+//        if (players != null && !players.isEmpty()) {
+//            this.currentPlayer = players.get(currentPlayerIndex);
+//        }
+//
+//        this.inMapSelectionPhase = true;
+//
+//        this.saved = false;
 
-        if (players != null) {
-            for (Player player : players) {
-                mapSelections.put(player, -1);
-                terminateVotes.put(player, false);
-            }
 
-            for (int i = 0; i < players.size(); i++) {
-                for (int j = i + 1; j < players.size(); j++) {
-                    Player player1 = players.get(i);
-                    Player player2 = players.get(j);
-                    // مطمئن شوید getFriendship(Player) در Player به درستی کار می‌کند
-                    player1.getFriendship(player2);
-                }
-            }
-        }
+//        if (players != null) {
+//            for (Player player : players) {
+//                mapSelections.put(player, -1);
+//                terminateVotes.put(player, false);
+//            }
+//
+//            for (int i = 0; i < players.size(); i++) {
+//                for (int j = i + 1; j < players.size(); j++) {
+//                    Player player1 = players.get(i);
+//                    Player player2 = players.get(j);
+//                    // مطمئن شوید getFriendship(Player) در Player به درستی کار می‌کند
+//                    player1.getFriendship(player2);
+//                }
+//            }
+//        }
     }
 
     // Getters and Setters for all fields (بسیار مهم برای Gson)
@@ -112,21 +107,21 @@ public class Game implements Serializable { // Serializable را می‌توان
         this.inMapSelectionPhase = inMapSelectionPhase;
     }
 
-    public Map<Player, Integer> getMapSelections() {
-        return mapSelections;
-    }
+//    public Map<Player, Integer> getMapSelections() {
+//        return mapSelections;
+//    }
 
-    public void setMapSelections(Map<Player, Integer> mapSelections) {
-        this.mapSelections = mapSelections;
-    }
+//    public void setMapSelections(Map<Player, Integer> mapSelections) {
+//        this.mapSelections = mapSelections;
+//    }
 
-    public Map<Player, Boolean> getTerminateVotes() {
-        return terminateVotes;
-    }
-
-    public void setTerminateVotes(Map<Player, Boolean> terminateVotes) {
-        this.terminateVotes = terminateVotes;
-    }
+//    public Map<Player, Boolean> getTerminateVotes() {
+//        return terminateVotes;
+//    }
+//
+//    public void setTerminateVotes(Map<Player, Boolean> terminateVotes) {
+//        this.terminateVotes = terminateVotes;
+//    }
 
     public Player getGameCreator() {
         return gameCreator;
@@ -161,26 +156,26 @@ public class Game implements Serializable { // Serializable را می‌توان
         this.saveName = saveName;
     }
 
-    // سایر متدهای شما...
-    public boolean allPlayersSelectedMap() {
-        if (players == null || mapSelections == null) return false; // Null check
-        for (Player player : players) {
-            if (mapSelections.getOrDefault(player, -1) == -1) {
-                return false;
-            }
-        }
-        return true;
-    }
 
-    public void selectMap(Player player, int mapNumber) {
-        if (mapSelections != null) {
-            mapSelections.put(player, mapNumber);
-        }
-    }
+//    public boolean allPlayersSelectedMap() {
+//        if (players == null || mapSelections == null) return false; // Null check
+//        for (Player player : players) {
+//            if (mapSelections.getOrDefault(player, -1) == -1) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//
+//    public void selectMap(Player player, int mapNumber) {
+//        if (mapSelections != null) {
+//            mapSelections.put(player, mapNumber);
+//        }
+//    }
 
-    public int getMapSelection(Player player) {
-        return mapSelections != null ? mapSelections.getOrDefault(player, -1) : -1;
-    }
+//    public int getMapSelection(Player player) {
+//        return mapSelections != null ? mapSelections.getOrDefault(player, -1) : -1;
+//    }
 
     public void nextTurn(GameMap gameMap) {
         if (currentPlayer != null) { // Null check
@@ -208,29 +203,29 @@ public class Game implements Serializable { // Serializable را می‌توان
         }
     }
 
-    public void voteToTerminate(Player player, boolean vote) {
-        if (terminateVotes != null) { // Null check
-            terminateVotes.put(player, vote);
-        }
-    }
+//    public void voteToTerminate(Player player, boolean vote) {
+//        if (terminateVotes != null) { // Null check
+//            terminateVotes.put(player, vote);
+//        }
+//    }
+//
+//    public boolean allPlayersVotedToTerminate() {
+//        if (terminateVotes == null) return false; // Null check
+//        for (Boolean vote : terminateVotes.values()) {
+//            if (!vote) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
-    public boolean allPlayersVotedToTerminate() {
-        if (terminateVotes == null) return false; // Null check
-        for (Boolean vote : terminateVotes.values()) {
-            if (!vote) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public void resetTerminateVotes() {
-        if (players != null && terminateVotes != null) { // Null check
-            for (Player player : players) {
-                terminateVotes.put(player, false);
-            }
-        }
-    }
+//    public void resetTerminateVotes() {
+//        if (players != null && terminateVotes != null) { // Null check
+//            for (Player player : players) {
+//                terminateVotes.put(player, false);
+//            }
+//        }
+//    }
 
     public boolean isPlayerInGame(User user) {
         if (players != null && user != null) {
@@ -254,7 +249,6 @@ public class Game implements Serializable { // Serializable را می‌توان
         return null;
     }
 
-    // پیاده‌سازی صحیح equals و hashCode بر اساس saveName
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

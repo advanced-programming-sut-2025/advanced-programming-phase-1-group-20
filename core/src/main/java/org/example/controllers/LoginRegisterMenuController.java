@@ -303,7 +303,7 @@ public class LoginRegisterMenuController implements Controller {
 
     public void goBackToWelcome() {
         Main.getGame().getScreen().dispose();
-        Main.getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController()));
+        Main.getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController() , GameAssetManager.getGameAssetManager().getSkin()));
     }
 
 

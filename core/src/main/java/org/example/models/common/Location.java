@@ -83,6 +83,14 @@ public class Location {
         return yAxis;
     }
 
+    public void setxAxis(int xAxis) {
+        this.xAxis = xAxis;
+    }
+
+    public void setyAxis(int yAxis) {
+        this.yAxis = yAxis;
+    }
+
     public boolean isScarecrowThere() {
         return isScarecrowThere;
     }

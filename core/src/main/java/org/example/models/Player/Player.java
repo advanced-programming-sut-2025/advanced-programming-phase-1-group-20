@@ -1,6 +1,10 @@
 package org.example.models.Player;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.example.models.App;
+import org.example.models.CollisionRect;
 import org.example.models.Items.CookingItem;
 import org.example.models.Items.CraftingItem;
 import org.example.models.Items.Item;
@@ -46,6 +50,15 @@ public class Player {
     private int energyUsedInTurn = 0;
     private String playerColor;
 
+
+    //graphic ui
+    private float posX = 25 * 120;
+    private float posY = 25 * 120;
+    private float speed;
+    private CollisionRect rect;
+    private String spriteFileLocation = "content/PlayerSprites/Abigail.png";
+    private Sprite playerSprite;
+
     public Player() {
     }
 
@@ -69,17 +82,17 @@ public class Player {
 
         // Initialize basic tools
         backpack.add(new Tool("Basic Hoe", 0, "A basic hoe for tilling soil.",
-                Tool.ToolType.HOE, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.HOE), 1);
+            Tool.ToolType.HOE, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.HOE), 1);
         backpack.add(new Tool("Basic Pickaxe", 0, "A basic pickaxe for breaking rocks and mining ores.",
-                Tool.ToolType.PICKAXE, Tool.ToolMaterial.BASIC, 5, Skills.MINING, ToolFunctionality.PICKAXE), 1);
+            Tool.ToolType.PICKAXE, Tool.ToolMaterial.BASIC, 5, Skills.MINING, ToolFunctionality.PICKAXE), 1);
         backpack.add(new Tool("Basic Axe", 0, "A basic axe for cutting down trees and breaking branches.",
-                Tool.ToolType.AXE, Tool.ToolMaterial.BASIC, 5, Skills.FORAGING, ToolFunctionality.AXE), 1);
+            Tool.ToolType.AXE, Tool.ToolMaterial.BASIC, 5, Skills.FORAGING, ToolFunctionality.AXE), 1);
         backpack.add(new Tool("Basic Watering Can", 0, "A basic watering can for watering crops.",
-                Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
+            Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "A tool for harvesting crops and cutting grass.",
-                Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null), 1);
+            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null), 1);
         backpack.add(new Tool("Initial Trash Can", 0, "A basic trash can for disposing of items.",
-                Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null), 1);
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null), 1);
         this.spouse = null;
 
         this.isMarried = false;
@@ -87,6 +100,12 @@ public class Player {
 
         energyUsedInTurn = 0;
         equipTool("Basic Hoe");
+
+
+        //graphic ui
+        this.speed = 5;
+        rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+
 
         // TODO: delete
         this.money = 10000000;
@@ -209,7 +228,7 @@ public class Player {
     private boolean isNearby(NPC npc) {
         // Check if the NPC is within a certain distance from the player
         int distance = Math.abs(npc.getLocation().getX() - this.location.getX()) +
-                Math.abs(npc.getLocation().getY() - this.location.getY());
+            Math.abs(npc.getLocation().getY() - this.location.getY());
         return distance <= 1;
     }
 
@@ -365,6 +384,24 @@ public class Player {
 
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    public float getPosX(){
+        return posX;
+    }
+
+    public void setPosX(float posX) {
+        this.posX = posX;
+        location.setxAxis((int) (posX/120));
+    }
+
+    public float getPosY(){
+        return posY;
+    }
+
+    public void setPosY(float posY) {
+        this.posY = posY;
+        location.setyAxis((int) (posY/120));
     }
 
     public boolean equipTool(String toolName) {
@@ -806,5 +843,34 @@ public class Player {
 
         Location farmLocation = farm.getItem(farmX, farmY);
         setLocation(farmLocation);
+    }
+
+    public String getSpriteFileLocation() {
+        return spriteFileLocation;
+    }
+
+    public void setSpriteFileLocation(String spriteFileLocation) {
+        this.spriteFileLocation = spriteFileLocation;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public void updatePosition() {
+        getPlayerSprite().setPosition(posX, posY);
+        rect.move(posX, posY);
+    }
+
+    public Sprite getPlayerSprite() {
+        if(playerSprite == null) {
+            playerSprite = new Sprite(new Texture(spriteFileLocation));
+            return playerSprite;
+        }
+        return playerSprite;
     }
 }
