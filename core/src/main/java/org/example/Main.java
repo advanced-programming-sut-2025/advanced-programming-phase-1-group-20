@@ -24,7 +24,7 @@ public class Main extends Game {
         game = this;
         batch = new SpriteBatch();
 
-        Pixmap pixmap = new Pixmap(Gdx.files.internal("cursor.png"));
+        Pixmap pixmap = new Pixmap(Gdx.files.internal("content/cursor.png"));
         int xHotspot = 0;
         int yHotspot = 0;
 
