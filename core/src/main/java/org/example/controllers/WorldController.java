@@ -100,16 +100,12 @@ public class WorldController {
         camera.update();
         Main.getBatch().setProjectionMatrix(camera.combined);
 
-        // Debug: Log that we're trying to render
-        Gdx.app.log("WorldController", "Starting render cycle");
 
         // Render the map tile by tile instead of using farm.getBackgroundSprite()
         renderFarmTiles();
 
         // Render the player
         playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
-
-        Gdx.app.log("WorldController", "Render cycle complete");
     }
 
     private void renderFarmTiles() {
@@ -128,14 +124,9 @@ public class WorldController {
             currentSeason = "spring";
         }
 
-        Gdx.app.log("WorldController", "Rendering farm tiles for season: " + currentSeason);
-        Gdx.app.log("WorldController", "Camera position: (" + camera.position.x + "," + camera.position.y + ")");
-        Gdx.app.log("WorldController", "Player position: (" + playerController.getPlayer().getPosX() + "," + playerController.getPlayer().getPosY() + ")");
 
-        // SIMPLIFIED: Just render the whole farm for now (we'll optimize later)
         int tilesRendered = 0;
 
-        // Render all tiles (we'll add frustum culling back later)
         for (int x = 0; x < Farm.width; x++) {
             for (int y = 0; y < Farm.height; y++) {
                 renderTile(x, y, currentSeason);
@@ -143,7 +134,6 @@ public class WorldController {
             }
         }
 
-        Gdx.app.log("WorldController", "Rendered " + tilesRendered + " tiles total");
     }
 
     private void renderTile(int x, int y, String season) {
@@ -151,7 +141,6 @@ public class WorldController {
         Location location = farm.getItem(x, y);
         if (location == null) {
             if (x == 25 && y == 25) { // Only log for center tile to avoid spam
-                Gdx.app.error("WorldController", "Location is null at center " + x + "," + y);
             }
             return;
         }
@@ -169,8 +158,6 @@ public class WorldController {
 
         // Debug: Log center tile info only
         if (x == 25 && y == 25) {
-            Gdx.app.log("WorldController", "Rendering center tile at world coords (" + worldX + "," + worldY + ") with tile type: " + location.getTile());
-            Gdx.app.log("WorldController", "Map offset: (" + mapCenterOffsetX + "," + mapCenterOffsetY + ")");
         }
 
         // Layer 1: Render grass base layer (seasonal) for most tiles
@@ -180,11 +167,9 @@ public class WorldController {
             if (grassTexture != null) {
                 Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
                 if (x == 25 && y == 25) {
-                    Gdx.app.log("WorldController", "Drew grass texture at center");
                 }
             } else {
                 if (x == 25 && y == 25) {
-                    Gdx.app.error("WorldController", "Grass texture not found for season: " + season);
                 }
             }
         }

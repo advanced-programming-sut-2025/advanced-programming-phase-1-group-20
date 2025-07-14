@@ -84,16 +84,16 @@ public class WelcomeMenuController {
         App.setGame(game);
 
         GameMap map = new GameMap();
-        Farm farm1 = new Farm("guest farm" , player1 , true , 1);
+        Farm farm1 = new Farm("guest farm" , player1 , true , 0);
         player1.setCurrentFarm(farm1);
         map.addFarm(farm1);
-        Farm farm2 = new Farm("guest farm" , player2 , false , 2);
+        Farm farm2 = new Farm("guest farm" , player2 , false , 1);
         player2.setCurrentFarm(farm2);
         map.addFarm(farm2);
-        Farm farm3 = new Farm("guest farm" , player3 , true , 3);
+        Farm farm3 = new Farm("guest farm" , player3 , true , 2);
         player3.setCurrentFarm(farm3);
         map.addFarm(farm3);
-        Farm farm4 = new Farm("guest farm" , player4 , false , 4);
+        Farm farm4 = new Farm("guest farm" , player4 , false , 3);
         player4.setCurrentFarm(farm4);
         map.addFarm(farm4);
 
