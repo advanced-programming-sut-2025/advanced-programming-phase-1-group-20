@@ -15,6 +15,7 @@ public class GameAssetManager {
     private final Texture backTitleTexture = new Texture("content/Titles/back.png");
     private final Texture developedByTitleTexture = new Texture("content/Titles/developedBy.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
+    private final Texture[] signUpMenuImages = new Texture[20];
 
     public static GameAssetManager getGameAssetManager() {
         if (gameAssetManager == null) {
@@ -39,6 +40,10 @@ public class GameAssetManager {
         loadWelcomeMenuTextures();
     }
 
+    public Skin getSkin() {
+        return skin;
+    }
+
     public void loadWelcomeMenuTextures() {
         for (int i = 0; i < 20; i++) {
             welcomeMenuImages[i] = new Texture(Gdx.files.internal("content/WelcomeMenu/" + (i + 1) + ".png"));
@@ -53,12 +58,30 @@ public class GameAssetManager {
         return welcomeMenuImages.length;
     }
 
-    public Skin getSkin() {
-        return skin;
-    }
-
     public void disposeWelcomeMenuTextures() {
         for (Texture texture : welcomeMenuImages) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+    }
+
+    public void loadSignUpMenuTextures() {
+        for (int i = 0; i < 20; i++) {
+            signUpMenuImages[i] = new Texture(Gdx.files.internal("Menu/" + (i + 1) + ".png"));
+        }
+    }
+
+    public Texture getSignUpMenuTexture(int index) {
+        return signUpMenuImages[index];
+    }
+
+    public int getSignUpMenuImagesCount() {
+        return signUpMenuImages.length;
+    }
+
+    public void disposeSignUpMenuTextures() {
+        for (Texture texture : signUpMenuImages) {
             if (texture != null) {
                 texture.dispose();
             }
