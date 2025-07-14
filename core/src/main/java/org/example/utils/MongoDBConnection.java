@@ -13,7 +13,6 @@ public class MongoDBConnection {
     private static final String DATABASE_NAME = "stardew_valley_db"; // نام دیتابیس شما
 
     private MongoDBConnection() {
-        // Private constructor to prevent instantiation
     }
 
     public static synchronized MongoDatabase getDatabase() {
