@@ -33,7 +33,7 @@ public class Main extends Game {
 
         App.initialize();
         WelcomeMenuController welcomeMenuController = new WelcomeMenuController();
-        WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController);
+        WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController , GameAssetManager.getGameAssetManager().getSkin());
         welcomeMenuController.setScreen(welcomeMenuScreen);
         getGame().setScreen(welcomeMenuScreen);
     }

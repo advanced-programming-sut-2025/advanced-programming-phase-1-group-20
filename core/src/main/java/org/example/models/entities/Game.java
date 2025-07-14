@@ -14,44 +14,39 @@ import java.util.ArrayList; // اگر players همیشه باید مقدارده
 
 import java.util.Objects; // برای equals و hashCode
 
-public class Game implements Serializable { // Serializable را می‌توانید حذف کنید.
-    private List<Player> players; // **** حذف transient ****
-    private Player currentPlayer; // **** حذف transient ****
-    private Date date; // **** حذف transient ****
+public class Game implements Serializable {
+    private List<Player> players;
+    private Player currentPlayer;
+    private Date date;
     private int currentPlayerIndex;
     private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections; // **** حذف transient ****
-    private Map<Player, Boolean> terminateVotes; // **** حذف transient ****
-    private Player gameCreator; // **** حذف transient ****
+    private Map<Player, Integer> mapSelections;
+    private Map<Player, Boolean> terminateVotes;
+    private Player gameCreator;
     private boolean saved;
-    private GameMap gameMap; // **** حذف transient ****
-    private String saveName; // **** اضافه شده: برای نگهداری نام ذخیره در شیء بازی ****
+    private GameMap gameMap;
+    private String saveName;
 
-    // **** سازنده بدون آرگومان (No-Argument Constructor) - ضروری برای Gson ****
+
     public Game() {
-        // مقداردهی اولیه ایمن فیلدها برای جلوگیری از NullPointerException پس از deserialization
-        this.players = new ArrayList<>();
-        this.date = new Date(); // اطمینان حاصل کنید Date هم سازنده بدون آرگومان دارد
-        this.mapSelections = new HashMap<>();
-        this.terminateVotes = new HashMap<>();
-        // سایر فیلدها با مقادیر پیش فرض یا null مقداردهی می‌شوند
+
+
+
     }
 
 
     public Game(List<Player> players, Player creator) {
-        // ابتدا سازنده بدون آرگومان را صدا بزنید تا فیلدها مقداردهی اولیه شوند
-        this();
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
         if (players != null && !players.isEmpty()) {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
-        // date از سازنده بدون آرگومان مقداردهی شده
+
         this.inMapSelectionPhase = true;
-        // mapSelections و terminateVotes از سازنده بدون آرگومان مقداردهی شده‌اند
+
         this.saved = false;
-        // gameMap از سازنده بدون آرگومان مقداردهی شده
+
 
         if (players != null) {
             for (Player player : players) {
@@ -161,7 +156,7 @@ public class Game implements Serializable { // Serializable را می‌توان
         this.saveName = saveName;
     }
 
-    // سایر متدهای شما...
+
     public boolean allPlayersSelectedMap() {
         if (players == null || mapSelections == null) return false; // Null check
         for (Player player : players) {
@@ -254,7 +249,6 @@ public class Game implements Serializable { // Serializable را می‌توان
         return null;
     }
 
-    // پیاده‌سازی صحیح equals و hashCode بر اساس saveName
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

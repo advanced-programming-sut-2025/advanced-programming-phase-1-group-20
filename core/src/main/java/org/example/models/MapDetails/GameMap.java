@@ -1,5 +1,7 @@
 package org.example.models.MapDetails;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.example.models.Barn;
 import org.example.models.Coop;
 import org.example.models.Player.Player;
@@ -11,19 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameMap {
-    private final String background;
     private final List<Farm> farms;
     private Village village;
 
+
     public GameMap() {
-        this.background = "simple_background.png";
         this.farms = new ArrayList<>();
         this.village = new Village("Shemroon");
     }
 
-    public String getBackground() {
-        return background;
-    }
+
+
+
 
     public List<Farm> getFarms() {
         return farms;

@@ -1,5 +1,7 @@
 package org.example.models.MapDetails;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.example.models.App;
 import org.example.models.Barn;
 import org.example.models.Coop;
@@ -53,14 +55,17 @@ public class Farm {
     private final int farmIndex;
     private final Location[][] tiles;
     private final List<Animal> animals;
-    private final Building building;
-    private final List<Lake> lakes;
-    private final GreenHouse greenHouse;
-    private final Quarry quarry;
+    private final Building building = createBuilding();
+    private final List<Lake> lakes = createLakes();
+    private final GreenHouse greenHouse = createGreenHouse();
+    private final Quarry quarry = createQuarry();
     private final List<Barn> barns;
     private final List<Coop> coops;
     private final Map<String, Character> symbolMap;
     private final List<ShippingBin> shippingBins;
+
+    private String background = "content/maps/1.png";
+    private Sprite backgroundSprite;
 
     public Farm(String name, Player owner, boolean farmType, int farmIndex) {
         this.farmType = farmType;
@@ -72,16 +77,24 @@ public class Farm {
         this.animals = new ArrayList<>();
         this.barns = new ArrayList<>();
         this.coops = new ArrayList<>();
-        this.building = createBuilding();
-        this.lakes = createLakes();
-        this.greenHouse = createGreenHouse();
-        this.quarry = createQuarry();
         this.shippingBins = new ArrayList<>();
         owner.setPlayerColor(setOwnerColor());
         App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
+    }
+
+    public String getBackground() {
+        return background;
+    }
+
+    public Sprite getBackgroundSprite() {
+        if(backgroundSprite == null) {
+            backgroundSprite = new Sprite(new Texture(getBackground()));
+            return backgroundSprite;
+        }
+        return backgroundSprite;
     }
 
     public static int calculateEnergyNeeded(Location from, Location to) {
@@ -133,9 +146,9 @@ public class Farm {
         Building building = getBuilding();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -218,9 +231,9 @@ public class Farm {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             if ((x == 0 && y == 0) ||
-                    (x == width - 1 && y == 0) ||
-                    (x == 0 && y == height - 1) ||
-                    (x == width - 1 && y == height - 1)) {
+                (x == width - 1 && y == 0) ||
+                (x == 0 && y == height - 1) ||
+                (x == width - 1 && y == height - 1)) {
                 continue;
             }
             TileType currentTile = tiles[x][y].getTile();
@@ -317,53 +330,16 @@ public class Farm {
 
     public List<Lake> createLakes() {
         List<Lake> lakes = new ArrayList<>();
-        switch (farmIndex) {
-            case 0:
-                if (farmType) {
-                    Lake l11 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
-                    Lake l12 = new Lake(width / 2 + 7 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
-                    lakes.add(l11);
-                    lakes.add(l12);
-                    return lakes;
-                }
-                Lake l1 = new Lake(width / 2 + 5, height / 2 - 3, 6, 6, "lake", Lake.LakeType.RIVER);
-                lakes.add(l1);
-                return lakes;
-            case 1:
-                if (farmType) {
-                    Lake l21 = new Lake(width / 2 - 6, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
-                    Lake l22 = new Lake(width / 2 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
-                    lakes.add(l21);
-                    lakes.add(l22);
-                    return lakes;
-                }
-                Lake l2 = new Lake(width / 2 - 6, height / 2 - 3, 6, 6, "lake", Lake.LakeType.RIVER);
-                lakes.add(l2);
-                return lakes;
-            case 2:
-                if (farmType) {
-                    Lake l31 = new Lake(width / 2 - 6, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
-                    Lake l32 = new Lake(width / 2 - 1, height / 2 + 6, 6, 6, "lake", Lake.LakeType.RIVER);
-                    lakes.add(l31);
-                    lakes.add(l32);
-                    return lakes;
-                }
-                Lake l3 = new Lake(width / 2 - 6, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
-                lakes.add(l3);
-                return lakes;
-            case 3:
-                if (farmType) {
-                    Lake l41 = new Lake(width / 2 + 2, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
-                    Lake l42 = new Lake(width / 2 + 7, height / 2 + 6, 6, 6, "lake", Lake.LakeType.RIVER);
-                    lakes.add(l41);
-                    lakes.add(l42);
-                    return lakes;
-                }
-                Lake l4 = new Lake(width / 2 + 2, height / 2, 6, 6, "lake", Lake.LakeType.RIVER);
-                lakes.add(l4);
-                return lakes;
+        if (farmType) {
+            Lake l11 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
+            Lake l12 = new Lake(width / 2 + 7 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
+            lakes.add(l11);
+            lakes.add(l12);
+            return lakes;
         }
-        return null;
+        Lake l1 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
+        lakes.add(l1);
+        return lakes;
     }
 
     public void markBuildingArea() {
@@ -507,7 +483,7 @@ public class Farm {
     }
 
     public Building getBuilding() {
-        return building;
+        return this.building;
     }
 
     public GreenHouse getGreenHouse() {
@@ -645,10 +621,10 @@ public class Farm {
 
     public int checkFourDirectionsForGiants(int x, int y, String itemName) {
         int[][] DIRECTIONS = {
-                {-1, 1},
-                {-1, -1},
-                {1, -1},
-                {1, 1}
+            {-1, 1},
+            {-1, -1},
+            {1, -1},
+            {1, 1}
         };
 
         for (int dir = 0; dir < DIRECTIONS.length; dir++) {
@@ -663,12 +639,12 @@ public class Farm {
             int y3 = y + dy;
 
             if (contains(x1, y1) &&
-                    contains(x2, y2) &&
-                    contains(x3, y3)) {
+                contains(x2, y2) &&
+                contains(x3, y3)) {
 
                 if (getItem(x1, y1).getItem().getName() == itemName &&
-                        getItem(x2, y2).getItem().getName() == itemName &&
-                        getItem(x3, y3).getItem().getName() == itemName) {
+                    getItem(x2, y2).getItem().getName() == itemName &&
+                    getItem(x3, y3).getItem().getName() == itemName) {
                     return dir + 1; // 1 to 4
                 }
             }
@@ -875,7 +851,7 @@ public class Farm {
             return false;
         }
         return type.equals("water") || type.equals("village") ||
-                type.equals("building") || type.equals("quarry") || type.equals("greenhouse");
+            type.equals("building") || type.equals("quarry") || type.equals("greenhouse");
     }
 
     public List<Location> getPassableNeighbors(Location location) {
@@ -884,9 +860,9 @@ public class Farm {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -977,9 +953,9 @@ public class Farm {
             }
 
             int[][] directions = {
-                    {-1, -1}, {-1, 0}, {-1, 1},
-                    {0, -1}, {0, 1},
-                    {1, -1}, {1, 0}, {1, 1}
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
             };
 
             for (int[] dir : directions) {
@@ -1047,9 +1023,9 @@ public class Farm {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -1076,9 +1052,9 @@ public class Farm {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -1102,9 +1078,9 @@ public class Farm {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -1131,9 +1107,9 @@ public class Farm {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -1195,7 +1171,7 @@ public class Farm {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Plant ||
-                        tiles[x][y].getItem() instanceof Crop) {
+                    tiles[x][y].getItem() instanceof Crop) {
                     if (!tiles[x][y].isScarecrowThere()) {
                         counter++;
                     }
@@ -1217,7 +1193,7 @@ public class Farm {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if ((tiles[x][y].getItem() instanceof Tree || tiles[x][y].getItem() instanceof Crop
-                        || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()) {
+                    || tiles[x][y].getItem() instanceof Plant) && !tiles[x][y].isScarecrowThere()) {
                     locations.add(tiles[x][y]);
                 }
             }
