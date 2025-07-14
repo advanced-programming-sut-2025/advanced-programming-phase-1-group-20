@@ -10,7 +10,7 @@ import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
 import org.example.utils.GameAssetManager;
-import org.example.views.GameMenuScreen;
+import org.example.views.GameView;
 import org.example.views.LoginRegisterMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
@@ -74,8 +74,6 @@ public class WelcomeMenuController {
         Player player4 = new Player(user4);
 
 
-
-
         List<Player> players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
@@ -100,7 +98,7 @@ public class WelcomeMenuController {
         map.addFarm(farm4);
 
         game.setGameMap(map);
-        GameMenuScreen gameMenuScreen = new GameMenuScreen(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
-        Main.getGame().setScreen(gameMenuScreen);
+        GameView gameView = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
+        Main.getGame().setScreen(gameView);
     }
 }

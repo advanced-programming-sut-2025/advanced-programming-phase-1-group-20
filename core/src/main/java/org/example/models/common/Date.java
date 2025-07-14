@@ -104,7 +104,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep( 6 * 60 * 1000);
+                Thread.sleep(6 * 60 * 1000);
                 advanceTime(1, App.getGame().getGameMap());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -150,6 +150,16 @@ public class Date implements Runnable {
 
     public Seasons getSeason() {
         return Seasons.values()[this.season];
+    }
+
+    public String getSeasonString() {
+        return switch (this.season) {
+            case 0 -> "Spring";
+            case 1 -> "Summer";
+            case 2 -> "Fall";
+            case 3 -> "Winter";
+            default -> "Unexpected";
+        };
     }
 
     public Weather getWeatherToday() {
@@ -213,4 +223,5 @@ public class Date implements Runnable {
     private void log() {
         System.out.println("[LOG - " + getCurrentTimeString() + "] " + "time advanced");
         displayWeather();
-    }}
+    }
+}

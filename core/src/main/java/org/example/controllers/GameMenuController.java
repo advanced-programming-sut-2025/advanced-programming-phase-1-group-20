@@ -21,8 +21,7 @@ import org.example.models.enums.Types.CraftingType;
 import org.example.models.enums.Types.ItemBuilder;
 import org.example.models.enums.Types.TileType;
 import org.example.models.enums.Weather;
-import org.example.models.enums.commands.GameMenuCommands;
-import org.example.views.GameMenuScreen;
+import org.example.views.GameView;
 
 
 import java.util.*;
@@ -30,7 +29,7 @@ import java.util.*;
 public class GameMenuController implements Controller {
     private final Date gameClock;
     private Player player;
-    private GameMenuScreen view;
+    private GameView view;
     private PlayerController playerController;
     private WorldController worldController;
 
@@ -39,12 +38,11 @@ public class GameMenuController implements Controller {
         this.gameClock = App.getGame().getDate();
     }
 
-    public void setView(GameMenuScreen view){
+    public void setView(GameView view){
         this.view = view;
         playerController = new PlayerController(player , player.getCurrentFarm());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera());
     }
-
 
 
     public void setupListeners() {}
@@ -54,7 +52,6 @@ public class GameMenuController implements Controller {
         if(view != null && !view.getPauseTable().isVisible()) {
             worldController.update();
             playerController.update();
-            System.out.println(playerController.getPlayer().getPosX() + " " + playerController.getPlayer().getPosY());
         }
     }
 

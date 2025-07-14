@@ -21,5 +21,4 @@ public class CollisionRect {
                 y < rect.y + rect.height &&
                 y + height > rect.y;
     }
-
 }
