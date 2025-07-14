@@ -73,9 +73,6 @@ public class WelcomeMenuController {
         User user4 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
         Player player4 = new Player(user4);
 
-
-
-
         List<Player> players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
