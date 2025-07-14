@@ -20,8 +20,8 @@ public class Game implements Serializable {
     private Date date;
     private int currentPlayerIndex;
     private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections;
-    private Map<Player, Boolean> terminateVotes;
+    private Map<Player, Integer> mapSelections = new HashMap<>();
+    private Map<Player, Boolean> terminateVotes = new HashMap<>();
     private Player gameCreator;
     private boolean saved;
     private GameMap gameMap;
@@ -33,7 +33,6 @@ public class Game implements Serializable {
 
 
     }
-
 
     public Game(List<Player> players, Player creator) {
         this.players = players;
