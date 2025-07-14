@@ -2,6 +2,7 @@ package org.example.views;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -80,8 +81,13 @@ public class WelcomeMenuScreen implements Screen {
 
     private ImageButton createImageButton(Texture texture) {
         ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+
         style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
-        style.imageDown = new TextureRegionDrawable(new TextureRegion(texture));
+
+        TextureRegionDrawable pressedDrawable = new TextureRegionDrawable(new TextureRegion(texture));
+        pressedDrawable.tint(Color.DARK_GRAY); 
+        style.imageDown = pressedDrawable;
+
         return new ImageButton(style);
     }
 
