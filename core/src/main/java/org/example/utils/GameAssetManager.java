@@ -6,14 +6,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class GameAssetManager {
     private static GameAssetManager gameAssetManager;
-    private final Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
-    private final Texture signUpTitleTexture = new Texture("Titles/signUp.png");
-    private final Texture loginTitleTexture = new Texture("Titles/login.png");
-    private final Texture newTitleTexture = new Texture("Titles/new.png");
-    private final Texture loadTitleTexture = new Texture("Titles/load.png");
-    private final Texture exitTitleTexture = new Texture("Titles/exit.png");
-    private final Texture backTitleTexture = new Texture("Titles/back.png");
-    private final Texture developedByTitleTexture = new Texture("Titles/developedBy.png");
+    private final Skin skin = new Skin(Gdx.files.internal("content/ui/uiskin.json"));
+    private final Texture signUpTitleTexture = new Texture("content/Titles/signUp.png");
+    private final Texture loginTitleTexture = new Texture("content/Titles/login.png");
+    private final Texture newTitleTexture = new Texture("content/Titles/new.png");
+    private final Texture loadTitleTexture = new Texture("content/Titles/load.png");
+    private final Texture exitTitleTexture = new Texture("content/Titles/exit.png");
+    private final Texture backTitleTexture = new Texture("content/Titles/back.png");
+    private final Texture developedByTitleTexture = new Texture("content/Titles/developedBy.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
 
     public static GameAssetManager getGameAssetManager() {
@@ -41,7 +41,7 @@ public class GameAssetManager {
 
     public void loadWelcomeMenuTextures() {
         for (int i = 0; i < 20; i++) {
-            welcomeMenuImages[i] = new Texture(Gdx.files.internal("WelcomeMenu/" + (i + 1) + ".png"));
+            welcomeMenuImages[i] = new Texture(Gdx.files.internal("content/WelcomeMenu/" + (i + 1) + ".png"));
         }
     }
 
