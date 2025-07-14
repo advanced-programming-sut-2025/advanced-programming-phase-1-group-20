@@ -7,8 +7,10 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.controllers.WelcomeMenuController;
@@ -16,17 +18,15 @@ import org.example.utils.GameAssetManager;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
 public class WelcomeMenuScreen implements Screen {
-    private TextButton signUpButton;
-    private TextButton loginButton;
-    private TextButton exitButton;
+    private ImageButton signUpButton;
+    private ImageButton loginButton;
+    private ImageButton exitButton;
     private final WelcomeMenuController controller;
     private final Stage stage;
-    private final Skin skin;
     private Image background;
 
-    public WelcomeMenuScreen(WelcomeMenuController controller, Skin skin) {
+    public WelcomeMenuScreen(WelcomeMenuController controller) {
         this.controller = controller;
-        this.skin = skin;
         this.stage = new Stage(new ScreenViewport());
         setupUI();
     }
@@ -36,41 +36,53 @@ public class WelcomeMenuScreen implements Screen {
         background.setFillParent(true);
         stage.addActor(background);
 
+        GameAssetManager assetManager = GameAssetManager.getGameAssetManager();
+
+        signUpButton = createImageButton(assetManager.getSignUpTexture());
+        loginButton = createImageButton(assetManager.getLoginTexture());
+        exitButton = createImageButton(assetManager.getExitTexture());
+
         Table table = new Table();
         table.setFillParent(true);
         table.bottom().padBottom(180);
 
-        signUpButton = new TextButton("SIGN UP", skin);
-        loginButton = new TextButton("LOGIN", skin);
-        exitButton = new TextButton("EXIT", skin);
-
-        table.add(signUpButton).pad(10);
-        table.add(loginButton).pad(10);
+        table.add(signUpButton).pad(20);
+        table.add(loginButton).pad(20);
         table.row();
-        table.add(exitButton).colspan(2).center().padTop(10);
+        table.add(exitButton).colspan(2).center().padTop(20);
 
         stage.addActor(table);
 
-        loginButton.addListener(new ChangeListener() {
-            public void changed(ChangeEvent event, Actor actor) {
+        loginButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
 //                GameAssetManager.getGameAssetManager().playClickSound();
                 controller.handleLoginButton();
             }
         });
 
-        signUpButton.addListener(new ChangeListener() {
-            public void changed(ChangeEvent event, Actor actor) {
+        signUpButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
 //                GameAssetManager.getGameAssetManager().playClickSound();
                 controller.handleSignUpButton();
             }
         });
 
-        exitButton.addListener(new ChangeListener() {
-            public void changed(ChangeEvent event, Actor actor) {
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
 //                GameAssetManager.getGameAssetManager().playClickSound();
                 Gdx.app.exit();
             }
         });
+    }
+
+    private ImageButton createImageButton(Texture texture) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
+        style.imageDown = new TextureRegionDrawable(new TextureRegion(texture));
+        return new ImageButton(style);
     }
 
     public void updateBackground(Texture texture) {

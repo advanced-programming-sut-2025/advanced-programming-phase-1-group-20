@@ -23,6 +23,18 @@ public class GameAssetManager {
         return gameAssetManager;
     }
 
+    public Texture getSignUpTexture() {
+        return signUpTitleTexture;
+    }
+
+    public Texture getLoginTexture() {
+        return loginTitleTexture;
+    }
+
+    public Texture getExitTexture() {
+        return exitTitleTexture;
+    }
+
     GameAssetManager() {
         loadWelcomeMenuTextures();
     }
