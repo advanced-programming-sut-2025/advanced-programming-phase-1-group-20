@@ -49,7 +49,7 @@ public class GameMenuController implements Controller {
         return Result.success("");
     }
 
-    private void showInventory() {
+    public void showInventory() {
         App.getGame().getCurrentPlayer().getBackpack().showInventory();
     }
     // TODO: add items should be checked -> Mostafa
@@ -814,7 +814,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    private Result exitGame() {
+    public Result exitGame() {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
@@ -834,7 +834,7 @@ public class GameMenuController implements Controller {
         return Result.success("Game saved and exited");
     }
 
-    private Result nextTurn() {
+    public Result nextTurn() {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
@@ -858,7 +858,7 @@ public class GameMenuController implements Controller {
         return Result.success("Turn advanced. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn.");
     }
 
-    private Result voteTerminate(String[] args) {
+    public Result voteTerminate(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
@@ -900,7 +900,7 @@ public class GameMenuController implements Controller {
     }
 
     // TODO: check if the items required are right
-    private Result greenhouseBuild() {
+    public Result greenhouseBuild() {
         Player player = App.getGame().getCurrentPlayer();
 
         int requiredWood = 500;
@@ -1928,14 +1928,14 @@ public class GameMenuController implements Controller {
     }
 
     //cheats:
-    private void cheatBackPackFull() {
+    public void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
 
         player.getBackpack().setType(Backpack.Type.Deluxe);
     }
 
 
-    private void cheatAddFavourites(String[] args) {
+    public void cheatAddFavourites(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
 
         Npcs npcType = Npcs.fromName(args[0]);
@@ -1950,7 +1950,7 @@ public class GameMenuController implements Controller {
 
 
     //TODO : cheats:
-    private void cheatTeleportMarkets(String[] args) {
+    public void cheatTeleportMarkets(String[] args) {
         String marketName = args[0];
         switch (marketName) {
             case "Black Smith" -> {
@@ -1999,13 +1999,13 @@ public class GameMenuController implements Controller {
         }
     }
 
-    private void cheatTeleportHome() {
+    public void cheatTeleportHome() {
         System.out.println("You are in your home.");
         //TODO : change this
 //        appView.navigateMenu(new HouseMenu(appView, App.getGame().getCurrentPlayer(), App.getGame().getCurrentPlayer().getCurrentFarm().getBuilding()));
     }
 
-    private void cheatTeleport(String[] args) {
+    public void cheatTeleport(String[] args) {
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
         Location location = App.getGame().getCurrentPlayer().getCurrentFarm().getItem(x, y);
@@ -2048,7 +2048,7 @@ public class GameMenuController implements Controller {
         return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
     }
 
-    private void cheatGiveItems() {
+    public void cheatGiveItems() {
         Player player = App.getGame().getCurrentPlayer();
 
         //TODO : adding correct image file path
@@ -2083,7 +2083,7 @@ public class GameMenuController implements Controller {
         showInventory();
     }
 
-    private void cheatGiveAllRecipe() {
+    public void cheatGiveAllRecipe() {
         Player player = App.getGame().getCurrentPlayer();
         for (CraftingType type : CraftingType.values()) {
             CraftingItem craftedItem = new CraftingItem(type);
