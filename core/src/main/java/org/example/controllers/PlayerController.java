@@ -62,7 +62,6 @@ public class PlayerController {
 
         stateTime += delta;
 
-        // Draw the animated frame with bigger size
         TextureRegion frame = currentAnim.getKeyFrame(stateTime, true);
         Main.getBatch().draw(
             frame,
@@ -79,7 +78,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
-            if (isWalkable(newX, newY)) {
+            if (isWalkable(newX /120, newY / 120)) {
                 player.setPosX(newX);
                 facing = Dir.LEFT;
             }
@@ -87,7 +86,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             newX += player.getSpeed();
-            if (isWalkable(newX, newY)) {
+            if (isWalkable(newX / 120, newY / 120)) {
                 player.setPosX(newX);
                 facing = Dir.RIGHT;
             }
@@ -95,7 +94,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             newY += player.getSpeed();
-            if (isWalkable(newX, newY)) {
+            if (isWalkable(newX /120, newY / 120)) {
                 player.setPosY(newY);
                 facing = Dir.UP;
             }
@@ -103,7 +102,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             newY -= player.getSpeed();
-            if (isWalkable(newX, newY)) {
+            if (isWalkable(newX /120, newY / 120)) {
                 player.setPosY(newY);
                 facing = Dir.DOWN;
             }
