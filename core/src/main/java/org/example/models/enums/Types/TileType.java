@@ -25,4 +25,9 @@ public enum TileType {
     CONSTRUCTED_GREENHOUSE,
     BRANCH,
     GREENHOUSE;
+
+    final boolean isWalkable;
+    TileType(boolean isWalkable) {
+        this.isWalkable = isWalkable;
+    }
 }

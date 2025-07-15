@@ -62,7 +62,6 @@ public class PlayerController {
 
         stateTime += delta;
 
-        // Draw the animated frame with bigger size
         TextureRegion frame = currentAnim.getKeyFrame(stateTime, true);
         Main.getBatch().draw(
             frame,
