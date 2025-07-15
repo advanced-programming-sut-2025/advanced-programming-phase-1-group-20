@@ -10,12 +10,24 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.example.Main;
+import org.example.controllers.GameMenuController;
 import org.example.controllers.WelcomeMenuController;
+import org.example.models.App;
+import org.example.models.MapDetails.Farm;
+import org.example.models.MapDetails.GameMap;
+import org.example.models.Player.Player;
+import org.example.models.entities.Game;
+import org.example.models.entities.User;
+import org.example.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.GameAssetManager;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.graphics.Color;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WelcomeMenuScreen implements Screen {
     // Constants
