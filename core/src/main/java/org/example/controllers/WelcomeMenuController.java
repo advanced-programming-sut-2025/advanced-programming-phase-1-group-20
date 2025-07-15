@@ -12,10 +12,13 @@ import org.example.models.enums.PlayerEnums.Gender;
 import org.example.utils.GameAssetManager;
 import org.example.views.GameView;
 import org.example.views.LoginRegisterMenuScreen;
+import org.example.views.SignUpMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.example.Main.getGame;
 
 public class WelcomeMenuController {
     private WelcomeMenuScreen screen;
@@ -48,21 +51,21 @@ public class WelcomeMenuController {
     }
 
     public void handleLoginButton() {
-        Main.getGame().getScreen().dispose();
-        Main.getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
+        getGame().getScreen().dispose();
+        getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
             GameAssetManager.getGameAssetManager().getSkin()));
     }
 
     public void handleSignUpButton() {
-        Main.getGame().getScreen().dispose();
+        getGame().getScreen().dispose();
         LoginRegisterMenuScreen registerScreen = new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
             GameAssetManager.getGameAssetManager().getSkin());
-        Main.getGame().setScreen(registerScreen);
+        getGame().setScreen(registerScreen);
         registerScreen.showRegisterFormDirectly();
     }
 
     public void handleTryGameButton() {
-        Main.getGame().getScreen().dispose();
+        getGame().getScreen().dispose();
 
         User user1 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
         Player player1 = new Player(user1);
@@ -98,6 +101,6 @@ public class WelcomeMenuController {
 
         game.setGameMap(map);
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
-        Main.getGame().setScreen(gameMenuScreen);
+        getGame().setScreen(gameMenuScreen);
     }
 }

@@ -16,6 +16,7 @@ public class GameAssetManager {
     private final Texture developedByTitleTexture = new Texture("content/Titles/developedBy.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
     private final Texture[] signUpMenuImages = new Texture[20];
+    private final Texture[] loginMenuImages = new Texture[20];
 
     public static GameAssetManager getGameAssetManager() {
         if (gameAssetManager == null) {
@@ -82,6 +83,28 @@ public class GameAssetManager {
 
     public void disposeSignUpMenuTextures() {
         for (Texture texture : signUpMenuImages) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+    }
+
+    public void loadLoginMenuTextures() {
+        for (int i = 0; i < 20; i++) {
+            loginMenuImages[i] = new Texture(Gdx.files.internal("Menu/" + (i + 1) + ".png"));
+        }
+    }
+
+    public Texture getLoginMenuTexture(int index) {
+        return loginMenuImages[index];
+    }
+
+    public int getLoginMenuImagesCount() {
+        return loginMenuImages.length;
+    }
+
+    public void disposeLoginMenuTextures() {
+        for (Texture texture : loginMenuImages) {
             if (texture != null) {
                 texture.dispose();
             }
