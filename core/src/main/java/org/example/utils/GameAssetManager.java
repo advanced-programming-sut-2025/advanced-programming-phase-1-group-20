@@ -18,6 +18,20 @@ public class GameAssetManager {
     private final Texture[] signUpMenuImages = new Texture[20];
     private final Texture[] loginMenuImages = new Texture[20];
 
+    // weather texture
+    private final Texture rainyTexture = new Texture("content/clock/weather/rainy.png");
+    private final Texture snowyTexture = new Texture("content/clock/weather/snowy.png");
+    private final Texture sunnyTexture = new Texture("content/clock/weather/sunny.png");
+    private final Texture weddingTexture = new Texture("content/clock/weather/wedding.png");
+    private final Texture stormyTexture = new Texture("content/clock/weather/stormy.png");
+
+    // season textures
+    private final Texture winterTexture = new Texture("content/clock/seasons/winter.png");
+    private final Texture springTexture = new Texture("content/clock/seasons/spring.png");
+    private final Texture summerTexture = new Texture("content/clock/seasons/summer.png");
+    private final Texture fallTexture = new Texture("content/clock/seasons/fall.png");
+
+
     public static GameAssetManager getGameAssetManager() {
         if (gameAssetManager == null) {
             gameAssetManager = new GameAssetManager();
@@ -101,6 +115,42 @@ public class GameAssetManager {
 
     public int getLoginMenuImagesCount() {
         return loginMenuImages.length;
+    }
+
+    public Texture getRainyTexture() {
+        return rainyTexture;
+    }
+
+    public Texture getSnowyTexture() {
+        return snowyTexture;
+    }
+
+    public Texture getSunnyTexture() {
+        return sunnyTexture;
+    }
+
+    public Texture getWeddingTexture() {
+        return weddingTexture;
+    }
+
+    public Texture getStormyTexture() {
+        return stormyTexture;
+    }
+
+    public Texture getWinterTexture() {
+        return winterTexture;
+    }
+
+    public Texture getSpringTexture() {
+        return springTexture;
+    }
+
+    public Texture getSummerTexture() {
+        return summerTexture;
+    }
+
+    public Texture getFallTexture() {
+        return fallTexture;
     }
 
     public void disposeLoginMenuTextures() {
