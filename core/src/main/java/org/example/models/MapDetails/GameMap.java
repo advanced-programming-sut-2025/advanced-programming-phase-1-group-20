@@ -22,10 +22,6 @@ public class GameMap {
         this.village = new Village("Shemroon");
     }
 
-
-
-
-
     public List<Farm> getFarms() {
         return farms;
     }
