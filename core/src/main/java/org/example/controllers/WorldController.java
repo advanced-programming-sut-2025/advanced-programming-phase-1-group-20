@@ -19,11 +19,11 @@ public class WorldController {
     private Farm farm;
     private OrthographicCamera camera;
 
-
+    // Texture caching for performance
     private Map<String, Texture> textureCache;
 
-
-    private static final int TILE_SIZE = 60; // Changed to match coordinate system better
+    // Tile size in pixels (adjust based on your game's scale)
+    private static final int TILE_SIZE = 60; // Changed to match your coordinate system better
 
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
@@ -96,12 +96,35 @@ public class WorldController {
     }
 
     public void update() {
-        camera.position.set(playerController.getPlayer().getPosX(), playerController.getPlayer().getPosY(), 0);
+        float playerX = playerController.getPlayer().getPosX();
+        float playerY = playerController.getPlayer().getPosY();
+
+        // Calculate world dimensions of the map
+        float mapWidth = Farm.width * TILE_SIZE;
+        float mapHeight = Farm.height * TILE_SIZE;
+
+        // Calculate half of the camera's viewport width and height in world units
+        float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+        float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+
+        // Determine the camera's clamped X position
+        float cameraX = playerX;
+        float minCameraX = halfCameraViewWidth;
+        float maxCameraX = mapWidth - halfCameraViewWidth;
+        cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+
+        // Determine the camera's clamped Y position
+        float cameraY = playerY;
+        float minCameraY = halfCameraViewHeight;
+        float maxCameraY = mapHeight - halfCameraViewHeight;
+        cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+
+        // Set the camera's position to the clamped values
+        camera.position.set(cameraX, cameraY, 0);
         camera.update();
         Main.getBatch().setProjectionMatrix(camera.combined);
 
-
-        // Render the map tile by tile instead of using farm.getBackgroundSprite()
+        // Render the map tile by tile
         renderFarmTiles();
 
         // Render the player
@@ -109,13 +132,11 @@ public class WorldController {
     }
 
     private void renderFarmTiles() {
-        // Debug: Check if farm exists
         if (farm == null) {
             Gdx.app.error("WorldController", "Farm is null!");
             return;
         }
 
-        // Get current season for seasonal textures
         String currentSeason;
         try {
             currentSeason = App.getGame().getDate().getSeason().toString().toLowerCase();
@@ -124,76 +145,46 @@ public class WorldController {
             currentSeason = "spring";
         }
 
-
-        int tilesRendered = 0;
-
         for (int x = 0; x < Farm.width; x++) {
             for (int y = 0; y < Farm.height; y++) {
                 renderTile(x, y, currentSeason);
-                tilesRendered++;
             }
         }
-
     }
 
     private void renderTile(int x, int y, String season) {
-        // Get the location data from farm
         Location location = farm.getItem(x, y);
         if (location == null) {
-            if (x == 25 && y == 25) { // Only log for center tile to avoid spam
-            }
             return;
         }
 
-        // Corrected: Simply use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
-        // The camera's projection matrix will handle positioning based on the player.
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
-        // Debug: Log center tile info only
-        if (x == 25 && y == 25) {
-        }
-
-        // Layer 1: Render grass base layer (seasonal) for most tiles
         TileType tileType = location.getTile();
         if (shouldRenderGrass(tileType)) {
             Texture grassTexture = getTexture("grass_" + season);
             if (grassTexture != null) {
                 Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                if (x == 25 && y == 25) {
-                }
-            } else {
-                if (x == 25 && y == 25) {
-                }
             }
         }
 
-        // Layer 2: Render tile-specific texture based on tile type
         Texture tileTexture = getTileTexture(tileType, season, location);
         if (tileTexture != null) {
-            // For large buildings, handle them specially
             if (isLargeBuilding(tileType)) {
                 renderLargeBuildingTile(x, y, tileType, tileTexture);
             } else {
                 Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                if (x == 25 && y == 25) {
-                    Gdx.app.log("WorldController", "Drew tile texture for type: " + tileType);
-                }
             }
         }
 
-        // Layer 3: Render items on top of tiles if any
         Item item = location.getItem();
         if (item != null) {
             renderItemOnTile(x, y, item, season);
-            if (x == 25 && y == 25) {
-                Gdx.app.log("WorldController", "Drew item: " + item.getClass().getSimpleName());
-            }
         }
     }
 
     private boolean shouldRenderGrass(TileType tileType) {
-        // Grass should be rendered under most tiles except water/lake
         return tileType != TileType.LAKE && tileType != TileType.WATER;
     }
 
@@ -235,7 +226,7 @@ public class WorldController {
             case COOP:
                 return getTexture("coop");
             default:
-                return null; // Grass will show through
+                return null;
         }
     }
 
@@ -246,45 +237,31 @@ public class WorldController {
     }
 
     private void renderLargeBuildingTile(int x, int y, TileType tileType, Texture texture) {
-        // For large buildings, we need to determine if this is the corner tile
-        // and render the full building sprite from that corner
-
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
-
-        // For now, render each tile individually
-        // You might want to optimize this by tracking which building tiles have been rendered
         Main.getBatch().draw(texture, worldX, worldY, TILE_SIZE, TILE_SIZE);
     }
 
     private void renderItemOnTile(int x, int y, Item item, String season) {
-        // Corrected: Use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
-        // Handle different item types
         if (item instanceof Tree) {
-            Tree tree = (Tree) item;
             Texture treeTexture = getTexture("tree_" + season);
             if (treeTexture != null) {
                 Main.getBatch().draw(treeTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
             }
         } else if (item instanceof Crop) {
-            Crop crop = (Crop) item;
             Texture cropTexture = getTexture("crop");
             if (cropTexture != null) {
                 Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
             }
         } else if (item instanceof Plant) {
-            Plant plant = (Plant) item;
-            // You might want different textures for different plant types/stages
-            Texture plantTexture = getTexture("crop"); // Using crop texture as placeholder
+            Texture plantTexture = getTexture("crop");
             if (plantTexture != null) {
                 Main.getBatch().draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
             }
         } else if (item instanceof Mineral) {
-            Mineral mineral = (Mineral) item;
-            // You might want different textures based on mineral type
             Texture mineralTexture = getTexture("stone");
             if (mineralTexture != null) {
                 Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
@@ -295,10 +272,8 @@ public class WorldController {
                 Main.getBatch().draw(binTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
             }
         }
-        // Add more item types as needed
     }
 
-    // Clean up resources
     public void dispose() {
         for (Texture texture : textureCache.values()) {
             texture.dispose();
