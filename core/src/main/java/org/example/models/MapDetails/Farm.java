@@ -280,13 +280,13 @@ public class Farm {
                 Building b1 = new Building(width - 5, 0, "house", "house");
                 return b1;
             case 1:
-                Building b2 = new Building(0, 0, "house", "house");
+                Building b2 = new Building(width / 2 - 5, 0, "house", "house");
                 return b2;
             case 2:
-                Building b3 = new Building(0, height - 5, "house", "house");
+                Building b3 = new Building(width / 2 - 5, height / 2, "house", "house");
                 return b3;
             case 3:
-                Building b4 = new Building(width - 5, height - 5, "house", "house");
+                Building b4 = new Building(width - 5, height / 2, "house", "house");
                 return b4;
         }
         return null;
