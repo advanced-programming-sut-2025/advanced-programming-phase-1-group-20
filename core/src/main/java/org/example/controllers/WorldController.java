@@ -13,23 +13,52 @@ import org.example.models.Items.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ArrayList;
 
 public class WorldController {
     private PlayerController playerController;
     private Farm farm;
     private OrthographicCamera camera;
 
-
     private Map<String, Texture> textureCache;
+    private Set<String> renderedBuildings;
 
+    // Building anchor collections
+    private List<Location> greenhouseAnchors;
+    private List<Location> houseAnchors;
+    private List<Location> barnAnchors;
+    private List<Location> coopAnchors;
 
-    private static final int TILE_SIZE = 60; // Changed to match coordinate system better
+    private static final int TILE_SIZE = 60;
+
+    // Building dimensions in tiles
+    private static final int GREENHOUSE_TILES_W = 7;
+    private static final int GREENHOUSE_TILES_H = 6;
+    private static final int HOUSE_TILES_W = 5;
+    private static final int HOUSE_TILES_H = 6;
+    private static final int BARN_TILES_W = 4;
+    private static final int BARN_TILES_H = 3;
+    private static final int COOP_TILES_W = 3;
+    private static final int COOP_TILES_H = 3;
+
+    // Tree rendering size multiplier
+    private static final float TREE_SIZE_MULTIPLIER = 2f;
 
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
         this.farm = farm;
         this.camera = camera;
         this.textureCache = new HashMap<>();
+        this.renderedBuildings = new HashSet<>();
+
+        // Initialize building anchor collections
+        this.greenhouseAnchors = new ArrayList<>();
+        this.houseAnchors = new ArrayList<>();
+        this.barnAnchors = new ArrayList<>();
+        this.coopAnchors = new ArrayList<>();
 
         // Pre-load all textures
         preloadTextures();
@@ -57,12 +86,16 @@ public class WorldController {
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
 
-        // Load building textures (these are larger sprites)
+        // Building textures (larger sprites)
         loadTexture("barn", "content/buildings/barn.png");
         loadTexture("coop", "content/buildings/Coop.png");
         loadTexture("house", "content/buildings/house.png");
 
-        // Load tree textures for all seasons
+        // Greenhouse textures
+        loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
+        loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
+
+        // tree textures for all seasons
         for (String season : seasons) {
             String treePath = "content/TreeTile/" + season + ".png";
             if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
@@ -70,11 +103,8 @@ public class WorldController {
             }
         }
 
-        // Additional textures for missing tile types
-        loadTexture("branch", "content/Crafting/Stone.png"); // Placeholder
-        loadTexture("quarry", "content/Crafting/Stone.png"); // Placeholder
-        loadTexture("greenhouse", "content/buildings/house.png"); // Placeholder
-        loadTexture("constructed_greenhouse", "content/buildings/house.png"); // Placeholder
+        loadTexture("branch", "content/Crafting/Stone.png");
+        loadTexture("quarry", "content/Crafting/Stone.png");
 
         Gdx.app.log("WorldController", "Finished preloading textures. Cache size: " + textureCache.size());
     }
@@ -100,104 +130,139 @@ public class WorldController {
         camera.update();
         Main.getBatch().setProjectionMatrix(camera.combined);
 
+        renderedBuildings.clear();
+        greenhouseAnchors.clear();
+        houseAnchors.clear();
+        barnAnchors.clear();
+        coopAnchors.clear();
 
-        // Render the map tile by tile instead of using farm.getBackgroundSprite()
         renderFarmTiles();
+        renderBuildings();
 
-        // Render the player
         playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
     }
 
     private void renderFarmTiles() {
-        // Debug: Check if farm exists
         if (farm == null) {
             Gdx.app.error("WorldController", "Farm is null!");
             return;
         }
 
-        // Get current season for seasonal textures
-        String currentSeason;
-        try {
-            currentSeason = App.getGame().getDate().getSeason().toString().toLowerCase();
-        } catch (Exception e) {
-            Gdx.app.error("WorldController", "Failed to get season, using spring as default");
-            currentSeason = "spring";
-        }
+        String currentSeason = getCurrentSeason();
 
+        Set<String> greenhouseTiles = new HashSet<>();
+        Set<String> houseTiles = new HashSet<>();
+        Set<String> barnTiles = new HashSet<>();
+        Set<String> coopTiles = new HashSet<>();
 
-        int tilesRendered = 0;
+        collectBuildingTiles(greenhouseTiles, houseTiles, barnTiles, coopTiles);
 
         for (int x = 0; x < Farm.width; x++) {
             for (int y = 0; y < Farm.height; y++) {
-                renderTile(x, y, currentSeason);
-                tilesRendered++;
+                Location location = farm.getItem(x, y);
+                if (location == null) continue;
+
+                float worldX = x * TILE_SIZE;
+                float worldY = y * TILE_SIZE;
+
+                TileType tileType = location.getTile();
+
+                // Draw grass first
+                if (shouldRenderGrass(tileType)) {
+                    Texture grassTexture = getTexture("grass_" + currentSeason);
+                    if (grassTexture != null) {
+                        Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+
+                // Render tree item if present
+                Item item = location.getItem();
+                if (item instanceof Tree) {
+                    renderItemOnTile(x, y, item, currentSeason);
+                }
+
+                // Then draw tile-specific texture (like lake, stone, etc.)
+                Texture tileTexture = getTileSpecificTexture(tileType, currentSeason);
+                if (tileTexture != null) {
+                    Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                }
+
+                // Detect anchor for building
+                detectBuildingAnchors(location, x, y, tileType, greenhouseTiles, houseTiles, barnTiles, coopTiles);
+
+                // Render non-large building items
+                if (!isLargeBuilding(tileType)) {
+                    if (!(item instanceof Tree) && item != null) {
+                        renderItemOnTile(x, y, item, currentSeason);
+                    }
+                }
             }
         }
-
     }
 
-    private void renderTile(int x, int y, String season) {
-        // Get the location data from farm
-        Location location = farm.getItem(x, y);
-        if (location == null) {
-            if (x == 25 && y == 25) { // Only log for center tile to avoid spam
-            }
-            return;
+    private String getCurrentSeason() {
+        try {
+            return App.getGame().getDate().getSeason().toString().toLowerCase();
+        } catch (Exception e) {
+            Gdx.app.error("WorldController", "Failed to get season, using spring as default");
+            return "spring";
         }
+    }
 
-        // Corrected: Simply use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
-        // The camera's projection matrix will handle positioning based on the player.
-        float worldX = x * TILE_SIZE;
-        float worldY = y * TILE_SIZE;
+    private void collectBuildingTiles(Set<String> greenhouseTiles, Set<String> houseTiles,
+                                      Set<String> barnTiles, Set<String> coopTiles) {
+        for (int x = 0; x < Farm.width; x++) {
+            for (int y = 0; y < Farm.height; y++) {
+                Location location = farm.getItem(x, y);
+                if (location != null) {
+                    TileType tileType = location.getTile();
+                    String tileKey = x + "," + y;
 
-        // Debug: Log center tile info only
-        if (x == 25 && y == 25) {
-        }
-
-        // Layer 1: Render grass base layer (seasonal) for most tiles
-        TileType tileType = location.getTile();
-        if (shouldRenderGrass(tileType)) {
-            Texture grassTexture = getTexture("grass_" + season);
-            if (grassTexture != null) {
-                Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                if (x == 25 && y == 25) {
-                }
-            } else {
-                if (x == 25 && y == 25) {
-                }
-            }
-        }
-
-        // Layer 2: Render tile-specific texture based on tile type
-        Texture tileTexture = getTileTexture(tileType, season, location);
-        if (tileTexture != null) {
-            // For large buildings, handle them specially
-            if (isLargeBuilding(tileType)) {
-                renderLargeBuildingTile(x, y, tileType, tileTexture);
-            } else {
-                Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                if (x == 25 && y == 25) {
-                    Gdx.app.log("WorldController", "Drew tile texture for type: " + tileType);
+                    switch (tileType) {
+                        case GREENHOUSE:
+                        case CONSTRUCTED_GREENHOUSE:
+                            greenhouseTiles.add(tileKey);
+                            break;
+                        case BUILDING:
+                            houseTiles.add(tileKey);
+                            break;
+                        case BARN:
+                            barnTiles.add(tileKey);
+                            break;
+                        case COOP:
+                            coopTiles.add(tileKey);
+                            break;
+                    }
                 }
             }
         }
+    }
 
-        // Layer 3: Render items on top of tiles if any
-        Item item = location.getItem();
-        if (item != null) {
-            renderItemOnTile(x, y, item, season);
-            if (x == 25 && y == 25) {
-                Gdx.app.log("WorldController", "Drew item: " + item.getClass().getSimpleName());
-            }
+    private void detectBuildingAnchors(Location location, int x, int y, TileType tileType,
+                                       Set<String> greenhouseTiles, Set<String> houseTiles,
+                                       Set<String> barnTiles, Set<String> coopTiles) {
+        switch (tileType) {
+            case GREENHOUSE:
+            case CONSTRUCTED_GREENHOUSE:
+                detectGreenhouseAnchor(location, x, y, greenhouseTiles);
+                break;
+            case BUILDING:
+                detectHouseAnchor(location, x, y, houseTiles);
+                break;
+            case BARN:
+                detectBarnAnchor(location, x, y, barnTiles);
+                break;
+            case COOP:
+                detectCoopAnchor(location, x, y, coopTiles);
+                break;
         }
     }
 
     private boolean shouldRenderGrass(TileType tileType) {
-        // Grass should be rendered under most tiles except water/lake
         return tileType != TileType.LAKE && tileType != TileType.WATER;
     }
 
-    private Texture getTileTexture(TileType tileType, String season, Location location) {
+    private Texture getTileSpecificTexture(TileType tileType, String season) {
         if (tileType == null) return null;
 
         switch (tileType) {
@@ -225,17 +290,129 @@ public class WorldController {
             case QUARRY:
                 return getTexture("quarry");
             case GREENHOUSE:
-                return getTexture("greenhouse");
             case CONSTRUCTED_GREENHOUSE:
-                return getTexture("constructed_greenhouse");
             case BUILDING:
-                return getTexture("house");
             case BARN:
-                return getTexture("barn");
             case COOP:
-                return getTexture("coop");
+                // For building tiles, don't render any tile-specific texture
+                // The building sprite will be rendered separately
+                return null;
             default:
-                return null; // Grass will show through
+                return null;
+        }
+    }
+
+    private void detectGreenhouseAnchor(Location location, int x, int y, Set<String> greenhouseTiles) {
+        boolean hasLeft = greenhouseTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = greenhouseTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            greenhouseAnchors.add(location);
+        }
+    }
+
+    private void detectHouseAnchor(Location location, int x, int y, Set<String> houseTiles) {
+        boolean hasLeft = houseTiles.contains((x - 1) + "," + y);
+        boolean hasAbove = houseTiles.contains(x + "," + (y + 1));
+
+        if (!hasLeft && !hasAbove) {
+            houseAnchors.add(location);
+        }
+    }
+
+    private void detectBarnAnchor(Location location, int x, int y, Set<String> barnTiles) {
+        boolean hasLeft = barnTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = barnTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            barnAnchors.add(location);
+        }
+    }
+
+    private void detectCoopAnchor(Location location, int x, int y, Set<String> coopTiles) {
+        boolean hasLeft = coopTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = coopTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            coopAnchors.add(location);
+        }
+    }
+
+    private void renderBuildings() {
+        for (Location anchor : greenhouseAnchors) {
+            renderGreenhouseAtAnchor(anchor);
+        }
+
+        for (Location anchor : houseAnchors) {
+            renderHouseAtAnchor(anchor);
+        }
+
+        for (Location anchor : barnAnchors) {
+            renderBarnAtAnchor(anchor);
+        }
+
+        for (Location anchor : coopAnchors) {
+            renderCoopAtAnchor(anchor);
+        }
+    }
+
+    private void renderGreenhouseAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        TileType tileType = anchor.getTile();
+        Texture texture = (tileType == TileType.CONSTRUCTED_GREENHOUSE) ?
+            getTexture("constructed_greenhouse") : getTexture("greenhouse");
+
+        if (texture != null) {
+            Main.getBatch().draw(texture, drawX, drawY,
+                TILE_SIZE * GREENHOUSE_TILES_W, TILE_SIZE * GREENHOUSE_TILES_H);
+        }
+    }
+
+    private void renderHouseAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture, drawX, drawY,
+                TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderBarnAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("barn");
+        if (texture != null) {
+            Main.getBatch().draw(texture, drawX, drawY,
+                TILE_SIZE * BARN_TILES_W, TILE_SIZE * BARN_TILES_H);
+        }
+    }
+
+    private void renderCoopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("coop");
+        if (texture != null) {
+            Main.getBatch().draw(texture, drawX, drawY,
+                TILE_SIZE * COOP_TILES_W, TILE_SIZE * COOP_TILES_H);
         }
     }
 
@@ -245,60 +422,62 @@ public class WorldController {
             tileType == TileType.CONSTRUCTED_GREENHOUSE;
     }
 
-    private void renderLargeBuildingTile(int x, int y, TileType tileType, Texture texture) {
-        // For large buildings, we need to determine if this is the corner tile
-        // and render the full building sprite from that corner
-
-        float worldX = x * TILE_SIZE;
-        float worldY = y * TILE_SIZE;
-
-        // For now, render each tile individually
-        // You might want to optimize this by tracking which building tiles have been rendered
-        Main.getBatch().draw(texture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-    }
-
     private void renderItemOnTile(int x, int y, Item item, String season) {
-        // Corrected: Use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
-        // Handle different item types
         if (item instanceof Tree) {
-            Tree tree = (Tree) item;
-            Texture treeTexture = getTexture("tree_" + season);
-            if (treeTexture != null) {
-                Main.getBatch().draw(treeTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-            }
+            renderTreeItem(worldX, worldY, season);
         } else if (item instanceof Crop) {
-            Crop crop = (Crop) item;
-            Texture cropTexture = getTexture("crop");
-            if (cropTexture != null) {
-                Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-            }
+            renderCropItem(worldX, worldY);
         } else if (item instanceof Plant) {
-            Plant plant = (Plant) item;
-            // You might want different textures for different plant types/stages
-            Texture plantTexture = getTexture("crop"); // Using crop texture as placeholder
-            if (plantTexture != null) {
-                Main.getBatch().draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-            }
+            renderPlantItem(worldX, worldY);
         } else if (item instanceof Mineral) {
-            Mineral mineral = (Mineral) item;
-            // You might want different textures based on mineral type
-            Texture mineralTexture = getTexture("stone");
-            if (mineralTexture != null) {
-                Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-            }
+            renderMineralItem(worldX, worldY);
         } else if (item instanceof ShippingBin) {
-            Texture binTexture = getTexture("shipping_bin");
-            if (binTexture != null) {
-                Main.getBatch().draw(binTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-            }
+            renderShippingBinItem(worldX, worldY);
         }
-        // Add more item types as needed
     }
 
-    // Clean up resources
+    private void renderTreeItem(float worldX, float worldY, String season) {
+        Texture treeTexture = getTexture("tree_" + season);
+        if (treeTexture != null) {
+            float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
+            float offsetX = (TILE_SIZE - treeSize) / 2; // Center the larger tree
+            float offsetY = (TILE_SIZE - treeSize) / 2;
+
+            Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+        }
+    }
+
+    private void renderCropItem(float worldX, float worldY) {
+        Texture cropTexture = getTexture("crop");
+        if (cropTexture != null) {
+            Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderPlantItem(float worldX, float worldY) {
+        Texture plantTexture = getTexture("crop");
+        if (plantTexture != null) {
+            Main.getBatch().draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderMineralItem(float worldX, float worldY) {
+        Texture mineralTexture = getTexture("stone");
+        if (mineralTexture != null) {
+            Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderShippingBinItem(float worldX, float worldY) {
+        Texture binTexture = getTexture("shipping_bin");
+        if (binTexture != null) {
+            Main.getBatch().draw(binTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
     public void dispose() {
         for (Texture texture : textureCache.values()) {
             texture.dispose();
