@@ -18,15 +18,17 @@ public class Date implements Runnable {
     private int season; // 0: Spring, 1: Summer, 2: Fall, 3: Winter
     private int year;
     private int hour;
+    private int minute; // NEW: minutes (0-59)
     private Weather weatherToday;
     private Weather weatherTomorrow;
     private boolean running = true;
 
     public Date() {
-        this.day = 1; // first day of spring
-        this.season = 0; // spring
+        this.day = 1;
+        this.season = 0;
         this.year = 1;
-        this.hour = 9; // 9 AM
+        this.hour = 9;
+        this.minute = 0; // NEW
         this.weatherMap = new HashMap<>();
         initialWeatherMap();
         updateWeatherToday();
@@ -47,19 +49,29 @@ public class Date implements Runnable {
     }
 
     public void advanceTime(int hours, GameMap gameMap) {
-        if (hours < 0) {
+        advanceMinutes(hours * 60, gameMap);
+    }
+
+    public void advanceMinutes(int minutes, GameMap gameMap) {
+        if (minutes < 0) {
             System.out.println("Error: Cannot advance time by negative values");
             return;
         }
 
-        this.hour += hours;
-        for (int i = 0; i < hours; i++) {
-            App.getGame().updateTurns();
+        for (int i = 0; i < minutes; i++) {
+            this.minute++;
+            if (this.minute >= 60) {
+                this.minute = 0;
+                this.hour++;
+                App.getGame().updateTurns();
+            }
+
+            if (this.hour >= 22) {
+                this.hour -= 13;
+                advanceDays(1, gameMap);
+            }
         }
-        while (this.hour >= 22) {
-            this.hour -= 13;
-            advanceDays(1, gameMap);
-        }
+        log();
     }
 
     public void cheatThor(Location location) {
@@ -73,24 +85,19 @@ public class Date implements Runnable {
             return;
         }
 
-
         this.day += days;
 
-        //updating daily map.
         for (int i = 0; i < days; i++) {
             App.getGame().updateDailyGame();
         }
 
-
         while (this.day > daysPerSeason) {
             this.day -= daysPerSeason;
             this.season = (this.season + 1) % 4;
-
             if (this.season == 0) {
                 this.year++;
             }
         }
-
 
         if (days != 1) {
             updateWeatherToday();
@@ -104,8 +111,8 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(6 * 60 * 1000);
-                advanceTime(1, App.getGame().getGameMap());
+                Thread.sleep(60_000); // every 10 seconds
+                advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Time thread interrupted");
@@ -173,7 +180,7 @@ public class Date implements Runnable {
     }
 
     public void displayTime() {
-        System.out.println("Time: " + String.format("%02d:00", hour));
+        System.out.println("Time: " + String.format("%02d:%02d", hour, minute));
     }
 
     public void displayDate() {
@@ -212,16 +219,20 @@ public class Date implements Runnable {
         long currentTotalDays = ((long) (year - 1) * 4 * daysPerSeason) + ((long) season * daysPerSeason) + day;
         long rejectTotalDays = ((long) (rejectDate.year - 1) * 4 * daysPerSeason) + ((long) rejectDate.season * daysPerSeason) + rejectDate.day;
 
-        // Return the difference
         return currentTotalDays - rejectTotalDays;
     }
 
     private String getCurrentTimeString() {
-        return String.format("Year %d, %s %02d, %02d:00", year, getSeason(), day, hour);
+        return String.format("Year %d, %s %02d, %02d:%02d", year, getSeason(), day, hour, minute);
     }
 
     private void log() {
         System.out.println("[LOG - " + getCurrentTimeString() + "] " + "time advanced");
         displayWeather();
     }
+
+    public int getMinutes(){
+        return this.minute;
+    }
+
 }

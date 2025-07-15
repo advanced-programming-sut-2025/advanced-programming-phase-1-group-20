@@ -64,9 +64,17 @@ public class GameView implements Screen, InputProcessor {
     private Image weatherDisplayImage;
     private Image seasonDisplayImage;
 
+    // Lighting system
+    private Lighting lighting;
+    private Color currentLightColor;
+    private Label lightingDescriptionLabel;
+    private float lightingUpdateTimer;
+    private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
+
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
+    private int lastKnownHour = -1;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -75,6 +83,10 @@ public class GameView implements Screen, InputProcessor {
         this.skin = skin;
         this.user = user;
         this.gameTime = 0;
+        this.lightingUpdateTimer = 0;
+
+        // Initialize lighting system
+        initializeLighting();
 
         loadCustomFont();
         initializeLabels();
@@ -86,6 +98,18 @@ public class GameView implements Screen, InputProcessor {
 
         initializeTables();
         controller.setView(this);
+    }
+
+    private void initializeLighting() {
+        lighting = new Lighting();
+        currentLightColor = Color.WHITE.cpy();
+
+        // Initialize lighting with current game state
+        Date gameDate = getCurrentGameDate();
+        if (gameDate != null) {
+            lighting.updateLighting(gameDate);
+            currentLightColor = lighting.getLibGdxColor();
+        }
     }
 
     private void loadCustomFont() {
@@ -107,6 +131,15 @@ public class GameView implements Screen, InputProcessor {
         customStyle.font.getData().markupEnabled = true;
 
         timeLabel = new Label("" + gameTime, customStyle);
+
+        // Initialize lighting description label
+        Label.LabelStyle lightingStyle = new Label.LabelStyle();
+        lightingStyle.font = smallFont;
+        lightingStyle.fontColor = Color.WHITE;
+        lightingStyle.font.getData().setScale(0.4f);
+        lightingStyle.font.getData().markupEnabled = true;
+
+        lightingDescriptionLabel = new Label("", lightingStyle);
     }
 
     private void initializeClock() {
@@ -174,7 +207,7 @@ public class GameView implements Screen, InputProcessor {
         Label.LabelStyle labelStyle = new Label.LabelStyle();
         labelStyle.font = smallFont;
         labelStyle.fontColor = Color.BLACK;
-        labelStyle.font.getData().setScale(0.35f);
+        labelStyle.font.getData().setScale(0.45f);
         labelStyle.font.getData().markupEnabled = true;
 
         dateLabel = new Label("[b]Mon. 1[/b]", labelStyle);
@@ -186,8 +219,79 @@ public class GameView implements Screen, InputProcessor {
         textTable.top().right().padTop(10).padRight(10);
         textTable.setFillParent(true);
         textTable.add(dateLabel).row();
-        textTable.add(timeDisplayLabel).padTop(5);
+        textTable.add(timeDisplayLabel).padTop(5).row();
+        textTable.add(lightingDescriptionLabel).padTop(5);
         return textTable;
+    }
+
+    private void updateLighting(float deltaTime) {
+        lightingUpdateTimer += deltaTime;
+
+        // Update lighting periodically or when time changes
+        if (lightingUpdateTimer >= LIGHTING_UPDATE_INTERVAL || hasTimeChanged()) {
+            Date gameDate = getCurrentGameDate();
+            if (gameDate != null) {
+                lighting.updateLighting(gameDate);
+                currentLightColor = lighting.getLibGdxColor();
+
+                // Apply lighting to UI elements
+                applyLightingToUI();
+
+                lastKnownHour = gameDate.getHour();
+            }
+            lightingUpdateTimer = 0;
+        }
+    }
+
+    private boolean hasTimeChanged() {
+        Date gameDate = getCurrentGameDate();
+        return gameDate != null && gameDate.getHour() != lastKnownHour;
+    }
+
+
+    private void applyLightingToUI() {
+        // Apply lighting color to various UI elements
+        if (clockBackgroundImage != null) {
+            clockBackgroundImage.setColor(currentLightColor);
+        }
+
+        if (weatherDisplayImage != null) {
+            weatherDisplayImage.setColor(currentLightColor);
+        }
+
+        if (seasonDisplayImage != null) {
+            seasonDisplayImage.setColor(currentLightColor);
+        }
+
+        // Adjust text colors based on lighting
+        adjustTextColors();
+    }
+
+    private void adjustTextColors() {
+        // Adjust text colors to maintain readability under different lighting conditions
+        float brightness = (currentLightColor.r + currentLightColor.g + currentLightColor.b) / 3f;
+
+        // For dark lighting, make text brighter
+        if (brightness < 0.3f) {
+            if (dateLabel != null) {
+                dateLabel.setColor(Color.WHITE);
+            }
+            if (timeDisplayLabel != null) {
+                timeDisplayLabel.setColor(Color.WHITE);
+            }
+        } else {
+            // For bright lighting, keep original colors
+            if (dateLabel != null) {
+                dateLabel.setColor(Color.BLACK);
+            }
+            if (timeDisplayLabel != null) {
+                timeDisplayLabel.setColor(Color.BLACK);
+            }
+        }
+
+        if (lightingDescriptionLabel != null) {
+            lightingDescriptionLabel.setColor(Color.WHITE);
+        }
     }
 
     private void updateWeatherAndSeasonDisplays() {
@@ -237,12 +341,10 @@ public class GameView implements Screen, InputProcessor {
 
     private String buildWeatherMethodName(Weather weather) {
         String weatherName = weather.toString().toLowerCase();
-        switch (weatherName) {
-            case "stormy":
-                return "getStormyTexture";
-            default:
-                return "get" + capitalizeFirst(weatherName) + "Texture";
+        if (weatherName.equals("stormy")) {
+            return "getStormyTexture";
         }
+        return "get" + capitalizeFirst(weatherName) + "Texture";
     }
 
     private String buildSeasonMethodName(Seasons season) {
@@ -282,7 +384,6 @@ public class GameView implements Screen, InputProcessor {
         return game != null ? game.getDate() : App.getGame().getDate();
     }
 
-
     private void initializeTables() {
         mainTable = new Table();
         pauseTable = new Table();
@@ -290,6 +391,7 @@ public class GameView implements Screen, InputProcessor {
         resumeButton = new TextButton("Resume", skin);
     }
 
+    // Getters
     public Player getPlayer() { return player; }
     public Game getGame() { return game; }
     public OrthographicCamera getCamera() { return camera; }
@@ -303,7 +405,9 @@ public class GameView implements Screen, InputProcessor {
     public Image getClockBackgroundImage() { return clockBackgroundImage; }
     public Image getWeatherDisplayImage() { return weatherDisplayImage; }
     public Image getSeasonDisplayImage() { return seasonDisplayImage; }
-
+    public Lighting getLighting() { return lighting; }
+    public Color getCurrentLightColor() { return currentLightColor.cpy(); }
+    public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
 
     @Override
     public boolean keyDown(int i) { return false; }
@@ -323,7 +427,6 @@ public class GameView implements Screen, InputProcessor {
     public boolean mouseMoved(int i, int i1) { return false; }
     @Override
     public boolean scrolled(float v, float v1) { return false; }
-
 
     @Override
     public void show() {
@@ -348,22 +451,28 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void render(float deltaTime) {
-        ScreenUtils.clear(0, 0, 0, 1);
-        Main.getBatch().begin();
+        // Clear screen with lighting-tinted background
+        Color bgColor = currentLightColor.cpy();
+        bgColor.mul(0.1f); // Darken for background
+        ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
-        try {
-            Main.getBatch().draw(clockBackgroundTexture, 200, 200, 100, 100);
-        } catch (Exception e) {
-        }
+        // Set batch color to current lighting
+        Main.getBatch().setColor(currentLightColor);
+        Main.getBatch().begin();
 
         if (!pauseTable.isVisible()) {
             controller.update();
             gameTime += deltaTime;
             updateClockDisplay();
             updateWeatherAndSeasonDisplays();
+            updateLighting(deltaTime);
         }
 
         Main.getBatch().end();
+
+        // Reset batch color for UI rendering
+        Main.getBatch().setColor(Color.WHITE);
+
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
     }
@@ -404,7 +513,7 @@ public class GameView implements Screen, InputProcessor {
         int hour = gameDate.getHour();
         int displayHour = (hour == 0) ? 12 : (hour > 12 ? hour - 12 : hour);
         String amPm = (hour >= 12) ? "pm" : "am";
-        String timeText = String.format("%d:%02d %s", displayHour, 0, amPm);
+        String timeText = String.format("%d:%02d %s", displayHour, gameDate.getMinutes(), amPm);
         timeDisplayLabel.setText(timeText);
     }
 
@@ -421,13 +530,18 @@ public class GameView implements Screen, InputProcessor {
         float clockSize = 120f;
 
         dateLabel.setPosition(
-            clockX + clockSize/2 - dateLabel.getWidth()/2 + 15f,
+            clockX + clockSize/2 - dateLabel.getWidth()/2 + 16f,
             clockY + 95f
         );
 
         timeDisplayLabel.setPosition(
-            clockX + clockSize/2 - timeDisplayLabel.getWidth()/2 + 15f,
+            clockX + clockSize/2 - timeDisplayLabel.getWidth()/2 + 17f,
             clockY + 49f
+        );
+
+        lightingDescriptionLabel.setPosition(
+            clockX + clockSize/2 - lightingDescriptionLabel.getWidth()/2 + 17f,
+            clockY + 35f
         );
     }
 
