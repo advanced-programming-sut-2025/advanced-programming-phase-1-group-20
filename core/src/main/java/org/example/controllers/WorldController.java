@@ -19,11 +19,11 @@ public class WorldController {
     private Farm farm;
     private OrthographicCamera camera;
 
-    // Texture caching for performance
+
     private Map<String, Texture> textureCache;
 
-    // Tile size in pixels (adjust based on your game's scale)
-    private static final int TILE_SIZE = 60; // Changed to match your coordinate system better
+
+    private static final int TILE_SIZE = 60; // Changed to match coordinate system better
 
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
@@ -145,16 +145,10 @@ public class WorldController {
             return;
         }
 
-        // CENTER THE MAP: Offset world coordinates so map center aligns with player
-        float playerX = playerController.getPlayer().getPosX();
-        float playerY = playerController.getPlayer().getPosY();
-
-        // Calculate offset so center of map (25,25) aligns with player position
-        float mapCenterOffsetX = playerX - (25 * TILE_SIZE);
-        float mapCenterOffsetY = playerY - (25 * TILE_SIZE);
-
-        float worldX = mapCenterOffsetX + (x * TILE_SIZE);
-        float worldY = mapCenterOffsetY + (y * TILE_SIZE);
+        // Corrected: Simply use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
+        // The camera's projection matrix will handle positioning based on the player.
+        float worldX = x * TILE_SIZE;
+        float worldY = y * TILE_SIZE;
 
         // Debug: Log center tile info only
         if (x == 25 && y == 25) {
@@ -264,15 +258,9 @@ public class WorldController {
     }
 
     private void renderItemOnTile(int x, int y, Item item, String season) {
-        // CENTER THE MAP: Use same offset calculation as main tile rendering
-        float playerX = playerController.getPlayer().getPosX();
-        float playerY = playerController.getPlayer().getPosY();
-
-        float mapCenterOffsetX = playerX - (25 * TILE_SIZE);
-        float mapCenterOffsetY = playerY - (25 * TILE_SIZE);
-
-        float worldX = mapCenterOffsetX + (x * TILE_SIZE);
-        float worldY = mapCenterOffsetY + (y * TILE_SIZE);
+        // Corrected: Use the tile's grid coordinates scaled by TILE_SIZE for world coordinates.
+        float worldX = x * TILE_SIZE;
+        float worldY = y * TILE_SIZE;
 
         // Handle different item types
         if (item instanceof Tree) {
