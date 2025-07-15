@@ -49,7 +49,7 @@ public class Player {
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
     private String playerColor;
-
+    private Texture textureSheet;
 
     //graphic ui
     private float posX = 25 * 120;
@@ -133,6 +133,17 @@ public class Player {
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
+         this.textureSheet = switch (currentFarm.getFarmIndex()) {
+            case 0 -> new Texture("sprites/Alex.png");
+            case 1 -> new Texture("sprites/Birdie.png");
+            case 2 -> new Texture("sprites/Gus.png");
+            case 3 -> new Texture("sprites/Leah.png");
+            default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
+        };
+    }
+
+    public Texture getTextureSheet() {
+        return textureSheet;
     }
 
     public void setCurrentVillage(Village currentVillage) {

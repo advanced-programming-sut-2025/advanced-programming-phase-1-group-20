@@ -30,14 +30,13 @@ public class Game implements Serializable {
 
     public Game() {
 
-
-
     }
 
     public Game(List<Player> players, Player creator) {
         this.players = players;
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
+        this.date = new Date();
         if (players != null && !players.isEmpty()) {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
