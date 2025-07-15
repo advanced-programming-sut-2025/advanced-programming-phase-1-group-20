@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array;
 import org.example.Main;
 import org.example.models.MapDetails.Farm;
 import org.example.models.Player.Player;
+import org.example.models.common.Location;
 
 public class PlayerController {
 
@@ -75,10 +76,11 @@ public class PlayerController {
     private void handlePlayerInput(float delta) {
         float newX = player.getPosX();
         float newY = player.getPosY();
-
+        System.out.println("X" + newX / 60 + "Y" + newY / 60);
+        System.out.println(farm.getItem((int) (newX / 60), (int) (newY / 60)));
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
-            if (isWalkable(newX /120, newY / 120)) {
+            if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosX(newX);
                 facing = Dir.LEFT;
             }
@@ -86,7 +88,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             newX += player.getSpeed();
-            if (isWalkable(newX / 120, newY / 120)) {
+            if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosX(newX);
                 facing = Dir.RIGHT;
             }
@@ -94,7 +96,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             newY += player.getSpeed();
-            if (isWalkable(newX /120, newY / 120)) {
+            if (isWalkable(newX /60, newY / 60)) {
                 player.setPosY(newY);
                 facing = Dir.UP;
             }
@@ -102,7 +104,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             newY -= player.getSpeed();
-            if (isWalkable(newX /120, newY / 120)) {
+            if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosY(newY);
                 facing = Dir.DOWN;
             }
@@ -118,6 +120,13 @@ public class PlayerController {
     }
 
     private boolean isWalkable(float x, float y) {
+        if(!farm.contains((int) x, (int) y)) {
+            return false;
+        }
+        Location loc = farm.getItem((int) x, (int) y);
+        if(!loc.getTile().isWalkable()){
+            return false;
+        }
         return true;
     }
 
