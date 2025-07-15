@@ -244,14 +244,6 @@ public class Farm {
         int fenceThickness = 1; // Thickness of the fence boundary
         int pathWidth = 3;      // Width of the path opening (should be odd for proper centering)
 
-        // Determine the corner based on farmIndex and building location
-        // Farm Index 0: Building (width-5, 0) -> Bottom-Right
-        // Farm Index 1: Building (0, 0) -> Bottom-Left
-        // Farm Index 2: Building (0, height-5) -> Top-Left
-        // Farm Index 3: Building (width-5, height-5) -> Top-Right
-
-        // Define exit points from this farm to the "outside" (center of map / other farms)
-        // These will be areas not covered by the fence.
         int primaryExitEdgeX = -1, primaryExitEdgeY = -1; // Coordinate along the edge for primary exit
         int secondaryExitEdgeX = -1, secondaryExitEdgeY = -1; // Coordinate along the edge for secondary exit
 
@@ -321,13 +313,12 @@ public class Farm {
                     if (currentTile != TileType.BUILDING && currentTile != TileType.GREENHOUSE &&
                         currentTile != TileType.CONSTRUCTED_GREENHOUSE && currentTile != TileType.QUARRY &&
                         currentTile != TileType.LAKE && currentTile != TileType.WATER && currentTile != TileType.SHIPPING_BIN) {
-                        changeTile(i, j, TileType.STONE, owner);
+                        changeTile(i, j, TileType.FENCE, owner);
                     }
                 }
             }
         }
 
-        // 2. Draw Path from House to Center of Map / Exit Points
         Location houseLoc = owner.getLocation();
         if (houseLoc == null) {
             houseLoc = new Location(building.getX() + building.getWidth() / 2, building.getY() + building.getHeight() / 2, TileType.BUILDING);
@@ -336,8 +327,6 @@ public class Farm {
         int farmCenterX = width / 2;
         int farmCenterY = height / 2;
 
-        // Path from house area to farm center (simple straight lines)
-        // Horizontal segment
         for (int i = Math.min(houseLoc.getX(), farmCenterX); i <= Math.max(houseLoc.getX(), farmCenterX); i++) {
             if (tiles[i][houseLoc.getY()].getTile() != TileType.BUILDING) {
                 changeTile(i, houseLoc.getY(), TileType.PATH, owner);
@@ -350,7 +339,6 @@ public class Farm {
             }
         }
 
-        // Extend path from farm center towards primary exit point
         if (primaryExitEdgeX != -1 && primaryExitEdgeY != -1) {
             if (Math.abs(primaryExitEdgeX - farmCenterX) > Math.abs(primaryExitEdgeY - farmCenterY)) { // More horizontal movement
                 for (int i = Math.min(farmCenterX, primaryExitEdgeX); i <= Math.max(farmCenterX, primaryExitEdgeX); i++) {

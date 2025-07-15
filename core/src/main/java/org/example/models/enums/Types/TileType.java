@@ -24,7 +24,8 @@ public enum TileType {
     EMERALD_ORE(false),
     CONSTRUCTED_GREENHOUSE(false),
     BRANCH(true),
-    GREENHOUSE(false);
+    GREENHOUSE(false),
+    FENCE(false);
 
     private final boolean isWalkable;
 
