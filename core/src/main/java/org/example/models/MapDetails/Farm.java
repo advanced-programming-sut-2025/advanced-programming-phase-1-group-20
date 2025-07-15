@@ -83,6 +83,7 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
+        makeFenceAndPaths(); // Call the new method here
     }
 
     public String getBackground() {
@@ -166,8 +167,30 @@ public class Farm {
     }
 
     public void setInitialOwnerLocation() {
-        Location location = tiles[width / 2][height / 2];
-        owner.setLocation(location);
+        // Place player near the house for their farm type
+        Location initialPlayerLocation;
+        int houseCenterX = building.getX() + building.getWidth() / 2;
+        int houseCenterY = building.getY() + building.getHeight() / 2;
+
+        // Try to place player just outside the house, adjust if it's an edge
+        int playerStartX = houseCenterX;
+        int playerStartY = houseCenterY - 3; // Example: 3 tiles below center of house
+
+        if (playerStartY < 0) { // If it's too close to bottom edge, adjust
+            playerStartY = houseCenterY + 3;
+        }
+        if (playerStartX < 0) { // If it's too close to left edge
+            playerStartX = houseCenterX + 3;
+        }
+        if (playerStartX >= width) { // If it's too close to right edge
+            playerStartX = houseCenterX - 3;
+        }
+        if (playerStartY >= height) { // If it's too close to top edge
+            playerStartY = houseCenterY - 3;
+        }
+
+        initialPlayerLocation = tiles[playerStartX][playerStartY];
+        owner.setLocation(initialPlayerLocation);
     }
 
     public Building getHouse() {
@@ -216,6 +239,153 @@ public class Farm {
         placeRandomObjects("crop", 100);
         placeRandomObjects("branch", 50);
     }
+
+    public void makeFenceAndPaths() {
+        int fenceThickness = 1; // Thickness of the fence boundary
+        int pathWidth = 3;      // Width of the path opening (should be odd for proper centering)
+
+        // Determine the corner based on farmIndex and building location
+        // Farm Index 0: Building (width-5, 0) -> Bottom-Right
+        // Farm Index 1: Building (0, 0) -> Bottom-Left
+        // Farm Index 2: Building (0, height-5) -> Top-Left
+        // Farm Index 3: Building (width-5, height-5) -> Top-Right
+
+        // Define exit points from this farm to the "outside" (center of map / other farms)
+        // These will be areas not covered by the fence.
+        int primaryExitEdgeX = -1, primaryExitEdgeY = -1; // Coordinate along the edge for primary exit
+        int secondaryExitEdgeX = -1, secondaryExitEdgeY = -1; // Coordinate along the edge for secondary exit
+
+        // Calculate the center of the path opening
+        int pathCenterOffset = pathWidth / 2;
+
+        switch (farmIndex) {
+            case 0: // Bottom-Right Farm (House: width-5, 0)
+                // Primary exit to the left boundary of the farm (to connect to Farm 1 or 2)
+                primaryExitEdgeX = 0;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the top boundary of the farm (to connect to Farm 3)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = height - 1;
+                break;
+            case 1: // Bottom-Left Farm (House: 0, 0)
+                // Primary exit to the right boundary of the farm (to connect to Farm 0 or 3)
+                primaryExitEdgeX = width - 1;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the top boundary of the farm (to connect to Farm 2)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = height - 1;
+                break;
+            case 2: // Top-Left Farm (House: 0, height-5)
+                // Primary exit to the right boundary of the farm (to connect to Farm 3)
+                primaryExitEdgeX = width - 1;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = 0;
+                break;
+            case 3: // Top-Right Farm (House: width-5, height-5)
+                // Primary exit to the left boundary of the farm (to connect to Farm 2)
+                primaryExitEdgeX = 0;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = 0;
+                break;
+        }
+
+        // 1. Draw Fences
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                boolean isBoundary = (i < fenceThickness || i >= width - fenceThickness ||
+                    j < fenceThickness || j >= height - fenceThickness);
+
+                boolean isPrimaryExitArea = false;
+                if (primaryExitEdgeX != -1 && primaryExitEdgeY != -1) {
+                    if ((i == primaryExitEdgeX && Math.abs(j - primaryExitEdgeY) <= pathCenterOffset) ||
+                        (j == primaryExitEdgeY && Math.abs(i - primaryExitEdgeX) <= pathCenterOffset)) {
+                        isPrimaryExitArea = true;
+                    }
+                }
+
+                boolean isSecondaryExitArea = false;
+                if (secondaryExitEdgeX != -1 && secondaryExitEdgeY != -1) {
+                    if ((i == secondaryExitEdgeX && Math.abs(j - secondaryExitEdgeY) <= pathCenterOffset) ||
+                        (j == secondaryExitEdgeY && Math.abs(i - secondaryExitEdgeX) <= pathCenterOffset)) {
+                        isSecondaryExitArea = true;
+                    }
+                }
+
+
+                if (isBoundary && !(isPrimaryExitArea || isSecondaryExitArea)) {
+                    TileType currentTile = tiles[i][j].getTile();
+                    if (currentTile != TileType.BUILDING && currentTile != TileType.GREENHOUSE &&
+                        currentTile != TileType.CONSTRUCTED_GREENHOUSE && currentTile != TileType.QUARRY &&
+                        currentTile != TileType.LAKE && currentTile != TileType.WATER && currentTile != TileType.SHIPPING_BIN) {
+                        changeTile(i, j, TileType.STONE, owner);
+                    }
+                }
+            }
+        }
+
+        // 2. Draw Path from House to Center of Map / Exit Points
+        Location houseLoc = owner.getLocation();
+        if (houseLoc == null) {
+            houseLoc = new Location(building.getX() + building.getWidth() / 2, building.getY() + building.getHeight() / 2, TileType.BUILDING);
+        }
+
+        int farmCenterX = width / 2;
+        int farmCenterY = height / 2;
+
+        // Path from house area to farm center (simple straight lines)
+        // Horizontal segment
+        for (int i = Math.min(houseLoc.getX(), farmCenterX); i <= Math.max(houseLoc.getX(), farmCenterX); i++) {
+            if (tiles[i][houseLoc.getY()].getTile() != TileType.BUILDING) {
+                changeTile(i, houseLoc.getY(), TileType.PATH, owner);
+            }
+        }
+        // Vertical segment
+        for (int j = Math.min(houseLoc.getY(), farmCenterY); j <= Math.max(houseLoc.getY(), farmCenterY); j++) {
+            if (tiles[farmCenterX][j].getTile() != TileType.BUILDING && tiles[farmCenterX][j].getTile() != TileType.STONE) {
+                changeTile(farmCenterX, j, TileType.PATH, owner);
+            }
+        }
+
+        // Extend path from farm center towards primary exit point
+        if (primaryExitEdgeX != -1 && primaryExitEdgeY != -1) {
+            if (Math.abs(primaryExitEdgeX - farmCenterX) > Math.abs(primaryExitEdgeY - farmCenterY)) { // More horizontal movement
+                for (int i = Math.min(farmCenterX, primaryExitEdgeX); i <= Math.max(farmCenterX, primaryExitEdgeX); i++) {
+                    if (tiles[i][farmCenterY].getTile() != TileType.STONE) {
+                        changeTile(i, farmCenterY, TileType.PATH, owner);
+                    }
+                }
+            } else { // More vertical movement
+                for (int j = Math.min(farmCenterY, primaryExitEdgeY); j <= Math.max(farmCenterY, primaryExitEdgeY); j++) {
+                    if (tiles[farmCenterX][j].getTile() != TileType.STONE) {
+                        changeTile(farmCenterX, j, TileType.PATH, owner);
+                    }
+                }
+            }
+        }
+
+        // Extend path from farm center towards secondary exit point
+        if (secondaryExitEdgeX != -1 && secondaryExitEdgeY != -1) {
+            // Adjust path direction based on exit location
+            if (Math.abs(secondaryExitEdgeX - farmCenterX) > Math.abs(secondaryExitEdgeY - farmCenterY)) { // More horizontal movement
+                for (int i = Math.min(farmCenterX, secondaryExitEdgeX); i <= Math.max(farmCenterX, secondaryExitEdgeX); i++) {
+                    if (tiles[i][farmCenterY].getTile() != TileType.STONE) {
+                        changeTile(i, farmCenterY, TileType.PATH, owner);
+                    }
+                }
+            } else { // More vertical movement
+                for (int j = Math.min(farmCenterY, secondaryExitEdgeY); j <= Math.max(farmCenterY, secondaryExitEdgeY); j++) {
+                    if (tiles[farmCenterX][j].getTile() != TileType.STONE) {
+                        changeTile(farmCenterX, j, TileType.PATH, owner);
+                    }
+                }
+            }
+        }
+    }
+
 
     public void addShippingBin() {
         ShippingBin newShippingBin = new ShippingBin();
@@ -851,7 +1021,8 @@ public class Farm {
             return false;
         }
         return type.equals("water") || type.equals("village") ||
-            type.equals("building") || type.equals("quarry") || type.equals("greenhouse");
+            type.equals("building") || type.equals("quarry") || type.equals("greenhouse") ||
+            type.equals("barn") || type.equals("coop") || type.equals("shipping_bin"); // Added protected types
     }
 
     public List<Location> getPassableNeighbors(Location location) {
@@ -890,9 +1061,17 @@ public class Farm {
 
         Location tile = tiles[x][y];
 
-        if (!App.getGame().getGameMap().canPlayerModifyTile(player, x, y)) {
-            return false;
+        // Ensure App.getGame() and GameMap are not null before calling canPlayerModifyTile
+        if (App.getGame() != null && App.getGame().getGameMap() != null) {
+            if (!App.getGame().getGameMap().canPlayerModifyTile(player, x, y)) {
+                return false;
+            }
+        } else {
+            // If game or gameMap is null, allow modification during initialization,
+            // or handle as an error depending on expected behavior.
+            // For fence/path generation, we assume it's okay.
         }
+
 
         if (isProtectedTile(tile.getType())) {
             return false;
@@ -904,6 +1083,7 @@ public class Farm {
 
         String previousType = tile.getType();
         tile.setTile(tileType);
+        tile.setType(tileType.name().toLowerCase()); // Ensure type string is updated
         //handleTileChangeEffects(tile, previousType, newType);
 
         return true;
@@ -930,7 +1110,7 @@ public class Farm {
             return -1;
         }
 
-        if (finalLocation.getTile() != TileType.GRASS) {
+        if (finalLocation.getTile() != TileType.GRASS && finalLocation.getTile() != TileType.PATH) { // Allow walking on path
             return -1;
         }
 
@@ -968,7 +1148,7 @@ public class Farm {
 
                 Location neighbor = tiles[newX][newY];
 
-                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                if ((neighbor.getTile() == TileType.GRASS || neighbor.getTile() == TileType.PATH) && !visited.contains(neighbor)) { // Allow walking on path
                     visited.add(neighbor);
                     parentMap.put(neighbor, current);
                     distanceMap.put(neighbor, distanceMap.get(current) + 1);
@@ -1063,7 +1243,7 @@ public class Farm {
 
             if (contains(newX, newY)) {
                 for (ShippingBin shippingBin : shippingBins) {
-                    if (location.getItem().equals(shippingBin)) {
+                    if (location.getItem() != null && location.getItem().equals(shippingBin)) { // Added null check for getItem()
                         return shippingBin;
                     }
                 }
@@ -1206,16 +1386,18 @@ public class Farm {
         int a = random.nextInt(3);
         if (a == 0) {
             ArrayList<Location> locations = allItemsForCrows();
-            int index = random.nextInt(locations.size());
-            Location location = locations.get(index);
-            if (location.getItem() instanceof Tree) {
-                Tree tree = (Tree) location.getItem();
-                tree.setStage(0);
-                tree.setDaysCounter(0);
-            } else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
-                location.setItem(null);
-                location.setTile(TileType.GRASS);
-                location.setType("grass");
+            if (!locations.isEmpty()) { // Add null check for empty locations list
+                int index = random.nextInt(locations.size());
+                Location location = locations.get(index);
+                if (location.getItem() instanceof Tree) {
+                    Tree tree = (Tree) location.getItem();
+                    tree.setStage(0);
+                    tree.setDaysCounter(0);
+                } else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
+                    location.setItem(null);
+                    location.setTile(TileType.GRASS);
+                    location.setType("grass");
+                }
             }
         }
     }

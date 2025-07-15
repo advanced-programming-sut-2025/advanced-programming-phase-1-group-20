@@ -126,7 +126,28 @@ public class WorldController {
     }
 
     public void update() {
-        camera.position.set(playerController.getPlayer().getPosX(), playerController.getPlayer().getPosY(), 0);
+        float playerX = playerController.getPlayer().getPosX();
+        float playerY = playerController.getPlayer().getPosY();
+
+        float mapWidth = Farm.width * TILE_SIZE;
+        float mapHeight = Farm.height * TILE_SIZE;
+
+
+        float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+        float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+
+        float cameraX = playerX;
+        float minCameraX = halfCameraViewWidth;
+        float maxCameraX = mapWidth - halfCameraViewWidth;
+        cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+
+
+        float cameraY = playerY;
+        float minCameraY = halfCameraViewHeight;
+        float maxCameraY = mapHeight - halfCameraViewHeight;
+        cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+
+        camera.position.set(cameraX, cameraY, 0);
         camera.update();
         Main.getBatch().setProjectionMatrix(camera.combined);
 
@@ -313,9 +334,9 @@ public class WorldController {
 
     private void detectHouseAnchor(Location location, int x, int y, Set<String> houseTiles) {
         boolean hasLeft = houseTiles.contains((x - 1) + "," + y);
-        boolean hasAbove = houseTiles.contains(x + "," + (y + 1));
+        boolean hasBelow = houseTiles.contains(x + "," + (y - 1)); // Changed from hasAbove to hasBelow for bottom-left anchor
 
-        if (!hasLeft && !hasAbove) {
+        if (!hasLeft && !hasBelow) {
             houseAnchors.add(location);
         }
     }
