@@ -24,7 +24,7 @@ public class Location {
 
     public void updateTypeFromTile() {
         switch (tile) {
-            case GRASS -> this.type = "grass";
+            case Dirt -> this.type = "grass";
             case TREE -> this.type = "tree";
             case STONE -> this.type = "stone";
             case WATER -> this.type = "water";

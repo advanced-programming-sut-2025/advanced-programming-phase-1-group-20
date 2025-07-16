@@ -167,7 +167,7 @@ public class Village {
     private void initializeVillage() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tiles[x][y] = new Location(x, y, TileType.GRASS);
+                tiles[x][y] = new Location(x, y, TileType.Dirt);
             }
         }
 
@@ -196,7 +196,7 @@ public class Village {
             }
             TileType currentTile = tiles[x][y].getTile();
 
-            if (currentTile == TileType.GRASS) {
+            if (currentTile == TileType.Dirt) {
                 tiles[x][y].setType(type);
 
                 if (type.equals("tree")) {
@@ -285,7 +285,7 @@ public class Village {
             return -1;
         }
 
-        if (finalLocation.getTile() != TileType.GRASS) {
+        if (finalLocation.getTile() != TileType.Dirt) {
             return -1;
         }
 
@@ -323,7 +323,7 @@ public class Village {
 
                 Location neighbor = tiles[newX][newY];
 
-                if (neighbor.getTile() == TileType.GRASS && !visited.contains(neighbor)) {
+                if (neighbor.getTile() == TileType.Dirt && !visited.contains(neighbor)) {
                     visited.add(neighbor);
                     parentMap.put(neighbor, current);
                     distanceMap.put(neighbor, distanceMap.get(current) + 1);
@@ -395,7 +395,7 @@ public class Village {
         List<Location> validLocations = new ArrayList<>();
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (tiles[x][y] != null && tiles[x][y].getTile() == TileType.GRASS) {
+                if (tiles[x][y] != null && tiles[x][y].getTile() == TileType.Dirt) {
                     validLocations.add(tiles[x][y]);
                 }
             }
@@ -475,7 +475,7 @@ public class Village {
 
     public boolean isPassable(Location location) {
         TileType type = location.getTile();
-        return type == TileType.GRASS || type == TileType.PATH;
+        return type == TileType.Dirt || type == TileType.PATH;
     }
 
     public boolean contains(int x, int y) {

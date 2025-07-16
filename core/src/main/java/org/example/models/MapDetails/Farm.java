@@ -20,8 +20,8 @@ import org.example.models.enums.Types.TreeType;
 import java.util.*;
 
 public class Farm {
-    public static final int width = 51;
-    public static final int height = 51;
+    public static final int width = 78;
+    public static final int height = 78;
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
@@ -83,7 +83,7 @@ public class Farm {
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
-        makeFenceAndPaths(); // Call the new method here
+        makeFenceAndPaths();
     }
 
     public String getBackground() {
@@ -225,7 +225,7 @@ public class Farm {
     public void initializeFarm() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                tiles[x][y] = new Location(x, y, TileType.GRASS);
+                tiles[x][y] = new Location(x, y, TileType.Dirt);
             }
         }
 
@@ -234,9 +234,9 @@ public class Farm {
         markQuarry();
         markLakes();
 
-        placeRandomObjects("stone", 100);
-        placeRandomObjects("tree", 150);
-        placeRandomObjects("crop", 100);
+        placeRandomObjects("stone", 50);
+        placeRandomObjects("tree", 50);
+        placeRandomObjects("crop", 50);
         placeRandomObjects("branch", 50);
     }
 
@@ -396,7 +396,7 @@ public class Farm {
             }
             TileType currentTile = tiles[x][y].getTile();
 
-            if (currentTile == TileType.GRASS) {
+            if (currentTile == TileType.Dirt) {
                 tiles[x][y].setType(type);
 
                 if (type.equals("tree")) {
@@ -435,16 +435,16 @@ public class Farm {
     public Building createBuilding() {
         switch (farmIndex) {
             case 0:
-                Building b1 = new Building(width - 5, 0, "house", "house");
+                Building b1 = new Building(55, 70, "house", "house");
                 return b1;
             case 1:
-                Building b2 = new Building(0, 0, "house", "house");
+                Building b2 = new Building(55, 70, "house", "house");
                 return b2;
             case 2:
-                Building b3 = new Building(0, height - 5, "house", "house");
+                Building b3 = new Building(55, 70, "house", "house");
                 return b3;
             case 3:
-                Building b4 = new Building(width - 5, height - 5, "house", "house");
+                Building b4 = new Building(55, 70, "house", "house");
                 return b4;
         }
         return null;
@@ -453,16 +453,16 @@ public class Farm {
     public GreenHouse createGreenHouse() {
         switch (farmIndex) {
             case 0:
-                GreenHouse g1 = new GreenHouse(0, 0);
+                GreenHouse g1 = new GreenHouse(22, 70);
                 return g1;
             case 1:
-                GreenHouse g2 = new GreenHouse(width - 5, 0);
+                GreenHouse g2 = new GreenHouse(22, 70);
                 return g2;
             case 2:
-                GreenHouse g3 = new GreenHouse(width - 5, height - 6);
+                GreenHouse g3 = new GreenHouse(22, 70);
                 return g3;
             case 3:
-                GreenHouse g4 = new GreenHouse(1, height - 6);
+                GreenHouse g4 = new GreenHouse(22, 70);
                 return g4;
         }
         return null;
@@ -471,16 +471,16 @@ public class Farm {
     public Quarry createQuarry() {
         switch (farmIndex) {
             case 0:
-                Quarry q1 = new Quarry(width - 4, height - 4);
+                Quarry q1 = new Quarry(3, 1);
                 return q1;
             case 1:
-                Quarry q2 = new Quarry(0, height - 4);
+                Quarry q2 = new Quarry(3, 1);
                 return q2;
             case 2:
-                Quarry q3 = new Quarry(0, 0);
+                Quarry q3 = new Quarry(3, 1);
                 return q3;
             case 3:
-                Quarry q4 = new Quarry(width - 4, 0);
+                Quarry q4 = new Quarry(3, 1);
                 return q4;
         }
         return null;
@@ -489,13 +489,13 @@ public class Farm {
     public List<Lake> createLakes() {
         List<Lake> lakes = new ArrayList<>();
         if (farmType) {
-            Lake l11 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
-            Lake l12 = new Lake(width / 2 + 7 - 15, height / 2 + 7, 6, 6, "lake", Lake.LakeType.RIVER);
+            Lake l11 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER);
+            Lake l12 = new Lake(50, 30, 4, 4, "lake", Lake.LakeType.RIVER);
             lakes.add(l11);
             lakes.add(l12);
             return lakes;
         }
-        Lake l1 = new Lake(width / 2 + 2, height / 2 - 13, 6, 6, "lake", Lake.LakeType.RIVER);
+        Lake l1 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER);
         lakes.add(l1);
         return lakes;
     }
@@ -610,7 +610,7 @@ public class Farm {
         int x = rand.nextInt(width);
         int y = rand.nextInt(height);
         TileType currentTile = tiles[x][y].getTile();
-        while (currentTile != TileType.GRASS) {
+        while (currentTile != TileType.Dirt) {
             x = rand.nextInt(width);
             y = rand.nextInt(height);
             currentTile = tiles[x][y].getTile();
@@ -830,7 +830,7 @@ public class Farm {
                         if (!tree.getMoisture()) {
                             if(tree.getMoistureCounter() >= 2){
                                 tile.setItem(null);
-                                tiles[x][y].setTile(TileType.GRASS);
+                                tiles[x][y].setTile(TileType.Dirt);
                                 tiles[x][y].setType("grass");
                             }
                         }
@@ -840,7 +840,7 @@ public class Farm {
                         if (!plant.getMoisture()) {
                             if(plant.getMoistureCounter() >= 2){
                                 tile.setItem(null);
-                                tiles[x][y].setTile(TileType.GRASS);
+                                tiles[x][y].setTile(TileType.Dirt);
                                 tiles[x][y].setType("grass");
                             }
                         }
@@ -862,7 +862,7 @@ public class Farm {
 
     public boolean isPassable(Location location) {
         TileType type = location.getTile();
-        return type == TileType.GRASS || type == TileType.PATH;
+        return type == TileType.Dirt || type == TileType.PATH;
     }
 
     public void printCurrentViewColored(int centerX, int centerY, int viewRadius) {
@@ -982,7 +982,7 @@ public class Farm {
             for (int j = y - r; j <= y + r; j++) {
                 if (getItem(i, j) != null) {
                     getItem(i, j).setItem(null);
-                    getItem(i, j).setTile(TileType.GRASS);
+                    getItem(i, j).setTile(TileType.Dirt);
                     getItem(i, j).setType("grass");
                 }
             }
@@ -996,7 +996,7 @@ public class Farm {
                 if (tile.getItem() == null) {
                     return false;
                 }
-                if (tile.getTile() != TileType.GRASS) {
+                if (tile.getTile() != TileType.Dirt) {
                     return false;
                 }
             }
@@ -1098,7 +1098,7 @@ public class Farm {
             return -1;
         }
 
-        if (finalLocation.getTile() != TileType.GRASS && finalLocation.getTile() != TileType.PATH) { // Allow walking on path
+        if (finalLocation.getTile() != TileType.Dirt && finalLocation.getTile() != TileType.PATH) { // Allow walking on path
             return -1;
         }
 
@@ -1136,7 +1136,7 @@ public class Farm {
 
                 Location neighbor = tiles[newX][newY];
 
-                if ((neighbor.getTile() == TileType.GRASS || neighbor.getTile() == TileType.PATH) && !visited.contains(neighbor)) { // Allow walking on path
+                if ((neighbor.getTile() == TileType.Dirt || neighbor.getTile() == TileType.PATH) && !visited.contains(neighbor)) { // Allow walking on path
                     visited.add(neighbor);
                     parentMap.put(neighbor, current);
                     distanceMap.put(neighbor, distanceMap.get(current) + 1);
@@ -1324,7 +1324,7 @@ public class Farm {
                             if (tile.getItem() instanceof Tree) {
                                 Tree tree = (Tree) tile.getItem();
                                 tile.setItem(tree.burnTree());
-                                tiles[i][j].setTile(TileType.GRASS);
+                                tiles[i][j].setTile(TileType.Dirt);
                                 tiles[i][j].setType("grass");
                             }
                         }
@@ -1383,7 +1383,7 @@ public class Farm {
                     tree.setDaysCounter(0);
                 } else if (location.getItem() instanceof Crop || location.getItem() instanceof Plant) {
                     location.setItem(null);
-                    location.setTile(TileType.GRASS);
+                    location.setTile(TileType.Dirt);
                     location.setType("grass");
                 }
             }

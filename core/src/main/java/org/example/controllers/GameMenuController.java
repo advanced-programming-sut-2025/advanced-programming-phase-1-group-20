@@ -2031,7 +2031,7 @@ public class GameMenuController implements Controller {
         System.out.println(location.getTile().toString());
         System.out.println(App.getGame().getCurrentPlayer().getCurrentFarm().getFarmIndex());
         System.out.println(App.getGame().getCurrentPlayer().getUser().getUsername());
-        if (location.getTile() == TileType.GRASS) {
+        if (location.getTile() == TileType.Dirt) {
             App.getGame().getCurrentPlayer().setLocation(location);
         }
     }

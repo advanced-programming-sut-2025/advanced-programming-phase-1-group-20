@@ -243,7 +243,7 @@ public class PlantController {
             }
             if (plant.getOneTimeHarvest()) {
                 gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
-                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.Dirt);
                 gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
             } else {
                 plant.setStages(new int[]{1});
@@ -261,7 +261,7 @@ public class PlantController {
                 return Result.error("Backpack is full!");
             }
             gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
-            gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.GRASS);
+            gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.Dirt);
             gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
             player.getSkills().get(2).updateLevel();
         }

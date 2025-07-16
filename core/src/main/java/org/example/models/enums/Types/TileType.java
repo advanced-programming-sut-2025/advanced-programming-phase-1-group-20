@@ -3,7 +3,7 @@ package org.example.models.enums.Types;
 public enum TileType {
     WATER(false),
     COBBLED_STONE(false),
-    GRASS(true),
+    Dirt(true),
     SAND(true),
     STONE(false),
     TREE(false),

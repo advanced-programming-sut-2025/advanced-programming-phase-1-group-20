@@ -68,7 +68,7 @@ public class AnimalController {
             return Result.error("The specified location is outside the farm boundaries.");
         }
 
-        if (farm.getTile(x, y) != TileType.GRASS) {
+        if (farm.getTile(x, y) != TileType.Dirt) {
             return Result.error("Animals can only be moved to grass tiles.");
         }
 

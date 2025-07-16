@@ -57,7 +57,7 @@ public enum ToolFunctionality {
                 // 1. Cut down trees for regular wood and some tree essences
                 if (tileType == TileType.TREE) {
                     player.getBackpack().add(new Item("Wood", 20 , "Trees/Wood.png"), 100);
-                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.Dirt, player);
                 }
 
                 // 2. Remove branches on the ground
@@ -253,7 +253,7 @@ public enum ToolFunctionality {
 
                 // Check if the tile is grass and can be tilled
                 TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
-                if (tileType == TileType.GRASS) {
+                if (tileType == TileType.Dirt) {
                     // Till the soil
                     return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.PLOWED, player);
                 }
@@ -367,7 +367,7 @@ public enum ToolFunctionality {
                         tileType == TileType.EMERALD_ORE) {
 
                     // Break the rock/ore
-                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.GRASS, player);
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.Dirt, player);
                 }
 
 

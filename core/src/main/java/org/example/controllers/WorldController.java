@@ -77,7 +77,7 @@ public class WorldController {
         }
 
         // Pre-load tile textures
-        loadTexture("lake", "content/flooring/Flooring_26.png");
+        loadTexture("lake", "content/flooring/lake.png");
         loadTexture("stone", "content/Crafting/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
@@ -95,7 +95,7 @@ public class WorldController {
         loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
-        loadTexture("fence", "content/Crafting/Hardwood_Fence.png");
+        loadTexture("fence", "content/Fence/Iron_Fence.png");
         // tree textures for all seasons
         for (String season : seasons) {
             String treePath = "content/TreeTile/" + season + ".png";
@@ -289,6 +289,7 @@ public class WorldController {
 
         switch (tileType) {
             case LAKE:
+                return getTexture("lake");
             case WATER:
                 return getTexture("lake");
             case STONE:
@@ -311,6 +312,8 @@ public class WorldController {
                 return getTexture("branch");
             case QUARRY:
                 return getTexture("quarry");
+            case FENCE:
+                return getTexture("fence");
             case GREENHOUSE:
             case CONSTRUCTED_GREENHOUSE:
             case BUILDING:
