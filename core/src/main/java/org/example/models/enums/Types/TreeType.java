@@ -5,20 +5,20 @@ import org.example.models.enums.Seasons;
 import java.util.Arrays;
 
 public enum TreeType {
-    ApricotTree("Apricot Tree", "Apricot Sapling", "Apricot", 59, true, 38, new Seasons[]{Seasons.SPRING}, "Trees/Banana_Stage_5_Fruit.png") ,
-    CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}, "Trees/Cherry_Stage_5_Fruit.png") ,
-    BananaTree("Banana Tree", "Banana Sapling", "Banana", 150, true, 75, new Seasons[]{Seasons.SUMMER}, "Trees/Banana_Stage_5_Fruit.png") ,
-    MangoTree("Mango Tree", "Mango Sapling", "Mango", 130, true, 100, new Seasons[]{Seasons.SUMMER}, "Trees/Mango_Stage_5_Fruit.png") ,
-    OrangeTree("Orange Tree", "Orange Sapling", "Orange", 100, true, 38, new Seasons[]{Seasons.SUMMER}, "Trees/Orange_Stage_5_Fruit.png") ,
-    PeachTree("Peach Tree", "Peach Sapling", "Peach", 140, true, 38, new Seasons[]{Seasons.SUMMER}, "Trees/Peach_Stage_5_Fruit.png") ,
-    AppleTree("Apple Tree", "Apple Sapling", "Apple", 100, true, 38, new Seasons[]{Seasons.AUTUMN}, "Trees/Apple_Stage_5_Fruit.png") ,
-    PomegranateTree("Pomegranate Tree", "Pomegranate Sapling", "Pomegranate", 140, true, 38, new Seasons[]{Seasons.AUTUMN}, "Trees/Pomegranate_Stage_5_Fruit.png") ,
-    OakTree("Oak Tree", "Acorns", "Oak Resin", 150, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
-    MapleTree("Maple Tree", "Maple Seeds", "Maple Syrup", 200, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
-    PineTree("Pine Tree", "Pine Cones", "Pine Tar", 100, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
-    MahoganyTree("Mahogany Tree", "Mahogany Seeds", "Sap", 2, true, -2, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
-    MushroomTree("Mushroom Tree", "Mushroom Tree Seeds", "Common Mushroom", 40, true, 38, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
-    MysticTree("Mystic Tree", "Mystic Tree Seeds", "Mystic Syrup", 1000, true, 500, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "") ,
+    ApricotTree("Apricot Tree", "Apricot Sapling", "Apricot", 59, true, 38, new Seasons[]{Seasons.SPRING}, "Apricot") ,
+    CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}, "Cherry") ,
+    BananaTree("Banana Tree", "Banana Sapling", "Banana", 150, true, 75, new Seasons[]{Seasons.SUMMER}, "Banana") ,
+    MangoTree("Mango Tree", "Mango Sapling", "Mango", 130, true, 100, new Seasons[]{Seasons.SUMMER}, "Mango") ,
+    OrangeTree("Orange Tree", "Orange Sapling", "Orange", 100, true, 38, new Seasons[]{Seasons.SUMMER}, "Orange") ,
+    PeachTree("Peach Tree", "Peach Sapling", "Peach", 140, true, 38, new Seasons[]{Seasons.SUMMER}, "Peach") ,
+    AppleTree("Apple Tree", "Apple Sapling", "Apple", 100, true, 38, new Seasons[]{Seasons.AUTUMN}, "Apple") ,
+    PomegranateTree("Pomegranate Tree", "Pomegranate Sapling", "Pomegranate", 140, true, 38, new Seasons[]{Seasons.AUTUMN}, "Pomegranate") ,
+    OakTree("Oak Tree", "Acorns", "Oak Resin", 150, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Oak") ,
+    MapleTree("Maple Tree", "Maple Seeds", "Maple Syrup", 200, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Maple") ,
+    PineTree("Pine Tree", "Pine Cones", "Pine Tar", 100, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Pine") ,
+    MahoganyTree("Mahogany Tree", "Mahogany Seeds", "Sap", 2, true, -2, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Mahogany") ,
+    MushroomTree("Mushroom Tree", "Mushroom Tree Seeds", "Common Mushroom", 40, true, 38, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "MushroomTree") ,
+    MysticTree("Mystic Tree", "Mystic Tree Seeds", "Mystic Syrup", 1000, true, 500, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Mystic_Tree") ,
     ;
     private final String name;
     private final String source;

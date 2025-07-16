@@ -1,5 +1,6 @@
 package org.example.models.Items;
 
+import com.badlogic.gdx.graphics.Texture;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.MineralType;
 import org.example.models.enums.Types.TreeType;
@@ -175,5 +176,14 @@ public class Tree extends Item {
 
     public void setMoistureGod(boolean moistureGod) {
         this.moistureGod = moistureGod;
+    }
+
+    public String getImage() {
+        int s = stage + 1;
+        return "content/Trees/" + getImageFilepath() + "_" + "Stage_" + s + ".png";
+    }
+
+    public Texture getTexture() {
+        return new Texture(getImage());
     }
 }
