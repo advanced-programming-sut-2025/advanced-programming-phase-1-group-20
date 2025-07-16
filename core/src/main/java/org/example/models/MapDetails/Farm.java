@@ -234,10 +234,10 @@ public class Farm {
         markQuarry();
         markLakes();
 
-        placeRandomObjects("stone", 50);
-        placeRandomObjects("tree", 50);
-        placeRandomObjects("crop", 50);
-        placeRandomObjects("branch", 50);
+        placeRandomObjects("stone", 25);
+        placeRandomObjects("tree", 25);
+        placeRandomObjects("crop", 25);
+        placeRandomObjects("branch", 25);
     }
 
     public void makeFenceAndPaths() {
