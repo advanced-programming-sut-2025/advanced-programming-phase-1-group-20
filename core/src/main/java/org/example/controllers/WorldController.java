@@ -47,9 +47,6 @@ public class WorldController {
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
 
-    // Rendering distance in tiles
-    private static final int RENDER_DISTANCE_TILES = 13;
-
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
         this.farm = farm;
@@ -84,7 +81,7 @@ public class WorldController {
         loadTexture("stone", "content/Crafting/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
-//        loadTexture("crop", "content/Crafting/Common_Mushroom.png");
+        loadTexture("crop", "content/Crafting/Common_Mushroom.png");
         loadTexture("plowed", "content/plowed.png");
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
@@ -99,7 +96,13 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
-
+        // tree textures for all seasons
+        for (String season : seasons) {
+            String treePath = "content/TreeTile/" + season + ".png";
+            if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
+                Gdx.app.log("WorldController", "Loaded tree texture for " + season);
+            }
+        }
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -176,18 +179,8 @@ public class WorldController {
 
         collectBuildingTiles(greenhouseTiles, houseTiles, barnTiles, coopTiles);
 
-        // Calculate visible tile range based on player position and render distance
-        int playerTileX = (int) (playerController.getPlayer().getPosX() / TILE_SIZE);
-        int playerTileY = (int) (playerController.getPlayer().getPosY() / TILE_SIZE);
-
-        int startX = Math.max(0, playerTileX - RENDER_DISTANCE_TILES);
-        int endX = Math.min(Farm.width, playerTileX + RENDER_DISTANCE_TILES);
-        int startY = Math.max(0, playerTileY - RENDER_DISTANCE_TILES);
-        int endY = Math.min(Farm.height, playerTileY + RENDER_DISTANCE_TILES);
-
-
-        for (int x = startX; x < endX; x++) {
-            for (int y = startY; y < endY; y++) {
+        for (int x = 0; x < Farm.width; x++) {
+            for (int y = 0; y < Farm.height; y++) {
                 Location location = farm.getItem(x, y);
                 if (location == null) continue;
 
@@ -458,10 +451,10 @@ public class WorldController {
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
-        if (item instanceof Tree tree) {
-            renderTreeItem(worldX, worldY , tree);
-        } else if (item instanceof Crop crop) {
-            renderCropItem(worldX, worldY , crop);
+        if (item instanceof Tree) {
+            renderTreeItem(worldX, worldY, season);
+        } else if (item instanceof Crop) {
+            renderCropItem(worldX, worldY);
         } else if (item instanceof Plant) {
             renderPlantItem(worldX, worldY);
         } else if (item instanceof Mineral) {
@@ -471,8 +464,8 @@ public class WorldController {
         }
     }
 
-    private void renderTreeItem(float worldX, float worldY , Tree tree) {
-        Texture treeTexture = tree.getTexture();
+    private void renderTreeItem(float worldX, float worldY, String season) {
+        Texture treeTexture = getTexture("tree_" + season);
         if (treeTexture != null) {
             float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
             float offsetX = (TILE_SIZE - treeSize) / 2; // Center the larger tree
@@ -482,8 +475,8 @@ public class WorldController {
         }
     }
 
-    private void renderCropItem(float worldX, float worldY , Crop crop) {
-        Texture cropTexture = crop.getTexture();
+    private void renderCropItem(float worldX, float worldY) {
+        Texture cropTexture = getTexture("crop");
         if (cropTexture != null) {
             Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
