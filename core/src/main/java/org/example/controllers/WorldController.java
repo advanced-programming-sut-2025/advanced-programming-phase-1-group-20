@@ -48,7 +48,7 @@ public class WorldController {
     private static final float TREE_SIZE_MULTIPLIER = 2f;
 
     // Rendering distance in tiles
-    private static final int RENDER_DISTANCE_TILES = 20;
+    private static final int RENDER_DISTANCE_TILES = 13;
 
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
@@ -84,7 +84,7 @@ public class WorldController {
         loadTexture("stone", "content/Crafting/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
-        loadTexture("crop", "content/Crafting/Common_Mushroom.png");
+//        loadTexture("crop", "content/Crafting/Common_Mushroom.png");
         loadTexture("plowed", "content/plowed.png");
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
@@ -99,13 +99,7 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
-//        // tree textures for all seasons
-//        for (String season : seasons) {
-//            String treePath = "content/TreeTile/" + season + ".png";
-//            if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
-//                Gdx.app.log("WorldController", "Loaded tree texture for " + season);
-//            }
-//        }
+
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -466,8 +460,8 @@ public class WorldController {
 
         if (item instanceof Tree tree) {
             renderTreeItem(worldX, worldY , tree);
-        } else if (item instanceof Crop) {
-            renderCropItem(worldX, worldY);
+        } else if (item instanceof Crop crop) {
+            renderCropItem(worldX, worldY , crop);
         } else if (item instanceof Plant) {
             renderPlantItem(worldX, worldY);
         } else if (item instanceof Mineral) {
@@ -488,8 +482,8 @@ public class WorldController {
         }
     }
 
-    private void renderCropItem(float worldX, float worldY) {
-        Texture cropTexture = getTexture("crop");
+    private void renderCropItem(float worldX, float worldY , Crop crop) {
+        Texture cropTexture = crop.getTexture();
         if (cropTexture != null) {
             Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }

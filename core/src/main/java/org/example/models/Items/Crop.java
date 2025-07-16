@@ -1,5 +1,6 @@
 package org.example.models.Items;
 
+import com.badlogic.gdx.graphics.Texture;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Types.CropType;
 
@@ -31,5 +32,13 @@ public class Crop extends Item {
 
     public Fruit getFruit() {
         return new Fruit(getName() , getPrice() , getEnergy() , getImageFilepath());
+    }
+
+    public String getImage() {
+        return "content/Crops/" + getImageFilepath() + ".png";
+    }
+
+    public Texture getTexture() {
+        return new Texture(getImage());
     }
 }
