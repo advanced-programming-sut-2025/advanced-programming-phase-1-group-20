@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.example.Main;
 import org.example.models.MapDetails.Farm;
 import org.example.models.App;
+import org.example.models.enums.Types.CropType;
 import org.example.models.enums.Types.TileType;
 import org.example.models.common.Location;
 import org.example.models.Items.*;
@@ -82,7 +83,6 @@ public class WorldController {
         loadTexture("stone", "content/Crafting/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
-        loadTexture("crop", "content/Crafting/Common_Mushroom.png");
         loadTexture("plowed", "content/plowed.png");
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
@@ -98,13 +98,7 @@ public class WorldController {
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
         preloadTrees();
-//        // tree textures for all seasons
-//        for (String season : seasons) {
-//            String treePath = "content/TreeTile/" + season + ".png";
-//            if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
-//                Gdx.app.log("WorldController", "Loaded tree texture for " + season);
-//            }
-//        }
+        preloadCrops();
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -119,6 +113,14 @@ public class WorldController {
                 String treePath = "content/Trees/" + treeType.getImageFilePath() + "_" + "Stage_" + i + ".png";
                 loadTexture(key , treePath);
             }
+        }
+    }
+
+    public void preloadCrops() {
+        for(CropType cropType : CropType.values()) {
+            String key = cropType.getImageFilePath();
+            String cropPath = "content/Crops/" + cropType.getImageFilePath() + ".png";
+            loadTexture(key, cropPath);
         }
     }
 
@@ -465,8 +467,8 @@ public class WorldController {
 
         if (item instanceof Tree tree) {
             renderTreeItem(worldX, worldY, season , tree);
-        } else if (item instanceof Crop) {
-            renderCropItem(worldX, worldY);
+        } else if (item instanceof Crop crop) {
+            renderCropItem(worldX, worldY , crop);
         } else if (item instanceof Plant) {
             renderPlantItem(worldX, worldY);
         } else if (item instanceof Mineral) {
@@ -489,8 +491,9 @@ public class WorldController {
         }
     }
 
-    private void renderCropItem(float worldX, float worldY) {
-        Texture cropTexture = getTexture("crop");
+    private void renderCropItem(float worldX, float worldY , Crop crop) {
+        String key = crop.getImageFilepath();
+        Texture cropTexture = getTexture(key);
         if (cropTexture != null) {
             Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
