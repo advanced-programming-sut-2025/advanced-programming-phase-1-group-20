@@ -10,6 +10,7 @@ import org.example.models.App;
 import org.example.models.enums.Types.TileType;
 import org.example.models.common.Location;
 import org.example.models.Items.*;
+import org.example.models.enums.Types.TreeType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -96,18 +97,29 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
-        // tree textures for all seasons
-        for (String season : seasons) {
-            String treePath = "content/TreeTile/" + season + ".png";
-            if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
-                Gdx.app.log("WorldController", "Loaded tree texture for " + season);
-            }
-        }
+        preloadTrees();
+//        // tree textures for all seasons
+//        for (String season : seasons) {
+//            String treePath = "content/TreeTile/" + season + ".png";
+//            if (loadTexture("tree_" + season.toLowerCase(), treePath)) {
+//                Gdx.app.log("WorldController", "Loaded tree texture for " + season);
+//            }
+//        }
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
 
         Gdx.app.log("WorldController", "Finished preloading textures. Cache size: " + textureCache.size());
+    }
+
+    public void preloadTrees(){
+        for(TreeType treeType : TreeType.values()) {
+            for(int i = 1 ; i < 5 ; i++){
+                String key = treeType.getImageFilePath() + "_" + i;
+                String treePath = "content/Trees/" + treeType.getImageFilePath() + "_" + "Stage_" + i + ".png";
+                loadTexture(key , treePath);
+            }
+        }
     }
 
     private boolean loadTexture(String key, String path) {
@@ -451,8 +463,8 @@ public class WorldController {
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
-        if (item instanceof Tree) {
-            renderTreeItem(worldX, worldY, season);
+        if (item instanceof Tree tree) {
+            renderTreeItem(worldX, worldY, season , tree);
         } else if (item instanceof Crop) {
             renderCropItem(worldX, worldY);
         } else if (item instanceof Plant) {
@@ -464,8 +476,10 @@ public class WorldController {
         }
     }
 
-    private void renderTreeItem(float worldX, float worldY, String season) {
-        Texture treeTexture = getTexture("tree_" + season);
+    private void renderTreeItem(float worldX, float worldY, String season , Tree tree) {
+        int stage = tree.getStage() + 1;
+        String key = tree.getImageFilepath() + "_" + stage;
+        Texture treeTexture = getTexture(key);
         if (treeTexture != null) {
             float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
             float offsetX = (TILE_SIZE - treeSize) / 2; // Center the larger tree
