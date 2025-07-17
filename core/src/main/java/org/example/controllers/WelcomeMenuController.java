@@ -1,7 +1,6 @@
 package org.example.controllers;
 
 import com.badlogic.gdx.graphics.Texture;
-import org.example.Main;
 import org.example.models.App;
 import org.example.models.MapDetails.Farm;
 import org.example.models.MapDetails.GameMap;
@@ -9,10 +8,9 @@ import org.example.models.Player.Player;
 import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.PlayerEnums.Gender;
-import org.example.utils.GameAssetManager;
+import org.example.utils.AssetManager;
 import org.example.views.GameView;
 import org.example.views.LoginRegisterMenuScreen;
-import org.example.views.SignUpMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;
@@ -22,14 +20,14 @@ import static org.example.Main.getGame;
 
 public class WelcomeMenuController {
     private WelcomeMenuScreen screen;
-    private final GameAssetManager assetManager;
+    private final AssetManager assetManager;
 
     private int currentImageIndex = 0;
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
     public WelcomeMenuController() {
-        this.assetManager = GameAssetManager.getGameAssetManager();
+        this.assetManager = AssetManager.getAssetManager();
     }
 
     public void setScreen(WelcomeMenuScreen screen) {
@@ -53,13 +51,13 @@ public class WelcomeMenuController {
     public void handleLoginButton() {
         getGame().getScreen().dispose();
         getGame().setScreen(new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
-            GameAssetManager.getGameAssetManager().getSkin()));
+            AssetManager.getAssetManager().getSkin()));
     }
 
     public void handleSignUpButton() {
         getGame().getScreen().dispose();
         LoginRegisterMenuScreen registerScreen = new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
-            GameAssetManager.getGameAssetManager().getSkin());
+            AssetManager.getAssetManager().getSkin());
         getGame().setScreen(registerScreen);
         registerScreen.showRegisterFormDirectly();
     }

@@ -27,7 +27,7 @@ import org.example.models.entities.Game;
 import org.example.models.entities.User;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Weather;
-import org.example.utils.GameAssetManager;
+import org.example.utils.AssetManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -187,8 +187,8 @@ public class GameView implements Screen, InputProcessor {
         weatherDisplayImage = new Image();
         seasonDisplayImage = new Image();
 
-        float height = GameAssetManager.getGameAssetManager().getFallTexture().getHeight() * 2.05f;
-        float width = GameAssetManager.getGameAssetManager().getFallTexture().getWidth() * 1.8f;
+        float height = AssetManager.getAssetManager().getFallTexture().getHeight() * 2.05f;
+        float width = AssetManager.getAssetManager().getFallTexture().getWidth() * 1.8f;
 
         float centerX = (clockSize - width) / 2;
         float centerY = (clockSize - height) / 2;
@@ -358,8 +358,8 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private Texture getTextureUsingReflection(String methodName) throws Exception {
-        GameAssetManager assetManager = GameAssetManager.getGameAssetManager();
-        Method textureMethod = GameAssetManager.class.getMethod(methodName);
+        AssetManager assetManager = AssetManager.getAssetManager();
+        Method textureMethod = AssetManager.class.getMethod(methodName);
         return (Texture) textureMethod.invoke(assetManager);
     }
 
@@ -453,7 +453,7 @@ public class GameView implements Screen, InputProcessor {
     public void render(float deltaTime) {
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
-        bgColor.mul(0.1f); // Darken for background
+        bgColor.mul(0.2f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
         // Set batch color to current lighting

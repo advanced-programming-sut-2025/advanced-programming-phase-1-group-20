@@ -1,7 +1,6 @@
 package org.example.controllers;
 
-import org.example.models.entities.User;
-import org.example.utils.GameAssetManager;
+import org.example.utils.AssetManager;
 import org.example.views.SignUpMenuScreen;
 import java.util.Random;
 
@@ -19,8 +18,8 @@ public class SignUpMenuController {
         timeSinceLastChange += delta;
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
-            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getSignUpMenuImagesCount();
-            screen.updateBackground(GameAssetManager.getGameAssetManager().getSignUpMenuTexture(currentImageIndex));
+            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getSignUpMenuImagesCount();
+            screen.updateBackground(AssetManager.getAssetManager().getSignUpMenuTexture(currentImageIndex));
         }
     }
 

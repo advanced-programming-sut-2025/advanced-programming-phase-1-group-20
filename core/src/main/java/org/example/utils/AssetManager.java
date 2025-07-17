@@ -4,8 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
-public class GameAssetManager {
-    private static GameAssetManager gameAssetManager;
+public class AssetManager {
+    private static AssetManager assetManager;
     private final Skin skin = new Skin(Gdx.files.internal("content/ui/uiskin.json"));
     private final Texture signUpTitleTexture = new Texture("content/Titles/signUp.png");
     private final Texture loginTitleTexture = new Texture("content/Titles/login.png");
@@ -32,11 +32,11 @@ public class GameAssetManager {
     private final Texture fallTexture = new Texture("content/clock/seasons/fall.png");
 
 
-    public static GameAssetManager getGameAssetManager() {
-        if (gameAssetManager == null) {
-            gameAssetManager = new GameAssetManager();
+    public static AssetManager getAssetManager() {
+        if (assetManager == null) {
+            assetManager = new AssetManager();
         }
-        return gameAssetManager;
+        return assetManager;
     }
 
     public Texture getSignUpTexture() {
@@ -51,7 +51,7 @@ public class GameAssetManager {
         return exitTitleTexture;
     }
 
-    GameAssetManager() {
+    AssetManager() {
         loadWelcomeMenuTextures();
     }
 

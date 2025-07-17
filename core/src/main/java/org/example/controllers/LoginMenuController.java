@@ -1,9 +1,7 @@
 package org.example.controllers;
 
-import org.example.models.entities.User;
-import org.example.utils.GameAssetManager;
+import org.example.utils.AssetManager;
 import org.example.views.LoginMenuScreen;
-import org.example.views.WelcomeMenuScreen;
 
 public class LoginMenuController {
     private LoginMenuScreen screen;
@@ -19,8 +17,8 @@ public class LoginMenuController {
         timeSinceLastChange += delta;
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
-            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getLoginMenuImagesCount();
-//            screen.updateBackground(GameAssetManager.getGameAssetManager().getLoginMenuTexture(currentImageIndex));
+            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getLoginMenuImagesCount();
+//            screen.updateBackground(GameAssetManager.getAssetManager().getLoginMenuTexture(currentImageIndex));
         }
     }
 

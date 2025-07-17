@@ -1,21 +1,6 @@
 package org.example.views;
 
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.controllers.LoginMenuController;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import org.example.utils.GameAssetManager;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import java.awt.*;
 
 public class LoginMenuScreen implements Screen {
 //    private final LoginMenuController controller;
@@ -102,7 +87,7 @@ public class LoginMenuScreen implements Screen {
 //                );
 //
 //                if (success) {
-//                    GameAssetManager.getGameAssetManager().playClickSound();
+//                    GameAssetManager.getAssetManager().playClickSound();
 //                    controller.handleLoginSuccess();
 //                }
 //            }
@@ -111,7 +96,7 @@ public class LoginMenuScreen implements Screen {
 //        forgotButton.addListener(new ChangeListener() {
 //            @Override
 //            public void changed(ChangeEvent event, Actor actor) {
-//                GameAssetManager.getGameAssetManager().playClickSound();
+//                GameAssetManager.getAssetManager().playClickSound();
 //                controller.handleForgotPassword();
 //            }
 //        });
@@ -119,7 +104,7 @@ public class LoginMenuScreen implements Screen {
 //        backButton.addListener(new ChangeListener() {
 //            @Override
 //            public void changed(ChangeEvent event, Actor actor) {
-//                GameAssetManager.getGameAssetManager().playClickSound();
+//                GameAssetManager.getAssetManager().playClickSound();
 //                controller.handleBack();
 //            }
 //        });

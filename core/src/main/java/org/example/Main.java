@@ -5,13 +5,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import org.example.controllers.LoginRegisterMenuController;
 import org.example.controllers.WelcomeMenuController;
 import org.example.models.App;
-import org.example.models.common.Date;
-import org.example.models.entities.User;
-import org.example.utils.GameAssetManager;
-import org.example.views.LoginRegisterMenuScreen;
+import org.example.utils.AssetManager;
 import org.example.views.WelcomeMenuScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -33,7 +29,7 @@ public class Main extends Game {
 
         App.initialize();
         WelcomeMenuController welcomeMenuController = new WelcomeMenuController();
-        WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController , GameAssetManager.getGameAssetManager().getSkin());
+        WelcomeMenuScreen welcomeMenuScreen = new WelcomeMenuScreen(welcomeMenuController , AssetManager.getAssetManager().getSkin());
         welcomeMenuController.setScreen(welcomeMenuScreen);
         getGame().setScreen(welcomeMenuScreen);
     }
