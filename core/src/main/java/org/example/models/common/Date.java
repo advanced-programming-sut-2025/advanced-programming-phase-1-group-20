@@ -28,7 +28,7 @@ public class Date implements Runnable {
         this.season = 0; // Spring
         this.year = 1;
         this.hour = 9;
-        this.minute = 0; // NEW
+        this.minute = 0;
         this.weatherMap = new HashMap<>();
         initialWeatherMap();
         updateWeatherToday();
@@ -111,8 +111,8 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(6_000); // every 10 seconds
-                advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
+                Thread.sleep(6_000);
+                advanceMinutes(10, App.getGame().getGameMap());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Time thread interrupted");
