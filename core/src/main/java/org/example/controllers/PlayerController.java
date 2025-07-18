@@ -34,6 +34,20 @@ public class PlayerController {
 
     private Dir facing = Dir.DOWN;
 
+    private float toolAnimTime = 0f;
+    private boolean toolSwinging = false;
+    private String lastToolDirection = "down";
+    private float lastMouseX = 0f;
+    private float lastMouseY = 0f;
+
+    public void triggerToolSwing(String direction, float mouseX, float mouseY) {
+        toolAnimTime = 0f;
+        toolSwinging = true;
+        lastToolDirection = direction;
+        lastMouseX = mouseX;
+        lastMouseY = mouseY;
+    }
+
     public PlayerController(Player player, Farm farm) {
         this.player = player;
         this.farm = farm;
@@ -71,6 +85,48 @@ public class PlayerController {
             RENDER_W,
             RENDER_H
         );
+
+        // Draw tool if equipped
+        if (player.getCurrentTool() != null) {
+            Texture toolTexture = new Texture(player.getCurrentTool().getImageFilepath());
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+            float centerX = playerX + RENDER_W / 2f;
+            float centerY = playerY + RENDER_H / 2f;
+            float toolW = 32, toolH = 32;
+            // Set origin to handle (bottom-middle)
+            float originX = toolW / 2f;
+            float originY = toolH * 0.85f;
+            // Calculate angle to mouse
+            float dx = lastMouseX - centerX;
+            float dy = lastMouseY - centerY;
+            float angle = (float)Math.toDegrees(Math.atan2(dy, dx));
+            // Swing effect
+            float swingDuration = 0.18f;
+            float swingArc = 60f; // degrees
+            float finalAngle = angle;
+            if (toolSwinging) {
+                float swingProgress = Math.min(toolAnimTime / swingDuration, 1f);
+                // Animate from -swingArc to +swingArc around the mouse direction
+                float swingOffset = (float)Math.sin(Math.PI * swingProgress - Math.PI/2) * swingArc;
+                finalAngle = angle + swingOffset;
+                toolAnimTime += Gdx.graphics.getDeltaTime();
+                if (toolAnimTime > swingDuration) toolSwinging = false;
+            }
+            // Mirror if mouse is to the left
+            boolean flip = (angle > 90f || angle < -90f);
+            Main.getBatch().draw(
+                toolTexture,
+                centerX - originX, centerY - originY,
+                originX, originY,
+                toolW, toolH,
+                1f, 1f,
+                finalAngle,
+                0, 0,
+                toolTexture.getWidth(), toolTexture.getHeight(),
+                flip, false
+            );
+        }
     }
 
     private void handlePlayerInput(float delta) {

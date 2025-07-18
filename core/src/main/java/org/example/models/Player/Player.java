@@ -81,13 +81,13 @@ public class Player {
         this.isInVillage = false;
 
         // Initialize basic tools
-        backpack.add(new Tool("Basic Hoe", 0, "content/Tools/Hoe.png", "A basic hoe for tilling soil.",
+        backpack.add(new Tool("Basic Hoe", 0, "content/Tools/Hoe/Hoe.png", "A basic hoe for tilling soil.",
             Tool.ToolType.HOE, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.HOE), 1);
         backpack.add(new Tool("Basic Pickaxe", 0, "content/Tools/Pickaxe/Pickaxe.png", "A basic pickaxe for breaking rocks and mining ores.",
             Tool.ToolType.PICKAXE, Tool.ToolMaterial.BASIC, 5, Skills.MINING, ToolFunctionality.PICKAXE), 1);
         backpack.add(new Tool("Basic Axe", 0, "content/Tools/Axe/Axe.png", "A basic axe for cutting down trees and breaking branches.",
             Tool.ToolType.AXE, Tool.ToolMaterial.BASIC, 5, Skills.FORAGING, ToolFunctionality.AXE), 1);
-        backpack.add(new Tool("Basic Watering Can", 0, "content/Tools/Steel_Pan.png", "A basic watering can for watering crops.",
+        backpack.add(new Tool("Basic Watering Can", 0, "content/Tools/Watering_Can/Watering_Can.png", "A basic watering can for watering crops.",
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
             Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null, null), 1);

@@ -2114,4 +2114,8 @@ public class GameMenuController implements Controller {
             player.getCookingItems().add(cookingItem);
         }
     }
+
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
 }

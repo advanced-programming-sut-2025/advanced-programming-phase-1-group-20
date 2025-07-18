@@ -27,9 +27,11 @@ import org.example.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.views.effects.Lighting;
 import org.example.views.effects.ClimateSystem; // NEW IMPORT
+import org.example.views.InventoryScreen; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import com.badlogic.gdx.math.Vector3;
 
 public class GameView implements Screen, InputProcessor {
     private Stage stage;
@@ -81,6 +83,10 @@ public class GameView implements Screen, InputProcessor {
 
     private boolean isMapVisible = false;
     private Group minimapGroup;
+
+    // Add these fields to GameView:
+    private float lastToolMouseX = 0;
+    private float lastToolMouseY = 0;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -424,7 +430,8 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if (keycode == Input.Keys.ESCAPE) {
-            // Show InventoryMenuScreen
+            // Show InventoryScreen and pass this as previousScreen
+            Main.getGame().setScreen(new InventoryScreen(player, skin, this));
             return true;
         }
         return false;
@@ -434,7 +441,35 @@ public class GameView implements Screen, InputProcessor {
     @Override
     public boolean keyTyped(char c) { return false; }
     @Override
-    public boolean touchDown(int i, int i1, int i2, int i3) { return false; }
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        // Only handle left mouse button
+        if (button == Input.Buttons.LEFT && player.getCurrentTool() != null) {
+            // Convert screen coordinates to world coordinates
+            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+            float dx = worldCoords.x - playerX;
+            float dy = worldCoords.y - playerY;
+            // Store last mouse position for tool animation
+            lastToolMouseX = worldCoords.x;
+            lastToolMouseY = worldCoords.y;
+            // Calculate angle and direction
+            double angle = Math.atan2(dy, dx);
+            String direction;
+            if (Math.abs(dx) > Math.abs(dy)) {
+                direction = dx > 0 ? "east" : "west";
+            } else {
+                direction = dy > 0 ? "north" : "south";
+            }
+            player.useTool(direction, game.getGameMap());
+            // Trigger tool swing animation with mouse position
+            if (controller != null && controller.getPlayerController() != null) {
+                controller.getPlayerController().triggerToolSwing(direction, worldCoords.x, worldCoords.y);
+            }
+            return true;
+        }
+        return false;
+    }
     @Override
     public boolean touchUp(int i, int i1, int i2, int i3) { return false; }
     @Override
