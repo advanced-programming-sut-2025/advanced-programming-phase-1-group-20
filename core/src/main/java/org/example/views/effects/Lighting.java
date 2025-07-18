@@ -1,4 +1,4 @@
-package org.example.views;
+package org.example.views.effects;
 
 import com.badlogic.gdx.graphics.Color;
 import org.example.models.common.Date;

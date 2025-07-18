@@ -31,6 +31,9 @@ public class AssetManager {
     private final Texture summerTexture = new Texture("content/clock/seasons/summer.png");
     private final Texture fallTexture = new Texture("content/clock/seasons/fall.png");
 
+    // Rain textures - NEW
+    private final Texture rain1Texture = new Texture("content/rain/1.png");
+    private final Texture rain2Texture = new Texture("content/rain/2.png");
 
     public static AssetManager getAssetManager() {
         if (assetManager == null) {
@@ -153,11 +156,35 @@ public class AssetManager {
         return fallTexture;
     }
 
+    // NEW Rain texture getters
+    public Texture getRain1Texture() {
+        return rain1Texture;
+    }
+
+    public Texture getRain2Texture() {
+        return rain2Texture;
+    }
+
     public void disposeLoginMenuTextures() {
         for (Texture texture : loginMenuImages) {
             if (texture != null) {
                 texture.dispose();
             }
         }
+    }
+
+    public void dispose() {
+        if (rain1Texture != null) rain1Texture.dispose();
+        if (rain2Texture != null) rain2Texture.dispose();
+        if (rainyTexture != null) rainyTexture.dispose();
+        if (snowyTexture != null) snowyTexture.dispose();
+        if (sunnyTexture != null) sunnyTexture.dispose();
+        if (weddingTexture != null) weddingTexture.dispose();
+        if (stormyTexture != null) stormyTexture.dispose();
+        if (winterTexture != null) winterTexture.dispose();
+        if (springTexture != null) springTexture.dispose();
+        if (summerTexture != null) summerTexture.dispose();
+        if (fallTexture != null) fallTexture.dispose();
+        if (skin != null) skin.dispose();
     }
 }

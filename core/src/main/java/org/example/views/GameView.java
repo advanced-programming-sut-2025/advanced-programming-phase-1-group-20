@@ -28,6 +28,8 @@ import org.example.models.entities.User;
 import org.example.models.enums.Seasons;
 import org.example.models.enums.Weather;
 import org.example.utils.AssetManager;
+import org.example.views.effects.Lighting;
+import org.example.views.effects.RainSystem; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -54,6 +56,7 @@ public class GameView implements Screen, InputProcessor {
     private Image clockNeedleImage;
     private Stack clockStack;
     private Label dateLabel;
+    private Label moneyLabel;
     private Label timeDisplayLabel;
     private BitmapFont customFont;
     private BitmapFont smallFont;
@@ -71,6 +74,9 @@ public class GameView implements Screen, InputProcessor {
     private float lightingUpdateTimer;
     private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
 
+    // Rain system - NEW
+    private RainSystem rainSystem;
+
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
@@ -87,6 +93,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize lighting system
         initializeLighting();
+
+        // Initialize rain system - NEW
+        rainSystem = new RainSystem(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         loadCustomFont();
         initializeLabels();
@@ -151,32 +160,25 @@ public class GameView implements Screen, InputProcessor {
 
         float clockSize = 120f;
         clockBackgroundImage.setSize(clockSize, clockSize);
-        clockNeedleImage.setSize(20f, 60f);
+        clockNeedleImage.setSize(13f, 33f);
 
-        // Configure needle rotation
         clockNeedleImage.setOrigin(clockNeedleImage.getWidth() / 2, 0);
         clockNeedleImage.setPosition(
-            (clockBackgroundImage.getWidth() - clockNeedleImage.getWidth()) / 2,
-            (clockBackgroundImage.getHeight() - clockNeedleImage.getHeight()) / 2
+            (clockBackgroundImage.getWidth() - clockNeedleImage.getWidth()) / 2 - 20f,
+            (clockBackgroundImage.getHeight() - clockNeedleImage.getHeight()) / 2 + 35f
         );
 
-        // Create clock group with layered components
         Group clockGroup = new Group();
         clockGroup.setSize(clockBackgroundImage.getWidth(), clockBackgroundImage.getHeight());
 
-        // Add background first
         clockGroup.addActor(clockBackgroundImage);
 
-        // Add weather and season displays in the center
         createWeatherAndSeasonDisplays(clockGroup, clockSize);
 
-        // Add needle on top
         clockGroup.addActor(clockNeedleImage);
 
-        // Create time/date text labels
         createClockLabels();
 
-        // Combine everything in a stack
         clockStack = new Stack();
         clockStack.add(clockGroup);
         clockStack.add(createTextTable());
@@ -212,6 +214,15 @@ public class GameView implements Screen, InputProcessor {
 
         dateLabel = new Label("[b]Mon. 1[/b]", labelStyle);
         timeDisplayLabel = new Label("[b]6:00 am[/b]", labelStyle);
+
+        // Add this part for money label
+        Label.LabelStyle moneyStyle = new Label.LabelStyle();
+        moneyStyle.font = smallFont;
+        moneyStyle.fontColor = Color.RED;
+        moneyStyle.font.getData().setScale(0.45f);
+        moneyStyle.font.getData().markupEnabled = true;
+
+        moneyLabel = new Label("[b]$0[/b]", moneyStyle);
     }
 
     private Table createTextTable() {
@@ -220,6 +231,7 @@ public class GameView implements Screen, InputProcessor {
         textTable.setFillParent(true);
         textTable.add(dateLabel).row();
         textTable.add(timeDisplayLabel).padTop(5).row();
+        textTable.add(moneyLabel).padTop(47).row();
         textTable.add(lightingDescriptionLabel).padTop(5);
         return textTable;
     }
@@ -227,7 +239,6 @@ public class GameView implements Screen, InputProcessor {
     private void updateLighting(float deltaTime) {
         lightingUpdateTimer += deltaTime;
 
-        // Update lighting periodically or when time changes
         if (lightingUpdateTimer >= LIGHTING_UPDATE_INTERVAL || hasTimeChanged()) {
             Date gameDate = getCurrentGameDate();
             if (gameDate != null) {
@@ -248,7 +259,6 @@ public class GameView implements Screen, InputProcessor {
         return gameDate != null && gameDate.getHour() != lastKnownHour;
     }
 
-
     private void applyLightingToUI() {
         // Apply lighting color to various UI elements
         if (clockBackgroundImage != null) {
@@ -268,10 +278,8 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void adjustTextColors() {
-        // Adjust text colors to maintain readability under different lighting conditions
         float brightness = (currentLightColor.r + currentLightColor.g + currentLightColor.b) / 3f;
 
-        // For dark lighting, make text brighter
         if (brightness < 0.3f) {
             if (dateLabel != null) {
                 dateLabel.setColor(Color.WHITE);
@@ -280,7 +288,6 @@ public class GameView implements Screen, InputProcessor {
                 timeDisplayLabel.setColor(Color.WHITE);
             }
         } else {
-            // For bright lighting, keep original colors
             if (dateLabel != null) {
                 dateLabel.setColor(Color.BLACK);
             }
@@ -408,6 +415,7 @@ public class GameView implements Screen, InputProcessor {
     public Lighting getLighting() { return lighting; }
     public Color getCurrentLightColor() { return currentLightColor.cpy(); }
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
+    public RainSystem getRainSystem() { return rainSystem; } // NEW GETTER
 
     @Override
     public boolean keyDown(int i) { return false; }
@@ -453,19 +461,37 @@ public class GameView implements Screen, InputProcessor {
     public void render(float deltaTime) {
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
-        bgColor.mul(0.2f); // Darken for background
+        bgColor.mul(0.3f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
-        // Set batch color to current lighting
-        Main.getBatch().setColor(currentLightColor);
-        Main.getBatch().begin();
-
+        // Update game state and logic (without rendering)
         if (!pauseTable.isVisible()) {
-            controller.update();
             gameTime += deltaTime;
+            updateLighting(deltaTime);
             updateClockDisplay();
             updateWeatherAndSeasonDisplays();
-            updateLighting(deltaTime);
+
+            // Update rain system
+            Date currentDate = getCurrentGameDate();
+            if (currentDate != null) {
+                rainSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
+            }
+        }
+
+        // Start rendering with proper batch management
+        Main.getBatch().begin();
+
+        // Set batch color to current lighting for world objects
+        Main.getBatch().setColor(currentLightColor);
+
+        // Update and render world elements (controller handles world rendering)
+        if (!pauseTable.isVisible()) {
+            controller.update(); // This will render world elements while batch is active
+        }
+
+        // Render rain effects BEFORE UI (but after world)
+        if (getCurrentGameDate() != null) {
+            rainSystem.render(Main.getBatch(), currentLightColor);
         }
 
         Main.getBatch().end();
@@ -473,12 +499,20 @@ public class GameView implements Screen, InputProcessor {
         // Reset batch color for UI rendering
         Main.getBatch().setColor(Color.WHITE);
 
+        // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        // Recreate rain system with new dimensions - NEW
+        if (rainSystem != null) {
+            rainSystem.dispose();
+            rainSystem = new RainSystem(width, height);
+        }
+    }
+
     @Override
     public void pause() {}
     @Override
@@ -492,6 +526,11 @@ public class GameView implements Screen, InputProcessor {
         if (clockNeedleTexture != null) clockNeedleTexture.dispose();
         if (customFont != null) customFont.dispose();
         if (smallFont != null) smallFont.dispose();
+
+        // Dispose rain system - NEW
+        if (rainSystem != null) {
+            rainSystem.dispose();
+        }
     }
 
     private void updateClockDisplay() {
@@ -502,6 +541,14 @@ public class GameView implements Screen, InputProcessor {
         updateTimeLabel(gameDate);
         updateClockNeedle(gameDate);
         updateLabelPositions();
+        updateMoneyLabel();
+    }
+
+    private void updateMoneyLabel() {
+        if (App.getGame() != null && App.getGame().getCurrentPlayer() != null) {
+            int money = App.getGame().getCurrentPlayer().getMoney();
+            moneyLabel.setText(money);
+        }
     }
 
     private void updateDateLabel(Date gameDate) {
@@ -519,9 +566,22 @@ public class GameView implements Screen, InputProcessor {
 
     private void updateClockNeedle(Date gameDate) {
         int hour = gameDate.getHour();
-        float totalMinutes = hour * 60;
-        float rotation = (totalMinutes - 360) / 2;
-        clockNeedleImage.setRotation(rotation);
+        int minute = gameDate.getMinutes();
+        float totalMinutes = hour * 60 + minute;
+
+        float startTime = 9 * 60f;   // 9:00 AM in minutes
+        float endTime = 22 * 60f;    // 10:00 PM in minutes
+
+        float rotation;
+
+        if (totalMinutes >= startTime && totalMinutes <= endTime) {
+            float progress = (totalMinutes - startTime) / (endTime - startTime);
+            rotation = progress * 180f;
+        } else {
+            rotation = 0f;
+        }
+
+        clockNeedleImage.setRotation(rotation + 180f);
     }
 
     private void updateLabelPositions() {

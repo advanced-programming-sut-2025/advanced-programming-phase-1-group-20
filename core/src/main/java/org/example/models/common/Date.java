@@ -18,7 +18,7 @@ public class Date implements Runnable {
     private int season; // 0: Spring, 1: Summer, 2: Fall, 3: Winter
     private int year;
     private int hour;
-    private int minute; // NEW: minutes (0-59)
+    private int minute;
     private Weather weatherToday;
     private Weather weatherTomorrow;
     private boolean running = true;
@@ -111,7 +111,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(60_000); // every 10 seconds
+                Thread.sleep(6_000); // every 10 seconds
                 advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

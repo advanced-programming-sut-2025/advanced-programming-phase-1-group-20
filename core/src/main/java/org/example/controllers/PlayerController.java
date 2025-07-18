@@ -76,8 +76,6 @@ public class PlayerController {
     private void handlePlayerInput(float delta) {
         float newX = player.getPosX();
         float newY = player.getPosY();
-        System.out.println("X" + newX / 60 + "Y" + newY / 60);
-        System.out.println(farm.getItem((int) (newX / 60), (int) (newY / 60)));
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
             if (isWalkable(newX / 60, newY / 60)) {
