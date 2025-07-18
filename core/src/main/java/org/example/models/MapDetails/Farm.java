@@ -488,14 +488,23 @@ public class Farm {
 
     public List<Lake> createLakes() {
         List<Lake> lakes = new ArrayList<>();
+        // Stardew-like 6x6 mask (oval/blob)
+        boolean[][] stardewLakeMask = new boolean[][]{
+            {false, true,  true,  true,  true, false},
+            {true,  true,  true,  true,  true, true },
+            {true,  true,  true,  true,  true, true },
+            {true,  true,  true,  true,  true, true },
+            {true,  true,  true,  true,  true, true },
+            {false, true,  true,  true,  true, false}
+        };
         if (farmType) {
-            Lake l11 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER);
-            Lake l12 = new Lake(50, 30, 4, 4, "lake", Lake.LakeType.RIVER);
+            Lake l11 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER, stardewLakeMask);
+            Lake l12 = new Lake(50, 30, 4, 4, "lake", Lake.LakeType.RIVER); // fallback, still rectangular
             lakes.add(l11);
             lakes.add(l12);
             return lakes;
         }
-        Lake l1 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER);
+        Lake l1 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER, stardewLakeMask);
         lakes.add(l1);
         return lakes;
     }
@@ -563,10 +572,12 @@ public class Farm {
             int lakeY = l.getY();
             int lakeWidth = l.getWidth();
             int lakeHeight = l.getHeight();
-
+            boolean[][] mask = l.getMask();
             for (int y = lakeY; y < lakeY + lakeHeight; y++) {
                 for (int x = lakeX; x < lakeX + lakeWidth; x++) {
-                    tiles[x][y] = new Location(x, y, TileType.LAKE);
+                    if (mask == null || mask[y - lakeY][x - lakeX]) {
+                        tiles[x][y] = new Location(x, y, TileType.LAKE);
+                    }
                 }
             }
         }

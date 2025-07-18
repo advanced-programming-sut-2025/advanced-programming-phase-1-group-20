@@ -77,6 +77,10 @@ public class Item {
     public void updateItem() {
     }
 
+    public String getImageFilePath() {
+        return imageFilepath;
+    }
+
     public boolean getFinished() {
         return false;
     }

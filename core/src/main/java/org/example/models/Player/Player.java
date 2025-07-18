@@ -81,18 +81,18 @@ public class Player {
         this.isInVillage = false;
 
         // Initialize basic tools
-        backpack.add(new Tool("Basic Hoe", 0, "A basic hoe for tilling soil.",
+        backpack.add(new Tool("Basic Hoe", 0, "content/Tools/Hoe.png", "A basic hoe for tilling soil.",
             Tool.ToolType.HOE, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.HOE), 1);
-        backpack.add(new Tool("Basic Pickaxe", 0, "A basic pickaxe for breaking rocks and mining ores.",
+        backpack.add(new Tool("Basic Pickaxe", 0, "content/Tools/Pickaxe/Pickaxe.png", "A basic pickaxe for breaking rocks and mining ores.",
             Tool.ToolType.PICKAXE, Tool.ToolMaterial.BASIC, 5, Skills.MINING, ToolFunctionality.PICKAXE), 1);
-        backpack.add(new Tool("Basic Axe", 0, "A basic axe for cutting down trees and breaking branches.",
+        backpack.add(new Tool("Basic Axe", 0, "content/Tools/Axe/Axe.png", "A basic axe for cutting down trees and breaking branches.",
             Tool.ToolType.AXE, Tool.ToolMaterial.BASIC, 5, Skills.FORAGING, ToolFunctionality.AXE), 1);
-        backpack.add(new Tool("Basic Watering Can", 0, "A basic watering can for watering crops.",
+        backpack.add(new Tool("Basic Watering Can", 0, "content/Tools/Steel_Pan.png", "A basic watering can for watering crops.",
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
-        backpack.add(new Tool("Scythe", 0, "A tool for harvesting crops and cutting grass.",
-            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null), 1);
-        backpack.add(new Tool("Initial Trash Can", 0, "A basic trash can for disposing of items.",
-            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null), 1);
+        backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
+            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null, null), 1);
+        backpack.add(new Tool("Initial Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, null), 1);
         this.spouse = null;
 
         this.isMarried = false;

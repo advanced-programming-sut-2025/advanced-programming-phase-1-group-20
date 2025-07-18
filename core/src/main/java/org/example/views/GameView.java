@@ -1,9 +1,6 @@
 package org.example.views;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -29,7 +26,7 @@ import org.example.models.enums.Seasons;
 import org.example.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.views.effects.Lighting;
-import org.example.views.effects.RainSystem; // NEW IMPORT
+import org.example.views.effects.ClimateSystem; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -75,12 +72,15 @@ public class GameView implements Screen, InputProcessor {
     private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
 
     // Rain system - NEW
-    private RainSystem rainSystem;
+    private ClimateSystem climateSystem;
 
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
     private int lastKnownHour = -1;
+
+    private boolean isMapVisible = false;
+    private Group minimapGroup;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -95,7 +95,7 @@ public class GameView implements Screen, InputProcessor {
         initializeLighting();
 
         // Initialize rain system - NEW
-        rainSystem = new RainSystem(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
 
         loadCustomFont();
         initializeLabels();
@@ -415,10 +415,20 @@ public class GameView implements Screen, InputProcessor {
     public Lighting getLighting() { return lighting; }
     public Color getCurrentLightColor() { return currentLightColor.cpy(); }
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
-    public RainSystem getRainSystem() { return rainSystem; } // NEW GETTER
+    public ClimateSystem getClimateSystem() { return climateSystem; } // NEW GETTER
 
     @Override
-    public boolean keyDown(int i) { return false; }
+    public boolean keyDown(int keycode) {
+        if (keycode == Input.Keys.M) {
+            toggleMinimap();
+            return true;
+        }
+        if (keycode == Input.Keys.ESCAPE) {
+            // Show InventoryMenuScreen
+            return true;
+        }
+        return false;
+    }
     @Override
     public boolean keyUp(int i) { return false; }
     @Override
@@ -436,12 +446,46 @@ public class GameView implements Screen, InputProcessor {
     @Override
     public boolean scrolled(float v, float v1) { return false; }
 
+    private void toggleMinimap() {
+        isMapVisible = !isMapVisible;
+        if (isMapVisible) {
+            showMinimap();
+        } else {
+            hideMinimap();
+        }
+    }
+
+    private void showMinimap() {
+        if (minimapGroup == null) {
+            minimapGroup = createMinimapGroup();
+        }
+        if (!stage.getActors().contains(minimapGroup, true)) {
+            stage.addActor(minimapGroup);
+        }
+        minimapGroup.setVisible(true);
+    }
+
+    private void hideMinimap() {
+        if (minimapGroup != null) {
+            minimapGroup.setVisible(false);
+        }
+    }
+
+    private Group createMinimapGroup() {
+        Group group = new Group();
+        // TODO: Implement minimap rendering logic here (draw player, NPCs, buildings, etc.)
+        group.setSize(300, 300); // Example size
+        group.setPosition(50, 50); // Example position
+        // Add background, icons, etc.
+        return group;
+    }
+
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        multiplexer.addProcessor(this);
+        multiplexer.addProcessor(this);   // GameView first
+        multiplexer.addProcessor(stage);  // Stage second
         Gdx.input.setInputProcessor(multiplexer);
 
         mainTable.top().right();
@@ -474,7 +518,7 @@ public class GameView implements Screen, InputProcessor {
             // Update rain system
             Date currentDate = getCurrentGameDate();
             if (currentDate != null) {
-                rainSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
+                climateSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
             }
         }
 
@@ -491,7 +535,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Render rain effects BEFORE UI (but after world)
         if (getCurrentGameDate() != null) {
-            rainSystem.render(Main.getBatch(), currentLightColor);
+            climateSystem.render(Main.getBatch(), currentLightColor);
         }
 
         Main.getBatch().end();
@@ -507,9 +551,11 @@ public class GameView implements Screen, InputProcessor {
     @Override
     public void resize(int width, int height) {
         // Recreate rain system with new dimensions - NEW
-        if (rainSystem != null) {
-            rainSystem.dispose();
-            rainSystem = new RainSystem(width, height);
+        if (climateSystem != null) {
+            climateSystem.dispose();
+            // Instead of using width/height, use the camera
+            camera.setToOrtho(false, width, height);
+            climateSystem = new ClimateSystem(camera);
         }
     }
 
@@ -528,8 +574,8 @@ public class GameView implements Screen, InputProcessor {
         if (smallFont != null) smallFont.dispose();
 
         // Dispose rain system - NEW
-        if (rainSystem != null) {
-            rainSystem.dispose();
+        if (climateSystem != null) {
+            climateSystem.dispose();
         }
     }
 
@@ -576,7 +622,7 @@ public class GameView implements Screen, InputProcessor {
 
         if (totalMinutes >= startTime && totalMinutes <= endTime) {
             float progress = (totalMinutes - startTime) / (endTime - startTime);
-            rotation = progress * 180f;
+            rotation = -progress * 180f;
         } else {
             rotation = 0f;
         }

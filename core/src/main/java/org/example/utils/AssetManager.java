@@ -35,6 +35,9 @@ public class AssetManager {
     private final Texture rain1Texture = new Texture("content/rain/1.png");
     private final Texture rain2Texture = new Texture("content/rain/2.png");
 
+    // Snow textures
+    private final Texture[] snowTextures = new Texture[4];
+
     public static AssetManager getAssetManager() {
         if (assetManager == null) {
             assetManager = new AssetManager();
@@ -56,6 +59,9 @@ public class AssetManager {
 
     AssetManager() {
         loadWelcomeMenuTextures();
+        for (int i = 1; i < 4; i++) {
+            snowTextures[i] = new Texture(Gdx.files.internal("content/snow/" + i + ".png"));
+        }
     }
 
     public Skin getSkin() {
@@ -165,6 +171,10 @@ public class AssetManager {
         return rain2Texture;
     }
 
+    public Texture[] getSnowTextures() {
+        return snowTextures;
+    }
+
     public void disposeLoginMenuTextures() {
         for (Texture texture : loginMenuImages) {
             if (texture != null) {
@@ -185,6 +195,9 @@ public class AssetManager {
         if (springTexture != null) springTexture.dispose();
         if (summerTexture != null) summerTexture.dispose();
         if (fallTexture != null) fallTexture.dispose();
+        for (Texture texture : snowTextures) {
+            if (texture != null) texture.dispose();
+        }
         if (skin != null) skin.dispose();
     }
 }

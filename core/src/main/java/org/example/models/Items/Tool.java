@@ -58,6 +58,25 @@ public class Tool extends Item {
         this.functionality = null;
     }
 
+    // New constructor for tools with image path and description
+    public Tool(String name, int baseSellPrice, String imageFilePath, String description, ToolType type, ToolMaterial material, int energyConsumption, Skills associatedSkill, ToolFunctionality functionality) {
+        super(name, baseSellPrice, imageFilePath, description);
+        this.type = type;
+        this.material = material;
+        this.energyConsumption = energyConsumption;
+        this.associatedSkill = associatedSkill;
+        this.equipped = false;
+        this.functionality = functionality;
+        if (type == ToolType.WATERING_CAN) {
+            this.capacity = getWateringCanCapacity(material);
+            this.currentWater = 0;
+        }
+        if (type == ToolType.TRASH_CAN) {
+            this.trashCanType = getTrashCanType(material);
+            this.returnPercentage = getTrashCanReturnPercentage(material);
+        }
+    }
+
     public Tool() {
         super("tool", 0, "A basic tool.");
     }

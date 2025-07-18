@@ -21,8 +21,9 @@ public class Lake implements Serializable {
     private final LakeType type;
     private final List<Fish> availableFish;
     private final Random random;
+    private final boolean[][] mask;
 
-    public Lake(int x, int y, int width, int height, String name, LakeType type) {
+    public Lake(int x, int y, int width, int height, String name, LakeType type, boolean[][] mask) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -31,10 +32,25 @@ public class Lake implements Serializable {
         this.type = type;
         this.availableFish = new ArrayList<>();
         this.random = new Random();
+        this.mask = mask;
+    }
+    // Fallback for old constructor (full rectangle)
+    public Lake(int x, int y, int width, int height, String name, LakeType type) {
+        this(x, y, width, height, name, type, null);
+    }
+
+    public boolean[][] getMask() {
+        return mask;
     }
 
     public boolean contains(int checkX, int checkY) {
-        return checkX >= x && checkX < x + width && checkY >= y && checkY < y + height;
+        if (mask == null) {
+            return checkX >= x && checkX < x + width && checkY >= y && checkY < y + height;
+        }
+        int relX = checkX - x;
+        int relY = checkY - y;
+        if (relX < 0 || relY < 0 || relX >= width || relY >= height) return false;
+        return mask[relY][relX];
     }
 
     public void updateAvailableFish(Seasons currentSeason, int fishingSkill) {

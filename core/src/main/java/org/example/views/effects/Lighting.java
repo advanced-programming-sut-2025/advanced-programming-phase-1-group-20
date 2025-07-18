@@ -42,7 +42,8 @@ public class Lighting {
 
         // Calculate final values
         this.currentLightLevel = baseLightLevel;
-        this.lightIntensity = Math.max(0.1f, Math.min(1.0f, seasonalIntensity * weatherIntensity));
+        // Never let intensity go below 0.15 for more natural look
+        this.lightIntensity = Math.max(0.15f, Math.min(1.0f, seasonalIntensity * weatherIntensity));
         this.lightColor = calculateLightColor(hour, season, weather);
     }
 
@@ -63,22 +64,20 @@ public class Lighting {
 
     private float getSeasonalLightIntensity(Seasons season, LightLevel lightLevel) {
         float baseIntensity = switch (lightLevel) {
-            case DAWN -> 0.3f;
-            case MORNING -> 0.7f;
+            case DAWN -> 0.4f;
+            case MORNING -> 0.8f;
             case MIDDAY -> 1.0f;
-            case AFTERNOON -> 0.8f;
-            case EVENING -> 0.4f;
-            case NIGHT -> 0.1f;
+            case AFTERNOON -> 0.85f;
+            case EVENING -> 0.5f;
+            case NIGHT -> 0.18f;
         };
-
-        // Seasonal modifiers
+        // More subtle seasonal modifiers
         float seasonalModifier = switch (season) {
-            case SPRING -> 0.9f;  // Bright spring light
-            case SUMMER -> 1.1f;  // Intense summer light
-            case AUTUMN -> 0.8f;  // Softer autumn light
-            case WINTER -> 0.7f;  // Dim winter light
+            case SPRING -> 0.96f;
+            case SUMMER -> 1.04f;
+            case AUTUMN -> 0.92f;
+            case WINTER -> 0.88f;
         };
-
         return baseIntensity * seasonalModifier;
     }
 
@@ -108,25 +107,24 @@ public class Lighting {
 
     private int[] getBaseColorFromHour(int hour) {
         return switch (hour) {
-            case 9 -> new int[]{255, 200, 150};  // Dawn - warm orange
-            case 10, 11, 12 -> new int[]{255, 255, 240};  // Morning - soft white
-            case 13, 14, 15 -> new int[]{255, 255, 255};  // Midday - pure white
-            case 16, 17, 18 -> new int[]{255, 220, 180};  // Afternoon - warm
-            case 19, 20 -> new int[]{255, 150, 100};      // Evening - golden
-            case 21 -> new int[]{100, 100, 150};          // Night - blue tint
-            default -> new int[]{255, 255, 255};          // Default white
+            case 9 -> new int[]{240, 210, 180};  // Dawn - soft warm
+            case 10, 11, 12 -> new int[]{250, 245, 225};  // Morning - gentle white
+            case 13, 14, 15 -> new int[]{255, 255, 245};  // Midday - slightly off-white
+            case 16, 17, 18 -> new int[]{250, 230, 200};  // Afternoon - soft warm
+            case 19, 20 -> new int[]{230, 170, 120};      // Evening - gentle golden
+            case 21 -> new int[]{80, 90, 120};            // Night - soft blue/gray
+            default -> new int[]{255, 255, 245};          // Default soft white
         };
     }
 
 
     private int[] applySeasonalTint(int[] color, Seasons season) {
         float[] tint = switch (season) {
-            case SPRING -> new float[]{1.0f, 1.05f, 0.95f}; // Slightly green
-            case SUMMER -> new float[]{1.1f, 1.0f, 0.9f};   // Warmer, more yellow
-            case AUTUMN -> new float[]{1.1f, 0.9f, 0.8f};   // Orange/red tint
-            case WINTER -> new float[]{0.9f, 0.95f, 1.1f};  // Cooler, more blue
+            case SPRING -> new float[]{1.0f, 1.02f, 0.98f}; // Very subtle green
+            case SUMMER -> new float[]{1.03f, 1.0f, 0.97f}; // Slightly warmer
+            case AUTUMN -> new float[]{1.04f, 0.96f, 0.93f}; // Gentle orange
+            case WINTER -> new float[]{0.97f, 0.98f, 1.03f}; // Slight blue
         };
-
         return new int[]{
             (int) Math.min(255, color[0] * tint[0]),
             (int) Math.min(255, color[1] * tint[1]),
@@ -137,13 +135,12 @@ public class Lighting {
 
     private int[] applyWeatherTint(int[] color, Weather weather) {
         float[] modifier = switch (weather) {
-            case SUNNY -> new float[]{1.0f, 1.0f, 1.0f};    // No change
-            case RAINY -> new float[]{0.8f, 0.8f, 0.9f};    // Slightly blue/gray
-            case STORMY -> new float[]{0.6f, 0.6f, 0.7f};   // Dark and grayish
-            case SNOWY -> new float[]{0.9f, 0.9f, 1.0f};    // Slight blue tint
+            case SUNNY -> new float[]{1.0f, 1.0f, 1.0f};
+            case RAINY -> new float[]{0.92f, 0.92f, 0.97f}; // Slightly gray/blue
+            case STORMY -> new float[]{0.8f, 0.8f, 0.9f};   // Dim, but not harsh
+            case SNOWY -> new float[]{0.97f, 0.97f, 1.0f};  // Very subtle blue
             case GREENHOUSE -> null;
         };
-
         assert modifier != null;
         return new int[]{
             (int) (color[0] * modifier[0]),
