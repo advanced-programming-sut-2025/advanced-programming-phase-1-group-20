@@ -18,17 +18,17 @@ public class Date implements Runnable {
     private int season; // 0: Spring, 1: Summer, 2: Fall, 3: Winter
     private int year;
     private int hour;
-    private int minute;
+    private int minute; // NEW: minutes (0-59)
     private Weather weatherToday;
     private Weather weatherTomorrow;
     private boolean running = true;
 
     public Date() {
         this.day = 1;
-        this.season = 3; // Spring
+        this.season = 0;
         this.year = 1;
         this.hour = 9;
-        this.minute = 0;
+        this.minute = 0; // NEW
         this.weatherMap = new HashMap<>();
         initialWeatherMap();
         updateWeatherToday();
@@ -111,8 +111,8 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(6_000);
-                advanceMinutes(10, App.getGame().getGameMap());
+                Thread.sleep(60_000); // every 10 seconds
+                advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println("Time thread interrupted");
