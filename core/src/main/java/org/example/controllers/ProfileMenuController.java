@@ -1,194 +1,88 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.common.Result;
-import org.example.models.entities.User;
-import org.example.models.enums.commands.ProfileMenuCommands;
+public class ProfileMenuController {
+    private ProfileMenuView view;
+    private int currentImageIndex = 0;
+    private float timeSinceLastChange = 0;
+    private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
-import java.util.regex.Pattern;
-
-public class ProfileMenuController implements Controller {
-    private User user;
-
-    public ProfileMenuController(User user) {
-        this.user = user;
+    public void setView(ProfileMenuView view) {
+        this.view = view;
     }
 
-    @Override
-    public void setupListeners() {}
-
-    public Result changeUsername(String[] args) {
-        String newUsername = args[0];
-        if (!checkUsername(newUsername)) {
-            return Result.error("invalid username format");
+    public void update(float delta) {
+        timeSinceLastChange += delta;
+        if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
+            timeSinceLastChange = 0;
+            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getProfileMenuImagesCount();
+            view.updateBackground(GameAssetManager.getGameAssetManager().getProfileMenuTexture(currentImageIndex));
         }
-        User user = App.getLoggedInUser();
-        if (newUsername.equals(user.getUsername())) {
-            return Result.error("the username should be different from the current one");
-        }
-
-        if (App.getUser(newUsername) != null) {
-            return Result.error("the username is already taken");
-        }
-
-        user.setUsername(newUsername);
-
-        App.saveData();
-
-        return Result.success("username changed successfully");
     }
 
-    public Result changePassword(String[] args) {
-        String newPassword = args[0];
-        String oldPasswordInput = args[1];
-        User user = App.getLoggedInUser();
+    public void handleSaveChanges(String username, String password, String email, String nickname) {
+        User user = App.currentUser;
+        boolean changed = false;
 
-        if (!user.verifyPassword(oldPasswordInput)) {
-            return Result.error("invalid old password");
-        }
-
-        if (newPassword.equals(oldPasswordInput)) {
-            return Result.error("the new password should be different from the current one");
-        }
-
-        if (!checkPasswordStrength(newPassword).success()) {
-            return Result.error(checkPasswordStrength(newPassword).message());
-        }
-
-        user.setPassword(newPassword);
-
-        App.saveData();
-
-        return Result.success("password changed successfully");
-    }
-
-    public Result changeEmail(String[] args) {
-        String newEmail = args[0];
-
-        if (!checkEmail(newEmail)) {
-            return Result.error("invalid email format");
-        }
-
-        if (isEmailUsed(newEmail)) {
-            return Result.error("the email address is already taken");
-        }
-
-        User user = App.getLoggedInUser();
-        user.setEmail(newEmail);
-
-        App.saveData();
-
-        return Result.success("email changed successfully");
-    }
-
-    public boolean isEmailUsed(String email) {
-        for (User user : App.getUsers().values()) {
-            if (user.getEmail().equals(email)) {
-                return true;
+        // Validate and update username
+        if (!username.equals(user.getUsername())) {
+            if (username.isEmpty()) {
+                view.showError("Username cannot be empty");
+                return;
             }
-        }
-        return false;
-    }
-
-    private boolean checkEmail(String email) {
-        // email validation pattern
-        String emailRegex = "^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]@[a-zA-Z0-9][a-zA-Z0-9.-]*[a-zA-Z0-9]\\.[a-zA-Z]{2,}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-
-        if (!pattern.matcher(email).matches()) {
-            return false;
-        }
-
-        if (email.contains("..")) {
-            return false;
-        }
-
-        return email.indexOf('@') == email.lastIndexOf('@');
-    }
-
-    public Result changeNickname(String[] args) {
-        String newNickname = args[0];
-        User user = App.getLoggedInUser();
-        user.setNickname(newNickname);
-
-        App.saveData();
-
-        return Result.success("nickname changed successfully");
-    }
-
-    private Result checkPasswordStrength(String password) {
-        boolean validLength = password.length() > 8;
-
-        boolean hasLower = false, hasUpper = false, hasDigit = false, hasSpecial = false;
-        String specialChars = "!#$%^&*()=+{}[]|\\:;'\"<>?";
-
-        for (char c : password.toCharArray()) {
-            if (Character.isLowerCase(c)) hasLower = true;
-            else if (Character.isUpperCase(c)) hasUpper = true;
-            else if (Character.isDigit(c)) hasDigit = true;
-            else if (specialChars.contains(String.valueOf(c))) hasSpecial = true;
-        }
-
-        StringBuilder reason = new StringBuilder();
-        if (!hasLower || !hasUpper || !hasDigit || !hasSpecial || !validLength) {
-            reason.append("weak password\n");
-            boolean oneError = false;
-            if (!validLength) {
-                oneError = true;
-                reason.append("password too short");
+            if (App.userExists(username)) {
+                view.showError("Username already taken");
+                return;
             }
-
-            if (!hasSpecial) {
-                if (oneError) reason.append("and also\n");
-                oneError = true;
-                reason.append("password doesn't have special character");
-            }
-
-            if (!hasUpper) {
-                if (oneError) reason.append("and also\n");
-                oneError = true;
-                reason.append("password doesn't have upper case");
-            }
-
-            if (!hasLower) {
-                if (oneError) reason.append("and also\n");
-                reason.append("password doesn't have lower case");
-            }
-
-            return Result.error(reason.toString());
+            user.setUsername(username);
+            changed = true;
         }
 
-        return Result.success("");
-    }
-
-    public boolean checkUsername(String username) {
-        Pattern pattern = Pattern.compile("[a-zA-Z][a-zA-Z0-9_]*");
-        return pattern.matcher(username).matches();
-    }
-
-    public Result showUserInfo() {
-        User user = App.getLoggedInUser();
-
-        String userInfo = "## user info ##" + "\n" +
-                "Username: " + user.getUsername() + "\n" +
-                "Nickname: " + user.getNickname() + "\n" +
-                "Most Money Earned: " + user.getMostEarnedMoney() + "\n" +
-                "Games Played: " + user.getGamesPlayed() + "\n";
-
-        return Result.success(userInfo);
-    }
-
-    public Result changeMenu(String[] args) {
-        String newMenu = args[0].toLowerCase();
-        if (!newMenu.equals("main menu")) {
-            return Result.error("you can only change to main menu");
+        // Validate and update password
+        if (!password.isEmpty()) {
+            if (password.length() < 8) {
+                view.showError("Password must be at least 8 characters");
+                return;
+            }
+            user.setPassword(password);
+            changed = true;
         }
 
-        return Result.success("menu changed to main menu successfully");
+        // Validate and update email
+        if (!email.equals(user.getEmail())) {
+            if (!isValidEmail(email)) {
+                view.showError("Invalid email format");
+                return;
+            }
+            user.setEmail(email);
+            changed = true;
+        }
+
+        // Update nickname
+        if (!nickname.equals(user.getNickname())) {
+            user.setNickname(nickname);
+            changed = true;
+        }
+
+        if (changed) {
+            App.updateUser(user);
+            view.showSuccess("Changes saved successfully!");
+        } else {
+            view.showError("No changes detected");
+        }
     }
 
-//    public Result exit() {
-//
-//    }
+    public void handleBackButton() {
+        Main.getMain().getScreen().dispose();
+        Main.getMain().setScreen(new MainMenuView(new MainMenuController()));
+    }
+
+    public void handleChangeAvatar() {
+        Main.getMain().getScreen().dispose();
+        Main.getMain().setScreen(new ChooseAvatarMenuView(new ChooseAvatarMenuController()));
+    }
+
+    private boolean isValidEmail(String email) {
+        String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        return email.matches(regex);
+    }
 }
-
