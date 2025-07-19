@@ -1,5 +1,9 @@
 package org.example.controllers;
 
+import org.example.models.entities.User;
+import org.example.utils.AssetManager;
+import org.example.views.ProfileMenuView;
+
 public class ProfileMenuController {
     private ProfileMenuView view;
     private int currentImageIndex = 0;
@@ -14,8 +18,8 @@ public class ProfileMenuController {
         timeSinceLastChange += delta;
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
-            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getProfileMenuImagesCount();
-            view.updateBackground(GameAssetManager.getGameAssetManager().getProfileMenuTexture(currentImageIndex));
+            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getProfileMenuImagesCount();
+            view.updateBackground(AssetManager.getAssetManager().getProfileMenuTexture(currentImageIndex));
         }
     }
 
@@ -23,7 +27,6 @@ public class ProfileMenuController {
         User user = App.currentUser;
         boolean changed = false;
 
-        // Validate and update username
         if (!username.equals(user.getUsername())) {
             if (username.isEmpty()) {
                 view.showError("Username cannot be empty");
@@ -37,7 +40,6 @@ public class ProfileMenuController {
             changed = true;
         }
 
-        // Validate and update password
         if (!password.isEmpty()) {
             if (password.length() < 8) {
                 view.showError("Password must be at least 8 characters");
@@ -47,7 +49,6 @@ public class ProfileMenuController {
             changed = true;
         }
 
-        // Validate and update email
         if (!email.equals(user.getEmail())) {
             if (!isValidEmail(email)) {
                 view.showError("Invalid email format");
@@ -57,7 +58,6 @@ public class ProfileMenuController {
             changed = true;
         }
 
-        // Update nickname
         if (!nickname.equals(user.getNickname())) {
             user.setNickname(nickname);
             changed = true;
