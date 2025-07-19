@@ -1,6 +1,7 @@
 package org.example.models.Items;
 
 
+import com.badlogic.gdx.graphics.Texture;
 import org.example.models.Player.Backpack;
 import org.example.models.entities.animal.Fish;
 import org.example.models.enums.Seasons;
@@ -543,4 +544,13 @@ public class CraftingItem extends Item {
     public void showInfo() {
         type.showInfo();
     }
+
+    public String getImage(){
+        return "content/CraftingItems/" + type.getImageFilepath() + ".png";
+    }
+
+    public Texture getTexture() {
+        return new Texture(getImage());
+    }
+
 }
