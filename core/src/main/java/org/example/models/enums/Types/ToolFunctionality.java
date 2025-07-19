@@ -48,7 +48,8 @@ public enum ToolFunctionality {
                     }
                 }
 
-                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
+                    //TODO : removed this condition check it kasra gameMap.isInOtherPlayersFarm(player, targetX, targetY)
                     return false;
                 }
 
@@ -63,8 +64,7 @@ public enum ToolFunctionality {
                 // 2. Remove branches on the ground
                 Location tile = gameMap.getFarmByPlayer(player).getItem(targetX, targetY);
                 if (tile != null) {
-                    // Clear the tile
-                    gameMap.getFarmByPlayer(player).placeItem(targetX, targetY, null);
+                    gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.Dirt, null);
                     return true;
                 }
 
@@ -145,7 +145,8 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
+                    //TODO : removed this condition check it kasra gameMap.isInOtherPlayersFarm(player, targetX, targetY)
                     return false;
                 }
 
@@ -247,7 +248,8 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
+                    //TODO : removed this condition check it kasra gameMap.isInOtherPlayersFarm(player, targetX, targetY)
                     return false;
                 }
 
@@ -354,7 +356,8 @@ public enum ToolFunctionality {
                 }
 
                 // Check if the target tile is valid and not in another player's farm
-                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY) || gameMap.isInOtherPlayersFarm(player, targetX, targetY)) {
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
+                    //TODO : removed this condition check it kasra gameMap.isInOtherPlayersFarm(player, targetX, targetY)
                     return false;
                 }
 

@@ -52,8 +52,8 @@ public class Player {
     private Texture textureSheet;
 
     //graphic ui
-    private float posX = 25 * 120;
-    private float posY = 25 * 120;
+    private float posX = 57 * 60;
+    private float posY = 69 * 60;
     private float speed;
     private CollisionRect rect;
     private String spriteFileLocation = "content/PlayerSprites/Abigail.png";
@@ -403,7 +403,7 @@ public class Player {
 
     public void setPosX(float posX) {
         this.posX = posX;
-        location.setxAxis((int) (posX/120));
+        location.setxAxis((int) (posX/60));
     }
 
     public float getPosY(){
@@ -412,7 +412,7 @@ public class Player {
 
     public void setPosY(float posY) {
         this.posY = posY;
-        location.setyAxis((int) (posY/120));
+        location.setyAxis((int) (posY/60));
     }
 
     public boolean equipTool(String toolName) {
