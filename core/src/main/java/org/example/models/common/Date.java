@@ -25,7 +25,7 @@ public class Date implements Runnable {
 
     public Date() {
         this.day = 1;
-        this.season = 0; // Spring
+        this.season = 3; // Spring
         this.year = 1;
         this.hour = 9;
         this.minute = 0;
