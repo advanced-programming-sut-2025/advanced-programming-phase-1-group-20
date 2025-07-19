@@ -13,7 +13,7 @@ import org.example.models.entities.User;
 
 import java.awt.*;
 
-public class ProfileMenuView implements Screen {
+public class ProfileMenuScreen implements Screen {
     private final ProfileMenuController controller;
     private final Stage stage;
     private Image background;
@@ -26,7 +26,7 @@ public class ProfileMenuView implements Screen {
     private TextButton changeAvatarButton;
     private Image avatarImage;
 
-    public ProfileMenuView(ProfileMenuController controller, Skin skin) {
+    public ProfileMenuScreen(ProfileMenuController controller, Skin skin) {
         this.controller = controller;
         this.stage = new Stage(new ScreenViewport());
         this.controller.setView(this);

@@ -2,16 +2,16 @@ package org.example.controllers;
 
 import org.example.models.entities.User;
 import org.example.utils.AssetManager;
-import org.example.views.ProfileMenuView;
+import org.example.views.ProfileMenuScreen;
 
 public class ProfileMenuController {
-    private ProfileMenuView view;
+    private ProfileMenuScreen screen;
     private int currentImageIndex = 0;
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
-    public void setView(ProfileMenuView view) {
-        this.view = view;
+    public void setView(ProfileMenuScreen screen) {
+        this.screen = screen;
     }
 
     public void update(float delta) {
@@ -19,7 +19,7 @@ public class ProfileMenuController {
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
             currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getProfileMenuImagesCount();
-            view.updateBackground(AssetManager.getAssetManager().getProfileMenuTexture(currentImageIndex));
+            screen.updateBackground(AssetManager.getAssetManager().getProfileMenuTexture(currentImageIndex));
         }
     }
 
@@ -29,11 +29,11 @@ public class ProfileMenuController {
 
         if (!username.equals(user.getUsername())) {
             if (username.isEmpty()) {
-                view.showError("Username cannot be empty");
+                screen.showError("Username cannot be empty");
                 return;
             }
             if (App.userExists(username)) {
-                view.showError("Username already taken");
+                screen.showError("Username already taken");
                 return;
             }
             user.setUsername(username);
@@ -42,7 +42,7 @@ public class ProfileMenuController {
 
         if (!password.isEmpty()) {
             if (password.length() < 8) {
-                view.showError("Password must be at least 8 characters");
+                screen.showError("Password must be at least 8 characters");
                 return;
             }
             user.setPassword(password);
@@ -51,7 +51,7 @@ public class ProfileMenuController {
 
         if (!email.equals(user.getEmail())) {
             if (!isValidEmail(email)) {
-                view.showError("Invalid email format");
+                screen.showError("Invalid email format");
                 return;
             }
             user.setEmail(email);
@@ -65,9 +65,9 @@ public class ProfileMenuController {
 
         if (changed) {
             App.updateUser(user);
-            view.showSuccess("Changes saved successfully!");
+            screen.showSuccess("Changes saved successfully!");
         } else {
-            view.showError("No changes detected");
+            screen.showError("No changes detected");
         }
     }
 
