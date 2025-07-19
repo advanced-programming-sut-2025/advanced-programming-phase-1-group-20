@@ -16,9 +16,8 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.controllers.ProfileMenuController;
 import org.example.models.entities.User;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.graphics.Color;
 import java.awt.*;
 
 public class ProfileMenuScreen implements Screen {
