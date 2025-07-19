@@ -1082,6 +1082,7 @@ public class Farm {
 
         String previousType = tile.getType();
         tile.setTile(tileType);
+        tile.setItem(null);
         tile.setType(tileType.name().toLowerCase()); // Ensure type string is updated
         //handleTileChangeEffects(tile, previousType, newType);
 
