@@ -4,6 +4,8 @@ import org.example.models.entities.User;
 import org.example.utils.AssetManager;
 import org.example.views.ProfileMenuScreen;
 
+import static org.example.Main.getGame;
+
 public class ProfileMenuController {
     private ProfileMenuScreen screen;
     private int currentImageIndex = 0;
@@ -72,13 +74,13 @@ public class ProfileMenuController {
     }
 
     public void handleBackButton() {
-        Main.getMain().getScreen().dispose();
-        Main.getMain().setScreen(new MainMenuView(new MainMenuController()));
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new MainMenuView(new MainMenuController()));
     }
 
     public void handleChangeAvatar() {
-        Main.getMain().getScreen().dispose();
-        Main.getMain().setScreen(new ChooseAvatarMenuView(new ChooseAvatarMenuController()));
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new ChooseAvatarMenuView(new ChooseAvatarMenuController()));
     }
 
     private boolean isValidEmail(String email) {

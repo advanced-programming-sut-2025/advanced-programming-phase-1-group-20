@@ -2,6 +2,7 @@ package org.example.views;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -32,11 +33,13 @@ public class ProfileMenuScreen implements Screen {
     private SelectBox<String> genderSelect;
     private TextButton changeAvatarButton;
     private Image avatarImage;
+    private Skin skin;
 
     public ProfileMenuScreen(ProfileMenuController controller, Skin skin) {
         this.controller = controller;
         this.stage = new Stage(new ScreenViewport());
         this.controller.setView(this);
+        this.skin = skin;
         setupUI();
     }
 
@@ -176,13 +179,22 @@ public class ProfileMenuScreen implements Screen {
             new Texture(Gdx.files.internal("avatars/avatar_" + avatarId + ".png"))));
     }
 
-    @Override
-    public void show() {
-
+    public void updateBackground(Texture texture) {
+        background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
     }
 
     @Override
-    public void render(float v) {
+    public void render(float delta) {
+        controller.update(delta);
+
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
+        stage.draw();
+    }
+
+    @Override
+    public void show() {
 
     }
 
