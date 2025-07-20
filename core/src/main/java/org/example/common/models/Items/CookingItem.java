@@ -81,4 +81,8 @@ public class CookingItem extends Item {
     public void showInfo() {
         type.showInfo();
     }
+
+    public String getImage(){
+        return "content/Cookingitems/" + getImageFilePath() + ".png";
+    }
 }

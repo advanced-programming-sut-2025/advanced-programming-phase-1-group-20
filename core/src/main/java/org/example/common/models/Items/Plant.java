@@ -180,4 +180,9 @@ public class Plant extends Item {
     public void setMoistureGod(boolean moistureGod) {
         this.moistureGod = moistureGod;
     }
+
+
+    public String getImage(){
+        return "content/Plants/" + getImageFilePath() + ".png";
+    }
 }

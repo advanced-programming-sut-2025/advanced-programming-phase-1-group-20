@@ -47,4 +47,8 @@ public class ArtisanItem extends Item {
     public void setBaseSellPrice(int baseSellPrice) {
         type.setBaseSellPrice(baseSellPrice);
     }
+
+    public String getImage(){
+        return "content/Artisanitems/" + getImageFilePath() + ".png";
+    }
 }
