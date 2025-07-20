@@ -104,7 +104,7 @@ public class WelcomeMenuController {
 
     public void handleMultiplayerButton() {
         getGame().getScreen().dispose();
-        
+
         MultiplayerMenuController multiplayerController = new MultiplayerMenuController();
         org.example.client.views.MultiplayerMenuScreen multiplayerScreen = new org.example.client.views.MultiplayerMenuScreen(multiplayerController, assetManager.getSkin());
         getGame().setScreen(multiplayerScreen);

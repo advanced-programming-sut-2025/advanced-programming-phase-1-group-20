@@ -63,6 +63,15 @@ public class Message {
         LEAVE_GAME,
         START_GAME,
         
+        // Lobby management
+        CREATE_LOBBY,
+        JOIN_LOBBY,
+        LEAVE_LOBBY,
+        LIST_LOBBIES,
+        SEARCH_LOBBY,
+        START_LOBBY_GAME,
+        PLAYER_READY,
+        
         // Game state synchronization
         GAME_STATE_FULL,
         GAME_STATE_UPDATE,
@@ -92,6 +101,11 @@ public class Message {
         PONG,
         ERROR,
         SUCCESS,
-        HEARTBEAT
+        HEARTBEAT,
+        
+        // Online players
+        PLAYER_STATUS_UPDATE,
+        ONLINE_PLAYERS_LIST,
+        REQUEST_PLAYERS_LIST
     }
 } 

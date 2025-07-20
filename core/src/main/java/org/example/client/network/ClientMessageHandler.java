@@ -15,6 +15,7 @@ public class ClientMessageHandler {
     private ChatMessageListener chatListener;
     private TradeRequestListener tradeListener;
     private ConnectionStatusListener connectionListener;
+    private OnlinePlayersListener onlinePlayersListener;
     
     public interface GameStateUpdateListener {
         void onGameStateUpdate(Object gameState);
@@ -38,6 +39,10 @@ public class ClientMessageHandler {
         void onGameJoined(String gameId);
         void onGameLeft();
         void onError(String errorMessage);
+    }
+    
+    public interface OnlinePlayersListener {
+        void onOnlinePlayersUpdate(List<Object> players);
     }
     
     public ClientMessageHandler(NetworkClient networkClient) {
@@ -81,6 +86,9 @@ public class ClientMessageHandler {
                     break;
                 case PONG:
                     handlePong(message);
+                    break;
+                case ONLINE_PLAYERS_LIST:
+                    handleOnlinePlayersList(message);
                     break;
                 default:
                     System.out.println("Unhandled message type: " + message.getType());
@@ -222,6 +230,17 @@ public class ClientMessageHandler {
         }
     }
     
+    @SuppressWarnings("unchecked")
+    private void handleOnlinePlayersList(Message message) {
+        Object playersObj = message.getFromBody("players");
+        
+        if (playersObj instanceof List && onlinePlayersListener != null) {
+            List<Object> players = (List<Object>) playersObj;
+            onlinePlayersListener.onOnlinePlayersUpdate(players);
+            System.out.println("Received online players list: " + players.size() + " players");
+        }
+    }
+    
     // Listener setters
     public void setGameStateListener(GameStateUpdateListener listener) {
         this.gameStateListener = listener;
@@ -237,6 +256,10 @@ public class ClientMessageHandler {
     
     public void setConnectionListener(ConnectionStatusListener listener) {
         this.connectionListener = listener;
+    }
+    
+    public void setOnlinePlayersListener(OnlinePlayersListener listener) {
+        this.onlinePlayersListener = listener;
     }
     
     // Convenience methods for sending responses

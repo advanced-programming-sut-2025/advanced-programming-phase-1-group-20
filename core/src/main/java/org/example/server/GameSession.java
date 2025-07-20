@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -37,7 +36,7 @@ public class GameSession {
 
         // Create game instance with the creator as the first player
         List<Player> players = new ArrayList<>();
-        Player creatorPlayer = new Player(creator);
+        Player creatorPlayer = new Player();
         players.add(creatorPlayer);
 
         this.gameInstance = new Game(players, creatorPlayer);

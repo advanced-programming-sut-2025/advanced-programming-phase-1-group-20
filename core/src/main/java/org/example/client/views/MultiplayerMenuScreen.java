@@ -14,6 +14,9 @@ import org.example.client.controllers.MultiplayerMenuController;
 import org.example.client.network.ConnectionManager;
 import org.example.common.models.App;
 
+import java.util.List;
+import java.util.Map;
+
 public class MultiplayerMenuScreen implements Screen {
     private final MultiplayerMenuController controller;
     private Stage stage;
@@ -37,6 +40,13 @@ public class MultiplayerMenuScreen implements Screen {
     private TextField gameIdField;
     private TextButton joinGameButton;
     private TextButton leaveGameButton;
+    private TextButton lobbyMenuButton;
+    
+    // Online players section
+    private Table onlinePlayersTable;
+    private ScrollPane onlinePlayersScrollPane;
+    private Table playersListTable;
+    private Label onlinePlayersCountLabel;
     
     // Back button
     private TextButton backButton;
@@ -130,9 +140,13 @@ public class MultiplayerMenuScreen implements Screen {
         leaveGameButton = new TextButton("LEAVE GAME", skin);
         leaveGameButton.setDisabled(true);
         
+        lobbyMenuButton = new TextButton("LOBBY MENU", skin);
+        lobbyMenuButton.setDisabled(true);
+        
         // Layout game table
         gameTable.add(gameTitle).colspan(3).padBottom(10).row();
         gameTable.add(createGameButton).width(150).padBottom(10).colspan(3).row();
+        gameTable.add(lobbyMenuButton).width(150).padBottom(10).colspan(3).row();
         gameTable.add(joinLabel).padRight(10);
         gameTable.add(gameIdField).width(150).padRight(10);
         gameTable.add(joinGameButton).width(100).row();
@@ -201,6 +215,14 @@ public class MultiplayerMenuScreen implements Screen {
             }
         });
         
+        // Lobby menu button
+        lobbyMenuButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                controller.openLobbyMenu();
+            }
+        });
+        
         // Back button
         backButton.addListener(new ClickListener() {
             @Override
@@ -215,6 +237,9 @@ public class MultiplayerMenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         
+        // Setup online players section
+        setupOnlinePlayersSection();
+        
         // Setup main layout
         mainTable.setFillParent(true);
         mainTable.center();
@@ -223,6 +248,7 @@ public class MultiplayerMenuScreen implements Screen {
         mainTable.add(statusLabel).padBottom(20).row();
         mainTable.add(connectionTable).padBottom(30).row();
         mainTable.add(gameTable).padBottom(30).row();
+        mainTable.add(onlinePlayersTable).padBottom(30).row();
         mainTable.add(backButton).width(200).height(50);
         
         stage.addActor(mainTable);
@@ -261,6 +287,7 @@ public class MultiplayerMenuScreen implements Screen {
                 createGameButton.setDisabled(true);
                 joinGameButton.setDisabled(true);
                 leaveGameButton.setDisabled(true);
+                lobbyMenuButton.setDisabled(true);
                 break;
                 
             case CONNECTING:
@@ -271,6 +298,7 @@ public class MultiplayerMenuScreen implements Screen {
                 createGameButton.setDisabled(true);
                 joinGameButton.setDisabled(true);
                 leaveGameButton.setDisabled(true);
+                lobbyMenuButton.setDisabled(true);
                 break;
                 
             case CONNECTED:
@@ -280,6 +308,7 @@ public class MultiplayerMenuScreen implements Screen {
                 createGameButton.setDisabled(true);
                 joinGameButton.setDisabled(true);
                 leaveGameButton.setDisabled(true);
+                lobbyMenuButton.setDisabled(true);
                 break;
                 
             case AUTHENTICATED:
@@ -289,6 +318,10 @@ public class MultiplayerMenuScreen implements Screen {
                 createGameButton.setDisabled(false);
                 joinGameButton.setDisabled(false);
                 leaveGameButton.setDisabled(true);
+                lobbyMenuButton.setDisabled(false);
+                
+                // Request online players list when authenticated
+                controller.requestOnlinePlayersList();
                 break;
                 
             case IN_GAME:
@@ -298,6 +331,7 @@ public class MultiplayerMenuScreen implements Screen {
                 createGameButton.setDisabled(true);
                 joinGameButton.setDisabled(true);
                 leaveGameButton.setDisabled(false);
+                lobbyMenuButton.setDisabled(true);
                 break;
         }
     }
@@ -333,6 +367,88 @@ public class MultiplayerMenuScreen implements Screen {
     
     public void showError(String message) {
         updateStatus("Error: " + message, Color.RED);
+    }
+    
+    private void setupOnlinePlayersSection() {
+        onlinePlayersTable = new Table();
+        
+        Label onlinePlayersTitle = new Label("ONLINE PLAYERS", skin);
+        onlinePlayersTitle.setColor(Color.CYAN);
+        
+        onlinePlayersCountLabel = new Label("0 players online", skin);
+        onlinePlayersCountLabel.setColor(Color.LIGHT_GRAY);
+        
+        // Players list
+        playersListTable = new Table();
+        onlinePlayersScrollPane = new ScrollPane(playersListTable, skin);
+        onlinePlayersScrollPane.setScrollingDisabled(true, false);
+        onlinePlayersScrollPane.setVariableSizeKnobs(false);
+        
+        // Layout
+        onlinePlayersTable.add(onlinePlayersTitle).padBottom(5).row();
+        onlinePlayersTable.add(onlinePlayersCountLabel).padBottom(10).row();
+        onlinePlayersTable.add(onlinePlayersScrollPane).width(400).height(150);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public void updateOnlinePlayersList(List<Object> players) {
+        playersListTable.clear();
+        
+        if (players == null || players.size() == 0) {
+            onlinePlayersCountLabel.setText("0 players online");
+            Label noPlayersLabel = new Label("No players online", skin);
+            noPlayersLabel.setColor(Color.GRAY);
+            playersListTable.add(noPlayersLabel).pad(10);
+            return;
+        }
+        
+        onlinePlayersCountLabel.setText(players.size() + " players online");
+        
+        for (Object playerObj : players) {
+            if (playerObj instanceof Map) {
+                Map<String, Object> playerData = (Map<String, Object>) playerObj;
+                addPlayerToList(playerData);
+            }
+        }
+    }
+    
+    private void addPlayerToList(Map<String, Object> playerData) {
+        String username = (String) playerData.get("username");
+        String status = (String) playerData.get("status");
+        String lobbyName = (String) playerData.get("lobbyName");
+        
+        if (username == null) return;
+        
+        Table playerRow = new Table();
+        playerRow.pad(5);
+        
+        // Player name
+        Label nameLabel = new Label(username, skin);
+        nameLabel.setColor(Color.WHITE);
+        
+        // Status
+        String statusText = "";
+        Color statusColor = Color.GREEN;
+        
+        if ("IN_LOBBY".equals(status) && lobbyName != null) {
+            statusText = "In Lobby: " + lobbyName;
+            statusColor = Color.YELLOW;
+        } else if ("IN_GAME".equals(status)) {
+            statusText = "In Game";
+            statusColor = Color.RED;
+        } else {
+            statusText = "Online";
+            statusColor = Color.GREEN;
+        }
+        
+        Label statusLabel = new Label(statusText, skin);
+        statusLabel.setColor(statusColor);
+        
+        // Layout row
+        playerRow.add(nameLabel).width(120).left().padRight(10);
+        playerRow.add(statusLabel).expandX().left();
+        
+        playersListTable.add(playerRow).fillX().padBottom(2).row();
     }
     
     @Override
