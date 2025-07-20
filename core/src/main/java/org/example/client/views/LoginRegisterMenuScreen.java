@@ -368,6 +368,26 @@ public class LoginRegisterMenuScreen implements Screen {
 
         if (result.success()) {
             showStatus("Login successful! Welcome back.", Color.GREEN);
+            
+            // Navigate to MainMenuScreen after successful login
+            stage.getRoot().addAction(Actions.sequence(
+                Actions.delay(1.5f), // Wait for success message to show
+                Actions.run(() -> {
+                    // Get the logged-in user and navigate to MainMenuScreen
+                    org.example.common.models.entities.User loggedInUser = org.example.common.models.App.getLoggedInUser();
+                    if (loggedInUser != null) {
+                        org.example.client.Main.getGame().getScreen().dispose();
+                        
+                        org.example.client.controllers.MainMenuController mainMenuController = 
+                            new org.example.client.controllers.MainMenuController(loggedInUser);
+                        org.example.client.views.MainMenuScreen mainMenuScreen = 
+                            new org.example.client.views.MainMenuScreen(null, mainMenuController, 
+                                org.example.utils.AssetManager.getAssetManager().getSkin());
+                        
+                        org.example.client.Main.getGame().setScreen(mainMenuScreen);
+                    }
+                })
+            ));
         } else {
             showStatus("Login failed: " + result.message(), Color.RED);
         }

@@ -13,6 +13,7 @@ import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.LoginRegisterMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.MultiplayerClient;
 
 import java.util.ArrayList;
 import java.util.List;

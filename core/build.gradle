@@ -1,3 +1,11 @@
+plugins {
+  id 'application'
+}
+
+application {
+  mainClass = 'org.example.server.ServerMain'
+}
+
 dependencies {
   // Existing dependencies
   api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
@@ -22,14 +30,20 @@ dependencies {
 
   // Javalin web framework
   implementation "io.javalin:javalin:$javalinVersion"
+  
+  // SLF4J Simple Logger for Javalin
+  implementation "org.slf4j:slf4j-simple:2.0.10"
+  
+  // Jackson for JSON serialization
+  implementation "com.fasterxml.jackson.core:jackson-databind:2.16.1"
 
   // Dotenv for environment variable management
   implementation "io.github.cdimascio:java-dotenv:$dotenvVersion"
 }
 
-// اگر هنوز تعریف نشده، ورژن‌ها را در فایل build.gradle اصلی یا settings.gradle تعریف کنید
+// Define versions if not already defined
 ext {
-  // ... سایر ورژن‌ها
+  // Other versions
   kryoVersion = "5.0.0" // از آخرین نسخه پایدار استفاده کنید
   reflectasmVersion = "1.11.9"
   objenesisVersion = "3.3"
