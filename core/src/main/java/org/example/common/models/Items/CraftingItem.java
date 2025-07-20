@@ -6,7 +6,6 @@ import org.example.common.models.Player.Backpack;
 import org.example.common.models.entities.animal.Fish;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
-import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
 import java.util.HashSet;

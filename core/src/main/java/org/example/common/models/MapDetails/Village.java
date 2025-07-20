@@ -2,7 +2,6 @@ package org.example.common.models.MapDetails;
 
 import org.example.common.models.App;
 import org.example.common.models.Items.*;
-import org.example.models.Items.*;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;

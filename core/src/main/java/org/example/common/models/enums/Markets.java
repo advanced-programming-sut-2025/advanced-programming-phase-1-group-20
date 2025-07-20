@@ -2,12 +2,10 @@ package org.example.common.models.enums;
 
 import org.example.common.models.Items.*;
 import org.example.common.models.enums.Types.*;
-import org.example.models.Items.*;
 import org.example.common.models.Market;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.PlayerEnums.Skills;
-import org.example.models.enums.Types.*;
 
 import java.util.HashMap;
 
