@@ -9,72 +9,69 @@ public class LoginMenuController {
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
-    public void setView(LoginMenuScreen screen) {
-        this.screen = screen;
+    public void setView(LoginMenuView view) {
+        this.view = view;
     }
 
     public void update(float delta) {
         timeSinceLastChange += delta;
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
-            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getLoginMenuImagesCount();
-//            screen.updateBackground(GameAssetManager.getAssetManager().getLoginMenuTexture(currentImageIndex));
+            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getLoginMenuImagesCount();
+            Texture newTexture = GameAssetManager.getGameAssetManager().getLoginMenuTexture(currentImageIndex);
+            view.updateBackground(newTexture);
         }
     }
 
-    public boolean authenticateUser(String username, String password, boolean stayLoggedIn) {
+    public void handleLogin(String username, String password, boolean stayLoggedIn) {
         if (username.isEmpty() || password.isEmpty()) {
-//            screen.showError("Username and password are required");
-            return false;
+            view.showError("Username and password are required!");
+            return;
         }
 
-//        User user = App.getUserByUsername(username);
-//        if (user == null) {
-//            screen.showError("Username not found");
-//            return false;
-//        }
-//
-//        if (!user.getPassword().equals(password)) {
-//            screen.showError("Incorrect password");
-//            return false;
-//        }
+        User user = App.getUser(username);
+        if (user == null) {
+            view.showError("Username not found!");
+            return;
+        }
 
-//        App.setCurrentUser(user);
+        if (!user.verifyPassword(password)) {
+            view.showError("Incorrect password!");
+            return;
+        }
 
-//        if (stayLoggedIn) {
-//            Preferences prefs = Gdx.app.getPreferences("MyGameSettings");
-//            prefs.putString("lastUsername", username);
-//            prefs.putString("lastPassword", password);
-//            prefs.flush();
-//        }
+        // Set login status
+        user.setStayLoggedIn(stayLoggedIn);
+        App.setLoggedInUser(user);
 
-        return true;
+        // Generate and save JWT token if stay logged in
+        if (stayLoggedIn) {
+            String token = JWTUtils.generateToken(username);
+            user.setJwtToken(token);
+            user.setTokenExpirationTime(JWTUtils.extractExpirationTime(token));
+        }
+
+        // Save user data
+        App.addUser(user);
+
+        // Proceed to main menu
+        view.showError("Login successful!");
+        Gdx.app.postRunnable(() -> {
+            Main.getMain().getScreen().dispose();
+            Main.getMain().setScreen(new MainMenuView(new MainMenuController(),
+                GameAssetManager.getGameAssetManager().getSkin()));
+        });
     }
 
-//    public void handleLoginSuccess() {
-//        Main.getMain().getScreen().dispose();
-//        Main.getMain().setScreen(new MainMenuView(new MainMenuController()));
-//    }
-//
-//    public void handleForgotPassword() {
-//        Main.getMain().getScreen().dispose();
-//        Main.getMain().setScreen(new ForgotPasswordMenuView(new ForgotPasswordMenuController()));
-//    }
-//
-//    public void handleBack() {
-//        Main.getMain().getScreen().dispose();
-//        Main.getMain().setScreen(new WelcomeMenuScreen(new WelcomeMenuController()));
-//    }
+    public void handleForgotPassword() {
+        Main.getMain().getScreen().dispose();
+        Main.getMain().setScreen(new ForgotPasswordMenuView(new ForgotPasswordMenuController(),
+            GameAssetManager.getGameAssetManager().getSkin()));
+    }
 
-//    public void checkSavedCredentials() {
-//        Preferences prefs = Gdx.app.getPreferences("MyGameSettings");
-//        String username = prefs.getString("lastUsername", "");
-//        String password = prefs.getString("lastPassword", "");
-//
-//        if (!username.isEmpty() && !password.isEmpty()) {
-//            if (authenticateUser(username, password, true)) {
-//                handleLoginSuccess();
-//            }
-//        }
-//    }
+    public void handleBack() {
+        Main.getMain().getScreen().dispose();
+        Main.getMain().setScreen(new WelcomeMenuView(new WelcomeMenuController(),
+            GameAssetManager.getGameAssetManager().getSkin()));
+    }
 }
