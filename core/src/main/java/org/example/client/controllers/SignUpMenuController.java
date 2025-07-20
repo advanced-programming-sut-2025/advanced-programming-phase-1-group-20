@@ -1,14 +1,30 @@
 package org.example.client.controllers;
 
-import org.example.utils.AssetManager;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import org.example.client.views.SignUpMenuScreen;
+import org.example.client.views.WelcomeMenuScreen;
+import org.example.common.models.App;
+import org.example.common.models.entities.User;
+import org.example.utils.AssetManager;
+
 import java.util.Random;
+
+import static org.example.client.Main.getGame;
 
 public class SignUpMenuController {
     private SignUpMenuScreen screen;
     private int currentImageIndex = 0;
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
+
+    private final String[] securityQuestions = {
+        "What was your first pet's name?",
+        "What city were you born in?",
+        "What is your mother's maiden name?",
+        "What was the name of your first school?",
+        "What was your favorite childhood toy?"
+    };
 
     public void setView(SignUpMenuScreen screen) {
         this.screen = screen;
@@ -19,8 +35,13 @@ public class SignUpMenuController {
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
             currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getSignUpMenuImagesCount();
-            screen.updateBackground(AssetManager.getAssetManager().getSignUpMenuTexture(currentImageIndex));
+            Texture newTexture = AssetManager.getAssetManager().getSignUpMenuTexture(currentImageIndex);
+            screen.updateBackground(newTexture);
         }
+    }
+
+    public String[] getSecurityQuestions() {
+        return securityQuestions;
     }
 
     public String generateRandomPassword() {
@@ -53,96 +74,84 @@ public class SignUpMenuController {
         return new String(chars);
     }
 
-    public boolean validateUsername(String username) {
-        if (username.isEmpty()) {
-            screen.showError("Username cannot be empty");
-            return false;
+    public void handleRegister(String username, String email, String password,
+                               String confirmPassword, String gender,
+                               String securityQuestion, String securityAnswer) {
+
+        if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
+            confirmPassword.isEmpty() || securityAnswer.isEmpty()) {
+            screen.showError("All fields are required!");
+            return;
         }
 
-        if (!username.matches("^[a-zA-Z0-9-]+$")) {
-            screen.showError("Username can only contain letters, numbers and hyphens");
-            return false;
+        if (!password.equals(confirmPassword)) {
+            screen.showError("Passwords don't match!");
+            return;
         }
 
-//        if (App.userExists(username)) {
-//            String suggested = username + new Random().nextInt(1000);
-//            screen.showError("Username exists. Try: " + suggested);
-//            return false;
-//        }
-
-        return true;
-    }
-
-    public boolean validateEmail(String email) {
-        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$";
-        if (!email.matches(regex)) {
-            screen.showError("Invalid email format");
-            return false;
-        }
-        return true;
-    }
-
-    public boolean validatePassword(String password) {
         if (password.length() < 8) {
             screen.showError("Password must be at least 8 characters");
-            return false;
+            return;
         }
 
         if (!password.matches(".*[A-Z].*")) {
             screen.showError("Password needs at least one uppercase letter");
-            return false;
-        }
-
-        if (!password.matches(".*[a-z].*")) {
-            screen.showError("Password needs at least one lowercase letter");
-            return false;
+            return;
         }
 
         if (!password.matches(".*\\d.*")) {
             screen.showError("Password needs at least one digit");
-            return false;
+            return;
         }
 
         if (!password.matches(".*[!@#$%^&*()_+].*")) {
             screen.showError("Password needs at least one special character");
-            return false;
+            return;
         }
 
-        return true;
-    }
-
-    public boolean registerUser(String username, String email, String password,
-                                String confirmPassword, String gender,
-                                String securityQuestion, String securityAnswer) {
-
-        if (!validateUsername(username)) return false;
-        if (!validateEmail(email)) return false;
-        if (!validatePassword(password)) return false;
-
-        if (!password.equals(confirmPassword)) {
-            screen.showError("Passwords don't match");
-            return false;
+        if (!isValidEmail(email)) {
+            screen.showError("Invalid email format");
+            return;
         }
 
-        if (securityAnswer.isEmpty()) {
-            screen.showError("Security answer is required");
-            return false;
+        if (App.getUser(username) != null) {
+            screen.showError("Username already exists!");
+            return;
         }
 
-//        User user = new User(username, password, email, gender,
-//            securityQuestion, securityAnswer);
-//        App.registerUser(user);
-        return true;
+        User.Gender genderEnum = User.Gender.valueOf(gender.toUpperCase());
+        User newUser = new User(username, password, email, "", genderEnum);
+        newUser.setSecurityQuestion(getQuestionIndex(securityQuestion));
+        newUser.setSecurityAnswer(securityAnswer);
+
+        App.addUser(newUser);
+        App.setLoggedInUser(newUser);
+
+        screen.showError("Registration successful!");
+        Gdx.app.postRunnable(() -> {
+            getGame().getScreen().dispose();
+//            getGame().setScreen(new MainMenuView(new MainMenuController(),
+//                AssetManager.getAssetManager().getSkin()));
+        });
     }
 
-    public String[] getSecurityQuestions() {
-        return new String[] {
-            "What was your first pet's name?",
-            "What city were you born in?",
-            "What is your mother's maiden name?",
-            "What was the name of your first school?",
-            "What was your favorite childhood toy?"
-        };
+    public void handleBack() {
+        getGame().getScreen().dispose();
+        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+            AssetManager.getAssetManager().getSkin()));
     }
 
+    private boolean isValidEmail(String email) {
+        String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+        return email.matches(regex);
+    }
+
+    private int getQuestionIndex(String question) {
+        for (int i = 0; i < securityQuestions.length; i++) {
+            if (securityQuestions[i].equals(question)) {
+                return i;
+            }
+        }
+        return 0;
+    }
 }

@@ -3,6 +3,7 @@ package org.example.client.views;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -42,44 +43,45 @@ public class SignUpMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-//        Label title = new Label("SIGN UP", skin, "title");
-//        title.setFontScale(1.8f);
-//        mainTable.add(title).colspan(2).padBottom(40).row();
+        Label title = new Label("CREATE ACCOUNT", skin, "title");
+        title.setFontScale(1.8f);
+        title.setColor(Color.ROYAL);
+        mainTable.add(title).colspan(2).padBottom(40).row();
 
         usernameField = createTextField("Username");
         mainTable.add(new Label("Username:", skin)).padRight(20).right();
-        mainTable.add(usernameField).width(400).height(60).padBottom(15).row();
+        mainTable.add(usernameField).width(400).height(50).padBottom(15).row();
 
         emailField = createTextField("Email");
         mainTable.add(new Label("Email:", skin)).padRight(20).right();
-        mainTable.add(emailField).width(400).height(60).padBottom(15).row();
+        mainTable.add(emailField).width(400).height(50).padBottom(15).row();
 
         Table passwordTable = new Table();
         passwordField = createPasswordField("Password");
         generatePasswordButton = new TextButton("Generate", skin);
-        passwordTable.add(passwordField).width(300).height(60);
-        passwordTable.add(generatePasswordButton).padLeft(10).height(60);
+        passwordTable.add(passwordField).width(300).height(50);
+        passwordTable.add(generatePasswordButton).padLeft(10).height(50);
 
         mainTable.add(new Label("Password:", skin)).padRight(20).right();
         mainTable.add(passwordTable).width(400).padBottom(15).row();
 
         confirmPasswordField = createPasswordField("Confirm Password");
         mainTable.add(new Label("Confirm:", skin)).padRight(20).right();
-        mainTable.add(confirmPasswordField).width(400).height(60).padBottom(15).row();
+        mainTable.add(confirmPasswordField).width(400).height(50).padBottom(15).row();
 
         genderSelect = new SelectBox<>(skin);
         genderSelect.setItems("Male", "Female", "Other");
         mainTable.add(new Label("Gender:", skin)).padRight(20).right();
-        mainTable.add(genderSelect).width(400).height(60).padBottom(15).row();
+        mainTable.add(genderSelect).width(400).height(50).padBottom(15).row();
 
         securityQuestionSelect = new SelectBox<>(skin);
         securityQuestionSelect.setItems(controller.getSecurityQuestions());
         mainTable.add(new Label("Security Question:", skin)).padRight(20).right();
-        mainTable.add(securityQuestionSelect).width(400).height(60).padBottom(15).row();
+        mainTable.add(securityQuestionSelect).width(400).height(50).padBottom(15).row();
 
         securityAnswerField = createTextField("Security Answer");
         mainTable.add(new Label("Answer:", skin)).padRight(20).right();
-        mainTable.add(securityAnswerField).width(400).height(60).padBottom(30).row();
+        mainTable.add(securityAnswerField).width(400).height(50).padBottom(30).row();
 
         errorLabel = new Label("", skin);
         errorLabel.setColor(Color.RED);
@@ -87,17 +89,15 @@ public class SignUpMenuScreen implements Screen {
 
         TextButton registerButton = new TextButton("REGISTER", skin);
         TextButton backButton = new TextButton("BACK", skin);
-        TextButton guestButton = new TextButton("PLAY AS GUEST", skin);
 
         Table buttonsTable = new Table();
         buttonsTable.add(backButton).pad(10);
-        buttonsTable.add(guestButton).pad(10);
         buttonsTable.add(registerButton).pad(10);
 
         mainTable.add(buttonsTable).colspan(2).padTop(20);
 
         stage.addActor(mainTable);
-        addListeners();
+        addListeners(registerButton, backButton, generatePasswordButton);
     }
 
     private TextField createTextField(String hint) {
@@ -113,7 +113,30 @@ public class SignUpMenuScreen implements Screen {
         return field;
     }
 
-    private void addListeners() {
+    private void addListeners(TextButton registerButton, TextButton backButton,
+                              TextButton generatePasswordButton) {
+        registerButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                controller.handleRegister(
+                    usernameField.getText(),
+                    emailField.getText(),
+                    passwordField.getText(),
+                    confirmPasswordField.getText(),
+                    genderSelect.getSelected(),
+                    securityQuestionSelect.getSelected(),
+                    securityAnswerField.getText()
+                );
+            }
+        });
+
+        backButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                controller.handleBack();
+            }
+        });
+
         generatePasswordButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -122,29 +145,27 @@ public class SignUpMenuScreen implements Screen {
                 confirmPasswordField.setText(randomPass);
             }
         });
-
-        //...
     }
 
     public void updateBackground(Texture texture) {
         background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
     }
 
-    public void showError(String error) {
-        errorLabel.setText(error);
+    public void showError(String message) {
+        errorLabel.setText(message);
     }
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(stage);
+
     }
 
     @Override
-    public void render(float v) {
-        controller.update(v);
-
-        ScreenUtils.clear(0, 0, 0, 1);
-        stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+    public void render(float delta) {
+        controller.update(delta);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
         stage.draw();
     }
 
