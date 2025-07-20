@@ -13,6 +13,7 @@ import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.LoginRegisterMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.MultiplayerClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,4 +101,11 @@ public class WelcomeMenuController {
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
         getGame().setScreen(gameMenuScreen);
     }
+
+//    public void handleMultiplayerButton() {
+//        getGame().getScreen().dispose();
+//
+//        MultiplayerClient multiplayerClient = new MultiplayerClient(getGame());
+//        getGame().setScreen(multiplayerClient.getLoginScreen());
+//    }
 }

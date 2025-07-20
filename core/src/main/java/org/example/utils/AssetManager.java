@@ -60,6 +60,9 @@ public class AssetManager {
 
     AssetManager() {
         loadWelcomeMenuTextures();
+        loadSignUpMenuTextures();
+        loadLoginMenuTextures();
+        loadProfileMenuTextures();
         for (int i = 1; i < 4; i++) {
             snowTextures[i] = new Texture(Gdx.files.internal("content/snow/" + i + ".png"));
         }
