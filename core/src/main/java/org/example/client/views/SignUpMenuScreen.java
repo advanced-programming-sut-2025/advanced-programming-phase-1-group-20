@@ -40,9 +40,9 @@ public class SignUpMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-        Label title = new Label("SIGN UP", skin, "title");
-        title.setFontScale(1.8f);
-        mainTable.add(title).colspan(2).padBottom(40).row();
+//        Label title = new Label("SIGN UP", skin, "title");
+//        title.setFontScale(1.8f);
+//        mainTable.add(title).colspan(2).padBottom(40).row();
 
         usernameField = createTextField("Username");
         mainTable.add(new Label("Username:", skin)).padRight(20).right();
