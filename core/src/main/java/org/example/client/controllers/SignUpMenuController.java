@@ -124,6 +124,8 @@ public class SignUpMenuController {
         newUser.setSecurityQuestion(getQuestionIndex(securityQuestion));
         newUser.setSecurityAnswer(securityAnswer);
 
+        //handle it!!
+
         App.addUser(newUser);
         App.setLoggedInUser(newUser);
 
