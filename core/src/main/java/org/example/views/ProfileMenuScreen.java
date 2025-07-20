@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.example.common.models.App;
 import org.example.server.controllers.GameControllers.ProfileMenuController;
 import org.example.common.models.entities.User;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
