@@ -1,7 +1,5 @@
 package org.example.client.controllers;
 
-
-//expired
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.views.SignUpMenuScreen;

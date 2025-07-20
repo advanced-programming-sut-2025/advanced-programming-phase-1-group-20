@@ -16,7 +16,6 @@ import org.example.server.controllers.GameControllers.ProfileMenuController;
 import org.example.common.models.entities.User;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
-import java.awt.*;
 import java.awt.Image;
 import java.awt.Label;
 import java.awt.TextField;
@@ -203,7 +202,7 @@ public class ProfileMenuScreen implements Screen {
         stage.dispose();
     }
 
-    private static class FieldGroup {
+    private static class FieldGroup extends TextField {
         Label label;
         TextField field;
     }

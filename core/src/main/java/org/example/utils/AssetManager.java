@@ -14,6 +14,12 @@ public class AssetManager {
     private final Texture exitTitleTexture = new Texture("content/Titles/exit.png");
     private final Texture backTitleTexture = new Texture("content/Titles/back.png");
     private final Texture developedByTitleTexture = new Texture("content/Titles/developedBy.png");
+    private final Texture registerTitleTexture = new Texture("content/Titles/register.png");
+    private final Texture startGameTitleTexture = new Texture("content/Titles/startGame.png");
+    private final Texture changeAvatarTitleTexture = new Texture("content/Titles/changeAvatar.png");
+    private final Texture forgotPasswordTitleTexture = new Texture("content/Titles/forgotPassword.png");
+    private final Texture playAsGuestTitleTexture = new Texture("content/Titles/playAsGuest.png");
+    private final Texture changeTitleTexture = new Texture("content/Titles/change.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
     private final Texture[] signUpMenuImages = new Texture[20];
     private final Texture[] loginMenuImages = new Texture[20];
@@ -38,6 +44,8 @@ public class AssetManager {
 
     // Snow textures
     private final Texture[] snowTextures = new Texture[4];
+
+    public static final float BACKGROUND_CHANGE_INTERVAL = 0.1f;
 
     public static AssetManager getAssetManager() {
         if (assetManager == null) {
