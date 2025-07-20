@@ -82,6 +82,14 @@ public class ServerMain {
             ctx.json(messageHandler.getGameSessions().keySet());
         });
         
+        // List lobbies endpoint for debugging
+        app.get("/lobbies", ctx -> {
+            LobbyManager lobbyManager = LobbyManager.getInstance();
+            ctx.json("{ \"totalLobbies\": " + lobbyManager.getTotalLobbies() + ", " +
+                    "\"activeLobbies\": " + lobbyManager.getActiveLobbies() + ", " +
+                    "\"playersInLobbies\": " + lobbyManager.getTotalPlayersInLobbies() + " }");
+        });
+        
         // CORS preflight for all endpoints
         app.options("/*", ctx -> {
             ctx.header("Access-Control-Allow-Origin", "*");
@@ -93,6 +101,7 @@ public class ServerMain {
         System.out.println("  GET /health - Health check");
         System.out.println("  GET /info - Server information");
         System.out.println("  GET /games - List active games");
+        System.out.println("  GET /lobbies - List lobbies info");
     }
     
     public static void shutdown() {

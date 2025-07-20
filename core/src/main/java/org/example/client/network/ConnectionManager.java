@@ -114,7 +114,16 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
     // Game actions
     public void createMultiplayerGame() {
         if (currentState == ConnectionState.AUTHENTICATED) {
-            networkClient.createGame();
+            // Create a lobby for multiplayer games instead of direct game sessions
+            User currentUser = getAuthenticatedUser();
+            String lobbyName = currentUser != null ? currentUser.getUsername() + "'s Lobby" : "New Lobby";
+            networkClient.createLobby(lobbyName, false, true, null);
+        }
+    }
+    
+    public void createLobby(String lobbyName, boolean isPrivate, boolean isVisible, String password) {
+        if (currentState == ConnectionState.AUTHENTICATED) {
+            networkClient.createLobby(lobbyName, isPrivate, isVisible, password);
         }
     }
 

@@ -11,17 +11,15 @@ import org.example.common.models.Message;
 import org.example.common.models.entities.User;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 
 public class NetworkClient {
     private static NetworkClient instance;
-    private Socket socket;
-    private BufferedReader reader;
-    private PrintWriter writer;
+    private java.net.http.WebSocket webSocket;
+    private java.net.http.WebSocket.Builder webSocketBuilder;
     private final Queue<Message> incomingMessages;
     private final Queue<Message> outgoingMessages;
     private final Gson gson;
@@ -88,26 +86,75 @@ public class NetworkClient {
         try {
             connectionState = ConnectionState.CONNECTING;
             
-            // Create socket connection
-            SocketHints hints = new SocketHints();
-            hints.connectTimeout = 10000; // 10 seconds
+            // Create WebSocket URI
+            String wsUri = "ws://" + serverHost + ":" + serverPort + "/ws/game";
+            System.out.println("Attempting WebSocket connection to: " + wsUri);
             
-            socket = Gdx.net.newClientSocket(Net.Protocol.TCP, serverHost, serverPort, hints);
+            // Use Java 11+ WebSocket client
+            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+            webSocketBuilder = httpClient.newWebSocketBuilder();
             
-            // Set up streams
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            // Create WebSocket listener
+            java.net.http.WebSocket.Listener listener = new java.net.http.WebSocket.Listener() {
+                @Override
+                public void onOpen(java.net.http.WebSocket webSocket) {
+                    System.out.println("WebSocket connected successfully!");
+                    connectionState = ConnectionState.CONNECTED;
+                    java.net.http.WebSocket.Listener.super.onOpen(webSocket);
+                }
+                
+                @Override
+                public java.util.concurrent.CompletionStage<?> onText(java.net.http.WebSocket webSocket, CharSequence data, boolean last) {
+                    String messageText = data.toString();
+                    System.out.println("Received: " + messageText);
+                    
+                    try {
+                        Message message = gson.fromJson(messageText, Message.class);
+                        incomingMessages.offer(message);
+                        
+                        // Handle session ID from welcome message
+                        if (message.getType() == Message.Type.SUCCESS) {
+                            String receivedSessionId = message.getFromBody("sessionId");
+                            if (receivedSessionId != null) {
+                                sessionId = receivedSessionId;
+                                System.out.println("Received session ID: " + sessionId);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to parse incoming message: " + e.getMessage());
+                    }
+                    
+                    return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
+                }
+                
+                @Override
+                public void onError(java.net.http.WebSocket webSocket, Throwable error) {
+                    System.err.println("WebSocket error: " + error.getMessage());
+                    connectionState = ConnectionState.ERROR;
+                    java.net.http.WebSocket.Listener.super.onError(webSocket, error);
+                }
+                
+                @Override
+                public java.util.concurrent.CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
+                    System.out.println("WebSocket closed: " + statusCode + " - " + reason);
+                    connectionState = ConnectionState.DISCONNECTED;
+                    return java.net.http.WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
+                }
+            };
             
-            connectionState = ConnectionState.CONNECTED;
+            // Connect to WebSocket
+            webSocket = webSocketBuilder.buildAsync(URI.create(wsUri), listener)
+                .get(5, java.util.concurrent.TimeUnit.SECONDS);
             
-            // Start network thread
+            // Start network thread for processing outgoing messages
             startNetworkThread();
             
-            System.out.println("Connected to server at " + serverHost + ":" + serverPort);
+            System.out.println("WebSocket connection established!");
             return true;
             
-        } catch (GdxRuntimeException e) {
+        } catch (Exception e) {
             System.err.println("Failed to connect to server: " + e.getMessage());
+            e.printStackTrace();
             connectionState = ConnectionState.ERROR;
             return false;
         }
@@ -115,73 +162,39 @@ public class NetworkClient {
     
     private void startNetworkThread() {
         isRunning = true;
-        networkThread = new Thread(this::networkLoop, "NetworkClient-Thread");
+        networkThread = new Thread(() -> {
+            while (isRunning) {
+                try {
+                    processOutgoingMessages();
+                    Thread.sleep(50); // Process messages 20 times per second
+                } catch (InterruptedException e) {
+                    System.out.println("Network thread interrupted");
+                    break;
+                } catch (Exception e) {
+                    System.err.println("Error in network thread: " + e.getMessage());
+                }
+            }
+        }, "NetworkClient-Thread");
         networkThread.setDaemon(true);
         networkThread.start();
     }
     
-    private void networkLoop() {
-        while (isRunning && connectionState != ConnectionState.DISCONNECTED) {
-            try {
-                // Process outgoing messages
-                processOutgoingMessages();
-                
-                // Read incoming messages
-                if (reader.ready()) {
-                    String messageJson = reader.readLine();
-                    if (messageJson != null && !messageJson.trim().isEmpty()) {
-                        processIncomingMessage(messageJson);
-                    }
-                }
-                
-                // Small sleep to prevent busy waiting
-                Thread.sleep(10);
-                
-            } catch (IOException e) {
-                System.err.println("Network error: " + e.getMessage());
-                connectionState = ConnectionState.ERROR;
-                break;
-            } catch (InterruptedException e) {
-                System.out.println("Network thread interrupted");
-                break;
-            } catch (Exception e) {
-                System.err.println("Unexpected network error: " + e.getMessage());
-                e.printStackTrace();
-            }
-        }
-        
-        cleanup();
-    }
-    
     private void processOutgoingMessages() {
-        while (!outgoingMessages.isEmpty()) {
+        // Send real messages via WebSocket
+        while (!outgoingMessages.isEmpty() && webSocket != null) {
             Message message = outgoingMessages.poll();
             if (message != null) {
                 try {
                     String messageJson = gson.toJson(message);
-                    writer.println(messageJson);
-                    writer.flush();
+                    System.out.println("Sending: " + messageJson);
+                    
+                    // Send via WebSocket
+                    webSocket.sendText(messageJson, true);
+                    
                 } catch (Exception e) {
                     System.err.println("Failed to send message: " + e.getMessage());
                 }
             }
-        }
-    }
-    
-    private void processIncomingMessage(String messageJson) {
-        try {
-            Message message = gson.fromJson(messageJson, Message.class);
-            incomingMessages.offer(message);
-            
-            // Process immediately for certain message types
-            if (message.getType() == Message.Type.SUCCESS && 
-                message.getFromBody("sessionId") != null) {
-                sessionId = message.getFromBody("sessionId");
-                System.out.println("Received session ID: " + sessionId);
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Failed to parse incoming message: " + e.getMessage());
         }
     }
     
@@ -190,7 +203,7 @@ public class NetworkClient {
             connectionState == ConnectionState.AUTHENTICATED) {
             outgoingMessages.offer(message);
         } else {
-            System.err.println("Cannot send message: not connected to server");
+            System.err.println("Cannot send message: not connected to server (state: " + connectionState + ")");
         }
     }
     
@@ -200,13 +213,15 @@ public class NetworkClient {
             return false;
         }
         
+        // Set authenticated user BEFORE sending message
+        this.authenticatedUser = user;
+        
         Message authMessage = new Message();
         authMessage.setType(Message.Type.AUTH_LOGIN);
         authMessage.putInBody("username", user.getUsername());
         authMessage.putInBody("token", jwtToken);
         
         sendMessage(authMessage);
-        this.authenticatedUser = user;
         
         System.out.println("Authentication request sent for user: " + user.getUsername());
         return true;
@@ -270,6 +285,26 @@ public class NetworkClient {
         sendMessage(createGameMessage);
     }
     
+    public void createLobby(String lobbyName, boolean isPrivate, boolean isVisible, String password) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.err.println("Cannot create lobby: not authenticated (state: " + connectionState + ")");
+            return;
+        }
+        
+        Message createLobbyMessage = new Message();
+        createLobbyMessage.setType(Message.Type.CREATE_LOBBY);
+        createLobbyMessage.putInBody("lobbyName", lobbyName != null ? lobbyName : authenticatedUser.getUsername() + "'s Lobby");
+        createLobbyMessage.putInBody("isPrivate", isPrivate);
+        createLobbyMessage.putInBody("isVisible", isVisible);
+        if (isPrivate && password != null) {
+            createLobbyMessage.putInBody("password", password);
+        }
+        createLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
+        
+        sendMessage(createLobbyMessage);
+        System.out.println("Lobby creation request sent: " + lobbyName);
+    }
+    
     public void joinGame(String gameId) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
             return;
@@ -320,28 +355,16 @@ public class NetworkClient {
             }
         }
         
-        cleanup();
-        System.out.println("Disconnected from server");
-    }
-    
-    private void cleanup() {
-        try {
-            if (writer != null) {
-                writer.close();
+        if (webSocket != null) {
+            try {
+                webSocket.sendClose(java.net.http.WebSocket.NORMAL_CLOSURE, "Client disconnecting");
+            } catch (Exception e) {
+                System.err.println("Error closing WebSocket: " + e.getMessage());
             }
-            if (reader != null) {
-                reader.close();
-            }
-            if (socket != null) {
-                socket.dispose();
-            }
-        } catch (Exception e) {
-            System.err.println("Error during cleanup: " + e.getMessage());
+            webSocket = null;
         }
         
-        writer = null;
-        reader = null;
-        socket = null;
+        System.out.println("Disconnected from server");
     }
     
     // Getters
