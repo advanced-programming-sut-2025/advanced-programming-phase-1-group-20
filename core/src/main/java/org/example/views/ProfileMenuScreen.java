@@ -12,21 +12,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.common.models.App;
-import org.example.server.controllers.GameControllers.ProfileMenuController;
+import org.example.client.controllers.ProfileMenuController;
 import org.example.common.models.entities.User;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
-import java.awt.Image;
-import java.awt.Label;
-import java.awt.TextField;
 
 public class ProfileMenuScreen implements Screen {
     private final ProfileMenuController controller;
     private final Stage stage;
     private final Skin skin;
-    private Image background;
+    private com.badlogic.gdx.scenes.scene2d.ui.Image background;
     private TextField usernameField, passwordField, emailField, nicknameField;
-    private Label errorLabel, statsLabel, genderLabel;
+    private com.badlogic.gdx.scenes.scene2d.ui.Label errorLabel, statsLabel, genderLabel;
     private CheckBox stayLoggedInCheckbox;
 
     public ProfileMenuScreen(ProfileMenuController controller, Skin skin) {
@@ -38,7 +35,7 @@ public class ProfileMenuScreen implements Screen {
     }
 
     private void setupUI() {
-        background = new Image();
+        background = new com.badlogic.gdx.scenes.scene2d.ui.Image();
         background.setFillParent(true);
         stage.addActor(background);
 
@@ -48,39 +45,42 @@ public class ProfileMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-        Label titleLabel = new Label("USER PROFILE", skin, "title");
+        com.badlogic.gdx.scenes.scene2d.ui.Label titleLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("USER PROFILE", skin);
         titleLabel.setFontScale(1.8f);
         titleLabel.setColor(Color.GOLD);
         mainTable.add(titleLabel).colspan(2).padBottom(40).row();
 
-        usernameField = createEditableField(currentUser.getUsername(), "Username:");
-        mainTable.add(usernameField.label).padRight(20).right();
-        mainTable.add(usernameField.field).width(350).height(50).padBottom(15).row();
+        usernameField = new TextField(currentUser.getUsername(), skin);
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Username:", skin)).padRight(20).right();
+        mainTable.add(usernameField).width(350).height(50).padBottom(15).row();
 
-        passwordField = createPasswordField("Password:");
-        mainTable.add(passwordField.label).padRight(20).right();
-        mainTable.add(passwordField.field).width(350).height(50).padBottom(15).row();
+        passwordField = new TextField("", skin);
+        passwordField.setPasswordMode(true);
+        passwordField.setPasswordCharacter('•');
+        passwordField.setMessageText("Enter new password");
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Password:", skin)).padRight(20).right();
+        mainTable.add(passwordField).width(350).height(50).padBottom(15).row();
 
-        emailField = createEditableField(currentUser.getEmail(), "Email:");
-        mainTable.add(emailField.label).padRight(20).right();
-        mainTable.add(emailField.field).width(350).height(50).padBottom(15).row();
+        emailField = new TextField(currentUser.getEmail(), skin);
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Email:", skin)).padRight(20).right();
+        mainTable.add(emailField).width(350).height(50).padBottom(15).row();
 
-        nicknameField = createEditableField(currentUser.getNickname(), "Nickname:");
-        mainTable.add(nicknameField.label).padRight(20).right();
-        mainTable.add(nicknameField.field).width(350).height(50).padBottom(15).row();
+        nicknameField = new TextField(currentUser.getNickname(), skin);
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Nickname:", skin)).padRight(20).right();
+        mainTable.add(nicknameField).width(350).height(50).padBottom(15).row();
 
-        genderLabel = new Label("Gender: " + currentUser.getGender().toString(), skin);
+        genderLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("Gender: " + currentUser.getGender().toString(), skin);
         mainTable.add(genderLabel).colspan(2).padBottom(15).row();
 
         stayLoggedInCheckbox = new CheckBox(" Stay Logged In", skin);
         stayLoggedInCheckbox.setChecked(currentUser.isStayLoggedIn());
         mainTable.add(stayLoggedInCheckbox).colspan(2).padBottom(30).row();
 
-        statsLabel = new Label("", skin);
+        statsLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin);
         updateStatsLabel(currentUser);
         mainTable.add(statsLabel).colspan(2).padBottom(20).row();
 
-        errorLabel = new Label("", skin);
+        errorLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin);
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).padBottom(20).row();
 
@@ -97,23 +97,6 @@ public class ProfileMenuScreen implements Screen {
 
         stage.addActor(mainTable);
         addListeners(saveButton, backButton, deleteButton);
-    }
-
-    private FieldGroup createEditableField(String initialValue, String labelText) {
-        FieldGroup group = new FieldGroup();
-        group.label = new Label(labelText, skin);
-        group.field = new TextField(initialValue, skin);
-        return group;
-    }
-
-    private FieldGroup createPasswordField(String labelText) {
-        FieldGroup group = new FieldGroup();
-        group.label = new Label(labelText, skin);
-        group.field = new TextField("", skin);
-        group.field.setPasswordMode(true);
-        group.field.setPasswordCharacter('•');
-        group.field.setMessageText("Enter new password");
-        return group;
     }
 
     private void updateStatsLabel(User user) {
@@ -202,8 +185,7 @@ public class ProfileMenuScreen implements Screen {
         stage.dispose();
     }
 
-    private static class FieldGroup extends TextField {
-        Label label;
-        TextField field;
+    public Stage getStage() {
+        return stage;
     }
 }

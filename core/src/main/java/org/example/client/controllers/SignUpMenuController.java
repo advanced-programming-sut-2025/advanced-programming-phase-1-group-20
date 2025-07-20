@@ -6,6 +6,7 @@ import org.example.client.views.SignUpMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
+import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 
 import java.util.Random;
@@ -119,9 +120,9 @@ public class SignUpMenuController {
             return;
         }
 
-        User.Gender genderEnum = User.Gender.valueOf(gender.toUpperCase());
+        Gender genderEnum = Gender.valueOf(gender.toUpperCase());
         User newUser = new User(username, password, email, "", genderEnum);
-        newUser.setSecurityQuestion(getQuestionIndex(securityQuestion));
+        newUser.setSecurityQuestionIndex(getQuestionIndex(securityQuestion));
         newUser.setSecurityAnswer(securityAnswer);
 
         //handle it!!

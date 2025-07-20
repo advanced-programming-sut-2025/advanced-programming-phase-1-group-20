@@ -43,7 +43,7 @@ public class SignUpMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-        Label title = new Label("CREATE ACCOUNT", skin, "title");
+        Label title = new Label("CREATE ACCOUNT", skin);
         title.setFontScale(1.8f);
         title.setColor(Color.ROYAL);
         mainTable.add(title).colspan(2).padBottom(40).row();

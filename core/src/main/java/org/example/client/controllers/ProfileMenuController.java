@@ -3,14 +3,15 @@ package org.example.client.controllers;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import org.example.client.views.WelcomeMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
 import org.example.views.ProfileMenuScreen;
 
-import javax.swing.event.ChangeEvent;
 
 import static org.example.client.Main.getGame;
 
@@ -107,30 +108,35 @@ public class ProfileMenuController {
         Dialog dialog = new Dialog("Confirm Delete", AssetManager.getAssetManager().getSkin(), "dialog");
         dialog.text("Are you sure you want to delete your account?\nAll your data will be lost!");
 
-        TextButton cancelButton = new TextButton("Cancel", skin);
-        TextButton confirmButton = new TextButton("Delete", skin);
+        TextButton cancelButton = new TextButton("Cancel", AssetManager.getAssetManager().getSkin());
+        TextButton confirmButton = new TextButton("Delete", AssetManager.getAssetManager().getSkin());
 
-        dialog.button(cancelButton, false);
-        dialog.button(confirmButton, true);
-
-        dialog.show(view.getStage());
-
-        dialog.addListener(new ChangeListener() {
+        cancelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (dialog.getResult() != null && (boolean)dialog.getResult()) {
-                    App.removeUser(currentUser);
-                    App.logout();
-                    screen.showSuccess("Account deleted successfully");
-
-                    Gdx.app.postRunnable(() -> {
-                        getGame().getScreen().dispose();
-                        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
-                            AssetManager.getAssetManager().getSkin()));
-                    });
-                }
+                dialog.hide();
             }
         });
+
+        confirmButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                App.removeUser(currentUser);
+                App.logout();
+                screen.showSuccess("Account deleted successfully");
+                dialog.hide();
+
+                Gdx.app.postRunnable(() -> {
+                    getGame().getScreen().dispose();
+                    getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+                        AssetManager.getAssetManager().getSkin()));
+                });
+            }
+        });
+
+        dialog.button(cancelButton);
+        dialog.button(confirmButton);
+        dialog.show(screen.getStage());
     }
 
     private boolean isValidEmail(String email) {
