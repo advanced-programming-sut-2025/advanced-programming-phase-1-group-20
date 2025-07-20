@@ -5,10 +5,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import org.example.controllers.WelcomeMenuController;
-import org.example.models.App;
+import org.example.client.controllers.WelcomeMenuController;
+import org.example.common.models.App;
 import org.example.utils.AssetManager;
-import org.example.views.WelcomeMenuScreen;
+import org.example.client.views.WelcomeMenuScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
