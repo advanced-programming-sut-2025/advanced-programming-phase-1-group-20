@@ -45,42 +45,42 @@ public class ProfileMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-        com.badlogic.gdx.scenes.scene2d.ui.Label titleLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("USER PROFILE", skin);
+        com.badlogic.gdx.scenes.scene2d.ui.Label titleLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("USER PROFILE", skin, "default");
         titleLabel.setFontScale(1.8f);
         titleLabel.setColor(Color.GOLD);
         mainTable.add(titleLabel).colspan(2).padBottom(40).row();
 
         usernameField = new TextField(currentUser.getUsername(), skin);
-        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Username:", skin)).padRight(20).right();
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Username:", skin, "default")).padRight(20).right();
         mainTable.add(usernameField).width(350).height(50).padBottom(15).row();
 
         passwordField = new TextField("", skin);
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('•');
         passwordField.setMessageText("Enter new password");
-        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Password:", skin)).padRight(20).right();
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Password:", skin, "default")).padRight(20).right();
         mainTable.add(passwordField).width(350).height(50).padBottom(15).row();
 
         emailField = new TextField(currentUser.getEmail(), skin);
-        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Email:", skin)).padRight(20).right();
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Email:", skin, "default")).padRight(20).right();
         mainTable.add(emailField).width(350).height(50).padBottom(15).row();
 
         nicknameField = new TextField(currentUser.getNickname(), skin);
-        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Nickname:", skin)).padRight(20).right();
+        mainTable.add(new com.badlogic.gdx.scenes.scene2d.ui.Label("Nickname:", skin, "default")).padRight(20).right();
         mainTable.add(nicknameField).width(350).height(50).padBottom(15).row();
 
-        genderLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("Gender: " + currentUser.getGender().toString(), skin);
+        genderLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("Gender: " + currentUser.getGender().toString(), skin, "default");
         mainTable.add(genderLabel).colspan(2).padBottom(15).row();
 
         stayLoggedInCheckbox = new CheckBox(" Stay Logged In", skin);
         stayLoggedInCheckbox.setChecked(currentUser.isStayLoggedIn());
         mainTable.add(stayLoggedInCheckbox).colspan(2).padBottom(30).row();
 
-        statsLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin);
+        statsLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin, "default");
         updateStatsLabel(currentUser);
         mainTable.add(statsLabel).colspan(2).padBottom(20).row();
 
-        errorLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin);
+        errorLabel = new com.badlogic.gdx.scenes.scene2d.ui.Label("", skin, "default");
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).padBottom(20).row();
 

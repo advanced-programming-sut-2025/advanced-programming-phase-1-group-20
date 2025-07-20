@@ -22,17 +22,6 @@ public class AppWebSocket {
     private final MessageHandler messageHandler;
     private final ServerConfig config;
     private final static Gson gson = new GsonBuilder()
-        .registerTypeAdapter(LocalDateTime.class, new TypeAdapter<LocalDateTime>() {
-            @Override
-            public void write(JsonWriter out, LocalDateTime value) throws IOException {
-                out.value(value.toString());
-            }
-
-            @Override
-            public LocalDateTime read(JsonReader in) throws IOException {
-                return LocalDateTime.parse(in.nextString());
-            }
-        })
         .serializeSpecialFloatingPointValues()
         .create();
 
@@ -49,9 +38,9 @@ public class AppWebSocket {
         app.ws(wsPath, ws -> {
             ws.onConnect(this::handleConnect);
             ws.onMessage(ctx -> {
-                // The message content should be available through ctx somehow
-                // Let's create a workaround for testing
-                handleMessageFixed(ctx);
+                // Get the message content from the context
+                String messageJson = ctx.message();
+                handleMessageWithContent(ctx, messageJson);
             });
             ws.onClose(this::handleClose);
             ws.onError(this::handleError);

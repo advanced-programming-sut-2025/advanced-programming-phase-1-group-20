@@ -242,9 +242,11 @@ public class LobbyManager {
         List<String> lobbieToClose = new ArrayList<>();
 
         for (Lobby lobby : lobbies.values()) {
-            if (lobby.getStatus() == Lobby.LobbyStatus.WAITING &&
-                lobby.getLastActivity().isBefore(cutoffTime)) {
-                lobbieToClose.add(lobby.getId());
+            if (lobby.getStatus() == Lobby.LobbyStatus.WAITING) {
+                LocalDateTime lastActivity = LocalDateTime.parse(lobby.getLastActivity());
+                if (lastActivity.isBefore(cutoffTime)) {
+                    lobbieToClose.add(lobby.getId());
+                }
             }
         }
 

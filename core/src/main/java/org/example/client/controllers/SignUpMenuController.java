@@ -12,6 +12,7 @@ import org.example.utils.AssetManager;
 import java.util.Random;
 
 import static org.example.client.Main.getGame;
+import org.example.client.views.MainMenuScreen;
 
 public class SignUpMenuController {
     private SignUpMenuScreen screen;
@@ -120,21 +121,20 @@ public class SignUpMenuController {
             return;
         }
 
-        Gender genderEnum = Gender.valueOf(gender.toUpperCase());
+        Gender genderEnum = Gender.valueOf(gender);
         User newUser = new User(username, password, email, "", genderEnum);
         newUser.setSecurityQuestionIndex(getQuestionIndex(securityQuestion));
         newUser.setSecurityAnswer(securityAnswer);
 
-        //handle it!!
-
         App.addUser(newUser);
         App.setLoggedInUser(newUser);
+        App.saveData();
 
         screen.showError("Registration successful!");
         Gdx.app.postRunnable(() -> {
             getGame().getScreen().dispose();
-//            getGame().setScreen(new MainMenuView(new MainMenuController(),
-//                AssetManager.getAssetManager().getSkin()));
+            getGame().setScreen(new MainMenuScreen(null, new MainMenuController(newUser),
+                AssetManager.getAssetManager().getSkin()));
         });
     }
 

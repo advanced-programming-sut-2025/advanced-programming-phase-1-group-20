@@ -108,7 +108,7 @@ public class LoginRegisterMenuScreen implements Screen {
         emailField.setMessageText("Email");
 
         genderSelect = new SelectBox<>(skin);
-        genderSelect.setItems("MALE", "FEMALE", "OTHER");
+        genderSelect.setItems("male", "female", "other");
 
         submitRegisterButton = new TextButton("CREATE ACCOUNT", skin);
         backToMainFromRegisterButton = new TextButton("BACK", skin);
@@ -368,7 +368,7 @@ public class LoginRegisterMenuScreen implements Screen {
 
         if (result.success()) {
             showStatus("Login successful! Welcome back.", Color.GREEN);
-            
+
             // Navigate to MainMenuScreen after successful login
             stage.getRoot().addAction(Actions.sequence(
                 Actions.delay(1.5f), // Wait for success message to show
@@ -377,13 +377,13 @@ public class LoginRegisterMenuScreen implements Screen {
                     org.example.common.models.entities.User loggedInUser = org.example.common.models.App.getLoggedInUser();
                     if (loggedInUser != null) {
                         org.example.client.Main.getGame().getScreen().dispose();
-                        
-                        org.example.client.controllers.MainMenuController mainMenuController = 
+
+                        org.example.client.controllers.MainMenuController mainMenuController =
                             new org.example.client.controllers.MainMenuController(loggedInUser);
-                        org.example.client.views.MainMenuScreen mainMenuScreen = 
-                            new org.example.client.views.MainMenuScreen(null, mainMenuController, 
+                        org.example.client.views.MainMenuScreen mainMenuScreen =
+                            new org.example.client.views.MainMenuScreen(null, mainMenuController,
                                 org.example.utils.AssetManager.getAssetManager().getSkin());
-                        
+
                         org.example.client.Main.getGame().setScreen(mainMenuScreen);
                     }
                 })

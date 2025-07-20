@@ -32,7 +32,7 @@ public class OnlinePlayersManager {
 
     public void playerConnected(String username, PlayerConnection connection) {
         OnlinePlayerInfo playerInfo = new OnlinePlayerInfo(username);
-        playerInfo.setConnectionTime(LocalDateTime.now());
+        playerInfo.setConnectionTime(LocalDateTime.now().toString());
         playerInfo.setStatus(OnlinePlayerInfo.PlayerStatus.ONLINE);
 
         onlinePlayers.put(username, playerInfo);
@@ -161,14 +161,14 @@ public class OnlinePlayersManager {
         private String lobbyId;
         private String lobbyName;
         private String gameSessionId;
-        private LocalDateTime connectionTime;
+        private String connectionTime;
 
         public OnlinePlayerInfo() {}
 
         public OnlinePlayerInfo(String username) {
             this.username = username;
             this.status = PlayerStatus.ONLINE;
-            this.connectionTime = LocalDateTime.now();
+            this.connectionTime = LocalDateTime.now().toString();
         }
 
         // Getters and Setters
@@ -187,8 +187,8 @@ public class OnlinePlayersManager {
         public String getGameSessionId() { return gameSessionId; }
         public void setGameSessionId(String gameSessionId) { this.gameSessionId = gameSessionId; }
 
-        public LocalDateTime getConnectionTime() { return connectionTime; }
-        public void setConnectionTime(LocalDateTime connectionTime) { this.connectionTime = connectionTime; }
+        public String getConnectionTime() { return connectionTime; }
+        public void setConnectionTime(String connectionTime) { this.connectionTime = connectionTime; }
 
         @Override
         public String toString() {

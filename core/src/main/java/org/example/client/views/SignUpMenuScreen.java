@@ -28,9 +28,9 @@ public class SignUpMenuScreen implements Screen {
 
     public SignUpMenuScreen(SignUpMenuController controller, Skin skin) {
         this.controller = controller;
+        this.skin = skin;
         this.stage = new Stage(new ScreenViewport());
         this.controller.setView(this);
-        this.skin = skin;
         setupUI();
     }
 
@@ -43,17 +43,17 @@ public class SignUpMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(80);
 
-        Label title = new Label("CREATE ACCOUNT", skin);
+        Label title = new Label("CREATE ACCOUNT", skin, "default");
         title.setFontScale(1.8f);
         title.setColor(Color.ROYAL);
         mainTable.add(title).colspan(2).padBottom(40).row();
 
         usernameField = createTextField("Username");
-        mainTable.add(new Label("Username:", skin)).padRight(20).right();
+        mainTable.add(new Label("Username:", skin, "default")).padRight(20).right();
         mainTable.add(usernameField).width(400).height(50).padBottom(15).row();
 
         emailField = createTextField("Email");
-        mainTable.add(new Label("Email:", skin)).padRight(20).right();
+        mainTable.add(new Label("Email:", skin, "default")).padRight(20).right();
         mainTable.add(emailField).width(400).height(50).padBottom(15).row();
 
         Table passwordTable = new Table();
@@ -62,28 +62,28 @@ public class SignUpMenuScreen implements Screen {
         passwordTable.add(passwordField).width(300).height(50);
         passwordTable.add(generatePasswordButton).padLeft(10).height(50);
 
-        mainTable.add(new Label("Password:", skin)).padRight(20).right();
+        mainTable.add(new Label("Password:", skin, "default")).padRight(20).right();
         mainTable.add(passwordTable).width(400).padBottom(15).row();
 
         confirmPasswordField = createPasswordField("Confirm Password");
-        mainTable.add(new Label("Confirm:", skin)).padRight(20).right();
+        mainTable.add(new Label("Confirm:", skin, "default")).padRight(20).right();
         mainTable.add(confirmPasswordField).width(400).height(50).padBottom(15).row();
 
         genderSelect = new SelectBox<>(skin);
         genderSelect.setItems("Male", "Female", "Other");
-        mainTable.add(new Label("Gender:", skin)).padRight(20).right();
+        mainTable.add(new Label("Gender:", skin, "default")).padRight(20).right();
         mainTable.add(genderSelect).width(400).height(50).padBottom(15).row();
 
         securityQuestionSelect = new SelectBox<>(skin);
         securityQuestionSelect.setItems(controller.getSecurityQuestions());
-        mainTable.add(new Label("Security Question:", skin)).padRight(20).right();
+        mainTable.add(new Label("Security Question:", skin, "default")).padRight(20).right();
         mainTable.add(securityQuestionSelect).width(400).height(50).padBottom(15).row();
 
         securityAnswerField = createTextField("Security Answer");
-        mainTable.add(new Label("Answer:", skin)).padRight(20).right();
+        mainTable.add(new Label("Answer:", skin, "default")).padRight(20).right();
         mainTable.add(securityAnswerField).width(400).height(50).padBottom(30).row();
 
-        errorLabel = new Label("", skin);
+        errorLabel = new Label("", skin, "default");
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).width(600).padBottom(20).row();
 
@@ -157,7 +157,7 @@ public class SignUpMenuScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -170,8 +170,8 @@ public class SignUpMenuScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -191,7 +191,7 @@ public class SignUpMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-
+        stage.dispose();
     }
 
 }

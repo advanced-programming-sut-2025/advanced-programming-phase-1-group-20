@@ -20,7 +20,7 @@ public class LobbyPlayer {
     private boolean isReady;              // Ready to start game
     private boolean isAdmin;              // Is lobby admin
     private PlayerStatus status;          // Current connection status
-    private LocalDateTime lastSeen;       // Last activity timestamp
+    private String lastSeen;       // Last activity timestamp
     private String lobbyId;               // Current lobby ID (if in lobby)
     private String gameId;                // Current game ID (if in game)
 
@@ -29,7 +29,7 @@ public class LobbyPlayer {
         this.isReady = false;
         this.isAdmin = false;
         this.status = PlayerStatus.CONNECTED;
-        this.lastSeen = LocalDateTime.now();
+        this.lastSeen = LocalDateTime.now().toString();
     }
 
     // Constructor with basic info
@@ -46,7 +46,7 @@ public class LobbyPlayer {
         @JsonProperty("isReady") boolean isReady,
         @JsonProperty("isAdmin") boolean isAdmin,
         @JsonProperty("status") PlayerStatus status,
-        @JsonProperty("lastSeen") LocalDateTime lastSeen,
+        @JsonProperty("lastSeen") String lastSeen,
         @JsonProperty("lobbyId") String lobbyId,
         @JsonProperty("gameId") String gameId
     ) {
@@ -55,7 +55,7 @@ public class LobbyPlayer {
         this.isReady = isReady;
         this.isAdmin = isAdmin;
         this.status = status != null ? status : PlayerStatus.CONNECTED;
-        this.lastSeen = lastSeen != null ? lastSeen : LocalDateTime.now();
+        this.lastSeen = lastSeen != null ? lastSeen : LocalDateTime.now().toString();
         this.lobbyId = lobbyId;
         this.gameId = gameId;
     }
@@ -74,7 +74,7 @@ public class LobbyPlayer {
     }
 
     public void updateActivity() {
-        this.lastSeen = LocalDateTime.now();
+        this.lastSeen = LocalDateTime.now().toString();
         if (this.status == PlayerStatus.DISCONNECTED) {
             this.status = PlayerStatus.CONNECTED;
         }
@@ -115,11 +115,12 @@ public class LobbyPlayer {
 
     public void disconnect() {
         this.status = PlayerStatus.DISCONNECTED;
-        this.lastSeen = LocalDateTime.now();
+        this.lastSeen = LocalDateTime.now().toString();
     }
 
     public boolean isInactive(int timeoutMinutes) {
-        return lastSeen.isBefore(LocalDateTime.now().minusMinutes(timeoutMinutes));
+        LocalDateTime lastSeenDateTime = LocalDateTime.parse(lastSeen);
+        return lastSeenDateTime.isBefore(LocalDateTime.now().minusMinutes(timeoutMinutes));
     }
 
     // Create a copy for safe sharing
@@ -142,8 +143,8 @@ public class LobbyPlayer {
     public PlayerStatus getStatus() { return status; }
     public void setStatus(PlayerStatus status) { this.status = status; }
 
-    public LocalDateTime getLastSeen() { return lastSeen; }
-    public void setLastSeen(LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
+    public String getLastSeen() { return lastSeen; }
+    public void setLastSeen(String lastSeen) { this.lastSeen = lastSeen; }
 
     public String getLobbyId() { return lobbyId; }
     public void setLobbyId(String lobbyId) { this.lobbyId = lobbyId; }

@@ -22,8 +22,8 @@ public class Lobby {
     private String adminId;               // Current admin player ID
     private List<LobbyPlayer> players;         // Current players (max 4)
     private LobbySettings settings;       // Privacy and visibility settings
-    private LocalDateTime createdAt;      // Creation timestamp
-    private LocalDateTime lastActivity;   // Last activity timestamp
+    private String createdAt;      // Creation timestamp
+    private String lastActivity;   // Last activity timestamp
     private LobbyStatus status;           // Current lobby status
     private String currentGameId;         // ID of current game if in progress
 
@@ -32,8 +32,8 @@ public class Lobby {
         this.id = generateRandomId();
         this.players = new ArrayList<>();
         this.settings = new LobbySettings();
-        this.createdAt = LocalDateTime.now();
-        this.lastActivity = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now().toString();
+        this.lastActivity = LocalDateTime.now().toString();
         this.status = LobbyStatus.WAITING;
     }
 
@@ -51,8 +51,8 @@ public class Lobby {
         @JsonProperty("adminId") String adminId,
         @JsonProperty("players") List<LobbyPlayer> players,
         @JsonProperty("settings") LobbySettings settings,
-        @JsonProperty("createdAt") LocalDateTime createdAt,
-        @JsonProperty("lastActivity") LocalDateTime lastActivity,
+        @JsonProperty("createdAt") String createdAt,
+        @JsonProperty("lastActivity") String lastActivity,
         @JsonProperty("status") LobbyStatus status,
         @JsonProperty("currentGameId") String currentGameId
     ) {
@@ -61,8 +61,8 @@ public class Lobby {
         this.adminId = adminId;
         this.players = players != null ? players : new ArrayList<>();
         this.settings = settings != null ? settings : new LobbySettings();
-        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
-        this.lastActivity = lastActivity != null ? lastActivity : LocalDateTime.now();
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now().toString();
+        this.lastActivity = lastActivity != null ? lastActivity : LocalDateTime.now().toString();
         this.status = status != null ? status : LobbyStatus.WAITING;
         this.currentGameId = currentGameId;
     }
@@ -121,11 +121,11 @@ public class Lobby {
     }
 
     public void updateActivity() {
-        this.lastActivity = LocalDateTime.now();
+        this.lastActivity = LocalDateTime.now().toString();
     }
 
     public boolean isInactive(int timeoutMinutes) {
-        return lastActivity.isBefore(LocalDateTime.now().minusMinutes(timeoutMinutes));
+        return LocalDateTime.parse(lastActivity).isBefore(LocalDateTime.now().minusMinutes(timeoutMinutes));
     }
 
     // Getters and Setters
@@ -144,11 +144,11 @@ public class Lobby {
     public LobbySettings getSettings() { return settings; }
     public void setSettings(LobbySettings settings) { this.settings = settings; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getLastActivity() { return lastActivity; }
-    public void setLastActivity(LocalDateTime lastActivity) { this.lastActivity = lastActivity; }
+    public String getLastActivity() { return lastActivity; }
+    public void setLastActivity(String lastActivity) { this.lastActivity = lastActivity; }
 
     public LobbyStatus getStatus() { return status; }
     public void setStatus(LobbyStatus status) { this.status = status; }
