@@ -4,6 +4,7 @@ import io.javalin.Javalin;
 import org.example.common.models.App;
 import org.example.server.GameServers.AppWebSocket;
 import org.example.utils.MongoDBConnection;
+import org.example.utils.NetworkUtils;
 
 public class ServerMain {
     private static Javalin app;
@@ -38,11 +39,27 @@ public class ServerMain {
             
             // Start server
             int port = config.getServerPort();
-            app.start(port);
+            String host = config.getServerHost();
+            app.start(host, port);
             
-            System.out.println("Server started successfully on port " + port);
-            System.out.println("WebSocket endpoint: " + config.getWebSocketPath());
+            System.out.println("Server started successfully on " + host + ":" + port);
+            System.out.println("WebSocket endpoint: ws://" + host + ":" + port + config.getWebSocketPath());
+            System.out.println("REST API available at: http://" + host + ":" + port);
             System.out.println("Debug mode: " + config.isDebugMode());
+            System.out.println();
+            
+            // Display network information
+            NetworkUtils.printNetworkInfo();
+            System.out.println();
+            
+            // Display client connection instructions
+            System.out.println(NetworkUtils.generateClientInstructions(port));
+            
+            // Display firewall instructions
+            System.out.println("=== FIREWALL CONFIGURATION ===");
+            System.out.println(NetworkUtils.getFirewallInstructions(port));
+            System.out.println("===============================");
+            System.out.println();
             
             // Keep the server running
             System.out.println("Server is running. Press Ctrl+C to stop.");

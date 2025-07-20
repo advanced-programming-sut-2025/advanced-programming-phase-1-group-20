@@ -15,7 +15,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
@@ -89,7 +89,7 @@ public class npcAI {
         try {
             return App.getGame() == null;
         } catch (Exception e) {
-            return true; // If we can't access App.getGame(), assume we're in a test
+            return true;
         }
     }
 
@@ -97,7 +97,6 @@ public class npcAI {
     private static String processResponse(String responseJson, NPC npc) {
         try {
             // Parse the JSON response
-//            System.out.println(responseJson);
             JsonObject json = gson.fromJson(responseJson, JsonObject.class);
             String generatedText = json
                     .getAsJsonArray("choices")

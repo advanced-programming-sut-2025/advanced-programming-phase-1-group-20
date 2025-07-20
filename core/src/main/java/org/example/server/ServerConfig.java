@@ -22,12 +22,11 @@ public class ServerConfig {
 
     // Server Configuration
     public int getServerPort() {
-        // Force port 8080 since 7000 is used by system process
-        return 8080;
+        return Integer.parseInt(dotenv.get("SERVER_PORT", "8080"));
     }
 
     public String getServerHost() {
-        return dotenv.get("SERVER_HOST", "localhost");
+        return dotenv.get("SERVER_HOST", "0.0.0.0"); // Changed from "localhost" to "0.0.0.0" to allow connections from all devices
     }
 
     // Database Configuration
