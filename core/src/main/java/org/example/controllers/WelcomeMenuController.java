@@ -11,6 +11,7 @@ import org.example.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 import org.example.views.GameView;
 import org.example.views.LoginRegisterMenuScreen;
+import org.example.views.SignUpMenuScreen;
 import org.example.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;
@@ -56,10 +57,8 @@ public class WelcomeMenuController {
 
     public void handleSignUpButton() {
         getGame().getScreen().dispose();
-        LoginRegisterMenuScreen registerScreen = new LoginRegisterMenuScreen(new LoginRegisterMenuController(),
-            AssetManager.getAssetManager().getSkin());
-        getGame().setScreen(registerScreen);
-        registerScreen.showRegisterFormDirectly();
+        getGame().setScreen(new SignUpMenuScreen(new SignUpMenuController(),
+            AssetManager.getAssetManager().getSkin()));
     }
 
     public void handleTryGameButton() {
