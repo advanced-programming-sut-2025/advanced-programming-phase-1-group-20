@@ -1,6 +1,18 @@
 package org.example.client.controllers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import org.example.client.views.WelcomeMenuScreen;
+import org.example.common.models.App;
+import org.example.common.models.entities.User;
+import org.example.utils.AssetManager;
 import org.example.views.ProfileMenuScreen;
+
+import javax.swing.event.ChangeEvent;
+
+import static org.example.client.Main.getGame;
 
 public class ProfileMenuController {
     private ProfileMenuScreen screen;
@@ -8,17 +20,17 @@ public class ProfileMenuController {
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
-    public void setView(ProfileMenuView view) {
-        this.view = view;
+    public void setView(ProfileMenuScreen screen) {
+        this.screen = screen;
     }
 
     public void update(float delta) {
         timeSinceLastChange += delta;
         if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
             timeSinceLastChange = 0;
-            currentImageIndex = (currentImageIndex + 1) % GameAssetManager.getGameAssetManager().getProfileMenuImagesCount();
-            Texture newTexture = GameAssetManager.getGameAssetManager().getProfileMenuTexture(currentImageIndex);
-            view.updateBackground(newTexture);
+            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getProfileMenuImagesCount();
+            Texture newTexture = AssetManager.getAssetManager().getProfileMenuTexture(currentImageIndex);
+            screen.updateBackground(newTexture);
         }
     }
 
@@ -28,52 +40,47 @@ public class ProfileMenuController {
         User user = App.getLoggedInUser();
         boolean changed = false;
 
-        // Validate and update username
         if (!username.equals(user.getUsername())) {
             if (username.isEmpty()) {
-                view.showError("Username cannot be empty");
+                screen.showError("Username cannot be empty");
                 return;
             }
             if (App.getUser(username) != null && !username.equals(user.getUsername())) {
-                view.showError("Username already taken");
+                screen.showError("Username already taken");
                 return;
             }
             user.setUsername(username);
             changed = true;
         }
 
-        // Validate and update password
         if (!password.isEmpty()) {
             if (password.length() < 8) {
-                view.showError("Password must be at least 8 characters");
+                screen.showError("Password must be at least 8 characters");
                 return;
             }
             if (!password.matches(".*[A-Z].*") || !password.matches(".*\\d.*") ||
                 !password.matches(".*[!@#$%^&*()_+].*")) {
-                view.showError("Password must contain uppercase, number and special char");
+                screen.showError("Password must contain uppercase, number and special char");
                 return;
             }
             user.setPassword(password);
             changed = true;
         }
 
-        // Validate and update email
         if (!email.equals(user.getEmail())) {
             if (!isValidEmail(email)) {
-                view.showError("Invalid email format");
+                screen.showError("Invalid email format");
                 return;
             }
             user.setEmail(email);
             changed = true;
         }
 
-        // Update nickname
         if (!nickname.equals(user.getNickname())) {
             user.setNickname(nickname);
             changed = true;
         }
 
-        // Update stay logged in preference
         if (stayLoggedIn != user.isStayLoggedIn()) {
             user.setStayLoggedIn(stayLoggedIn);
             changed = true;
@@ -81,23 +88,23 @@ public class ProfileMenuController {
 
         if (changed) {
             App.addUser(user); // This will save the changes
-            view.showSuccess("Changes saved successfully!");
-        } else {
-            view.showError("No changes detected");
+            screen.showSuccess("Changes saved successfully!");
+        }
+        else {
+            screen.showError("No changes detected");
         }
     }
 
     public void handleBackButton() {
-        Main.getMain().getScreen().dispose();
-        Main.getMain().setScreen(new MainMenuView(new MainMenuController(),
-            GameAssetManager.getGameAssetManager().getSkin()));
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new MainMenuScreen(new MainMenuController(),
+//            AssetManager.getAssetManager().getSkin()));
     }
 
     public void handleDeleteAccount() {
         User currentUser = App.getLoggedInUser();
 
-        // Create confirmation dialog
-        Dialog dialog = new Dialog("Confirm Delete", GameAssetManager.getGameAssetManager().getSkin(), "dialog");
+        Dialog dialog = new Dialog("Confirm Delete", AssetManager.getAssetManager().getSkin(), "dialog");
         dialog.text("Are you sure you want to delete your account?\nAll your data will be lost!");
 
         TextButton cancelButton = new TextButton("Cancel", skin);
@@ -112,16 +119,14 @@ public class ProfileMenuController {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (dialog.getResult() != null && (boolean)dialog.getResult()) {
-                    // User confirmed deletion
                     App.removeUser(currentUser);
                     App.logout();
-                    view.showSuccess("Account deleted successfully");
+                    screen.showSuccess("Account deleted successfully");
 
-                    // Return to welcome menu after short delay
                     Gdx.app.postRunnable(() -> {
-                        Main.getMain().getScreen().dispose();
-                        Main.getMain().setScreen(new WelcomeMenuView(new WelcomeMenuController(),
-                            GameAssetManager.getGameAssetManager().getSkin()));
+                        getGame().getScreen().dispose();
+                        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+                            AssetManager.getAssetManager().getSkin()));
                     });
                 }
             }

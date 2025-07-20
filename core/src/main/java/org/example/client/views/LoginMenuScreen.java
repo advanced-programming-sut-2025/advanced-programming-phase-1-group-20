@@ -63,7 +63,7 @@ public class LoginMenuScreen implements Screen {
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).padBottom(20).row();
 
-        TextButton loginButton = new TextButton("LOGIN", skin);
+        TextButton loginButton = new TextButton("REGISTER", skin);
         TextButton forgotButton = new TextButton("FORGOT PASSWORD", skin);
         TextButton backButton = new TextButton("BACK", skin);
 
