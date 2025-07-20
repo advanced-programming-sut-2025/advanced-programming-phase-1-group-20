@@ -1,10 +1,10 @@
 package org.example.controllers;
 
 import org.example.Main;
-import org.example.models.App;
-import org.example.models.common.Result;
-import org.example.models.entities.User;
-import org.example.models.enums.PlayerEnums.Gender;
+import org.example.common.models.App;
+import org.example.common.models.common.Result;
+import org.example.common.models.entities.User;
+import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;

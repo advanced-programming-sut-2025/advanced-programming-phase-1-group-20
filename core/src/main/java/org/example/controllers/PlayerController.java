@@ -7,9 +7,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import org.example.Main;
-import org.example.models.MapDetails.Farm;
-import org.example.models.Player.Player;
-import org.example.models.common.Location;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Location;
 
 public class PlayerController {
 

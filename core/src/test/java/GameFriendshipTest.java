@@ -1,8 +1,8 @@
-import org.example.models.Player.Player;
-import org.example.models.entities.Friendship;
-import org.example.models.entities.Game;
-import org.example.models.entities.User;
-import org.example.models.enums.PlayerEnums.Gender;
+import org.example.common.models.Player.Player;
+import org.example.common.models.entities.Friendship;
+import org.example.common.models.entities.Game;
+import org.example.common.models.entities.User;
+import org.example.common.models.enums.PlayerEnums.Gender;
 
 import java.util.ArrayList;
 import java.util.List;

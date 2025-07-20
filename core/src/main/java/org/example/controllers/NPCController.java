@@ -1,14 +1,14 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.Items.Item;
-import org.example.models.Player.Player;
-import org.example.models.common.Date;
-import org.example.models.common.Location;
-import org.example.models.entities.NPC;
-import org.example.models.entities.NPCFriendship;
-import org.example.models.enums.Charactristic;
-import org.example.models.enums.Weather;
+import org.example.common.models.App;
+import org.example.common.models.Items.Item;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Date;
+import org.example.common.models.common.Location;
+import org.example.common.models.entities.NPC;
+import org.example.common.models.entities.NPCFriendship;
+import org.example.common.models.enums.Charactristic;
+import org.example.common.models.enums.Weather;
 import org.example.utils.npcAI;
 
 import java.util.ArrayList;

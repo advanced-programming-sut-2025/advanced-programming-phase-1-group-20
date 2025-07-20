@@ -1,0 +1,183 @@
+package org.example.common.models.Items;
+
+import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Types.PlantType;
+
+public class Plant extends Item {
+    private PlantType type;
+    private int stage;
+    private int daysCounter;
+    private boolean finished;
+    private boolean moisture;
+    private int moistureCounter;
+    private boolean isGiant;
+    private boolean moistureGod;
+
+    public Plant(PlantType type) {
+        super(type.getName(), type.getBaseSellPrice() , type.getImageFilePath());
+        this.type = type;
+        this.stage = 0;
+        daysCounter = 0;
+        finished = false;
+        moisture = true;
+        moistureCounter = 0;
+        isGiant = false;
+        setGiantable(type.isGiantable());
+    }
+
+    public String getSeed() {
+        return type.getSeed();
+    }
+
+    public int[] getStages() {
+        return type.getStage();
+    }
+
+    public void setStages(int[] stages) {
+        type.setStage(stages);
+    }
+
+    public int getTotalHarvestTime() {
+        return type.getTotalHarvestTime();
+    }
+
+    public boolean getOneTimeHarvest() {
+        return type.isOneTimeHarvest();
+    }
+
+    public int getRegrowthTime() {
+        return type.getRegrowthTime();
+    }
+
+    public boolean isEdible() {
+        return type.isEdible();
+    }
+
+    public int getEnergy() {
+        return type.getEnergy();
+    }
+
+    public Seasons[] getSeason() {
+        return type.getSeasons();
+    }
+
+    public boolean isGiantable() {
+        return type.isGiantable();
+    }
+
+    public int getPrice() {
+        return super.getPrice();
+    }
+
+    public void setPrice(int price) {
+        super.setPrice(price);
+    }
+
+    @Override
+    public void showInfo() {
+        type.showInfo();
+        System.out.println("is Moisture: " + moisture);
+    }
+
+    public void setStage(int stage) {
+        this.stage = stage;
+    }
+
+    public void addStage() {
+        if (stage < getStages().length) {
+            stage++;
+        } else if (stage == getStages().length) {
+            finished = true;
+        }
+    }
+
+    public void updateDaysCounter() {
+        int[] stages = getStages();
+        if (daysCounter < stages[stage]) {
+            if(!moistureGod){
+                if(!moisture){
+                    if(moistureCounter < 2){
+                        moistureCounter++;
+                    }
+                }else{
+                    moisture = false;
+                    moistureCounter = 0;
+                }
+            }
+            daysCounter++;
+        } else if (daysCounter == stages[stage]) {
+            addStage();
+            daysCounter = 0;
+        }
+    }
+
+    public int getStage() {
+        return stage;
+    }
+
+    public void updatePlant() {
+        if (!finished) {
+            updateDaysCounter();
+        }
+    }
+
+    public boolean getFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    public boolean getMoisture() {
+        return moisture;
+    }
+
+    public void setMoisture(boolean moisture) {
+        this.moisture = moisture;
+    }
+
+    public int getMoistureCounter() {
+        return moistureCounter;
+    }
+
+    public void setMoistureCounter(int moistureCounter) {
+        this.moistureCounter = moistureCounter;
+    }
+
+    public void setDaysCounter(int daysCounter) {
+        this.daysCounter = daysCounter;
+    }
+
+    public boolean getIsGiant() {
+        return isGiant;
+    }
+
+    public void isGiant(int stage) {
+        setStage(stage);
+
+        isGiant = true;
+    }
+
+    @Override
+    public void updateItem() {
+        if (!finished) {
+            updateDaysCounter();
+        }
+    }
+
+    public Fruit getFruit() {
+        if(finished) {
+            return new Fruit(getName() , getPrice() , getEnergy() , getImageFilepath());
+        }
+        return null;
+    }
+
+    public boolean isMoistureGod() {
+        return moistureGod;
+    }
+
+    public void setMoistureGod(boolean moistureGod) {
+        this.moistureGod = moistureGod;
+    }
+}

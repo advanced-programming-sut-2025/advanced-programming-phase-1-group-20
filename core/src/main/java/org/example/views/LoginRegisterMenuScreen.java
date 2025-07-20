@@ -10,9 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.Main;
 import org.example.controllers.LoginRegisterMenuController;
-import org.example.models.common.Result;
+import org.example.common.models.common.Result;
 
 public class LoginRegisterMenuScreen implements Screen {
     private final LoginRegisterMenuController controller;

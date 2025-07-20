@@ -1,11 +1,10 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.Player.Player;
-import org.example.models.common.Result;
-import org.example.models.entities.Game;
-import org.example.models.entities.User;
-import org.example.models.enums.commands.MainMenuCommands;
+import org.example.common.models.App;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Result;
+import org.example.common.models.entities.Game;
+import org.example.common.models.entities.User;
 import org.example.utils.AutoLoginUtil;
 import org.example.views.MainMenuScreen;
 

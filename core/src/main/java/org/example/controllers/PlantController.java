@@ -1,15 +1,15 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.Items.*;
-import org.example.models.MapDetails.GameMap;
-import org.example.models.Player.Player;
-import org.example.models.common.Location;
-import org.example.models.common.Result;
-import org.example.models.enums.Seasons;
-import org.example.models.enums.Types.ItemBuilder;
-import org.example.models.enums.Types.PlantType;
-import org.example.models.enums.Types.TileType;
+import org.example.common.models.App;
+import org.example.common.models.Items.*;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Location;
+import org.example.common.models.common.Result;
+import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Types.ItemBuilder;
+import org.example.common.models.enums.Types.PlantType;
+import org.example.common.models.enums.Types.TileType;
 
 import java.util.Collections;
 

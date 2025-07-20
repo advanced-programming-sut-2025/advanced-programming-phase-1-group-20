@@ -7,8 +7,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
-import org.example.models.App;
-import org.example.models.entities.Game;
+import org.example.common.models.App;
+import org.example.common.models.entities.Game;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

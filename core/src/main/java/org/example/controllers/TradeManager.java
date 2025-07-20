@@ -1,8 +1,8 @@
 package org.example.controllers;
 
-import org.example.models.Items.Item;
-import org.example.models.Player.Player;
-import org.example.models.entities.TradeRequest;
+import org.example.common.models.Items.Item;
+import org.example.common.models.Player.Player;
+import org.example.common.models.entities.TradeRequest;
 
 import java.util.ArrayList;
 import java.util.List;

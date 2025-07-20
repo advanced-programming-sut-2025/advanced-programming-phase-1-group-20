@@ -1,26 +1,26 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.Items.*;
-import org.example.models.MapDetails.Farm;
-import org.example.models.MapDetails.GameMap;
-import org.example.models.MapDetails.Lake;
-import org.example.models.MapDetails.Village;
-import org.example.models.Market;
-import org.example.models.Player.Backpack;
-import org.example.models.Player.Player;
-import org.example.models.common.Date;
-import org.example.models.common.Location;
-import org.example.models.common.Result;
-import org.example.models.entities.*;
-import org.example.models.entities.animal.Fish;
-import org.example.models.enums.Npcs;
-import org.example.models.enums.PlayerEnums.Skills;
-import org.example.models.enums.Types.CookingType;
-import org.example.models.enums.Types.CraftingType;
-import org.example.models.enums.Types.ItemBuilder;
-import org.example.models.enums.Types.TileType;
-import org.example.models.enums.Weather;
+import org.example.common.models.App;
+import org.example.common.models.Items.*;
+import org.example.common.models.entities.*;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Lake;
+import org.example.common.models.MapDetails.Village;
+import org.example.common.models.Market;
+import org.example.common.models.Player.Backpack;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Date;
+import org.example.common.models.common.Location;
+import org.example.common.models.common.Result;
+import org.example.common.models.entities.animal.Fish;
+import org.example.common.models.enums.Npcs;
+import org.example.common.models.enums.PlayerEnums.Skills;
+import org.example.common.models.enums.Types.CookingType;
+import org.example.common.models.enums.Types.CraftingType;
+import org.example.common.models.enums.Types.ItemBuilder;
+import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Weather;
 import org.example.views.GameView;
 
 

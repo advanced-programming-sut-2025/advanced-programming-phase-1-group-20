@@ -1,18 +1,18 @@
 package org.example.controllers;
 
-import org.example.models.App;
-import org.example.models.Barn;
-import org.example.models.Coop;
-import org.example.models.Items.Item;
-import org.example.models.MapDetails.Farm;
-import org.example.models.Player.Backpack;
-import org.example.models.Player.Player;
-import org.example.models.common.Result;
-import org.example.models.entities.animal.BarnAnimal;
-import org.example.models.entities.animal.CoopAnimal;
-import org.example.models.enums.Types.Quality;
-import org.example.models.enums.Types.TileType;
-import org.example.models.enums.Weather;
+import org.example.common.models.App;
+import org.example.common.models.Barn;
+import org.example.common.models.Coop;
+import org.example.common.models.Items.Item;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.Player.Backpack;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Result;
+import org.example.common.models.entities.animal.BarnAnimal;
+import org.example.common.models.entities.animal.CoopAnimal;
+import org.example.common.models.enums.Types.Quality;
+import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Weather;
 
 import java.util.ArrayList;
 import java.util.List;

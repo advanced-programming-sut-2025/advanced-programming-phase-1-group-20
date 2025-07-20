@@ -1,9 +1,9 @@
 package org.example.views.effects;
 
 import com.badlogic.gdx.graphics.Color;
-import org.example.models.common.Date;
-import org.example.models.enums.Seasons;
-import org.example.models.enums.Weather;
+import org.example.common.models.common.Date;
+import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Weather;
 
 public class Lighting {
     public enum LightLevel {

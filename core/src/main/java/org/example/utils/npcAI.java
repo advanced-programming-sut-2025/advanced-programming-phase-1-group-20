@@ -2,7 +2,8 @@ package org.example.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import org.example.models.entities.NPC;
+import org.example.common.models.App;
+import org.example.common.models.entities.NPC;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -86,7 +87,7 @@ public class npcAI {
 
     private static boolean isTestEnvironment() {
         try {
-            return org.example.models.App.getGame() == null;
+            return App.getGame() == null;
         } catch (Exception e) {
             return true; // If we can't access App.getGame(), assume we're in a test
         }

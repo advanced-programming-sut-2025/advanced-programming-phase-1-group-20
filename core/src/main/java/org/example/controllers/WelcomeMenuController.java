@@ -1,13 +1,13 @@
 package org.example.controllers;
 
 import com.badlogic.gdx.graphics.Texture;
-import org.example.models.App;
-import org.example.models.MapDetails.Farm;
-import org.example.models.MapDetails.GameMap;
-import org.example.models.Player.Player;
-import org.example.models.entities.Game;
-import org.example.models.entities.User;
-import org.example.models.enums.PlayerEnums.Gender;
+import org.example.common.models.App;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.Player.Player;
+import org.example.common.models.entities.Game;
+import org.example.common.models.entities.User;
+import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 import org.example.views.GameView;
 import org.example.views.LoginRegisterMenuScreen;

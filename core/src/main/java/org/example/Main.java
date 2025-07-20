@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.example.controllers.WelcomeMenuController;
-import org.example.models.App;
+import org.example.common.models.App;
 import org.example.utils.AssetManager;
 import org.example.views.WelcomeMenuScreen;
 

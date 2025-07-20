@@ -1,8 +1,8 @@
 package org.example.controllers;
 
-import org.example.models.App;
+import org.example.common.models.App;
 import org.example.utils.GameSaveLoadManager;
-import org.example.models.entities.Game; // اضافه شده برای استفاده از شیء Game
+import org.example.common.models.entities.Game; // اضافه شده برای استفاده از شیء Game
 
 import java.util.List; // اضافه شده برای listSavedGames
 

@@ -1,0 +1,75 @@
+package org.example.common.models.MapDetails;
+
+import org.example.common.models.common.Location;
+import org.example.common.models.Items.Plant;
+import org.example.common.models.enums.Weather;
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class GreenHouse {
+    private static final int height = 6;
+    private static final int width = 5;
+    private final int x;
+    private final int y;
+    private final List<Plant> greenHousePlants;
+    private final Weather weather;
+    private boolean isConstructed;
+    private final boolean isBuilt;
+    private String name;
+
+
+    public GreenHouse(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.greenHousePlants = new ArrayList<>();
+        this.weather = Weather.GREENHOUSE;
+        this.isBuilt = true;
+        this.isConstructed = false;
+    }
+
+    public boolean getIsConstructed() {
+        return isConstructed;
+    }
+
+    public void setIsConstructed() {
+        this.isConstructed = true;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public void addPlant(Plant plant) {
+        greenHousePlants.add(plant);
+    }
+
+    public void removePlant(Plant plant) {
+        greenHousePlants.remove(plant);
+    }
+
+    public boolean isInside(Location location) {
+        return location.xAxis >= x && location.xAxis <= x + width && location.yAxis >= y && location.yAxis <= y + height;
+    }
+
+    public Weather getWeather() {
+        return weather;
+    }
+
+    public boolean isBuilt() {
+        return isBuilt;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+}

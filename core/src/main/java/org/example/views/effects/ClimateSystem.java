@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import org.example.models.enums.Weather;
+import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 
 public class ClimateSystem {

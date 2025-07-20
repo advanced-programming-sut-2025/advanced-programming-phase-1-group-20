@@ -4,10 +4,10 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
-import org.example.models.Items.*;
-import org.example.models.entities.User;
-import org.example.models.enums.PlayerEnums.Gender;
-import org.example.models.enums.Types.*;
+import org.example.common.models.Items.*;
+import org.example.common.models.enums.Types.*;
+import org.example.common.models.entities.User;
+import org.example.common.models.enums.PlayerEnums.Gender;
 
 import java.util.ArrayList;
 import java.util.HashMap;

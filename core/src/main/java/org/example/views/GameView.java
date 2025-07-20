@@ -17,17 +17,16 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.Main;
 import org.example.controllers.GameMenuController;
-import org.example.models.App;
-import org.example.models.Player.Player;
-import org.example.models.common.Date;
-import org.example.models.entities.Game;
-import org.example.models.entities.User;
-import org.example.models.enums.Seasons;
-import org.example.models.enums.Weather;
+import org.example.common.models.App;
+import org.example.common.models.Player.Player;
+import org.example.common.models.common.Date;
+import org.example.common.models.entities.Game;
+import org.example.common.models.entities.User;
+import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.views.effects.Lighting;
 import org.example.views.effects.ClimateSystem; // NEW IMPORT
-import org.example.views.InventoryScreen; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

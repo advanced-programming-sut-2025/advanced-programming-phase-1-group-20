@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.Main;
 import org.example.controllers.MainMenuController;
-import org.example.models.App;
+import org.example.common.models.App;
 
 public class MainMenuScreen implements Screen {
     private final MainMenuController controller;

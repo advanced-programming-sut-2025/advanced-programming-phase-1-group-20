@@ -1,0 +1,52 @@
+package org.example.common.models.enums.Types;
+
+import org.example.common.models.Items.*;
+import org.example.models.Items.*;
+import org.example.common.models.entities.animal.Fish;
+
+public class ItemBuilder {
+    public static Item build(String name) {
+        MineralType mineralType = MineralType.fromName(name);
+        if (mineralType != null) {
+            return new Mineral(mineralType);
+        }
+        CookingType cookingType = CookingType.fromName(name);
+        if (cookingType != null) {
+            return new CookingItem(cookingType);
+        }
+        CraftingType craftingType = CraftingType.fromName(name);
+        if (craftingType != null) {
+            return new CraftingItem(craftingType);
+        }
+        CropType cropType = CropType.fromName(name);
+        if (cropType != null) {
+            return new Crop(cropType);
+        }
+        PlantType plantType = PlantType.fromName(name);
+        if (plantType != null) {
+            return new Plant(plantType);
+        }
+        SeedType seedType = SeedType.fromName(name);
+        if (seedType != null) {
+            return new Seed(seedType);
+        }
+        TreeType treeType = TreeType.fromName(name);
+        if (treeType != null) {
+            return new Tree(treeType);
+        }
+        FishType fishType = FishType.fromName(name);
+        if (fishType != null) {
+            return new Fish(fishType, fishType.getSeasons()[0]);
+        }
+        ArtisanType artisanType = ArtisanType.fromName(name);
+        if (artisanType != null) {
+            return new ArtisanItem(artisanType);
+        }
+        if(name.equals("Wood")){
+            return new Item("Wood" , 10 , "content/Resource/Wood.png" , "A sturdy, yet flexible plant material with a wide variety of uses.");
+        }else if(name.equals("Stone")){
+            return new Item("Stone" , 20 , "Rock/Stone_Index48.png" , "A common material with many uses in crafting and building.");
+        }
+        return null;
+    }
+}
