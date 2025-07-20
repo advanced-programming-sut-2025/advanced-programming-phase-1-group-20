@@ -7,9 +7,7 @@ import com.mongodb.client.MongoDatabase;
 public class MongoDBConnection {
     private static MongoClient mongoClient;
     private static MongoDatabase database;
-    // CONNECTION_STRING: آدرس MongoDB Compass شما. برای اتصال محلی، معمولاً "mongodb://localhost:27017" است.
     private static final String CONNECTION_STRING = "mongodb://localhost:27017";
-    // DATABASE_NAME: نام دیتابیسی که می‌خواهید در MongoDB Compass ایجاد کنید.
     private static final String DATABASE_NAME = "stardew_valley_db"; // نام دیتابیس شما
 
     private MongoDBConnection() {
@@ -24,7 +22,6 @@ public class MongoDBConnection {
                 } catch (Exception e) {
                     System.err.println("Failed to connect to MongoDB: " + e.getMessage());
                     e.printStackTrace();
-                    // می‌توانید در اینجا برنامه را متوقف کنید یا روش‌های جایگزین برای مدیریت خطا پیاده‌سازی کنید.
                 }
             }
             database = mongoClient.getDatabase(DATABASE_NAME);

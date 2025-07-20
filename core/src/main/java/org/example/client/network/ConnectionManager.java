@@ -58,12 +58,21 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
         // Attempt connection in background
         new Thread(() -> {
-            boolean success = networkClient.connect();
-            if (success) {
-                currentState = ConnectionState.CONNECTED;
-                connectionFuture.complete(true);
-            } else {
+            try {
+                boolean success = networkClient.connect();
+                if (success) {
+                    currentState = ConnectionState.CONNECTED;
+                    lastError = null; // Clear any previous errors
+                    connectionFuture.complete(true);
+                } else {
+                    currentState = ConnectionState.ERROR;
+                    String networkError = networkClient.getLastErrorMessage();
+                    lastError = networkError != null ? networkError : "Failed to establish connection to " + host + ":" + port;
+                    connectionFuture.complete(false);
+                }
+            } catch (Exception e) {
                 currentState = ConnectionState.ERROR;
+                lastError = "Connection error: " + e.getMessage();
                 connectionFuture.complete(false);
             }
         }).start();

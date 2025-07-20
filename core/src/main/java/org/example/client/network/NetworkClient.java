@@ -152,8 +152,22 @@ public class NetworkClient {
             System.out.println("WebSocket connection established!");
             return true;
             
+        } catch (java.util.concurrent.TimeoutException e) {
+            System.err.println("Connection timeout: Server did not respond within 5 seconds");
+            connectionState = ConnectionState.ERROR;
+            return false;
         } catch (Exception e) {
-            System.err.println("Failed to connect to server: " + e.getMessage());
+            String errorMessage = "Failed to connect to server";
+            if (e.getMessage() != null) {
+                if (e.getMessage().contains("Connection refused")) {
+                    errorMessage = "Connection refused: Server is not running or not accessible at " + serverHost + ":" + serverPort;
+                } else if (e.getMessage().contains("Unknown host")) {
+                    errorMessage = "Unknown host: Cannot resolve server address " + serverHost;
+                } else {
+                    errorMessage = "Connection error: " + e.getMessage();
+                }
+            }
+            System.err.println(errorMessage);
             e.printStackTrace();
             connectionState = ConnectionState.ERROR;
             return false;
@@ -401,5 +415,11 @@ public class NetworkClient {
     
     public ClientMessageHandler getMessageHandler() {
         return messageHandler;
+    }
+    
+    public String getLastErrorMessage() {
+        // This method can be used to get the last error message from the network client
+        // For now, we'll return a generic message since we don't store specific errors
+        return "Network connection error";
     }
 } 
