@@ -1,4 +1,4 @@
-package org.example.server.controllers;
+package org.example.server.controllers.GameControllers;
 
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Building;

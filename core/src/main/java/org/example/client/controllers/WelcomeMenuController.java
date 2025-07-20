@@ -16,7 +16,7 @@ import org.example.client.views.WelcomeMenuScreen;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.Main.getGame;
+import static org.example.client.Main.getGame;
 
 public class WelcomeMenuController {
     private WelcomeMenuScreen screen;

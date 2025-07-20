@@ -1,4 +1,4 @@
-package org.example;
+package org.example.client;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;

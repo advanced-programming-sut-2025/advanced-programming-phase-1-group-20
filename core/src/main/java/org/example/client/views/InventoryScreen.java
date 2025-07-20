@@ -14,7 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.Main;
+import org.example.client.Main;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Backpack;

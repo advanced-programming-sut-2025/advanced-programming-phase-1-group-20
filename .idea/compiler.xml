@@ -9,5 +9,8 @@
         <module name="untitled" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="advanced-programming-phase-1-group-20.core.test" target="17" />
+    </bytecodeTargetLevel>
   </component>
 </project>

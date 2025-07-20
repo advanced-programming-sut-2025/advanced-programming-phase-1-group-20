@@ -1,6 +1,6 @@
 package org.example.client.controllers;
 
-import org.example.Main;
+import org.example.client.Main;
 import org.example.common.models.App;
 import org.example.common.models.common.Result;
 import org.example.common.models.entities.User;

@@ -1,4 +1,4 @@
-package org.example.server.controllers;
+package org.example.server.controllers.GameControllers;
 
 import org.example.client.views.LoginMenuScreen;
 import org.example.utils.AssetManager;

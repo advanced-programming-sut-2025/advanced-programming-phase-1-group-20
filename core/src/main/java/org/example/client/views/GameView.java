@@ -15,7 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.Main;
+import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.common.models.App;
 import org.example.common.models.Player.Player;

@@ -1,4 +1,4 @@
-package org.example.server.controllers;
+package org.example.server.controllers.GameControllers;
 
 public interface Controller {
     void setupListeners();

@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-import org.example.Main;
+import org.example.client.Main;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
