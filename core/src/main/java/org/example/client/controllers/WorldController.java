@@ -7,11 +7,8 @@ import org.example.client.Main;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.App;
-import org.example.common.models.enums.Types.CropType;
-import org.example.common.models.enums.Types.PlantType;
-import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
-import org.example.common.models.enums.Types.TreeType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,6 +94,7 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
+        preloadCrafting();
         preloadPlants();
         preloadTrees();
         preloadCrops();
@@ -109,7 +107,11 @@ public class WorldController {
 
 
     public void preloadCrafting(){
-
+        for(CraftingType craftingType : CraftingType.values()) {
+            String key = craftingType.getImageFilepath();
+            String path = "content/CraftingItems/" + key + ".png";
+            loadTexture(key , path);
+        }
     }
 
     public void preloadArtisans(){

@@ -20,7 +20,7 @@ public enum CraftingType {
     PreservesJar("Preserves Jar", "50 wood + 40 stone + 8 coal", "Farming Level 2", 0, "Preserves_Jar") ,
     Dehydrator("Dehydrator", "30 wood + 20 stone + 30 fiber", "Pierre's General Store", 0, "Dehydrator") ,
     FishSmoker("Fish Smoker", "50 wood + 3 iron bar + 10 coal", "Fish Shop", 0, "Fish_Smoker") ,
-    MysticTreeSeed("Mystic Tree Seed", "5 acorn + 5 maple seed + 5 pine cone + 5 mahogany seed", "Foraging Level 4", 100, "Mystic_Tree_Seed") ,
+//    MysticTreeSeed("Mystic Tree Seed", "5 acorn + 5 maple seed + 5 pine cone + 5 mahogany seed", "Foraging Level 4", 100, "Mystic_Tree_Seed") ,
     ;
     private final String name;
     private final String ingredients;
