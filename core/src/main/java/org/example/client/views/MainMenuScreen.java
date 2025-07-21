@@ -22,7 +22,7 @@ public class MainMenuScreen implements Screen {
     private Table mainTable;
     private Label titleLabel;
     private Label welcomeLabel;
-    
+
     // Buttons
     private TextButton singlePlayerButton;
     private TextButton multiplayerButton;
@@ -47,17 +47,17 @@ public class MainMenuScreen implements Screen {
     private void initializeComponents() {
         // Main table for layout
         mainTable = new Table();
-        
+
         // Title and welcome labels
         titleLabel = new Label("STARDEW VALLEY", skin);
         titleLabel.setColor(Color.WHITE);
         titleLabel.setFontScale(2.0f);
-        
+
         String username = App.getLoggedInUser() != null ? App.getLoggedInUser().getUsername() : "Player";
         welcomeLabel = new Label("Welcome, " + username + "!", skin);
         welcomeLabel.setColor(Color.CYAN);
         welcomeLabel.setFontScale(1.2f);
-        
+
         // Create buttons
         createButtons();
         setupButtonListeners();
@@ -66,22 +66,22 @@ public class MainMenuScreen implements Screen {
     private void createButtons() {
         singlePlayerButton = new TextButton("SINGLE PLAYER", skin);
         singlePlayerButton.setColor(Color.GREEN);
-        
+
         multiplayerButton = new TextButton("MULTIPLAYER", skin);
         multiplayerButton.setColor(Color.YELLOW);
-        
+
         loadGameButton = new TextButton("LOAD GAME", skin);
         loadGameButton.setColor(Color.CYAN);
-        
+
         profileButton = new TextButton("PROFILE", skin);
         profileButton.setColor(Color.PURPLE);
-        
+
         settingsButton = new TextButton("SETTINGS", skin);
         settingsButton.setColor(Color.GRAY);
-        
+
         logoutButton = new TextButton("LOGOUT", skin);
         logoutButton.setColor(Color.ORANGE);
-        
+
         exitButton = new TextButton("EXIT GAME", skin);
         exitButton.setColor(Color.RED);
     }
@@ -148,10 +148,10 @@ public class MainMenuScreen implements Screen {
         // Navigate to multiplayer menu
         System.out.println("Multiplayer selected");
         Main.getGame().getScreen().dispose();
-        
-        org.example.client.controllers.MultiplayerMenuController multiplayerController = 
+
+        org.example.client.controllers.MultiplayerMenuController multiplayerController =
             new org.example.client.controllers.MultiplayerMenuController();
-        org.example.client.views.MultiplayerMenuScreen multiplayerScreen = 
+        org.example.client.views.MultiplayerMenuScreen multiplayerScreen =
             new org.example.client.views.MultiplayerMenuScreen(multiplayerController, skin);
         Main.getGame().setScreen(multiplayerScreen);
     }
@@ -178,12 +178,12 @@ public class MainMenuScreen implements Screen {
         // Logout and return to welcome screen
         System.out.println("Logout selected");
         controller.logout();
-        
+
         // Navigate back to welcome screen
         Main.getGame().getScreen().dispose();
-        org.example.client.controllers.WelcomeMenuController welcomeController = 
+        org.example.client.controllers.WelcomeMenuController welcomeController =
             new org.example.client.controllers.WelcomeMenuController();
-        org.example.client.views.WelcomeMenuScreen welcomeScreen = 
+        org.example.client.views.WelcomeMenuScreen welcomeScreen =
             new org.example.client.views.WelcomeMenuScreen(welcomeController, skin);
         Main.getGame().setScreen(welcomeScreen);
     }
@@ -192,19 +192,19 @@ public class MainMenuScreen implements Screen {
     public void show() {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-        
+
         // Setup main layout
         mainTable.setFillParent(true);
         mainTable.center();
-        
+
         // Add title and welcome message
         mainTable.add(titleLabel).padBottom(20).row();
         mainTable.add(welcomeLabel).padBottom(40).row();
-        
+
         // Create button layout table
         Table buttonTable = new Table();
         buttonTable.defaults().width(BUTTON_WIDTH).height(BUTTON_HEIGHT).pad(BUTTON_PADDING);
-        
+
         // Layout buttons in a nice grid
         buttonTable.add(singlePlayerButton).uniform().row();
         buttonTable.add(multiplayerButton).uniform().row();
@@ -213,7 +213,7 @@ public class MainMenuScreen implements Screen {
         buttonTable.add(settingsButton).uniform().row();
         buttonTable.add(logoutButton).uniform().padTop(20).row();
         buttonTable.add(exitButton).uniform().row();
-        
+
         mainTable.add(buttonTable);
         stage.addActor(mainTable);
     }
@@ -224,10 +224,10 @@ public class MainMenuScreen implements Screen {
         if (controller != null) {
             // Any controller updates can go here
         }
-        
+
         // Clear screen with dark background
         ScreenUtils.clear(0.1f, 0.1f, 0.2f, 1);
-        
+
         // Update and draw stage
         stage.act(Math.min(delta, 1 / 30f));
         stage.draw();

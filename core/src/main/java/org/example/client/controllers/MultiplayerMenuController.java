@@ -20,7 +20,7 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
     public MultiplayerMenuController() {
         this.connectionManager = ConnectionManager.getInstance();
-        
+
         // Set up online players listener
         NetworkClient.getInstance().getMessageHandler().setOnlinePlayersListener(this);
     }
