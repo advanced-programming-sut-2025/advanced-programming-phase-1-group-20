@@ -433,6 +433,10 @@ public class GameView implements Screen, InputProcessor {
             Main.getGame().setScreen(new InventoryScreen(player, skin, this));
             return true;
         }
+        if(keycode == Input.Keys.B){
+            Main.getGame().setScreen(new CraftingScreen(player, skin, this));
+            return true;
+        }
         return false;
     }
     @Override
