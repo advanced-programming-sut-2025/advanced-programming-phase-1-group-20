@@ -26,8 +26,8 @@ public enum Markets {
     }
 
     private static Market creatBlackSmith() {
-        int x = 4;
-        int y = 0;
+        int x = 70;  // Near left side of village
+        int y = 70;  // Upper area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -83,8 +83,8 @@ public enum Markets {
     }
 
     private static Market createJojaMarket() {
-        int x = 41;
-        int y = 12;
+        int x = 120; // Near right side of village
+        int y = 70;  // Upper area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -281,8 +281,8 @@ public enum Markets {
     }
 
     private static Market createPierreGeneralStore() {
-        int x = 15;
-        int y = 13;
+        int x = 95;  // Center-left of village
+        int y = 80;  // Upper-middle area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -621,8 +621,8 @@ public enum Markets {
     }
 
     private static Market createCarpentersShop() {
-        int x = 25;
-        int y = 18;
+        int x = 75;  // Center of village
+        int y = 90;  // Middle area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -672,8 +672,8 @@ public enum Markets {
     }
 
     private static Market createMarnieShop() {
-        int x = 35;
-        int y = 30;
+        int x = 110; // Center-right of village
+        int y = 100; // Lower-middle area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -726,8 +726,8 @@ public enum Markets {
     }
 
     private static Market createStarDropSaloon() {
-        int x = 1;
-        int y = 31;
+        int x = 85;  // Center-left of village
+        int y = 110; // Lower area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -807,8 +807,8 @@ public enum Markets {
     }
 
     private static Market createFishShop() {
-        int x = 43;
-        int y = 45;
+        int x = 100; // Center-right of village
+        int y = 120; // Lower area of village
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();

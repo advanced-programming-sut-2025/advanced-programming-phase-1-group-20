@@ -111,7 +111,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(60_000); // every 10 seconds
+                Thread.sleep(1000); // every 10 seconds
                 advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

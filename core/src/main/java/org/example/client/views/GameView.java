@@ -13,12 +13,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.common.models.App;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Village;
+import org.example.common.models.common.Location;
 import org.example.common.models.Player.Player;
+import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
@@ -511,11 +518,293 @@ public class GameView implements Screen, InputProcessor {
 
     private Group createMinimapGroup() {
         Group group = new Group();
-        // TODO: Implement minimap rendering logic here (draw player, NPCs, buildings, etc.)
-        group.setSize(300, 300); // Example size
-        group.setPosition(50, 50); // Example position
-        // Add background, icons, etc.
+
+        // Create a larger background for the minimap
+        Table backgroundTable = new Table();
+        backgroundTable.setBackground(skin.newDrawable("white", Color.BLACK));
+        backgroundTable.setSize(600, 600);
+        backgroundTable.setPosition(100, 100);
+
+        // Add a title label
+        Label titleLabel = new Label("World Map", skin);
+        titleLabel.setPosition(350, 720);
+        titleLabel.setColor(Color.WHITE);
+
+        // Add close button
+        TextButton closeButton = new TextButton("X", skin);
+        closeButton.setSize(40, 40);
+        closeButton.setPosition(650, 720);
+        closeButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                toggleMinimap();
+                return true;
+            }
+        });
+
+        // Add components to group
+        group.addActor(backgroundTable);
+        group.addActor(titleLabel);
+        group.addActor(closeButton);
+
         return group;
+    }
+
+    private void renderMinimap() {
+        if (!isMapVisible || minimapGroup == null) return;
+
+        // Get the game map
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Calculate map scale (312x468 world map to 500x500 display)
+        float scaleX = 500f / 312f;
+        float scaleY = 500f / 468f;
+        float scale = Math.min(scaleX, scaleY); // Use the smaller scale to fit everything
+
+        // Start rendering minimap
+        Main.getBatch().begin();
+
+        // Render the actual map tiles
+        renderMinimapTiles(gameMap, scale);
+
+        // Render player position
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            float playerX = currentPlayer.getPosX() / 60f * scale + 120;
+            float playerY = currentPlayer.getPosY() / 60f * scale + 120;
+
+            // Draw player as a red dot
+            Main.getBatch().setColor(Color.RED);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            Main.getBatch().draw(whiteTexture, playerX - 3, playerY - 3, 6, 6);
+            whiteTexture.dispose();
+        }
+
+        // Render other players
+        for (Player otherPlayer : gameMap.getPlayers()) {
+            if (otherPlayer != currentPlayer) {
+                float otherX = otherPlayer.getPosX() / 60f * scale + 120;
+                float otherY = otherPlayer.getPosY() / 60f * scale + 120;
+
+                // Draw other players as blue dots
+                Main.getBatch().setColor(Color.BLUE);
+                Texture whiteTexture = new Texture("content/grass/spring.png");
+                Main.getBatch().draw(whiteTexture, otherX - 3, otherY - 3, 6, 6);
+                whiteTexture.dispose();
+            }
+        }
+
+        // Render labels
+        renderMinimapLabels();
+
+        // Reset color and end batch
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().end();
+    }
+
+    private void renderMinimapTiles(GameMap gameMap, float scale) {
+        // Render farms
+        for (int farmIndex = 0; farmIndex < 4; farmIndex++) {
+            Farm farm = gameMap.getFarmByIndex(farmIndex);
+            if (farm == null) continue;
+
+            // Calculate farm position on minimap
+            float farmX, farmY;
+            switch (farmIndex) {
+                case 0: // Bottom-Left
+                    farmX = 120;
+                    farmY = 120 + 312 * scale; // Below village
+                    break;
+                case 1: // Top-Left
+                    farmX = 120;
+                    farmY = 120; // Above village
+                    break;
+                case 2: // Top-Right
+                    farmX = 120 + 156 * scale;
+                    farmY = 120; // Above village
+                    break;
+                case 3: // Bottom-Right
+                    farmX = 120 + 156 * scale;
+                    farmY = 120 + 312 * scale; // Below village
+                    break;
+                default:
+                    continue;
+            }
+
+            // Render each tile in the farm
+            for (int x = 0; x < Farm.width; x++) {
+                for (int y = 0; y < Farm.height; y++) {
+                    Location loc = farm.getItem(x, y);
+                    if (loc != null) {
+                        renderMinimapTile(loc, farmX + x * scale, farmY + y * scale, scale);
+                    }
+                }
+            }
+        }
+
+        // Render village (center, 156x312)
+        Village village = gameMap.getVillage();
+        if (village != null) {
+            float villageX = 120 + 78 * scale; // Center horizontally
+            float villageY = 120 + 78 * scale; // Center vertically
+
+            // Render each tile in the village
+            for (int x = 0; x < Village.width; x++) {
+                for (int y = 0; y < Village.height; y++) {
+                    Location loc = village.getTiles()[x][y];
+                    if (loc != null) {
+                        renderMinimapTile(loc, villageX + x * scale, villageY + y * scale, scale);
+                    }
+                }
+            }
+        }
+    }
+
+    private void renderMinimapTile(Location loc, float x, float y, float scale) {
+        TileType tileType = loc.getTile();
+        Color tileColor = getTileColor(tileType);
+
+        if (tileColor != null) {
+            Main.getBatch().setColor(tileColor);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            Main.getBatch().draw(whiteTexture, x, y, scale, scale);
+            whiteTexture.dispose();
+        }
+    }
+
+    private Color getTileColor(TileType tileType) {
+        switch (tileType) {
+            case Dirt:
+                return new Color(0.6f, 0.4f, 0.2f, 1f); // Brown
+            case WATER:
+                return new Color(0.2f, 0.4f, 0.8f, 1f); // Blue
+            case STONE:
+                return new Color(0.5f, 0.5f, 0.5f, 1f); // Gray
+            case TREE:
+                return new Color(0.4f, 0.3f, 0.2f, 1f); // Dark brown
+            case VILLAGE:
+                return new Color(0.7f, 0.5f, 0.3f, 1f); // Village brown
+            case MARKET:
+                return new Color(0.9f, 0.7f, 0.5f, 1f); // Market color
+            case PATH:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case BUILDING:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case SAND:
+                return new Color(0.9f, 0.8f, 0.6f, 1f); // Sand color
+            case PLOWED:
+                return new Color(0.5f, 0.3f, 0.1f, 1f); // Dark brown
+            case CROP:
+                return new Color(0.2f, 0.8f, 0.2f, 1f); // Green
+            default:
+                return new Color(0.3f, 0.3f, 0.3f, 1f); // Default gray
+        }
+    }
+
+    private void renderMinimapLabels() {
+        // Render farm labels
+        String[] farmLabels = {"Farm 0", "Farm 1", "Farm 2", "Farm 3"};
+        float scaleX = 500f / 312f;
+        float scaleY = 500f / 468f;
+        float scale = Math.min(scaleX, scaleY);
+
+        for (int i = 0; i < 4; i++) {
+            float labelX, labelY;
+            switch (i) {
+                case 0: // Bottom-Left
+                    labelX = 140;
+                    labelY = 140 + 312 * scale;
+                    break;
+                case 1: // Top-Left
+                    labelX = 140;
+                    labelY = 140;
+                    break;
+                case 2: // Top-Right
+                    labelX = 140 + 156 * scale;
+                    labelY = 140;
+                    break;
+                case 3: // Bottom-Right
+                    labelX = 140 + 156 * scale;
+                    labelY = 140 + 312 * scale;
+                    break;
+                default:
+                    continue;
+            }
+
+            // Create and render label
+            Label farmLabel = new Label(farmLabels[i], skin);
+            farmLabel.setPosition(labelX, labelY);
+            farmLabel.setColor(Color.WHITE);
+            farmLabel.draw(Main.getBatch(), 1f);
+        }
+
+        // Render village label (center)
+        Label villageLabel = new Label("Village", skin);
+        villageLabel.setPosition(140 + 78 * scale, 140 + 156 * scale);
+        villageLabel.setColor(Color.WHITE);
+        villageLabel.draw(Main.getBatch(), 1f);
+    }
+
+    private void renderMinimapLegend(Texture whiteTexture) {
+        float legendX = 120;
+        float legendY = 650;
+
+        // Legend title
+        Label legendTitle = new Label("Legend:", skin);
+        legendTitle.setPosition(legendX, legendY);
+        legendTitle.setColor(Color.WHITE);
+        legendTitle.draw(Main.getBatch(), 1f);
+
+        // Player indicator
+        Main.getBatch().setColor(Color.RED);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 20, 4, 4);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label playerLabel = new Label("You", skin);
+        playerLabel.setPosition(legendX + 10, legendY - 20);
+        playerLabel.setColor(Color.WHITE);
+        playerLabel.draw(Main.getBatch(), 1f);
+
+        // Other players indicator
+        Main.getBatch().setColor(Color.BLUE);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 40, 4, 4);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label othersLabel = new Label("Other Players", skin);
+        othersLabel.setPosition(legendX + 10, legendY - 40);
+        othersLabel.setColor(Color.WHITE);
+        othersLabel.draw(Main.getBatch(), 1f);
+
+        // Farm indicator
+        Main.getBatch().setColor(0.2f, 0.8f, 0.2f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 60, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label farmLabel = new Label("Farms", skin);
+        farmLabel.setPosition(legendX + 10, legendY - 60);
+        farmLabel.setColor(Color.WHITE);
+        farmLabel.draw(Main.getBatch(), 1f);
+
+        // Village indicator
+        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 80, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label villageLegendLabel = new Label("Village", skin);
+        villageLegendLabel.setPosition(legendX + 10, legendY - 80);
+        villageLegendLabel.setColor(Color.WHITE);
+        villageLegendLabel.draw(Main.getBatch(), 1f);
+        
+        // Path indicator
+        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 100, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label pathLegendLabel = new Label("Paths", skin);
+        pathLegendLabel.setPosition(legendX + 10, legendY - 100);
+        pathLegendLabel.setColor(Color.WHITE);
+        pathLegendLabel.draw(Main.getBatch(), 1f);
     }
 
     @Override
@@ -584,6 +873,9 @@ public class GameView implements Screen, InputProcessor {
         // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
+
+        // Render minimap if visible
+        renderMinimap();
     }
 
     @Override

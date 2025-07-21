@@ -18,8 +18,8 @@ import java.util.*;
 
 public class Village {
 
-    public static final int width = 78;
-    public static final int height = 2 * 78;
+    public static final int width = 156;
+    public static final int height = 312;
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
@@ -50,6 +50,7 @@ public class Village {
     private final Market[] markets = new Market[7];
     private Location[][] tiles;
     private List<Building> buildings;
+    private Building townHall;
     private String name;
     //private List<Shop> shops;
     private Map<String, Character> symbolMap;
@@ -64,8 +65,10 @@ public class Village {
         //this.shops = new ArrayList<>();
         initializeVillage();
         initializeSymbols();
+        initializeTownHall();
         initializeMarkets();
         markMarketAreas();
+        markTownHall();
     }
 
     public Village() {
@@ -88,6 +91,7 @@ public class Village {
         symbolMap.put("building", 'H');
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
+        symbolMap.put("town_hall", 'T');
         symbolMap.put("empty", ' ');
     }
 
@@ -160,8 +164,38 @@ public class Village {
         markets[6] = Markets.STARDROP_SALOON.createMarket();
     }
 
+    private void initializeTownHall() {
+        // Town hall at the center of the village (156x156)
+        int townHallX = width / 2 - 2; // Center the 5x5 building
+        int townHallY = height / 2 - 2;
+        this.townHall = new Building(townHallX, townHallY, "Town Hall", "public");
+        buildings.add(townHall);
+    }
+
+    private void markTownHall() {
+        if (townHall != null) {
+            int buildingX = townHall.getX();
+            int buildingY = townHall.getY();
+            int buildingWidth = townHall.getWidth();
+            int buildingHeight = townHall.getHeight();
+
+            for (int y = buildingY; y < buildingY + buildingHeight; y++) {
+                for (int x = buildingX; x < buildingX + buildingWidth; x++) {
+                    if (contains(x, y)) {
+                        tiles[x][y] = new Location(x, y, TileType.BUILDING);
+                        tiles[x][y].setType("town_hall");
+                    }
+                }
+            }
+        }
+    }
+
     public Market[] getMarkets() {
         return markets;
+    }
+
+    public Building getTownHall() {
+        return townHall;
     }
 
     private void initializeVillage() {
@@ -179,6 +213,54 @@ public class Village {
         placeRandomObjects("stone", 100);
         placeRandomObjects("tree", 100);
         //TODO: درخت و سنگ داره یا نه؟
+        
+        // Create paths connecting farms to village center
+        createVillagePaths();
+    }
+    
+    private void createVillagePaths() {
+        // Create paths from village boundaries to center
+        // These paths will connect to the farm entrances
+        
+        int centerX = width / 2;
+        int centerY = height / 2;
+        
+        // Path from left edge (Farms 0 and 1) to center
+        createPathFromEdgeToCenter(0, centerY, centerX, centerY);
+        
+        // Path from right edge (Farms 2 and 3) to center  
+        createPathFromEdgeToCenter(width - 1, centerY, centerX, centerY);
+        
+        // Path from top edge (Farms 1 and 2) to center
+        createPathFromEdgeToCenter(centerX, height - 1, centerX, centerY);
+        
+        // Path from bottom edge (Farms 0 and 3) to center
+        createPathFromEdgeToCenter(centerX, 0, centerX, centerY);
+    }
+    
+    private void createPathFromEdgeToCenter(int startX, int startY, int endX, int endY) {
+        // Create a path from the edge to the center using a simple line algorithm
+        int x = startX;
+        int y = startY;
+        
+        while (x != endX || y != endY) {
+            // Mark current position as path
+            if (contains(x, y)) {
+                tiles[x][y] = new Location(x, y, TileType.PATH);
+            }
+            
+            // Move towards center
+            if (x < endX) x++;
+            else if (x > endX) x--;
+            
+            if (y < endY) y++;
+            else if (y > endY) y--;
+        }
+        
+        // Mark the center point as path
+        if (contains(endX, endY)) {
+            tiles[endX][endY] = new Location(endX, endY, TileType.PATH);
+        }
     }
 
     private void placeRandomObjects(String type, int count) {
@@ -563,6 +645,7 @@ public class Village {
                     case "market" -> BG_WHITE;
                     case "greenhouse" -> BG_BROWN;
                     case "building" -> BG_WHITE;
+                    case "town_hall" -> BG_PURPLE;
                     case "quarry" -> BG_RED;
                     case "village" -> BG_PURPLE;
                     case "shipping_bin" -> BG_CYAN;

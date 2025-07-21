@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import org.example.client.Main;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Village;
 import org.example.common.models.App;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
@@ -186,9 +188,14 @@ public class WorldController {
         float playerX = playerController.getPlayer().getPosX();
         float playerY = playerController.getPlayer().getPosY();
 
-        float mapWidth = Farm.width * TILE_SIZE;
-        float mapHeight = Farm.height * TILE_SIZE;
-
+        float mapWidth, mapHeight;
+        if (playerController.getPlayer().getIsInVillage()) {
+            mapWidth = Village.width * TILE_SIZE;
+            mapHeight = Village.height * TILE_SIZE;
+        } else {
+            mapWidth = Farm.width * TILE_SIZE;
+            mapHeight = Farm.height * TILE_SIZE;
+        }
 
         float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
         float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
@@ -197,7 +204,6 @@ public class WorldController {
         float minCameraX = halfCameraViewWidth;
         float maxCameraX = mapWidth - halfCameraViewWidth;
         cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
-
 
         float cameraY = playerY;
         float minCameraY = halfCameraViewHeight;
@@ -214,7 +220,11 @@ public class WorldController {
         barnAnchors.clear();
         coopAnchors.clear();
 
-        renderFarmTiles();
+        if (playerController.getPlayer().getIsInVillage()) {
+            renderVillageTiles();
+        } else {
+            renderFarmTiles();
+        }
         renderBuildings();
 
         playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
@@ -273,6 +283,48 @@ public class WorldController {
                     if (!(item instanceof Tree) && item != null) {
                         renderItemOnTile(x, y, item, currentSeason);
                     }
+                }
+            }
+        }
+    }
+
+    private void renderVillageTiles() {
+        Village village = App.getGame().getGameMap().getVillage();
+        if (village == null) {
+            Gdx.app.error("WorldController", "Village is null!");
+            return;
+        }
+
+        String currentSeason = getCurrentSeason();
+
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location location = village.getItem(x, y);
+                if (location == null) continue;
+
+                float worldX = x * TILE_SIZE;
+                float worldY = y * TILE_SIZE;
+
+                TileType tileType = location.getTile();
+
+                // Draw grass first
+                if (shouldRenderGrass(tileType)) {
+                    Texture grassTexture = getTexture("grass_" + currentSeason);
+                    if (grassTexture != null) {
+                        Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+
+                // Then draw tile-specific texture (like path, building, etc.)
+                Texture tileTexture = getTileSpecificTexture(tileType, currentSeason);
+                if (tileTexture != null) {
+                    Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                }
+
+                // Render items if present
+                Item item = location.getItem();
+                if (item != null) {
+                    renderItemOnTile(x, y, item, currentSeason);
                 }
             }
         }

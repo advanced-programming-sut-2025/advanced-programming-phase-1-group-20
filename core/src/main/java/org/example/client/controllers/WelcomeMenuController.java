@@ -100,11 +100,4 @@ public class WelcomeMenuController {
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
         getGame().setScreen(gameMenuScreen);
     }
-
-//    public void handleMultiplayerButton() {
-//        getGame().getScreen().dispose();
-//
-//        MultiplayerClient multiplayerClient = new MultiplayerClient(getGame());
-//        getGame().setScreen(multiplayerClient.getLoginScreen());
-//    }
 }
