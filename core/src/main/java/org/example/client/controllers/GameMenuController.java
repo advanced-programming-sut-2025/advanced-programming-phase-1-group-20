@@ -47,7 +47,7 @@ public class GameMenuController implements Controller {
     public void setView(GameView view){
         this.view = view;
         playerController = new PlayerController(player , player.getCurrentFarm());
-        worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera());
+        worldController = new WorldController(playerController , App.getGame().getGameMap(),  view.getCamera());
 
     }
 
@@ -68,6 +68,7 @@ public class GameMenuController implements Controller {
                 // Check if the timer has reached or exceeded the 5-second duration
                 if (villageConditionTimer >= CONDITION_DURATION) {
                     // The condition has been met for 5 seconds! Do your thing.
+                    worldController.setInVillage(true);
                     System.out.println("Something happened! Player is moving to the village.");
 
                     // Reset the timer so it can happen again if the condition remains true
