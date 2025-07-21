@@ -8,6 +8,7 @@ import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.App;
 import org.example.common.models.enums.Types.CropType;
+import org.example.common.models.enums.Types.PlantType;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Location;
 import org.example.common.models.enums.Types.TreeType;
@@ -96,6 +97,7 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
+        preloadPlants();
         preloadTrees();
         preloadCrops();
 
@@ -103,6 +105,35 @@ public class WorldController {
         loadTexture("quarry", "content/Crafting/Stone.png");
 
         Gdx.app.log("WorldController", "Finished preloading textures. Cache size: " + textureCache.size());
+    }
+
+
+    public void preloadCrafting(){
+
+    }
+
+    public void preloadArtisans(){
+
+    }
+
+
+    public void preloadCooking(){
+
+    }
+
+    public void preloadSeeds(){
+
+    }
+
+    public void preloadPlants(){
+        for(PlantType plantType : PlantType.values()) {
+            int stage = plantType.getStage().length;
+            for(int i = 1 ; i < stage + 1; i++) {
+                String key = plantType.getImageFilePath() + "_" + i + ".png";
+                String plantPath = "content/Plants/" + plantType.getImageFilePath() + "_" + "Stage_" + i + ".png";
+                loadTexture(key, plantPath);
+            }
+        }
     }
 
     public void preloadTrees(){
