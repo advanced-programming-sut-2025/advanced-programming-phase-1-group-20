@@ -88,7 +88,7 @@ public class ProfileMenuController {
         }
 
         if (changed) {
-            App.addUser(user); // This will save the changes
+            App.addUser(user);
             screen.showSuccess("Changes saved successfully!");
         }
         else {
