@@ -1,5 +1,7 @@
 package org.example.client.controllers;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import org.example.common.models.App;
 import org.example.common.models.Items.*;
 import org.example.common.models.entities.*;
@@ -33,6 +35,10 @@ public class GameMenuController implements Controller {
     private PlayerController playerController;
     private WorldController worldController;
 
+    private float villageConditionTimer = 0f;
+    private static final float CONDITION_DURATION = 5.0f;
+
+
     public GameMenuController(Player player) {
         this.player = player;
         this.gameClock = App.getGame().getDate();
@@ -42,6 +48,7 @@ public class GameMenuController implements Controller {
         this.view = view;
         playerController = new PlayerController(player , player.getCurrentFarm());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera());
+
     }
 
 
@@ -49,9 +56,28 @@ public class GameMenuController implements Controller {
 
 
     public void update() {
-        if(view != null && !view.getPauseTable().isVisible()) {
+        if (view != null && !view.getPauseTable().isVisible()) {
             worldController.update();
             playerController.update();
+
+            // Check if the player is trying to go to the village
+            if (playerController.isGotoNPCVillage()) {
+                // If true, add the frame's delta time to our timer
+                villageConditionTimer += Gdx.graphics.getDeltaTime();
+
+                // Check if the timer has reached or exceeded the 5-second duration
+                if (villageConditionTimer >= CONDITION_DURATION) {
+                    // The condition has been met for 5 seconds! Do your thing.
+                    System.out.println("Something happened! Player is moving to the village.");
+
+                    // Reset the timer so it can happen again if the condition remains true
+                    villageConditionTimer = 0f;
+                }
+            } else {
+                // If the condition is false, reset the timer immediately.
+                // This ensures the 5 seconds must be consecutive.
+                villageConditionTimer = 0f;
+            }
         }
     }
 

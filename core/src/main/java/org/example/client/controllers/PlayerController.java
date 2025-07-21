@@ -19,6 +19,8 @@ public class PlayerController {
     private static final int RENDER_H = 96;
     private static final float FRAME_DURATION = 0.15f;
 
+    private boolean gotoNPCVillage = false;
+
     private final Player player;
     private final Farm farm;
 
@@ -40,12 +42,21 @@ public class PlayerController {
     private float lastMouseX = 0f;
     private float lastMouseY = 0f;
 
+    private int primaryExitEdgeX = -1;
+    private int secondaryExitEdgeX = -1;
+    private int primaryExitEdgeY = -1;
+    private int secondaryExitEdgeY = -1;
+
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
         toolSwinging = true;
         lastToolDirection = direction;
         lastMouseX = mouseX;
         lastMouseY = mouseY;
+        primaryExitEdgeX = farm.getPrimaryExitEdgeX();
+        primaryExitEdgeY = farm.getPrimaryExitEdgeY();
+        secondaryExitEdgeX = farm.getSecondaryExitEdgeX();
+        secondaryExitEdgeY = farm.getSecondaryExitEdgeY();
     }
 
     public PlayerController(Player player, Farm farm) {
@@ -134,33 +145,53 @@ public class PlayerController {
         float newY = player.getPosY();
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
-            if (isWalkable(newX / 60, newY / 60)) {
-                player.setPosX(newX);
-                facing = Dir.LEFT;
+            if(newX/60 != primaryExitEdgeX){
+                if (isWalkable(newX / 60, newY / 60)) {
+                    player.setPosX(newX);
+                    facing = Dir.LEFT;
+                }
+                setGotoNPCVillage(false);
+            }else{
+                setGotoNPCVillage(true);
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             newX += player.getSpeed();
-            if (isWalkable(newX / 60, newY / 60)) {
-                player.setPosX(newX);
-                facing = Dir.RIGHT;
+            if(newX/60 != primaryExitEdgeX){
+                if (isWalkable(newX / 60, newY / 60)) {
+                    player.setPosX(newX);
+                    facing = Dir.RIGHT;
+                }
+                setGotoNPCVillage(false);
+            }else{
+                setGotoNPCVillage(true);
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             newY += player.getSpeed();
-            if (isWalkable(newX /60, newY / 60)) {
-                player.setPosY(newY);
-                facing = Dir.UP;
+            if(newY/60 != primaryExitEdgeY){
+                if (isWalkable(newX /60, newY / 60)) {
+                    player.setPosY(newY);
+                    facing = Dir.UP;
+                }
+                setGotoNPCVillage(false);
+            }else{
+                setGotoNPCVillage(true);
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.S)) {
             newY -= player.getSpeed();
-            if (isWalkable(newX / 60, newY / 60)) {
-                player.setPosY(newY);
-                facing = Dir.DOWN;
+            if(newY/60 != primaryExitEdgeY){
+                if (isWalkable(newX / 60, newY / 60)) {
+                    player.setPosY(newY);
+                    facing = Dir.DOWN;
+                }
+                setGotoNPCVillage(false);
+            }else {
+                setGotoNPCVillage(true);
             }
         }
 
@@ -194,5 +225,13 @@ public class PlayerController {
 
     public Dir getFacing() {
         return facing;
+    }
+
+    public boolean isGotoNPCVillage() {
+        return gotoNPCVillage;
+    }
+
+    public void setGotoNPCVillage(boolean gotoNPCVillage) {
+        this.gotoNPCVillage = gotoNPCVillage;
     }
 }
