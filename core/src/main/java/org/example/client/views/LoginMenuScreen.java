@@ -13,9 +13,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.server.controllers.GameControllers.LoginMenuController;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
-import java.awt.Image;
-import java.awt.Label;
-import java.awt.TextField;
 
 public class LoginMenuScreen implements Screen {
     private final LoginMenuController controller;
@@ -24,7 +21,7 @@ public class LoginMenuScreen implements Screen {
     private TextField usernameField, passwordField;
     private Label errorLabel;
     private CheckBox stayLoggedInCheckbox;
-    private Skin skin;
+    private final Skin skin;
 
     public LoginMenuScreen(LoginMenuController controller, Skin skin) {
         this.controller = controller;
