@@ -1,7 +1,5 @@
 package org.example.client.controllers;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import org.example.common.models.App;
 import org.example.common.models.Items.*;
 import org.example.common.models.entities.*;
@@ -35,10 +33,6 @@ public class GameMenuController implements Controller {
     private PlayerController playerController;
     private WorldController worldController;
 
-    private float villageConditionTimer = 0f;
-    private static final float CONDITION_DURATION = 5.0f;
-
-
     public GameMenuController(Player player) {
         this.player = player;
         this.gameClock = App.getGame().getDate();
@@ -47,8 +41,7 @@ public class GameMenuController implements Controller {
     public void setView(GameView view){
         this.view = view;
         playerController = new PlayerController(player , player.getCurrentFarm());
-        worldController = new WorldController(playerController , App.getGame().getGameMap(),  view.getCamera());
-
+        worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera());
     }
 
 
@@ -56,29 +49,9 @@ public class GameMenuController implements Controller {
 
 
     public void update() {
-        if (view != null && !view.getPauseTable().isVisible()) {
+        if(view != null && !view.getPauseTable().isVisible()) {
             worldController.update();
             playerController.update();
-
-            // Check if the player is trying to go to the village
-            if (playerController.isGotoNPCVillage()) {
-                // If true, add the frame's delta time to our timer
-                villageConditionTimer += Gdx.graphics.getDeltaTime();
-
-                // Check if the timer has reached or exceeded the 5-second duration
-                if (villageConditionTimer >= CONDITION_DURATION) {
-                    // The condition has been met for 5 seconds! Do your thing.
-                    worldController.setInVillage(true);
-                    System.out.println("Something happened! Player is moving to the village.");
-
-                    // Reset the timer so it can happen again if the condition remains true
-                    villageConditionTimer = 0f;
-                }
-            } else {
-                // If the condition is false, reset the timer immediately.
-                // This ensures the 5 seconds must be consecutive.
-                villageConditionTimer = 0f;
-            }
         }
     }
 
@@ -718,7 +691,7 @@ public class GameMenuController implements Controller {
                     player.setEnergy(0);
                     player.getCurrentFarm().walk(furthestLocation.xAxis, furthestLocation.yAxis);
                     return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
-                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
+                        furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
             }
             else {
@@ -732,7 +705,7 @@ public class GameMenuController implements Controller {
                     player.setEnergy(0);
                     gMap.getVillage().walk(furthestLocation.xAxis, furthestLocation.yAxis);
                     return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
-                            furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
+                        furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
             }
 
@@ -1012,9 +985,9 @@ public class GameMenuController implements Controller {
                 Friendship friendship = entry.getValue();
 
                 result.append("- ").append(friend.getUser().getUsername())
-                        .append(": Level ").append(friendship.getLevel())
-                        .append(" (").append(friendship.getXp()).append("/")
-                        .append(friendship.getMaxXpForCurrentLevel()).append(" XP)");
+                    .append(": Level ").append(friendship.getLevel())
+                    .append(" (").append(friendship.getXp()).append("/")
+                    .append(friendship.getMaxXpForCurrentLevel()).append(" XP)");
 
                 if (friendship.isMarried()) {
                     result.append(" [Married]");
@@ -1178,7 +1151,7 @@ public class GameMenuController implements Controller {
                 ratedAny = true;
                 int xpChange = 15 + 30 * (rating - 3);
                 return Result.success("Gift rated successfully. Friendship " +
-                        (xpChange >= 0 ? "increased" : "decreased") + " by " + Math.abs(xpChange) + " XP.");
+                    (xpChange >= 0 ? "increased" : "decreased") + " by " + Math.abs(xpChange) + " XP.");
             }
         }
 
@@ -1431,10 +1404,10 @@ public class GameMenuController implements Controller {
         // Create a new NPC with the properties from the enum
         HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
         NPC npc = new NPC(
-                npcEnum.getCharacteristic(),
-                npcEnum.getName(),
-                npcEnum.getJob(),
-                missions
+            npcEnum.getCharacteristic(),
+            npcEnum.getName(),
+            npcEnum.getJob(),
+            missions
         );
 
         npc.setLocation(npcEnum.getLocation());
@@ -1519,11 +1492,11 @@ public class GameMenuController implements Controller {
     private boolean isToolItem(Item item) {
         String name = item.getName().toLowerCase();
         return name.contains("axe") ||
-                name.contains("pickaxe") ||
-                name.contains("hoe") ||
-                name.contains("watering can") ||
-                name.contains("fishing rod") ||
-                name.contains("scythe");
+            name.contains("pickaxe") ||
+            name.contains("hoe") ||
+            name.contains("watering can") ||
+            name.contains("fishing rod") ||
+            name.contains("scythe");
     }
 
     private Result friendshipNPCList() {
@@ -1649,7 +1622,7 @@ public class GameMenuController implements Controller {
 
                     if (playerQuantity < requiredQuantity) {
                         missingItems.append("- ").append(requiredQuantity).append(" ").append(requiredItem.getName())
-                                .append(" (you have ").append(playerQuantity).append(")\n");
+                            .append(" (you have ").append(playerQuantity).append(")\n");
                     }
                 }
                 return Result.error(missingItems.toString());
@@ -1710,7 +1683,7 @@ public class GameMenuController implements Controller {
                 if (friendshipLevel >= 2) {
                     itemQuantity *= 2;
                     successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName())
-                            .append(" (doubled due to friendship level)");
+                        .append(" (doubled due to friendship level)");
                 } else {
                     successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName());
                 }
@@ -1841,10 +1814,10 @@ public class GameMenuController implements Controller {
         TradeRequest request;
         if (targetItem != null) {
             request = TradeManager.getInstance().createTradeRequest(
-                    player, targetPlayer, item, amount, targetItem, targetAmount, isRequest);
+                player, targetPlayer, item, amount, targetItem, targetAmount, isRequest);
         } else {
             request = TradeManager.getInstance().createTradeRequest(
-                    player, targetPlayer, item, amount, Math.max(price, 0), isRequest);
+                player, targetPlayer, item, amount, Math.max(price, 0), isRequest);
         }
 
         if (request == null) {
@@ -1892,7 +1865,7 @@ public class GameMenuController implements Controller {
 
         if (request.isAccepted() || request.isRejected()) {
             return Result.error("This trade request has already been " +
-                    (request.isAccepted() ? "accepted" : "rejected"));
+                (request.isAccepted() ? "accepted" : "rejected"));
         }
 
         if (response.equals("-accept")) {

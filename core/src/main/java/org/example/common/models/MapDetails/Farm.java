@@ -68,11 +68,6 @@ public class Farm {
     private String background = "content/maps/1.png";
     private Sprite backgroundSprite;
 
-    private int primaryExitEdgeX = -1;
-    private int secondaryExitEdgeX = -1;
-    private int primaryExitEdgeY = -1;
-    private int secondaryExitEdgeY = -1;
-
     public Farm(String name, Player owner, boolean farmType, int farmIndex) {
         this.farmType = farmType;
         this.farmIndex = farmIndex;
@@ -86,65 +81,10 @@ public class Farm {
         this.shippingBins = new ArrayList<>();
         owner.setPlayerColor(setOwnerColor());
         App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
-
-        setPrimaries();
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
         makeFenceAndPaths();
-    }
-
-    public void setPrimaries(){
-        switch (farmIndex) {
-            case 0: // Bottom-Right Farm (House: width-5, 0)
-                // Primary exit to the left boundary of the farm (to connect to Farm 1 or 2)
-                primaryExitEdgeX = 0;
-                primaryExitEdgeY = height / 2;
-                // Secondary exit to the top boundary of the farm (to connect to Farm 3)
-                secondaryExitEdgeX = width / 2;
-                secondaryExitEdgeY = height - 1;
-                break;
-            case 1: // Bottom-Left Farm (House: 0, 0)
-                // Primary exit to the right boundary of the farm (to connect to Farm 0 or 3)
-                primaryExitEdgeX = width - 1;
-                primaryExitEdgeY = height / 2;
-                // Secondary exit to the top boundary of the farm (to connect to Farm 2)
-                secondaryExitEdgeX = width / 2;
-                secondaryExitEdgeY = height - 1;
-                break;
-            case 2: // Top-Left Farm (House: 0, height-5)
-                // Primary exit to the right boundary of the farm (to connect to Farm 3)
-                primaryExitEdgeX = width - 1;
-                primaryExitEdgeY = height / 2;
-                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
-                secondaryExitEdgeX = width / 2;
-                secondaryExitEdgeY = 0;
-                break;
-            case 3: // Top-Right Farm (House: width-5, height-5)
-                // Primary exit to the left boundary of the farm (to connect to Farm 2)
-                primaryExitEdgeX = 0;
-                primaryExitEdgeY = height / 2;
-                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
-                secondaryExitEdgeX = width / 2;
-                secondaryExitEdgeY = 0;
-                break;
-        }
-    }
-
-    public int getPrimaryExitEdgeX() {
-        return primaryExitEdgeX;
-    }
-
-    public int getSecondaryExitEdgeX() {
-        return secondaryExitEdgeX;
-    }
-
-    public int getPrimaryExitEdgeY() {
-        return primaryExitEdgeY;
-    }
-
-    public int getSecondaryExitEdgeY() {
-        return secondaryExitEdgeY;
     }
 
     public String getBackground() {
@@ -305,9 +245,46 @@ public class Farm {
         int fenceThickness = 1; // Thickness of the fence boundary
         int pathWidth = 3;      // Width of the path opening (should be odd for proper centering)
 
+        int primaryExitEdgeX = -1, primaryExitEdgeY = -1; // Coordinate along the edge for primary exit
+        int secondaryExitEdgeX = -1, secondaryExitEdgeY = -1; // Coordinate along the edge for secondary exit
 
         // Calculate the center of the path opening
         int pathCenterOffset = pathWidth / 2;
+
+        switch (farmIndex) {
+            case 0: // Bottom-Right Farm (House: width-5, 0)
+                // Primary exit to the left boundary of the farm (to connect to Farm 1 or 2)
+                primaryExitEdgeX = 0;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the top boundary of the farm (to connect to Farm 3)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = height - 1;
+                break;
+            case 1: // Bottom-Left Farm (House: 0, 0)
+                // Primary exit to the right boundary of the farm (to connect to Farm 0 or 3)
+                primaryExitEdgeX = width - 1;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the top boundary of the farm (to connect to Farm 2)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = height - 1;
+                break;
+            case 2: // Top-Left Farm (House: 0, height-5)
+                // Primary exit to the right boundary of the farm (to connect to Farm 3)
+                primaryExitEdgeX = width - 1;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = 0;
+                break;
+            case 3: // Top-Right Farm (House: width-5, height-5)
+                // Primary exit to the left boundary of the farm (to connect to Farm 2)
+                primaryExitEdgeX = 0;
+                primaryExitEdgeY = height / 2;
+                // Secondary exit to the bottom boundary of the farm (to connect to Farm 0 or 1)
+                secondaryExitEdgeX = width / 2;
+                secondaryExitEdgeY = 0;
+                break;
+        }
 
         // 1. Draw Fences
         for (int i = 0; i < width; i++) {

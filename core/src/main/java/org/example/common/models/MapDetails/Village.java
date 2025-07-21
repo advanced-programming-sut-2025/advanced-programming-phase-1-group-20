@@ -119,9 +119,9 @@ public class Village {
         int y = location.getY();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -147,7 +147,7 @@ public class Village {
         int marketHeight = 3;
 
         return x >= marketX && x < marketX + marketWidth &&
-                y >= marketY && y < marketY + marketHeight;
+            y >= marketY && y < marketY + marketHeight;
     }
 
     private void initializeMarkets() {
@@ -189,9 +189,9 @@ public class Village {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             if ((x == 0 && y == 0) ||
-                    (x == width - 1 && y == 0) ||
-                    (x == 0 && y == height - 1) ||
-                    (x == width - 1 && y == height - 1)) {
+                (x == width - 1 && y == 0) ||
+                (x == 0 && y == height - 1) ||
+                (x == width - 1 && y == height - 1)) {
                 continue;
             }
             TileType currentTile = tiles[x][y].getTile();
@@ -255,9 +255,9 @@ public class Village {
         List<Building> buildings = getBuildings();
 
         int[][] directions = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+            {-1, -1}, {-1, 0}, {-1, 1},
+            {0, -1}, {0, 1},
+            {1, -1}, {1, 0}, {1, 1}
         };
 
         for (int[] dir : directions) {
@@ -308,9 +308,9 @@ public class Village {
             }
 
             int[][] directions = {
-                    {-1, -1}, {-1, 0}, {-1, 1},
-                    {0, -1}, {0, 1},
-                    {1, -1}, {1, 0}, {1, 1}
+                {-1, -1}, {-1, 0}, {-1, 1},
+                {0, -1}, {0, 1},
+                {1, -1}, {1, 0}, {1, 1}
             };
 
             for (int[] dir : directions) {
@@ -620,7 +620,5 @@ public class Village {
     public Location[][] getTiles() {
         return tiles;
     }
-
-
 
 }

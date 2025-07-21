@@ -7,8 +7,6 @@ import org.example.client.Main;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.App;
-import org.example.common.models.MapDetails.GameMap;
-import org.example.common.models.MapDetails.Village;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
 
@@ -21,13 +19,8 @@ import java.util.ArrayList;
 
 public class WorldController {
     private PlayerController playerController;
-    private Farm currentFarm;
-    private Village village;
-    private GameMap gameMap;
-    private boolean isInVillage = false;
+    private Farm farm;
     private OrthographicCamera camera;
-
-
 
     private Map<String, Texture> textureCache;
     private Set<String> renderedBuildings;
@@ -53,15 +46,12 @@ public class WorldController {
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
 
-    public WorldController(PlayerController playerController, GameMap map, OrthographicCamera camera) {
+    public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
         this.playerController = playerController;
-        this.gameMap = map;
-        this.currentFarm = map.getFarmByPlayer(playerController.getPlayer());
-        this.village = gameMap.getVillage();
+        this.farm = farm;
         this.camera = camera;
         this.textureCache = new HashMap<>();
         this.renderedBuildings = new HashSet<>();
-
 
         // Initialize building anchor collections
         this.greenhouseAnchors = new ArrayList<>();
@@ -224,67 +214,14 @@ public class WorldController {
         barnAnchors.clear();
         coopAnchors.clear();
 
-        if(!isInVillage){
-            renderFarmTiles();
-            renderBuildings();
-        }else{
-            renderVillage();
-        }
+        renderFarmTiles();
+        renderBuildings();
 
         playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
     }
 
-    public void renderVillage(){
-        if(village == null){
-            Gdx.app.error("WorldController", "Village is null!");
-            return;
-        }
-        String currentSeason = getCurrentSeason();
-
-        for (int x = 0; x < Village.width; x++) {
-            for (int y = 0; y < Village.height; y++) {
-                Location location = village.getItem(x, y);
-                if (location == null) continue;
-
-                float worldX = x * TILE_SIZE;
-                float worldY = y * TILE_SIZE;
-
-                TileType tileType = location.getTile();
-
-                // Draw grass first
-                if (shouldRenderGrass(tileType)) {
-                    Texture grassTexture = getTexture("grass_" + currentSeason);
-                    if (grassTexture != null) {
-                        Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                    }
-                }
-
-                // Render tree item if present
-                Item item = location.getItem();
-                if (item instanceof Tree) {
-                    renderItemOnTile(x, y, item, currentSeason);
-                }
-
-                // Then draw tile-specific texture (like lake, stone, etc.)
-                Texture tileTexture = getTileSpecificTexture(tileType, currentSeason);
-                if (tileTexture != null) {
-                    Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                }
-
-
-
-                // Render non-large building items
-                if (!isLargeBuilding(tileType)) {
-                    if (!(item instanceof Tree) && item != null) {
-                        renderItemOnTile(x, y, item, currentSeason);
-                    }
-                }
-            }
-        }
-    }
-
     private void renderFarmTiles() {
-        if (currentFarm == null) {
+        if (farm == null) {
             Gdx.app.error("WorldController", "Farm is null!");
             return;
         }
@@ -300,7 +237,7 @@ public class WorldController {
 
         for (int x = 0; x < Farm.width; x++) {
             for (int y = 0; y < Farm.height; y++) {
-                Location location = currentFarm.getItem(x, y);
+                Location location = farm.getItem(x, y);
                 if (location == null) continue;
 
                 float worldX = x * TILE_SIZE;
@@ -354,7 +291,7 @@ public class WorldController {
                                       Set<String> barnTiles, Set<String> coopTiles) {
         for (int x = 0; x < Farm.width; x++) {
             for (int y = 0; y < Farm.height; y++) {
-                Location location = currentFarm.getItem(x, y);
+                Location location = farm.getItem(x, y);
                 if (location != null) {
                     TileType tileType = location.getTile();
                     String tileKey = x + "," + y;
@@ -630,21 +567,5 @@ public class WorldController {
             texture.dispose();
         }
         textureCache.clear();
-    }
-
-    public Map<String , Texture> getTextureCache() {
-        return textureCache;
-    }
-
-    public void setCurrentFarm(Farm currentFarm) {
-        this.currentFarm = currentFarm;
-    }
-
-    public boolean isInVillage() {
-        return isInVillage;
-    }
-
-    public void setInVillage(boolean inVillage) {
-        isInVillage = inVillage;
     }
 }
