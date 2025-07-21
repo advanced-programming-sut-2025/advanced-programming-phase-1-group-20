@@ -9,7 +9,7 @@ public enum ArtisanType {
     Coffee("Coffee", "It smells delicious. This is sure to give you a boost.", 75, 2, "5 Coffee Bean", 150, "Keg", "Coffee"),
     Juice("Juice", "A sweet, nutritious beverage.", 0, 4 * 24, "1 any Vegetable", 0, "Keg", "Juice"),
     Mead("Mead", "A fermented beverage made from honey. Drink in moderation.", 100, 10, "1 Honey", 300, "Keg", "Mead"),
-    PaleAle("Pale Ale", "Drink in moderation.", 50, 3 * 24, "1 Hops", 300, "Keg", "PaleAle"),
+    PaleAle("Pale Ale", "Drink in moderation.", 50, 3 * 24, "1 Hops", 300, "Keg", "Pale_Ale"),
     Wine("Wine", "Drink in moderation.", 0, 7 * 24, "1 any Fruit", 0, "Keg", "Wine"),
     DriedMushrooms("Dried Mushrooms", "A package of gourmet mushrooms.", 50, 24, "5 any Mushroom", 0, "Dehydrator", "Dried_Mushrooms"),
     DriedFruit("Dried Fruit", "Chewy pieces of dried fruit.", 75, 24, "5 any Fruit except Grapes", 0, "Dehydrator", "Dried_Fruit"),
@@ -26,7 +26,7 @@ public enum ArtisanType {
     Mayonnaise("Mayonnaise", "It looks spreadable.", 50, 3, "1 Egg or 1 Large Egg", 190, "Mayonnaise Machine", "Mayonnaise"),
     DuckMayonnaise("Duck Mayonnaise", "It's a rich, yellow mayonnaise.", 75, 3, "1 Duck Egg", 37, "Mayonnaise Machine", "Duck_Mayonnaise"),
     DinosaurMayonnaise("Dinosaur Mayonnaise", "It's thick and creamy, with a vivid green hue. It smells like grass and leather.", 125, 3, "1 Dinosaur Egg", 800, "Mayonnaise Machine", "Dinosaur_Mayonnaise"),
-    TruffleOil("Truffle Oil", "A gourmet cooking ingredient.", 38, 6, "1 Truffle", 1065, "Oil Maker", "Truffle"),
+    TruffleOil("Truffle Oil", "A gourmet cooking ingredient.", 38, 6, "1 Truffle", 1065, "Oil Maker", "Truffle_Oil"),
     Oil("Oil", "All purpose cooking oil.", 13, 6, "1 Corn or 1 Sunflower Seeds or Sunflower", 100, "Oil Maker", "Oil");
 
     private final String name;

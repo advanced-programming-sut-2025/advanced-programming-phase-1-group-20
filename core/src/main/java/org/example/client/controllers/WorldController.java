@@ -94,7 +94,9 @@ public class WorldController {
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
+        preloadArtisans();
         preloadCrafting();
+        preloadCooking();
         preloadPlants();
         preloadTrees();
         preloadCrops();
@@ -115,12 +117,20 @@ public class WorldController {
     }
 
     public void preloadArtisans(){
-
+        for(ArtisanType artisanType : ArtisanType.values()) {
+            String key = artisanType.getImageFilepath();
+            String path = "content/ArtisanItems/" + key + ".png";
+            loadTexture(key , path);
+        }
     }
 
 
     public void preloadCooking(){
-
+        for(CookingType cookingType : CookingType.values()) {
+            String key = cookingType.getImageFilepath();
+            String path = "content/CookingItems/" + key + ".png";
+            loadTexture(key , path);
+        }
     }
 
     public void preloadSeeds(){
