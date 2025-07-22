@@ -32,6 +32,16 @@ public class NPC extends Mob {
     private Location location;
     private String description;
     private boolean useAiDialogue = false;
+    
+    // Sprite-related fields
+    private String spriteName; // The name of the NPC for sprite loading (e.g., "Abigail", "Pierre")
+    private float posX = 0;
+    private float posY = 0;
+    private float speed = 60f; // 1 tile per second
+    private String currentAnimation = "idle"; // idle, walk, back, face, fly
+    private int currentFrame = 0;
+    private float animationTimer = 0f;
+    private static final float FRAME_DURATION = 0.2f; // Time per frame
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
@@ -373,5 +383,66 @@ public class NPC extends Mob {
 
     public List<String> getLevel3Dialogues() {
         return level3Dialogues;
+    }
+    
+    // Sprite-related getters and setters
+    public String getSpriteName() {
+        return spriteName;
+    }
+    
+    public void setSpriteName(String spriteName) {
+        this.spriteName = spriteName;
+    }
+    
+    public float getPosX() {
+        return posX;
+    }
+    
+    public void setPosX(float posX) {
+        this.posX = posX;
+    }
+    
+    public float getPosY() {
+        return posY;
+    }
+    
+    public void setPosY(float posY) {
+        this.posY = posY;
+    }
+    
+    public float getSpeed() {
+        return speed;
+    }
+    
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+    
+    public String getCurrentAnimation() {
+        return currentAnimation;
+    }
+    
+    public void setCurrentAnimation(String currentAnimation) {
+        this.currentAnimation = currentAnimation;
+    }
+    
+    public int getCurrentFrame() {
+        return currentFrame;
+    }
+    
+    public void setCurrentFrame(int currentFrame) {
+        this.currentFrame = currentFrame;
+    }
+    
+    public float getAnimationTimer() {
+        return animationTimer;
+    }
+    
+    public void setAnimationTimer(float animationTimer) {
+        this.animationTimer = animationTimer;
+    }
+    
+    public static float getFrameDuration() {
+        return FRAME_DURATION;
     }
 }

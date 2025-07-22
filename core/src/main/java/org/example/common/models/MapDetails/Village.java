@@ -13,6 +13,8 @@ import org.example.common.models.enums.Types.CropType;
 import org.example.common.models.enums.Types.MineralType;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.enums.Types.TreeType;
+import org.example.common.models.enums.Charactristic;
+import org.example.common.models.enums.Jobs;
 
 import java.util.*;
 
@@ -457,10 +459,7 @@ public class Village {
 
     public void initializeNPCs() {
         Random rand = new Random();
-        int count = 5;
-        int placed = 0;
-        int attempts = 0;
-
+        
         // Initialize residents list if it's null
         if (this.residents == null) {
             this.residents = new ArrayList<>();
@@ -473,47 +472,59 @@ public class Village {
             return;
         }
 
-        // First, collect all valid grass locations
-        List<Location> validLocations = new ArrayList<>();
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (tiles[x][y] != null && tiles[x][y].getTile() == TileType.Dirt) {
-                    validLocations.add(tiles[x][y]);
-                }
-            }
-        }
-
-        // If we don't have enough valid locations, log a warning and use what we have
-        if (validLocations.size() < count) {
-            System.out.println("Warning: Not enough grass tiles for NPCs. Found: " + validLocations.size());
-            count = Math.max(validLocations.size(), 1); // At least try to place one NPC
-        }
-
-        // If we have no valid locations at all, return early
-        if (validLocations.isEmpty()) {
-            System.err.println("Error: No valid grass tiles found for NPC placement");
-            return;
-        }
-
-        // Shuffle the valid locations to get random placement
-        Collections.shuffle(validLocations, rand);
-
-        // Place NPCs on the shuffled locations
-        for (int i = 0; i < count && i < validLocations.size(); i++) {
-            Location location = validLocations.get(i);
-            Npcs[] types = Npcs.values();
-            Npcs npcType = types[rand.nextInt(types.length)];
-
-            try {
-                NPC npc = game.getCurrentPlayer().createNPCFromEnum(npcType);
-                if (npc != null) {
-                    npc.setLocation(location);
-                    residents.add(npc);
-                    placed++;
-                }
-            } catch (Exception e) {
-                System.err.println("Error creating NPC: " + e.getMessage());
-            }
+        // Create NPCs with their sprites
+        createNPCWithSprite("Abigail", 20, 50, Charactristic.HARD_WORKING, Jobs.STUDENT);
+        createNPCWithSprite("Pierre", 80, 80, Charactristic.GREEDY, Jobs.SELLER);
+        createNPCWithSprite("Sebastian", 40, 120, Charactristic.LAZY, Jobs.ENGINEER);
+        createNPCWithSprite("Leah", 120, 40, Charactristic.JEALOUS, Jobs.STUDENT);
+        createNPCWithSprite("Willy", 60, 200, Charactristic.KIND, Jobs.FISHER);
+        createNPCWithSprite("Jojo", 140, 160, Charactristic.HARD_WORKING, Jobs.SELLER);
+    }
+    
+    private void createNPCWithSprite(String npcName, int x, int y, Charactristic characteristic, Jobs job) {
+        // Create NPC with missions
+        HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
+        NPC npc = new NPC(characteristic, npcName, job, missions);
+        
+        // Set sprite name for rendering
+        npc.setSpriteName(npcName);
+        
+        // Set position
+        Location location = new Location(x, y, TileType.VILLAGE);
+        npc.setLocation(location);
+        npc.setPosX(x * 60f); // Convert tile coordinates to pixel coordinates
+        npc.setPosY(y * 60f);
+        
+        // Set description based on NPC
+        setNPCDescription(npc, npcName);
+        
+        // Add to residents list
+        residents.add(npc);
+    }
+    
+    private void setNPCDescription(NPC npc, String npcName) {
+        switch (npcName) {
+            case "Abigail":
+                npc.setDescription("A spirited young woman with a love for adventure and the supernatural. She enjoys exploring caves and playing the flute.");
+                break;
+            case "Pierre":
+                npc.setDescription("The owner of the local general store who is always looking to make a profit. He's constantly worried about competition.");
+                break;
+            case "Sebastian":
+                npc.setDescription("A reclusive young man who lives in his mom's basement. He's a programmer and enjoys solitude.");
+                break;
+            case "Leah":
+                npc.setDescription("An artist who lives in a small cabin near the river. She loves nature and creates sculptures from foraged materials.");
+                break;
+            case "Willy":
+                npc.setDescription("An old fisherman who runs the fishing shop on the pier. He has a weathered face and always smells of the sea.");
+                break;
+            case "Jojo":
+                npc.setDescription("A hardworking merchant who runs a shop in the village. He's always looking for good deals.");
+                break;
+            default:
+                npc.setDescription("A friendly villager who lives in the town.");
+                break;
         }
     }
 

@@ -34,6 +34,8 @@ import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.client.views.effects.Lighting;
 import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
+import org.example.client.controllers.NPCSpriteController;
+import org.example.client.views.effects.LightningSystem; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -82,17 +84,31 @@ public class GameView implements Screen, InputProcessor {
     // Rain system - NEW
     private ClimateSystem climateSystem;
 
+    // Lightning system
+    private LightningSystem lightningSystem;
+
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
     private int lastKnownHour = -1;
 
+    // Minimap
     private boolean isMapVisible = false;
     private Group minimapGroup;
+
+    // NPC rendering
+    private NPCSpriteController npcSpriteController;
 
     // Add these fields to GameView:
     private float lastToolMouseX = 0;
     private float lastToolMouseY = 0;
+
+    // Energy bar components
+    private Table energyBarTable;
+    private Label energyLabel;
+    private int lastKnownEnergy = -1;
+    private static final int ENERGY_BAR_WIDTH = 120;
+    private static final int ENERGY_BAR_HEIGHT = 15;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -109,9 +125,17 @@ public class GameView implements Screen, InputProcessor {
         // Initialize rain system - NEW
         climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
 
+        // Initialize NPC sprite controller
+        npcSpriteController = new NPCSpriteController();
+
+        // Initialize lightning system
+        lightningSystem = new LightningSystem();
+        lightningSystem.setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         loadCustomFont();
         initializeLabels();
         initializeClock();
+        createEnergyBar();
         updateWeatherAndSeasonDisplays();
 
         camera = new OrthographicCamera(120, 120);
@@ -235,6 +259,21 @@ public class GameView implements Screen, InputProcessor {
         moneyStyle.font.getData().markupEnabled = true;
 
         moneyLabel = new Label("[b]$0[/b]", moneyStyle);
+    }
+
+    private void createEnergyBar() {
+        // Create energy label
+        Label.LabelStyle energyLabelStyle = new Label.LabelStyle();
+        energyLabelStyle.font = smallFont;
+        energyLabelStyle.fontColor = Color.YELLOW;
+        energyLabelStyle.font.getData().setScale(0.45f);
+        energyLabelStyle.font.getData().markupEnabled = true;
+        energyLabel = new Label("[b]Energy: 200/200[/b]", energyLabelStyle);
+
+        // Create table to hold energy bar components
+        energyBarTable = new Table();
+        energyBarTable.add(energyLabel).row();
+        // We'll render the energy bar manually in the render method
     }
 
     private Table createTextTable() {
@@ -428,11 +467,19 @@ public class GameView implements Screen, InputProcessor {
     public Color getCurrentLightColor() { return currentLightColor.cpy(); }
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
     public ClimateSystem getClimateSystem() { return climateSystem; } // NEW GETTER
+    public LightningSystem getLightningSystem() { return lightningSystem; } // NEW GETTER
 
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.M) {
             toggleMinimap();
+            return true;
+        }
+        if (keycode == Input.Keys.L) {
+            if (lightningSystem != null) {
+                lightningSystem.triggerLightning();
+                System.out.println("Lightning triggered manually with L key!");
+            }
             return true;
         }
         if (keycode == Input.Keys.ESCAPE) {
@@ -795,7 +842,7 @@ public class GameView implements Screen, InputProcessor {
         villageLegendLabel.setPosition(legendX + 10, legendY - 80);
         villageLegendLabel.setColor(Color.WHITE);
         villageLegendLabel.draw(Main.getBatch(), 1f);
-        
+
         // Path indicator
         Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
         Main.getBatch().draw(whiteTexture, legendX, legendY - 100, 8, 8);
@@ -818,7 +865,8 @@ public class GameView implements Screen, InputProcessor {
         mainTable.top().right();
         mainTable.setFillParent(true);
         mainTable.padTop(10).padRight(10);
-        mainTable.add(clockStack).size(120, 120);
+        mainTable.add(clockStack).size(120, 120).row();
+        mainTable.add(energyBarTable).padTop(10);
         stage.addActor(mainTable);
 
         pauseTable.setFillParent(true);
@@ -835,7 +883,6 @@ public class GameView implements Screen, InputProcessor {
         bgColor.mul(0.3f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
-        // Update game state and logic (without rendering)
         if (!pauseTable.isVisible()) {
             gameTime += deltaTime;
             updateLighting(deltaTime);
@@ -846,10 +893,13 @@ public class GameView implements Screen, InputProcessor {
             Date currentDate = getCurrentGameDate();
             if (currentDate != null) {
                 climateSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
+
+                // Update lightning system with weather awareness
+                lightningSystem.update(deltaTime);
+                lightningSystem.updateForWeather(currentDate.getWeatherToday(), deltaTime);
             }
         }
 
-        // Start rendering with proper batch management
         Main.getBatch().begin();
 
         // Set batch color to current lighting for world objects
@@ -860,10 +910,16 @@ public class GameView implements Screen, InputProcessor {
             controller.update(); // This will render world elements while batch is active
         }
 
+        // Render NPCs
+        renderNPCs(deltaTime);
+
         // Render rain effects BEFORE UI (but after world)
         if (getCurrentGameDate() != null) {
             climateSystem.render(Main.getBatch(), currentLightColor);
         }
+
+        // Render lightning effects
+        lightningSystem.render(Main.getBatch());
 
         Main.getBatch().end();
 
@@ -887,6 +943,11 @@ public class GameView implements Screen, InputProcessor {
             camera.setToOrtho(false, width, height);
             climateSystem = new ClimateSystem(camera);
         }
+
+        // Update lightning system screen dimensions
+        if (lightningSystem != null) {
+            lightningSystem.setScreenDimensions(width, height);
+        }
     }
 
     @Override
@@ -907,6 +968,16 @@ public class GameView implements Screen, InputProcessor {
         if (climateSystem != null) {
             climateSystem.dispose();
         }
+
+        // Dispose lightning system
+        if (lightningSystem != null) {
+            lightningSystem.dispose();
+        }
+
+        // Dispose NPC sprite controller
+        if (npcSpriteController != null) {
+            npcSpriteController.dispose();
+        }
     }
 
     private void updateClockDisplay() {
@@ -918,12 +989,21 @@ public class GameView implements Screen, InputProcessor {
         updateClockNeedle(gameDate);
         updateLabelPositions();
         updateMoneyLabel();
+        updateEnergyBar();
     }
 
     private void updateMoneyLabel() {
         if (App.getGame() != null && App.getGame().getCurrentPlayer() != null) {
             int money = App.getGame().getCurrentPlayer().getMoney();
             moneyLabel.setText(money);
+        }
+    }
+
+    private void updateEnergyBar() {
+        int currentEnergy = player.getEnergy();
+        if (currentEnergy != lastKnownEnergy) {
+            energyLabel.setText("[b]Energy: " + currentEnergy + "/200[/b]");
+            lastKnownEnergy = currentEnergy;
         }
     }
 
@@ -994,5 +1074,12 @@ public class GameView implements Screen, InputProcessor {
 
         String[] dayAbbreviations = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
         return dayAbbreviations[dayOfWeek];
+    }
+
+    private void renderNPCs(float deltaTime) {
+        if (npcSpriteController != null) {
+            npcSpriteController.update(deltaTime);
+            npcSpriteController.render(Main.getBatch(), currentLightColor);
+        }
     }
 }

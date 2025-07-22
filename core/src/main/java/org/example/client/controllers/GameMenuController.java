@@ -22,6 +22,8 @@ import org.example.common.models.enums.Types.ItemBuilder;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.enums.Weather;
 import org.example.client.views.GameView;
+import org.example.client.views.effects.ClimateSystem;
+import org.example.client.views.effects.LightningSystem;
 
 
 import java.util.*;
@@ -2117,5 +2119,16 @@ public class GameMenuController implements Controller {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public void triggerLightning() {
+        // Get the lightning system from the game view and trigger lightning
+        if (view != null) {
+            LightningSystem lightningSystem = view.getLightningSystem();
+            if (lightningSystem != null) {
+                lightningSystem.triggerLightning();
+                System.out.println("Lightning triggered manually!");
+            }
+        }
     }
 }

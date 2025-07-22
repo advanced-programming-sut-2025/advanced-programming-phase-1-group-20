@@ -111,7 +111,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(1000); // every 10 seconds
+                Thread.sleep(10_000); // every 10 seconds
                 advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -125,10 +125,15 @@ public class Date implements Runnable {
     }
 
     private void updateWeatherToday() {
+        if (weatherMap.isEmpty()) {
+            System.out.println("Weather map is not initialized.");
+            return;
+        }
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
         int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
-        this.weatherToday = possibleWeather.get(randomIndex);
+//        this.weatherToday = possibleWeather.get(randomIndex);
+        weatherToday = Weather.STORMY;
     }
 
     private void updateWeatherTomorrow() {

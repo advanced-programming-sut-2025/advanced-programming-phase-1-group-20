@@ -226,6 +226,9 @@ public class TerminalWindow {
                 return gameMenuController.setWeather(args);
             case CheatThor:
                 return gameMenuController.cheatThor(args);
+            case TriggerLightning:
+                gameMenuController.triggerLightning();
+                return Result.success("Lightning triggered!");
 
             // Player Related
             case ShowInventory:
@@ -293,6 +296,7 @@ public class TerminalWindow {
         addOutput("weather - Show the current weather", TEXT_COLOR);
         addOutput("weather forecast - Show the weather forecast", TEXT_COLOR);
         addOutput("cheat weather set <type> - Set the weather", TEXT_COLOR);
+        addOutput("cheat lightning - Trigger lightning effect", TEXT_COLOR);
         addOutput("", TEXT_COLOR);
         addOutput("Cheat Commands:", Color.YELLOW);
         addOutput("cheat add favorites <character> - Add favorites for a character", TEXT_COLOR);

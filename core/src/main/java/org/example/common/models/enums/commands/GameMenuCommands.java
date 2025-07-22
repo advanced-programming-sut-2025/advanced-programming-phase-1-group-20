@@ -24,6 +24,7 @@ public enum GameMenuCommands implements Command {
     ShowWeatherForecast(Pattern.compile("^weather\\s+forecast$")),
     SetWeather(Pattern.compile("^cheat\\s+weather\\s+set\\s+(\\w+)$")),
     CheatThor(Pattern.compile("^cheat\\s+Thor\\s+-l\\s+([\\d\\s,]+)$")),
+    TriggerLightning(Pattern.compile("^cheat\\s+lightning$")),
 
     // Player Related
     ShowInventory(Pattern.compile("^show inventory$")),
