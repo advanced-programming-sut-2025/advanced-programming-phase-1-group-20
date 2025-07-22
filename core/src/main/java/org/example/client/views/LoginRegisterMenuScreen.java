@@ -379,9 +379,9 @@ public class LoginRegisterMenuScreen implements Screen {
                         org.example.client.Main.getGame().getScreen().dispose();
 
                         org.example.client.controllers.MainMenuController mainMenuController =
-                            new org.example.client.controllers.MainMenuController(loggedInUser);
+                            new org.example.client.controllers.MainMenuController();
                         org.example.client.views.MainMenuScreen mainMenuScreen =
-                            new org.example.client.views.MainMenuScreen(null, mainMenuController,
+                            new org.example.client.views.MainMenuScreen(mainMenuController,
                                 org.example.utils.AssetManager.getAssetManager().getSkin());
 
                         org.example.client.Main.getGame().setScreen(mainMenuScreen);

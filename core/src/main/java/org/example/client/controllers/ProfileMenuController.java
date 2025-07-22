@@ -10,7 +10,7 @@ import org.example.client.views.WelcomeMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
-import org.example.views.ProfileMenuScreen;
+import org.example.client.views.ProfileMenuScreen;
 
 
 import static org.example.client.Main.getGame;
@@ -143,5 +143,4 @@ public class ProfileMenuController {
         String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         return email.matches(regex);
     }
-
 }

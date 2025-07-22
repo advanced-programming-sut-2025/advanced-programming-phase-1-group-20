@@ -187,8 +187,8 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
         User loggedInUser = App.getLoggedInUser();
         if (loggedInUser != null) {
             Main.getGame().getScreen().dispose();
-            MainMenuController mainMenuController = new MainMenuController(loggedInUser);
-            MainMenuScreen mainMenuScreen = new MainMenuScreen(null, mainMenuController, AssetManager.getAssetManager().getSkin());
+            MainMenuController mainMenuController = new MainMenuController();
+            MainMenuScreen mainMenuScreen = new MainMenuScreen(mainMenuController, AssetManager.getAssetManager().getSkin());
             Main.getGame().setScreen(mainMenuScreen);
         } else {
             // If no user is logged in, go to welcome screen

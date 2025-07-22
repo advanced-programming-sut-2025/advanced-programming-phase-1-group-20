@@ -930,6 +930,9 @@ public class GameView implements Screen, InputProcessor {
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
 
+        // Render energy bar manually
+        renderEnergyBar();
+
         // Render minimap if visible
         renderMinimap();
     }
@@ -1081,5 +1084,49 @@ public class GameView implements Screen, InputProcessor {
             npcSpriteController.update(deltaTime);
             npcSpriteController.render(Main.getBatch(), currentLightColor);
         }
+    }
+
+    private void renderEnergyBar() {
+        if (energyBarTable == null) return;
+
+        // Get the position of the energy bar table
+        float x = energyBarTable.getX() + energyBarTable.getWidth() - ENERGY_BAR_WIDTH - 10;
+        float y = energyBarTable.getY() + energyBarTable.getHeight() - ENERGY_BAR_HEIGHT - 5;
+
+        // Calculate energy percentage
+        int currentEnergy = player.getEnergy();
+        float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
+        float barWidth = ENERGY_BAR_WIDTH * energyPercentage;
+
+        // Begin batch for energy bar rendering
+        Main.getBatch().begin();
+
+        // Draw background (empty bar)
+        Main.getBatch().setColor(Color.DARK_GRAY);
+        Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, ENERGY_BAR_HEIGHT);
+
+        // Draw filled portion
+        if (barWidth > 0) {
+            // Color based on energy level
+            if (energyPercentage > 0.6f) {
+                Main.getBatch().setColor(Color.GREEN);
+            } else if (energyPercentage > 0.3f) {
+                Main.getBatch().setColor(Color.YELLOW);
+            } else {
+                Main.getBatch().setColor(Color.RED);
+            }
+            Main.getBatch().draw(skin.getRegion("white"), x, y, barWidth, ENERGY_BAR_HEIGHT);
+        }
+
+        // Draw border
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, 1); // Top border
+        Main.getBatch().draw(skin.getRegion("white"), x, y + ENERGY_BAR_HEIGHT - 1, ENERGY_BAR_WIDTH, 1); // Bottom border
+        Main.getBatch().draw(skin.getRegion("white"), x, y, 1, ENERGY_BAR_HEIGHT); // Left border
+        Main.getBatch().draw(skin.getRegion("white"), x + ENERGY_BAR_WIDTH - 1, y, 1, ENERGY_BAR_HEIGHT); // Right border
+
+        // Reset color
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().end();
     }
 }

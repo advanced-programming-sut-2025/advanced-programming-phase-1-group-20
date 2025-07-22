@@ -133,8 +133,7 @@ public class SignUpMenuController {
         screen.showError("Registration successful!");
         Gdx.app.postRunnable(() -> {
             getGame().getScreen().dispose();
-            getGame().setScreen(new MainMenuScreen(null, new MainMenuController(newUser),
-                AssetManager.getAssetManager().getSkin()));
+            getGame().setScreen(new MainMenuScreen(new MainMenuController(),AssetManager.getAssetManager().getSkin()));
         });
     }
 
