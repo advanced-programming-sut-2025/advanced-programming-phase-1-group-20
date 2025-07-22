@@ -54,9 +54,9 @@ public class MainMenuScreen implements Screen {
         singlePlayerBtn = createImageButton(AssetManager.getAssetManager().getStartGameTitleTexture());
         multiPlayerBtn = createImageButton(AssetManager.getAssetManager().getNewTitleTexture());
         loadGameBtn = createImageButton(AssetManager.getAssetManager().getLoadTitleTexture());
-        profileBtn = createImageButton(AssetManager.getAssetManager().getChangeAvatarTitleTexture());
-        settingsBtn = createImageButton(AssetManager.getAssetManager().getDevelopedByTitleTexture());
-        logoutBtn = createImageButton(AssetManager.getAssetManager().getExitTitleTexture());
+        profileBtn = createImageButton(AssetManager.getAssetManager().getProfileMenuTitleTexture());
+        settingsBtn = createImageButton(AssetManager.getAssetManager().getSettingMenuTitleTexture());
+        logoutBtn = createImageButton(AssetManager.getAssetManager().getLogoutTitleTexture());
 
         mainTable.add(singlePlayerBtn).pad(15).width(300).height(60).row();
         mainTable.add(multiPlayerBtn).pad(15).width(300).height(60).row();
