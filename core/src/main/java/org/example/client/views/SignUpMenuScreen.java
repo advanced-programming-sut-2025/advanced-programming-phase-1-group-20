@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.controllers.SignUpMenuController;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import org.example.utils.AssetManager;
 
 public class SignUpMenuScreen implements Screen {
     private final SignUpMenuController controller;
@@ -24,6 +25,7 @@ public class SignUpMenuScreen implements Screen {
     private Label errorLabel;
     private TextButton generatePasswordButton;
     private final Skin skin;
+    private ImageButton registerButton, backButton;
 
     public SignUpMenuScreen(SignUpMenuController controller, Skin skin) {
         this.controller = controller;
@@ -86,8 +88,8 @@ public class SignUpMenuScreen implements Screen {
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).width(600).padBottom(20).row();
 
-        TextButton registerButton = new TextButton("REGISTER", skin);
-        TextButton backButton = new TextButton("BACK", skin);
+        registerButton = createImageButton(AssetManager.getAssetManager().getRegisterTitleTexture());
+        backButton = createImageButton(AssetManager.getAssetManager().getBackTitleTexture());
 
         Table buttonsTable = new Table();
         buttonsTable.add(backButton).pad(10);
@@ -96,7 +98,14 @@ public class SignUpMenuScreen implements Screen {
         mainTable.add(buttonsTable).colspan(2).padTop(20);
 
         stage.addActor(mainTable);
-        addListeners(registerButton, backButton, generatePasswordButton);
+        addListeners(generatePasswordButton);
+    }
+
+    private ImageButton createImageButton(Texture texture) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
+        style.imageDown = new TextureRegionDrawable(new TextureRegion(texture));
+        return new ImageButton(style);
     }
 
     private TextField createTextField(String hint) {
@@ -112,8 +121,7 @@ public class SignUpMenuScreen implements Screen {
         return field;
     }
 
-    private void addListeners(TextButton registerButton, TextButton backButton,
-                              TextButton generatePasswordButton) {
+    private void addListeners(TextButton generatePasswordButton) {
         registerButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -175,22 +183,19 @@ public class SignUpMenuScreen implements Screen {
 
     @Override
     public void pause() {
-
     }
 
     @Override
     public void resume() {
-
     }
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
         stage.dispose();
+        AssetManager.getAssetManager().disposeSignUpMenuTextures();
     }
-
 }
