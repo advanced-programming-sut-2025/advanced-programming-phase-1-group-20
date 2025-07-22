@@ -105,7 +105,6 @@ public class GameView implements Screen, InputProcessor {
 
     // Energy bar components
     private Table energyBarTable;
-    private Label energyLabel;
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
@@ -262,17 +261,8 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createEnergyBar() {
-        // Create energy label
-        Label.LabelStyle energyLabelStyle = new Label.LabelStyle();
-        energyLabelStyle.font = smallFont;
-        energyLabelStyle.fontColor = Color.YELLOW;
-        energyLabelStyle.font.getData().setScale(0.45f);
-        energyLabelStyle.font.getData().markupEnabled = true;
-        energyLabel = new Label("[b]Energy: 200/200[/b]", energyLabelStyle);
-
         // Create table to hold energy bar components
         energyBarTable = new Table();
-        energyBarTable.add(energyLabel).row();
         // We'll render the energy bar manually in the render method
     }
 
@@ -1005,7 +995,6 @@ public class GameView implements Screen, InputProcessor {
     private void updateEnergyBar() {
         int currentEnergy = player.getEnergy();
         if (currentEnergy != lastKnownEnergy) {
-            energyLabel.setText("[b]Energy: " + currentEnergy + "/200[/b]");
             lastKnownEnergy = currentEnergy;
         }
     }
@@ -1089,9 +1078,9 @@ public class GameView implements Screen, InputProcessor {
     private void renderEnergyBar() {
         if (energyBarTable == null) return;
 
-        // Get the position of the energy bar table
-        float x = energyBarTable.getX() + energyBarTable.getWidth() - ENERGY_BAR_WIDTH - 10;
-        float y = energyBarTable.getY() + energyBarTable.getHeight() - ENERGY_BAR_HEIGHT - 5;
+        // Get the position of the energy bar table - position it in the top-right corner
+        float x = Gdx.graphics.getWidth() - ENERGY_BAR_WIDTH - 20;
+        float y = Gdx.graphics.getHeight() - ENERGY_BAR_HEIGHT - 20;
 
         // Calculate energy percentage
         int currentEnergy = player.getEnergy();
@@ -1105,16 +1094,9 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().setColor(Color.DARK_GRAY);
         Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, ENERGY_BAR_HEIGHT);
 
-        // Draw filled portion
+        // Draw filled portion - always green
         if (barWidth > 0) {
-            // Color based on energy level
-            if (energyPercentage > 0.6f) {
-                Main.getBatch().setColor(Color.GREEN);
-            } else if (energyPercentage > 0.3f) {
-                Main.getBatch().setColor(Color.YELLOW);
-            } else {
-                Main.getBatch().setColor(Color.RED);
-            }
+            Main.getBatch().setColor(Color.GREEN);
             Main.getBatch().draw(skin.getRegion("white"), x, y, barWidth, ENERGY_BAR_HEIGHT);
         }
 
