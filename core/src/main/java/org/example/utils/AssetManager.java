@@ -22,6 +22,17 @@ public class AssetManager {
     private final Texture changeTitleTexture = new Texture("content/Titles/change.png");
     private final Texture profileMenuTitleTexture = new Texture("content/Titles/profileMenu.png");
     private final Texture settingMenuTitleTexture = new Texture("content/Titles/settingMenu.png");
+    private final Texture singlePlayerTitleTexture = new Texture("content/Titles/singlePlayer.png");
+
+    public Texture getMultiPlayerTitleTexture() {
+        return multiPlayerTitleTexture;
+    }
+
+    public Texture getSinglePlayerTitleTexture() {
+        return singlePlayerTitleTexture;
+    }
+
+    private final Texture multiPlayerTitleTexture = new Texture("content/Titles/multiPlayer.png");
 
     public Texture getForgotPasswordTitleTexture() {
         return forgotPasswordTitleTexture;

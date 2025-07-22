@@ -51,8 +51,8 @@ public class MainMenuScreen implements Screen {
         title.setColor(Color.GOLD);
         mainTable.add(title).colspan(2).padBottom(50).row();
 
-        singlePlayerBtn = createImageButton(AssetManager.getAssetManager().getStartGameTitleTexture());
-        multiPlayerBtn = createImageButton(AssetManager.getAssetManager().getNewTitleTexture());
+        singlePlayerBtn = createImageButton(AssetManager.getAssetManager().getSinglePlayerTitleTexture());
+        multiPlayerBtn = createImageButton(AssetManager.getAssetManager().getMultiPlayerTitleTexture());
         loadGameBtn = createImageButton(AssetManager.getAssetManager().getLoadTitleTexture());
         profileBtn = createImageButton(AssetManager.getAssetManager().getProfileMenuTitleTexture());
         settingsBtn = createImageButton(AssetManager.getAssetManager().getSettingMenuTitleTexture());
