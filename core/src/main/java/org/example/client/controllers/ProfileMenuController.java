@@ -143,4 +143,5 @@ public class ProfileMenuController {
         String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
         return email.matches(regex);
     }
+
 }
