@@ -19,11 +19,80 @@ public class AssetManager {
     private final Texture changeAvatarTitleTexture = new Texture("content/Titles/changeAvatar.png");
     private final Texture forgotPasswordTitleTexture = new Texture("content/Titles/forgotPassword.png");
     private final Texture playAsGuestTitleTexture = new Texture("content/Titles/playAsGuest.png");
+
+    public Texture getChangeTitleTexture() {
+        return changeTitleTexture;
+    }
+
     private final Texture changeTitleTexture = new Texture("content/Titles/change.png");
+    private final Texture profileMenuTitleTexture = new Texture("content/Titles/profileMenu.png");
+    private final Texture settingMenuTitleTexture = new Texture("content/Titles/settingMenu.png");
+    private final Texture singlePlayerTitleTexture = new Texture("content/Titles/singlePlayer.png");
+
+    public Texture getMultiPlayerTitleTexture() {
+        return multiPlayerTitleTexture;
+    }
+
+    public Texture getSinglePlayerTitleTexture() {
+        return singlePlayerTitleTexture;
+    }
+
+    private final Texture multiPlayerTitleTexture = new Texture("content/Titles/multiPlayer.png");
+
+    public Texture getForgotPasswordTitleTexture() {
+        return forgotPasswordTitleTexture;
+    }
+
+    public Texture getStartGameTitleTexture() {
+        return startGameTitleTexture;
+    }
+
+    public Texture getRegisterTitleTexture() {
+        return registerTitleTexture;
+    }
+
+    public Texture getBackTitleTexture() {
+        return backTitleTexture;
+    }
+
+    public Texture getExitTitleTexture() {
+        return exitTitleTexture;
+    }
+
+    public Texture getLoadTitleTexture() {
+        return loadTitleTexture;
+    }
+
+    public Texture getNewTitleTexture() {
+        return newTitleTexture;
+    }
+
+    public Texture getLoginTitleTexture() {
+        return loginTitleTexture;
+    }
+
+    public Texture getSignUpTitleTexture() {
+        return signUpTitleTexture;
+    }
+
+    public Texture getProfileMenuTitleTexture() {
+        return profileMenuTitleTexture;
+    }
+
+    public Texture getSettingMenuTitleTexture() {
+        return settingMenuTitleTexture;
+    }
+
+    public Texture getLogoutTitleTexture() {
+        return logoutTitleTexture;
+    }
+
+    private final Texture logoutTitleTexture = new Texture("content/Titles/logout.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
     private final Texture[] signUpMenuImages = new Texture[20];
     private final Texture[] loginMenuImages = new Texture[20];
     private final Texture[] profileMenuImages = new Texture[20];
+    private final Texture[] mainMenuImages = new Texture[20];
 
     // weather texture
     private final Texture rainyTexture = new Texture("content/clock/weather/rainy.png");
@@ -154,6 +223,28 @@ public class AssetManager {
 
     public void disposeProfileMenuTextures() {
         for (Texture texture : profileMenuImages) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+    }
+
+    public void loadMainMenuTextures() {
+        for (int i = 0; i < 20; i++) {
+            mainMenuImages[i] = new Texture(Gdx.files.internal("content/MainMenu/" + (i + 1) + ".png"));
+        }
+    }
+
+    public Texture getMainMenuTexture(int index) {
+        return mainMenuImages[index];
+    }
+
+    public int getMainMenuImagesCount() {
+        return mainMenuImages.length;
+    }
+
+    public void disposeMainMenuTextures() {
+        for (Texture texture : mainMenuImages) {
             if (texture != null) {
                 texture.dispose();
             }

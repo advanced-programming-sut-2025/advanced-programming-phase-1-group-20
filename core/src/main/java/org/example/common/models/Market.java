@@ -7,6 +7,7 @@ import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Types.TileType;
 
 import java.util.HashMap;
 
@@ -18,6 +19,7 @@ public class Market extends Building {
     private transient HashMap<Item, Double> summerStock;
     private transient HashMap<Item, Double> autumnStock;
     private transient HashMap<Item, Double> winterStock;
+    private TileType tileType;
     private int startHour;
     private int endHour;
     private String[] menu;
@@ -26,7 +28,7 @@ public class Market extends Building {
 
     public Market(int x, int y, HashMap<Item, Double> permanentStock, HashMap<Item, Double> springStock,
                   HashMap<Item, Double> summerStock, HashMap<Item, Double> autumnStock, HashMap<Item,
-                    Double> winterStock, int startHour, int endHour, String[] menu, String name) {
+                    Double> winterStock, int startHour, int endHour, String[] menu, String name , TileType tileType) {
         super(x, y, name, "market");
         this.permanentStock = permanentStock;
         this.springStock = springStock;
@@ -39,6 +41,7 @@ public class Market extends Building {
         this.endHour = endHour;
         this.menu = menu;
         this.name = name;
+        this.tileType = tileType;
         initializeCounterStock();
     }
 
@@ -480,5 +483,7 @@ public class Market extends Building {
         counterStock.put(item, stock);
     }
 
-
+    public TileType getTileType() {
+        return tileType;
+    }
 }

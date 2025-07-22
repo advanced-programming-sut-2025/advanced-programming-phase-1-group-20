@@ -1,135 +1,68 @@
 package org.example.client.controllers;
 
+import com.badlogic.gdx.graphics.Texture;
+import org.example.client.views.*;
 import org.example.common.models.App;
-import org.example.common.models.Player.Player;
-import org.example.common.models.common.Result;
-import org.example.common.models.entities.Game;
-import org.example.common.models.entities.User;
-import org.example.utils.AutoLoginUtil;
+import org.example.server.controllers.GameControllers.LoginMenuController;
+import org.example.utils.AssetManager;
 import org.example.client.views.MainMenuScreen;
 
+import static org.example.client.Main.getGame;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-
-public class MainMenuController implements Controller {
+public class MainMenuController {
     private MainMenuScreen view;
-    private User user;
-
-    public MainMenuController(User user) {
-        this.user = user;
-    }
+    private int currentImageIndex = 0;
+    private float timeSinceLastChange = 0;
+    private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
 
     public void setView(MainMenuScreen view) {
         this.view = view;
     }
 
-    @Override
-    public void setupListeners() {}
-
-
-    // implementing methods
-    public Result loadGame() {
-        Game game = App.loadCurrentGame();
-        if (game == null) {
-            return Result.error("No saved game found");
+    public void update(float delta) {
+        timeSinceLastChange += delta;
+        if (timeSinceLastChange >= IMAGE_CHANGE_INTERVAL) {
+            timeSinceLastChange = 0;
+            currentImageIndex = (currentImageIndex + 1) % AssetManager.getAssetManager().getMainMenuImagesCount();
+            Texture newTexture = AssetManager.getAssetManager().getMainMenuTexture(currentImageIndex);
+            view.updateBackground(newTexture);
         }
-
-        if (!game.isPlayerInGame(user)) {
-            return Result.error("You are not a player in this game");
-        }
-
-
-        // Set the game creator to the current player
-        Player player = game.getPlayers().stream()
-                .filter(p -> p.getUser().equals(user))
-                .findFirst()
-                .orElse(null);
-
-        if (player == null) {
-            return Result.error("Player not found in game");
-        }
-
-        game.setGameCreator(player);
-
-        App.setGame(game);
-
-        return Result.success("Game loaded successfully");
     }
 
-    public Result newGame(String[] args) {
-        if (args == null || args.length < 1) {
-            return Result.error("No usernames specified");
-        }
-
-        List<User> users = new ArrayList<>();
-        users.add(App.getLoggedInUser());
-
-        String[] cleaned = Arrays.stream(args).filter(Objects::nonNull).toArray(String[]::new);
-
-        if (users.size() > 4) {
-            return Result.error("Too many users specified (maximum 4 including creator)");
-        }
-
-        for (String username : cleaned) {
-            String trimmedUsername = username.trim();
-            if (!trimmedUsername.isEmpty()) {
-                User user = App.getUser(trimmedUsername);
-                if (user == null) {
-                    return Result.error("Invalid username: " + trimmedUsername);
-                }
-                if (App.isUserInGame(user)) {
-                    return Result.error(trimmedUsername + " is already in a game");
-                }
-                if (!users.contains(user)) {
-                    users.add(user);
-                }
-            }
-        }
-
-        List<Player> players = new ArrayList<>();
-        for (User user : users) {
-            players.add(new Player(user));
-        }
-
-        Player creator = players.stream()
-                .filter(p -> p.getUser().equals(this.user))
-                .findFirst()
-                .orElse(players.get(0));
-
-        Game newGame = new Game(players, creator);
-        App.setGame(newGame);
-        App.getGame().getGameMap().getVillage().initializeNPCs();
-        return Result.success("New game created with " + users.size() + " players. Please select your map.");
+    public void handleSinglePlayer() {
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new SinglePlayerMenuScreen(new SinglePlayerMenuController(),
+//            AssetManager.getAssetManager().getSkin()));
     }
 
-    public Result logout() {
-        AutoLoginUtil.clearAutoLogin();
-
-        User user = App.getLoggedInUser();
-        if (user != null) {
-            user.setStayLoggedIn(false);
-            App.saveData();
-        }
-
-        App.setLoggedInUser(null);
-        //TODO : change this
-//        appView.navigateMenu(new LoginRegisterMenu(appView));
-        return Result.success("logged out");
+    public void handleMultiPlayer() {
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new MultiPlayerMenuScreen(new MultiPlayerMenuController(),
+//            AssetManager.getAssetManager().getSkin()));
     }
 
-    public Result changeMenu(String[] args) {
-        if (args == null || args.length < 1) {
-            return Result.error("No menu specified");
-        }
+    public void handleLoadGame() {
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new LoadGameScreen(new LoadGameController(),
+//            AssetManager.getAssetManager().getSkin()));
+    }
 
-        String menuName = args[0].toLowerCase();
-        if (!menuName.equals("profile menu")) {
-            return Result.error("Only profile menu is supported");
-        }
+    public void handleProfile() {
+        getGame().getScreen().dispose();
+        getGame().setScreen(new ProfileMenuScreen(new ProfileMenuController(),
+            AssetManager.getAssetManager().getSkin()));
+    }
 
-        return Result.success("entered profile menu");
+    public void handleSettings() {
+        getGame().getScreen().dispose();
+//        getGame().setScreen(new SettingsScreen(new SettingsController(),
+//            AssetManager.getAssetManager().getSkin()));
+    }
+
+    public void handleLogout() {
+        App.logout();
+        getGame().getScreen().dispose();
+        getGame().setScreen(new LoginMenuScreen(new LoginMenuController(),
+            AssetManager.getAssetManager().getSkin()));
     }
 }
