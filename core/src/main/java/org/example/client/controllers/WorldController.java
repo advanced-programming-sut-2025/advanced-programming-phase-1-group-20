@@ -933,24 +933,34 @@ public class WorldController {
 
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
-            for (Location anchor : houseAnchors) {
-                float houseX = anchor.getX() * TILE_SIZE;
-                float houseY = anchor.getY() * TILE_SIZE;
-                float houseW = HOUSE_TILES_W * TILE_SIZE;
-                float houseH = HOUSE_TILES_H * TILE_SIZE;
+            if(playerController.getPlayer().getIsInVillage()){
+                if(checkClicked(blacksmith , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
 
-                // Create a rectangle representing the house's bounds.
-                Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
+                }
+                else if(checkClicked(jojaMart , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
 
-                // Check if the world coordinates of the click are inside the house's rectangle.
-                if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
+                }
+                else if(checkClicked(pierreGeneralStore , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
 
-                    // --- IT'S A CLICK! PUT YOUR ACTION CODE HERE! ---
-                    Gdx.app.log("CLICKED", "You clicked the house at tile: " + anchor.getX() + ", " + anchor.getY());
-                    // For example, you could open a menu, play a sound, etc.
+                }
+                else if(checkClicked(carpentersShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
 
-                    // We found a click, so we can stop checking.
-                    return;
+                } else if (checkClicked(fishShop , HOUSE_TILES_W, HOUSE_TILES_H , touchPoint)) {
+
+                } else if (checkClicked(marnieShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
+
+                } else if (checkClicked(starDropSaloon , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
+
+                }
+            }else {
+                if(checkClicked(houseAnchors , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+                    System.out.println("house clicked");
+                } else if (checkClicked(coopAnchors , COOP_TILES_W , COOP_TILES_H , touchPoint)) {
+
+                } else if (checkClicked(barnAnchors , BARN_TILES_W , BARN_TILES_H , touchPoint)) {
+
+                } else if (checkClicked(greenhouseAnchors , GREENHOUSE_TILES_W , GREENHOUSE_TILES_H , touchPoint)) {
+
                 }
             }
 
@@ -961,5 +971,29 @@ public class WorldController {
         }
         */
         }
+    }
+
+    public boolean checkClicked(List<Location> anchors , int tilesW , int tilesH , Vector3 touchPoint) {
+        for (Location anchor : anchors) {
+            float houseX = anchor.getX() * TILE_SIZE;
+            float houseY = anchor.getY() * TILE_SIZE;
+            float houseW = tilesW * TILE_SIZE;
+            float houseH = tilesH * TILE_SIZE;
+
+            // Create a rectangle representing the house's bounds.
+            Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
+
+            // Check if the world coordinates of the click are inside the house's rectangle.
+            if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
+
+                // --- IT'S A CLICK! PUT YOUR ACTION CODE HERE! ---
+                Gdx.app.log("CLICKED", "You clicked the house at tile: " + anchor.getX() + ", " + anchor.getY());
+                // For example, you could open a menu, play a sound, etc.
+
+                // We found a click, so we can stop checking.
+                return true;
+            }
+        }
+        return false;
     }
 }
