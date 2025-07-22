@@ -20,6 +20,58 @@ public class AssetManager {
     private final Texture forgotPasswordTitleTexture = new Texture("content/Titles/forgotPassword.png");
     private final Texture playAsGuestTitleTexture = new Texture("content/Titles/playAsGuest.png");
     private final Texture changeTitleTexture = new Texture("content/Titles/change.png");
+    private final Texture profileMenuTitleTexture = new Texture("content/Titles/profileMenu.png");
+    private final Texture settingMenuTitleTexture = new Texture("content/Titles/settingMenu.png");
+
+    public Texture getForgotPasswordTitleTexture() {
+        return forgotPasswordTitleTexture;
+    }
+
+    public Texture getStartGameTitleTexture() {
+        return startGameTitleTexture;
+    }
+
+    public Texture getRegisterTitleTexture() {
+        return registerTitleTexture;
+    }
+
+    public Texture getBackTitleTexture() {
+        return backTitleTexture;
+    }
+
+    public Texture getExitTitleTexture() {
+        return exitTitleTexture;
+    }
+
+    public Texture getLoadTitleTexture() {
+        return loadTitleTexture;
+    }
+
+    public Texture getNewTitleTexture() {
+        return newTitleTexture;
+    }
+
+    public Texture getLoginTitleTexture() {
+        return loginTitleTexture;
+    }
+
+    public Texture getSignUpTitleTexture() {
+        return signUpTitleTexture;
+    }
+
+    public Texture getProfileMenuTitleTexture() {
+        return profileMenuTitleTexture;
+    }
+
+    public Texture getSettingMenuTitleTexture() {
+        return settingMenuTitleTexture;
+    }
+
+    public Texture getLogoutTitleTexture() {
+        return logoutTitleTexture;
+    }
+
+    private final Texture logoutTitleTexture = new Texture("content/Titles/logout.png");
     private final Texture[] welcomeMenuImages = new Texture[20];
     private final Texture[] signUpMenuImages = new Texture[20];
     private final Texture[] loginMenuImages = new Texture[20];
