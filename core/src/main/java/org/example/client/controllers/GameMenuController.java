@@ -51,6 +51,7 @@ public class GameMenuController implements Controller {
     public void update() {
         if(view != null && !view.getPauseTable().isVisible()) {
             worldController.update();
+            worldController.handleInput();
             playerController.update();
         }
     }

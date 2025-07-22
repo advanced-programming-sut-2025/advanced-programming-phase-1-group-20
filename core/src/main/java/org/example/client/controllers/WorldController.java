@@ -3,6 +3,8 @@ package org.example.client.controllers;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import org.example.client.Main;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
@@ -915,5 +917,49 @@ public class WorldController {
             texture.dispose();
         }
         textureCache.clear();
+    }
+
+
+    public void handleInput() {
+        // 1. Check if the screen was just clicked or touched.
+        if (Gdx.input.justTouched()) {
+
+            // 2. Get the click coordinates in screen space.
+            Vector3 touchPoint = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+            // 3. Convert the screen coordinates to your game's world coordinates.
+            // This is a crucial step!
+            camera.unproject(touchPoint);
+
+            // 4. Check if the click was on a house.
+            // We loop through the anchors we found during rendering.
+            for (Location anchor : houseAnchors) {
+                float houseX = anchor.getX() * TILE_SIZE;
+                float houseY = anchor.getY() * TILE_SIZE;
+                float houseW = HOUSE_TILES_W * TILE_SIZE;
+                float houseH = HOUSE_TILES_H * TILE_SIZE;
+
+                // Create a rectangle representing the house's bounds.
+                Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
+
+                // Check if the world coordinates of the click are inside the house's rectangle.
+                if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
+
+                    // --- IT'S A CLICK! PUT YOUR ACTION CODE HERE! ---
+                    Gdx.app.log("CLICKED", "You clicked the house at tile: " + anchor.getX() + ", " + anchor.getY());
+                    // For example, you could open a menu, play a sound, etc.
+
+                    // We found a click, so we can stop checking.
+                    return;
+                }
+            }
+
+            // You can add more loops here to check for other buildings like barns, coops, etc.
+        /*
+        for (Location anchor : barnAnchors) {
+            // ... similar logic for barn ...
+        }
+        */
+        }
     }
 }
