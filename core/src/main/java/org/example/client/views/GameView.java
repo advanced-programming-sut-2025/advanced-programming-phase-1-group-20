@@ -1078,8 +1078,8 @@ public class GameView implements Screen, InputProcessor {
     private void renderEnergyBar() {
         if (energyBarTable == null) return;
 
-        // Get the position of the energy bar table - position it in the top-right corner
-        float x = Gdx.graphics.getWidth() - ENERGY_BAR_WIDTH - 20;
+        // Get the position of the energy bar table - position it in the top-left corner
+        float x = 20;
         float y = Gdx.graphics.getHeight() - ENERGY_BAR_HEIGHT - 20;
 
         // Calculate energy percentage
