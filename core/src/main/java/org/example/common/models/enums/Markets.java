@@ -1,6 +1,7 @@
 package org.example.common.models.enums;
 
 import org.example.common.models.Items.*;
+import org.example.common.models.MapDetails.Tile;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.Market;
 import org.example.common.models.entities.animal.BarnAnimal;
@@ -28,6 +29,7 @@ public enum Markets {
     private static Market creatBlackSmith() {
         int x = 70;  // Near left side of village
         int y = 70;  // Upper area of village
+        TileType tileType = TileType.BlackSmith;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -79,12 +81,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x , y, items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Black Smith");
+        return new Market(x , y, items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Black Smith" , tileType);
     }
 
     private static Market createJojaMarket() {
         int x = 120; // Near right side of village
         int y = 70;  // Upper area of village
+        TileType tileType = TileType.JojaMart;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -277,12 +280,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Joja Market");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Joja Market" , tileType);
     }
 
     private static Market createPierreGeneralStore() {
         int x = 95;  // Center-left of village
         int y = 80;  // Upper-middle area of village
+        TileType tileType = TileType.PIERRE_GENERAL_STORE;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -617,12 +621,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu, "Pierre General Store");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu, "Pierre General Store" , tileType);
     }
 
     private static Market createCarpentersShop() {
         int x = 75;  // Center of village
         int y = 90;  // Middle area of village
+        TileType tileType = TileType.CARPENTERS_SHOP;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -668,12 +673,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Carpenters Shop");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Carpenters Shop" , tileType);
     }
 
     private static Market createMarnieShop() {
         int x = 110; // Center-right of village
         int y = 100; // Lower-middle area of village
+        TileType tileType = TileType.MARNIE_SHOP;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -722,12 +728,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Marnie Shop");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Marnie Shop" , tileType);
     }
 
     private static Market createStarDropSaloon() {
         int x = 85;  // Center-left of village
         int y = 110; // Lower area of village
+        TileType tileType = TileType.STARDROP_SALOON;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -803,12 +810,13 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Star Drop Saloon");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Star Drop Saloon" , tileType);
     }
 
     private static Market createFishShop() {
         int x = 100; // Center-right of village
         int y = 120; // Lower area of village
+        TileType tileType = TileType.FISH_SHOP;
         HashMap<Item, Double> items = new HashMap<>();
         HashMap<Item, Double> springItems = new HashMap<>();
         HashMap<Item, Double> summerItems = new HashMap<>();
@@ -845,7 +853,7 @@ public enum Markets {
         int startHour = 9;
         int endHour = 16;
         String[] menu = new String[]{};
-        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Fish Shop");
+        return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Fish Shop" , tileType);
     }
 
     public Market createMarket() {

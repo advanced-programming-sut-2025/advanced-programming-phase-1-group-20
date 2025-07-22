@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import org.example.client.Main;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
-import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.App;
 import org.example.common.models.enums.Types.*;
@@ -32,6 +31,15 @@ public class WorldController {
     private List<Location> houseAnchors;
     private List<Location> barnAnchors;
     private List<Location> coopAnchors;
+
+    //Markets
+    private List<Location> blacksmith;
+    private List<Location> jojaMart;
+    private List<Location> pierreGeneralStore;
+    private List<Location> carpentersShop;
+    private List<Location> fishShop;
+    private List<Location> marnieShop;
+    private List<Location> starDropSaloon;
 
     private static final int TILE_SIZE = 60;
 
@@ -60,6 +68,16 @@ public class WorldController {
         this.houseAnchors = new ArrayList<>();
         this.barnAnchors = new ArrayList<>();
         this.coopAnchors = new ArrayList<>();
+
+        // Initialize markets anchor collections
+        this.blacksmith = new ArrayList<>();
+        this.jojaMart = new ArrayList<>();
+        this.pierreGeneralStore = new ArrayList<>();
+        this.carpentersShop = new ArrayList<>();
+        this.fishShop = new ArrayList<>();
+        this.marnieShop = new ArrayList<>();
+        this.starDropSaloon = new ArrayList<>();
+
 
         // Pre-load all textures
         preloadTextures();
@@ -220,11 +238,21 @@ public class WorldController {
         barnAnchors.clear();
         coopAnchors.clear();
 
+        blacksmith.clear();
+        jojaMart.clear();
+        pierreGeneralStore.clear();
+        carpentersShop.clear();
+        fishShop.clear();
+        marnieShop.clear();
+        starDropSaloon.clear();
+
+
         if (playerController.getPlayer().getIsInVillage()) {
             renderVillageTiles();
         } else {
             renderFarmTiles();
         }
+        renderMarkets();
         renderBuildings();
 
         playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
@@ -295,7 +323,21 @@ public class WorldController {
             return;
         }
 
+
         String currentSeason = getCurrentSeason();
+
+        Set<String> blackSmithTiles = new HashSet<>();
+        Set<String> jojaMartTiles = new HashSet<>();
+        Set<String> pierreGeneralStoreTiles = new HashSet<>();
+        Set<String> carpentersTiles = new HashSet<>();
+        Set<String> fishShopTiles = new HashSet<>();
+        Set<String> marnieShopTiles = new HashSet<>();
+        Set<String> starDropSaloonTiles = new HashSet<>();
+
+
+        collectMarketTiles(blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
+
+
 
         for (int x = 0; x < Village.width; x++) {
             for (int y = 0; y < Village.height; y++) {
@@ -320,6 +362,8 @@ public class WorldController {
                 if (tileTexture != null) {
                     Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
                 }
+
+                detectMarketAnchors(location , x , y ,tileType ,  blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
 
                 // Render items if present
                 Item item = location.getItem();
@@ -368,6 +412,42 @@ public class WorldController {
         }
     }
 
+    private void collectMarketTiles(Set<String> blackSmith , Set<String> jojaMart , Set<String> pierreGeneralStore , Set<String> carpentersTiles , Set<String> fishShopTiles , Set<String> marnieShopTiles , Set<String> starDropSaloonTiles ) {
+        Village village = App.getGame().getGameMap().getVillage();
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location location = village.getItem(x, y);
+                if (location != null) {
+                    TileType tileType = location.getTile();
+                    String tileKey = x + "," + y;
+
+                    switch (tileType) {
+                        case BlackSmith:
+                            blackSmith.add(tileKey);
+                            break;
+                        case JojaMart:
+                            jojaMart.add(tileKey);
+                            break;
+                        case PIERRE_GENERAL_STORE:
+                            pierreGeneralStore.add(tileKey);
+                            break;
+                        case CARPENTERS_SHOP :
+                            carpentersTiles.add(tileKey);
+                            break;
+                        case FISH_SHOP :
+                            fishShopTiles.add(tileKey);
+                            break;
+                        case MARNIE_SHOP:
+                            marnieShopTiles.add(tileKey);
+                        case STARDROP_SALOON :
+                            starDropSaloonTiles.add(tileKey);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
     private void detectBuildingAnchors(Location location, int x, int y, TileType tileType,
                                        Set<String> greenhouseTiles, Set<String> houseTiles,
                                        Set<String> barnTiles, Set<String> coopTiles) {
@@ -384,6 +464,32 @@ public class WorldController {
                 break;
             case COOP:
                 detectCoopAnchor(location, x, y, coopTiles);
+                break;
+        }
+    }
+
+    private void detectMarketAnchors(Location location, int x, int y, TileType tileType , Set<String> blackSmith , Set<String> jojaMart , Set<String> pierreGeneralStore , Set<String> carpentersTiles , Set<String> fishShopTiles , Set<String> marnieShopTiles , Set<String> starDropSaloonTiles) {
+        switch (tileType) {
+            case BlackSmith:
+                detectBlackSmith(location, x, y, blackSmith);
+                break;
+            case JojaMart:
+                detectJojaMart(location, x, y, jojaMart);
+                break;
+            case PIERRE_GENERAL_STORE:
+                detectPierre(location, x, y, pierreGeneralStore);
+                break;
+            case CARPENTERS_SHOP:
+                detectCarpenters(location , x , y , carpentersTiles);
+                break;
+            case FISH_SHOP:
+                detectFishShop(location, x, y, fishShopTiles);
+                break;
+            case MARNIE_SHOP:
+                detectMarnieShop(location, x, y, marnieShopTiles);
+                break;
+            case STARDROP_SALOON:
+                detectStarDropSaloon(location, x, y, starDropSaloonTiles);
                 break;
         }
     }
@@ -470,6 +576,69 @@ public class WorldController {
             coopAnchors.add(location);
         }
     }
+    private void detectBlackSmith(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            blacksmith.add(location);
+        }
+    }
+
+    private void detectJojaMart(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            jojaMart.add(location);
+        }
+    }
+
+    private void detectPierre(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            pierreGeneralStore.add(location);
+        }
+    }
+
+
+    private void detectCarpenters(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            carpentersShop.add(location);
+        }
+    }
+
+    private void detectFishShop(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            fishShop.add(location);
+        }
+    }
+
+    private void detectMarnieShop(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            marnieShop.add(location);
+        }
+    }
+
+    private void detectStarDropSaloon(Location location , int x, int y, Set<String> marketTiles) {
+        boolean hasLeft = marketTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = marketTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            starDropSaloon.add(location);
+        }
+    }
 
     private void renderBuildings() {
         for (Location anchor : greenhouseAnchors) {
@@ -486,6 +655,36 @@ public class WorldController {
 
         for (Location anchor : coopAnchors) {
             renderCoopAtAnchor(anchor);
+        }
+    }
+
+    private void renderMarkets() {
+        for(Location location : blacksmith){
+            renderBlackSmithAtAnchor(location);
+        }
+
+        for(Location location : jojaMart){
+            renderJojaMartAtAnchor(location);
+        }
+
+        for(Location location : pierreGeneralStore){
+            renderPierreAtAnchor(location);
+        }
+
+        for(Location market : carpentersShop) {
+            renderCarpentersShopAtAnchor(market);
+        }
+
+        for(Location location : fishShop){
+            renderFishShopAtAnchor(location);
+        }
+
+        for(Location location : marnieShop){
+            renderMarnieShopAtAnchor(location);
+        }
+
+        for (Location location : starDropSaloon) {
+            renderStarDropSaloonAtAnchor(location);
         }
     }
 
@@ -546,6 +745,103 @@ public class WorldController {
         if (texture != null) {
             Main.getBatch().draw(texture, drawX, drawY,
                 TILE_SIZE * COOP_TILES_W, TILE_SIZE * COOP_TILES_H);
+        }
+    }
+    private void renderBlackSmithAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderJojaMartAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderPierreAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderCarpentersShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderFishShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderMarnieShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderStarDropSaloonAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = x * TILE_SIZE;
+        float drawY = y * TILE_SIZE;
+
+        Texture texture = getTexture("house");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
         }
     }
 

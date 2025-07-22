@@ -112,7 +112,7 @@ public class Village {
         for (int y = marketY; y < marketY + marketHeight; y++) {
             for (int x = marketX; x < marketX + marketWidth; x++) {
                 if (contains(x, y)) {
-                    tiles[x][y] = new Location(x, y, TileType.MARKET);
+                    tiles[x][y] = new Location(x, y, market.getTileType());
                 }
             }
         }
@@ -213,50 +213,50 @@ public class Village {
         placeRandomObjects("stone", 100);
         placeRandomObjects("tree", 100);
         //TODO: درخت و سنگ داره یا نه؟
-        
+
         // Create paths connecting farms to village center
         createVillagePaths();
     }
-    
+
     private void createVillagePaths() {
         // Create paths from village boundaries to center
         // These paths will connect to the farm entrances
-        
+
         int centerX = width / 2;
         int centerY = height / 2;
-        
+
         // Path from left edge (Farms 0 and 1) to center
         createPathFromEdgeToCenter(0, centerY, centerX, centerY);
-        
-        // Path from right edge (Farms 2 and 3) to center  
+
+        // Path from right edge (Farms 2 and 3) to center
         createPathFromEdgeToCenter(width - 1, centerY, centerX, centerY);
-        
+
         // Path from top edge (Farms 1 and 2) to center
         createPathFromEdgeToCenter(centerX, height - 1, centerX, centerY);
-        
+
         // Path from bottom edge (Farms 0 and 3) to center
         createPathFromEdgeToCenter(centerX, 0, centerX, centerY);
     }
-    
+
     private void createPathFromEdgeToCenter(int startX, int startY, int endX, int endY) {
         // Create a path from the edge to the center using a simple line algorithm
         int x = startX;
         int y = startY;
-        
+
         while (x != endX || y != endY) {
             // Mark current position as path
             if (contains(x, y)) {
                 tiles[x][y] = new Location(x, y, TileType.PATH);
             }
-            
+
             // Move towards center
             if (x < endX) x++;
             else if (x > endX) x--;
-            
+
             if (y < endY) y++;
             else if (y > endY) y--;
         }
-        
+
         // Mark the center point as path
         if (contains(endX, endY)) {
             tiles[endX][endY] = new Location(endX, endY, TileType.PATH);
