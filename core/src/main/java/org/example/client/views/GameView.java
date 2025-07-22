@@ -3,20 +3,20 @@ package org.example.client.views;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.common.models.App;
@@ -33,9 +33,9 @@ import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.client.views.effects.Lighting;
-import org.example.client.views.effects.ClimateSystem;
+import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
 import org.example.client.controllers.NPCSpriteController;
-import org.example.client.views.effects.LightningSystem;
+import org.example.client.views.effects.LightningSystem; // NEW IMPORT
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -79,23 +79,27 @@ public class GameView implements Screen, InputProcessor {
     private Color currentLightColor;
     private Label lightingDescriptionLabel;
     private float lightingUpdateTimer;
-    private static final float LIGHTING_UPDATE_INTERVAL = 0.5f;
+    private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
 
-    // Climate system
+    // Rain system - NEW
     private ClimateSystem climateSystem;
 
     // Lightning system
     private LightningSystem lightningSystem;
 
-    // Previous state tracking
+    // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
     private int lastKnownHour = -1;
 
+    // Minimap
+    private boolean isMapVisible = false;
+    private Group minimapGroup;
+
     // NPC rendering
     private NPCSpriteController npcSpriteController;
 
-    // Tool usage
+    // Add these fields to GameView:
     private float lastToolMouseX = 0;
     private float lastToolMouseY = 0;
 
@@ -104,14 +108,6 @@ public class GameView implements Screen, InputProcessor {
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
-
-    // --- MINIMAP COMPONENTS (MODIFIED) ---
-    private OrthographicCamera miniMapCamera;
-    private Viewport miniMapViewport;
-    private boolean isMapVisible = false;
-    private Texture whitePixelTexture; // For drawing colored shapes efficiently
-    private static final int MINIMAP_SIZE_ON_SCREEN = 250; // pixels
-    private static final int MINIMAP_MARGIN = 15; // pixels from edge
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -122,9 +118,16 @@ public class GameView implements Screen, InputProcessor {
         this.gameTime = 0;
         this.lightingUpdateTimer = 0;
 
+        // Initialize lighting system
         initializeLighting();
-        climateSystem = new ClimateSystem(camera);
+
+        // Initialize rain system - NEW
+        climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
+
+        // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
+
+        // Initialize lightning system
         lightningSystem = new LightningSystem();
         lightningSystem.setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -138,32 +141,7 @@ public class GameView implements Screen, InputProcessor {
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         initializeTables();
-        initializeMiniMap(); // NEW: Initialize the mini-map camera and viewport
         controller.setView(this);
-    }
-
-    // --- NEW METHOD: Initializes the mini-map camera and viewport ---
-    private void initializeMiniMap() {
-        // The mini-map camera looks at a 400x400 world unit area.
-        // This value determines the initial "zoom" level.
-        float miniMapWorldSize = 400f;
-        miniMapCamera = new OrthographicCamera(miniMapWorldSize, miniMapWorldSize);
-
-        // Position the mini-map in the top-left corner
-        miniMapViewport = new ExtendViewport(miniMapWorldSize, miniMapWorldSize, miniMapCamera);
-        miniMapViewport.setScreenBounds(
-            MINIMAP_MARGIN,
-            Gdx.graphics.getHeight() - MINIMAP_SIZE_ON_SCREEN - MINIMAP_MARGIN,
-            MINIMAP_SIZE_ON_SCREEN,
-            MINIMAP_SIZE_ON_SCREEN
-        );
-
-        // Create a 1x1 white texture to draw colored rectangles for map tiles
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
-        whitePixelTexture = new Texture(pixmap);
-        pixmap.dispose();
     }
 
     private void initializeLighting() {
@@ -478,8 +456,8 @@ public class GameView implements Screen, InputProcessor {
     public Lighting getLighting() { return lighting; }
     public Color getCurrentLightColor() { return currentLightColor.cpy(); }
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
-    public ClimateSystem getClimateSystem() { return climateSystem; }
-    public LightningSystem getLightningSystem() { return lightningSystem; }
+    public ClimateSystem getClimateSystem() { return climateSystem; } // NEW GETTER
+    public LightningSystem getLightningSystem() { return lightningSystem; } // NEW GETTER
 
     @Override
     public boolean keyDown(int keycode) {
@@ -490,10 +468,12 @@ public class GameView implements Screen, InputProcessor {
         if (keycode == Input.Keys.L) {
             if (lightningSystem != null) {
                 lightningSystem.triggerLightning();
+                System.out.println("Lightning triggered manually with L key!");
             }
             return true;
         }
         if (keycode == Input.Keys.ESCAPE) {
+            // Show InventoryScreen and pass this as previousScreen
             Main.getGame().setScreen(new InventoryScreen(player, skin, this));
             return true;
         }
@@ -545,29 +525,323 @@ public class GameView implements Screen, InputProcessor {
     public boolean touchDragged(int i, int i1, int i2) { return false; }
     @Override
     public boolean mouseMoved(int i, int i1) { return false; }
-
     @Override
-    public boolean scrolled(float amountX, float amountY) {
-        // NEW: Handle zooming the mini-map with the mouse scroll wheel
-        if (isMapVisible) {
-            // amountY is -1 for scroll up (zoom in), 1 for scroll down (zoom out)
-            if (amountY > 0) {
-                miniMapCamera.zoom += 0.1f; // Zoom out
-            } else {
-                miniMapCamera.zoom -= 0.1f; // Zoom in
-            }
-            // Clamp the zoom to reasonable values
-            miniMapCamera.zoom = MathUtils.clamp(miniMapCamera.zoom, 0.5f, 4.0f);
-            return true; // Input was handled
-        }
-        return false;
-    }
+    public boolean scrolled(float v, float v1) { return false; }
 
-    /**
-     * Toggles the visibility of the mini-map. This is the only method you need to call.
-     */
     private void toggleMinimap() {
         isMapVisible = !isMapVisible;
+        if (isMapVisible) {
+            showMinimap();
+        } else {
+            hideMinimap();
+        }
+    }
+
+    private void showMinimap() {
+        if (minimapGroup == null) {
+            minimapGroup = createMinimapGroup();
+        }
+        if (!stage.getActors().contains(minimapGroup, true)) {
+            stage.addActor(minimapGroup);
+        }
+        minimapGroup.setVisible(true);
+    }
+
+    private void hideMinimap() {
+        if (minimapGroup != null) {
+            minimapGroup.setVisible(false);
+        }
+    }
+
+    private Group createMinimapGroup() {
+        Group group = new Group();
+
+        // Create a larger background for the minimap
+        Table backgroundTable = new Table();
+        backgroundTable.setBackground(skin.newDrawable("white", Color.BLACK));
+        backgroundTable.setSize(600, 600);
+        backgroundTable.setPosition(100, 100);
+
+        // Add a title label
+        Label titleLabel = new Label("World Map", skin);
+        titleLabel.setPosition(350, 720);
+        titleLabel.setColor(Color.WHITE);
+
+        // Add close button
+        TextButton closeButton = new TextButton("X", skin);
+        closeButton.setSize(40, 40);
+        closeButton.setPosition(650, 720);
+        closeButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                toggleMinimap();
+                return true;
+            }
+        });
+
+        // Add components to group
+        group.addActor(backgroundTable);
+        group.addActor(titleLabel);
+        group.addActor(closeButton);
+
+        return group;
+    }
+
+    private void renderMinimap() {
+        if (!isMapVisible || minimapGroup == null) return;
+
+        // Get the game map
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Calculate map scale (312x468 world map to 500x500 display)
+        float scaleX = 500f / 312f;
+        float scaleY = 500f / 468f;
+        float scale = Math.min(scaleX, scaleY); // Use the smaller scale to fit everything
+
+        // Start rendering minimap
+        Main.getBatch().begin();
+
+        // Render the actual map tiles
+        renderMinimapTiles(gameMap, scale);
+
+        // Render player position
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            float playerX = currentPlayer.getPosX() / 60f * scale + 120;
+            float playerY = currentPlayer.getPosY() / 60f * scale + 120;
+
+            // Draw player as a red dot
+            Main.getBatch().setColor(Color.RED);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            Main.getBatch().draw(whiteTexture, playerX - 3, playerY - 3, 6, 6);
+            whiteTexture.dispose();
+        }
+
+        // Render other players
+        for (Player otherPlayer : gameMap.getPlayers()) {
+            if (otherPlayer != currentPlayer) {
+                float otherX = otherPlayer.getPosX() / 60f * scale + 120;
+                float otherY = otherPlayer.getPosY() / 60f * scale + 120;
+
+                // Draw other players as blue dots
+                Main.getBatch().setColor(Color.BLUE);
+                Texture whiteTexture = new Texture("content/grass/spring.png");
+                Main.getBatch().draw(whiteTexture, otherX - 3, otherY - 3, 6, 6);
+                whiteTexture.dispose();
+            }
+        }
+
+        // Render labels
+        renderMinimapLabels();
+
+        // Reset color and end batch
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().end();
+    }
+
+    private void renderMinimapTiles(GameMap gameMap, float scale) {
+        // Render farms
+        for (int farmIndex = 0; farmIndex < 4; farmIndex++) {
+            Farm farm = gameMap.getFarmByIndex(farmIndex);
+            if (farm == null) continue;
+
+            // Calculate farm position on minimap
+            float farmX, farmY;
+            switch (farmIndex) {
+                case 0: // Bottom-Left
+                    farmX = 120;
+                    farmY = 120 + 312 * scale; // Below village
+                    break;
+                case 1: // Top-Left
+                    farmX = 120;
+                    farmY = 120; // Above village
+                    break;
+                case 2: // Top-Right
+                    farmX = 120 + 156 * scale;
+                    farmY = 120; // Above village
+                    break;
+                case 3: // Bottom-Right
+                    farmX = 120 + 156 * scale;
+                    farmY = 120 + 312 * scale; // Below village
+                    break;
+                default:
+                    continue;
+            }
+
+            // Render each tile in the farm
+            for (int x = 0; x < Farm.width; x++) {
+                for (int y = 0; y < Farm.height; y++) {
+                    Location loc = farm.getItem(x, y);
+                    if (loc != null) {
+                        renderMinimapTile(loc, farmX + x * scale, farmY + y * scale, scale);
+                    }
+                }
+            }
+        }
+
+        // Render village (center, 156x312)
+        Village village = gameMap.getVillage();
+        if (village != null) {
+            float villageX = 120 + 78 * scale; // Center horizontally
+            float villageY = 120 + 78 * scale; // Center vertically
+
+            // Render each tile in the village
+            for (int x = 0; x < Village.width; x++) {
+                for (int y = 0; y < Village.height; y++) {
+                    Location loc = village.getTiles()[x][y];
+                    if (loc != null) {
+                        renderMinimapTile(loc, villageX + x * scale, villageY + y * scale, scale);
+                    }
+                }
+            }
+        }
+    }
+
+    private void renderMinimapTile(Location loc, float x, float y, float scale) {
+        TileType tileType = loc.getTile();
+        Color tileColor = getTileColor(tileType);
+
+        if (tileColor != null) {
+            Main.getBatch().setColor(tileColor);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            Main.getBatch().draw(whiteTexture, x, y, scale, scale);
+            whiteTexture.dispose();
+        }
+    }
+
+    private Color getTileColor(TileType tileType) {
+        switch (tileType) {
+            case Dirt:
+                return new Color(0.6f, 0.4f, 0.2f, 1f); // Brown
+            case WATER:
+                return new Color(0.2f, 0.4f, 0.8f, 1f); // Blue
+            case STONE:
+                return new Color(0.5f, 0.5f, 0.5f, 1f); // Gray
+            case TREE:
+                return new Color(0.4f, 0.3f, 0.2f, 1f); // Dark brown
+            case VILLAGE:
+                return new Color(0.7f, 0.5f, 0.3f, 1f); // Village brown
+            case MARKET:
+                return new Color(0.9f, 0.7f, 0.5f, 1f); // Market color
+            case PATH:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case BUILDING:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case SAND:
+                return new Color(0.9f, 0.8f, 0.6f, 1f); // Sand color
+            case PLOWED:
+                return new Color(0.5f, 0.3f, 0.1f, 1f); // Dark brown
+            case CROP:
+                return new Color(0.2f, 0.8f, 0.2f, 1f); // Green
+            default:
+                return new Color(0.3f, 0.3f, 0.3f, 1f); // Default gray
+        }
+    }
+
+    private void renderMinimapLabels() {
+        // Render farm labels
+        String[] farmLabels = {"Farm 0", "Farm 1", "Farm 2", "Farm 3"};
+        float scaleX = 500f / 312f;
+        float scaleY = 500f / 468f;
+        float scale = Math.min(scaleX, scaleY);
+
+        for (int i = 0; i < 4; i++) {
+            float labelX, labelY;
+            switch (i) {
+                case 0: // Bottom-Left
+                    labelX = 140;
+                    labelY = 140 + 312 * scale;
+                    break;
+                case 1: // Top-Left
+                    labelX = 140;
+                    labelY = 140;
+                    break;
+                case 2: // Top-Right
+                    labelX = 140 + 156 * scale;
+                    labelY = 140;
+                    break;
+                case 3: // Bottom-Right
+                    labelX = 140 + 156 * scale;
+                    labelY = 140 + 312 * scale;
+                    break;
+                default:
+                    continue;
+            }
+
+            // Create and render label
+            Label farmLabel = new Label(farmLabels[i], skin);
+            farmLabel.setPosition(labelX, labelY);
+            farmLabel.setColor(Color.WHITE);
+            farmLabel.draw(Main.getBatch(), 1f);
+        }
+
+        // Render village label (center)
+        Label villageLabel = new Label("Village", skin);
+        villageLabel.setPosition(140 + 78 * scale, 140 + 156 * scale);
+        villageLabel.setColor(Color.WHITE);
+        villageLabel.draw(Main.getBatch(), 1f);
+    }
+
+    private void renderMinimapLegend(Texture whiteTexture) {
+        float legendX = 120;
+        float legendY = 650;
+
+        // Legend title
+        Label legendTitle = new Label("Legend:", skin);
+        legendTitle.setPosition(legendX, legendY);
+        legendTitle.setColor(Color.WHITE);
+        legendTitle.draw(Main.getBatch(), 1f);
+
+        // Player indicator
+        Main.getBatch().setColor(Color.RED);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 20, 4, 4);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label playerLabel = new Label("You", skin);
+        playerLabel.setPosition(legendX + 10, legendY - 20);
+        playerLabel.setColor(Color.WHITE);
+        playerLabel.draw(Main.getBatch(), 1f);
+
+        // Other players indicator
+        Main.getBatch().setColor(Color.BLUE);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 40, 4, 4);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label othersLabel = new Label("Other Players", skin);
+        othersLabel.setPosition(legendX + 10, legendY - 40);
+        othersLabel.setColor(Color.WHITE);
+        othersLabel.draw(Main.getBatch(), 1f);
+
+        // Farm indicator
+        Main.getBatch().setColor(0.2f, 0.8f, 0.2f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 60, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label farmLabel = new Label("Farms", skin);
+        farmLabel.setPosition(legendX + 10, legendY - 60);
+        farmLabel.setColor(Color.WHITE);
+        farmLabel.draw(Main.getBatch(), 1f);
+
+        // Village indicator
+        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 80, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label villageLegendLabel = new Label("Village", skin);
+        villageLegendLabel.setPosition(legendX + 10, legendY - 80);
+        villageLegendLabel.setColor(Color.WHITE);
+        villageLegendLabel.draw(Main.getBatch(), 1f);
+
+        // Path indicator
+        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
+        Main.getBatch().draw(whiteTexture, legendX, legendY - 100, 8, 8);
+        Main.getBatch().setColor(Color.WHITE);
+
+        Label pathLegendLabel = new Label("Paths", skin);
+        pathLegendLabel.setPosition(legendX + 10, legendY - 100);
+        pathLegendLabel.setColor(Color.WHITE);
+        pathLegendLabel.draw(Main.getBatch(), 1f);
     }
 
     @Override
@@ -594,156 +868,76 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void render(float deltaTime) {
-        // Clear screen
-        Color bgColor = currentLightColor.cpy().mul(0.3f);
+        // Clear screen with lighting-tinted background
+        Color bgColor = currentLightColor.cpy();
+        bgColor.mul(0.3f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
-        // --- Update Logic ---
         if (!pauseTable.isVisible()) {
             gameTime += deltaTime;
             updateLighting(deltaTime);
             updateClockDisplay();
             updateWeatherAndSeasonDisplays();
 
+            // Update rain system
             Date currentDate = getCurrentGameDate();
             if (currentDate != null) {
                 climateSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
+
+                // Update lightning system with weather awareness
                 lightningSystem.update(deltaTime);
                 lightningSystem.updateForWeather(currentDate.getWeatherToday(), deltaTime);
             }
-            // NEW: Update the mini-map camera to follow the player
-            if (isMapVisible) {
-                miniMapCamera.position.set(player.getPosX(), player.getPosY(), 0);
-                miniMapCamera.update();
-            }
         }
 
-        // --- Render Main Game Scene ---
-        Main.getBatch().setProjectionMatrix(camera.combined);
         Main.getBatch().begin();
+
+        // Set batch color to current lighting for world objects
         Main.getBatch().setColor(currentLightColor);
+
+        // Update and render world elements (controller handles world rendering)
         if (!pauseTable.isVisible()) {
-            controller.update(); // Renders the world
+            controller.update(); // This will render world elements while batch is active
         }
+
+        // Render NPCs
         renderNPCs(deltaTime);
+
+        // Render rain effects BEFORE UI (but after world)
         if (getCurrentGameDate() != null) {
             climateSystem.render(Main.getBatch(), currentLightColor);
         }
+
+        // Render lightning effects
         lightningSystem.render(Main.getBatch());
+
         Main.getBatch().end();
 
+        // Reset batch color for UI rendering
+        Main.getBatch().setColor(Color.WHITE);
 
-        // --- Render Mini-map (if visible) ---
-        if (isMapVisible) {
-            // This applies the glViewport and scissor, restricting drawing to the mini-map area
-            miniMapViewport.apply();
-            Main.getBatch().setProjectionMatrix(miniMapCamera.combined);
-
-            Main.getBatch().begin();
-            // First, draw a solid background for the mini-map
-            Main.getBatch().setColor(0.1f, 0.1f, 0.1f, 0.8f); // Dark, semi-transparent
-            Main.getBatch().draw(whitePixelTexture, miniMapCamera.position.x - miniMapCamera.viewportWidth / 2 * miniMapCamera.zoom,
-                miniMapCamera.position.y - miniMapCamera.viewportHeight / 2 * miniMapCamera.zoom,
-                miniMapCamera.viewportWidth * miniMapCamera.zoom,
-                miniMapCamera.viewportHeight * miniMapCamera.zoom);
-
-            renderMiniMapContents(Main.getBatch());
-            Main.getBatch().end();
-        }
-
-
-        // --- Render UI ---
-        Main.getBatch().setColor(Color.WHITE); // Reset color for UI
+        // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
+
+        // Render energy bar manually
         renderEnergyBar();
-    }
 
-    private void renderMiniMapContents(SpriteBatch batch) {
-        GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) return;
-
-        // Render the entire map by iterating through its components
-        Village village = gameMap.getVillage();
-        if(village != null){
-            for(int x = 0; x < Village.width; x++){
-                for(int y = 0; y < Village.height; y++){
-                    Location loc = village.getTiles()[x][y];
-                    if(loc != null){
-                        Color tileColor = getTileColor(loc.getTile());
-                        batch.setColor(tileColor);
-                        // Draw a rectangle for each tile. World positions are used directly.
-                        batch.draw(whitePixelTexture, loc.getX(), loc.getY(), 1, 1);
-                    }
-                }
-            }
-        }
-        // You would do the same for your Farm objects here...
-        // For example:
-        for (Farm farm : gameMap.getFarms()) {
-            for (int x = 0; x < Farm.width; x++) {
-                for (int y = 0; y < Farm.height; y++) {
-                    Location loc = farm.getItem(x,y);
-                    if(loc != null) {
-                        Color tileColor = getTileColor(loc.getTile());
-                        batch.setColor(tileColor);
-                        batch.draw(whitePixelTexture, loc.getX(), loc.getY(), 1, 1);
-                    }
-                }
-            }
-        }
-
-        // Render other players
-        for (Player otherPlayer : gameMap.getPlayers()) {
-            if (otherPlayer != player) {
-                batch.setColor(Color.BLUE); // Other players are blue
-                batch.draw(whitePixelTexture, otherPlayer.getPosX() - 1, otherPlayer.getPosY() - 1, 2, 2);
-            }
-        }
-
-        // Render the main player on top
-        batch.setColor(Color.RED); // Player is red
-        batch.draw(whitePixelTexture, player.getPosX() - 1, player.getPosY() - 1, 2, 2);
-
-        // Reset color when done
-        batch.setColor(Color.WHITE);
-    }
-
-    private Color getTileColor(TileType tileType) {
-        switch (tileType) {
-            case Dirt: return new Color(0.6f, 0.4f, 0.2f, 1f);
-            case WATER: return new Color(0.2f, 0.4f, 0.8f, 1f);
-            case STONE: return new Color(0.5f, 0.5f, 0.5f, 1f);
-            case TREE: return new Color(0.4f, 0.3f, 0.2f, 1f);
-            case VILLAGE: return new Color(0.7f, 0.5f, 0.3f, 1f);
-            case MARKET: return new Color(0.9f, 0.7f, 0.5f, 1f);
-            case PATH: return new Color(0.8f, 0.6f, 0.4f, 1f);
-            case BUILDING: return new Color(0.8f, 0.6f, 0.4f, 1f);
-            case SAND: return new Color(0.9f, 0.8f, 0.6f, 1f);
-            case PLOWED: return new Color(0.5f, 0.3f, 0.1f, 1f);
-            case CROP: return new Color(0.2f, 0.8f, 0.2f, 1f);
-            default: return new Color(0.3f, 0.3f, 0.3f, 1f);
-        }
+        // Render minimap if visible
+        renderMinimap();
     }
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-        camera.setToOrtho(false, width, height);
-
-        if (miniMapViewport != null) {
-            miniMapViewport.setScreenBounds(
-                MINIMAP_MARGIN,
-                height - MINIMAP_SIZE_ON_SCREEN - MINIMAP_MARGIN,
-                MINIMAP_SIZE_ON_SCREEN,
-                MINIMAP_SIZE_ON_SCREEN
-            );
-        }
-
+        // Recreate rain system with new dimensions - NEW
         if (climateSystem != null) {
             climateSystem.dispose();
+            // Instead of using width/height, use the camera
+            camera.setToOrtho(false, width, height);
             climateSystem = new ClimateSystem(camera);
         }
+
+        // Update lightning system screen dimensions
         if (lightningSystem != null) {
             lightningSystem.setScreenDimensions(width, height);
         }
@@ -758,17 +952,25 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-        if (stage != null) stage.dispose();
-        if (skin != null) skin.dispose();
         if (clockBackgroundTexture != null) clockBackgroundTexture.dispose();
         if (clockNeedleTexture != null) clockNeedleTexture.dispose();
         if (customFont != null) customFont.dispose();
         if (smallFont != null) smallFont.dispose();
-        if (whitePixelTexture != null) whitePixelTexture.dispose();
 
-        if (climateSystem != null) climateSystem.dispose();
-        if (lightningSystem != null) lightningSystem.dispose();
-        if (npcSpriteController != null) npcSpriteController.dispose();
+        // Dispose rain system - NEW
+        if (climateSystem != null) {
+            climateSystem.dispose();
+        }
+
+        // Dispose lightning system
+        if (lightningSystem != null) {
+            lightningSystem.dispose();
+        }
+
+        // Dispose NPC sprite controller
+        if (npcSpriteController != null) {
+            npcSpriteController.dispose();
+        }
     }
 
     private void updateClockDisplay() {
@@ -786,7 +988,7 @@ public class GameView implements Screen, InputProcessor {
     private void updateMoneyLabel() {
         if (App.getGame() != null && App.getGame().getCurrentPlayer() != null) {
             int money = App.getGame().getCurrentPlayer().getMoney();
-            moneyLabel.setText("$" + money);
+            moneyLabel.setText(money);
         }
     }
 
@@ -805,7 +1007,7 @@ public class GameView implements Screen, InputProcessor {
     private void updateTimeLabel(Date gameDate) {
         int hour = gameDate.getHour();
         int displayHour = (hour == 0) ? 12 : (hour > 12 ? hour - 12 : hour);
-        String amPm = (hour >= 12 && hour < 24) ? "pm" : "am";
+        String amPm = (hour >= 12) ? "pm" : "am";
         String timeText = String.format("%d:%02d %s", displayHour, gameDate.getMinutes(), amPm);
         timeDisplayLabel.setText(timeText);
     }
@@ -815,10 +1017,11 @@ public class GameView implements Screen, InputProcessor {
         int minute = gameDate.getMinutes();
         float totalMinutes = hour * 60 + minute;
 
-        float startTime = 9 * 60f;
-        float endTime = 22 * 60f;
+        float startTime = 9 * 60f;   // 9:00 AM in minutes
+        float endTime = 22 * 60f;    // 10:00 PM in minutes
 
         float rotation;
+
         if (totalMinutes >= startTime && totalMinutes <= endTime) {
             float progress = (totalMinutes - startTime) / (endTime - startTime);
             rotation = -progress * 180f;
@@ -838,10 +1041,12 @@ public class GameView implements Screen, InputProcessor {
             clockX + clockSize/2 - dateLabel.getWidth()/2 + 16f,
             clockY + 95f
         );
+
         timeDisplayLabel.setPosition(
             clockX + clockSize/2 - timeDisplayLabel.getWidth()/2 + 17f,
             clockY + 49f
         );
+
         lightingDescriptionLabel.setPosition(
             clockX + clockSize/2 - lightingDescriptionLabel.getWidth()/2 + 17f,
             clockY + 35f
@@ -850,12 +1055,15 @@ public class GameView implements Screen, InputProcessor {
 
     private String getDayOfWeekAbbreviation(Date gameDate) {
         if (gameDate == null) return "Mon";
+
         int daysPerSeason = 28;
         int year = 1;
         int season = gameDate.getSeason().ordinal();
         int day = gameDate.getDay();
+
         int totalDays = ((year - 1) * 4 * daysPerSeason) + (season * daysPerSeason) + day - 1;
         int dayOfWeek = (totalDays % 7);
+
         String[] dayAbbreviations = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
         return dayAbbreviations[dayOfWeek];
     }
@@ -870,27 +1078,36 @@ public class GameView implements Screen, InputProcessor {
     private void renderEnergyBar() {
         if (energyBarTable == null) return;
 
+        // Get the position of the energy bar table - position it in the top-left corner
         float x = 20;
         float y = Gdx.graphics.getHeight() - ENERGY_BAR_HEIGHT - 20;
+
+        // Calculate energy percentage
         int currentEnergy = player.getEnergy();
         float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
         float barWidth = ENERGY_BAR_WIDTH * energyPercentage;
 
+        // Begin batch for energy bar rendering
         Main.getBatch().begin();
+
+        // Draw background (empty bar)
         Main.getBatch().setColor(Color.DARK_GRAY);
         Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, ENERGY_BAR_HEIGHT);
 
+        // Draw filled portion - always green
         if (barWidth > 0) {
             Main.getBatch().setColor(Color.GREEN);
             Main.getBatch().draw(skin.getRegion("white"), x, y, barWidth, ENERGY_BAR_HEIGHT);
         }
 
+        // Draw border
         Main.getBatch().setColor(Color.WHITE);
-        Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, 1);
-        Main.getBatch().draw(skin.getRegion("white"), x, y + ENERGY_BAR_HEIGHT - 1, ENERGY_BAR_WIDTH, 1);
-        Main.getBatch().draw(skin.getRegion("white"), x, y, 1, ENERGY_BAR_HEIGHT);
-        Main.getBatch().draw(skin.getRegion("white"), x + ENERGY_BAR_WIDTH - 1, y, 1, ENERGY_BAR_HEIGHT);
+        Main.getBatch().draw(skin.getRegion("white"), x, y, ENERGY_BAR_WIDTH, 1); // Top border
+        Main.getBatch().draw(skin.getRegion("white"), x, y + ENERGY_BAR_HEIGHT - 1, ENERGY_BAR_WIDTH, 1); // Bottom border
+        Main.getBatch().draw(skin.getRegion("white"), x, y, 1, ENERGY_BAR_HEIGHT); // Left border
+        Main.getBatch().draw(skin.getRegion("white"), x + ENERGY_BAR_WIDTH - 1, y, 1, ENERGY_BAR_HEIGHT); // Right border
 
+        // Reset color
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().end();
     }
