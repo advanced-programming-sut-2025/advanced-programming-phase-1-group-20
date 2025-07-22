@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.server.controllers.GameControllers.LoginMenuController;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
+import org.example.utils.AssetManager;
 
 public class LoginMenuScreen implements Screen {
     private final LoginMenuController controller;
@@ -22,6 +23,7 @@ public class LoginMenuScreen implements Screen {
     private Label errorLabel;
     private CheckBox stayLoggedInCheckbox;
     private final Skin skin;
+    private ImageButton loginButton, forgotButton, backButton;
 
     public LoginMenuScreen(LoginMenuController controller, Skin skin) {
         this.controller = controller;
@@ -60,9 +62,9 @@ public class LoginMenuScreen implements Screen {
         errorLabel.setColor(Color.RED);
         mainTable.add(errorLabel).colspan(2).padBottom(20).row();
 
-        TextButton loginButton = new TextButton("REGISTER", skin);
-        TextButton forgotButton = new TextButton("FORGOT PASSWORD", skin);
-        TextButton backButton = new TextButton("BACK", skin);
+        loginButton = createImageButton(AssetManager.getAssetManager().getLoginTitleTexture());
+        forgotButton = createImageButton(AssetManager.getAssetManager().getForgotPasswordTitleTexture());
+        backButton = createImageButton(AssetManager.getAssetManager().getBackTitleTexture());
 
         Table buttonsTable = new Table();
         buttonsTable.add(backButton).pad(10);
@@ -72,7 +74,14 @@ public class LoginMenuScreen implements Screen {
         mainTable.add(buttonsTable).colspan(2).padTop(20);
 
         stage.addActor(mainTable);
-        addListeners(loginButton, backButton, forgotButton);
+        addListeners();
+    }
+
+    private ImageButton createImageButton(Texture texture) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
+        style.imageDown = new TextureRegionDrawable(new TextureRegion(texture));
+        return new ImageButton(style);
     }
 
     private TextField createTextField(String hint) {
@@ -88,8 +97,7 @@ public class LoginMenuScreen implements Screen {
         return field;
     }
 
-    private void addListeners(TextButton loginButton, TextButton backButton,
-                              TextButton forgotButton) {
+    private void addListeners() {
         loginButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -126,7 +134,7 @@ public class LoginMenuScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -139,28 +147,22 @@ public class LoginMenuScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() {}
 
     @Override
     public void dispose() {
-
+        stage.dispose();
+        AssetManager.getAssetManager().disposeLoginMenuTextures();
     }
-
 }
