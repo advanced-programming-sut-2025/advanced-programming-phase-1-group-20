@@ -2,242 +2,153 @@ package org.example.client.views;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.client.Main;
 import org.example.client.controllers.MainMenuController;
-import org.example.common.models.App;
+import org.example.utils.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 
 public class MainMenuScreen implements Screen {
     private final MainMenuController controller;
-    private Stage stage;
+    private final Stage stage;
+    private Image background;
     private Skin skin;
 
-    // UI Components
-    private Table mainTable;
-    private Label titleLabel;
-    private Label welcomeLabel;
+    private ImageButton singlePlayerBtn;
+    private ImageButton multiPlayerBtn;
+    private ImageButton loadGameBtn;
+    private ImageButton profileBtn;
+    private ImageButton settingsBtn;
+    private ImageButton logoutBtn;
+    private Label errorLabel;
 
-    // Buttons
-    private TextButton singlePlayerButton;
-    private TextButton multiplayerButton;
-    private TextButton loadGameButton;
-    private TextButton profileButton;
-    private TextButton settingsButton;
-    private TextButton logoutButton;
-    private TextButton exitButton;
-
-    // Constants for layout
-    private static final float BUTTON_WIDTH = 300f;
-    private static final float BUTTON_HEIGHT = 60f;
-    private static final float BUTTON_PADDING = 15f;
-
-    public MainMenuScreen(App app, MainMenuController controller, Skin skin) {
+    public MainMenuScreen(MainMenuController controller, Skin skin) {
         this.controller = controller;
+        this.stage = new Stage(new ScreenViewport());
         this.skin = skin;
-        controller.setView(this);
-        initializeComponents();
+        this.controller.setView(this);
+        setupUI();
     }
 
-    private void initializeComponents() {
-        // Main table for layout
-        mainTable = new Table();
+    private void setupUI() {
+        background = new Image();
+        background.setFillParent(true);
+        stage.addActor(background);
 
-        // Title and welcome labels
-        titleLabel = new Label("STARDEW VALLEY", skin);
-        titleLabel.setColor(Color.WHITE);
-        titleLabel.setFontScale(2.0f);
+        Table mainTable = new Table();
+        mainTable.setFillParent(true);
+        mainTable.center();
 
-        String username = App.getLoggedInUser() != null ? App.getLoggedInUser().getUsername() : "Player";
-        welcomeLabel = new Label("Welcome, " + username + "!", skin);
-        welcomeLabel.setColor(Color.CYAN);
-        welcomeLabel.setFontScale(1.2f);
+        Label title = new Label("MAIN MENU", skin, "title");
+        title.setFontScale(2.0f);
+        title.setColor(Color.GOLD);
+        mainTable.add(title).colspan(2).padBottom(50).row();
 
-        // Create buttons
-        createButtons();
-        setupButtonListeners();
+        singlePlayerBtn = createImageButton(AssetManager.getAssetManager().getStartGameTitleTexture());
+        multiPlayerBtn = createImageButton(AssetManager.getAssetManager().getNewTitleTexture());
+        loadGameBtn = createImageButton(AssetManager.getAssetManager().getLoadTitleTexture());
+        profileBtn = createImageButton(AssetManager.getAssetManager().getChangeAvatarTitleTexture());
+        settingsBtn = createImageButton(AssetManager.getAssetManager().getDevelopedByTitleTexture());
+        logoutBtn = createImageButton(AssetManager.getAssetManager().getExitTitleTexture());
+
+        mainTable.add(singlePlayerBtn).pad(15).width(300).height(60).row();
+        mainTable.add(multiPlayerBtn).pad(15).width(300).height(60).row();
+        mainTable.add(loadGameBtn).pad(15).width(300).height(60).row();
+        mainTable.add(profileBtn).pad(15).width(300).height(60).row();
+        mainTable.add(settingsBtn).pad(15).width(300).height(60).row();
+        mainTable.add(logoutBtn).pad(15).width(300).height(60).row();
+
+        errorLabel = new Label("", skin);
+        errorLabel.setColor(Color.RED);
+        mainTable.add(errorLabel).colspan(2).padTop(30).row();
+
+        stage.addActor(mainTable);
+        addListeners();
     }
 
-    private void createButtons() {
-        singlePlayerButton = new TextButton("SINGLE PLAYER", skin);
-        singlePlayerButton.setColor(Color.GREEN);
-
-        multiplayerButton = new TextButton("MULTIPLAYER", skin);
-        multiplayerButton.setColor(Color.YELLOW);
-
-        loadGameButton = new TextButton("LOAD GAME", skin);
-        loadGameButton.setColor(Color.CYAN);
-
-        profileButton = new TextButton("PROFILE", skin);
-        profileButton.setColor(Color.PURPLE);
-
-        settingsButton = new TextButton("SETTINGS", skin);
-        settingsButton.setColor(Color.GRAY);
-
-        logoutButton = new TextButton("LOGOUT", skin);
-        logoutButton.setColor(Color.ORANGE);
-
-        exitButton = new TextButton("EXIT GAME", skin);
-        exitButton.setColor(Color.RED);
+    private ImageButton createImageButton(Texture texture) {
+        ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+        style.imageUp = new TextureRegionDrawable(new TextureRegion(texture));
+        style.imageDown = new TextureRegionDrawable(new TextureRegion(texture));
+        return new ImageButton(style);
     }
 
-    private void setupButtonListeners() {
-        singlePlayerButton.addListener(new ChangeListener() {
+    private void addListeners() {
+        singlePlayerBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Handle single player - create new game or continue existing
-                handleSinglePlayer();
+                controller.handleSinglePlayer();
             }
         });
 
-        multiplayerButton.addListener(new ChangeListener() {
+        multiPlayerBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                handleMultiplayer();
+                controller.handleMultiPlayer();
             }
         });
 
-        loadGameButton.addListener(new ChangeListener() {
+        loadGameBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                handleLoadGame();
+                controller.handleLoadGame();
             }
         });
 
-        profileButton.addListener(new ChangeListener() {
+        profileBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                handleProfile();
+                controller.handleProfile();
             }
         });
 
-        settingsButton.addListener(new ChangeListener() {
+        settingsBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                handleSettings();
+                controller.handleSettings();
             }
         });
 
-        logoutButton.addListener(new ChangeListener() {
+        logoutBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                handleLogout();
-            }
-        });
-
-        exitButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                Gdx.app.exit();
+                controller.handleLogout();
             }
         });
     }
 
-    private void handleSinglePlayer() {
-        // Navigate to single player game setup or directly start game
-        System.out.println("Single Player selected");
-        // TODO: Implement single player flow - could show map selection, etc.
+    public void updateBackground(Texture texture) {
+        background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
     }
 
-    private void handleMultiplayer() {
-        // Navigate to multiplayer menu
-        System.out.println("Multiplayer selected");
-        Main.getGame().getScreen().dispose();
-
-        org.example.client.controllers.MultiplayerMenuController multiplayerController =
-            new org.example.client.controllers.MultiplayerMenuController();
-        org.example.client.views.MultiplayerMenuScreen multiplayerScreen =
-            new org.example.client.views.MultiplayerMenuScreen(multiplayerController, skin);
-        Main.getGame().setScreen(multiplayerScreen);
-    }
-
-    private void handleLoadGame() {
-        // Load existing game
-        System.out.println("Load Game selected");
-        // TODO: Implement load game functionality
-    }
-
-    private void handleProfile() {
-        // Show profile/settings screen
-        System.out.println("Profile selected");
-        // TODO: Implement profile screen
-    }
-
-    private void handleSettings() {
-        // Show settings screen
-        System.out.println("Settings selected");
-        // TODO: Implement settings screen
-    }
-
-    private void handleLogout() {
-        // Logout and return to welcome screen
-        System.out.println("Logout selected");
-        controller.logout();
-
-        // Navigate back to welcome screen
-        Main.getGame().getScreen().dispose();
-        org.example.client.controllers.WelcomeMenuController welcomeController =
-            new org.example.client.controllers.WelcomeMenuController();
-        org.example.client.views.WelcomeMenuScreen welcomeScreen =
-            new org.example.client.views.WelcomeMenuScreen(welcomeController, skin);
-        Main.getGame().setScreen(welcomeScreen);
+    public void showError(String message) {
+        errorLabel.setText(message);
     }
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
-
-        // Setup main layout
-        mainTable.setFillParent(true);
-        mainTable.center();
-
-        // Add title and welcome message
-        mainTable.add(titleLabel).padBottom(20).row();
-        mainTable.add(welcomeLabel).padBottom(40).row();
-
-        // Create button layout table
-        Table buttonTable = new Table();
-        buttonTable.defaults().width(BUTTON_WIDTH).height(BUTTON_HEIGHT).pad(BUTTON_PADDING);
-
-        // Layout buttons in a nice grid
-        buttonTable.add(singlePlayerButton).uniform().row();
-        buttonTable.add(multiplayerButton).uniform().row();
-        buttonTable.add(loadGameButton).uniform().row();
-        buttonTable.add(profileButton).uniform().row();
-        buttonTable.add(settingsButton).uniform().row();
-        buttonTable.add(logoutButton).uniform().padTop(20).row();
-        buttonTable.add(exitButton).uniform().row();
-
-        mainTable.add(buttonTable);
-        stage.addActor(mainTable);
     }
 
     @Override
     public void render(float delta) {
-        // Update controller
-        if (controller != null) {
-            // Any controller updates can go here
-        }
-
-        // Clear screen with dark background
-        ScreenUtils.clear(0.1f, 0.1f, 0.2f, 1);
-
-        // Update and draw stage
-        stage.act(Math.min(delta, 1 / 30f));
+        controller.update(delta);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(delta);
         stage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
-        if (stage != null) {
-            stage.getViewport().update(width, height, true);
-        }
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -251,8 +162,6 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void dispose() {
-        if (stage != null) {
-            stage.dispose();
-        }
+        stage.dispose();
     }
 }

@@ -24,6 +24,7 @@ public class AssetManager {
     private final Texture[] signUpMenuImages = new Texture[20];
     private final Texture[] loginMenuImages = new Texture[20];
     private final Texture[] profileMenuImages = new Texture[20];
+    private final Texture[] mainMenuImages = new Texture[20];
 
     // weather texture
     private final Texture rainyTexture = new Texture("content/clock/weather/rainy.png");
@@ -154,6 +155,28 @@ public class AssetManager {
 
     public void disposeProfileMenuTextures() {
         for (Texture texture : profileMenuImages) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+    }
+
+    public void loadMainMenuTextures() {
+        for (int i = 0; i < 20; i++) {
+            mainMenuImages[i] = new Texture(Gdx.files.internal("content/MainMenu/" + (i + 1) + ".png"));
+        }
+    }
+
+    public Texture getMainMenuTexture(int index) {
+        return mainMenuImages[index];
+    }
+
+    public int getMainMenuImagesCount() {
+        return mainMenuImages.length;
+    }
+
+    public void disposeMainMenuTextures() {
+        for (Texture texture : mainMenuImages) {
             if (texture != null) {
                 texture.dispose();
             }
