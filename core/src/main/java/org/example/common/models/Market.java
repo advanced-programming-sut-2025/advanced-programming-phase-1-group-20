@@ -7,6 +7,7 @@ import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.enums.Seasons;
+import org.example.common.models.enums.Types.CookingType;
 import org.example.common.models.enums.Types.TileType;
 
 import java.util.HashMap;
@@ -375,22 +376,24 @@ public class Market extends Building {
     }
 
     private void checkOutStarDropSaloon(Player player, Item item, double count) {
+        CookingType cookingType = CookingType.fromName(item.getName());
+        CookingItem cookingItem = new CookingItem(cookingType);
         if (item.getName().equals("hash browns")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
             return;
         }
         if (item.getName().equals("Omelet")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
             return;
         }
         if (item.getName().equals("pancakes")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
@@ -398,7 +401,7 @@ public class Market extends Building {
         }
 
         if (item.getName().equals("bread")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
@@ -406,7 +409,7 @@ public class Market extends Building {
         }
 
         if (item.getName().equals("Tortilla")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
@@ -414,7 +417,7 @@ public class Market extends Building {
         }
 
         if (item.getName().equals("Maki Roll")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
@@ -422,7 +425,7 @@ public class Market extends Building {
         }
 
         if (item.getName().equals("Triple Shot Espresso")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
@@ -430,14 +433,14 @@ public class Market extends Building {
         }
 
         if (item.getName().equals("Pizza")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);
             return;
         }
         if (item.getName().equals("Cookie")) {
-            player.addCookingItem((CookingItem) item);
+            player.addCookingItem(cookingItem);
             player.decreaseMoney((int) (item.getPrice() * count));
             double stock = count + counterStock.get(item);
             counterStock.put(item, stock);

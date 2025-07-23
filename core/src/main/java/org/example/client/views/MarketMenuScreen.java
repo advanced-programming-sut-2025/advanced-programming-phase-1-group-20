@@ -13,9 +13,11 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
+import org.example.client.controllers.MarketController;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
+import org.example.common.models.common.Result;
 import org.example.common.models.enums.Seasons;
 
 import java.util.HashMap;
@@ -29,6 +31,8 @@ public class MarketMenuScreen implements Screen, Disposable {
     private Player player;
     private Seasons currentSeason;
     private Screen previousScreen;
+
+    private MarketController controller;
 
     // UI Elements
     private Table rootTable;
@@ -47,6 +51,8 @@ public class MarketMenuScreen implements Screen, Disposable {
         this.player = player;
         this.currentSeason = currentSeason;
         this.previousScreen = previousScreen;
+
+        controller = new MarketController(player, market);
 
         this.market.initializeTotalStock(currentSeason);
         this.currentDisplayStock = market.getPermanentStock();
@@ -220,24 +226,12 @@ public class MarketMenuScreen implements Screen, Disposable {
             public void clicked(InputEvent event, float x, float y) {
                 try {
                     double quantity = Double.parseDouble(quantityField.getText());
-                    if (quantity <= 0) {
-                        showErrorDialog("Invalid Quantity", "Quantity must be positive.");
-                        return;
-                    }
-
-                    // Crucial: check against the actual totalStock that's purchasable
-                    // The market.checkItem and market.containsItem use market.totalStock
-                    if (market.checkItem(player, item, quantity)) {
-                        market.checkOut(player, item, quantity);
-                        Gdx.app.log("MarketMenuScreen", "Purchased " + quantity + " of " + item.getName());
-                        updateMoneyLabel(); // Update player's money display
-                        // Re-display current items to reflect updated stock after purchase
-                        displayItems(currentDisplayStock);
-                        buyConfirmationDialog.hide(); // Hide the dialog
-                    } else {
-                        // Error message from market.checkItem/containsItem might be printed to console
-                        // For UI, we should display it in a dialog.
-                        showErrorDialog("Purchase Failed", "Cannot complete purchase. Check money, stock, or requirements.");
+                    String productName = item.getName();
+                    String quantityString = String.valueOf(quantity);
+                    String[] args = new String[]{productName, quantityString};
+                    Result result = controller.purchase(args);
+                    if(!result.success()){
+                        showErrorDialog("error purchasing" , result.message());
                     }
                 } catch (NumberFormatException e) {
                     showErrorDialog("Invalid Input", "Please enter a valid number for quantity.");

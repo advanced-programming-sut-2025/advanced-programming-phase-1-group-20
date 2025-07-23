@@ -39,7 +39,7 @@ public class MarketController implements Controller {
         market.showAvailableProducts(App.getGame().getDate().getSeason());
     }
 
-    private Result purchase(String[] args) {
+    public Result purchase(String[] args) {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
         Item item = market.getItem(productName);
