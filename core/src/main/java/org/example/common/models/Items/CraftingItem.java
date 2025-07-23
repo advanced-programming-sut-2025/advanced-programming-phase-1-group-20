@@ -549,6 +549,11 @@ public class CraftingItem extends Item {
         return "content/CraftingItems/" + type.getImageFilepath() + ".png";
     }
 
+    @Override
+    public String getImageFilepath() {
+        return "content/CraftingItems/" + type.getImageFilepath() + ".png";
+    }
+
     public Texture getTexture() {
         return new Texture(getImage());
     }

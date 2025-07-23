@@ -185,4 +185,9 @@ public class Plant extends Item {
     public String getImage(){
         return "content/Plants/" + getImageFilePath() + ".png";
     }
+
+    @Override
+    public String getImageFilepath() {
+        return "content/Plants/" + getImageFilePath() + ".png";
+    }
 }

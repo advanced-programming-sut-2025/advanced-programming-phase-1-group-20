@@ -28,4 +28,6 @@ public class Seed extends Item {
     public void showInfo() {
         type.showInfo();
     }
+
+
 }
