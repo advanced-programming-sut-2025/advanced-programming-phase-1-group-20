@@ -1111,4 +1111,8 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().end();
     }
+
+    public Skin getSkin() {
+        return skin;
+    }
 }

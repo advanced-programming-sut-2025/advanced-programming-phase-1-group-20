@@ -5,11 +5,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
+import org.example.client.views.MarketMenuScreen;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.App;
+import org.example.common.models.Market;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
 
@@ -24,6 +27,8 @@ public class WorldController {
     private PlayerController playerController;
     private Farm farm;
     private OrthographicCamera camera;
+    private Skin skin;
+    private GameMenuController controller;
 
     private Map<String, Texture> textureCache;
     private Set<String> renderedBuildings;
@@ -58,12 +63,14 @@ public class WorldController {
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
 
-    public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera) {
+    public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera , Skin skin , GameMenuController controller) {
         this.playerController = playerController;
         this.farm = farm;
         this.camera = camera;
+        this.skin = skin;
         this.textureCache = new HashMap<>();
         this.renderedBuildings = new HashSet<>();
+        this.controller = controller;
 
         // Initialize building anchor collections
         this.greenhouseAnchors = new ArrayList<>();
@@ -944,23 +951,24 @@ public class WorldController {
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
             if(playerController.getPlayer().getIsInVillage()){
+                Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 if(checkClicked(blacksmith , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[0] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
                 else if(checkClicked(jojaMart , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[1] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
                 else if(checkClicked(pierreGeneralStore , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[2] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
                 else if(checkClicked(carpentersShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[3] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 } else if (checkClicked(fishShop , HOUSE_TILES_W, HOUSE_TILES_H , touchPoint)) {
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[4] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 } else if (checkClicked(marnieShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[5] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 } else if (checkClicked(starDropSaloon , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
-
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[6] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
             }else {
                 if(checkClicked(houseAnchors , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){

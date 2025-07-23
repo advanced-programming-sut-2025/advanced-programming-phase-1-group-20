@@ -486,4 +486,32 @@ public class Market extends Building {
     public TileType getTileType() {
         return tileType;
     }
+
+    public HashMap<Item, Double> getCounterStock() {
+        return counterStock;
+    }
+
+    public HashMap<Item, Double> getTotalStock() {
+        return totalStock;
+    }
+
+    public HashMap<Item, Double> getPermanentStock() {
+        return permanentStock;
+    }
+
+    public HashMap<Item, Double> getSpringStock() {
+        return springStock;
+    }
+
+    public HashMap<Item, Double> getSummerStock() {
+        return summerStock;
+    }
+
+    public HashMap<Item, Double> getAutumnStock() {
+        return autumnStock;
+    }
+
+    public HashMap<Item, Double> getWinterStock() {
+        return winterStock;
+    }
 }
