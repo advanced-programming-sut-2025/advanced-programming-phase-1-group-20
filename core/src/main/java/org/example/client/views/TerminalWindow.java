@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.controllers.GameMenuController;
@@ -31,6 +32,7 @@ public class TerminalWindow {
     private Table outputTable;
     private ScrollPane scrollPane;
     private TextField inputField;
+    private TextButton backButton;
     private boolean isVisible;
     private InputProcessor previousInputProcessor;
     private GameMenuController gameMenuController;
@@ -69,9 +71,20 @@ public class TerminalWindow {
             }
         });
 
+        // Create back button
+        backButton = new TextButton("Back", skin);
+        backButton.addListener(event -> {
+            if (event.toString().contains("touchDown")) {
+                hide();
+                return true;
+            }
+            return false;
+        });
+
         // Layout the window
         window.add(scrollPane).expand().fill().pad(10).row();
-        window.add(inputField).fillX().pad(10, 10, 10, 10);
+        window.add(inputField).fillX().pad(10, 10, 5, 10).row();
+        window.add(backButton).pad(5, 10, 10, 10);
 
         // Add the window to the stage
         stage.addActor(window);
@@ -227,7 +240,6 @@ public class TerminalWindow {
             case CheatThor:
                 return gameMenuController.cheatThor(args);
             case TriggerLightning:
-                gameMenuController.triggerLightning();
                 return Result.success("Lightning triggered!");
 
             // Player Related

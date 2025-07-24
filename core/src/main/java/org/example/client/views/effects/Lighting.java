@@ -139,9 +139,8 @@ public class Lighting {
             case RAINY -> new float[]{0.92f, 0.92f, 0.97f}; // Slightly gray/blue
             case STORMY -> new float[]{0.8f, 0.8f, 0.9f};   // Dim, but not harsh
             case SNOWY -> new float[]{0.97f, 0.97f, 1.0f};  // Very subtle blue
-            case GREENHOUSE -> null;
+            case GREENHOUSE -> new float[]{1.0f, 1.0f, 1.0f}; // Default for greenhouse
         };
-        assert modifier != null;
         return new int[]{
             (int) (color[0] * modifier[0]),
             (int) (color[1] * modifier[1]),

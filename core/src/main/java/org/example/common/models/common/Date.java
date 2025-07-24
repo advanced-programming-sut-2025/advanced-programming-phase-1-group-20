@@ -133,7 +133,8 @@ public class Date implements Runnable {
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
         int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
 //        this.weatherToday = possibleWeather.get(randomIndex);
-        weatherToday = Weather.STORMY;
+        this.weatherToday = Weather.STORMY;
+        // TODO: check stormy
     }
 
     private void updateWeatherTomorrow() {
