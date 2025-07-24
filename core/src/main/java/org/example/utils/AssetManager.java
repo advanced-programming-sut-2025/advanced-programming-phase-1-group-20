@@ -146,6 +146,7 @@ public class AssetManager {
         loadSignUpMenuTextures();
         loadLoginMenuTextures();
         loadProfileMenuTextures();
+        loadMainMenuTextures();
         for (int i = 1; i < 4; i++) {
             snowTextures[i] = new Texture(Gdx.files.internal("content/snow/" + i + ".png"));
         }
@@ -237,12 +238,22 @@ public class AssetManager {
 
     public void loadMainMenuTextures() {
         for (int i = 0; i < 20; i++) {
-            mainMenuImages[i] = new Texture(Gdx.files.internal("content/MainMenu/" + (i + 1) + ".png"));
+            mainMenuImages[i] = new Texture(Gdx.files.internal("Menu/" + (i + 1) + ".png"));
         }
     }
 
     public Texture getMainMenuTexture(int index) {
-        return mainMenuImages[index];
+        if (index >= 0 && index < mainMenuImages.length && mainMenuImages[index] != null) {
+            return mainMenuImages[index];
+        }
+        // Return a fallback texture or the first available texture
+        for (int i = 0; i < mainMenuImages.length; i++) {
+            if (mainMenuImages[i] != null) {
+                return mainMenuImages[i];
+            }
+        }
+        // If no textures are loaded, return null (this will be handled by the caller)
+        return null;
     }
 
     public int getMainMenuImagesCount() {

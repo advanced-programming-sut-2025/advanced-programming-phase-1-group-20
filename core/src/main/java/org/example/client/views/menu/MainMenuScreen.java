@@ -125,7 +125,9 @@ public class MainMenuScreen implements Screen {
     }
 
     public void updateBackground(Texture texture) {
-        background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
+        if (texture != null) {
+            background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
+        }
     }
 
     public void showError(String message) {

@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.views.gameplay.InventoryScreen;
 import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Items.Tool;
@@ -53,7 +54,6 @@ public class GameView implements Screen, InputProcessor {
     private OrthographicCamera camera;
     private Skin skin;
     private TextButton pauseButton;
-    private TextButton cheatButton;
     private Table mainTable;
     private Table pauseTable;
     private TextButton resumeButton;
@@ -455,18 +455,6 @@ public class GameView implements Screen, InputProcessor {
         pauseTable = new Table();
         pauseButton = new TextButton("Pause", skin);
         resumeButton = new TextButton("Resume", skin);
-        cheatButton = new TextButton("Cheat", skin);
-
-        // Add click listener to cheat button
-        cheatButton.addListener(event -> {
-            if (event.toString().contains("touchDown")) {
-                if (terminalWindow != null) {
-                    terminalWindow.toggle();
-                }
-                return true;
-            }
-            return false;
-        });
     }
 
     // Getters
@@ -499,7 +487,7 @@ public class GameView implements Screen, InputProcessor {
 
         if (keycode == Input.Keys.ESCAPE) {
             // Show InventoryScreen and pass this as previousScreen
-            Main.getGame().setScreen(new org.example.client.views.InventoryScreen(player, skin, this));
+            Main.getGame().setScreen(new InventoryScreen(player, skin, this));
             return true;
         }
         if(keycode == Input.Keys.B){
@@ -507,7 +495,6 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if(keycode == Input.Keys.L){
-            // Test lightning effect
             if (lightningSystem != null) {
                 lightningSystem.triggerLightning();
                 System.out.println("⚡ Lightning triggered manually!");
@@ -515,7 +502,6 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if(keycode == Input.Keys.GRAVE){
-            // Toggle cheat terminal (backtick key)
             if (terminalWindow != null) {
                 terminalWindow.toggle();
             }
@@ -904,8 +890,7 @@ public class GameView implements Screen, InputProcessor {
         mainTable.setFillParent(true);
         mainTable.padTop(10).padRight(10);
         mainTable.add(clockStack).size(120, 120).row();
-        mainTable.add(energyBarTable).padTop(10).row();
-        mainTable.add(cheatButton).padTop(5);
+        mainTable.add(energyBarTable).padTop(10);
         stage.addActor(mainTable);
 
         pauseTable.setFillParent(true);
@@ -982,28 +967,20 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
-    @Override
+        @Override
     public void resize(int width, int height) {
-        // Recreate rain system with new dimensions - NEW
-        if (climateSystem != null) {
-            climateSystem.dispose();
-            // Instead of using width/height, use the camera
-            camera.setToOrtho(false, width, height);
-            climateSystem = new ClimateSystem(camera);
+        // Update stage viewport to fix clock positioning issues
+        if (stage != null) {
+            stage.getViewport().update(width, height, true);
         }
-
-        // Recreate lightning system with new dimensions - NEW
-        if (lightningSystem != null) {
-            lightningSystem.dispose();
-            lightningSystem = new LightningSystem(camera);
-        }
-
+        
+        // Update camera dimensions
+        camera.setToOrtho(false, width, height);
+        
         // Resize terminal window
         if (terminalWindow != null) {
             terminalWindow.resize(width, height);
         }
-
-
     }
 
     @Override

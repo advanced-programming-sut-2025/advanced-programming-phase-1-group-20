@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
