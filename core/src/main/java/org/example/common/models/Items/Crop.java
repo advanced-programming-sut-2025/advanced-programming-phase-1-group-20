@@ -38,11 +38,6 @@ public class Crop extends Item {
         return "content/Crops/" + getImageFilepath() + ".png";
     }
 
-    @Override
-    public String getImageFilepath()  {
-        return "content/Crops/" + getImageFilepath() + ".png";
-    }
-
     public Texture getTexture() {
         return new Texture(getImage());
     }

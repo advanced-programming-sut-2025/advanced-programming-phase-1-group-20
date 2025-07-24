@@ -113,7 +113,6 @@ public class Tool extends Item {
     public int getEnergyConsumption(int skillLevel) {
         // If the skill is at max level, reduce energy consumption by 1
         // check energy consumption by weather
-
         if (skillLevel == 4) {
             return Math.max(0, energyConsumption - 1);
         }
@@ -153,17 +152,14 @@ public class Tool extends Item {
     }
 
     public boolean use(String direction) {
-        // For tools with functionality, use the function pointer
         if (functionality != null) {
             return functionality.use(this, direction);
         }
 
-        // For Scythe, always return true
         if (type == ToolType.SCYTHE) {
             return true;
         }
 
-        // For TrashCan, always return false
         if (type == ToolType.TRASH_CAN) {
             return false;
         }

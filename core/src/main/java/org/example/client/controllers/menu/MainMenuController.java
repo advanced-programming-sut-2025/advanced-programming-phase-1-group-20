@@ -1,11 +1,11 @@
-package org.example.client.controllers;
+package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.views.*;
 import org.example.common.models.App;
 import org.example.server.controllers.GameControllers.LoginMenuController;
 import org.example.utils.AssetManager;
-import org.example.client.views.MainMenuScreen;
+import org.example.client.views.menu.MainMenuScreen;
 
 import static org.example.client.Main.getGame;
 

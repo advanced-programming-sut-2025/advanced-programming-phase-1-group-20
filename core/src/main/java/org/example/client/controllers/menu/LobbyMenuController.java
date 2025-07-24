@@ -33,9 +33,6 @@ public class LobbyMenuController implements Controller {
         // Setup listeners will be called by the view
     }
 
-    // =====================
-    // LOBBY OPERATIONS
-    // =====================
 
     public void createLobby(String lobbyName, boolean isPrivate, boolean isVisible, String password) {
         System.out.println("Creating lobby - Auth: " + connectionManager.isAuthenticated() + ", Connected: " + connectionManager.isConnected());
@@ -238,9 +235,7 @@ public class LobbyMenuController implements Controller {
         }
     }
 
-    // =====================
-    // MESSAGE HANDLING
-    // =====================
+
 
     public void handleLobbyMessage(Message message) {
         if (view == null) return;

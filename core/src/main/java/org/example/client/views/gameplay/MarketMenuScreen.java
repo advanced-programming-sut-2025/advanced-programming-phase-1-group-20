@@ -272,13 +272,12 @@ public class MarketMenuScreen implements Screen, Disposable {
 
         errorDialog.show(stage);
 
-        // --- CORRECTED: Manually center the dialog ---
         errorDialog.pack(); // Pack to get preferred size
         errorDialog.setPosition(
             Math.round((stage.getWidth() - errorDialog.getWidth()) / 2),
             Math.round((stage.getHeight() - errorDialog.getHeight()) / 2)
         );
-        // --- END CORRECTION ---
+
     }
 
 
@@ -304,13 +303,12 @@ public class MarketMenuScreen implements Screen, Disposable {
 
     @Override
     public void hide() {
-        Gdx.input.setInputProcessor(null); // Clear input processor when screen hides
+        Gdx.input.setInputProcessor(null);
     }
 
     @Override
     public void dispose() {
         stage.dispose();
         skin.dispose();
-        // Don't dispose market or player here, as they are likely managed by the game
     }
 }

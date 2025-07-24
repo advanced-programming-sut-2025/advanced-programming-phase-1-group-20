@@ -20,6 +20,8 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.common.models.App;
+import org.example.common.models.Items.Item;
+import org.example.common.models.Items.Tool;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
@@ -36,6 +38,7 @@ import org.example.client.views.effects.Lighting;
 import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
 import org.example.client.controllers.NPCSpriteController;
 import org.example.client.views.effects.LightningSystem; // NEW IMPORT
+import org.example.client.views.fishing.FishingMiniGame;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -489,31 +492,39 @@ public class GameView implements Screen, InputProcessor {
     public boolean keyTyped(char c) { return false; }
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        // Only handle left mouse button
-        if (button == Input.Buttons.LEFT && player.getCurrentTool() != null) {
-            // Convert screen coordinates to world coordinates
+        if (button == Input.Buttons.LEFT) {
             Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
-            float dx = worldCoords.x - playerX;
-            float dy = worldCoords.y - playerY;
-            // Store last mouse position for tool animation
-            lastToolMouseX = worldCoords.x;
-            lastToolMouseY = worldCoords.y;
-            // Calculate angle and direction
-            double angle = Math.atan2(dy, dx);
-            String direction;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                direction = dx > 0 ? "east" : "west";
-            } else {
-                direction = dy > 0 ? "north" : "south";
+
+            int tileX = (int) (worldCoords.x / 60);
+            int tileY = (int) (worldCoords.y / 60);
+
+            if (player.getCurrentFarm() != null && player.getCurrentFarm().isInWater(tileX, tileY)) {
+                startFishingMiniGame();
+                return true;
             }
-            player.useTool(direction, game.getGameMap());
-            // Trigger tool swing animation with mouse position
-            if (controller != null && controller.getPlayerController() != null) {
-                controller.getPlayerController().triggerToolSwing(direction, worldCoords.x, worldCoords.y);
+
+            if (player.getCurrentTool() != null) {
+                float playerX = player.getPosX();
+                float playerY = player.getPosY();
+                float dx = worldCoords.x - playerX;
+                float dy = worldCoords.y - playerY;
+
+                lastToolMouseX = worldCoords.x;
+                lastToolMouseY = worldCoords.y;
+
+                double angle = Math.atan2(dy, dx);
+                String direction;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    direction = dx > 0 ? "east" : "west";
+                } else {
+                    direction = dy > 0 ? "north" : "south";
+                }
+                player.useTool(direction, game.getGameMap());
+                if (controller != null && controller.getPlayerController() != null) {
+                    controller.getPlayerController().triggerToolSwing(direction, worldCoords.x, worldCoords.y);
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
@@ -1114,5 +1125,22 @@ public class GameView implements Screen, InputProcessor {
 
     public Skin getSkin() {
         return skin;
+    }
+
+    private void startFishingMiniGame() {
+        String poleName = "training rod"; // Default pole name
+
+        for (Item item : player.getBackpack().getInventory().keySet()) {
+            if (item instanceof Tool tool) {
+                if (tool.getType() == Tool.ToolType.FISHING_ROD) {
+                    poleName = tool.getName(); // Use the actual tool name
+                    break;
+                }
+            }
+        }
+
+        FishingMiniGame fishingMiniGame = new FishingMiniGame(this, poleName);
+
+        Main.getGame().setScreen(fishingMiniGame);
     }
 }

@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -11,7 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.client.controllers.MainMenuController;
+import org.example.client.controllers.menu.MainMenuController;
 import org.example.utils.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 

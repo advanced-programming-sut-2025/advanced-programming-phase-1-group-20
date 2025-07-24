@@ -10,15 +10,6 @@ import java.util.List; // اضافه شده برای listSavedGames
  * Controller class for handling game save and load operations.
  */
 public class GameSaveLoadController {
-
-    /**
-     * Saves the current game.
-     * If saveName is provided, it saves with that custom name.
-     * Otherwise, it updates the "current_game" save.
-     *
-     * @param saveName Optional custom name for the save. Can be null or empty for "current_game" update.
-     * @return A message indicating success or failure
-     */
     public static String saveGame(String saveName) {
         Game gameToSave = App.getGame();
         if (gameToSave == null) {
