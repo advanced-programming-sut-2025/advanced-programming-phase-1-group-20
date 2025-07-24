@@ -1,4 +1,4 @@
-package org.example.client.controllers;
+package org.example.client.controllers.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;

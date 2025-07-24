@@ -1,6 +1,6 @@
 package org.example.common.models;
 
-import org.example.client.controllers.NPCController;
+import org.example.client.controllers.gameplay.NPCController;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;
 import org.example.common.models.entities.Game;

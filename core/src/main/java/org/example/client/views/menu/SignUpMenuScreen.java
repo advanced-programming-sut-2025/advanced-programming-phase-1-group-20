@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.client.controllers.SignUpMenuController;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import org.example.client.controllers.auth.SignUpMenuController;
 import org.example.utils.AssetManager;
 
 public class SignUpMenuScreen implements Screen {

@@ -1,9 +1,11 @@
 package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
-import org.example.client.views.*;
+import org.example.client.controllers.ProfileMenuController;
+import org.example.client.views.ProfileMenuScreen;
+import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
-import org.example.server.controllers.GameControllers.LoginMenuController;
+import org.example.client.controllers.auth.LoginMenuController;
 import org.example.utils.AssetManager;
 import org.example.client.views.menu.MainMenuScreen;
 

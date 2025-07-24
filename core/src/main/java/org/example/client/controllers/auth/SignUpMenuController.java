@@ -1,9 +1,11 @@
-package org.example.client.controllers;
+package org.example.client.controllers.auth;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.views.SignUpMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
@@ -12,7 +14,7 @@ import org.example.utils.AssetManager;
 import java.util.Random;
 
 import static org.example.client.Main.getGame;
-import org.example.client.views.MainMenuScreen;
+
 
 public class SignUpMenuController {
     private SignUpMenuScreen screen;
@@ -139,7 +141,7 @@ public class SignUpMenuController {
 
     public void handleBack() {
         getGame().getScreen().dispose();
-        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+        getGame().setScreen(new WelcomeMenuScreen(new org.example.client.controllers.WelcomeMenuController(),
             AssetManager.getAssetManager().getSkin()));
     }
 

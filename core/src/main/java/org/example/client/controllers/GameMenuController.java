@@ -1,5 +1,9 @@
 package org.example.client.controllers;
 
+import org.example.client.controllers.gameplay.AnimalController;
+import org.example.client.controllers.gameplay.PlantController;
+import org.example.client.controllers.gameplay.PlayerController;
+import org.example.client.controllers.gameplay.WorldController;
 import org.example.common.models.App;
 import org.example.common.models.Items.*;
 import org.example.common.models.entities.*;
@@ -22,7 +26,6 @@ import org.example.common.models.enums.Types.ItemBuilder;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.enums.Weather;
 import org.example.client.views.GameView;
-import org.example.client.views.effects.ClimateSystem;
 import org.example.client.views.effects.LightningSystem;
 
 

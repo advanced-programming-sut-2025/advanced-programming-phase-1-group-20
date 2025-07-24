@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,9 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.server.controllers.GameControllers.LoginMenuController;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;
+import org.example.client.controllers.auth.LoginMenuController;
 import org.example.utils.AssetManager;
 
 public class LoginMenuScreen implements Screen {

@@ -1,4 +1,4 @@
-package org.example.client.controllers;
+package org.example.client.controllers.gameplay;
 
 import org.example.common.models.App;
 import org.example.common.models.Items.*;

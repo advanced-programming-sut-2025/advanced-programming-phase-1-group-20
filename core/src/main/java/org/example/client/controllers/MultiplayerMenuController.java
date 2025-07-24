@@ -1,11 +1,12 @@
 package org.example.client.controllers;
 
 import org.example.client.Main;
+import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.ConnectionManager;
 import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
-import org.example.client.views.MainMenuScreen;
+import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.Message;
 import org.example.common.models.entities.User;
@@ -172,7 +173,7 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
         // Navigate to lobby menu
         Main.getGame().getScreen().dispose();
-        LobbyMenuController lobbyController = new LobbyMenuController();
+        org.example.client.controllers.LobbyMenuController lobbyController = new org.example.client.controllers.LobbyMenuController();
         org.example.client.views.LobbyMenuScreen lobbyScreen = new org.example.client.views.LobbyMenuScreen(lobbyController, AssetManager.getAssetManager().getSkin());
         Main.getGame().setScreen(lobbyScreen);
     }
@@ -193,7 +194,7 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
         } else {
             // If no user is logged in, go to welcome screen
             Main.getGame().getScreen().dispose();
-            WelcomeMenuController welcomeController = new WelcomeMenuController();
+            org.example.client.controllers.WelcomeMenuController welcomeController = new org.example.client.controllers.WelcomeMenuController();
             org.example.client.views.WelcomeMenuScreen welcomeScreen = new org.example.client.views.WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
             Main.getGame().setScreen(welcomeScreen);
         }

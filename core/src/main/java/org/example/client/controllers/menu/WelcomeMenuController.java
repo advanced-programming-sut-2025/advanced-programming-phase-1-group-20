@@ -1,7 +1,10 @@
 package org.example.client.controllers;
 
 import com.badlogic.gdx.graphics.Texture;
+import org.example.client.controllers.auth.LoginRegisterMenuController;
+import org.example.client.controllers.auth.SignUpMenuController;
 import org.example.client.views.SignUpMenuScreen;
+import org.example.client.views.menu.LoginRegisterMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -11,7 +14,6 @@ import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
-import org.example.client.views.LoginRegisterMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;

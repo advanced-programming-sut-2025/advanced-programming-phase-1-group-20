@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -10,7 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import org.example.client.controllers.LoginRegisterMenuController;
+import org.example.client.controllers.auth.LoginRegisterMenuController;
+import org.example.client.controllers.menu.MainMenuController;
+import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.common.Result;
 
 public class LoginRegisterMenuScreen implements Screen {
@@ -378,10 +380,10 @@ public class LoginRegisterMenuScreen implements Screen {
                     if (loggedInUser != null) {
                         org.example.client.Main.getGame().getScreen().dispose();
 
-                        org.example.client.controllers.MainMenuController mainMenuController =
-                            new org.example.client.controllers.MainMenuController();
-                        org.example.client.views.MainMenuScreen mainMenuScreen =
-                            new org.example.client.views.MainMenuScreen(mainMenuController,
+                       MainMenuController mainMenuController =
+                            new MainMenuController();
+                        MainMenuScreen mainMenuScreen =
+                            new MainMenuScreen(mainMenuController,
                                 org.example.utils.AssetManager.getAssetManager().getSkin());
 
                         org.example.client.Main.getGame().setScreen(mainMenuScreen);

@@ -1,6 +1,9 @@
-package org.example.client.controllers;
+package org.example.client.controllers.auth;
 
 import org.example.client.Main;
+import org.example.client.controllers.Controller;
+import org.example.client.controllers.WelcomeMenuController;
+import org.example.client.views.menu.LoginRegisterMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.common.Result;
 import org.example.common.models.entities.User;
@@ -8,7 +11,6 @@ import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
-import org.example.client.views.LoginRegisterMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
 
 import java.util.ArrayList;
