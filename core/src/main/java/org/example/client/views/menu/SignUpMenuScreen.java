@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;

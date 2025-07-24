@@ -3,7 +3,7 @@ package org.example.client.controllers;
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.controllers.auth.LoginRegisterMenuController;
 import org.example.client.controllers.auth.SignUpMenuController;
-import org.example.client.views.SignUpMenuScreen;
+import org.example.client.views.menu.SignUpMenuScreen;
 import org.example.client.views.menu.LoginRegisterMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.MapDetails.Farm;
