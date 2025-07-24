@@ -11,164 +11,228 @@ import org.example.common.models.enums.Weather;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class FishingController {
-    private enum FishMotionTypes {
-        MIXED(5),
-        SMOOTH(5),
-        SINKER(5),
-        FLOATER(5),
-        DART(9);
+    // Configuration constants
+    private static final float MOVEMENT_MULTIPLIER = 12;
+    private static final float FISHING_AREA_HEIGHT = 400;
+    private static final float AI_UPDATE_INTERVAL = 0.6f;
+    private static final float MOVEMENT_FORCE = 3;
 
-        public final int speed;
+    // State tracking
+    private static float aiUpdateCounter = 0.0f;
+    private static FishBehavior currentBehavior;
+    private static FishAction lastAction;
+    private static int idleTimeCounter = 0;
 
-        FishMotionTypes(int speed) {
-            this.speed = speed;
-        }
-    }
+    private static final Random randomGenerator = new Random();
 
-    private enum FishMoves {
-        UP,
-        DOWN,
-        STATIONARY
-    }
 
-    private static final float SPEED_FACTOR = 15;
-    private static final float WATER_LANE_HEIGHT = 427;
-    private static final float BEHAVIOUR_RESET_TIME = 0.5f;
-    private static final float BASE_ACCELERATION = 2;
-    private static float behaviourTimer = 0.0f;
-    private static FishMotionTypes fishMotionType;
-    private static FishMoves recentFishMoves;
-
-    public static void determineFishMotionType(boolean isLegendary) {
-        if (isLegendary) {
-            fishMotionType = FishMotionTypes.DART;
+    public static void initializeFishBehavior(boolean isLegendaryFish) {
+        if (isLegendaryFish) {
+            currentBehavior = FishBehavior.DART;
         } else {
-            if (randomQuery(60)) {
-                fishMotionType = FishMotionTypes.SMOOTH;
-            } else if (randomQuery(50)) {
-                fishMotionType = FishMotionTypes.MIXED;
-            } else if (randomQuery(50)) {
-                fishMotionType = FishMotionTypes.SINKER;
+            double chance = randomGenerator.nextDouble();
+            if (chance < 0.25) {
+                currentBehavior = FishBehavior.MIXED;
+            } else if (chance < 0.45) {
+                currentBehavior = FishBehavior.SMOOTH;
+            } else if (chance < 0.65) {
+                currentBehavior = FishBehavior.SINKER;
+            } else if (chance < 0.85) {
+                currentBehavior = FishBehavior.FLOATER;
             } else {
-                fishMotionType = FishMotionTypes.FLOATER;
+                currentBehavior = FishBehavior.DART;
             }
         }
-        recentFishMoves = FishMoves.UP;
+        lastAction = FishAction.GO_UP;
+        idleTimeCounter = 0;
     }
 
-    public static void handleFishAI(FishingMiniGame anglingMiniGame, float delta) {
-        anglingMiniGame.incrementFishPosition(delta * SPEED_FACTOR * anglingMiniGame.getFishVelocity());
-        anglingMiniGame.setFishPosition(
-            MathUtils.clamp(anglingMiniGame.getFishPosition(), 0, WATER_LANE_HEIGHT - anglingMiniGame.getFishImage().getHeight()));
+    public static void processFishAI(FishingMiniGame gameInstance, float timeDelta) {
+        float newPosition = gameInstance.getFishPosition() +
+                          (timeDelta * MOVEMENT_MULTIPLIER * gameInstance.getFishVelocity());
 
-        if (anglingMiniGame.getFishPosition() == WATER_LANE_HEIGHT - anglingMiniGame.getFishImage().getHeight()) {
-            anglingMiniGame.incrementFishPosition(-0.5f);
-            anglingMiniGame.setFishVelocity(-0.6f * anglingMiniGame.getFishVelocity());
-            anglingMiniGame.setFishAcceleration(0);
-        } else if (anglingMiniGame.getFishPosition() == 0) {
-            anglingMiniGame.incrementFishPosition(0.5f);
-            anglingMiniGame.setFishVelocity(-0.6f * anglingMiniGame.getFishVelocity());
-            anglingMiniGame.setFishAcceleration(0);
+        float maxPosition = FISHING_AREA_HEIGHT - gameInstance.getFishImage().getHeight();
+        newPosition = MathUtils.clamp(newPosition, 0, maxPosition);
+        gameInstance.setFishPosition(newPosition);
+
+        // Handle boundary collisions
+        handleBoundaryCollision(gameInstance, newPosition, maxPosition);
+
+        // Update visual position
+        updateFishVisualPosition(gameInstance);
+
+        // Update velocity based on acceleration
+        float newVelocity = gameInstance.getFishVelocity() +
+                          (gameInstance.getFishAcceleration() * timeDelta * MOVEMENT_MULTIPLIER);
+        gameInstance.setFishVelocity(newVelocity);
+
+        aiUpdateCounter += timeDelta;
+        if (aiUpdateCounter >= AI_UPDATE_INTERVAL) {
+            aiUpdateCounter = 0;
+            executeFishAction(gameInstance);
         }
+    }
 
-        anglingMiniGame.getFishHitbox().y = anglingMiniGame.BOBBER_BASE_Y + anglingMiniGame.getFishPosition();
-        anglingMiniGame.getFishImage().setY(anglingMiniGame.BOBBER_BASE_Y + anglingMiniGame.getFishPosition());
 
-        anglingMiniGame.incrementFishVelocity(anglingMiniGame.getFishAcceleration() * delta * SPEED_FACTOR);
+    private static void handleBoundaryCollision(FishingMiniGame gameInstance, float position, float maxPosition) {
+        if (position >= maxPosition) {
+            gameInstance.incrementFishPosition(-0.5f);
+            gameInstance.setFishVelocity(-0.6f * gameInstance.getFishVelocity());
+            gameInstance.setFishAcceleration(0);
+        } else if (position <= 0) {
+            gameInstance.incrementFishPosition(0.5f);
+            gameInstance.setFishVelocity(-0.6f * gameInstance.getFishVelocity());
+            gameInstance.setFishAcceleration(0);
+        }
+    }
 
-        behaviourTimer += delta;
 
-        if (behaviourTimer >= BEHAVIOUR_RESET_TIME) {
-            behaviourTimer = 0;
+    private static void updateFishVisualPosition(FishingMiniGame gameInstance) {
+        float visualY = gameInstance.BOBBER_BASE_Y + gameInstance.getFishPosition();
+        gameInstance.getFishHitbox().y = visualY;
+        gameInstance.getFishImage().setY(visualY);
+    }
 
-            int rand = (int) (Math.random() * 3);
-            FishMoves move = FishMoves.values()[rand];
 
-            if (fishMotionType == FishMotionTypes.SMOOTH && randomQuery(70)) {
-                move = recentFishMoves;
-            }
+    private static void executeFishAction(FishingMiniGame gameInstance) {
+        FishAction nextAction = calculateNextAction();
+        lastAction = nextAction;
 
-            recentFishMoves = move;
-
-            if (move == FishMoves.UP) {
-                anglingMiniGame.setFishVelocity(fishMotionType.speed);
-
-                if (fishMotionType == FishMotionTypes.FLOATER) {
-                    anglingMiniGame.setFishAcceleration(BASE_ACCELERATION);
+        switch (nextAction) {
+            case GO_UP:
+                gameInstance.setFishVelocity(currentBehavior.getSpeed());
+                idleTimeCounter = 0;
+                if (currentBehavior == FishBehavior.FLOATER) {
+                    gameInstance.setFishAcceleration(MOVEMENT_FORCE);
+                } else {
+                    gameInstance.setFishAcceleration(0);
                 }
-            } else if (move == FishMoves.DOWN) {
-                anglingMiniGame.setFishVelocity(-fishMotionType.speed);
+                break;
 
-                if (fishMotionType == FishMotionTypes.SINKER) {
-                    anglingMiniGame.setFishAcceleration(-BASE_ACCELERATION);
+            case GO_DOWN:
+                gameInstance.setFishVelocity(-currentBehavior.getSpeed());
+                idleTimeCounter = 0;
+                if (currentBehavior == FishBehavior.SINKER) {
+                    gameInstance.setFishAcceleration(-MOVEMENT_FORCE);
+                } else {
+                    gameInstance.setFishAcceleration(0);
                 }
-            } else {
-                anglingMiniGame.setFishVelocity(0);
-            }
+                break;
+
+            case STAY_PUT:
+                gameInstance.setFishVelocity(0);
+                gameInstance.setFishAcceleration(0);
+                idleTimeCounter++;
+                break;
         }
     }
 
-    public static HashMap<String, Object> queryAnglingResult(String poleName) {
-        int randomNumber = (int) (Math.random() * 2);
-        double weatherModifier = setWeatherModifierAngling();
-        Player player = App.getGame().getCurrentPlayer();
-        int playerLevel = player.getSkillLevel(org.example.common.models.enums.PlayerEnums.Skills.FISHING);
-        int numberOfFishes = (int) (((double) randomNumber)
-            * weatherModifier * (double) (playerLevel + 2)) + 1;
 
-        ArrayList<FishType> values = getValidFishTypes(App.getGame().getDate().getSeason(), playerLevel);
-        int randomFishNumber = (int) (Math.random() * values.size());
-        FishType fishType = values.get(randomFishNumber);
+    private static FishAction calculateNextAction() {
+        switch (currentBehavior) {
+            case MIXED:
+                return FishAction.values()[randomGenerator.nextInt(3)];
 
-        double qualityNumber;
-        double pole = setPoleModifier(poleName);
-        qualityNumber = (randomNumber * (double) (playerLevel + 2) * pole) / (7.0 - weatherModifier);
-        Quality fishQuality = setFishQuality(qualityNumber);
-        int gainedXp = 5;
+            case SMOOTH:
+                if (randomGenerator.nextInt(100) < 70) {
+                    return lastAction;
+                } else {
+                    return FishAction.values()[randomGenerator.nextInt(3)];
+                }
 
-        var result = new HashMap<String, Object>();
-        result.put("type", fishType);
-        result.put("quality", fishQuality);
-        result.put("quantity", numberOfFishes);
-        result.put("xp", gainedXp);
-        return result;
+            case SINKER:
+                double diveChance = randomGenerator.nextDouble();
+                if (diveChance < 0.4) {
+                    return FishAction.GO_DOWN;
+                } else if (diveChance < 0.7) {
+                    return FishAction.STAY_PUT;
+                } else {
+                    return FishAction.GO_UP;
+                }
+
+            case FLOATER:
+                double floatChance = randomGenerator.nextDouble();
+                if (floatChance < 0.4) {
+                    return FishAction.GO_UP;
+                } else if (floatChance < 0.7) {
+                    return FishAction.STAY_PUT;
+                } else {
+                    return FishAction.GO_DOWN;
+                }
+
+            case DART:
+                double wildChance = randomGenerator.nextDouble();
+                if (wildChance < 0.4) {
+                    return FishAction.GO_UP;
+                } else if (wildChance < 0.8) {
+                    return FishAction.GO_DOWN;
+                } else {
+                    return FishAction.STAY_PUT;
+                }
+
+            default:
+                return FishAction.STAY_PUT;
+        }
     }
 
-    private static ArrayList<FishType> getValidFishTypes(Seasons season, int playerLevel) {
-        if (playerLevel == 4) {
-            FishType[] values = FishType.values();
-            ArrayList<FishType> finalValues = new ArrayList<>();
-            for (int i = 0; i < values.length; i++) {
-                if (values[i].isAvailableInSeason(season)) {
-                    finalValues.add(values[i]);
+
+    public static HashMap<String, Object> generateFishingResults(String fishingPoleName) {
+        int baseFishCount = randomGenerator.nextInt(2);
+        double weatherBonus = calculateWeatherBonus();
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        int fishingSkill = currentPlayer.getSkillLevel(org.example.common.models.enums.PlayerEnums.Skills.FISHING);
+
+        int totalFish = (int) (baseFishCount * weatherBonus * (fishingSkill + 2)) + 1;
+
+        ArrayList<FishType> availableFish = getAvailableFish(App.getGame().getDate().getSeason(), fishingSkill);
+        FishType caughtFish = availableFish.get(randomGenerator.nextInt(availableFish.size()));
+
+        double poleBonus = calculatePoleBonus(fishingPoleName);
+        double qualityScore = (baseFishCount * (fishingSkill + 2) * poleBonus) / (7.0 - weatherBonus);
+        Quality fishQuality = determineFishQuality(qualityScore);
+
+        HashMap<String, Object> results = new HashMap<>();
+        results.put("type", caughtFish);
+        results.put("quality", fishQuality);
+        results.put("quantity", totalFish);
+        results.put("xp", 5);
+
+        return results;
+    }
+
+    private static ArrayList<FishType> getAvailableFish(Seasons currentSeason, int playerLevel) {
+        FishType[] allFish = FishType.values();
+        ArrayList<FishType> availableFish = new ArrayList<>();
+
+        for (FishType fish : allFish) {
+            if (fish.isAvailableInSeason(currentSeason)) {
+                if (playerLevel >= 4 || !fish.isLegendary()) {
+                    availableFish.add(fish);
                 }
             }
-            return finalValues;
         }
-        FishType[] values = FishType.values();
-        ArrayList<FishType> finalValues = new ArrayList<>();
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].isAvailableInSeason(season) && !values[i].isLegendary()) {
-                finalValues.add(values[i]);
-            }
-        }
-        return finalValues;
+
+        return availableFish;
     }
 
-    private static Quality setFishQuality(double qualityNumber) {
-        if (qualityNumber >= 0.5 && qualityNumber < 0.7)
+
+    private static Quality determineFishQuality(double qualityScore) {
+        if (qualityScore >= 0.5 && qualityScore < 0.7) {
             return Quality.Silver;
-        else if (qualityNumber >= 0.7 && qualityNumber < 0.9)
+        } else if (qualityScore >= 0.7 && qualityScore < 0.9) {
             return Quality.Golden;
-        else if (qualityNumber >= 0.9)
+        } else if (qualityScore >= 0.9) {
             return Quality.Iridium;
+        }
         return Quality.Normal;
     }
 
-    private static double setPoleModifier(String poleName) {
-        return switch (poleName.toLowerCase()) {
+    private static double calculatePoleBonus(String poleName) {
+        String lowerPoleName = poleName.toLowerCase();
+        return switch (lowerPoleName) {
             case "training rod" -> 0.1;
             case "bamboo pole" -> 0.5;
             case "fiberglass rod" -> 0.9;
@@ -177,20 +241,43 @@ public class FishingController {
         };
     }
 
-    private static double setWeatherModifierAngling() {
-        double weatherModifier;
-        if (App.getGame().getDate().getWeatherToday() == Weather.SUNNY)
-            weatherModifier = 1.5;
-        else if (App.getGame().getDate().getWeatherToday() == Weather.RAINY)
-            weatherModifier = 1.2;
-        else if (App.getGame().getDate().getWeatherToday() == Weather.STORMY)
-            weatherModifier = 0.5;
-        else
-            weatherModifier = 1.0;
-        return weatherModifier;
+    private static double calculateWeatherBonus() {
+        Weather currentWeather = App.getGame().getDate().getWeatherToday();
+        return switch (currentWeather) {
+            case SUNNY -> 1.5;
+            case RAINY -> 1.2;
+            case STORMY -> 0.5;
+            default -> 1.0;
+        };
     }
 
-    private static boolean randomQuery(int successPercent) {
-        return (int) (Math.random() * 100) < successPercent;
+    private static boolean checkRandomEvent(int percentage) {
+        return randomGenerator.nextInt(100) < percentage;
     }
-} 
+
+    // Fish behavior patterns
+    private enum FishBehavior {
+        MIXED(5),
+        SMOOTH(5),
+        SINKER(5),
+        FLOATER(5),
+        DART(9);
+
+        private final int movementSpeed;
+
+        FishBehavior(int speed) {
+            this.movementSpeed = speed;
+        }
+
+        public int getSpeed() {
+            return movementSpeed;
+        }
+    }
+
+    // Possible fish actions
+    private enum FishAction {
+        GO_UP,
+        GO_DOWN,
+        STAY_PUT
+    }
+}

@@ -28,7 +28,6 @@ public class NPCSpriteController implements Disposable {
     }
 
     private void loadNPCSprites() {
-        // Available NPCs based on the assets folder
         String[] npcNames = {"Abigail", "Pierre", "Sebastian", "Leah", "Willy", "Jojo"};
         String[] animationTypes = {"idle", "walk", "back", "face", "fly"};
 

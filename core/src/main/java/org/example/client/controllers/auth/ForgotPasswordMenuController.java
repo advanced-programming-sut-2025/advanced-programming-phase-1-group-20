@@ -1,8 +1,8 @@
-package org.example.client.controllers;
+package org.example.client.controllers.auth;
 
 import com.badlogic.gdx.Gdx;
-import org.example.client.views.ForgotPasswordMenuScreen;
 import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.ForgotPasswordMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
@@ -53,7 +53,7 @@ public class ForgotPasswordMenuController {
     public void handleBackButton() {
         Gdx.app.postRunnable(() -> {
             view.dispose();
-            new WelcomeMenuScreen(new WelcomeMenuController(), AssetManager.getAssetManager().getSkin());
+            new WelcomeMenuScreen(new org.example.client.controllers.WelcomeMenuController(), AssetManager.getAssetManager().getSkin());
         });
     }
 }

@@ -18,8 +18,11 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.views.GameView;
 import org.example.client.controllers.fishing.FishingController;
+import org.example.utils.AssetManager;
 import org.example.common.models.enums.Types.Quality;
 import org.example.common.models.enums.Types.FishType;
+
+import java.util.HashMap;
 
 public class FishingMiniGame implements Screen, InputProcessor {
     private final float BASE_SPEED_FACTOR = 3;
@@ -66,40 +69,57 @@ public class FishingMiniGame implements Screen, InputProcessor {
     public FishingMiniGame(GameView gameView, String poleName) {
         this.gameView = gameView;
         this.poleName = poleName;
-
         getAnglingResults();
         initializeStage();
-        FishingController.determineFishMotionType(caughtFishType.isLegendary());
+        FishingController.initializeFishBehavior(caughtFishType.isLegendary());
+        
+        // Initialize progress bar with a visible starting value
+        catchingProgress = 1.0f; // Start with some progress visible
+        if (catchingProgressBar != null) {
+            catchingProgressBar.setValue(catchingProgress);
+        }
     }
 
     private void getAnglingResults() {
-        var query = FishingController.queryAnglingResult(poleName);
-        caughtFishQuality = (Quality) query.get("quality");
-        caughtFishType = (FishType) query.get("type");
-        caughtFishQuantity = (Integer) query.get("quantity");
-        xpGained = (Integer) query.get("xp");
+        HashMap<String, Object> results = FishingController.generateFishingResults(poleName);
+        caughtFishType = (FishType) results.get("type");
+        caughtFishQuality = (Quality) results.get("quality");
+        caughtFishQuantity = (int) results.get("quantity");
+        xpGained = (int) results.get("xp");
     }
 
     private void initializeStage() {
         stage = new Stage(new ScreenViewport());
 
-        // Use a simple colored background instead of texture
+        // Create a more visible and appealing background
         Table background = new Table();
         background.setFillParent(true);
         background.setBackground(new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
             @Override
             public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                batch.setColor(0.2f, 0.4f, 0.8f, 1f);
+                // Create a gradient-like background with water theme
+                batch.setColor(0.1f, 0.3f, 0.6f, 1f); // Darker blue for depth
                 com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-                pixmap.setColor(0.2f, 0.4f, 0.8f, 1f);
+                pixmap.setColor(0.1f, 0.3f, 0.6f, 1f);
                 pixmap.fill();
                 com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
                 batch.draw(texture, x, y, width, height);
                 texture.dispose();
                 pixmap.dispose();
+                
+                // Add some lighter blue highlights for water effect
+                batch.setColor(0.2f, 0.5f, 0.8f, 0.3f);
+                pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                pixmap.setColor(0.2f, 0.5f, 0.8f, 0.3f);
+                pixmap.fill();
+                texture = new com.badlogic.gdx.graphics.Texture(pixmap);
+                batch.draw(texture, x + width * 0.2f, y + height * 0.3f, width * 0.6f, height * 0.4f);
+                texture.dispose();
+                pixmap.dispose();
+                
                 batch.setColor(1, 1, 1, 1);
             }
-            
+
             @Override
             public float getLeftWidth() { return 0; }
             @Override
@@ -127,17 +147,11 @@ public class FishingMiniGame implements Screen, InputProcessor {
         });
         stage.addActor(background);
 
-        // Create water lane as a colored rectangle
-        waterLane = new Image();
-        waterLane.setSize(400, 200);
+        waterLane = new Image(AssetManager.getAssetManager().getFishingWaterLaneTexture());
         waterLane.setPosition(stage.getWidth() / 2 - waterLane.getWidth() / 2, stage.getHeight() / 2 - waterLane.getHeight() / 2);
-        waterLane.setColor(0.1f, 0.3f, 0.7f, 0.8f);
         stage.addActor(waterLane);
 
-        // Create bobber as a colored circle
-        bobberImage = new Image();
-        bobberImage.setSize(20, 20);
-        bobberImage.setColor(1f, 0.5f, 0f, 1f); // Orange color
+        bobberImage = new Image(AssetManager.getAssetManager().getFishingSafezoneTexture());
 
         BOBBER_BASE_X = stage.getWidth() / 2 - waterLane.getWidth() / 2 + 85;
         BOBBER_BASE_Y = stage.getHeight() / 2 - waterLane.getHeight() / 2 + 20;
@@ -146,10 +160,11 @@ public class FishingMiniGame implements Screen, InputProcessor {
         bobberHitbox = new Rectangle(BOBBER_BASE_X, BOBBER_BASE_Y, bobberImage.getWidth(), bobberImage.getHeight());
         stage.addActor(bobberImage);
 
-        // Create fish as a colored rectangle
-        fishImage = new Image();
-        fishImage.setSize(30, 15);
-        fishImage.setColor(0.8f, 0.2f, 0.2f, 1f); // Red color
+        if (caughtFishType.isLegendary()) {
+            fishImage = new Image(AssetManager.getAssetManager().getFishingLegendaryFishIconTexture());
+        } else {
+            fishImage = new Image(AssetManager.getAssetManager().getFishingFishIconTexture());
+        }
         fishImage.setPosition(BOBBER_BASE_X, BOBBER_BASE_Y);
         stage.addActor(fishImage);
 
@@ -164,12 +179,141 @@ public class FishingMiniGame implements Screen, InputProcessor {
         stage.addActor(label);
         label.setPosition(stage.getWidth() / 2 - label.getWidth() / 2, stage.getHeight() / 2 + waterLane.getHeight() / 2 + 50);
 
-        // Create progress bar
+        // Create a simple, visible progress bar
         Skin progressSkin = new Skin();
-        catchingProgressBar = new ProgressBar(MIN_PROGRESS, MAX_PROGRESS, 0.01f, true, progressSkin);
-        catchingProgressBar.setSize(200, 20);
-        catchingProgressBar.setPosition(waterLane.getX() + waterLane.getWidth() + 20, waterLane.getY() + waterLane.getHeight() / 2);
+        
+        // Background style for progress bar - make it very visible
+        ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
+        progressBarStyle.background = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                // Dark gray background
+                batch.setColor(0.3f, 0.3f, 0.3f, 1f);
+                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
+                    setColor(0.3f, 0.3f, 0.3f, 1f);
+                    fill();
+                }})), x, y, width, height);
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        // Knob style for progress bar - make it very visible
+        progressBarStyle.knob = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                // Bright red knob
+                batch.setColor(1.0f, 0.0f, 0.0f, 1f);
+                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
+                    setColor(1.0f, 0.0f, 0.0f, 1f);
+                    fill();
+                }})), x, y, width, height);
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        // Knob before style for progress bar - make it very visible
+        progressBarStyle.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                // Bright green fill
+                batch.setColor(0.0f, 1.0f, 0.0f, 1f);
+                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
+                    setColor(0.0f, 1.0f, 0.0f, 1f);
+                    fill();
+                }})), x, y, width, height);
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        progressSkin.add("default", progressBarStyle);
+        catchingProgressBar = new ProgressBar(MIN_PROGRESS, MAX_PROGRESS, 0.01f, true, progressSkin, "default");
+        catchingProgressBar.setSize(300, 30); // Make it bigger
+        catchingProgressBar.setPosition(stage.getWidth() / 2 - 150, stage.getHeight() - 100); // Position it at the top center
         stage.addActor(catchingProgressBar);
+        
+        // Add a label above the progress bar
+        Label.LabelStyle progressLabelStyle = new Label.LabelStyle();
+        progressLabelStyle.fontColor = Color.WHITE;
+        progressLabelStyle.font = new BitmapFont();
+        
+        Label progressLabel = new Label("CATCH PROGRESS", progressLabelStyle);
+        progressLabel.setPosition(stage.getWidth() / 2 - progressLabel.getWidth() / 2, stage.getHeight() - 130);
+        stage.addActor(progressLabel);
     }
 
     @Override
@@ -227,11 +371,11 @@ public class FishingMiniGame implements Screen, InputProcessor {
         // Clear the screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
+
         if (isGameOngoing) {
             handlePlayerInput();
             handleBobberKinematics(delta);
-            FishingController.handleFishAI(this, delta);
+            FishingController.processFishAI(this, delta);
             incrementProgress(delta);
             checkForWinOrLoss();
         }
@@ -267,7 +411,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
     private void constructEndStage() {
         stage = new Stage(new ScreenViewport());
-        
+
         // Create background
         Table background = new Table();
         background.setFillParent(true);
@@ -284,7 +428,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
                 pixmap.dispose();
                 batch.setColor(1, 1, 1, 1);
             }
-            
+
             @Override
             public float getLeftWidth() { return 0; }
             @Override
@@ -329,11 +473,59 @@ public class FishingMiniGame implements Screen, InputProcessor {
             resultText = "🌊 The fish got away this time...";
             resultText += "\nDon't give up, angler!";
         }
-        
-        Label label = new Label(resultText, labelStyle);
-        Label label1 = new Label(isCatchPerfect ? "✨ Flawless technique! ✨" : "Decent effort, keep practicing!", labelStyle);
 
-        TextButton backButton = new TextButton("Return to Farm", new Skin());
+        Label label = new Label(resultText, labelStyle);
+        Label label1 = new Label(isCatchPerfect ? "~Flawless technique!~" : "Decent effort, keep practicing!", labelStyle);
+
+        Skin buttonSkin = new Skin();
+        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.font = new BitmapFont();
+        buttonStyle.fontColor = Color.WHITE;
+        buttonStyle.downFontColor = Color.GRAY;
+        buttonStyle.overFontColor = Color.YELLOW;
+
+        buttonStyle.up = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                batch.setColor(0.4f, 0.4f, 0.4f, 1f);
+                com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                pixmap.setColor(0.4f, 0.4f, 0.4f, 1f);
+                pixmap.fill();
+                com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
+                batch.draw(texture, x, y, width, height);
+                texture.dispose();
+                pixmap.dispose();
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        buttonSkin.add("default", buttonStyle);
+        TextButton backButton = new TextButton("Return to Farm", buttonSkin);
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -370,13 +562,92 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
     private void incrementProgress(float delta) {
         if (fishHitbox.overlaps(bobberHitbox)) {
-            catchingProgress += delta;
+            // Fish is in the green zone - progress increases
+            catchingProgress += delta * 2.0f; // Faster progress when fish is caught
+            // Make bobber glow when fish is caught
+            bobberImage.setColor(0.2f, 1.0f, 0.2f, 1.0f); // Bright green glow
         } else {
-            catchingProgress -= delta * 0.5f;
+            // Fish is outside the green zone - progress decreases
+            catchingProgress -= delta * 1.5f; // Slower decrease to give player a chance
             isCatchPerfect = false;
+            // Return bobber to normal color
+            bobberImage.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
+        
+        // Clamp progress between min and max
         catchingProgress = MathUtils.clamp(catchingProgress, MIN_PROGRESS, MAX_PROGRESS);
-        catchingProgressBar.setValue(catchingProgress);
+        
+        // Update progress bar
+        if (catchingProgressBar != null) {
+            catchingProgressBar.setValue(catchingProgress);
+            // Force the progress bar to redraw
+            catchingProgressBar.invalidate();
+        }
+        
+        // Update progress bar color based on progress
+        updateProgressBarColor();
+    }
+    
+    private void updateProgressBarColor() {
+        // Change progress bar color based on progress level
+        float progressPercentage = catchingProgress / MAX_PROGRESS;
+        
+        if (progressPercentage < 0.3f) {
+            // Red when progress is low
+            updateProgressBarStyle(0.8f, 0.2f, 0.2f, 1f);
+        } else if (progressPercentage < 0.7f) {
+            // Yellow when progress is medium
+            updateProgressBarStyle(0.8f, 0.8f, 0.2f, 1f);
+        } else {
+            // Green when progress is high
+            updateProgressBarStyle(0.2f, 0.8f, 0.2f, 1f);
+        }
+    }
+    
+    private void updateProgressBarStyle(float r, float g, float b, float a) {
+        ProgressBar.ProgressBarStyle style = catchingProgressBar.getStyle();
+        if (style.knobBefore != null) {
+            // Update the knobBefore color (the filled part of the progress bar)
+            style.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+                @Override
+                public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                    batch.setColor(r, g, b, a);
+                    com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                    pixmap.setColor(r, g, b, a);
+                    pixmap.fill();
+                    com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
+                    batch.draw(texture, x, y, width, height);
+                    texture.dispose();
+                    pixmap.dispose();
+                    batch.setColor(1, 1, 1, 1);
+                }
+
+                @Override
+                public float getLeftWidth() { return 0; }
+                @Override
+                public void setLeftWidth(float leftWidth) {}
+                @Override
+                public float getRightWidth() { return 0; }
+                @Override
+                public void setRightWidth(float rightWidth) {}
+                @Override
+                public float getTopHeight() { return 0; }
+                @Override
+                public void setTopHeight(float topHeight) {}
+                @Override
+                public float getBottomHeight() { return 0; }
+                @Override
+                public void setBottomHeight(float bottomHeight) {}
+                @Override
+                public float getMinWidth() { return 0; }
+                @Override
+                public void setMinWidth(float minWidth) {}
+                @Override
+                public float getMinHeight() { return 0; }
+                @Override
+                public void setMinHeight(float minHeight) {}
+            };
+        }
     }
 
     private void handlePlayerInput() {
@@ -489,4 +760,4 @@ public class FishingMiniGame implements Screen, InputProcessor {
     public Rectangle getFishHitbox() {
         return fishHitbox;
     }
-} 
+}

@@ -111,6 +111,12 @@ public class AssetManager {
     private final Texture rain1Texture = new Texture("content/rain/1.png");
     private final Texture rain2Texture = new Texture("content/rain/2.png");
 
+    // Fishing mini-game assets
+    private final Texture fishingWaterLaneTexture = new Texture("content/fishing_mini_game/water_lane.png");
+    private final Texture fishingFishIconTexture = new Texture("content/fishing_mini_game/fish_icon.png");
+    private final Texture fishingLegendaryFishIconTexture = new Texture("content/fishing_mini_game/LegendaryFish_icon.png");
+    private final Texture fishingSafezoneTexture = new Texture("content/fishing_mini_game/safezone.png");
+
     // Snow textures
     private final Texture[] snowTextures = new Texture[4];
 
@@ -294,6 +300,23 @@ public class AssetManager {
 
     public Texture getRain2Texture() {
         return rain2Texture;
+    }
+
+    // Fishing mini-game asset getters
+    public Texture getFishingWaterLaneTexture() {
+        return fishingWaterLaneTexture;
+    }
+
+    public Texture getFishingFishIconTexture() {
+        return fishingFishIconTexture;
+    }
+
+    public Texture getFishingLegendaryFishIconTexture() {
+        return fishingLegendaryFishIconTexture;
+    }
+
+    public Texture getFishingSafezoneTexture() {
+        return fishingSafezoneTexture;
     }
 
     public Texture[] getSnowTextures() {
