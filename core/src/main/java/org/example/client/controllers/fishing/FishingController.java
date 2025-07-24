@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.MathUtils;
 import org.example.client.views.fishing.FishingMiniGame;
 import org.example.common.models.App;
 import org.example.common.models.Player.Player;
+import org.example.common.models.enums.PlayerEnums.Skills;
 import org.example.common.models.enums.Types.Quality;
 import org.example.common.models.enums.Types.FishType;
 import org.example.common.models.enums.Seasons;
@@ -183,7 +184,7 @@ public class FishingController {
         int baseFishCount = randomGenerator.nextInt(2);
         double weatherBonus = calculateWeatherBonus();
         Player currentPlayer = App.getGame().getCurrentPlayer();
-        int fishingSkill = currentPlayer.getSkillLevel(org.example.common.models.enums.PlayerEnums.Skills.FISHING);
+        int fishingSkill = currentPlayer.getSkillLevel(Skills.FISHING);
 
         int totalFish = (int) (baseFishCount * weatherBonus * (fishingSkill + 2)) + 1;
 

@@ -66,6 +66,8 @@ public class FishingMiniGame implements Screen, InputProcessor {
     private Quality caughtFishQuality = Quality.Normal;
     private int xpGained = 5;
 
+    private ProgressBar verticalProgressBar;
+
     public FishingMiniGame(GameView gameView, String poleName) {
         this.gameView = gameView;
         this.poleName = poleName;
@@ -73,10 +75,13 @@ public class FishingMiniGame implements Screen, InputProcessor {
         initializeStage();
         FishingController.initializeFishBehavior(caughtFishType.isLegendary());
         
-        // Initialize progress bar with a visible starting value
+        // Initialize progress bars with a visible starting value
         catchingProgress = 1.0f; // Start with some progress visible
         if (catchingProgressBar != null) {
             catchingProgressBar.setValue(catchingProgress);
+        }
+        if (verticalProgressBar != null) {
+            verticalProgressBar.setValue(catchingProgress);
         }
     }
 
@@ -106,7 +111,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
                 batch.draw(texture, x, y, width, height);
                 texture.dispose();
                 pixmap.dispose();
-                
+
                 // Add some lighter blue highlights for water effect
                 batch.setColor(0.2f, 0.5f, 0.8f, 0.3f);
                 pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
@@ -116,7 +121,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
                 batch.draw(texture, x + width * 0.2f, y + height * 0.3f, width * 0.6f, height * 0.4f);
                 texture.dispose();
                 pixmap.dispose();
-                
+
                 batch.setColor(1, 1, 1, 1);
             }
 
@@ -175,13 +180,13 @@ public class FishingMiniGame implements Screen, InputProcessor {
         labelStyle.fontColor = Color.WHITE;
         labelStyle.font = new BitmapFont();
 
-        Label label = new Label("Master the waters! Use ↑↓ arrows to guide your lure. Press Q to abandon.", labelStyle);
+        Label label = new Label("Master the waters! Use up/down arrows to guide your lure. Press Q to abandon.", labelStyle);
         stage.addActor(label);
         label.setPosition(stage.getWidth() / 2 - label.getWidth() / 2, stage.getHeight() / 2 + waterLane.getHeight() / 2 + 50);
 
         // Create a simple, visible progress bar
         Skin progressSkin = new Skin();
-        
+
         // Background style for progress bar - make it very visible
         ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
         progressBarStyle.background = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
@@ -305,15 +310,113 @@ public class FishingMiniGame implements Screen, InputProcessor {
         catchingProgressBar.setSize(300, 30); // Make it bigger
         catchingProgressBar.setPosition(stage.getWidth() / 2 - 150, stage.getHeight() - 100); // Position it at the top center
         stage.addActor(catchingProgressBar);
-        
+
         // Add a label above the progress bar
         Label.LabelStyle progressLabelStyle = new Label.LabelStyle();
         progressLabelStyle.fontColor = Color.WHITE;
         progressLabelStyle.font = new BitmapFont();
-        
+
         Label progressLabel = new Label("CATCH PROGRESS", progressLabelStyle);
         progressLabel.setPosition(stage.getWidth() / 2 - progressLabel.getWidth() / 2, stage.getHeight() - 130);
         stage.addActor(progressLabel);
+
+        // Create a vertical progress bar
+        Skin verticalProgressSkin = new Skin();
+
+        // Vertical progress bar style
+        ProgressBar.ProgressBarStyle verticalProgressBarStyle = new ProgressBar.ProgressBarStyle();
+        verticalProgressBarStyle.background = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                // Dark background for vertical bar
+                batch.setColor(0.2f, 0.2f, 0.2f, 1f);
+                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
+                    setColor(0.2f, 0.2f, 0.2f, 1f);
+                    fill();
+                }})), x, y, width, height);
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        // Green fill for vertical progress bar
+        verticalProgressBarStyle.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
+            @Override
+            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
+                // Bright green fill
+                batch.setColor(0.0f, 1.0f, 0.0f, 1f);
+                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
+                    setColor(0.0f, 1.0f, 0.0f, 1f);
+                    fill();
+                }})), x, y, width, height);
+                batch.setColor(1, 1, 1, 1);
+            }
+
+            @Override
+            public float getLeftWidth() { return 0; }
+            @Override
+            public void setLeftWidth(float leftWidth) {}
+            @Override
+            public float getRightWidth() { return 0; }
+            @Override
+            public void setRightWidth(float rightWidth) {}
+            @Override
+            public float getTopHeight() { return 0; }
+            @Override
+            public void setTopHeight(float topHeight) {}
+            @Override
+            public float getBottomHeight() { return 0; }
+            @Override
+            public void setBottomHeight(float bottomHeight) {}
+            @Override
+            public float getMinWidth() { return 0; }
+            @Override
+            public void setMinWidth(float minWidth) {}
+            @Override
+            public float getMinHeight() { return 0; }
+            @Override
+            public void setMinHeight(float minHeight) {}
+        };
+
+        verticalProgressSkin.add("vertical", verticalProgressBarStyle);
+
+        // Create vertical progress bar (vertical = true)
+        ProgressBar verticalProgressBar = new ProgressBar(MIN_PROGRESS, MAX_PROGRESS, 0.01f, true, verticalProgressSkin, "vertical");
+        verticalProgressBar.setSize(40, 200); // Width 40, Height 200 for vertical bar
+        verticalProgressBar.setPosition(stage.getWidth() - 80, stage.getHeight() / 2 - 100); // Position on right side
+        stage.addActor(verticalProgressBar);
+
+        // Store reference to vertical progress bar
+        this.verticalProgressBar = verticalProgressBar;
+
+        // Add label for vertical progress bar
+        Label verticalLabel = new Label("PROGRESS", progressLabelStyle);
+        verticalLabel.setPosition(stage.getWidth() - 80, stage.getHeight() / 2 + 120);
+        stage.addActor(verticalLabel);
     }
 
     @Override
@@ -577,21 +680,27 @@ public class FishingMiniGame implements Screen, InputProcessor {
         // Clamp progress between min and max
         catchingProgress = MathUtils.clamp(catchingProgress, MIN_PROGRESS, MAX_PROGRESS);
         
-        // Update progress bar
+        // Update both progress bars
         if (catchingProgressBar != null) {
             catchingProgressBar.setValue(catchingProgress);
             // Force the progress bar to redraw
             catchingProgressBar.invalidate();
         }
         
+        if (verticalProgressBar != null) {
+            verticalProgressBar.setValue(catchingProgress);
+            // Force the vertical progress bar to redraw
+            verticalProgressBar.invalidate();
+        }
+        
         // Update progress bar color based on progress
         updateProgressBarColor();
     }
-    
+
     private void updateProgressBarColor() {
         // Change progress bar color based on progress level
         float progressPercentage = catchingProgress / MAX_PROGRESS;
-        
+
         if (progressPercentage < 0.3f) {
             // Red when progress is low
             updateProgressBarStyle(0.8f, 0.2f, 0.2f, 1f);
@@ -603,7 +712,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
             updateProgressBarStyle(0.2f, 0.8f, 0.2f, 1f);
         }
     }
-    
+
     private void updateProgressBarStyle(float r, float g, float b, float a) {
         ProgressBar.ProgressBarStyle style = catchingProgressBar.getStyle();
         if (style.knobBefore != null) {
