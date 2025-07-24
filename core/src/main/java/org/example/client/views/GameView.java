@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.views.gameplay.InventoryScreen;
 import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Items.Tool;
@@ -36,8 +37,9 @@ import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.client.views.effects.Lighting;
 import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
-import org.example.client.controllers.NPCSpriteController;
 import org.example.client.views.effects.LightningSystem; // NEW IMPORT
+import org.example.client.controllers.NPCSpriteController;
+
 import org.example.client.views.fishing.FishingMiniGame;
 
 import java.lang.reflect.Field;
@@ -81,14 +83,20 @@ public class GameView implements Screen, InputProcessor {
     private Lighting lighting;
     private Color currentLightColor;
     private Label lightingDescriptionLabel;
+
     private float lightingUpdateTimer;
     private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
 
     // Rain system - NEW
     private ClimateSystem climateSystem;
 
-    // Lightning system
+    // Lightning system - NEW
     private LightningSystem lightningSystem;
+
+    // Terminal window for cheat commands
+    private TerminalWindow terminalWindow;
+
+
 
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
@@ -127,12 +135,16 @@ public class GameView implements Screen, InputProcessor {
         // Initialize rain system - NEW
         climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
 
+        // Initialize lightning system - NEW
+        lightningSystem = new LightningSystem(camera);
+
+        // Initialize terminal window for cheat commands
+        terminalWindow = new TerminalWindow(controller);
+
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
 
-        // Initialize lightning system
-        lightningSystem = new LightningSystem();
-        lightningSystem.setScreenDimensions(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
 
         loadCustomFont();
         initializeLabels();
@@ -261,6 +273,8 @@ public class GameView implements Screen, InputProcessor {
         moneyStyle.font.getData().markupEnabled = true;
 
         moneyLabel = new Label("[b]$0[/b]", moneyStyle);
+
+
     }
 
     private void createEnergyBar() {
@@ -276,6 +290,7 @@ public class GameView implements Screen, InputProcessor {
         textTable.add(dateLabel).row();
         textTable.add(timeDisplayLabel).padTop(5).row();
         textTable.add(moneyLabel).padTop(47).row();
+
         textTable.add(lightingDescriptionLabel).padTop(5);
         return textTable;
     }
@@ -462,26 +477,34 @@ public class GameView implements Screen, InputProcessor {
     public ClimateSystem getClimateSystem() { return climateSystem; } // NEW GETTER
     public LightningSystem getLightningSystem() { return lightningSystem; } // NEW GETTER
 
+
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.M) {
             toggleMinimap();
             return true;
         }
-        if (keycode == Input.Keys.L) {
-            if (lightningSystem != null) {
-                lightningSystem.triggerLightning();
-                System.out.println("Lightning triggered manually with L key!");
-            }
-            return true;
-        }
+
         if (keycode == Input.Keys.ESCAPE) {
             // Show InventoryScreen and pass this as previousScreen
             Main.getGame().setScreen(new InventoryScreen(player, skin, this));
             return true;
         }
         if(keycode == Input.Keys.B){
-            Main.getGame().setScreen(new CraftingScreen(player, skin, this));
+            Main.getGame().setScreen(new org.example.client.views.CraftingScreen(player, skin, this));
+            return true;
+        }
+        if(keycode == Input.Keys.L){
+            if (lightningSystem != null) {
+                lightningSystem.triggerLightning();
+                System.out.println("⚡ Lightning triggered manually!");
+            }
+            return true;
+        }
+        if(keycode == Input.Keys.GRAVE){
+            if (terminalWindow != null) {
+                terminalWindow.toggle();
+            }
             return true;
         }
         return false;
@@ -895,9 +918,8 @@ public class GameView implements Screen, InputProcessor {
             if (currentDate != null) {
                 climateSystem.update(deltaTime, currentDate.getWeatherToday(), currentLightColor);
 
-                // Update lightning system with weather awareness
-                lightningSystem.update(deltaTime);
-                lightningSystem.updateForWeather(currentDate.getWeatherToday(), deltaTime);
+                // Update lightning system
+                lightningSystem.update(deltaTime, currentDate.getWeatherToday());
             }
         }
 
@@ -919,8 +941,10 @@ public class GameView implements Screen, InputProcessor {
             climateSystem.render(Main.getBatch(), currentLightColor);
         }
 
-        // Render lightning effects
-        lightningSystem.render(Main.getBatch());
+        // Render lightning effects AFTER rain but BEFORE UI
+        lightningSystem.render(Main.getBatch(), currentLightColor);
+
+
 
         Main.getBatch().end();
 
@@ -936,21 +960,26 @@ public class GameView implements Screen, InputProcessor {
 
         // Render minimap if visible
         renderMinimap();
+
+        // Render terminal window if visible
+        if (terminalWindow != null) {
+            terminalWindow.render(deltaTime);
+        }
     }
 
-    @Override
+        @Override
     public void resize(int width, int height) {
-        // Recreate rain system with new dimensions - NEW
-        if (climateSystem != null) {
-            climateSystem.dispose();
-            // Instead of using width/height, use the camera
-            camera.setToOrtho(false, width, height);
-            climateSystem = new ClimateSystem(camera);
+        // Update stage viewport to fix clock positioning issues
+        if (stage != null) {
+            stage.getViewport().update(width, height, true);
         }
-
-        // Update lightning system screen dimensions
-        if (lightningSystem != null) {
-            lightningSystem.setScreenDimensions(width, height);
+        
+        // Update camera dimensions
+        camera.setToOrtho(false, width, height);
+        
+        // Resize terminal window
+        if (terminalWindow != null) {
+            terminalWindow.resize(width, height);
         }
     }
 
@@ -973,10 +1002,17 @@ public class GameView implements Screen, InputProcessor {
             climateSystem.dispose();
         }
 
-        // Dispose lightning system
+        // Dispose lightning system - NEW
         if (lightningSystem != null) {
             lightningSystem.dispose();
         }
+
+        // Dispose terminal window
+        if (terminalWindow != null) {
+            terminalWindow.dispose();
+        }
+
+
 
         // Dispose NPC sprite controller
         if (npcSpriteController != null) {
@@ -993,6 +1029,7 @@ public class GameView implements Screen, InputProcessor {
         updateClockNeedle(gameDate);
         updateLabelPositions();
         updateMoneyLabel();
+
         updateEnergyBar();
     }
 
@@ -1002,6 +1039,8 @@ public class GameView implements Screen, InputProcessor {
             moneyLabel.setText(money);
         }
     }
+
+
 
     private void updateEnergyBar() {
         int currentEnergy = player.getEnergy();
@@ -1058,9 +1097,11 @@ public class GameView implements Screen, InputProcessor {
             clockY + 49f
         );
 
+
+
         lightingDescriptionLabel.setPosition(
             clockX + clockSize/2 - lightingDescriptionLabel.getWidth()/2 + 17f,
-            clockY + 35f
+            clockY + 5f
         );
     }
 

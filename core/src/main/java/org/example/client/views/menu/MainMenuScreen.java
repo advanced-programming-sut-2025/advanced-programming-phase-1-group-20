@@ -46,7 +46,7 @@ public class MainMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.center();
 
-        Label title = new Label("MAIN MENU", skin, "title");
+        Label title = new Label("MAIN MENU", skin);
         title.setFontScale(2.0f);
         title.setColor(Color.GOLD);
         mainTable.add(title).colspan(2).padBottom(50).row();
@@ -125,7 +125,9 @@ public class MainMenuScreen implements Screen {
     }
 
     public void updateBackground(Texture texture) {
-        background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
+        if (texture != null) {
+            background.setDrawable(new TextureRegionDrawable(new TextureRegion(texture)));
+        }
     }
 
     public void showError(String message) {

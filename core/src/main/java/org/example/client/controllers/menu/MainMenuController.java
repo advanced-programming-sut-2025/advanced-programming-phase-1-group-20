@@ -1,7 +1,9 @@
 package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
+import org.example.client.controllers.MultiplayerMenuController;
 import org.example.client.controllers.ProfileMenuController;
+import org.example.client.views.MultiplayerMenuScreen;
 import org.example.client.views.ProfileMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
@@ -38,9 +40,8 @@ public class MainMenuController {
     }
 
     public void handleMultiPlayer() {
-        getGame().getScreen().dispose();
-//        getGame().setScreen(new MultiPlayerMenuScreen(new MultiPlayerMenuController(),
-//            AssetManager.getAssetManager().getSkin()));
+        getGame().setScreen(new MultiplayerMenuScreen(new MultiplayerMenuController(),
+            AssetManager.getAssetManager().getSkin()));
     }
 
     public void handleLoadGame() {

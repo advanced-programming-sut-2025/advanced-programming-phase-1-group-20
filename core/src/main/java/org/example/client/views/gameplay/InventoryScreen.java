@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -155,7 +155,6 @@ public class InventoryScreen implements Screen {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
 
-        // Wait until Esc is released before allowing close
         if (!Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             canClose = true;
         }
