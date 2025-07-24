@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.common.models.App;
 import org.example.common.models.Items.Item;
@@ -491,7 +492,7 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if(keycode == Input.Keys.B){
-            Main.getGame().setScreen(new org.example.client.views.CraftingScreen(player, skin, this));
+            Main.getGame().setScreen(new CraftingScreen(player, skin, this));
             return true;
         }
         if(keycode == Input.Keys.L){
@@ -973,10 +974,10 @@ public class GameView implements Screen, InputProcessor {
         if (stage != null) {
             stage.getViewport().update(width, height, true);
         }
-        
+
         // Update camera dimensions
         camera.setToOrtho(false, width, height);
-        
+
         // Resize terminal window
         if (terminalWindow != null) {
             terminalWindow.resize(width, height);

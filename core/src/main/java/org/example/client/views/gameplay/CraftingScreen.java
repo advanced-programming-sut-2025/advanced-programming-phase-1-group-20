@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -97,14 +97,14 @@ public class CraftingScreen implements Screen, Disposable {
 
             // Load hover texture (assuming a naming convention, e.g., "_hover")
             // You might need to adjust this path/naming based on your actual assets
-            Texture hoverTex = new Texture("content/CraftingItems/" + "Bee_House" + ".png"); //TODO : add ingredients
+            Texture hoverTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + "_hover" + ".png");
             hoverCraftingTextures.put(craftingType, hoverTex);
 
             // Create and add the HoverImage to the crafting table
             HoverImage image = new HoverImage(defaultTex, hoverTex);
             // You can add a ClickListener here if you want crafting items to be clickable
 
-            //TODO : add crafting into this
+
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
