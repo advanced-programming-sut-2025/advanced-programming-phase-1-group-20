@@ -71,7 +71,7 @@ public class HouseMenuController implements Controller {
     }
 
 
-    private Result craftItem(String[] args) {
+    public Result craftItem(String[] args) {
         String itemName = args[0];
 
         CraftingType type = CraftingType.fromName(itemName);
