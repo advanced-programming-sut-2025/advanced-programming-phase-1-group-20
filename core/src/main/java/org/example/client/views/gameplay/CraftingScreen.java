@@ -7,19 +7,19 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent; // Keep for other listeners
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Disposable; // Import Disposable for better texture management
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
+import org.example.client.controllers.HouseMenuController;
+import org.example.common.models.Items.CraftingItem;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Items.Tool;
+import org.example.common.models.common.Result;
 import org.example.common.models.enums.Types.CraftingType;
 import org.example.common.models.common.HoverImage;
 
@@ -54,6 +54,9 @@ public class CraftingScreen implements Screen, Disposable {
     private final Map<CraftingType, Texture> defaultCraftingTextures = new HashMap<>();
     private final Map<CraftingType, Texture> hoverCraftingTextures = new HashMap<>();
 
+    private Dialog errorDialog; // Declare errorDialog here
+    private HouseMenuController controller;
+
 
     public CraftingScreen(Player player, Skin skin, Screen previousScreen) {
         this.player = player;
@@ -81,6 +84,7 @@ public class CraftingScreen implements Screen, Disposable {
         int gridWidth = 12 * slotSize + 11 * slotPad;
         int gridHeight = 3 * slotSize + 2 * slotPad;
         mainTable.add(inventoryTable).width(gridWidth).height(gridHeight); // Add inventory to the main layout
+        controller = new HouseMenuController(player , player.getCurrentFarm().getBuilding());
 
         mainTable.row();
 
@@ -92,7 +96,12 @@ public class CraftingScreen implements Screen, Disposable {
     public void loadCraftingTextures() {
         for(CraftingType craftingType : CraftingType.values()) {
             // Load default texture
-            Texture defaultTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + ".png");
+            Texture defaultTex;
+            if(player.craftingExists(craftingType.getName())){
+                defaultTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + ".png");
+            }else{
+                defaultTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + "_Locked" + ".png");
+            }
             defaultCraftingTextures.put(craftingType, defaultTex);
 
             // Load hover texture (assuming a naming convention, e.g., "_hover")
@@ -108,8 +117,11 @@ public class CraftingScreen implements Screen, Disposable {
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    Gdx.app.log("CraftingScreen", "Clicked on: " + craftingType.name());
-                    // Add your crafting logic here based on 'craftingType'
+                    String[] args = new String[]{craftingType.getName()};
+                    Result result = controller.craftItem(args);
+                    if(!result.success()){
+                        showErrorDialog("error crafting" , result.message());
+                    }
                 }
             });
             craftingTable.add(image).pad(10);
@@ -305,5 +317,29 @@ public class CraftingScreen implements Screen, Disposable {
         // Dispose of empty slot texture
         // Same as above, if it's reused, it's problematic.
         // Best to load it once as a class field and dispose that field.
+    }
+
+    private void showErrorDialog(String title, String message) {
+        // Initialize dialog if not already
+        if (errorDialog == null) {
+            errorDialog = new Dialog(title, skin);
+            errorDialog.button("OK"); // Default OK button
+            errorDialog.setModal(true);
+            errorDialog.setMovable(false); // Optional: prevent dialog from being dragged
+        } else {
+            errorDialog.getTitleLabel().setText(title); // Update title
+            errorDialog.clearChildren(); // Clear existing content
+            errorDialog.text(message); // Set new message
+            errorDialog.button("OK"); // Re-add OK button
+        }
+
+        errorDialog.show(stage);
+
+        errorDialog.pack(); // Pack to get preferred size
+        errorDialog.setPosition(
+            Math.round((stage.getWidth() - errorDialog.getWidth()) / 2),
+            Math.round((stage.getHeight() - errorDialog.getHeight()) / 2)
+        );
+
     }
 }

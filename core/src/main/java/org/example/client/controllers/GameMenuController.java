@@ -377,23 +377,6 @@ public class GameMenuController implements Controller {
     }
 
 
-    //this method is completed
-    private void craftingShowRecipes() {
-        Player player = App.getGame().getCurrentPlayer();
-        List<CraftingItem> craftingItems = player.getCraftingItems();
-        if (!craftingItems.isEmpty()) {
-            int count = 1;
-            for (CraftingItem craftingItem : craftingItems) {
-                System.out.println("------------------------");
-                System.out.println("crafting item: " + count);
-                craftingItem.showInfo();
-                System.out.println("------------------------");
-                count++;
-            }
-        } else {
-            System.out.println("There is no crafting items for player");
-        }
-    }
 
     private void cookingShowRecipes() {
         Player player = App.getGame().getCurrentPlayer();
