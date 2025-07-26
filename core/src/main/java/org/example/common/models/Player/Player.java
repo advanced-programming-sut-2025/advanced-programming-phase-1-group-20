@@ -828,9 +828,6 @@ public class Player {
         return true;
     }
 
-    /**
-     * Check if player can walk to farm from village
-     */
     public boolean canWalkToFarm(int farmIndex) {
         if (!isInVillage) return false;
 
