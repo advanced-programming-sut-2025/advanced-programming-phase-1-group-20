@@ -267,15 +267,15 @@ public class PlayerController {
             // Get current player position in tiles
             int currentTileX = (int) (player.getPosX() / 60);
             int currentTileY = (int) (player.getPosY() / 60);
-            
+
             // Check if current position is within village boundaries
             if (currentTileX >= GameMap.VILLAGE_X && currentTileX < GameMap.VILLAGE_X + Village.width &&
                 currentTileY >= GameMap.VILLAGE_Y && currentTileY < GameMap.VILLAGE_Y + Village.height) {
-                
+
                 // Player is in village, check if target position is also within village boundaries
                 if (tileX >= GameMap.VILLAGE_X && tileX < GameMap.VILLAGE_X + Village.width &&
                     tileY >= GameMap.VILLAGE_Y && tileY < GameMap.VILLAGE_Y + Village.height) {
-                    
+
                     // Check if trying to exit village to farms
                     if (tileX <= GameMap.VILLAGE_X + 2 || tileX >= GameMap.VILLAGE_X + Village.width - 3) {
                         // Transition to farm
@@ -331,7 +331,7 @@ public class PlayerController {
                     System.out.println("Checking farm transition - Farm index: " + currentFarm.getFarmIndex() +
                                       ", tileX: " + tileX + ", Farm.width: " + Farm.width);
                 }
-                
+
                 // Check if player should transition to village based on farm-specific rules
                 boolean shouldTransition = false;
                 switch (currentFarm.getFarmIndex()) {
@@ -348,7 +348,7 @@ public class PlayerController {
                         shouldTransition = tileX <= 2; // Within 3 tiles of left edge
                         break;
                 }
-                
+
                 if (shouldTransition && !transitionInProgress) {
                     System.out.println("TRANSITION TRIGGERED: Farm " + currentFarm.getFarmIndex() + " to village!");
                     transitionInProgress = true;
@@ -402,12 +402,12 @@ public class PlayerController {
         System.out.println("Player position: (" + player.getPosX() + ", " + player.getPosY() + ")");
         System.out.println("Verification - Player should now be at village coordinates: (" + (player.getPosX() / 60) + ", " + (player.getPosY() / 60) + ")");
     }
-    
+
     public void confirmTransition() {
         if (showTransitionDialog) {
             showTransitionDialog = false;
             transitionMessage = "";
-            
+
             // Convert farm coordinates to village coordinates
             Farm currentFarm = player.getCurrentFarm();
             if (currentFarm == null) {
@@ -436,16 +436,16 @@ public class PlayerController {
             System.out.println("Player position: (" + player.getPosX() + ", " + player.getPosY() + ")");
         }
     }
-    
+
     public void cancelTransition() {
         showTransitionDialog = false;
         transitionMessage = "";
     }
-    
+
     public boolean isShowingTransitionDialog() {
         return showTransitionDialog;
     }
-    
+
     public String getTransitionMessage() {
         return transitionMessage;
     }
@@ -577,9 +577,6 @@ public class PlayerController {
         batch.setColor(originalColor);
     }
 
-    /**
-     * Dispose of nickname font resources
-     */
     public void dispose() {
         if (nicknameFont != null) {
             nicknameFont.dispose();
