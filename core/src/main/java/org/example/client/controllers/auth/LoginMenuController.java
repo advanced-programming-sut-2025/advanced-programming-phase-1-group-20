@@ -3,7 +3,6 @@ package org.example.client.controllers.auth;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 //import org.example.client.controllers.WelcomeMenuController;
-import org.example.client.controllers.WelcomeMenuController;
 import org.example.client.views.WelcomeMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
@@ -77,7 +76,7 @@ public class LoginMenuController {
 
     public void handleBack() {
         getGame().getScreen().dispose();
-        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
-            AssetManager.getAssetManager().getSkin()));
+//        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+//            AssetManager.getAssetManager().getSkin()));
     }
 }
