@@ -531,12 +531,6 @@ public class PlayerController {
         return facing;
     }
 
-    /**
-     * Render nickname above the player's head
-     * @param batch The sprite batch to render with
-     * @param currentPlayer The current player (for highlighting)
-     * @param lightingColor The current lighting color to apply
-     */
     public void renderNickname(SpriteBatch batch, Player currentPlayer, Color lightingColor) {
         if (player == null || player.getUser() == null || nicknameFont == null || skin == null) {
             return;
