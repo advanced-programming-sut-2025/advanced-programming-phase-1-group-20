@@ -45,7 +45,7 @@ public class GameMenuController implements Controller {
 
     public void setView(GameView view){
         this.view = view;
-        playerController = new PlayerController(player , player.getCurrentFarm());
+        playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera() , view.getSkin() , this);
     }
 

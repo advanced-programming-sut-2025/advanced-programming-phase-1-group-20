@@ -41,10 +41,10 @@ public class ItemBuilder {
         if (artisanType != null) {
             return new ArtisanItem(artisanType);
         }
-        if(name.equals("Wood")){
-            return new Item("Wood" , 10 , "content/Resource/Wood.png" , "A sturdy, yet flexible plant material with a wide variety of uses.");
-        }else if(name.equals("Stone")){
-            return new Item("Stone" , 20 , "Rock/Stone_Index48.png" , "A common material with many uses in crafting and building.");
+        if (name.equals("Wood")) {
+            return new Item("Wood", 10, "content/Resource/Wood.png", "A sturdy, yet flexible plant material with a wide variety of uses.");
+        } else if (name.equals("Stone")) {
+            return new Item("Stone", 20, "content/Rock/Stone_Index48.png", "A common material with many uses in crafting and building.");
         }
         return null;
     }

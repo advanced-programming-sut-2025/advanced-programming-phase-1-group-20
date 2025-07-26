@@ -7,6 +7,12 @@ import org.example.client.Main;
 import org.example.common.models.App;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Village;
+import org.example.common.models.MapDetails.Building;
+import org.example.common.models.MapDetails.GreenHouse;
+import org.example.common.models.Barn;
+import org.example.common.models.Coop;
 import org.example.common.models.common.Location;
 import org.example.common.models.enums.Types.CropType;
 import org.example.common.models.enums.Types.TileType;
@@ -141,22 +147,24 @@ public class WorldController {
         float mapWidth = Farm.width * TILE_SIZE;
         float mapHeight = Farm.height * TILE_SIZE;
 
+        // Only update camera position if not zoomed out (zoom < 1.5)
+        if (camera.zoom < 1.5f) {
+            float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+            float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
 
-        float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
-        float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+            float cameraX = playerX;
+            float minCameraX = halfCameraViewWidth;
+            float maxCameraX = mapWidth - halfCameraViewWidth;
+            cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
 
-        float cameraX = playerX;
-        float minCameraX = halfCameraViewWidth;
-        float maxCameraX = mapWidth - halfCameraViewWidth;
-        cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+            float cameraY = playerY;
+            float minCameraY = halfCameraViewHeight;
+            float maxCameraY = mapHeight - halfCameraViewHeight;
+            cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
 
-
-        float cameraY = playerY;
-        float minCameraY = halfCameraViewHeight;
-        float maxCameraY = mapHeight - halfCameraViewHeight;
-        cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
-
-        camera.position.set(cameraX, cameraY, 0);
+            camera.position.set(cameraX, cameraY, 0);
+        }
+        
         camera.update();
         Main.getBatch().setProjectionMatrix(camera.combined);
 
@@ -173,6 +181,12 @@ public class WorldController {
     }
 
     private void renderFarmTiles() {
+        // If camera is zoomed out, render the entire game map
+        if (camera.zoom >= 1.5f) {
+            renderEntireGameMap();
+            return;
+        }
+
         if (farm == null) {
             Gdx.app.error("WorldController", "Farm is null!");
             return;
@@ -229,6 +243,183 @@ public class WorldController {
             }
         }
     }
+
+    private void renderEntireGameMap() {
+        String currentSeason = getCurrentSeason();
+        GameMap gameMap = App.getGame().getGameMap();
+        
+        // Create a unified world map array
+        int totalWidth = 312;  // GameMap.TOTAL_WIDTH
+        int totalHeight = 468; // GameMap.TOTAL_HEIGHT
+        TileType[][] worldMap = new TileType[totalWidth][totalHeight];
+        
+        // Initialize with grass
+        for (int x = 0; x < totalWidth; x++) {
+            for (int y = 0; y < totalHeight; y++) {
+                worldMap[x][y] = TileType.Dirt;
+            }
+        }
+        
+        // Fill in farms
+        for (Farm farm : gameMap.getFarms()) {
+            int farmX, farmY;
+            switch (farm.getFarmIndex()) {
+                case 0: // Bottom-Left Farm
+                    farmX = 0;
+                    farmY = 0;
+                    break;
+                case 1: // Top-Left Farm
+                    farmX = 0;
+                    farmY = 156 + 78; // Village height + farm height
+                    break;
+                case 2: // Top-Right Farm
+                    farmX = 78 + 156; // Village width + farm width
+                    farmY = 156 + 78; // Village height + farm height
+                    break;
+                case 3: // Bottom-Right Farm
+                    farmX = 78 + 156; // Village width + farm width
+                    farmY = 0;
+                    break;
+                default:
+                    continue;
+            }
+            
+            // Copy farm data to world map
+            for (int x = 0; x < Farm.width; x++) {
+                for (int y = 0; y < Farm.height; y++) {
+                    Location location = farm.getItem(x, y);
+                    if (location != null) {
+                        worldMap[farmX + x][farmY + y] = location.getTile();
+                    }
+                }
+            }
+        }
+        
+        // Fill in village area
+        int villageX = 78; // GameMap.VILLAGE_X
+        int villageY = 78; // GameMap.VILLAGE_Y
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                worldMap[villageX + x][villageY + y] = TileType.VILLAGE;
+            }
+        }
+        
+        // Render the complete world map
+        for (int x = 0; x < totalWidth; x++) {
+            for (int y = 0; y < totalHeight; y++) {
+                float worldX = x * TILE_SIZE;
+                float worldY = y * TILE_SIZE;
+                
+                TileType tileType = worldMap[x][y];
+                
+                // Draw grass first
+                if (shouldRenderGrass(tileType)) {
+                    Texture grassTexture = getTexture("grass_" + currentSeason);
+                    if (grassTexture != null) {
+                        Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+                
+                // Draw tile-specific texture
+                Texture tileTexture = getTileSpecificTexture(tileType, currentSeason);
+                if (tileTexture != null) {
+                    Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                }
+                
+                // Draw village buildings and paths
+                if (tileType == TileType.VILLAGE) {
+                    // Draw village-specific textures
+                    Texture villageTexture = getTexture("path"); // Use path texture for village
+                    if (villageTexture != null) {
+                        Main.getBatch().draw(villageTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                    }
+                }
+            }
+        }
+        
+        // Render farm buildings and structures
+        renderAllFarmBuildings(gameMap, currentSeason);
+    }
+
+    private void renderAllFarmBuildings(GameMap gameMap, String season) {
+        for (Farm farm : gameMap.getFarms()) {
+            int farmX, farmY;
+            switch (farm.getFarmIndex()) {
+                case 0: // Bottom-Left Farm
+                    farmX = 0;
+                    farmY = 0;
+                    break;
+                case 1: // Top-Left Farm
+                    farmX = 0;
+                    farmY = 156 + 78;
+                    break;
+                case 2: // Top-Right Farm
+                    farmX = 78 + 156;
+                    farmY = 156 + 78;
+                    break;
+                case 3: // Bottom-Right Farm
+                    farmX = 78 + 156;
+                    farmY = 0;
+                    break;
+                default:
+                    continue;
+            }
+            
+            // Render farm buildings
+            renderFarmBuildings(farm, farmX, farmY, season);
+        }
+    }
+
+    private void renderFarmBuildings(Farm farm, int farmX, int farmY, String season) {
+        // Render house
+        Building house = farm.getBuilding();
+        if (house != null) {
+            float houseWorldX = (farmX + house.getX()) * TILE_SIZE;
+            float houseWorldY = (farmY + house.getY()) * TILE_SIZE;
+            Texture houseTexture = getTexture("house");
+            if (houseTexture != null) {
+                Main.getBatch().draw(houseTexture, houseWorldX, houseWorldY, 
+                    house.getWidth() * TILE_SIZE, house.getHeight() * TILE_SIZE);
+            }
+        }
+        
+        // Render greenhouse
+        GreenHouse greenhouse = farm.getGreenHouse();
+        if (greenhouse != null) {
+            float ghWorldX = (farmX + greenhouse.getX()) * TILE_SIZE;
+            float ghWorldY = (farmY + greenhouse.getY()) * TILE_SIZE;
+            Texture ghTexture = greenhouse.getIsConstructed() ? 
+                getTexture("constructed_greenhouse") : getTexture("greenhouse");
+            if (ghTexture != null) {
+                Main.getBatch().draw(ghTexture, ghWorldX, ghWorldY, 
+                    greenhouse.getWidth() * TILE_SIZE, greenhouse.getHeight() * TILE_SIZE);
+            }
+        }
+        
+        // Render barns
+        for (Barn barn : farm.getBarns()) {
+            float barnWorldX = (farmX + barn.getX()) * TILE_SIZE;
+            float barnWorldY = (farmY + barn.getY()) * TILE_SIZE;
+            Texture barnTexture = getTexture("barn");
+            if (barnTexture != null) {
+                Main.getBatch().draw(barnTexture, barnWorldX, barnWorldY, 
+                    barn.getWidth() * TILE_SIZE, barn.getHeight() * TILE_SIZE);
+            }
+        }
+        
+        // Render coops
+        for (Coop coop : farm.getCoops()) {
+            float coopWorldX = (farmX + coop.getX()) * TILE_SIZE;
+            float coopWorldY = (farmY + coop.getY()) * TILE_SIZE;
+            Texture coopTexture = getTexture("coop");
+            if (coopTexture != null) {
+                Main.getBatch().draw(coopTexture, coopWorldX, coopWorldY, 
+                    coop.getWidth() * TILE_SIZE, coop.getHeight() * TILE_SIZE);
+            }
+        }
+    }
+
+
 
     private String getCurrentSeason() {
         try {

@@ -78,7 +78,6 @@ public class ClimateSystem {
         this.snowTextures = assetManager.getSnowTextures();
     }
 
-    // Alternative constructor for backwards compatibility
     public ClimateSystem(float screenWidth, float screenHeight) {
         this.rainDrops = new Array<>();
         this.rainIntensity = 1.0f;
@@ -344,17 +343,12 @@ public class ClimateSystem {
     }
 
     public void render(SpriteBatch batch, Color lightingColor) {
-        // Remove the early return so both rain and snow can render independently
-        // Store original batch color
         Color originalColor = batch.getColor().cpy();
 
         if (isRaining && rainDrops.size > 0) {
             for (RainDrop drop : rainDrops) {
                 if (drop.texture == null) continue;
-                
-                // Remove camera bounds check to ensure all rain drops are rendered
-                // The spawn logic already handles positioning within camera view
-                
+
                 Color rainColor = new Color(0.7f, 0.8f, 1.0f, drop.alpha);
                 rainColor.r = Math.max(0.5f, rainColor.r * lightingColor.r);
                 rainColor.g = Math.max(0.6f, rainColor.g * lightingColor.g);
@@ -379,10 +373,7 @@ public class ClimateSystem {
         if (isSnowing && snowDrops.size > 0) {
             for (SnowDrop drop : snowDrops) {
                 if (drop.texture == null) continue;
-                
-                // Remove camera bounds check to ensure all snow drops are rendered
-                // The spawn logic already handles positioning within camera view
-                
+
                 Color snowColor = new Color(1.0f, 1.0f, 1.0f, drop.alpha);
                 snowColor.r = Math.max(0.8f, snowColor.r * lightingColor.r);
                 snowColor.g = Math.max(0.8f, snowColor.g * lightingColor.g);

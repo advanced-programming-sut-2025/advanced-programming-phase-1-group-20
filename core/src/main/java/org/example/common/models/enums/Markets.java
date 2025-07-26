@@ -65,16 +65,16 @@ public enum Markets {
         Item iridiumTool = new Item("Irididium Tool" , 25_000 , "");
         items.put(iridiumTool, 1.0);
 
-        Item cooperTrashCan = new Item("Copper Trash Can" , 1_000 , "");
+        Item cooperTrashCan = new Item("Copper Trash Can" , 1_000 , "content/Tools/Trash_Can_Copper.png");
         items.put(cooperTrashCan, 1.0);
 
-        Item ironTrashCan = new Item("Iron Trash Can" , 2_500 , "");
+        Item ironTrashCan = new Item("Iron Trash Can" , 2_500 , "content/Tools/Trash_Can_Steel.png");
         items.put(ironTrashCan, 1.0);
 
-        Item goldTrashCan = new Item("Gold Trash Can" , 5_000 , "");
+        Item goldTrashCan = new Item("Gold Trash Can" , 5_000 , "content/Tools/Trash_Can_Gold.png");
         items.put(goldTrashCan, 1.0);
 
-        Item iridiumTrashCan = new Item("Iridium Trash Can" , 12_500 , "");
+        Item iridiumTrashCan = new Item("Iridium Trash Can" , 12_500 , "content/Tools/Trash_Can_Iridium.png");
         items.put(iridiumTrashCan, 1.0);
 
 
@@ -96,7 +96,7 @@ public enum Markets {
 
 
         //Permanent Stock
-        Item jojaCola = new Item("Joja Cola" , 75 , "Concessions/Joja_Cola_%28large%29.png" , "The flagship product of Joja corporation.");
+        Item jojaCola = new Item("Joja Cola" , 75 , "content/Concessions/Joja_Cola_%28large%29.png" , "The flagship product of Joja corporation.");
         items.put(jojaCola, Double.POSITIVE_INFINITY);
 
         Item ancientSeed = new Seed(SeedType.AncientSeeds);
@@ -108,15 +108,13 @@ public enum Markets {
         items.put(grassStarter, Double.POSITIVE_INFINITY);
 
 
-        Item sugar = new Item("sugar", 125, "Crops/Sugar.png" ,"Adds sweetness to pastries and candies. Too much can be unhealthy.");
+        Item sugar = new Item("sugar", 125, "content/Crops/Sugar.png" ,"Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item wheatFlour = new Item("wheat flour", 125, "" ,"A common cooking ingredient made from crushed wheat seeds.");
+        Item wheatFlour = new Item("wheat flour", 125, "content/Farming/Wheat_Flour.png" ,"A common cooking ingredient made from crushed wheat seeds.");
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item rice = new Item("rice", 250, "" , "A basic grain often served under vegetables.");
+        Item rice = new Item("rice", 250, "content/Crops/Rice.png" , "A basic grain often served under vegetables.");
         items.put(rice, Double.POSITIVE_INFINITY);
 
         //Spring Stock
@@ -294,19 +292,16 @@ public enum Markets {
         HashMap<Item, Double> winterItems = new HashMap<>();
 
         // permanent stock
-        //TODO : adding correct image file path
-        Item rice = new Item("Rice", 200, "" , "A basic grain often served under vegetables.");
+        Item rice = new Item("Rice", 200, "content/Crops/Rice.png" , "A basic grain often served under vegetables.");
         items.put(rice, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item wheatFlour = new Item("Wheat Flour", 100, "" , "A common cooking ingredient made from crushed wheat seeds.");
+        Item wheatFlour = new Item("Wheat Flour", 100, "content/Farming/Wheat_Flour.png" , "A common cooking ingredient made from crushed wheat seeds.");
         items.put(wheatFlour, Double.POSITIVE_INFINITY);
 
 
 
 
-        //TODO : adding correct image file path
-        Item weddingRing = new Item("Wedding Ring" , 10_000 , "" , "It's used to ask for another farmer's hand in marriage. " +
+        Item weddingRing = new Item("Wedding Ring" , 10_000 , "content/Crafting/Wedding_Ring.png" , "It's used to ask for another farmer's hand in marriage. " +
                 "(Unlocked after reaching level 3 friendship with a player)");
         items.put(weddingRing, 2.0);
 
@@ -319,15 +314,13 @@ public enum Markets {
         items.put(grassStarter, 1.0);
 
 
-        Item sugar = new Item("Sugar", 100, "Crops/Sugar.png" , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
+        Item sugar = new Item("Sugar", 100, "content/Crops/Sugar.png" , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.put(sugar, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item soil = new Item("Deluxe Retaining Soil" , 150 , "" ,"This soil has a 100% chance of staying watered overnight. Mix into tilled soil.");
+        Item soil = new Item("Deluxe Retaining Soil" , 150 , "content/Crafting/Deluxe_Retaining_Soil.png" ,"This soil has a 100% chance of staying watered overnight. Mix into tilled soil.");
         items.put(soil, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item speedGrow = new Item("Speed-Gro" , 100 , "" , "Makes the plants grow 1 day earlier.");
+        Item speedGrow = new Item("Speed-Gro" , 100 , "content/Crafting/Speed-Gro.png" , "Makes the plants grow 1 day earlier.");
         items.put(speedGrow, Double.POSITIVE_INFINITY);
 
         Item oil = new ArtisanItem(ArtisanType.Oil);
@@ -365,12 +358,10 @@ public enum Markets {
 
 
 
-        //TODO : adding correct image file path
-        Item basicRetainingSoil = new Item("Basic Retaining Soil" , 100 , "" , "This soil has a chance of staying watered overnight. Mix into tilled soil.");
+        Item basicRetainingSoil = new Item("Basic Retaining Soil" , 100 , "content/Crafting/Basic_Retaining_Soil.png" , "This soil has a chance of staying watered overnight. Mix into tilled soil.");
         items.put(basicRetainingSoil, Double.POSITIVE_INFINITY);
 
-        //TODO : adding correct image file path
-        Item qualityRetainingSoil = new Item("Quality Retaining Soil" , 150 , "" ,"This soil has a good chance of staying watered overnight. Mix into tilled soil.");
+        Item qualityRetainingSoil = new Item("Quality Retaining Soil" , 150 , "content/Crafting/Quality_Retaining_Soil.png" ,"This soil has a good chance of staying watered overnight. Mix into tilled soil.");
         items.put(qualityRetainingSoil, Double.POSITIVE_INFINITY);
 
 
@@ -638,7 +629,7 @@ public enum Markets {
         Item wood = new Item("Wood", 10, "Trees/Wood.png" , "A sturdy, yet flexible plant material with a wide variety of uses.");
         items.put(wood, Double.POSITIVE_INFINITY);
 
-        Item stone = new Item("Stone", 20, "Rock/Stone_Index48.png" ,  "A common material with many uses in crafting and building.");
+        Item stone = new Item("Stone", 20, "content/Rock/Stone_Index48.png" ,  "A common material with many uses in crafting and building.");
         items.put(stone, Double.POSITIVE_INFINITY);
 
 

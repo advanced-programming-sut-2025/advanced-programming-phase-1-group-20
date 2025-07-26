@@ -145,6 +145,8 @@ public class NPCSpriteController implements Disposable {
         batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
     }
 
+
+
     private void renderNPCFromEnum(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, org.example.common.models.enums.Npcs npcEnum) {
         // Create a temporary NPC for rendering
         NPC npc = new NPC(npcEnum.getCharacteristic(), npcEnum.getName(), npcEnum.getJob(), new HashMap<>());
@@ -170,6 +172,8 @@ public class NPCSpriteController implements Disposable {
             batch.draw(currentFrame, x, y, width, height);
         }
     }
+
+
 
     @Override
     public void dispose() {

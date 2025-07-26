@@ -2,9 +2,13 @@ package org.example.client.controllers.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
 import org.example.common.models.App;
@@ -46,6 +50,13 @@ public class PlayerController {
     private float lastMouseX = 0f;
     private float lastMouseY = 0f;
 
+    // Nickname rendering
+    private BitmapFont nicknameFont;
+    private Skin skin;
+    private static final float NICKNAME_OFFSET_Y = 120f;
+    private static final Color NICKNAME_TEXT_COLOR = Color.WHITE;
+    private static final Color CURRENT_PLAYER_TEXT_COLOR = new Color(0.8f, 1f, 0.8f, 1f);
+
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
         toolSwinging = true;
@@ -70,12 +81,43 @@ public class PlayerController {
         currentAnim = walkDown;
     }
 
+    public PlayerController(Player player, Farm farm, Skin skin) {
+        this.player = player;
+        this.farm = farm;
+        this.gameMap = App.getGame().getGameMap();
+        this.skin = skin;
+
+        Texture sheet = player.getTextureSheet();
+        TextureRegion[][] grid = TextureRegion.split(sheet, FRAME_W, FRAME_H);
+
+        walkDown = buildAnim(grid[0]);
+        walkLeft = buildAnim(grid[3]);
+        walkRight = buildAnim(grid[1]);
+        walkUp = buildAnim(grid[2]);
+
+        currentAnim = walkDown;
+        
+        initializeNicknameFont();
+    }
+
     private static Animation<TextureRegion> buildAnim(TextureRegion[] row) {
         Array<TextureRegion> frames = new Array<>(3);
         for (int i = 0; i < 3; i++) {
             frames.add(row[i]);
         }
         return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
+    }
+
+    private void initializeNicknameFont() {
+        try {
+            // Try to load the custom font first
+            nicknameFont = new BitmapFont(Gdx.files.internal("content/fonts/new.fnt"));
+            nicknameFont.getData().setScale(0.6f);
+        } catch (Exception e) {
+            // Fallback to default font
+            nicknameFont = new BitmapFont();
+            nicknameFont.getData().setScale(0.6f);
+        }
     }
 
     public void update() {
@@ -409,5 +451,60 @@ public class PlayerController {
 
     public Dir getFacing() {
         return facing;
+    }
+
+    /**
+     * Render nickname above the player's head
+     * @param batch The sprite batch to render with
+     * @param currentPlayer The current player (for highlighting)
+     * @param lightingColor The current lighting color to apply
+     */
+    public void renderNickname(SpriteBatch batch, Player currentPlayer, Color lightingColor) {
+        if (player == null || player.getUser() == null || nicknameFont == null || skin == null) {
+            return;
+        }
+        
+        String nickname = player.getUser().getNickname();
+        if (nickname == null || nickname.trim().isEmpty()) {
+            nickname = player.getUser().getUsername(); // Fallback to username
+        }
+        
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return; // No nickname to display
+        }
+        
+        float playerX = player.getPosX();
+        float playerY = player.getPosY();
+        
+        // Calculate nickname position (centered above player head)
+        float nicknameWidth = nicknameFont.draw(batch, nickname, 0, 0).width;
+        float nicknameX = playerX + 30f - (nicknameWidth / 2f); // Center above player (player width is ~60)
+        float nicknameY = playerY + NICKNAME_OFFSET_Y;
+        
+        // Determine text color
+        Color textColor = (player.equals(currentPlayer)) ? CURRENT_PLAYER_TEXT_COLOR : NICKNAME_TEXT_COLOR;
+        
+        // Apply lighting to text color
+        Color finalTextColor = new Color(textColor);
+        finalTextColor.r *= lightingColor.r;
+        finalTextColor.g *= lightingColor.g;
+        finalTextColor.b *= lightingColor.b;
+        
+        // Draw nickname text
+        Color originalColor = batch.getColor().cpy();
+        batch.setColor(finalTextColor);
+        nicknameFont.draw(batch, nickname, nicknameX, nicknameY);
+        
+        // Reset batch color
+        batch.setColor(originalColor);
+    }
+
+    /**
+     * Dispose of nickname font resources
+     */
+    public void dispose() {
+        if (nicknameFont != null) {
+            nicknameFont.dispose();
+        }
     }
 }

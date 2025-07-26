@@ -110,6 +110,11 @@ public class GameView implements Screen, InputProcessor {
     private boolean isMapVisible = false;
     private Group minimapGroup;
 
+    // Camera zoom state
+    private boolean isCameraZoomedOut = false;
+    private float normalZoom = 1.0f;
+    private float zoomedOutZoom = 3.0f; // Zoom out to show entire map (larger value = more zoomed out)
+
     // NPC rendering
     private NPCSpriteController npcSpriteController;
 
@@ -149,8 +154,6 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
-
-
 
         loadCustomFont();
         initializeLabels();
@@ -484,14 +487,14 @@ public class GameView implements Screen, InputProcessor {
     public Lighting getLighting() { return lighting; }
     public Color getCurrentLightColor() { return currentLightColor.cpy(); }
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
-    public ClimateSystem getClimateSystem() { return climateSystem; } // NEW GETTER
-    public LightningSystem getLightningSystem() { return lightningSystem; } // NEW GETTER
+    public ClimateSystem getClimateSystem() { return climateSystem; }
+    public LightningSystem getLightningSystem() { return lightningSystem; }
 
 
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.M) {
-            toggleMinimap();
+            toggleCameraZoom();
             return true;
         }
 
@@ -943,10 +946,13 @@ public class GameView implements Screen, InputProcessor {
             controller.update(); // This will render world elements while batch is active
         }
 
-        // Render NPCs
         renderNPCs(deltaTime);
 
-        // Render rain effects BEFORE UI (but after world)
+        // Render player nicknames using PlayerController
+        if (controller != null && controller.getPlayerController() != null) {
+            controller.getPlayerController().renderNickname(Main.getBatch(), player, currentLightColor);
+        }
+
         if (getCurrentGameDate() != null) {
             climateSystem.render(Main.getBatch(), currentLightColor);
         }
@@ -1132,9 +1138,11 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void renderNPCs(float deltaTime) {
-        if (npcSpriteController != null) {
-            npcSpriteController.update(deltaTime);
-            npcSpriteController.render(Main.getBatch(), currentLightColor);
+        if (player.getIsInVillage()){
+            if (npcSpriteController != null) {
+                npcSpriteController.update(deltaTime);
+                npcSpriteController.render(Main.getBatch(), currentLightColor);
+            }
         }
     }
 
@@ -1201,11 +1209,11 @@ public class GameView implements Screen, InputProcessor {
 
         // Create a lighting color that blends with the current lighting
         Color overlayColor = new Color(currentLightColor);
-        
+
         // Adjust alpha based on lighting intensity - more subtle effect
         float lightingIntensity = lighting.getLightIntensity();
         overlayColor.a = (1.0f - lightingIntensity) * 0.3f; // Subtle darkening effect
-        
+
         // Set batch color for the overlay
         Main.getBatch().setColor(overlayColor);
 
@@ -1217,11 +1225,26 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void createLightingOverlayTexture() {
-        // Create a 1x1 white pixel texture programmatically
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(1f, 1f, 1f, 1f); // Pure white
         pixmap.fill();
         lightingOverlayTexture = new Texture(pixmap);
         pixmap.dispose();
+    }
+
+    private void toggleCameraZoom() {
+        isCameraZoomedOut = !isCameraZoomedOut;
+        if (isCameraZoomedOut) {
+            // Zoom out to show entire game map
+            camera.zoom = zoomedOutZoom;
+            // Center camera on the entire game map center
+            float totalMapWidth = 312 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
+            float totalMapHeight = 468 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
+            camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
+        } else {
+            // Return to normal zoom
+            camera.zoom = normalZoom;
+        }
+        camera.update();
     }
 }

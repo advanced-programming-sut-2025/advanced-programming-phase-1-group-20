@@ -286,6 +286,7 @@ public class Market extends Building {
         if (item.getName().equals("Barn")) {
             //TODO : check woods and stones.
         }
+
         if (!(count + counterStock.get(item) <= totalStock.get(item))) {
             return false;
         }
@@ -466,7 +467,6 @@ public class Market extends Building {
     private void checkOutCarpentersShop(Player player, Item item, double count) {
         if (item.getName().equals("Barn")) {
             //TODO : remove items needed.
-
 
             return;
 
