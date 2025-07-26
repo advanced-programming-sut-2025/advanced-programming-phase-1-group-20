@@ -362,6 +362,9 @@ public class Game implements Serializable {
             gameMap.getVillage().initializeNPCs();
         }
         
+        // Update the unified tiles array with farm and village data
+        gameMap.updateTilesFromRegions();
+        
         // End map selection phase
         this.inMapSelectionPhase = false;
     }

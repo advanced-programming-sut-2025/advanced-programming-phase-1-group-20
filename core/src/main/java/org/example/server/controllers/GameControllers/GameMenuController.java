@@ -816,6 +816,9 @@ public class GameMenuController implements Controller {
             player.setCurrentVillage(village);
             App.getGame().getGameMap().addFarm(newFarm);
 
+            // Update the unified tiles array with the new farm data
+            App.getGame().getGameMap().updateTilesFromRegions();
+
             game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
 
             if (game.allPlayersSelectedMap()) {

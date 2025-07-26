@@ -99,6 +99,9 @@ public class WelcomeMenuController {
         map.addFarm(farm4);
 
         game.setGameMap(map);
+
+        map.updateTilesFromRegions();
+
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
         getGame().setScreen(gameMenuScreen);
     }

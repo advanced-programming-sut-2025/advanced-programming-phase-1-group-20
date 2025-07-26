@@ -47,6 +47,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.Pixmap;
+import org.example.common.models.Items.Tree;
+import org.example.common.models.Items.Crop;
+import org.example.common.models.Items.Plant;
+import org.example.common.models.Items.Mineral;
+import org.example.common.models.Items.ShippingBin;
 
 public class GameView implements Screen, InputProcessor {
     private Stage stage;
@@ -109,6 +114,9 @@ public class GameView implements Screen, InputProcessor {
     // Minimap
     private boolean isMapVisible = false;
     private Group minimapGroup;
+
+    // Full map display
+    private boolean isFullMapVisible = false;
 
     // Camera zoom state
     private boolean isCameraZoomedOut = false;
@@ -503,7 +511,7 @@ public class GameView implements Screen, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.M) {
-            toggleCameraZoom();
+            toggleFullMap();
             return true;
         }
 
@@ -650,9 +658,9 @@ public class GameView implements Screen, InputProcessor {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null) return;
 
-        // Calculate map scale (312x468 world map to 500x500 display)
-        float scaleX = 500f / 312f;
-        float scaleY = 500f / 468f;
+        // Calculate map scale (234x312 world map to 500x500 display)
+        float scaleX = 500f / 234f;
+        float scaleY = 500f / 312f;
         float scale = Math.min(scaleX, scaleY); // Use the smaller scale to fit everything
 
         // Start rendering minimap
@@ -710,19 +718,19 @@ public class GameView implements Screen, InputProcessor {
             switch (farmIndex) {
                 case 0: // Bottom-Left
                     farmX = 120;
-                    farmY = 120 + 312 * scale; // Below village
+                    farmY = 120 + 234 * scale; // Below village
                     break;
                 case 1: // Top-Left
                     farmX = 120;
                     farmY = 120; // Above village
                     break;
                 case 2: // Top-Right
-                    farmX = 120 + 156 * scale;
+                    farmX = 120 + 78 * scale;
                     farmY = 120; // Above village
                     break;
                 case 3: // Bottom-Right
-                    farmX = 120 + 156 * scale;
-                    farmY = 120 + 312 * scale; // Below village
+                    farmX = 120 + 78 * scale;
+                    farmY = 120 + 234 * scale; // Below village
                     break;
                 default:
                     continue;
@@ -739,11 +747,11 @@ public class GameView implements Screen, InputProcessor {
             }
         }
 
-        // Render village (center, 156x312)
+        // Render village (center, 78x156)
         Village village = gameMap.getVillage();
         if (village != null) {
             float villageX = 120 + 78 * scale; // Center horizontally
-            float villageY = 120 + 78 * scale; // Center vertically
+            float villageY = 120 + 156 * scale; // Center vertically
 
             // Render each tile in the village
             for (int x = 0; x < Village.width; x++) {
@@ -814,8 +822,8 @@ public class GameView implements Screen, InputProcessor {
     private void renderMinimapLabels() {
         // Render farm labels
         String[] farmLabels = {"Farm 0", "Farm 1", "Farm 2", "Farm 3"};
-        float scaleX = 500f / 312f;
-        float scaleY = 500f / 468f;
+        float scaleX = 500f / 234f;
+        float scaleY = 500f / 312f;
         float scale = Math.min(scaleX, scaleY);
 
         for (int i = 0; i < 4; i++) {
@@ -823,19 +831,19 @@ public class GameView implements Screen, InputProcessor {
             switch (i) {
                 case 0: // Bottom-Left
                     labelX = 140;
-                    labelY = 140 + 312 * scale;
+                    labelY = 140 + 234 * scale;
                     break;
                 case 1: // Top-Left
                     labelX = 140;
                     labelY = 140;
                     break;
                 case 2: // Top-Right
-                    labelX = 140 + 156 * scale;
+                    labelX = 140 + 78 * scale;
                     labelY = 140;
                     break;
                 case 3: // Bottom-Right
-                    labelX = 140 + 156 * scale;
-                    labelY = 140 + 312 * scale;
+                    labelX = 140 + 78 * scale;
+                    labelY = 140 + 234 * scale;
                     break;
                 default:
                     continue;
@@ -970,6 +978,9 @@ public class GameView implements Screen, InputProcessor {
         if (!pauseTable.isVisible()) {
             controller.update(); // This will render world elements while batch is active
         }
+
+        // Render full map if M key is pressed
+        renderFullMap();
 
         renderNPCs(deltaTime);
 
@@ -1263,13 +1274,209 @@ public class GameView implements Screen, InputProcessor {
             // Zoom out to show entire game map
             camera.zoom = zoomedOutZoom;
             // Center camera on the entire game map center
-            float totalMapWidth = 312 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
-            float totalMapHeight = 468 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
+            float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
+            float totalMapHeight = 312 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
             camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
         } else {
             // Return to normal zoom
             camera.zoom = normalZoom;
         }
         camera.update();
+    }
+
+    private void toggleFullMap() {
+        isFullMapVisible = !isFullMapVisible;
+        if (isFullMapVisible) {
+            // Update the tiles array to ensure it's current
+            GameMap gameMap = App.getGame().getGameMap();
+            if (gameMap != null) {
+                gameMap.updateTilesFromRegions();
+            }
+            
+            // Zoom out to show entire map - use a larger zoom value to zoom out
+            camera.zoom = 5.0f; // Larger value to zoom out and show more of the map
+            // Center camera on the entire game map center
+            float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
+            float totalMapHeight = 312 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
+            camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
+        } else {
+            // Return to normal zoom
+            camera.zoom = normalZoom;
+        }
+        camera.update();
+    }
+
+    private void renderFullMap() {
+        if (!isFullMapVisible) return;
+
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Get the unified tiles array
+        Location[][] tiles = gameMap.getTiles();
+        if (tiles == null) return;
+
+        String currentSeason = getCurrentSeason();
+        final int TILE_SIZE = 60;
+
+        // Debug: Print some information about the tiles array
+        System.out.println("Rendering full map - Tiles array size: " + tiles.length + "x" + tiles[0].length);
+        System.out.println("Camera zoom: " + camera.zoom + ", Camera position: " + camera.position.x + ", " + camera.position.y);
+
+        int tilesRendered = 0;
+        int nonNullTiles = 0;
+
+        // Render all tiles from the unified array
+        for (int x = 0; x < GameMap.TOTAL_WIDTH; x++) {
+            for (int y = 0; y < GameMap.TOTAL_HEIGHT; y++) {
+                Location location = tiles[x][y];
+                if (location != null) {
+                    nonNullTiles++;
+                    float worldX = x * TILE_SIZE;
+                    float worldY = y * TILE_SIZE;
+                    
+                    TileType tileType = location.getTile();
+                    
+                    // Draw grass first for appropriate tile types
+                    if (shouldRenderGrass(tileType)) {
+                        Texture grassTexture = AssetManager.getAssetManager().getTileTextureForType("grass", currentSeason);
+                        if (grassTexture != null) {
+                            Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                            tilesRendered++;
+                        }
+                    }
+                    
+                    // Draw tile-specific texture
+                    Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
+                    if (tileTexture != null) {
+                        Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                        tilesRendered++;
+                    } else {
+                        // Fallback to colored rectangle if texture not found
+                        Color tileColor = getTileColor(tileType);
+                        if (tileColor != null) {
+                            Main.getBatch().setColor(tileColor);
+                            Texture whiteTexture = new Texture("content/grass/spring.png");
+                            Main.getBatch().draw(whiteTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                            whiteTexture.dispose();
+                            Main.getBatch().setColor(Color.WHITE);
+                            tilesRendered++;
+                        }
+                    }
+                    
+                    // Render items on tiles
+                    Item item = location.getItem();
+                    if (item != null) {
+                        renderItemOnTile(x, y, item, currentSeason);
+                    }
+                }
+            }
+        }
+
+        System.out.println("Tiles rendered: " + tilesRendered + ", Non-null tiles: " + nonNullTiles);
+
+        // Render players on the full map
+        renderPlayersOnFullMap();
+    }
+
+    private void renderPlayersOnFullMap() {
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        final int TILE_SIZE = 60;
+        
+        // Render current player
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            float playerX = currentPlayer.getPosX();
+            float playerY = currentPlayer.getPosY();
+            
+            // Draw current player as a red dot
+            Main.getBatch().setColor(Color.RED);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            Main.getBatch().draw(whiteTexture, playerX - 5, playerY - 5, 10, 10);
+            whiteTexture.dispose();
+        }
+
+        // Render other players
+        for (Player otherPlayer : gameMap.getPlayers()) {
+            if (otherPlayer != currentPlayer) {
+                float otherX = otherPlayer.getPosX();
+                float otherY = otherPlayer.getPosY();
+
+                // Draw other players as blue dots
+                Main.getBatch().setColor(Color.BLUE);
+                Texture whiteTexture = new Texture("content/grass/spring.png");
+                Main.getBatch().draw(whiteTexture, otherX - 5, otherY - 5, 10, 10);
+                whiteTexture.dispose();
+            }
+        }
+        
+        // Reset color to white
+        Main.getBatch().setColor(Color.WHITE);
+    }
+
+    private boolean shouldRenderGrass(TileType tileType) {
+        return tileType == TileType.Dirt || tileType == TileType.PATH || 
+               tileType == TileType.PLOWED || tileType == TileType.CROP;
+    }
+
+    private void renderItemOnTile(int x, int y, Item item, String season) {
+        float worldX = x * 60; // TILE_SIZE
+        float worldY = y * 60; // TILE_SIZE
+
+        if (item instanceof Tree tree) {
+            renderTreeItem(worldX, worldY, season, tree);
+        } else if (item instanceof Crop crop) {
+            renderCropItem(worldX, worldY, crop);
+        } else if (item instanceof Plant) {
+            renderPlantItem(worldX, worldY);
+        } else if (item instanceof Mineral) {
+            renderMineralItem(worldX, worldY);
+        } else if (item instanceof ShippingBin) {
+            renderShippingBinItem(worldX, worldY);
+        }
+    }
+
+    private void renderTreeItem(float worldX, float worldY, String season, Tree tree) {
+        int stage = tree.getStage() + 1;
+        String key = tree.getImageFilepath() + "_" + stage;
+        Texture treeTexture = AssetManager.getAssetManager().getTileTexture(key);
+        if (treeTexture != null) {
+            float treeSize = 60 * 2f; // TILE_SIZE * TREE_SIZE_MULTIPLIER
+            float offsetX = (60 - treeSize) / 2; // Center the larger tree
+            float offsetY = (60 - treeSize) / 2;
+
+            Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+        }
+    }
+
+    private void renderCropItem(float worldX, float worldY, Crop crop) {
+        String key = crop.getImageFilepath();
+        Texture cropTexture = AssetManager.getAssetManager().getTileTexture(key);
+        if (cropTexture != null) {
+            Main.getBatch().draw(cropTexture, worldX, worldY, 60, 60);
+        }
+    }
+
+    private void renderPlantItem(float worldX, float worldY) {
+        Texture plantTexture = AssetManager.getAssetManager().getTileTexture("crop");
+        if (plantTexture != null) {
+            Main.getBatch().draw(plantTexture, worldX, worldY, 60, 60);
+        }
+    }
+
+    private void renderMineralItem(float worldX, float worldY) {
+        Texture mineralTexture = AssetManager.getAssetManager().getTileTexture("stone");
+        if (mineralTexture != null) {
+            Main.getBatch().draw(mineralTexture, worldX, worldY, 60, 60);
+        }
+    }
+
+    private void renderShippingBinItem(float worldX, float worldY) {
+        Texture binTexture = AssetManager.getAssetManager().getTileTexture("shipping_bin");
+        if (binTexture != null) {
+            Main.getBatch().draw(binTexture, worldX, worldY, 60, 60);
+        }
     }
 }

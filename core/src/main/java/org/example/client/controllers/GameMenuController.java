@@ -809,6 +809,9 @@ public class GameMenuController implements Controller {
             player.setCurrentVillage(village);
             App.getGame().getGameMap().addFarm(newFarm);
 
+            // Update the unified tiles array with the new farm data
+            App.getGame().getGameMap().updateTilesFromRegions();
+
             game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
 
             if (game.allPlayersSelectedMap()) {
@@ -2062,28 +2065,22 @@ public class GameMenuController implements Controller {
     public void cheatGiveItems() {
         Player player = App.getGame().getCurrentPlayer();
 
-        //TODO : adding correct image file path
-        Item weddingRing = new Item("Wedding Ring", 2000, "" , "A special ring for proposing marriage.");
+        Item weddingRing = new Item("Wedding Ring", 2000, "content/Crafting/Wedding_Ring.png" , "A special ring for proposing marriage.");
         player.getBackpack().add(weddingRing, 1);
 
-        //TODO : adding correct image file path
-        Item diamond = new Item("Wood", 750, "" ,"A rare and valuable wood.");
+        Item diamond = new Item("Wood", 750, "content/Crafting/Wood.png" ,"A rare and valuable wood.");
         player.getBackpack().add(diamond, 3);
 
-        //TODO : adding correct image file path
-        Item starfruit = new Item("Coffee", 750, "" , "An exotic, sweet fruit that grows in hot, humid weather.");
+        Item starfruit = new Item("Coffee", 750, "content/ArtisanItems/Coffee.png" , "An exotic, sweet fruit that grows in hot, humid weather.");
         player.getBackpack().add(starfruit, 5);
 
-        //TODO : adding correct image file path
-        Item ancientSeed = new Item("Salad", 500,"", "salad");
+        Item ancientSeed = new Item("Salad", 500,"content/CookingItems/Salad.png", "salad");
         player.getBackpack().add(ancientSeed, 2);
 
-        //TODO : adding correct image file path
-        Item iridiumBar = new Item("Iridium Bar", 1000, "" , "A bar of refined iridium.");
+        Item iridiumBar = new Item("Iridium Bar", 1000, "content/ArtisanItems/Iridium_Bar.png" , "A bar of refined iridium.");
         player.getBackpack().add(iridiumBar, 3);
 
-        //TODO : adding correct image file path
-        Item flower = new Item("Flower", 100, "" ,"A beautiful flower for gifting.");
+        Item flower = new Item("Flower", 100, "content/Crops/Cauliflower.png" ,"A beautiful flower for gifting.");
         player.getBackpack().add(flower, 5);
         Tool pole = new Tool("iridium rod", 100, "haha", Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 5, Skills.FISHING);
         player.getBackpack().add(pole, 5);
@@ -2110,6 +2107,4 @@ public class GameMenuController implements Controller {
     public PlayerController getPlayerController() {
         return playerController;
     }
-
-
 }

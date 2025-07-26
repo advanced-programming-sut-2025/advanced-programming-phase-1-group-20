@@ -1,4 +1,4 @@
-# 🎮 Stardew Valley Multiplayer Status
+s# 🎮 Stardew Valley Multiplayer Status
 
 ## ✅ **Current Setup: Server Running**
 
@@ -52,4 +52,4 @@ Now that the server is running, you should be able to:
 4. If needed, restart the server: `./gradlew :core:run`
 
 ---
-*Last updated: Server restarted and running successfully - Network connection error resolved* 
+*Last updated: Server restarted and running successfully - Network connection error resolved*

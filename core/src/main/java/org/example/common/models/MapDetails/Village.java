@@ -20,8 +20,8 @@ import java.util.*;
 
 public class Village {
 
-    public static final int width = 156;
-    public static final int height = 312;
+    public static final int width = 78;   // Center village width
+    public static final int height = 156; // Center village height
     private static final String RESET = "\u001B[0m";
     private static final String GREEN = "\u001B[32m";
     private static final String BLUE = "\u001B[34m";
