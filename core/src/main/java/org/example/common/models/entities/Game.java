@@ -34,14 +34,13 @@ public class Game implements Serializable {
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
         this.date = new Date();
+
         if (players != null && !players.isEmpty()) {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
 
         this.inMapSelectionPhase = true;
-
         this.saved = false;
-
 
         if (players != null) {
             for (Player player : players) {
@@ -258,14 +257,14 @@ public class Game implements Serializable {
     }
 
     // ===== MULTIPLAYER SUPPORT METHODS =====
-    
+
     /**
      * Find a player by their username
      */
     public Player getPlayerByUsername(String username) {
         if (players != null && username != null) {
             for (Player player : players) {
-                if (player != null && player.getUser() != null && 
+                if (player != null && player.getUser() != null &&
                     username.equals(player.getUser().getUsername())) {
                     return player;
                 }
@@ -273,14 +272,14 @@ public class Game implements Serializable {
         }
         return null;
     }
-    
+
     /**
      * Add a new player to the game
      */
     public boolean addPlayer(Player newPlayer) {
         if (players != null && newPlayer != null && !players.contains(newPlayer)) {
             players.add(newPlayer);
-            
+
             // Initialize friendship with existing players
             for (Player existingPlayer : players) {
                 if (existingPlayer != newPlayer) {
@@ -288,7 +287,7 @@ public class Game implements Serializable {
                     newPlayer.getFriendship(existingPlayer);
                 }
             }
-            
+
             // Initialize map selection and terminate vote
             if (mapSelections != null) {
                 mapSelections.put(newPlayer, -1);
@@ -296,19 +295,19 @@ public class Game implements Serializable {
             if (terminateVotes != null) {
                 terminateVotes.put(newPlayer, false);
             }
-            
+
             return true;
         }
         return false;
     }
-    
+
     /**
      * Remove a player from the game
      */
     public boolean removePlayer(Player player) {
         if (players != null && player != null) {
             boolean removed = players.remove(player);
-            
+
             if (removed) {
                 // Clean up player data
                 if (mapSelections != null) {
@@ -317,19 +316,19 @@ public class Game implements Serializable {
                 if (terminateVotes != null) {
                     terminateVotes.remove(player);
                 }
-                
+
                 // Update current player if needed
                 if (currentPlayer == player && !players.isEmpty()) {
                     currentPlayerIndex = 0;
                     currentPlayer = players.get(0);
                 }
-                
+
                 return true;
             }
         }
         return false;
     }
-    
+
     /**
      * Initialize the game for multiplayer mode
      */
@@ -337,17 +336,17 @@ public class Game implements Serializable {
         if (gameMap == null) {
             gameMap = new GameMap();
         }
-        
+
         // Initialize farms for all players
         if (players != null) {
             for (int i = 0; i < players.size(); i++) {
                 Player player = players.get(i);
                 if (player != null) {
                     // Create farm for each player
-                    org.example.common.models.MapDetails.Farm farm = 
+                    org.example.common.models.MapDetails.Farm farm =
                         new org.example.common.models.MapDetails.Farm(
-                            player.getUser().getUsername() + "'s Farm", 
-                            player, 
+                            player.getUser().getUsername() + "'s Farm",
+                            player,
                             i == 0, // First player gets main farm
                             i
                         );
@@ -356,16 +355,16 @@ public class Game implements Serializable {
                 }
             }
         }
-        
+
         // Initialize game map
         if (gameMap.getVillage() != null) {
             gameMap.getVillage().initializeNPCs();
         }
-        
+
         // End map selection phase
         this.inMapSelectionPhase = false;
     }
-    
+
     /**
      * Update game state for multiplayer (called periodically)
      */
@@ -376,70 +375,70 @@ public class Game implements Serializable {
             updateDailyGame();
         }
     }
-    
+
     /**
      * Get current game state as a map for serialization
      */
     public Map<String, Object> getGameState() {
         Map<String, Object> state = new HashMap<>();
-        
+
         state.put("currentPlayerIndex", currentPlayerIndex);
-        state.put("currentPlayerUsername", currentPlayer != null && currentPlayer.getUser() != null ? 
+        state.put("currentPlayerUsername", currentPlayer != null && currentPlayer.getUser() != null ?
                   currentPlayer.getUser().getUsername() : null);
         state.put("inMapSelectionPhase", inMapSelectionPhase);
         state.put("playerCount", players != null ? players.size() : 0);
         state.put("gameTime", date != null ? date.toString() : null);
         state.put("weather", date != null ? date.getWeatherToday().toString() : null);
         state.put("saved", saved);
-        
+
         return state;
     }
-    
+
     /**
      * Get players data for network transmission
      */
     public Map<String, Object> getPlayersData() {
         Map<String, Object> playersData = new HashMap<>();
-        
+
         if (players != null) {
             for (Player player : players) {
                 if (player != null && player.getUser() != null) {
                     String username = player.getUser().getUsername();
                     Map<String, Object> playerData = new HashMap<>();
-                    
+
                     playerData.put("username", username);
                     playerData.put("posX", player.getPosX());
                     playerData.put("posY", player.getPosY());
                     playerData.put("energy", player.getEnergy());
                     playerData.put("money", player.getMoney());
-                    
+
                     // Add current tool info
                     if (player.getCurrentTool() != null) {
                         playerData.put("currentTool", player.getCurrentTool().getName());
                     }
-                    
+
                     playersData.put(username, playerData);
                 }
             }
         }
-        
+
         return playersData;
     }
-    
+
     /**
      * Get current date (alias for getDate() for consistency)
      */
     public Date getCurrentDate() {
         return this.date;
     }
-    
+
     /**
      * Check if game is ready to start (has enough players)
      */
     public boolean isReadyToStart() {
         return players != null && players.size() >= 2 && players.size() <= 4;
     }
-    
+
     /**
      * Get the number of players in the game
      */
