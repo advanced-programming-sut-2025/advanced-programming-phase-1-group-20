@@ -727,14 +727,11 @@ public class Player {
         int y = getLocation().getY();
         Farm farm = getCurrentFarm();
 
-        switch (farm.getFarmIndex()) {
-            case 0, 1:
-                return x >= Farm.width - 3;
-            case 2, 3:
-                return x <= 2;
-            default:
-                return false;
-        }
+        return switch (farm.getFarmIndex()) {
+            case 0, 1 -> x >= Farm.width - 3;
+            case 2, 3 -> x <= 2;
+            default -> false;
+        };
     }
 
     private void teleportToVillage() {
