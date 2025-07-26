@@ -728,20 +728,15 @@ public class Player {
         Farm farm = getCurrentFarm();
 
         switch (farm.getFarmIndex()) {
-            case 0: // Farm index 0 - exit at right edge
-                return x >= Farm.width - 3; // Within 3 tiles of right edge
-            case 1: // Farm index 1 - exit at right edge
-                return x >= Farm.width - 3; // Within 3 tiles of right edge
-            case 2: // Farm index 2 - exit at left edge
-                return x <= 2; // Within 3 tiles of left edge
-            case 3: // Farm index 3 - exit at left edge
-                return x <= 2; // Within 3 tiles of left edge
+            case 0, 1:
+                return x >= Farm.width - 3;
+            case 2, 3:
+                return x <= 2;
             default:
                 return false;
         }
     }
 
-    // DEPRECATED: Teleportation removed in favor of walking
     private void teleportToVillage() {
         // This method is deprecated - use walking instead
         System.out.println("Teleportation is disabled. Please walk to the village.");
@@ -765,15 +760,15 @@ public class Player {
      */
     public boolean canWalkToVillage() {
         if (isInVillage) return false;
-        
+
         Farm farm = getCurrentFarm();
         if (farm == null) return false;
-        
+
         // Check if player is near farm exit path
         Location playerLoc = getLocation();
         int farmX = playerLoc.getX();
         int farmY = playerLoc.getY();
-        
+
         // Farm exit paths are at the edges closest to village
         switch (farm.getFarmIndex()) {
             case 0: // Farm index 0 - exit at right edge
@@ -797,10 +792,10 @@ public class Player {
             System.out.println("You need to be near the farm exit to walk to the village.");
             return false;
         }
-        
+
         Farm farm = getCurrentFarm();
         if (farm == null) return false;
-        
+
         // Calculate village entrance position based on farm
         int villageX, villageY;
         switch (farm.getFarmIndex()) {
@@ -823,12 +818,12 @@ public class Player {
             default:
                 return false;
         }
-        
+
         // Create village location and set player position
         Location villageLocation = new Location(villageX, villageY, TileType.VILLAGE);
         setLocation(villageLocation);
         setIsInVillage(true);
-        
+
         System.out.println("You have walked to the village!");
         return true;
     }
@@ -838,24 +833,24 @@ public class Player {
      */
     public boolean canWalkToFarm(int farmIndex) {
         if (!isInVillage) return false;
-        
+
         Location playerLoc = getLocation();
         int villageX = playerLoc.getX();
         int villageY = playerLoc.getY();
-        
+
         // Check if player is near village exit to the specific farm
         switch (farmIndex) {
             case 0: // Farm index 0 - exit from left edge of village
-                return villageX <= GameMap.VILLAGE_X + 5 && 
+                return villageX <= GameMap.VILLAGE_X + 5 &&
                        villageY <= GameMap.VILLAGE_Y + 10;
             case 1: // Farm index 1 - exit from left edge of village
-                return villageX <= GameMap.VILLAGE_X + 5 && 
+                return villageX <= GameMap.VILLAGE_X + 5 &&
                        villageY >= GameMap.VILLAGE_Y + Village.height - 10;
             case 2: // Farm index 2 - exit from right edge of village
-                return villageX >= GameMap.VILLAGE_X + Village.width - 5 && 
+                return villageX >= GameMap.VILLAGE_X + Village.width - 5 &&
                        villageY <= GameMap.VILLAGE_Y + 10;
             case 3: // Farm index 3 - exit from right edge of village
-                return villageX >= GameMap.VILLAGE_X + Village.width - 5 && 
+                return villageX >= GameMap.VILLAGE_X + Village.width - 5 &&
                        villageY >= GameMap.VILLAGE_Y + Village.height - 10;
             default:
                 return false;
@@ -870,10 +865,10 @@ public class Player {
             System.out.println("You need to be near the village exit to walk to the farm.");
             return false;
         }
-        
+
         Farm farm = App.getGame().getGameMap().getFarmByIndex(farmIndex);
         if (farm == null) return false;
-        
+
         // Calculate farm entrance position
         int farmX, farmY;
         switch (farmIndex) {
@@ -896,13 +891,13 @@ public class Player {
             default:
                 return false;
         }
-        
+
         // Create farm location and set player position
         Location farmLocation = new Location(farmX, farmY, TileType.Dirt);
         setLocation(farmLocation);
         setIsInVillage(false);
         setCurrentFarm(farm);
-        
+
         System.out.println("You have walked to Farm " + farmIndex + "!");
         return true;
     }
