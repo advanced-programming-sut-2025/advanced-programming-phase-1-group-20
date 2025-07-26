@@ -996,8 +996,6 @@ public class GameView implements Screen, InputProcessor {
         // Render lightning effects AFTER rain but BEFORE UI
         lightningSystem.render(Main.getBatch(), currentLightColor);
 
-        // Render full-screen lighting overlay for proper coverage
-        renderLightingOverlay();
 
         Main.getBatch().end();
 
