@@ -695,7 +695,7 @@ public class GameView implements Screen, InputProcessor {
                 whiteTexture.dispose();
             }
         }
-        
+
         // Reset color to white
         Main.getBatch().setColor(Color.WHITE);
 
@@ -768,10 +768,10 @@ public class GameView implements Screen, InputProcessor {
     private void renderMinimapTile(Location loc, float x, float y, float scale) {
         TileType tileType = loc.getTile();
         String currentSeason = getCurrentSeason();
-        
+
         // Get the appropriate texture from AssetManager
         Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
-        
+
         if (tileTexture != null) {
             Main.getBatch().setColor(Color.WHITE); // Use white color to preserve texture colors
             Main.getBatch().draw(tileTexture, x, y, scale, scale);
@@ -785,7 +785,7 @@ public class GameView implements Screen, InputProcessor {
                 whiteTexture.dispose();
             }
         }
-        
+
         // Reset color to white for next render
         Main.getBatch().setColor(Color.WHITE);
     }
@@ -1292,7 +1292,7 @@ public class GameView implements Screen, InputProcessor {
             if (gameMap != null) {
                 gameMap.updateTilesFromRegions();
             }
-            
+
             // Zoom out to show entire map - use a larger zoom value to zoom out
             camera.zoom = 5.0f; // Larger value to zoom out and show more of the map
             // Center camera on the entire game map center
@@ -1319,10 +1319,6 @@ public class GameView implements Screen, InputProcessor {
         String currentSeason = getCurrentSeason();
         final int TILE_SIZE = 60;
 
-        // Debug: Print some information about the tiles array
-        System.out.println("Rendering full map - Tiles array size: " + tiles.length + "x" + tiles[0].length);
-        System.out.println("Camera zoom: " + camera.zoom + ", Camera position: " + camera.position.x + ", " + camera.position.y);
-
         int tilesRendered = 0;
         int nonNullTiles = 0;
 
@@ -1334,9 +1330,9 @@ public class GameView implements Screen, InputProcessor {
                     nonNullTiles++;
                     float worldX = x * TILE_SIZE;
                     float worldY = y * TILE_SIZE;
-                    
+
                     TileType tileType = location.getTile();
-                    
+
                     // Draw grass first for appropriate tile types
                     if (shouldRenderGrass(tileType)) {
                         Texture grassTexture = AssetManager.getAssetManager().getTileTextureForType("grass", currentSeason);
@@ -1345,7 +1341,7 @@ public class GameView implements Screen, InputProcessor {
                             tilesRendered++;
                         }
                     }
-                    
+
                     // Draw tile-specific texture
                     Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
                     if (tileTexture != null) {
@@ -1363,7 +1359,7 @@ public class GameView implements Screen, InputProcessor {
                             tilesRendered++;
                         }
                     }
-                    
+
                     // Render items on tiles
                     Item item = location.getItem();
                     if (item != null) {
@@ -1373,9 +1369,6 @@ public class GameView implements Screen, InputProcessor {
             }
         }
 
-        System.out.println("Tiles rendered: " + tilesRendered + ", Non-null tiles: " + nonNullTiles);
-
-        // Render players on the full map
         renderPlayersOnFullMap();
     }
 
@@ -1384,13 +1377,13 @@ public class GameView implements Screen, InputProcessor {
         if (gameMap == null) return;
 
         final int TILE_SIZE = 60;
-        
+
         // Render current player
         Player currentPlayer = App.getGame().getCurrentPlayer();
         if (currentPlayer != null) {
             float playerX = currentPlayer.getPosX();
             float playerY = currentPlayer.getPosY();
-            
+
             // Draw current player as a red dot
             Main.getBatch().setColor(Color.RED);
             Texture whiteTexture = new Texture("content/grass/spring.png");
@@ -1411,13 +1404,13 @@ public class GameView implements Screen, InputProcessor {
                 whiteTexture.dispose();
             }
         }
-        
+
         // Reset color to white
         Main.getBatch().setColor(Color.WHITE);
     }
 
     private boolean shouldRenderGrass(TileType tileType) {
-        return tileType == TileType.Dirt || tileType == TileType.PATH || 
+        return tileType == TileType.Dirt || tileType == TileType.PATH ||
                tileType == TileType.PLOWED || tileType == TileType.CROP;
     }
 
