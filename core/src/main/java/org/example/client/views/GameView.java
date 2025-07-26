@@ -459,6 +459,15 @@ public class GameView implements Screen, InputProcessor {
         return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
 
+    private String getCurrentSeason() {
+        try {
+            return App.getGame().getDate().getSeason().toString().toLowerCase();
+        } catch (Exception e) {
+            Gdx.app.error("GameView", "Failed to get season, using spring as default");
+            return "spring";
+        }
+    }
+
     private Date getCurrentGameDate() {
         return game != null ? game.getDate() : App.getGame().getDate();
     }
@@ -678,6 +687,9 @@ public class GameView implements Screen, InputProcessor {
                 whiteTexture.dispose();
             }
         }
+        
+        // Reset color to white
+        Main.getBatch().setColor(Color.WHITE);
 
         // Render labels
         renderMinimapLabels();
@@ -747,14 +759,27 @@ public class GameView implements Screen, InputProcessor {
 
     private void renderMinimapTile(Location loc, float x, float y, float scale) {
         TileType tileType = loc.getTile();
-        Color tileColor = getTileColor(tileType);
-
-        if (tileColor != null) {
-            Main.getBatch().setColor(tileColor);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            Main.getBatch().draw(whiteTexture, x, y, scale, scale);
-            whiteTexture.dispose();
+        String currentSeason = getCurrentSeason();
+        
+        // Get the appropriate texture from AssetManager
+        Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
+        
+        if (tileTexture != null) {
+            Main.getBatch().setColor(Color.WHITE); // Use white color to preserve texture colors
+            Main.getBatch().draw(tileTexture, x, y, scale, scale);
+        } else {
+            // Fallback to colored rectangle if texture not found
+            Color tileColor = getTileColor(tileType);
+            if (tileColor != null) {
+                Main.getBatch().setColor(tileColor);
+                Texture whiteTexture = new Texture("content/grass/spring.png");
+                Main.getBatch().draw(whiteTexture, x, y, scale, scale);
+                whiteTexture.dispose();
+            }
         }
+        
+        // Reset color to white for next render
+        Main.getBatch().setColor(Color.WHITE);
     }
 
     private Color getTileColor(TileType tileType) {

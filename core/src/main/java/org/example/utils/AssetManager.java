@@ -3,10 +3,19 @@ package org.example.utils;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import org.example.common.models.enums.Types.CropType;
+import org.example.common.models.enums.Types.TreeType;
+import org.example.common.models.enums.Types.TileType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AssetManager {
     private static AssetManager assetManager;
     private final Skin skin = new Skin(Gdx.files.internal("content/ui/uiskin.json"));
+
+    // Texture cache for tiles and game assets
+    private final Map<String, Texture> textureCache = new HashMap<>();
     private final Texture signUpTitleTexture = new Texture("content/Titles/signUp.png");
     private final Texture loginTitleTexture = new Texture("content/Titles/login.png");
     private final Texture newTitleTexture = new Texture("content/Titles/new.png");
@@ -29,6 +38,11 @@ public class AssetManager {
     private final Texture settingMenuTitleTexture = new Texture("content/Titles/settingMenu.png");
     private final Texture singlePlayerTitleTexture = new Texture("content/Titles/singlePlayer.png");
 
+    private final Texture miniGameBackground = new Texture("content/fishing_mini_game/background.jpg");
+
+    public Texture getMiniGameBackground() {
+        return miniGameBackground;
+    }
     public Texture getMultiPlayerTitleTexture() {
         return multiPlayerTitleTexture;
     }
@@ -150,6 +164,9 @@ public class AssetManager {
         for (int i = 1; i < 4; i++) {
             snowTextures[i] = new Texture(Gdx.files.internal("content/snow/" + i + ".png"));
         }
+
+        // Initialize tile texture cache
+        initializeTileTextureCache();
     }
 
     public Skin getSkin() {
@@ -342,6 +359,133 @@ public class AssetManager {
         }
     }
 
+    // Tile texture cache methods
+    private void initializeTileTextureCache() {
+        Gdx.app.log("AssetManager", "Starting to preload tile textures...");
+
+        String[] seasons = {"Spring", "Summer", "Fall", "Winter"};
+        for (String season : seasons) {
+            String grassPath = "content/grass/" + season + ".png";
+            if (loadTexture("grass_" + season.toLowerCase(), grassPath)) {
+                Gdx.app.log("AssetManager", "Loaded grass texture for " + season);
+            }
+        }
+
+        // Pre-load tile textures
+        loadTexture("lake", "content/flooring/lake.png");
+        loadTexture("stone", "content/Crafting/Stone.png");
+        loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
+        loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
+        loadTexture("plowed", "content/plowed.png");
+        loadTexture("path", "content/path.png");
+        loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
+
+        // Building textures (larger sprites)
+        loadTexture("barn", "content/buildings/barn.png");
+        loadTexture("coop", "content/buildings/Coop.png");
+        loadTexture("house", "content/buildings/house.png");
+
+        // Greenhouse textures
+        loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
+        loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
+
+        loadTexture("fence", "content/Fence/Iron_Fence.png");
+        preloadTrees();
+        preloadCrops();
+
+        loadTexture("branch", "content/Crafting/Stone.png");
+        loadTexture("quarry", "content/Crafting/Stone.png");
+
+        Gdx.app.log("AssetManager", "Finished preloading tile textures. Cache size: " + textureCache.size());
+    }
+
+    private void preloadTrees() {
+        for (TreeType treeType : TreeType.values()) {
+            for (int i = 1; i < 5; i++) {
+                String key = treeType.getImageFilePath() + "_" + i;
+                String treePath = "content/Trees/" + treeType.getImageFilePath() + "_" + "Stage_" + i + ".png";
+                loadTexture(key, treePath);
+            }
+        }
+    }
+
+    private void preloadCrops() {
+        for (CropType cropType : CropType.values()) {
+            String key = cropType.getImageFilePath();
+            String cropPath = "content/Crops/" + cropType.getImageFilePath() + ".png";
+            loadTexture(key, cropPath);
+        }
+    }
+
+    private boolean loadTexture(String key, String path) {
+        try {
+            Texture texture = new Texture(path);
+            textureCache.put(key, texture);
+            Gdx.app.log("AssetManager", "Successfully loaded: " + path);
+            return true;
+        } catch (Exception e) {
+            Gdx.app.error("AssetManager", "Failed to load texture: " + path + " - " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Texture getTileTexture(String key) {
+        return textureCache.get(key);
+    }
+
+    public Texture getTileTextureForType(String tileType, String season) {
+        switch (tileType.toLowerCase()) {
+            case "lake":
+            case "water":
+                return getTileTexture("lake");
+            case "stone":
+                return getTileTexture("stone");
+            case "iron_ore":
+                return getTileTexture("iron_ore");
+            case "gold_ore":
+                return getTileTexture("gold_ore");
+            case "plowed":
+                return getTileTexture("plowed");
+            case "path":
+                return getTileTexture("path");
+            case "shipping_bin":
+                return getTileTexture("shipping_bin");
+            case "fence":
+                return getTileTexture("fence");
+            case "branch":
+                return getTileTexture("branch");
+            case "quarry":
+                return getTileTexture("quarry");
+            case "dirt":
+            case "grass":
+                return getTileTexture("grass_" + season.toLowerCase());
+            case "tree":
+                return getTileTexture("grass_" + season.toLowerCase()); // Trees are rendered separately
+            case "crop":
+                return getTileTexture("grass_" + season.toLowerCase()); // Crops are rendered separately
+            case "barn":
+            case "coop":
+            case "building":
+            case "greenhouse":
+            case "constructed_greenhouse":
+                return getTileTexture("grass_" + season.toLowerCase()); // Buildings are rendered separately
+            case "village":
+            case "market":
+            case "blacksmith":
+            case "jojamart":
+            case "pierre_general_store":
+            case "carpenters_shop":
+            case "fish_shop":
+            case "marnie_shop":
+            case "stardrop_saloon":
+                return getTileTexture("path"); // Use path texture for village buildings
+            case "sand":
+                return getTileTexture("grass_" + season.toLowerCase()); // Use grass as fallback for sand
+            default:
+                return getTileTexture("grass_" + season.toLowerCase()); // Default to grass
+        }
+    }
+
     public void dispose() {
         if (rain1Texture != null) rain1Texture.dispose();
         if (rain2Texture != null) rain2Texture.dispose();
@@ -357,6 +501,13 @@ public class AssetManager {
         for (Texture texture : snowTextures) {
             if (texture != null) texture.dispose();
         }
+
+        // Dispose tile texture cache
+        for (Texture texture : textureCache.values()) {
+            if (texture != null) texture.dispose();
+        }
+        textureCache.clear();
+
         if (skin != null) skin.dispose();
     }
 }

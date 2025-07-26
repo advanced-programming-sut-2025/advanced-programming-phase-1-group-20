@@ -96,33 +96,15 @@ public class FishingMiniGame implements Screen, InputProcessor {
     private void initializeStage() {
         stage = new Stage(new ScreenViewport());
 
-        // Create a more visible and appealing background
+        // Create background using the miniGameBackground from AssetManager
         Table background = new Table();
         background.setFillParent(true);
         background.setBackground(new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
             @Override
             public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Create a gradient-like background with water theme
-                batch.setColor(0.1f, 0.3f, 0.6f, 1f); // Darker blue for depth
-                com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-                pixmap.setColor(0.1f, 0.3f, 0.6f, 1f);
-                pixmap.fill();
-                com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
-                batch.draw(texture, x, y, width, height);
-                texture.dispose();
-                pixmap.dispose();
-
-                // Add some lighter blue highlights for water effect
-                batch.setColor(0.2f, 0.5f, 0.8f, 0.3f);
-                pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-                pixmap.setColor(0.2f, 0.5f, 0.8f, 0.3f);
-                pixmap.fill();
-                texture = new com.badlogic.gdx.graphics.Texture(pixmap);
-                batch.draw(texture, x + width * 0.2f, y + height * 0.3f, width * 0.6f, height * 0.4f);
-                texture.dispose();
-                pixmap.dispose();
-
-                batch.setColor(1, 1, 1, 1);
+                // Use the miniGameBackground texture from AssetManager
+                Texture backgroundTexture = AssetManager.getAssetManager().getMiniGameBackground();
+                batch.draw(backgroundTexture, x, y, width, height);
             }
 
             @Override
@@ -515,21 +497,15 @@ public class FishingMiniGame implements Screen, InputProcessor {
     private void constructEndStage() {
         stage = new Stage(new ScreenViewport());
 
-        // Create background
+        // Create background using the miniGameBackground from AssetManager
         Table background = new Table();
         background.setFillParent(true);
         background.setBackground(new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
             @Override
             public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                batch.setColor(0.1f, 0.1f, 0.3f, 1f);
-                com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-                pixmap.setColor(0.1f, 0.1f, 0.3f, 1f);
-                pixmap.fill();
-                com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
-                batch.draw(texture, x, y, width, height);
-                texture.dispose();
-                pixmap.dispose();
-                batch.setColor(1, 1, 1, 1);
+                // Use the miniGameBackground texture from AssetManager
+                Texture backgroundTexture = AssetManager.getAssetManager().getMiniGameBackground();
+                batch.draw(backgroundTexture, x, y, width, height);
             }
 
             @Override
