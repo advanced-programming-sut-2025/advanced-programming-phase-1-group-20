@@ -566,7 +566,6 @@ public class GameMenuController implements Controller {
 
     private Result teleportToFarm() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
         if (!player.getIsInVillage()) {
             return Result.error("You are not in a village");
         }
@@ -578,8 +577,6 @@ public class GameMenuController implements Controller {
 
     private Result teleportToVillage() {
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
         if (player.getIsInVillage()) {
             return Result.error("You can't teleport to a village because you are in a village");
         }
