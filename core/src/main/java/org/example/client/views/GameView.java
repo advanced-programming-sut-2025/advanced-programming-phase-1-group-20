@@ -46,6 +46,7 @@ import org.example.client.views.fishing.FishingMiniGame;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.graphics.Pixmap;
 
 public class GameView implements Screen, InputProcessor {
     private Stage stage;
@@ -84,6 +85,7 @@ public class GameView implements Screen, InputProcessor {
     private Lighting lighting;
     private Color currentLightColor;
     private Label lightingDescriptionLabel;
+    private Texture lightingOverlayTexture; // Full-screen lighting overlay
 
     private float lightingUpdateTimer;
     private static final float LIGHTING_UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds
@@ -139,6 +141,9 @@ public class GameView implements Screen, InputProcessor {
         // Initialize lightning system - NEW
         lightningSystem = new LightningSystem(camera);
 
+        // Initialize lighting overlay texture
+        createLightingOverlayTexture();
+
         // Initialize terminal window for cheat commands
         terminalWindow = new TerminalWindow(controller);
 
@@ -155,6 +160,10 @@ public class GameView implements Screen, InputProcessor {
 
         camera = new OrthographicCamera(120, 120);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // Set camera for climate system
+        climateSystem.setCamera(camera);
+        lightningSystem.setCamera(camera);
 
         initializeTables();
         controller.setView(this);
@@ -945,11 +954,11 @@ public class GameView implements Screen, InputProcessor {
         // Render lightning effects AFTER rain but BEFORE UI
         lightningSystem.render(Main.getBatch(), currentLightColor);
 
-
+        // Render full-screen lighting overlay for proper coverage
+        renderLightingOverlay();
 
         Main.getBatch().end();
 
-        // Reset batch color for UI rendering
         Main.getBatch().setColor(Color.WHITE);
 
         // Render UI on top
@@ -997,6 +1006,7 @@ public class GameView implements Screen, InputProcessor {
         if (clockNeedleTexture != null) clockNeedleTexture.dispose();
         if (customFont != null) customFont.dispose();
         if (smallFont != null) smallFont.dispose();
+        if (lightingOverlayTexture != null) lightingOverlayTexture.dispose();
 
         // Dispose rain system - NEW
         if (climateSystem != null) {
@@ -1184,5 +1194,34 @@ public class GameView implements Screen, InputProcessor {
         FishingMiniGame fishingMiniGame = new FishingMiniGame(this, poleName);
 
         Main.getGame().setScreen(fishingMiniGame);
+    }
+
+    private void renderLightingOverlay() {
+        if (lightingOverlayTexture == null) return;
+
+        // Create a lighting color that blends with the current lighting
+        Color overlayColor = new Color(currentLightColor);
+        
+        // Adjust alpha based on lighting intensity - more subtle effect
+        float lightingIntensity = lighting.getLightIntensity();
+        overlayColor.a = (1.0f - lightingIntensity) * 0.3f; // Subtle darkening effect
+        
+        // Set batch color for the overlay
+        Main.getBatch().setColor(overlayColor);
+
+        // Draw the full-screen overlay
+        Main.getBatch().draw(lightingOverlayTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        // Reset batch color
+        Main.getBatch().setColor(Color.WHITE);
+    }
+
+    private void createLightingOverlayTexture() {
+        // Create a 1x1 white pixel texture programmatically
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(1f, 1f, 1f, 1f); // Pure white
+        pixmap.fill();
+        lightingOverlayTexture = new Texture(pixmap);
+        pixmap.dispose();
     }
 }

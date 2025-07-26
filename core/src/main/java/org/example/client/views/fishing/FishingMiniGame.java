@@ -74,7 +74,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
         getAnglingResults();
         initializeStage();
         FishingController.initializeFishBehavior(caughtFishType.isLegendary());
-        
+
         // Initialize progress bars with a visible starting value
         catchingProgress = 1.0f; // Start with some progress visible
         if (catchingProgressBar != null) {
@@ -568,12 +568,12 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
         String resultText;
         if (isVictorious) {
-            resultText = "🎣 Splendid catch! You've mastered the waters!";
+            resultText = "~Splendid catch! You've mastered the waters!~";
             resultText += "\nExperience gained: " + xpGained + " points";
             resultText += "\nHarvested: " + caughtFishQuantity + "x " + caughtFishType.getName();
             resultText += "\nQuality: " + getQualityDescription(caughtFishQuality);
         } else {
-            resultText = "🌊 The fish got away this time...";
+            resultText = "): The fish got away this time...";
             resultText += "\nDon't give up, angler!";
         }
 
@@ -676,23 +676,23 @@ public class FishingMiniGame implements Screen, InputProcessor {
             // Return bobber to normal color
             bobberImage.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
-        
+
         // Clamp progress between min and max
         catchingProgress = MathUtils.clamp(catchingProgress, MIN_PROGRESS, MAX_PROGRESS);
-        
+
         // Update both progress bars
         if (catchingProgressBar != null) {
             catchingProgressBar.setValue(catchingProgress);
             // Force the progress bar to redraw
             catchingProgressBar.invalidate();
         }
-        
+
         if (verticalProgressBar != null) {
             verticalProgressBar.setValue(catchingProgress);
             // Force the vertical progress bar to redraw
             verticalProgressBar.invalidate();
         }
-        
+
         // Update progress bar color based on progress
         updateProgressBarColor();
     }

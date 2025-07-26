@@ -23,13 +23,14 @@ public class ClimateSystem {
     private Weather currentWeather;
 
     // Rain configuration constants
-    private static final float RAIN_SPAWN_INTERVAL = 0.008f; // Spawn very frequently
-    private static final int MAX_RAIN_DROPS = 1200; // Increased for denser rain
+    private static final float RAIN_SPAWN_INTERVAL = 0.006f; // Spawn even more frequently
+    private static final int MAX_RAIN_DROPS = 1500; // Increased for denser rain
     private static final float RAIN_DROP_MIN_SPEED = 300f;
     private static final float RAIN_DROP_MAX_SPEED = 700f;
     private static final float RAIN_DROP_DIAGONAL_SPEED = -50f;
     private static final float RAIN_DROP_DIAGONAL_VARIANCE = 80f;
-    private static final float SPAWN_MARGIN = 1600f; // Increased margin for wider coverage
+    private static final float SPAWN_MARGIN = 2500f; // Increased margin for wider coverage
+    private static final float SPAWN_HEIGHT_OFFSET = 600f; // Increased height offset
 
     private Music rainMusic;
     private Music stormMusic;
@@ -40,11 +41,11 @@ public class ClimateSystem {
     private final Texture[] snowTextures;
     private boolean isSnowing;
     private float snowSpawnTimer;
-    private static final float SNOW_SPAWN_INTERVAL = 0.012f;
-    private static final int MAX_SNOW_DROPS = 600;
+    private static final float SNOW_SPAWN_INTERVAL = 0.010f;
+    private static final int MAX_SNOW_DROPS = 800;
     private static final float SNOW_DROP_MIN_SPEED = 60f;
     private static final float SNOW_DROP_MAX_SPEED = 120f;
-    private static final float SNOW_SPAWN_MARGIN = 1600f;
+    private static final float SNOW_SPAWN_MARGIN = 2000f;
 
     public ClimateSystem(OrthographicCamera camera) {
         this.camera = camera;
@@ -168,16 +169,18 @@ public class ClimateSystem {
             cameraTop = camera.position.y + camera.viewportHeight / 2;
             cameraBottom = camera.position.y - camera.viewportHeight / 2;
         } else {
-            // Fallback to large area if no camera
-            cameraLeft = -1000f;
-            cameraRight = 1000f;
-            cameraTop = 1000f;
-            cameraBottom = -1000f;
+            // Fallback to large area if no camera - use screen dimensions
+            float screenWidth = Gdx.graphics.getWidth();
+            float screenHeight = Gdx.graphics.getHeight();
+            cameraLeft = -screenWidth / 2;
+            cameraRight = screenWidth / 2;
+            cameraTop = screenHeight / 2;
+            cameraBottom = -screenHeight / 2;
         }
 
         // Spawn across the ENTIRE camera view + extra margin for diagonal movement
         drop.position.x = MathUtils.random(cameraLeft - SPAWN_MARGIN, cameraRight + SPAWN_MARGIN);
-        drop.position.y = cameraTop + 300f; // Start well above the camera view
+        drop.position.y = cameraTop + SPAWN_HEIGHT_OFFSET; // Start well above the camera view
 
         // Set velocity with variation
         float diagonalSpeed = RAIN_DROP_DIAGONAL_SPEED +
@@ -222,9 +225,12 @@ public class ClimateSystem {
             cameraRight = camera.position.x + camera.viewportWidth / 2;
             cameraTop = camera.position.y + camera.viewportHeight / 2;
         } else {
-            cameraLeft = -1000f;
-            cameraRight = 1000f;
-            cameraTop = 1000f;
+            // Fallback to screen dimensions if no camera
+            float screenWidth = Gdx.graphics.getWidth();
+            float screenHeight = Gdx.graphics.getHeight();
+            cameraLeft = -screenWidth / 2;
+            cameraRight = screenWidth / 2;
+            cameraTop = screenHeight / 2;
         }
         drop.position.x = MathUtils.random(cameraLeft - SNOW_SPAWN_MARGIN, cameraRight + SNOW_SPAWN_MARGIN);
         drop.position.y = cameraTop + 200f;
@@ -345,16 +351,10 @@ public class ClimateSystem {
         if (isRaining && rainDrops.size > 0) {
             for (RainDrop drop : rainDrops) {
                 if (drop.texture == null) continue;
-                if (camera != null) {
-                    float cameraLeft = camera.position.x - camera.viewportWidth / 2 - 100f;
-                    float cameraRight = camera.position.x + camera.viewportWidth / 2 + 100f;
-                    float cameraTop = camera.position.y + camera.viewportHeight / 2 + 100f;
-                    float cameraBottom = camera.position.y - camera.viewportHeight / 2 - 100f;
-                    if (drop.position.x < cameraLeft || drop.position.x > cameraRight ||
-                        drop.position.y < cameraBottom || drop.position.y > cameraTop) {
-                        continue;
-                    }
-                }
+                
+                // Remove camera bounds check to ensure all rain drops are rendered
+                // The spawn logic already handles positioning within camera view
+                
                 Color rainColor = new Color(0.7f, 0.8f, 1.0f, drop.alpha);
                 rainColor.r = Math.max(0.5f, rainColor.r * lightingColor.r);
                 rainColor.g = Math.max(0.6f, rainColor.g * lightingColor.g);
@@ -379,16 +379,10 @@ public class ClimateSystem {
         if (isSnowing && snowDrops.size > 0) {
             for (SnowDrop drop : snowDrops) {
                 if (drop.texture == null) continue;
-                if (camera != null) {
-                    float cameraLeft = camera.position.x - camera.viewportWidth / 2 - 100f;
-                    float cameraRight = camera.position.x + camera.viewportWidth / 2 + 100f;
-                    float cameraTop = camera.position.y + camera.viewportHeight / 2 + 100f;
-                    float cameraBottom = camera.position.y - camera.viewportHeight / 2 - 100f;
-                    if (drop.position.x < cameraLeft || drop.position.x > cameraRight ||
-                        drop.position.y < cameraBottom || drop.position.y > cameraTop) {
-                        continue;
-                    }
-                }
+                
+                // Remove camera bounds check to ensure all snow drops are rendered
+                // The spawn logic already handles positioning within camera view
+                
                 Color snowColor = new Color(1.0f, 1.0f, 1.0f, drop.alpha);
                 snowColor.r = Math.max(0.8f, snowColor.r * lightingColor.r);
                 snowColor.g = Math.max(0.8f, snowColor.g * lightingColor.g);
