@@ -252,7 +252,7 @@ public class Farm {
         int pathCenterOffset = pathWidth / 2;
 
         switch (farmIndex) {
-            case 0: // Bottom-Left Farm - path to village (right)
+            case 0: // Farm index 0 - path to village (right edge)
                 // Primary exit to the right boundary of the farm (to connect to village)
                 primaryExitEdgeX = width - 1;
                 primaryExitEdgeY = height / 2;
@@ -260,7 +260,7 @@ public class Farm {
                 secondaryExitEdgeX = width / 2;
                 secondaryExitEdgeY = height - 1;
                 break;
-            case 1: // Top-Left Farm - path to village (right)
+            case 1: // Farm index 1 - path to village (right edge)
                 // Primary exit to the right boundary of the farm (to connect to village)
                 primaryExitEdgeX = width - 1;
                 primaryExitEdgeY = height / 2;
@@ -268,7 +268,7 @@ public class Farm {
                 secondaryExitEdgeX = width / 2;
                 secondaryExitEdgeY = 0;
                 break;
-            case 2: // Top-Right Farm - path to village (left)
+            case 2: // Farm index 2 - path to village (left edge)
                 // Primary exit to the left boundary of the farm (to connect to village)
                 primaryExitEdgeX = 0;
                 primaryExitEdgeY = height / 2;
@@ -276,7 +276,7 @@ public class Farm {
                 secondaryExitEdgeX = width / 2;
                 secondaryExitEdgeY = 0;
                 break;
-            case 3: // Bottom-Right Farm - path to village (left)
+            case 3: // Farm index 3 - path to village (left edge)
                 // Primary exit to the left boundary of the farm (to connect to village)
                 primaryExitEdgeX = 0;
                 primaryExitEdgeY = height / 2;

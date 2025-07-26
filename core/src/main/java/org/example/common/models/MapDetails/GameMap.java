@@ -7,6 +7,7 @@ import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
+import org.example.common.models.enums.Types.TileType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,16 +15,119 @@ import java.util.List;
 public class GameMap {
     private final List<Farm> farms;
     private Village village;
+    private Location[][] tiles; // Unified tiles array for the entire map
 
-    public static final int TOTAL_WIDTH = 312;  // 78 + 156 + 78
-    public static final int TOTAL_HEIGHT = 468; // 78 + 312 + 78
+    public static final int TOTAL_WIDTH = 234;  // 78 + 78 + 78
+    public static final int TOTAL_HEIGHT = 156; // 78 + 78
     public static final int VILLAGE_X = 78;     // Village starts at x=78
-    public static final int VILLAGE_Y = 78;     // Village starts at y=78
+    public static final int VILLAGE_Y = 0;      // Village starts at y=0
 
 
     public GameMap() {
         this.farms = new ArrayList<>();
         this.village = new Village("Shemroon");
+        this.tiles = new Location[TOTAL_WIDTH][TOTAL_HEIGHT];
+        initializeTiles();
+    }
+
+    private void initializeTiles() {
+        for (int x = 0; x < TOTAL_WIDTH; x++) {
+            for (int y = 0; y < TOTAL_HEIGHT; y++) {
+                tiles[x][y] = new Location(x, y, TileType.Dirt);
+            }
+        }
+    }
+
+
+    public Location getTile(int x, int y) {
+        if (x >= 0 && x < TOTAL_WIDTH && y >= 0 && y < TOTAL_HEIGHT) {
+            return tiles[x][y];
+        }
+        return null;
+    }
+
+
+    public boolean setTile(int x, int y, Location location) {
+        if (x >= 0 && x < TOTAL_WIDTH && y >= 0 && y < TOTAL_HEIGHT) {
+            tiles[x][y] = location;
+            return true;
+        }
+        return false;
+    }
+
+    public Location[][] getTiles() {
+        return tiles;
+    }
+
+
+    public void updateTilesFromRegions() {
+        // Update tiles from farms
+        for (Farm farm : farms) {
+            updateTilesFromFarm(farm);
+        }
+
+        // Update tiles from village
+        updateTilesFromVillage();
+    }
+
+    private void updateTilesFromFarm(Farm farm) {
+        int farmIndex = farm.getFarmIndex();
+        int startX = 0, startY = 0;
+        switch (farmIndex) {
+            case 0: // Top-Left
+                startX = 0;
+                startY = 0;
+                break;
+            case 1: // Bottom-Left
+                startX = 0;
+                startY = 78;
+                break;
+            case 2: // Top-Right
+                startX = 156;
+                startY = 0;
+                break;
+            case 3: // Bottom-Right
+                startX = 156;
+                startY = 78;
+                break;
+            default:
+                return;
+        }
+
+        for (int x = 0; x < Farm.width; x++) {
+            for (int y = 0; y < Farm.height; y++) {
+                Location farmTile = farm.getItem(x, y);
+                if (farmTile != null) {
+                    Location globalTile = new Location(startX + x, startY + y, farmTile.getTile());
+                    globalTile.setType(farmTile.getType());
+                    globalTile.setItem(farmTile.getItem());
+                    globalTile.setShokhm(farmTile.getShokhm());
+                    globalTile.setScarecrowThere(farmTile.isScarecrowThere());
+                    tiles[startX + x][startY + y] = globalTile;
+                }
+            }
+        }
+    }
+
+
+    private void updateTilesFromVillage() {
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location villageTile = village.getItem(x, y);
+                if (villageTile != null) {
+                    Location globalTile = new Location(VILLAGE_X + x, VILLAGE_Y + y, villageTile.getTile());
+                    globalTile.setType(villageTile.getType());
+                    globalTile.setItem(villageTile.getItem());
+                    globalTile.setShokhm(villageTile.getShokhm());
+                    globalTile.setScarecrowThere(villageTile.isScarecrowThere());
+                    tiles[VILLAGE_X + x][VILLAGE_Y + y] = globalTile;
+                }
+            }
+        }
+    }
+
+    public boolean contains(int x, int y) {
+        return x >= 0 && x < TOTAL_WIDTH && y >= 0 && y < TOTAL_HEIGHT;
     }
 
     public List<Farm> getFarms() {
@@ -127,22 +231,10 @@ public class GameMap {
 
 
     public Farm getFarmAtCoordinates(int x, int y) {
-        // Farm 1 (Top-Left): (0, 234) to (78, 312)
-        if (x >= 0 && x < 78 && y >= 234 && y < 312) {
-            return getFarmByIndex(1);
-        }
-        // Farm 0 (Bottom-Left): (0, 156) to (78, 234)
-        else if (x >= 0 && x < 78 && y >= 156 && y < 234) {
-            return getFarmByIndex(0);
-        }
-        // Farm 2 (Top-Right): (234, 234) to (312, 312)
-        else if (x >= 234 && x < 312 && y >= 234 && y < 312) {
-            return getFarmByIndex(2);
-        }
-        // Farm 3 (Bottom-Right): (234, 156) to (312, 234)
-        else if (x >= 234 && x < 312 && y >= 156 && y < 234) {
-            return getFarmByIndex(3);
-        }
+        if (x >= 0 && x < 78 && y >= 0 && y < 78) return getFarmByIndex(0);
+        if (x >= 0 && x < 78 && y >= 78 && y < 156) return getFarmByIndex(1);
+        if (x >= 156 && x < 234 && y >= 0 && y < 78) return getFarmByIndex(2);
+        if (x >= 156 && x < 234 && y >= 78 && y < 156) return getFarmByIndex(3);
         return null;
     }
 
@@ -166,20 +258,13 @@ public class GameMap {
     public Location getFarmLocation(int globalX, int globalY) {
         Farm farm = getFarmAtCoordinates(globalX, globalY);
         if (farm != null) {
-            // Convert to farm-local coordinates
-            int localX = globalX;
-            int localY = globalY;
-
-            // Adjust based on farm position
-            if (farm.getFarmIndex() == 1 || farm.getFarmIndex() == 0) {
-                // Left side farms - no X adjustment needed
-                localY = globalY - 156; // Adjust Y for bottom farms
-            } else {
-                // Right side farms
-                localX = globalX - 234; // Adjust X for right side
-                localY = globalY - 156; // Adjust Y for bottom farms
+            int localX = globalX, localY = globalY;
+            switch (farm.getFarmIndex()) {
+                case 0: localX = globalX; localY = globalY; break;
+                case 1: localX = globalX; localY = globalY - 78; break;
+                case 2: localX = globalX - 156; localY = globalY; break;
+                case 3: localX = globalX - 156; localY = globalY - 78; break;
             }
-
             return farm.getItem(localX, localY);
         }
         return null;

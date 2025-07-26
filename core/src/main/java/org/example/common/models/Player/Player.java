@@ -728,13 +728,13 @@ public class Player {
         Farm farm = getCurrentFarm();
 
         switch (farm.getFarmIndex()) {
-            case 0: // Bottom-Left farm - exit at right edge
+            case 0: // Farm index 0 - exit at right edge
                 return x >= Farm.width - 3; // Within 3 tiles of right edge
-            case 1: // Top-Left farm - exit at left edge
+            case 1: // Farm index 1 - exit at right edge
+                return x >= Farm.width - 3; // Within 3 tiles of right edge
+            case 2: // Farm index 2 - exit at left edge
                 return x <= 2; // Within 3 tiles of left edge
-            case 2: // Top-Right farm - exit at right edge
-                return x >= Farm.width - 3; // Within 3 tiles of right edge
-            case 3: // Bottom-Right farm - exit at left edge
+            case 3: // Farm index 3 - exit at left edge
                 return x <= 2; // Within 3 tiles of left edge
             default:
                 return false;
@@ -774,15 +774,15 @@ public class Player {
         int farmX = playerLoc.getX();
         int farmY = playerLoc.getY();
         
-        // Farm exit paths are at the edges
+        // Farm exit paths are at the edges closest to village
         switch (farm.getFarmIndex()) {
-            case 0: // Bottom-Left farm - exit at right edge
+            case 0: // Farm index 0 - exit at right edge
                 return farmX >= Farm.width - 3; // Within 3 tiles of right edge
-            case 1: // Top-Left farm - exit at left edge
+            case 1: // Farm index 1 - exit at right edge
+                return farmX >= Farm.width - 3; // Within 3 tiles of right edge
+            case 2: // Farm index 2 - exit at left edge
                 return farmX <= 2; // Within 3 tiles of left edge
-            case 2: // Top-Right farm - exit at right edge
-                return farmX >= Farm.width - 3; // Within 3 tiles of right edge
-            case 3: // Bottom-Right farm - exit at left edge
+            case 3: // Farm index 3 - exit at left edge
                 return farmX <= 2; // Within 3 tiles of left edge
             default:
                 return false;
@@ -804,19 +804,19 @@ public class Player {
         // Calculate village entrance position based on farm
         int villageX, villageY;
         switch (farm.getFarmIndex()) {
-            case 0: // Bottom-Left farm
-                villageX = GameMap.VILLAGE_X; // Left edge of village
-                villageY = GameMap.VILLAGE_Y + Village.height - 5; // Near bottom of village
-                break;
-            case 1: // Top-Left farm
-                villageX = GameMap.VILLAGE_X; // Left edge of village
+            case 0: // Farm index 0 - enter at left edge of village (from right edge of farm)
+                villageX = GameMap.VILLAGE_X + 5; // Left edge of village
                 villageY = GameMap.VILLAGE_Y + 5; // Near top of village
                 break;
-            case 2: // Top-Right farm
+            case 1: // Farm index 1 - enter at left edge of village (from right edge of farm)
+                villageX = GameMap.VILLAGE_X + 5; // Left edge of village
+                villageY = GameMap.VILLAGE_Y + Village.height - 5; // Near bottom of village
+                break;
+            case 2: // Farm index 2 - enter at right edge of village (from left edge of farm)
                 villageX = GameMap.VILLAGE_X + Village.width - 5; // Right edge of village
                 villageY = GameMap.VILLAGE_Y + 5; // Near top of village
                 break;
-            case 3: // Bottom-Right farm
+            case 3: // Farm index 3 - enter at right edge of village (from left edge of farm)
                 villageX = GameMap.VILLAGE_X + Village.width - 5; // Right edge of village
                 villageY = GameMap.VILLAGE_Y + Village.height - 5; // Near bottom of village
                 break;
@@ -845,16 +845,16 @@ public class Player {
         
         // Check if player is near village exit to the specific farm
         switch (farmIndex) {
-            case 0: // Bottom-Left farm
+            case 0: // Farm index 0 - exit from left edge of village
+                return villageX <= GameMap.VILLAGE_X + 5 && 
+                       villageY <= GameMap.VILLAGE_Y + 10;
+            case 1: // Farm index 1 - exit from left edge of village
                 return villageX <= GameMap.VILLAGE_X + 5 && 
                        villageY >= GameMap.VILLAGE_Y + Village.height - 10;
-            case 1: // Top-Left farm
-                return villageX <= GameMap.VILLAGE_X + 5 && 
-                       villageY <= GameMap.VILLAGE_Y + 10;
-            case 2: // Top-Right farm
+            case 2: // Farm index 2 - exit from right edge of village
                 return villageX >= GameMap.VILLAGE_X + Village.width - 5 && 
                        villageY <= GameMap.VILLAGE_Y + 10;
-            case 3: // Bottom-Right farm
+            case 3: // Farm index 3 - exit from right edge of village
                 return villageX >= GameMap.VILLAGE_X + Village.width - 5 && 
                        villageY >= GameMap.VILLAGE_Y + Village.height - 10;
             default:
@@ -877,21 +877,21 @@ public class Player {
         // Calculate farm entrance position
         int farmX, farmY;
         switch (farmIndex) {
-            case 0: // Bottom-Left farm
-                farmX = 0; // Left edge of farm
-                farmY = 156 + Farm.height - 5; // Near bottom of farm
+            case 0: // Farm index 0 - enter at right edge of farm
+                farmX = Farm.width - 5; // Right edge of farm (closest to village)
+                farmY = 5; // Near top of farm
                 break;
-            case 1: // Top-Left farm
-                farmX = 0; // Left edge of farm
-                farmY = 156 + 5; // Near top of farm
+            case 1: // Farm index 1 - enter at right edge of farm
+                farmX = Farm.width - 5; // Right edge of farm (closest to village)
+                farmY = Farm.height - 5; // Near bottom of farm
                 break;
-            case 2: // Top-Right farm
-                farmX = 234 + Farm.width - 5; // Right edge of farm
-                farmY = 156 + 5; // Near top of farm
+            case 2: // Farm index 2 - enter at left edge of farm
+                farmX = 5; // Left edge of farm (closest to village)
+                farmY = 5; // Near top of farm
                 break;
-            case 3: // Bottom-Right farm
-                farmX = 234 + Farm.width - 5; // Right edge of farm
-                farmY = 156 + Farm.height - 5; // Near bottom of farm
+            case 3: // Farm index 3 - enter at left edge of farm
+                farmX = 5; // Left edge of farm (closest to village)
+                farmY = Farm.height - 5; // Near bottom of farm
                 break;
             default:
                 return false;

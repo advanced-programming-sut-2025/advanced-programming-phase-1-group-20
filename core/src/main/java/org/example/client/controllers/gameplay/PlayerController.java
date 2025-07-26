@@ -57,6 +57,11 @@ public class PlayerController {
     private static final Color NICKNAME_TEXT_COLOR = Color.WHITE;
     private static final Color CURRENT_PLAYER_TEXT_COLOR = new Color(0.8f, 1f, 0.8f, 1f);
 
+    // Add this field to the class
+    private boolean justTransitionedToVillage = false;
+    private boolean showTransitionDialog = false;
+    private String transitionMessage = "";
+
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
         toolSwinging = true;
@@ -96,7 +101,7 @@ public class PlayerController {
         walkUp = buildAnim(grid[2]);
 
         currentAnim = walkDown;
-        
+
         initializeNicknameFont();
     }
 
@@ -191,6 +196,12 @@ public class PlayerController {
             return; // Skip movement this frame
         }
 
+        // Prevent movement for one frame after transition
+        if (justTransitionedToVillage) {
+            justTransitionedToVillage = false;
+            return;
+        }
+
         float newX = player.getPosX();
         float newY = player.getPosY();
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
@@ -235,6 +246,12 @@ public class PlayerController {
     }
 
     private boolean isWalkable(float x, float y) {
+        // Prevent immediate reset after transition
+        if (justTransitionedToVillage) {
+            justTransitionedToVillage = false;
+            return false; // Skip this frame's movement check
+        }
+
         int tileX = (int) x;
         int tileY = (int) y;
 
@@ -247,35 +264,45 @@ public class PlayerController {
 
         // Check if player is trying to move to village
         if (player.getIsInVillage()) {
-            System.out.println("DEBUG: Player thinks they're in village, but checking village movement...");
-            System.out.println("Current tile coordinates: (" + tileX + ", " + tileY + ")");
-            System.out.println("Player position in pixels: (" + player.getPosX() + ", " + player.getPosY() + ")");
-            System.out.println("Player position in tiles: (" + (player.getPosX() / 60) + ", " + (player.getPosY() / 60) + ")");
-
-            // Player is in village, check village boundaries
-            if (tileX >= 0 && tileX < Village.width &&
-                tileY >= 0 && tileY < Village.height) {
-                // Check if trying to exit village to farms
-                if (tileX <= 2 || tileX >= Village.width - 3) {
-                    // Transition to farm
-                    handleVillageToFarmTransition(tileX, tileY);
-                    return true;
-                }
-
-                // Check if the tile is walkable in the village
-                Village village = gameMap.getVillage();
-                if (village != null && tileX < village.getTiles().length && tileY < village.getTiles()[0].length) {
-                    Location loc = village.getTiles()[tileX][tileY];
-                    if (loc != null) {
-                        return loc.getTile().isWalkable();
+            // Get current player position in tiles
+            int currentTileX = (int) (player.getPosX() / 60);
+            int currentTileY = (int) (player.getPosY() / 60);
+            
+            // Check if current position is within village boundaries
+            if (currentTileX >= GameMap.VILLAGE_X && currentTileX < GameMap.VILLAGE_X + Village.width &&
+                currentTileY >= GameMap.VILLAGE_Y && currentTileY < GameMap.VILLAGE_Y + Village.height) {
+                
+                // Player is in village, check if target position is also within village boundaries
+                if (tileX >= GameMap.VILLAGE_X && tileX < GameMap.VILLAGE_X + Village.width &&
+                    tileY >= GameMap.VILLAGE_Y && tileY < GameMap.VILLAGE_Y + Village.height) {
+                    
+                    // Check if trying to exit village to farms
+                    if (tileX <= GameMap.VILLAGE_X + 2 || tileX >= GameMap.VILLAGE_X + Village.width - 3) {
+                        // Transition to farm
+                        handleVillageToFarmTransition(tileX, tileY);
+                        return true;
                     }
+
+                    // Check if the tile is walkable in the village (convert to local coordinates)
+                    Village village = gameMap.getVillage();
+                    int localVillageX = tileX - GameMap.VILLAGE_X;
+                    int localVillageY = tileY - GameMap.VILLAGE_Y;
+                    if (village != null && localVillageX >= 0 && localVillageX < village.getTiles().length &&
+                        localVillageY >= 0 && localVillageY < village.getTiles()[0].length) {
+                        Location loc = village.getTiles()[localVillageX][localVillageY];
+                        if (loc != null) {
+                            return loc.getTile().isWalkable();
+                        }
+                    }
+                    return true; // Default to walkable within village
+                } else {
+                    // Target position is outside village boundaries, don't allow movement
+                    return false;
                 }
-                return true; // Default to walkable within village
             } else {
-                // Player thinks they're in village but are at invalid coordinates
-                // This means the transition didn't complete properly
                 System.out.println("ERROR: Player thinks they're in village but at invalid coordinates! Resetting to farm...");
-                System.out.println("Current coordinates: tileX=" + tileX + ", tileY=" + tileY);
+                System.out.println("Current coordinates: tileX=" + currentTileX + ", tileY=" + currentTileY);
+                System.out.println("Target coordinates: tileX=" + tileX + ", tileY=" + tileY);
                 System.out.println("Current player position: posX=" + player.getPosX() + ", posY=" + player.getPosY());
 
                 // Force a complete reset of player state
@@ -304,33 +331,31 @@ public class PlayerController {
                     System.out.println("Checking farm transition - Farm index: " + currentFarm.getFarmIndex() +
                                       ", tileX: " + tileX + ", Farm.width: " + Farm.width);
                 }
+                
+                // Check if player should transition to village based on farm-specific rules
+                boolean shouldTransition = false;
                 switch (currentFarm.getFarmIndex()) {
-                    case 0: // Farm 0 (Bottom-Left) - exit at right edge to village
-                    case 1: // Farm 1 (Top-Left) - exit at right edge to village
-                        if (tileX >= Farm.width && tileX < Farm.width + 3) {
-                            if (!transitionInProgress) {
-                                System.out.println("TRANSITION TRIGGERED: Farm " + currentFarm.getFarmIndex() + " to village!");
-                                transitionInProgress = true;
-                                // Transition to village
-                                handleAreaTransition(tileX, tileY);
-                                transitionInProgress = false;
-                                return true;
-                            }
-                        }
+                    case 0: // Farm index 0 - exit at right edge
+                        shouldTransition = tileX >= Farm.width - 3; // Within 3 tiles of right edge
                         break;
-                    case 2: // Farm 2 (Top-Right) - exit at left edge to village
-                    case 3: // Farm 3 (Bottom-Right) - exit at left edge to village
-                        if (tileX < 0 && tileX >= -3) {
-                            if (!transitionInProgress) {
-                                System.out.println("TRANSITION TRIGGERED: Farm " + currentFarm.getFarmIndex() + " to village!");
-                                transitionInProgress = true;
-                                // Transition to village
-                                handleAreaTransition(tileX, tileY);
-                                transitionInProgress = false;
-                                return true;
-                            }
-                        }
+                    case 1: // Farm index 1 - exit at right edge
+                        shouldTransition = tileX >= Farm.width - 3; // Within 3 tiles of right edge
                         break;
+                    case 2: // Farm index 2 - exit at left edge
+                        shouldTransition = tileX <= 2; // Within 3 tiles of left edge
+                        break;
+                    case 3: // Farm index 3 - exit at left edge
+                        shouldTransition = tileX <= 2; // Within 3 tiles of left edge
+                        break;
+                }
+                
+                if (shouldTransition && !transitionInProgress) {
+                    System.out.println("TRANSITION TRIGGERED: Farm " + currentFarm.getFarmIndex() + " to village!");
+                    transitionInProgress = true;
+                    // Transition to village
+                    handleAreaTransition(tileX, tileY);
+                    transitionInProgress = false;
+                    return true;
                 }
             }
 
@@ -356,44 +381,73 @@ public class PlayerController {
             return;
         }
 
-        int villageX, villageY;
-
-        switch (currentFarm.getFarmIndex()) {
-            case 0: // Farm 0 (Bottom-Left) - enter village from left
-                villageX = 0; // Left edge of village
-                villageY = tileY + Village.height / 2; // Scale Y coordinate for bottom half of village
-                break;
-            case 1: // Farm 1 (Top-Left) - enter village from left
-                villageX = 0; // Left edge of village
-                villageY = tileY; // Keep same Y coordinate for top half of village
-                break;
-            case 2: // Farm 2 (Top-Right) - enter village from right
-                villageX = Village.width - 1; // Right edge of village
-                villageY = tileY; // Keep same Y coordinate for top half of village
-                break;
-            case 3: // Farm 3 (Bottom-Right) - enter village from right
-                villageX = Village.width - 1; // Right edge of village
-                villageY = tileY + Village.height / 2; // Scale Y coordinate for bottom half of village
-                break;
-            default:
-                return;
-        }
+        // Transport player to middle of village to avoid coordinate issues
+        int villageX = Village.width / 2; // Middle of village
+        int villageY = Village.height / 2; // Middle of village
 
         System.out.println("Coordinate conversion: farm(" + tileX + "," + tileY + ") -> village(" + villageX + "," + villageY + ")");
 
-        // Set player to village with village coordinates
         player.setIsInVillage(true);
-        player.setLocation(new Location(villageX, villageY, TileType.VILLAGE));
+        player.setLocation(new Location(GameMap.VILLAGE_X + villageX, GameMap.VILLAGE_Y + villageY, TileType.VILLAGE));
 
-        // Update player's visual position to match village coordinates
-        player.setPosX(villageX * 60);
-        player.setPosY(villageY * 60);
+        // Update player's visual position to match global village coordinates
+        player.setPosX((GameMap.VILLAGE_X + villageX) * 60);
+        player.setPosY((GameMap.VILLAGE_Y + villageY) * 60);
+
+        // Set the flag to skip the next movement frame
+        justTransitionedToVillage = true;
 
         System.out.println("TRANSITION COMPLETED: Player walked to village at village coordinates: (" + villageX + ", " + villageY + ")");
         System.out.println("Player is now in village: " + player.getIsInVillage());
         System.out.println("Player position: (" + player.getPosX() + ", " + player.getPosY() + ")");
-
         System.out.println("Verification - Player should now be at village coordinates: (" + (player.getPosX() / 60) + ", " + (player.getPosY() / 60) + ")");
+    }
+    
+    public void confirmTransition() {
+        if (showTransitionDialog) {
+            showTransitionDialog = false;
+            transitionMessage = "";
+            
+            // Convert farm coordinates to village coordinates
+            Farm currentFarm = player.getCurrentFarm();
+            if (currentFarm == null) {
+                System.out.println("ERROR: currentFarm is null!");
+                return;
+            }
+
+            int villageX, villageY;
+
+            // Transport player to middle of village to avoid coordinate issues
+            villageX = Village.width / 2; // Middle of village
+            villageY = Village.height / 2; // Middle of village
+
+            player.setIsInVillage(true);
+            player.setLocation(new Location(GameMap.VILLAGE_X + villageX, GameMap.VILLAGE_Y + villageY, TileType.VILLAGE));
+
+            // Update player's visual position to match global village coordinates
+            player.setPosX((GameMap.VILLAGE_X + villageX) * 60);
+            player.setPosY((GameMap.VILLAGE_Y + villageY) * 60);
+
+            // Set the flag to skip the next movement frame
+            justTransitionedToVillage = true;
+
+            System.out.println("TRANSITION CONFIRMED: Player walked to village at village coordinates: (" + villageX + ", " + villageY + ")");
+            System.out.println("Player is now in village: " + player.getIsInVillage());
+            System.out.println("Player position: (" + player.getPosX() + ", " + player.getPosY() + ")");
+        }
+    }
+    
+    public void cancelTransition() {
+        showTransitionDialog = false;
+        transitionMessage = "";
+    }
+    
+    public boolean isShowingTransitionDialog() {
+        return showTransitionDialog;
+    }
+    
+    public String getTransitionMessage() {
+        return transitionMessage;
     }
 
     private void handleVillageToFarmTransition(int tileX, int tileY) {
@@ -404,24 +458,24 @@ public class PlayerController {
         if (tileX <= 2) {
             // Exit to left farms (0 or 1)
             if (tileY < Village.height / 2) {
-                farmIndex = 1; // Top-Left farm
-                farmX = Farm.width - 3; // Near right edge of farm
-                farmY = tileY; // Keep same Y coordinate for top half
+                farmIndex = 0; // Top-Left farm
+                farmX = Farm.width - 5; // Near right edge of farm
+                farmY = 5; // Near top of farm
             } else {
-                farmIndex = 0; // Bottom-Left farm
-                farmX = Farm.width - 3; // Near right edge of farm
-                farmY = tileY - Village.height / 2; // Adjust Y coordinate for bottom half
+                farmIndex = 1; // Bottom-Left farm
+                farmX = Farm.width - 5; // Near right edge of farm
+                farmY = Farm.height - 5; // Near bottom of farm
             }
         } else {
             // Exit to right farms (2 or 3)
             if (tileY < Village.height / 2) {
                 farmIndex = 2; // Top-Right farm
-                farmX = 2; // Near left edge of farm
-                farmY = tileY; // Keep same Y coordinate for top half
+                farmX = 5; // Near left edge of farm
+                farmY = 5; // Near top of farm
             } else {
                 farmIndex = 3; // Bottom-Right farm
-                farmX = 2; // Near left edge of farm
-                farmY = tileY - Village.height / 2; // Adjust Y coordinate for bottom half
+                farmX = 5; // Near left edge of farm
+                farmY = Farm.height - 5; // Near bottom of farm
             }
         }
 
@@ -429,16 +483,40 @@ public class PlayerController {
         Farm targetFarm = App.getGame().getGameMap().getFarmByIndex(farmIndex);
         if (targetFarm == null) return;
 
-        // Set player to farm
+        // Set player to farm with global farm coordinates
         player.setIsInVillage(false);
         player.setCurrentFarm(targetFarm);
-        player.setLocation(new Location(farmX, farmY, TileType.Dirt));
 
-        // Update player's visual position to match farm coordinates
-        player.setPosX(farmX * 60);
-        player.setPosY(farmY * 60);
+        // Calculate global farm coordinates based on farm index
+        int globalFarmX, globalFarmY;
+        switch (farmIndex) {
+            case 0: // Top-Left farm
+                globalFarmX = farmX;
+                globalFarmY = farmY;
+                break;
+            case 1: // Bottom-Left farm
+                globalFarmX = farmX;
+                globalFarmY = 78 + farmY;
+                break;
+            case 2: // Top-Right farm
+                globalFarmX = 156 + farmX;
+                globalFarmY = farmY;
+                break;
+            case 3: // Bottom-Right farm
+                globalFarmX = 156 + farmX;
+                globalFarmY = 78 + farmY;
+                break;
+            default:
+                return;
+        }
 
-        System.out.println("Player walked to farm " + farmIndex + " at coordinates: (" + farmX + ", " + farmY + ")");
+        player.setLocation(new Location(globalFarmX, globalFarmY, TileType.Dirt));
+
+        // Update player's visual position to match global farm coordinates
+        player.setPosX(globalFarmX * 60);
+        player.setPosY(globalFarmY * 60);
+
+        System.out.println("Player walked to farm " + farmIndex + " at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
     }
 
     public Player getPlayer() {
@@ -463,38 +541,38 @@ public class PlayerController {
         if (player == null || player.getUser() == null || nicknameFont == null || skin == null) {
             return;
         }
-        
+
         String nickname = player.getUser().getNickname();
         if (nickname == null || nickname.trim().isEmpty()) {
             nickname = player.getUser().getUsername(); // Fallback to username
         }
-        
+
         if (nickname == null || nickname.trim().isEmpty()) {
             return; // No nickname to display
         }
-        
+
         float playerX = player.getPosX();
         float playerY = player.getPosY();
-        
+
         // Calculate nickname position (centered above player head)
         float nicknameWidth = nicknameFont.draw(batch, nickname, 0, 0).width;
         float nicknameX = playerX + 30f - (nicknameWidth / 2f); // Center above player (player width is ~60)
         float nicknameY = playerY + NICKNAME_OFFSET_Y;
-        
+
         // Determine text color
         Color textColor = (player.equals(currentPlayer)) ? CURRENT_PLAYER_TEXT_COLOR : NICKNAME_TEXT_COLOR;
-        
+
         // Apply lighting to text color
         Color finalTextColor = new Color(textColor);
         finalTextColor.r *= lightingColor.r;
         finalTextColor.g *= lightingColor.g;
         finalTextColor.b *= lightingColor.b;
-        
+
         // Draw nickname text
         Color originalColor = batch.getColor().cpy();
         batch.setColor(finalTextColor);
         nicknameFont.draw(batch, nickname, nicknameX, nicknameY);
-        
+
         // Reset batch color
         batch.setColor(originalColor);
     }

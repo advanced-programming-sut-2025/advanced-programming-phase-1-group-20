@@ -34,13 +34,14 @@ public class Game implements Serializable {
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
         this.date = new Date();
-
         if (players != null && !players.isEmpty()) {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
 
         this.inMapSelectionPhase = true;
+
         this.saved = false;
+
 
         if (players != null) {
             for (Player player : players) {

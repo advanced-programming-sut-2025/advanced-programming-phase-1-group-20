@@ -67,6 +67,10 @@ public class Location {
         return shokhm;
     }
 
+    public void setShokhm(boolean shokhm) {
+        this.shokhm = shokhm;
+    }
+
     public Item getItem() {
         return item;
     }

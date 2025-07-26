@@ -248,9 +248,9 @@ public class WorldController {
         String currentSeason = getCurrentSeason();
         GameMap gameMap = App.getGame().getGameMap();
         
-        // Create a unified world map array
-        int totalWidth = 312;  // GameMap.TOTAL_WIDTH
-        int totalHeight = 468; // GameMap.TOTAL_HEIGHT
+        // Create a unified world map array using GameMap constants
+        int totalWidth = GameMap.TOTAL_WIDTH;   // 234
+        int totalHeight = GameMap.TOTAL_HEIGHT; // 156
         TileType[][] worldMap = new TileType[totalWidth][totalHeight];
         
         // Initialize with grass
@@ -260,25 +260,25 @@ public class WorldController {
             }
         }
         
-        // Fill in farms
+        // Fill in farms using the same positioning as GameMap.updateTilesFromFarm
         for (Farm farm : gameMap.getFarms()) {
             int farmX, farmY;
             switch (farm.getFarmIndex()) {
-                case 0: // Bottom-Left Farm
+                case 0: // Top-Left
                     farmX = 0;
                     farmY = 0;
                     break;
-                case 1: // Top-Left Farm
+                case 1: // Bottom-Left
                     farmX = 0;
-                    farmY = 156 + 78; // Village height + farm height
+                    farmY = 78;
                     break;
-                case 2: // Top-Right Farm
-                    farmX = 78 + 156; // Village width + farm width
-                    farmY = 156 + 78; // Village height + farm height
-                    break;
-                case 3: // Bottom-Right Farm
-                    farmX = 78 + 156; // Village width + farm width
+                case 2: // Top-Right
+                    farmX = 156;
                     farmY = 0;
+                    break;
+                case 3: // Bottom-Right
+                    farmX = 156;
+                    farmY = 78;
                     break;
                 default:
                     continue;
@@ -295,9 +295,9 @@ public class WorldController {
             }
         }
         
-        // Fill in village area
-        int villageX = 78; // GameMap.VILLAGE_X
-        int villageY = 78; // GameMap.VILLAGE_Y
+        // Fill in village area using GameMap constants
+        int villageX = GameMap.VILLAGE_X; // 78
+        int villageY = GameMap.VILLAGE_Y; // 0
         for (int x = 0; x < Village.width; x++) {
             for (int y = 0; y < Village.height; y++) {
                 worldMap[villageX + x][villageY + y] = TileType.VILLAGE;
