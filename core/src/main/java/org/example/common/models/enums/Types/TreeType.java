@@ -52,7 +52,7 @@ public enum TreeType {
 
     public static TreeType getType(String name) {
         for (TreeType type : TreeType.values()) {
-            if (type.getName().equals(name)) return type;
+            if (type.getName().equalsIgnoreCase(name)) return type;
         }
         return null;
     }

@@ -38,7 +38,7 @@ public enum CraftingType {
 
     public static CraftingType fromName(String name) {
         for (CraftingType type : CraftingType.values()) {
-            if (type.getName().equals(name)) {
+            if (type.getName().equalsIgnoreCase(name)) {
                 return type;
             }
         }
