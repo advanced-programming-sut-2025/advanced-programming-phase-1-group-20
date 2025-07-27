@@ -335,16 +335,16 @@ public class PlayerController {
                 boolean shouldTransition = false;
                 switch (currentFarm.getFarmIndex()) {
                     case 0: // Farm index 0 - exit at right edge
-                        shouldTransition = tileX >= Farm.width - 3; // Within 3 tiles of right edge
+                        shouldTransition = tileX >= Farm.width - 1; // Within 1 tiles of right edge
                         break;
                     case 1: // Farm index 1 - exit at right edge
-                        shouldTransition = tileX >= Farm.width - 3; // Within 3 tiles of right edge
+                        shouldTransition = tileX >= Farm.width - 1; // Within 1 tiles of right edge
                         break;
                     case 2: // Farm index 2 - exit at left edge
-                        shouldTransition = tileX <= 2; // Within 3 tiles of left edge
+                        shouldTransition = tileX < 1; // Within 1 tiles of left edge
                         break;
                     case 3: // Farm index 3 - exit at left edge
-                        shouldTransition = tileX <= 2; // Within 3 tiles of left edge
+                        shouldTransition = tileX < 1; // Within 1 tiles of left edge
                         break;
                 }
 
