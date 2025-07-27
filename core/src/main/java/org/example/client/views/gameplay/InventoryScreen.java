@@ -105,13 +105,26 @@ public class InventoryScreen implements Screen {
             Table cell = new Table();
             boolean isSelected = false;
             if (item != null) {
-                Texture texture = new Texture(Gdx.files.internal(item.getImageFilepath()));
-                Image image = new Image(texture);
-                int count = backpack.getInventory().get(item);
-                Label countLabel = new Label(String.valueOf(count), skin);
-                countLabel.setColor(Color.WHITE);
-                cell.add(image).size(64, 64).row();
-                cell.add(countLabel);
+                try {
+                    Texture texture = new Texture(Gdx.files.internal(item.getImageFilepath()));
+                    Image image = new Image(texture);
+                    int count = backpack.getInventory().get(item);
+                    Label countLabel = new Label(String.valueOf(count), skin);
+                    countLabel.setColor(Color.WHITE);
+                    cell.add(image).size(64, 64).row();
+                    cell.add(countLabel);
+                } catch (Exception e) {
+                    // If the image file is corrupted or missing, use a fallback
+                    System.err.println("Failed to load image for item: " + item.getName() + " - " + e.getMessage());
+                    Label fallbackLabel = new Label(item.getName(), skin);
+                    fallbackLabel.setColor(Color.WHITE);
+                    cell.add(fallbackLabel).size(64, 64).row();
+                    
+                    int count = backpack.getInventory().get(item);
+                    Label countLabel = new Label(String.valueOf(count), skin);
+                    countLabel.setColor(Color.WHITE);
+                    cell.add(countLabel);
+                }
                 if (item instanceof Tool && player.getCurrentTool() != null && item.getName().equals(player.getCurrentTool().getName())) {
                     isSelected = true;
                 }
@@ -129,18 +142,36 @@ public class InventoryScreen implements Screen {
                     });
                 }
             } else {
-                Texture texture = new Texture(Gdx.files.internal(EMPTY_SLOT_IMAGE));
-                Image image = new Image(texture);
-                cell.add(image).size(64, 64);
+                try {
+                    Texture texture = new Texture(Gdx.files.internal(EMPTY_SLOT_IMAGE));
+                    Image image = new Image(texture);
+                    cell.add(image).size(64, 64);
+                } catch (Exception e) {
+                    // If the empty slot image is missing, use a fallback
+                    System.err.println("Failed to load empty slot image: " + e.getMessage());
+                    Label fallbackLabel = new Label("Empty", skin);
+                    fallbackLabel.setColor(Color.GRAY);
+                    cell.add(fallbackLabel).size(64, 64);
+                }
             }
             table.add(cell).pad(6);
             if ((i + 1) % SLOTS_PER_ROW == 0) table.row();
         }
-        Texture trashTexture = new Texture(Gdx.files.internal("content/Tools/Trash_Can_Steel.png"));
-        Image trashImage = new Image(trashTexture);
-        Table trashCell = new Table();
-        trashCell.add(trashImage).size(64, 64);
-        table.add(trashCell).pad(10);
+        try {
+            Texture trashTexture = new Texture(Gdx.files.internal("content/Tools/Trash_Can_Steel.png"));
+            Image trashImage = new Image(trashTexture);
+            Table trashCell = new Table();
+            trashCell.add(trashImage).size(64, 64);
+            table.add(trashCell).pad(10);
+        } catch (Exception e) {
+            // If the trash texture is missing, use a fallback
+            System.err.println("Failed to load trash texture: " + e.getMessage());
+            Label fallbackLabel = new Label("Trash", skin);
+            fallbackLabel.setColor(Color.RED);
+            Table trashCell = new Table();
+            trashCell.add(fallbackLabel).size(64, 64);
+            table.add(trashCell).pad(10);
+        }
     }
 
     @Override

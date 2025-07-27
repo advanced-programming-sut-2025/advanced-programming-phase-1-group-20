@@ -25,7 +25,7 @@ public class Date implements Runnable {
 
     public Date() {
         this.day = 1;
-        this.season = 3;
+        this.season = 1;
         this.year = 1;
         this.hour = 9;
         this.minute = 0; // NEW
@@ -133,7 +133,6 @@ public class Date implements Runnable {
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
         int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
-        this.weatherToday = Weather.SNOWY;
     }
 
     private void updateWeatherTomorrow() {
