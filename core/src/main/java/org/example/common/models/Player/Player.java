@@ -728,7 +728,7 @@ public class Player {
         Farm farm = getCurrentFarm();
 
         return switch (farm.getFarmIndex()) {
-            case 0, 1 -> x >= Farm.width - 3;
+            case 0, 1 -> x >= Farm.width - 1;
             case 2, 3 -> x <= 2;
             default -> false;
         };
