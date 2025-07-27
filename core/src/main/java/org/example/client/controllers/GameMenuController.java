@@ -1939,6 +1939,14 @@ public class GameMenuController implements Controller {
     }
 
     //cheats:
+    public void cheatAddItem(String[] args){
+        Item item = ItemBuilder.build(args[0]);
+        int amount = Integer.parseInt(args[1]);
+
+        player.getBackpack().add(item, amount);
+    }
+
+
     public void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
 
