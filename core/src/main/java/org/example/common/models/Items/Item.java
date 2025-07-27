@@ -77,10 +77,6 @@ public class Item {
     public void updateItem() {
     }
 
-    public String getImageFilePath() {
-        return imageFilepath;
-    }
-
     public boolean getFinished() {
         return false;
     }
@@ -115,6 +111,6 @@ public class Item {
 
     @Override
     public int hashCode() {
-        return name.toLowerCase().hashCode(); // یا فقط name.hashCode() اگر حساس به حروف بزرگ/کوچک
+        return name.toLowerCase().hashCode();
     }
 }

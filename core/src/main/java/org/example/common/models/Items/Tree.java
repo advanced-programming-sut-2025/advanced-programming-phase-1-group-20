@@ -184,10 +184,11 @@ public class Tree extends Item {
     }
 
     @Override
-    public String getImageFilePath() {
+    public String getImageFilepath() {
         int s = stage + 1;
-        return "content/Trees/" + getImageFilepath() + "_" + "Stage_" + s + ".png";
+        return "content/Trees/" + type.getImageFilePath() + "_" + "Stage_" + s + ".png";
     }
+
 
     public Texture getTexture() {
         return new Texture(getImage());

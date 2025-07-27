@@ -51,12 +51,12 @@ public class ArtisanItem extends Item {
     }
 
     public String getImage(){
-        return "content/Artisanitems/" + getImageFilePath() + ".png";
+        return "content/Artisanitems/" + type.getImageFilepath() + ".png";
     }
 
     @Override
     public String getImageFilepath() {
-        return "content/Artisanitems/" + getImageFilePath() + ".png";
+        return "content/Artisanitems/" + type.getImageFilepath() + ".png";
     }
 
     public int getProccessingTimeFinal() {

@@ -83,10 +83,10 @@ public class CookingItem extends Item {
     }
 
     public String getImage(){
-        return "content/Cookingitems/" + getImageFilePath() + ".png";
+        return "content/Cookingitems/" + type.getImageFilepath() + ".png";
     }
     @Override
     public String getImageFilepath() {
-        return "content/Cookingitems/" + getImageFilePath() + ".png";
+        return "content/Cookingitems/" + type.getImageFilepath() + ".png";
     }
 }

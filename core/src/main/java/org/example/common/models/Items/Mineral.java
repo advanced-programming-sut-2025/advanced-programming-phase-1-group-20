@@ -33,7 +33,7 @@ public class Mineral extends Item {
     }
 
     @Override
-    public String getImageFilePath() {
+    public String getImageFilepath() {
         if(isMined) {
             return "content/Minerals/" + type.getImageFilepath() + "_Bar.png";
         }else{
