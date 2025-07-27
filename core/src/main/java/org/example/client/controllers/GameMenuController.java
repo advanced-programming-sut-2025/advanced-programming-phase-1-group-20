@@ -323,7 +323,7 @@ public class GameMenuController implements Controller {
         gMap.getFarmByPlayer(player).placeItem(x, y, item);
 
 
-        if (item instanceof CraftingItem) {
+        if (item instanceof CraftingItem craftingItem) {
             switch (item.getName()) {
                 case "Cherry Bomb" -> {
                     gMap.getFarmByPlayer(player).bomb(x, y, 3);
@@ -348,6 +348,9 @@ public class GameMenuController implements Controller {
                 }
                 case "Deluxe Scarecrow" -> {
                     gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
+                }
+                default -> {
+                    player.addPlacedCraftingItem(craftingItem);
                 }
             }
         }
