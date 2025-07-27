@@ -77,9 +77,6 @@ public class HouseMenuController implements Controller {
         CraftingType type = CraftingType.fromName(itemName);
         assert type != null;
         CraftingItem craftedItem = new CraftingItem(type);
-        if (!player.getCraftingItems().contains(craftedItem)) {
-            return Result.error("You cannot craft this item because you don't have the recipe!");
-        }
         if (!craftedItem.canCraft(player.getBackpack())) {
             return Result.error("You don't have enough items for  this item");
         }
@@ -88,6 +85,7 @@ public class HouseMenuController implements Controller {
             return Result.error("Your backpack is full");
         }
 
+        player.addCraftingItem(craftedItem);
         player.decreaseEnergy(2);
         return Result.success("Item " + itemName + " has been crafted");
     }

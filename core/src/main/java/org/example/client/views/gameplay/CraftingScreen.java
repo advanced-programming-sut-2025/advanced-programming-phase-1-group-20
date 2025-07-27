@@ -98,14 +98,10 @@ public class CraftingScreen implements Screen, Disposable {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (event.getButton() == Input.Buttons.LEFT) {
-                        if (player.craftingExists(craftingType.getName())) {
-                            String[] args = new String[]{craftingType.getName()};
-                            Result result = controller.craftItem(args);
-                            if (!result.success()) {
-                                showErrorDialog("Error Crafting", result.message());
-                            }
-                        } else {
-                            showErrorDialog("Locked", "You haven't learned this recipe yet!");
+                        String[] args = new String[]{craftingType.getName()};
+                        Result result = controller.craftItem(args);
+                        if (!result.success()) {
+                            showErrorDialog("Error Crafting", result.message());
                         }
                     }
                     else if (event.getButton() == Input.Buttons.RIGHT) {
