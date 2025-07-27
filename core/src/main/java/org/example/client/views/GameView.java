@@ -121,7 +121,7 @@ public class GameView implements Screen, InputProcessor {
     // Camera zoom state
     private boolean isCameraZoomedOut = false;
     private float normalZoom = 1.0f;
-    private float zoomedOutZoom = 3.0f; // Zoom out to show entire map (larger value = more zoomed out)
+    private float zoomedOutZoom = 6.0f; // Zoom out to show entire map (larger value = more zoomed out)
 
     // NPC rendering
     private NPCSpriteController npcSpriteController;
@@ -1291,11 +1291,12 @@ public class GameView implements Screen, InputProcessor {
                 gameMap.updateTilesFromRegions();
             }
 
-            // Zoom out to show entire map - use a larger zoom value to zoom out
-            camera.zoom = 5.0f; // Larger value to zoom out and show more of the map
-            // Center camera on the entire game map center
+            // Zoom out to show entire map - adjusted zoom level to show all farms clearly
+            camera.zoom = 12.0f; // Reduced zoom to show the entire map without being too zoomed out
+            
+            // Center camera on the entire map center to show all farms and village
             float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
-            float totalMapHeight = 312 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
+            float totalMapHeight = 156 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
             camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
         } else {
             // Return to normal zoom

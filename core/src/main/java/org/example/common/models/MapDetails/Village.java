@@ -221,47 +221,127 @@ public class Village {
     }
 
     private void createVillagePaths() {
-        // Create paths from village boundaries to center
-        // These paths will connect to the farm entrances
+        // Create paths from village center to farm entrances
+        // Following the same pattern as farm paths for consistency
+        // Using coordinates that match the actual farm exit points
 
         int centerX = width / 2;
         int centerY = height / 2;
 
-        // Path from left edge (Farms 0 and 1) to center
-        createPathFromEdgeToCenter(0, centerY, centerX, centerY);
+        // Define farm entrance points based on actual farm exit coordinates
+        // Farms 0 and 1 exit at right edge of farm (x=77, y=39), so they enter village at left edge
+        // Farms 2 and 3 exit at left edge of farm (x=0, y=39), so they enter village at right edge
+        int farm0EntranceX = 0;  // Left edge of village (for farms 0 and 1)
+        int farm0EntranceY = height / 2;  // Center Y coordinate
+        int farm1EntranceX = 0;  // Left edge of village (for farms 0 and 1)
+        int farm1EntranceY = height / 2;  // Center Y coordinate
+        int farm2EntranceX = width - 1;  // Right edge of village (for farms 2 and 3)
+        int farm2EntranceY = height / 2;  // Center Y coordinate
+        int farm3EntranceX = width - 1;  // Right edge of village (for farms 2 and 3)
+        int farm3EntranceY = height / 2;  // Center Y coordinate
 
-        // Path from right edge (Farms 2 and 3) to center
-        createPathFromEdgeToCenter(width - 1, centerY, centerX, centerY);
+        // Create main paths from center to each farm entrance
+        // Since farms 0&1 and 2&3 share the same entrance points, we only need 2 paths
+        createPathFromCenterToEntrance(centerX, centerY, farm0EntranceX, farm0EntranceY);  // Left entrance
+        createPathFromCenterToEntrance(centerX, centerY, farm2EntranceX, farm2EntranceY);  // Right entrance
 
-        // Path from top edge (Farms 1 and 2) to center
-        createPathFromEdgeToCenter(centerX, height - 1, centerX, centerY);
+        // Create additional connecting paths for better navigation
+        // Horizontal path connecting left and right entrances
+        createHorizontalPath(farm0EntranceY, farm2EntranceY);
 
-        // Path from bottom edge (Farms 0 and 3) to center
-        createPathFromEdgeToCenter(centerX, 0, centerX, centerY);
+        // Create secondary paths for better access to different parts of the village
+        // These follow the same branching pattern as farm paths
+        createSecondaryPaths(centerX, centerY);
     }
 
-    private void createPathFromEdgeToCenter(int startX, int startY, int endX, int endY) {
-        // Create a path from the edge to the center using a simple line algorithm
-        int x = startX;
-        int y = startY;
+    private void createSecondaryPaths(int centerX, int centerY) {
+        // Create additional paths branching from the center, similar to farm path system
+        // This creates a more sophisticated path network
 
-        while (x != endX || y != endY) {
-            // Mark current position as path
-            if (contains(x, y)) {
-                tiles[x][y] = new Location(x, y, TileType.PATH);
+        // Path to upper village area
+        createPathFromCenterToEntrance(centerX, centerY, centerX, height - 1);
+        
+        // Path to lower village area  
+        createPathFromCenterToEntrance(centerX, centerY, centerX, 0);
+        
+        // Diagonal paths for better connectivity
+        createDiagonalPath(centerX, centerY, 0, height - 1);  // Upper left
+        createDiagonalPath(centerX, centerY, width - 1, height - 1);  // Upper right
+        createDiagonalPath(centerX, centerY, 0, 0);  // Lower left
+        createDiagonalPath(centerX, centerY, width - 1, 0);  // Lower right
+    }
+
+    private void createDiagonalPath(int centerX, int centerY, int targetX, int targetY) {
+        // Create a diagonal path from center to target, following the farm path pattern
+        // This creates L-shaped paths like the farm system
+
+        // First horizontal segment
+        if (centerX != targetX) {
+            int startX = Math.min(centerX, targetX);
+            int endX = Math.max(centerX, targetX);
+            for (int x = startX; x <= endX; x++) {
+                if (contains(x, centerY) && tiles[x][centerY].getTile() == TileType.Dirt) {
+                    tiles[x][centerY] = new Location(x, centerY, TileType.PATH);
+                }
             }
-
-            // Move towards center
-            if (x < endX) x++;
-            else if (x > endX) x--;
-
-            if (y < endY) y++;
-            else if (y > endY) y--;
         }
 
-        // Mark the center point as path
-        if (contains(endX, endY)) {
-            tiles[endX][endY] = new Location(endX, endY, TileType.PATH);
+        // Then vertical segment
+        if (centerY != targetY) {
+            int startY = Math.min(centerY, targetY);
+            int endY = Math.max(centerY, targetY);
+            for (int y = startY; y <= endY; y++) {
+                if (contains(targetX, y) && tiles[targetX][y].getTile() == TileType.Dirt) {
+                    tiles[targetX][y] = new Location(targetX, y, TileType.PATH);
+                }
+            }
+        }
+    }
+
+    private void createPathFromCenterToEntrance(int centerX, int centerY, int entranceX, int entranceY) {
+        // Create a path from village center to farm entrance
+        // Similar to farm path logic but adapted for village
+
+        // First, create horizontal path from center to entrance X coordinate
+        if (centerX != entranceX) {
+            int startX = Math.min(centerX, entranceX);
+            int endX = Math.max(centerX, entranceX);
+            for (int x = startX; x <= endX; x++) {
+                if (contains(x, centerY) && tiles[x][centerY].getTile() == TileType.Dirt) {
+                    tiles[x][centerY] = new Location(x, centerY, TileType.PATH);
+                }
+            }
+        }
+
+        // Then, create vertical path from the horizontal path to entrance Y coordinate
+        if (centerY != entranceY) {
+            int startY = Math.min(centerY, entranceY);
+            int endY = Math.max(centerY, entranceY);
+            for (int y = startY; y <= endY; y++) {
+                if (contains(entranceX, y) && tiles[entranceX][y].getTile() == TileType.Dirt) {
+                    tiles[entranceX][y] = new Location(entranceX, y, TileType.PATH);
+                }
+            }
+        }
+    }
+
+    private void createHorizontalPath(int leftY, int rightY) {
+        // Create horizontal path connecting left and right entrances at similar Y levels
+        int pathY = (leftY + rightY) / 2;  // Average Y coordinate
+        
+        for (int x = 0; x < width; x++) {
+            if (contains(x, pathY) && tiles[x][pathY].getTile() == TileType.Dirt) {
+                tiles[x][pathY] = new Location(x, pathY, TileType.PATH);
+            }
+        }
+    }
+
+    private void createVerticalPath(int edgeX, int upperY, int lowerY) {
+        // Create vertical path connecting upper and lower entrances at the edge
+        for (int y = upperY; y <= lowerY; y++) {
+            if (contains(edgeX, y) && tiles[edgeX][y].getTile() == TileType.Dirt) {
+                tiles[edgeX][y] = new Location(edgeX, y, TileType.PATH);
+            }
         }
     }
 
@@ -369,7 +449,7 @@ public class Village {
             return -1;
         }
 
-        if (finalLocation.getTile() != TileType.Dirt) {
+        if (finalLocation.getTile() != TileType.Dirt && finalLocation.getTile() != TileType.PATH) {
             return -1;
         }
 
@@ -407,7 +487,7 @@ public class Village {
 
                 Location neighbor = tiles[newX][newY];
 
-                if (neighbor.getTile() == TileType.Dirt && !visited.contains(neighbor)) {
+                if ((neighbor.getTile() == TileType.Dirt || neighbor.getTile() == TileType.PATH) && !visited.contains(neighbor)) {
                     visited.add(neighbor);
                     parentMap.put(neighbor, current);
                     distanceMap.put(neighbor, distanceMap.get(current) + 1);

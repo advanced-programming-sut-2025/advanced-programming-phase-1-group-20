@@ -16,6 +16,7 @@ import org.example.common.models.App;
 import org.example.common.models.Market;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
+import org.example.common.models.MapDetails.GameMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -227,25 +228,33 @@ public class WorldController {
         float playerY = playerController.getPlayer().getPosY();
 
         float mapWidth, mapHeight;
+        float mapOffsetX, mapOffsetY;
+
         if (playerController.getPlayer().getIsInVillage()) {
+            // For village, use global village bounds
             mapWidth = Village.width * TILE_SIZE;
             mapHeight = Village.height * TILE_SIZE;
+            mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
+            mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
         } else {
+            // For farm, use farm bounds
             mapWidth = Farm.width * TILE_SIZE;
             mapHeight = Farm.height * TILE_SIZE;
+            mapOffsetX = 0;
+            mapOffsetY = 0;
         }
 
         float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
         float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
 
         float cameraX = playerX;
-        float minCameraX = halfCameraViewWidth;
-        float maxCameraX = mapWidth - halfCameraViewWidth;
+        float minCameraX = mapOffsetX + halfCameraViewWidth;
+        float maxCameraX = mapOffsetX + mapWidth - halfCameraViewWidth;
         cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
 
         float cameraY = playerY;
-        float minCameraY = halfCameraViewHeight;
-        float maxCameraY = mapHeight - halfCameraViewHeight;
+        float minCameraY = mapOffsetY + halfCameraViewHeight;
+        float maxCameraY = mapOffsetY + mapHeight - halfCameraViewHeight;
         cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
 
         camera.position.set(cameraX, cameraY, 0);
@@ -364,8 +373,9 @@ public class WorldController {
                 Location location = village.getItem(x, y);
                 if (location == null) continue;
 
-                float worldX = x * TILE_SIZE;
-                float worldY = y * TILE_SIZE;
+                // Use global coordinates for village tiles
+                float worldX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+                float worldY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
                 TileType tileType = location.getTile();
 
@@ -388,9 +398,27 @@ public class WorldController {
                 // Render items if present
                 Item item = location.getItem();
                 if (item != null) {
-                    renderItemOnTile(x, y, item, currentSeason);
+                    renderVillageItemOnTile(x, y, item, currentSeason);
                 }
             }
+        }
+    }
+
+    private void renderVillageItemOnTile(int x, int y, Item item, String season) {
+        // Use global coordinates for village items
+        float worldX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float worldY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        if (item instanceof Tree tree) {
+            renderTreeItem(worldX, worldY, season , tree);
+        } else if (item instanceof Crop crop) {
+            renderCropItem(worldX, worldY , crop);
+        } else if (item instanceof Plant) {
+            renderPlantItem(worldX, worldY);
+        } else if (item instanceof Mineral) {
+            renderMineralItem(worldX, worldY);
+        } else if (item instanceof ShippingBin) {
+            renderShippingBinItem(worldX, worldY);
         }
     }
 
@@ -679,32 +707,64 @@ public class WorldController {
     }
 
     private void renderMarkets() {
-        for(Location location : blacksmith){
-            renderBlackSmithAtAnchor(location);
-        }
+        if (playerController.getPlayer().getIsInVillage()) {
+            // Use global coordinates for village markets
+            for(Location location : blacksmith){
+                renderVillageBlackSmithAtAnchor(location);
+            }
 
-        for(Location location : jojaMart){
-            renderJojaMartAtAnchor(location);
-        }
+            for(Location location : jojaMart){
+                renderVillageJojaMartAtAnchor(location);
+            }
 
-        for(Location location : pierreGeneralStore){
-            renderPierreAtAnchor(location);
-        }
+            for(Location location : pierreGeneralStore){
+                renderVillagePierreAtAnchor(location);
+            }
 
-        for(Location market : carpentersShop) {
-            renderCarpentersShopAtAnchor(market);
-        }
+            for(Location market : carpentersShop) {
+                renderVillageCarpentersShopAtAnchor(market);
+            }
 
-        for(Location location : fishShop){
-            renderFishShopAtAnchor(location);
-        }
+            for(Location location : fishShop){
+                renderVillageFishShopAtAnchor(location);
+            }
 
-        for(Location location : marnieShop){
-            renderMarnieShopAtAnchor(location);
-        }
+            for(Location location : marnieShop){
+                renderVillageMarnieShopAtAnchor(location);
+            }
 
-        for (Location location : starDropSaloon) {
-            renderStarDropSaloonAtAnchor(location);
+            for (Location location : starDropSaloon) {
+                renderVillageStarDropSaloonAtAnchor(location);
+            }
+        } else {
+            // Use local coordinates for farm markets
+            for(Location location : blacksmith){
+                renderBlackSmithAtAnchor(location);
+            }
+
+            for(Location location : jojaMart){
+                renderJojaMartAtAnchor(location);
+            }
+
+            for(Location location : pierreGeneralStore){
+                renderPierreAtAnchor(location);
+            }
+
+            for(Location market : carpentersShop) {
+                renderCarpentersShopAtAnchor(market);
+            }
+
+            for(Location location : fishShop){
+                renderFishShopAtAnchor(location);
+            }
+
+            for(Location location : marnieShop){
+                renderMarnieShopAtAnchor(location);
+            }
+
+            for (Location location : starDropSaloon) {
+                renderStarDropSaloonAtAnchor(location);
+            }
         }
     }
 
@@ -865,6 +925,105 @@ public class WorldController {
         }
     }
 
+    // Village market rendering methods with global coordinates
+    private void renderVillageBlackSmithAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("blacksmith");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillageJojaMartAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("jojamart");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillagePierreAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("pierre");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillageCarpentersShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("carpenters");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillageFishShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("fishshop");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillageMarnieShopAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("marnieshop");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
+    private void renderVillageStarDropSaloonAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("stardropsaloon");
+        if (texture != null) {
+            Main.getBatch().draw(texture , drawX , drawY
+                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+        }
+    }
+
     private boolean isLargeBuilding(TileType tileType) {
         return tileType == TileType.BUILDING || tileType == TileType.BARN ||
             tileType == TileType.COOP || tileType == TileType.GREENHOUSE ||
@@ -953,22 +1112,22 @@ public class WorldController {
             // We loop through the anchors we found during rendering.
             if(playerController.getPlayer().getIsInVillage()){
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                if(checkClicked(blacksmith , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+                if(checkVillageClicked(blacksmith , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
                     Main.getGame().setScreen(new MarketMenuScreen(markets[0] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
-                else if(checkClicked(jojaMart , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+                else if(checkVillageClicked(jojaMart , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
                     Main.getGame().setScreen(new MarketMenuScreen(markets[1] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
-                else if(checkClicked(pierreGeneralStore , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+                else if(checkVillageClicked(pierreGeneralStore , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
                     Main.getGame().setScreen(new MarketMenuScreen(markets[2] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
-                else if(checkClicked(carpentersShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+                else if(checkVillageClicked(carpentersShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
                     Main.getGame().setScreen(new MarketMenuScreen(markets[3] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkClicked(fishShop , HOUSE_TILES_W, HOUSE_TILES_H , touchPoint)) {
+                } else if (checkVillageClicked(fishShop , HOUSE_TILES_W, HOUSE_TILES_H , touchPoint)) {
                     Main.getGame().setScreen(new MarketMenuScreen(markets[4] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkClicked(marnieShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
+                } else if (checkVillageClicked(marnieShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
                     Main.getGame().setScreen(new MarketMenuScreen(markets[5] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkClicked(starDropSaloon , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
+                } else if (checkVillageClicked(starDropSaloon , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
                     Main.getGame().setScreen(new MarketMenuScreen(markets[6] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
                 }
             }else {
@@ -1002,14 +1161,28 @@ public class WorldController {
             // Create a rectangle representing the house's bounds.
             Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
 
-            // Check if the world coordinates of the click are inside the house's rectangle.
             if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
 
-                // --- IT'S A CLICK! PUT YOUR ACTION CODE HERE! ---
                 Gdx.app.log("CLICKED", "You clicked the house at tile: " + anchor.getX() + ", " + anchor.getY());
-                // For example, you could open a menu, play a sound, etc.
+                return true;
+            }
+        }
+        return false;
+    }
 
-                // We found a click, so we can stop checking.
+    public boolean checkVillageClicked(List<Location> anchors , int tilesW , int tilesH , Vector3 touchPoint) {
+        for (Location anchor : anchors) {
+            float houseX = (GameMap.VILLAGE_X + anchor.getX()) * TILE_SIZE;
+            float houseY = (GameMap.VILLAGE_Y + anchor.getY()) * TILE_SIZE;
+            float houseW = tilesW * TILE_SIZE;
+            float houseH = tilesH * TILE_SIZE;
+
+            Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
+
+            if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
+
+                Gdx.app.log("CLICKED", "You clicked the village market at tile: " + anchor.getX() + ", " + anchor.getY());
+
                 return true;
             }
         }
