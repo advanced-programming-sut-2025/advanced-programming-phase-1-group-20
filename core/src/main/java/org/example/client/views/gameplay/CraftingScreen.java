@@ -97,14 +97,23 @@ public class CraftingScreen implements Screen, Disposable {
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (player.craftingExists(craftingType.getName())) {
-                        String[] args = new String[]{craftingType.getName()};
-                        Result result = controller.craftItem(args);
-                        if (!result.success()) {
-                            showErrorDialog("Error Crafting", result.message());
+                    if (event.getButton() == Input.Buttons.LEFT) {
+                        if (player.craftingExists(craftingType.getName())) {
+                            String[] args = new String[]{craftingType.getName()};
+                            Result result = controller.craftItem(args);
+                            if (!result.success()) {
+                                showErrorDialog("Error Crafting", result.message());
+                            }
+                        } else {
+                            showErrorDialog("Locked", "You haven't learned this recipe yet!");
                         }
-                    } else {
-                        showErrorDialog("Locked", "You haven't learned this recipe yet!");
+                    }
+                    else if (event.getButton() == Input.Buttons.RIGHT) {
+                        if (player.craftingExists(craftingType.getName())) {
+                            showArtisanNameDialog(craftingType);
+                        } else {
+                            showErrorDialog("Locked", "You haven't learned this recipe yet!");
+                        }
                     }
                 }
             });
@@ -223,6 +232,55 @@ public class CraftingScreen implements Screen, Disposable {
         errorDialog.setPosition(
             Math.round((stage.getWidth() - errorDialog.getWidth()) / 2f),
             Math.round((stage.getHeight() - errorDialog.getHeight()) / 2f)
+        );
+    }
+
+    private void showArtisanNameDialog(CraftingType craftingType) {
+        Dialog nameDialog = new Dialog("Enter Artisan Name", skin, "dialog");
+
+        Label promptLabel = new Label("Please enter a name for the artisan item:", skin);
+        nameDialog.getContentTable().add(promptLabel).pad(10).colspan(2).row();
+
+        final TextField nameField = new TextField("", skin);
+        nameDialog.getContentTable().add(nameField).width(250).pad(10).colspan(2);
+
+        TextButton submitButton = new TextButton("Submit", skin);
+        submitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String artisanName = nameField.getText();
+                if (artisanName != null && !artisanName.trim().isEmpty()) {
+                    System.out.println("Submitted name for " + craftingType.getName() + ": " + artisanName);
+
+                    String[] args = new String[]{craftingType.getName() , artisanName};
+                    Result result = controller.artisanUse(args);
+                    if (!result.success()) {
+                        showErrorDialog("Error Crafting", result.message());
+                    }
+
+                    nameDialog.hide();
+                } else {
+                    nameField.setText("Name cannot be empty!");
+                }
+            }
+        });
+
+        TextButton cancelButton = new TextButton("Cancel", skin);
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                nameDialog.hide();
+            }
+        });
+
+        nameDialog.getButtonTable().add(submitButton).pad(10);
+        nameDialog.getButtonTable().add(cancelButton).pad(10);
+
+        nameDialog.show(stage);
+        nameDialog.pack();
+        nameDialog.setPosition(
+            Math.round((stage.getWidth() - nameDialog.getWidth()) / 2f),
+            Math.round((stage.getHeight() - nameDialog.getHeight()) / 2f)
         );
     }
 }

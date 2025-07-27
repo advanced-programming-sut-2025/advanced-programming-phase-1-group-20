@@ -511,9 +511,12 @@ public class CraftingItem extends Item {
     }
 
 
-    public void proccessItem(String items) {
-        proccessingItem = createArtisan(items);
-
+    public boolean proccessItem(String items) {
+        if(proccessingItem == null) {
+            proccessingItem = createArtisan(items);
+            return true;
+        }
+        return false;
     }
 
     public void updateArtisan() {
