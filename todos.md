@@ -13,7 +13,7 @@
 ## Current Tasks
 
 - [ ] Test the new map layout and transitions to ensure paths work correctly from farms to the NPC village
-- [ ] Verify that pressing 'M' shows the correct minimap with the new layout and paths
+- [x] Verify that pressing 'M' shows the correct minimap with the new layout and paths
 - [x] Test all farm-to-village and village-to-farm transitions work properly
 - [x] Verify that paths are visible in both the game world and minimap
 - [ ] Test NPC rendering and verify that all 6 NPCs (Abigail, Pierre, Sebastian, Leah, Willy, Jojo) appear in the village with their sprites

@@ -17,6 +17,8 @@ import org.example.common.models.Market;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
 import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.entities.Game;
+import org.example.common.models.Player.Player;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -224,41 +226,61 @@ public class WorldController {
     }
 
     public void update() {
-        float playerX = playerController.getPlayer().getPosX();
-        float playerY = playerController.getPlayer().getPosY();
-
-        float mapWidth, mapHeight;
-        float mapOffsetX, mapOffsetY;
-
-        if (playerController.getPlayer().getIsInVillage()) {
-            // For village, use global village bounds
-            mapWidth = Village.width * TILE_SIZE;
-            mapHeight = Village.height * TILE_SIZE;
-            mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
-            mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
-        } else {
-            // For farm, use farm bounds
-            mapWidth = Farm.width * TILE_SIZE;
-            mapHeight = Farm.height * TILE_SIZE;
-            mapOffsetX = 0;
-            mapOffsetY = 0;
+        // Check if full map is visible - if so, don't update camera position
+        // The camera position is managed by the full map view
+        boolean isFullMapVisible = false;
+        try {
+            // Try to get the full map visibility state from GameView
+            if (controller != null && controller.getView() != null) {
+                // Use reflection to access the private field
+                java.lang.reflect.Field field = controller.getView().getClass().getDeclaredField("isFullMapVisible");
+                field.setAccessible(true);
+                isFullMapVisible = (Boolean) field.get(controller.getView());
+            }
+        } catch (Exception e) {
+            // If we can't access the field, assume full map is not visible
+            isFullMapVisible = false;
         }
 
-        float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
-        float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+        // Only update camera position if full map is not visible
+        if (!isFullMapVisible) {
+            float playerX = playerController.getPlayer().getPosX();
+            float playerY = playerController.getPlayer().getPosY();
 
-        float cameraX = playerX;
-        float minCameraX = mapOffsetX + halfCameraViewWidth;
-        float maxCameraX = mapOffsetX + mapWidth - halfCameraViewWidth;
-        cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+            float mapWidth, mapHeight;
+            float mapOffsetX, mapOffsetY;
 
-        float cameraY = playerY;
-        float minCameraY = mapOffsetY + halfCameraViewHeight;
-        float maxCameraY = mapOffsetY + mapHeight - halfCameraViewHeight;
-        cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+            if (playerController.getPlayer().getIsInVillage()) {
+                // For village, use global village bounds
+                mapWidth = Village.width * TILE_SIZE;
+                mapHeight = Village.height * TILE_SIZE;
+                mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
+                mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
+            } else {
+                // For farm, use farm bounds
+                mapWidth = Farm.width * TILE_SIZE;
+                mapHeight = Farm.height * TILE_SIZE;
+                mapOffsetX = 0;
+                mapOffsetY = 0;
+            }
 
-        camera.position.set(cameraX, cameraY, 0);
-        camera.update();
+            float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+            float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+
+            float cameraX = playerX;
+            float minCameraX = mapOffsetX + halfCameraViewWidth;
+            float maxCameraX = mapOffsetX + mapWidth - halfCameraViewWidth;
+            cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+
+            float cameraY = playerY;
+            float minCameraY = mapOffsetY + halfCameraViewHeight;
+            float maxCameraY = mapOffsetY + mapHeight - halfCameraViewHeight;
+            cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+
+            camera.position.set(cameraX, cameraY, 0);
+            camera.update();
+        }
+        
         Main.getBatch().setProjectionMatrix(camera.combined);
 
         renderedBuildings.clear();
@@ -284,7 +306,8 @@ public class WorldController {
         renderMarkets();
         renderBuildings();
 
-        playerController.getPlayer().getPlayerSprite().draw(Main.getBatch());
+        // Render all players in the game, not just the current player
+        renderAllPlayers();
     }
 
     private void renderFarmTiles() {
@@ -1094,6 +1117,22 @@ public class WorldController {
             texture.dispose();
         }
         textureCache.clear();
+    }
+
+    /**
+     * Render all players in the game, not just the current player
+     */
+    private void renderAllPlayers() {
+        Game game = App.getGame();
+        if (game == null || game.getPlayers() == null) {
+            return;
+        }
+
+        for (Player player : game.getPlayers()) {
+            if (player != null && player.getPlayerSprite() != null) {
+                player.getPlayerSprite().draw(Main.getBatch());
+            }
+        }
     }
 
 

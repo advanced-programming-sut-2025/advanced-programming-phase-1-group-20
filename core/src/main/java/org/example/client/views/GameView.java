@@ -683,7 +683,7 @@ public class GameView implements Screen, InputProcessor {
         }
 
         // Render other players
-        for (Player otherPlayer : gameMap.getPlayers()) {
+        for (Player otherPlayer : App.getGame().getPlayers()) {
             if (otherPlayer != currentPlayer) {
                 float otherX = otherPlayer.getPosX() / 60f * scale + 120;
                 float otherY = otherPlayer.getPosY() / 60f * scale + 120;
@@ -984,9 +984,17 @@ public class GameView implements Screen, InputProcessor {
 
         renderNPCs(deltaTime);
 
-        // Render player nicknames using PlayerController
+        // Render player nicknames for all players
         if (controller != null && controller.getPlayerController() != null) {
+            // Render nickname for current player
             controller.getPlayerController().renderNickname(Main.getBatch(), player, currentLightColor);
+            
+            // Render nicknames for other players
+            for (Player otherPlayer : App.getGame().getPlayers()) {
+                if (otherPlayer != player && otherPlayer.getUser() != null) {
+                    controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
+                }
+            }
         }
 
         if (getCurrentGameDate() != null) {
@@ -1391,7 +1399,7 @@ public class GameView implements Screen, InputProcessor {
         }
 
         // Render other players
-        for (Player otherPlayer : gameMap.getPlayers()) {
+        for (Player otherPlayer : App.getGame().getPlayers()) {
             if (otherPlayer != currentPlayer) {
                 float otherX = otherPlayer.getPosX();
                 float otherY = otherPlayer.getPosY();
