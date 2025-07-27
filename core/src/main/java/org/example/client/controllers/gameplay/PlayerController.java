@@ -287,8 +287,7 @@ public class PlayerController {
                     Village village = gameMap.getVillage();
                     int localVillageX = tileX - GameMap.VILLAGE_X;
                     int localVillageY = tileY - GameMap.VILLAGE_Y;
-                    if (village != null && localVillageX >= 0 && localVillageX < village.getTiles().length &&
-                        localVillageY >= 0 && localVillageY < village.getTiles()[0].length) {
+                    if (village != null && localVillageX < village.getTiles().length && localVillageY < village.getTiles()[0].length) {
                         Location loc = village.getTiles()[localVillageX][localVillageY];
                         if (loc != null) {
                             return loc.getTile().isWalkable();
