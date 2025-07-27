@@ -1,18 +1,22 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.client.controllers.LobbyMenuController;
+import org.example.client.controllers.menu.LobbyMenuController;
 import org.example.client.controllers.MultiplayerMenuController;
 import org.example.common.Lobby.Lobby;
 import org.example.common.Lobby.LobbyPlayer;
@@ -23,6 +27,8 @@ public class LobbyMenuScreen implements Screen {
     private final LobbyMenuController controller;
     private Stage stage;
     private Skin skin;
+    private SpriteBatch batch;
+    private BitmapFont titleFont;
 
     // Main UI components
     private Table mainTable;
@@ -60,10 +66,16 @@ public class LobbyMenuScreen implements Screen {
     // Current state
     private Lobby currentLobby;
     private boolean isInLobby = false;
+    private float refreshTimer = 0;
+    private static final float REFRESH_INTERVAL = 3.0f; // Refresh every 3 seconds
 
     public LobbyMenuScreen(LobbyMenuController controller, Skin skin) {
         this.controller = controller;
         this.skin = skin;
+        this.batch = new SpriteBatch();
+        this.titleFont = new BitmapFont();
+        this.titleFont.getData().setScale(2.0f);
+
         controller.setView(this);
         initializeComponents();
     }
@@ -71,7 +83,7 @@ public class LobbyMenuScreen implements Screen {
     private void initializeComponents() {
         stage = new Stage(new ScreenViewport());
 
-        // Main table
+        // Main table with gradient background
         mainTable = new Table();
         mainTable.setFillParent(true);
         mainTable.pad(20);
@@ -92,75 +104,98 @@ public class LobbyMenuScreen implements Screen {
 
     private void setupHeader() {
         titleLabel = new Label("LOBBY MENU", skin);
-        titleLabel.setColor(Color.CYAN);
-        titleLabel.setFontScale(1.5f);
+        titleLabel.setColor(new Color(0.2f, 0.8f, 1.0f, 1.0f)); // Cyan blue
+        titleLabel.setFontScale(1.8f);
+        titleLabel.setAlignment(Align.center);
 
         statusLabel = new Label("Select or create a lobby", skin);
         statusLabel.setColor(Color.WHITE);
+        statusLabel.setAlignment(Align.center);
 
         backButton = new TextButton("BACK", skin);
+        backButton.setColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Red
+
         refreshButton = new TextButton("REFRESH", skin);
+        refreshButton.setColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Green
     }
 
     private void setupSearchSection() {
         searchTable = new Table();
+        searchTable.pad(10);
+        searchTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.1f, 0.15f, 0.8f)));
 
         Label searchTitle = new Label("SEARCH LOBBIES", skin);
-        searchTitle.setColor(Color.YELLOW);
+        searchTitle.setColor(new Color(1.0f, 1.0f, 0.0f, 1.0f)); // Yellow
+        searchTitle.setFontScale(1.2f);
 
         searchField = new TextField("", skin);
         searchField.setMessageText("Search by name...");
+        searchField.setColor(Color.WHITE);
 
         lobbyIdField = new TextField("", skin);
         lobbyIdField.setMessageText("Or enter lobby ID...");
+        lobbyIdField.setColor(Color.WHITE);
 
         searchButton = new TextButton("SEARCH", skin);
+        searchButton.setColor(new Color(0.2f, 0.6f, 1.0f, 1.0f)); // Blue
 
-        searchTable.add(searchTitle).colspan(3).padBottom(10).row();
-        searchTable.add(new Label("Name:", skin)).padRight(5);
-        searchTable.add(searchField).width(200).padRight(10);
-        searchTable.add(searchButton).width(80).row();
-        searchTable.add(new Label("ID:", skin)).padRight(5);
-        searchTable.add(lobbyIdField).width(200).padRight(10);
-        searchTable.add().width(80);
+        searchTable.add(searchTitle).colspan(3).padBottom(15).row();
+        searchTable.add(new Label("Name:", skin)).padRight(10);
+        searchTable.add(searchField).width(250).padRight(15);
+        searchTable.add(searchButton).width(100).row();
+        searchTable.add(new Label("ID:", skin)).padRight(10);
+        searchTable.add(lobbyIdField).width(250).padRight(15);
+        searchTable.add().width(100);
     }
 
     private void setupCreateSection() {
         createTable = new Table();
+        createTable.pad(10);
+        createTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.15f, 0.1f, 0.8f)));
 
         Label createTitle = new Label("CREATE LOBBY", skin);
-        createTitle.setColor(Color.GREEN);
+        createTitle.setColor(new Color(0.2f, 1.0f, 0.2f, 1.0f)); // Green
+        createTitle.setFontScale(1.2f);
 
         lobbyNameField = new TextField("", skin);
         lobbyNameField.setMessageText("Enter lobby name...");
+        lobbyNameField.setColor(Color.WHITE);
 
         privateCheckBox = new CheckBox(" Private (requires password)", skin);
+        privateCheckBox.setColor(Color.WHITE);
+
         visibleCheckBox = new CheckBox(" Visible in lobby list", skin);
+        visibleCheckBox.setColor(Color.WHITE);
         visibleCheckBox.setChecked(true);
 
         passwordField = new TextField("", skin);
         passwordField.setPasswordMode(true);
         passwordField.setPasswordCharacter('*');
         passwordField.setMessageText("Password (if private)...");
+        passwordField.setColor(Color.WHITE);
         passwordField.setDisabled(true);
 
         createLobbyButton = new TextButton("CREATE LOBBY", skin);
+        createLobbyButton.setColor(new Color(0.2f, 1.0f, 0.2f, 1.0f)); // Green
 
-        createTable.add(createTitle).colspan(2).padBottom(10).row();
-        createTable.add(new Label("Name:", skin)).padRight(10);
-        createTable.add(lobbyNameField).width(200).row();
-        createTable.add(privateCheckBox).colspan(2).padTop(5).row();
+        createTable.add(createTitle).colspan(2).padBottom(15).row();
+        createTable.add(new Label("Name:", skin)).padRight(15);
+        createTable.add(lobbyNameField).width(250).row();
+        createTable.add(privateCheckBox).colspan(2).padTop(10).row();
         createTable.add(visibleCheckBox).colspan(2).padTop(5).row();
-        createTable.add(new Label("Password:", skin)).padRight(10);
-        createTable.add(passwordField).width(200).row();
-        createTable.add(createLobbyButton).colspan(2).width(150).padTop(10);
+        createTable.add(new Label("Password:", skin)).padRight(15);
+        createTable.add(passwordField).width(250).row();
+        createTable.add(createLobbyButton).colspan(2).width(200).padTop(15);
     }
 
     private void setupCurrentLobbySection() {
         currentLobbyTable = new Table();
+        currentLobbyTable.pad(10);
+        currentLobbyTable.setBackground(skin.newDrawable("white", new Color(0.15f, 0.1f, 0.1f, 0.8f)));
 
         Label currentTitle = new Label("CURRENT LOBBY", skin);
-        currentTitle.setColor(Color.ORANGE);
+        currentTitle.setColor(new Color(1.0f, 0.6f, 0.0f, 1.0f)); // Orange
+        currentTitle.setFontScale(1.2f);
 
         currentLobbyLabel = new Label("Not in any lobby", skin);
         currentLobbyLabel.setColor(Color.GRAY);
@@ -169,21 +204,23 @@ public class LobbyMenuScreen implements Screen {
         currentLobbyPlayersLabel.setColor(Color.LIGHT_GRAY);
 
         readyCheckBox = new CheckBox(" Ready to start", skin);
+        readyCheckBox.setColor(Color.WHITE);
         readyCheckBox.setDisabled(true);
 
         leaveLobbyButton = new TextButton("LEAVE LOBBY", skin);
+        leaveLobbyButton.setColor(new Color(0.8f, 0.2f, 0.2f, 1.0f)); // Red
         leaveLobbyButton.setDisabled(true);
 
         startGameButton = new TextButton("START GAME", skin);
+        startGameButton.setColor(new Color(0.2f, 1.0f, 0.2f, 1.0f)); // Green
         startGameButton.setDisabled(true);
-        startGameButton.setColor(Color.GREEN);
 
-        currentLobbyTable.add(currentTitle).colspan(3).padBottom(10).row();
-        currentLobbyTable.add(currentLobbyLabel).colspan(3).padBottom(5).row();
-        currentLobbyTable.add(currentLobbyPlayersLabel).colspan(3).padBottom(10).row();
-        currentLobbyTable.add(readyCheckBox).padRight(10);
-        currentLobbyTable.add(leaveLobbyButton).width(100).padRight(10);
-        currentLobbyTable.add(startGameButton).width(100);
+        currentLobbyTable.add(currentTitle).colspan(3).padBottom(15).row();
+        currentLobbyTable.add(currentLobbyLabel).colspan(3).padBottom(10).row();
+        currentLobbyTable.add(currentLobbyPlayersLabel).colspan(3).padBottom(15).row();
+        currentLobbyTable.add(readyCheckBox).padRight(15);
+        currentLobbyTable.add(leaveLobbyButton).width(120).padRight(15);
+        currentLobbyTable.add(startGameButton).width(120);
 
         currentLobbyTable.setVisible(false);
     }
@@ -193,17 +230,18 @@ public class LobbyMenuScreen implements Screen {
         lobbyListScrollPane = new ScrollPane(lobbyListTable, skin);
         lobbyListScrollPane.setScrollingDisabled(true, false);
         lobbyListScrollPane.setVariableSizeKnobs(false);
+        lobbyListScrollPane.setFadeScrollBars(false);
     }
 
     private void layoutMainTable() {
         // Header
         Table headerTable = new Table();
-        headerTable.add(titleLabel).expandX().left();
-        headerTable.add(refreshButton).width(100).padRight(10);
-        headerTable.add(backButton).width(80);
+        headerTable.add(titleLabel).expandX().center();
+        headerTable.add(refreshButton).width(120).padRight(15);
+        headerTable.add(backButton).width(100);
 
-        mainTable.add(headerTable).fillX().padBottom(10).row();
-        mainTable.add(statusLabel).fillX().padBottom(20).row();
+        mainTable.add(headerTable).fillX().padBottom(20).row();
+        mainTable.add(statusLabel).fillX().padBottom(30).row();
 
         // Main content
         Table contentTable = new Table();
@@ -211,20 +249,21 @@ public class LobbyMenuScreen implements Screen {
         // Left side - controls
         Table leftTable = new Table();
         leftTable.add(searchTable).fillX().padBottom(20).row();
-        leftTable.add(new Separator()).fillX().padBottom(20).row();
         leftTable.add(createTable).fillX().padBottom(20).row();
-        leftTable.add(new Separator()).fillX().padBottom(20).row();
         leftTable.add(currentLobbyTable).fillX();
 
         // Right side - lobby list
         Table rightTable = new Table();
+        rightTable.pad(10);
+        rightTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.1f, 0.1f, 0.8f)));
+
         Label lobbyListTitle = new Label("AVAILABLE LOBBIES", skin);
-        lobbyListTitle.setColor(Color.WHITE);
-        rightTable.add(lobbyListTitle).padBottom(10).row();
+        lobbyListTitle.setColor(new Color(0.8f, 0.8f, 1.0f, 1.0f)); // Light blue
+        lobbyListTitle.setFontScale(1.3f);
+        rightTable.add(lobbyListTitle).padBottom(15).row();
         rightTable.add(lobbyListScrollPane).expand().fill();
 
-        contentTable.add(leftTable).width(400).top().padRight(20);
-        contentTable.add(new Separator(true)).fillY().padRight(20);
+        contentTable.add(leftTable).width(450).top().padRight(30);
         contentTable.add(rightTable).expand().fill();
 
         mainTable.add(contentTable).expand().fill();
@@ -314,15 +353,18 @@ public class LobbyMenuScreen implements Screen {
         if (lobby == null) return;
 
         Table lobbyRow = new Table();
-        lobbyRow.pad(10);
+        lobbyRow.pad(15);
+        lobbyRow.setBackground(skin.newDrawable("white", new Color(0.15f, 0.15f, 0.2f, 0.9f)));
 
         // Lobby info
-        String lobbyInfo = lobby.getName() + " (" + lobby.getId() + ")";
+        String lobbyInfo = lobby.getName() + " (ID: " + lobby.getId() + ")";
         Label lobbyNameLabel = new Label(lobbyInfo, skin);
+        lobbyNameLabel.setColor(Color.WHITE);
+        lobbyNameLabel.setFontScale(1.1f);
 
         String playerInfo = lobby.getPlayers().size() + "/" + lobby.getSettings().getMaxPlayers() + " players";
         Label playersLabel = new Label(playerInfo, skin);
-        playersLabel.setColor(Color.LIGHT_GRAY);
+        playersLabel.setColor(new Color(0.7f, 0.7f, 0.7f, 1.0f));
 
         // Status indicators
         String statusText = "";
@@ -330,15 +372,15 @@ public class LobbyMenuScreen implements Screen {
 
         if (!lobby.getSettings().isVisible()) {
             statusText += "[HIDDEN] ";
-            statusColor = Color.ORANGE;
+            statusColor = new Color(1.0f, 0.6f, 0.0f, 1.0f); // Orange
         }
         if (lobby.getSettings().isPrivate()) {
             statusText += "[PRIVATE] ";
-            statusColor = Color.YELLOW;
+            statusColor = new Color(1.0f, 1.0f, 0.0f, 1.0f); // Yellow
         }
         if (lobby.getStatus() == Lobby.LobbyStatus.IN_GAME) {
             statusText += "[IN GAME] ";
-            statusColor = Color.RED;
+            statusColor = new Color(1.0f, 0.2f, 0.2f, 1.0f); // Red
         }
 
         Label statusLabel = new Label(statusText, skin);
@@ -346,6 +388,7 @@ public class LobbyMenuScreen implements Screen {
 
         // Join button
         TextButton joinButton = new TextButton("JOIN", skin);
+        joinButton.setColor(new Color(0.2f, 0.8f, 0.2f, 1.0f)); // Green
         joinButton.setDisabled(isInLobby || !lobby.canJoin());
 
         joinButton.addListener(new ClickListener() {
@@ -356,13 +399,12 @@ public class LobbyMenuScreen implements Screen {
         });
 
         // Layout row
-        lobbyRow.add(lobbyNameLabel).expandX().left().padRight(10);
-        lobbyRow.add(playersLabel).padRight(10);
-        lobbyRow.add(statusLabel).padRight(10);
-        lobbyRow.add(joinButton).width(80);
+        lobbyRow.add(lobbyNameLabel).expandX().left().padRight(15);
+        lobbyRow.add(playersLabel).padRight(15);
+        lobbyRow.add(statusLabel).padRight(15);
+        lobbyRow.add(joinButton).width(100);
 
-        lobbyListTable.add(lobbyRow).fillX().padBottom(5).row();
-        lobbyListTable.add(new Separator()).fillX().row();
+        lobbyListTable.add(lobbyRow).fillX().padBottom(8).row();
     }
 
     private void joinLobby(Lobby lobby) {
@@ -391,7 +433,7 @@ public class LobbyMenuScreen implements Screen {
 
         passwordDialog.text("Enter password for lobby: " + lobby.getName());
         passwordDialog.getContentTable().row();
-        passwordDialog.getContentTable().add(passwordDialogField).width(200).padTop(10);
+        passwordDialog.getContentTable().add(passwordDialogField).width(250).padTop(15);
 
         passwordDialog.button("Join", true);
         passwordDialog.button("Cancel", false);
@@ -457,7 +499,7 @@ public class LobbyMenuScreen implements Screen {
 
         if (isInLobby) {
             currentLobbyLabel.setText(lobby.getName() + " (ID: " + lobby.getId() + ")");
-            currentLobbyLabel.setColor(Color.GREEN);
+            currentLobbyLabel.setColor(new Color(0.2f, 1.0f, 0.2f, 1.0f)); // Green
 
             StringBuilder playersText = new StringBuilder("Players: ");
             for (LobbyPlayer player : lobby.getPlayers()) {
@@ -514,7 +556,8 @@ public class LobbyMenuScreen implements Screen {
         if (lobbies == null || lobbies.isEmpty()) {
             Label noLobbiesLabel = new Label("No lobbies available", skin);
             noLobbiesLabel.setColor(Color.GRAY);
-            lobbyListTable.add(noLobbiesLabel).pad(20);
+            noLobbiesLabel.setFontScale(1.2f);
+            lobbyListTable.add(noLobbiesLabel).pad(30);
             return;
         }
 
@@ -543,19 +586,15 @@ public class LobbyMenuScreen implements Screen {
 
     public void showError(String error) {
         statusLabel.setText("Error: " + error);
-        statusLabel.setColor(Color.RED);
+        statusLabel.setColor(new Color(1.0f, 0.2f, 0.2f, 1.0f)); // Red
     }
 
     public void goBackToMultiplayerMenu() {
         Main.getGame().getScreen().dispose();
         MultiplayerMenuController multiplayerController = new MultiplayerMenuController();
-        MultiplayerMenuScreen multiplayerScreen = new MultiplayerMenuScreen(multiplayerController, skin);
+        org.example.client.views.MultiplayerMenuScreen multiplayerScreen = new org.example.client.views.MultiplayerMenuScreen(multiplayerController, skin);
         Main.getGame().setScreen(multiplayerScreen);
     }
-
-    // =====================
-    // SCREEN INTERFACE
-    // =====================
 
     @Override
     public void show() {
@@ -565,7 +604,16 @@ public class LobbyMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0.1f, 0.1f, 0.2f, 1);
+        // Clear with gradient background
+        Gdx.gl.glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // Update refresh timer
+        refreshTimer += delta;
+        if (refreshTimer >= REFRESH_INTERVAL) {
+            refreshTimer = 0;
+            controller.refreshLobbies(); // Auto-refresh lobby list
+        }
 
         controller.update(delta);
 
@@ -590,30 +638,7 @@ public class LobbyMenuScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-    }
-
-    private static class Separator extends Actor {
-        private final boolean vertical;
-
-        public Separator() {
-            this(false);
-        }
-
-        public Separator(boolean vertical) {
-            this.vertical = vertical;
-        }
-
-        @Override
-        public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float parentAlpha) {
-            // Simple separator using ShapeRenderer would be better, but for simplicity
-            // we'll just draw a colored rectangle using batch
-            Color oldColor = batch.getColor();
-            batch.setColor(0.5f, 0.5f, 0.5f, parentAlpha);
-
-            // We can't easily draw without a texture, so we'll skip the visual separator
-            // In a real implementation, you'd use ShapeRenderer or create a 1x1 white texture
-
-            batch.setColor(oldColor);
-        }
+        batch.dispose();
+        titleFont.dispose();
     }
 }

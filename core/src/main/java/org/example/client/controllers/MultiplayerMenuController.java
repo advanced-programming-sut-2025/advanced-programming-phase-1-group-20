@@ -1,11 +1,13 @@
 package org.example.client.controllers;
 
 import org.example.client.Main;
+import org.example.client.controllers.menu.LobbyMenuController;
 import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.ConnectionManager;
 import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
+import org.example.client.views.menu.LobbyMenuScreen;
 import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.Message;
@@ -173,8 +175,8 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
         // Navigate to lobby menu
         Main.getGame().getScreen().dispose();
-        org.example.client.controllers.LobbyMenuController lobbyController = new org.example.client.controllers.LobbyMenuController();
-        org.example.client.views.LobbyMenuScreen lobbyScreen = new org.example.client.views.LobbyMenuScreen(lobbyController, AssetManager.getAssetManager().getSkin());
+        LobbyMenuController lobbyController = new LobbyMenuController();
+        LobbyMenuScreen lobbyScreen = new LobbyMenuScreen(lobbyController, AssetManager.getAssetManager().getSkin());
         Main.getGame().setScreen(lobbyScreen);
     }
 
@@ -221,9 +223,6 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
         return App.getLoggedInUser();
     }
 
-    // =====================
-    // ONLINE PLAYERS METHODS
-    // =====================
 
     public void requestOnlinePlayersList() {
         if (!connectionManager.isAuthenticated()) {

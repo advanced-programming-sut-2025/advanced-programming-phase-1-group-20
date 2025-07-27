@@ -5,6 +5,7 @@ import org.example.common.models.Message;
 import org.example.common.models.App;
 import org.example.common.models.entities.Game;
 import org.example.common.models.Player.Player;
+import org.example.common.Lobby.Lobby;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class ClientMessageHandler {
     private TradeRequestListener tradeListener;
     private ConnectionStatusListener connectionListener;
     private OnlinePlayersListener onlinePlayersListener;
+    private LobbyMessageListener lobbyListener;
     
     public interface GameStateUpdateListener {
         void onGameStateUpdate(Object gameState);
@@ -43,6 +45,10 @@ public class ClientMessageHandler {
     
     public interface OnlinePlayersListener {
         void onOnlinePlayersUpdate(List<Object> players);
+    }
+    
+    public interface LobbyMessageListener {
+        void onLobbyMessage(Message message);
     }
     
     public ClientMessageHandler(NetworkClient networkClient) {
@@ -90,12 +96,30 @@ public class ClientMessageHandler {
                 case ONLINE_PLAYERS_LIST:
                     handleOnlinePlayersList(message);
                     break;
+                // Lobby-related message types
+                case CREATE_LOBBY:
+                case JOIN_LOBBY:
+                case LEAVE_LOBBY:
+                case LIST_LOBBIES:
+                case SEARCH_LOBBY:
+                case PLAYER_READY:
+                case START_LOBBY_GAME:
+                    handleLobbyMessage(message);
+                    break;
                 default:
                     System.out.println("Unhandled message type: " + message.getType());
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    private void handleLobbyMessage(Message message) {
+        if (lobbyListener != null) {
+            lobbyListener.onLobbyMessage(message);
+        } else {
+            System.out.println("Lobby message received but no listener registered: " + message.getType());
         }
     }
     
@@ -260,6 +284,10 @@ public class ClientMessageHandler {
     
     public void setOnlinePlayersListener(OnlinePlayersListener listener) {
         this.onlinePlayersListener = listener;
+    }
+
+    public void setLobbyListener(LobbyMessageListener listener) {
+        this.lobbyListener = listener;
     }
     
     // Convenience methods for sending responses

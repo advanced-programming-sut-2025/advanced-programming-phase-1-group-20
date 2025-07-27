@@ -1,9 +1,10 @@
-package org.example.client.controllers;
+package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.Gdx;
 import org.example.client.network.ConnectionManager;
 import org.example.client.network.NetworkClient;
-import org.example.client.views.LobbyMenuScreen;
+import org.example.client.network.ClientMessageHandler;
+import org.example.client.views.menu.LobbyMenuScreen;
 import org.example.common.Lobby.Lobby;
 import org.example.common.models.*;
 import org.example.common.models.entities.User;
@@ -11,17 +12,20 @@ import org.example.common.models.entities.User;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.example.common.Lobby.LobbyMessage.LobbyMessageType.LOBBY_UPDATED;
-
-public class LobbyMenuController implements Controller {
+public class LobbyMenuController implements ClientMessageHandler.LobbyMessageListener {
     private LobbyMenuScreen view;
     private final NetworkClient networkClient;
     private final ConnectionManager connectionManager;
+    private final ClientMessageHandler messageHandler;
     private User currentUser;
 
     public LobbyMenuController() {
         this.networkClient = NetworkClient.getInstance();
         this.connectionManager = ConnectionManager.getInstance();
+        this.messageHandler = networkClient.getMessageHandler();
+
+        // Register this controller to receive lobby messages
+        this.messageHandler.setLobbyListener(this);
     }
 
     public void setView(LobbyMenuScreen view) {
@@ -29,8 +33,8 @@ public class LobbyMenuController implements Controller {
     }
 
     @Override
-    public void setupListeners() {
-        // Setup listeners will be called by the view
+    public void onLobbyMessage(Message message) {
+        handleLobbyMessage(message);
     }
 
 
@@ -253,9 +257,6 @@ public class LobbyMenuController implements Controller {
                         break;
 
                     // Handle specific lobby message types
-                    case CREATE_LOBBY:
-                        handleCreateLobbyResponse(message);
-                        break;
                     case LIST_LOBBIES:
                         handleListLobbiesResponse(message);
                         break;
@@ -286,92 +287,51 @@ public class LobbyMenuController implements Controller {
         });
     }
 
-    private void handleCreateLobbyResponse(Message message) {
-        System.out.println("Handling CREATE_LOBBY response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            Lobby lobby = message.getFromBody("lobby");
-            if (lobby != null) {
-                System.out.println("Lobby created successfully: " + lobby.getName());
-                view.onLobbyCreated(lobby);
-            } else {
-                System.err.println("Lobby created but no lobby data received");
-                showError("Lobby created but no lobby data received");
-            }
-        } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to create lobby: " + error);
-            showError("Failed to create lobby: " + (error != null ? error : "Unknown error"));
-        }
-    }
+
 
     private void handleListLobbiesResponse(Message message) {
         System.out.println("Handling LIST_LOBBIES response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            List<Lobby> lobbies = message.getFromBody("lobbies");
-            if (lobbies != null) {
-                System.out.println("Received " + lobbies.size() + " lobbies");
-                view.onLobbiesReceived(lobbies);
-            } else {
-                System.out.println("No lobbies received, showing empty list");
-                view.onLobbiesReceived(new ArrayList<>());
-            }
+        // The server sends SUCCESS message with lobbies data directly
+        List<Lobby> lobbies = message.getFromBody("lobbies");
+        if (lobbies != null) {
+            System.out.println("Received " + lobbies.size() + " lobbies");
+            view.onLobbiesReceived(lobbies);
         } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to get lobby list: " + error);
-            showError("Failed to get lobby list: " + (error != null ? error : "Unknown error"));
+            System.out.println("No lobbies received, showing empty list");
+            view.onLobbiesReceived(new ArrayList<>());
         }
     }
 
     private void handleJoinLobbyResponse(Message message) {
         System.out.println("Handling JOIN_LOBBY response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            Lobby lobby = message.getFromBody("lobby");
-            if (lobby != null) {
-                System.out.println("Joined lobby successfully: " + lobby.getName());
-                view.onLobbyJoined(lobby);
-            } else {
-                System.err.println("Joined lobby but no lobby data received");
-                showError("Joined lobby but no lobby data received");
-            }
+        // The server sends SUCCESS message with lobby data directly
+        Lobby lobby = message.getFromBody("lobby");
+        if (lobby != null) {
+            System.out.println("Joined lobby successfully: " + lobby.getName());
+            view.onLobbyJoined(lobby);
         } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to join lobby: " + error);
-            showError("Failed to join lobby: " + (error != null ? error : "Unknown error"));
+            System.err.println("Joined lobby but no lobby data received");
+            showError("Joined lobby but no lobby data received");
         }
     }
 
     private void handleLeaveLobbyResponse(Message message) {
         System.out.println("Handling LEAVE_LOBBY response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            System.out.println("Left lobby successfully");
-            view.onLobbyLeft();
-        } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to leave lobby: " + error);
-            showError("Failed to leave lobby: " + (error != null ? error : "Unknown error"));
-        }
+        // The server sends SUCCESS message for leave lobby
+        System.out.println("Left lobby successfully");
+        view.onLobbyLeft();
     }
 
     private void handleSearchLobbyResponse(Message message) {
         System.out.println("Handling SEARCH_LOBBY response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            List<Lobby> lobbies = message.getFromBody("lobbies");
-            if (lobbies != null) {
-                System.out.println("Search found " + lobbies.size() + " lobbies");
-                view.onSearchResults(lobbies);
-            } else {
-                System.out.println("Search completed with no results");
-                view.onSearchResults(new ArrayList<>());
-            }
+        // The server sends SUCCESS message with lobbies data directly
+        List<Lobby> lobbies = message.getFromBody("lobbies");
+        if (lobbies != null) {
+            System.out.println("Search found " + lobbies.size() + " lobbies");
+            view.onSearchResults(lobbies);
         } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to search lobbies: " + error);
-            showError("Failed to search lobbies: " + (error != null ? error : "Unknown error"));
+            System.out.println("Search completed with no results");
+            view.onSearchResults(new ArrayList<>());
         }
     }
 
@@ -454,10 +414,6 @@ public class LobbyMenuController implements Controller {
         System.err.println("Error message: " + errorMessage);
         showError(errorMessage != null ? errorMessage : "Unknown error");
     }
-
-    // =====================
-    // UTILITY METHODS
-    // =====================
 
     public void update(float deltaTime) {
         // Update connection manager
