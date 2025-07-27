@@ -31,6 +31,7 @@ import java.util.Map;
 public class Player {
     private List<Skill> skills;
     private List<CraftingItem> craftingItems;
+    private List<CraftingItem> placedCraftingItems;
     private List<CookingItem> cookingItems;
     private Backpack backpack;
     private Map<Player, Friendship> friendships;
@@ -110,6 +111,8 @@ public class Player {
 
         // TODO: delete
         this.money = 10000000;
+
+        placedCraftingItems = new ArrayList<>();
     }
 
     public String getPlayerColor() {
@@ -923,5 +926,17 @@ public class Player {
             return playerSprite;
         }
         return playerSprite;
+    }
+
+    public void addPlacedCraftingItem(CraftingItem item) {
+        this.placedCraftingItems.add(item);
+    }
+
+    public void removePlacedCraftingItem(CraftingItem item) {
+        this.placedCraftingItems.remove(item);
+    }
+
+    public List<CraftingItem> getPlacedCraftingItems() {
+        return placedCraftingItems;
     }
 }

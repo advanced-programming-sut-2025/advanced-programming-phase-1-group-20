@@ -17,6 +17,7 @@ public class CraftingItem extends Item {
     private CraftingType type;
     private ArtisanItem proccessingItem;
     private ArtisanItem finishedItem;
+    private double progressBar;
 
 
     public CraftingItem(CraftingType type) {
@@ -24,6 +25,7 @@ public class CraftingItem extends Item {
         this.type = type;
         this.proccessingItem = null;
         this.setPlacable(true);
+        progressBar = 0;
     }
 
     public String getIngredients() {
@@ -509,9 +511,12 @@ public class CraftingItem extends Item {
     }
 
 
-    public void proccessItem(String items) {
-        proccessingItem = createArtisan(items);
-
+    public boolean proccessItem(String items) {
+        if(proccessingItem == null) {
+            proccessingItem = createArtisan(items);
+            return true;
+        }
+        return false;
     }
 
     public void updateArtisan() {
@@ -519,9 +524,11 @@ public class CraftingItem extends Item {
             int proccessingTime = proccessingItem.getProcessingTime();
             if (proccessingTime > 1) {
                 proccessingItem.setProccessingTime(proccessingTime - 1);
+                progressBar = 1 - (double) proccessingItem.getProcessingTime() / proccessingItem.getProccessingTimeFinal();
             } else {
                 finishedItem = proccessingItem;
                 proccessingItem = null;
+                progressBar = 0;
             }
         }
     }
@@ -546,16 +553,27 @@ public class CraftingItem extends Item {
     }
 
     public String getImage(){
-        return "content/CraftingItems/" + type.getImageFilepath() + ".png";
+        return type.getImageFilepath();
     }
 
     @Override
     public String getImageFilepath() {
-        return "content/CraftingItems/" + type.getImageFilepath() + ".png";
+        return type.getImageFilepath();
     }
 
     public Texture getTexture() {
         return new Texture(getImage());
     }
 
+    public double getProgressBar() {
+        return progressBar;
+    }
+
+    public void setProgressBar(double progressBar) {
+        this.progressBar = progressBar;
+    }
+
+    public CraftingType getType() {
+        return type;
+    }
 }

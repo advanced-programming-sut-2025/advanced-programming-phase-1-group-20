@@ -46,7 +46,7 @@ public enum CropType {
 
     public static CropType fromName(String name) {
         for (CropType cropType : CropType.values()) {
-            if (cropType.getName().equals(name)) {
+            if (cropType.getName().equalsIgnoreCase(name)) {
                 return cropType;
             }
         }

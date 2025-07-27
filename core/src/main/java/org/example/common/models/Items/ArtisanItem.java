@@ -4,10 +4,12 @@ import org.example.common.models.enums.Types.ArtisanType;
 
 public class ArtisanItem extends Item {
     private ArtisanType type;
+    private int proccessingTimeFinal;
 
     public ArtisanItem(ArtisanType type) {
         super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
         this.type = type;
+        proccessingTimeFinal = this.getProcessingTime();
         this.setPlacable(true);
     }
 
@@ -55,5 +57,13 @@ public class ArtisanItem extends Item {
     @Override
     public String getImageFilepath() {
         return "content/Artisanitems/" + getImageFilePath() + ".png";
+    }
+
+    public int getProccessingTimeFinal() {
+        return proccessingTimeFinal;
+    }
+
+    public void setProccessingTimeFinal(int proccessingTimeFinal) {
+        this.proccessingTimeFinal = proccessingTimeFinal;
     }
 }

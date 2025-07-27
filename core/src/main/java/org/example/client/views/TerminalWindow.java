@@ -248,6 +248,8 @@ public class TerminalWindow {
                 return Result.success("Inventory displayed.");
 
             // Cheat commands
+            case CheatAddItem:
+                gameMenuController.cheatAddItem(args);
             case CheatAddFavourites:
                 gameMenuController.cheatAddFavourites(args);
                 return Result.success("Favorites added.");

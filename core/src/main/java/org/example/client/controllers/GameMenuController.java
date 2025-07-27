@@ -20,10 +20,7 @@ import org.example.common.models.common.Result;
 import org.example.common.models.entities.animal.Fish;
 import org.example.common.models.enums.Npcs;
 import org.example.common.models.enums.PlayerEnums.Skills;
-import org.example.common.models.enums.Types.CookingType;
-import org.example.common.models.enums.Types.CraftingType;
-import org.example.common.models.enums.Types.ItemBuilder;
-import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Types.*;
 import org.example.common.models.enums.Weather;
 import org.example.client.views.GameView;
 
@@ -326,7 +323,7 @@ public class GameMenuController implements Controller {
         gMap.getFarmByPlayer(player).placeItem(x, y, item);
 
 
-        if (item instanceof CraftingItem) {
+        if (item instanceof CraftingItem craftingItem) {
             switch (item.getName()) {
                 case "Cherry Bomb" -> {
                     gMap.getFarmByPlayer(player).bomb(x, y, 3);
@@ -351,6 +348,9 @@ public class GameMenuController implements Controller {
                 }
                 case "Deluxe Scarecrow" -> {
                     gMap.getFarmByPlayer(player).setScarecrow(x, y, 12, true);
+                }
+                default -> {
+                    player.addPlacedCraftingItem(craftingItem);
                 }
             }
         }
@@ -1939,6 +1939,14 @@ public class GameMenuController implements Controller {
     }
 
     //cheats:
+    public void cheatAddItem(String[] args){
+        Item item = ItemBuilder.build(args[0]);
+        int amount = Integer.parseInt(args[1]);
+
+        player.getBackpack().add(item, amount);
+    }
+
+
     public void cheatBackPackFull() {
         Player player = App.getGame().getCurrentPlayer();
 
@@ -2065,7 +2073,8 @@ public class GameMenuController implements Controller {
         Item weddingRing = new Item("Wedding Ring", 2000, "content/Crafting/Wedding_Ring.png" , "A special ring for proposing marriage.");
         player.getBackpack().add(weddingRing, 1);
 
-        Item diamond = new Item("Wood", 750, "content/Crafting/Wood.png" ,"A rare and valuable wood.");
+        Mineral diamond = new Mineral(MineralType.Diamond);
+        diamond.setMined(true);
         player.getBackpack().add(diamond, 3);
 
         Item starfruit = new Item("Coffee", 750, "content/ArtisanItems/Coffee.png" , "An exotic, sweet fruit that grows in hot, humid weather.");
