@@ -62,7 +62,7 @@ public enum SeedType {
 
     public static SeedType fromName(String name) {
         for (SeedType type : SeedType.values()) {
-            if (type.getName().equals(name)) return type;
+            if (type.getName().equalsIgnoreCase(name)) return type;
         }
         return null;
     }

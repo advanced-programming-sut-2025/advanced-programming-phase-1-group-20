@@ -88,7 +88,7 @@ public enum PlantType {
 
     public static PlantType fromSeed(String seed) {
         for (PlantType type : PlantType.values()) {
-            if (type.getSeed().equals(seed)) {
+            if (type.getSeed().equalsIgnoreCase(seed)) {
                 return type;
             }
         }

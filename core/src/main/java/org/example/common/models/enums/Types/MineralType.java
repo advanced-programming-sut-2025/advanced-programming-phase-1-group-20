@@ -33,7 +33,7 @@ public enum MineralType {
 
     public static MineralType fromName(String name) {
         for (MineralType type : MineralType.values()) {
-            if (type.getName().equals(name)) {
+            if (type.getName().equalsIgnoreCase(name)) {
                 return type;
             }
         }
