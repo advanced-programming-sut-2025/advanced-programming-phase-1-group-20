@@ -165,7 +165,7 @@ public class App {
     }
 
     public static Item getItem(String itemName) {
-        return items.stream().filter(item -> item.getName().equals(itemName))
+        return items.stream().filter(item -> item.getName().equalsIgnoreCase(itemName))
             .findFirst().orElse(null);
     }
 

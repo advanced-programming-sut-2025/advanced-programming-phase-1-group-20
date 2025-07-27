@@ -625,10 +625,10 @@ public enum Markets {
         List<Product> winterItems = new ArrayList<>();
 
 
-        Item wood = new Item("Wood", 10, "Trees/Wood.png" , "A sturdy, yet flexible plant material with a wide variety of uses.");
+        Item wood = new Mineral(MineralType.Wood);
         items.add(new Product(wood, Double.POSITIVE_INFINITY));
 
-        Item stone = new Item("Stone", 20, "content/Rock/Stone_Index48.png" ,  "A common material with many uses in crafting and building.");
+        Item stone = new Mineral(MineralType.Stone);
         items.add(new Product(stone, Double.POSITIVE_INFINITY));
 
 
