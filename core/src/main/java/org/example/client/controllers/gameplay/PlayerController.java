@@ -280,7 +280,7 @@ public class PlayerController {
             if (tileX >= GameMap.VILLAGE_X && tileX < GameMap.VILLAGE_X + Village.width &&
                 tileY >= GameMap.VILLAGE_Y && tileY < GameMap.VILLAGE_Y + Village.height) {
 
-                // Check for transition to farm
+                // Check for transition to farm (when trying to exit village)
                 if (tileX <= GameMap.VILLAGE_X + VILLAGE_TRANSITION_THRESHOLD ||
                     tileX >= GameMap.VILLAGE_X + Village.width - VILLAGE_TRANSITION_THRESHOLD) {
                     handleVillageToFarmTransition(tileX, tileY);
@@ -298,8 +298,18 @@ public class PlayerController {
                     return loc != null && loc.getTile().isWalkable();
                 }
                 return true;
+            } else {
+                // Target position is outside village - check if it's a farm coordinate and transition
+                System.out.println("Target position outside village - checking if farm coordinate");
+                // Check if the target coordinates are within any farm bounds
+                if (isFarmCoordinate(tileX, tileY)) {
+                    System.out.println("Farm coordinate detected, triggering transition");
+                    handleVillageToFarmTransition(tileX, tileY);
+                    return true;
+                }
+                System.out.println("Not a farm coordinate, movement blocked");
+                return false;
             }
-            return false;
         } else {
             handleInvalidVillagePosition(currentTileX, currentTileY, tileX, tileY);
             return false;
@@ -342,6 +352,25 @@ public class PlayerController {
             return loc != null && loc.getTile().isWalkable();
         }
         return false;
+    }
+
+    private boolean isFarmCoordinate(int tileX, int tileY) {
+        // Check if coordinates are within any farm bounds
+        // Farm 0: (0, 0) to (77, 77) - Top-Left
+        // Farm 1: (0, 78) to (77, 155) - Bottom-Left
+        // Farm 2: (156, 0) to (233, 77) - Top-Right
+        // Farm 3: (156, 78) to (233, 155) - Bottom-Right
+        
+        // Check if coordinates are within any of the farm areas
+        boolean inFarm0 = (tileX >= 0 && tileX < Farm.width && tileY >= 0 && tileY < Farm.height);
+        boolean inFarm1 = (tileX >= 0 && tileX < Farm.width && tileY >= Farm.height && tileY < Farm.height * 2);
+        boolean inFarm2 = (tileX >= Farm.width * 2 && tileX < Farm.width * 3 && tileY >= 0 && tileY < Farm.height);
+        boolean inFarm3 = (tileX >= Farm.width * 2 && tileX < Farm.width * 3 && tileY >= Farm.height && tileY < Farm.height * 2);
+        
+        System.out.println("Farm coordinate check - tileX: " + tileX + ", tileY: " + tileY);
+        System.out.println("Farm 0: " + inFarm0 + ", Farm 1: " + inFarm1 + ", Farm 2: " + inFarm2 + ", Farm 3: " + inFarm3);
+        
+        return inFarm0 || inFarm1 || inFarm2 || inFarm3;
     }
 
     private void handleInvalidVillagePosition(int currentTileX, int currentTileY, int targetTileX, int targetTileY) {
@@ -503,41 +532,68 @@ public class PlayerController {
         int localVillageX = tileX - GameMap.VILLAGE_X;
         int localVillageY = tileY - GameMap.VILLAGE_Y;
         
-        // Determine which farm to transition to based on position
-        int farmIndex;
+        // First, try to get the player's current farm (the one they own)
+        Farm currentFarm = player.getCurrentFarm();
+        int farmIndex = -1;
         int farmX, farmY;
 
-        if (localVillageX <= VILLAGE_TRANSITION_THRESHOLD) {
-            // Exit to left farms (0 or 1)
-            if (localVillageY < Village.height / 2) {
-                farmIndex = 0; // Top-Left farm
-                farmX = Farm.width - 5; // Near right edge of farm
-                farmY = 5; // Near top of farm
-            } else {
-                farmIndex = 1; // Bottom-Left farm
-                farmX = Farm.width - 5; // Near right edge of farm
-                farmY = Farm.height - 5; // Near bottom of farm
-            }
+        // If the player has a current farm, use that one
+        if (currentFarm != null) {
+            farmIndex = currentFarm.getFarmIndex();
+            System.out.println("Using player's current farm: " + farmIndex);
         } else {
-            // Exit to right farms (2 or 3)
-            if (localVillageY < Village.height / 2) {
-                farmIndex = 2; // Top-Right farm
-                farmX = 5; // Near left edge of farm
-                farmY = 5; // Near top of farm
+            // Fallback: determine which farm to transition to based on position
+            if (localVillageX <= VILLAGE_TRANSITION_THRESHOLD) {
+                // Exit to left farms (0 or 1)
+                if (localVillageY < Village.height / 2) {
+                    farmIndex = 0; // Top-Left farm
+                } else {
+                    farmIndex = 1; // Bottom-Left farm
+                }
             } else {
-                farmIndex = 3; // Bottom-Right farm
-                farmX = 5; // Near left edge of farm
-                farmY = Farm.height - 5; // Near bottom of farm
+                // Exit to right farms (2 or 3)
+                if (localVillageY < Village.height / 2) {
+                    farmIndex = 2; // Top-Right farm
+                } else {
+                    farmIndex = 3; // Bottom-Right farm
+                }
             }
+            System.out.println("No current farm, using position-based farm: " + farmIndex);
         }
 
         // Get the target farm
         Farm targetFarm = App.getGame().getGameMap().getFarmByIndex(farmIndex);
-        if (targetFarm == null) return;
+        if (targetFarm == null) {
+            System.out.println("ERROR: Target farm is null for index: " + farmIndex);
+            return;
+        }
 
-        // Set player to farm with global farm coordinates
+        // Set player to farm
         player.setIsInVillage(false);
         player.setCurrentFarm(targetFarm);
+
+        // Calculate farm entrance position based on farm index
+        switch (farmIndex) {
+            case 0: // Top-Left farm - enter at right edge
+                farmX = Farm.width - 5;
+                farmY = 5;
+                break;
+            case 1: // Bottom-Left farm - enter at right edge
+                farmX = Farm.width - 5;
+                farmY = Farm.height - 5;
+                break;
+            case 2: // Top-Right farm - enter at left edge
+                farmX = 5;
+                farmY = 5;
+                break;
+            case 3: // Bottom-Right farm - enter at left edge
+                farmX = 5;
+                farmY = Farm.height - 5;
+                break;
+            default:
+                System.out.println("ERROR: Invalid farm index: " + farmIndex);
+                return;
+        }
 
         // Calculate global farm coordinates based on farm index
         int globalFarmX, globalFarmY;
@@ -559,6 +615,7 @@ public class PlayerController {
                 globalFarmY = 78 + farmY;
                 break;
             default:
+                System.out.println("ERROR: Invalid farm index in global calculation: " + farmIndex);
                 return;
         }
 
@@ -568,7 +625,9 @@ public class PlayerController {
         player.setPosX(globalFarmX * 60);
         player.setPosY(globalFarmY * 60);
 
-        System.out.println("Player walked to farm " + farmIndex + " at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
+        System.out.println("SUCCESS: Player walked to farm " + farmIndex + " at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
+        System.out.println("Player is now in village: " + player.getIsInVillage());
+        System.out.println("Player current farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getFarmIndex() : "null"));
     }
 
     public Player getPlayer() {

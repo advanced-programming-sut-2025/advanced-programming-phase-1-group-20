@@ -75,7 +75,76 @@ public class GameMenuController implements Controller {
     }
 
     public void showInventory() {
-        App.getGame().getCurrentPlayer().getBackpack().showInventory();
+        Player player = App.getGame().getCurrentPlayer();
+        Backpack backpack = player.getBackpack();
+        
+        System.out.println("🎒 INVENTORY CONTENTS 🎒");
+        System.out.println("========================");
+        
+        if (backpack.getInventory().isEmpty()) {
+            System.out.println("Your inventory is empty.");
+            return;
+        }
+        
+        // Group items by type for better organization
+        Map<String, List<Map.Entry<Item, Integer>>> groupedItems = new HashMap<>();
+        
+        for (Map.Entry<Item, Integer> entry : backpack.getInventory().entrySet()) {
+            Item item = entry.getKey();
+            String category = getItemCategory(item);
+            groupedItems.computeIfAbsent(category, k -> new ArrayList<>()).add(entry);
+        }
+        
+        // Display items by category
+        for (String category : groupedItems.keySet()) {
+            System.out.println("\n📂 " + category.toUpperCase() + ":");
+            System.out.println("─".repeat(category.length() + 3));
+            
+            for (Map.Entry<Item, Integer> entry : groupedItems.get(category)) {
+                Item item = entry.getKey();
+                int quantity = entry.getValue();
+                
+                System.out.println("  📦 " + item.getName() + " x" + quantity);
+                
+                // Special display for fish
+                if (item instanceof Fish) {
+                    Fish fish = (Fish) item;
+                    System.out.println("     🐟 Type: " + fish.getType().getName());
+                    System.out.println("     📍 Image: " + fish.getType().getImageFilePath());
+                    System.out.println("     ⭐ Quality: " + fish.getQualityString() + " " + fish.getQualitySymbol());
+                    System.out.println("     💰 Value: " + fish.getBaseSellPrice() + "g");
+                    System.out.println("     🌱 Season: " + fish.getSeason());
+                } else {
+                    System.out.println("     💰 Value: " + item.getBaseSellPrice() + "g");
+                }
+                
+                if (item.getDescription() != null && !item.getDescription().isEmpty()) {
+                    System.out.println("     📝 " + item.getDescription());
+                }
+                System.out.println();
+            }
+        }
+        
+        System.out.println("📊 Total items: " + backpack.countItems());
+        System.out.println("🎒 Backpack type: " + backpack.getType());
+    }
+    
+    private String getItemCategory(Item item) {
+        if (item instanceof Fish) {
+            return "Fish";
+        } else if (item instanceof Tool) {
+            return "Tools";
+        } else if (item instanceof Food) {
+            return "Food";
+        } else if (item instanceof CraftingItem) {
+            return "Crafting";
+        } else if (item instanceof Crop) {
+            return "Crops";
+        } else if (item instanceof Mineral) {
+            return "Minerals";
+        } else {
+            return "Other";
+        }
     }
     // TODO: add items should be checked -> Mostafa
 
@@ -564,7 +633,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    private Result teleportToFarm() {
+    public Result teleportToFarm() {
         Player player = App.getGame().getCurrentPlayer();
         if (!player.getIsInVillage()) {
             return Result.error("You are not in a village");
@@ -575,7 +644,50 @@ public class GameMenuController implements Controller {
         return Result.success("teleported to a farm");
     }
 
-    private Result teleportToVillage() {
+    public Result walkToVillage() {
+        Player player = App.getGame().getCurrentPlayer();
+        if (player.getIsInVillage()) {
+            return Result.error("You are already in the village");
+        }
+        if (!player.canWalkToVillage()) {
+            return Result.error("You need to be near the farm exit to walk to the village");
+        }
+        boolean success = player.walkToVillage();
+        if (success) {
+            return Result.success("You have walked to the village!");
+        } else {
+            return Result.error("Failed to walk to village");
+        }
+    }
+
+    public Result walkToFarm(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+        if (!player.getIsInVillage()) {
+            return Result.error("You are not in the village");
+        }
+        if (args == null || args.length < 1) {
+            return Result.error("Farm index not specified. Use: walk to farm <farmIndex>");
+        }
+        try {
+            int farmIndex = Integer.parseInt(args[0]);
+            if (farmIndex < 0 || farmIndex > 3) {
+                return Result.error("Invalid farm index. Must be 0, 1, 2, or 3");
+            }
+            if (!player.canWalkToFarm(farmIndex)) {
+                return Result.error("You need to be near the village exit to walk to farm " + farmIndex);
+            }
+            boolean success = player.walkToFarm(farmIndex);
+            if (success) {
+                return Result.success("You have walked to Farm " + farmIndex + "!");
+            } else {
+                return Result.error("Failed to walk to farm " + farmIndex);
+            }
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid farm index format");
+        }
+    }
+
+    public Result teleportToVillage() {
         Player player = App.getGame().getCurrentPlayer();
         if (player.getIsInVillage()) {
             return Result.error("You can't teleport to a village because you are in a village");
@@ -618,25 +730,39 @@ public class GameMenuController implements Controller {
 
         List<Fish> caughtFish = lake.fish(player.getSkillLevel(Skills.FISHING), poleMultiplier);
 
+        // Add fish to inventory with proper quantities
         for (Fish fish : caughtFish) {
             player.addItem(fish);
         }
 
+        // Create enhanced result with fish images and quantities
         StringBuilder result = new StringBuilder();
-        result.append("Caught fish (").append(caughtFish.size()).append("):").append("\n");
+        result.append("FISHING RESULTS\n");
+        result.append("=====================\n");
+        result.append("Total fish caught: ").append(caughtFish.size()).append("\n\n");
+        
         for (Fish fish : caughtFish) {
-            result.append("~").append(fish.getInfo()).append("\n");
+            result.append("Fish: ").append(fish.getName()).append(" ").append(fish.getQualitySymbol()).append("\n");
+            result.append("   Image: ").append(fish.getType().getImageFilePath()).append("\n");
+            result.append("   Value: ").append(fish.getBaseSellPrice()).append("g\n");
+            result.append("   Quality: ").append(fish.getQualityString()).append("\n");
+            result.append("   Added to inventory: 1\n");
+            result.append("   Description: ").append(fish.getType().getDescription()).append("\n");
+            result.append("   Season: ").append(fish.getSeason()).append("\n");
+            result.append("   ──────────────────────────\n");
         }
+        
+        result.append("\nAll fish have been added to your inventory!");
+        result.append("\nUse 'show inventory' to see your current items.");
 
         return Result.success(result.toString());
     }
 
-    private Result walk(String[] args) {
+    public Result walk(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
         if (args == null || args.length < 2) {
-
             return Result.error("Coordinates not specified");
         }
 
@@ -644,32 +770,31 @@ public class GameMenuController implements Controller {
             int x = Integer.parseInt(args[0]);
             int y = Integer.parseInt(args[1]);
 
-            if (!gMap.getFarmByPlayer(player).contains(x, y)) {
-                return Result.error("Invalid coordinates");
-            }
-
             Location currentLocation = player.getLocation();
-            Location destination = player.getCurrentFarm().getItem(x, y);
-
-            int energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
-
-            System.out.println("you need" + energyNeeded + " energy to reach your destination, do you want to proceed? (yes|no)");
-
-            String input = "no"; //appView.getInput().toLowerCase();
-
-            if (input.equals("no")) {
-                return Result.success("you declined walk");
-            }
-            else if (!input.equals("yes")) {
-                System.out.println("invalid input, try again");
-            }
-
-
-            if (!player.canUseEnergy(energyNeeded)) {
-                return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
-            }
+            int energyNeeded;
 
             if (!player.getIsInVillage()) {
+                // Player is in farm - check if coordinates are within farm
+                if (!gMap.getFarmByPlayer(player).contains(x, y)) {
+                    return Result.error("Invalid coordinates for farm");
+                }
+                Location destination = player.getCurrentFarm().getItem(x, y);
+                energyNeeded = gMap.getFarmByPlayer(player).calculateEnergyNeeded(currentLocation, destination);
+
+                System.out.println("you need" + energyNeeded + " energy to reach your destination, do you want to proceed? (yes|no)");
+                String input = "no"; //appView.getInput().toLowerCase();
+
+                if (input.equals("no")) {
+                    return Result.success("you declined walk");
+                }
+                else if (!input.equals("yes")) {
+                    System.out.println("invalid input, try again");
+                }
+
+                if (!player.canUseEnergy(energyNeeded)) {
+                    return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
+                }
+
                 if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
                     if (player.getCurrentFarm().walk(x, y) <= 0) {
                         return Result.error("you can't stay on the destination tile");
@@ -682,10 +807,32 @@ public class GameMenuController implements Controller {
                     return Result.error("You don't have enough energy to reach the destination. You collapsed at (" +
                         furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
-            }
-            else {
+            } else {
+                // Player is in village - check if coordinates are within village
+                if (x < GameMap.VILLAGE_X || x >= GameMap.VILLAGE_X + Village.width || 
+                    y < GameMap.VILLAGE_Y || y >= GameMap.VILLAGE_Y + Village.height) {
+                    return Result.error("Invalid coordinates for village. Use 'walk to farm <index>' to go to your farm.");
+                }
+                
+                Location destination = gMap.getVillage().getItem(x - GameMap.VILLAGE_X, y - GameMap.VILLAGE_Y);
+                energyNeeded = gMap.getVillage().calculateEnergyNeeded(currentLocation, destination);
+
+                System.out.println("you need" + energyNeeded + " energy to reach your destination, do you want to proceed? (yes|no)");
+                String input = "no"; //appView.getInput().toLowerCase();
+
+                if (input.equals("no")) {
+                    return Result.success("you declined walk");
+                }
+                else if (!input.equals("yes")) {
+                    System.out.println("invalid input, try again");
+                }
+
+                if (!player.canUseEnergy(energyNeeded)) {
+                    return Result.error("You've used too much energy this turn. Use 'next turn' command to proceed to the next player's turn.");
+                }
+
                 if (player.getEnergy() >= energyNeeded || player.isEnergyUnlimited()) {
-                    if (gMap.getVillage().walk(x, y) <= 0) {
+                    if (gMap.getVillage().walk(x - GameMap.VILLAGE_X, y - GameMap.VILLAGE_Y) <= 0) {
                         return Result.error("you can't stay on the destination tile");
                     }
                     return Result.success("Walked to (" + x + ", " + y + ")");
@@ -697,7 +844,6 @@ public class GameMenuController implements Controller {
                         furthestLocation.xAxis + ", " + furthestLocation.yAxis + ")");
                 }
             }
-
 
         } catch (NumberFormatException e) {
             return Result.error("Invalid coordinates");

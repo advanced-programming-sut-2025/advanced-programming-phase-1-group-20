@@ -113,4 +113,8 @@ public enum FishType {
     public String getDescription() {
         return description;
     }
+
+    public String getImageFilePath() {
+        return imageFilePath;
+    }
 }

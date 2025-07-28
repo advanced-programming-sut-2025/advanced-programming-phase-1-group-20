@@ -13,6 +13,7 @@ public class Building {
     private Player owner;
     private boolean isEnterable;
     private String interiorMapName;
+    private String spritePath;
     private final Refrigerator refrigerator = new Refrigerator();
 
     public Building(int x, int y, String name, String type) {
@@ -89,6 +90,14 @@ public class Building {
 
     public void setEnterable(boolean enterable) {
         isEnterable = enterable;
+    }
+
+    public String getSpritePath() {
+        return spritePath;
+    }
+
+    public void setSpritePath(String spritePath) {
+        this.spritePath = spritePath;
     }
 
     public void printBuildingInfo() {

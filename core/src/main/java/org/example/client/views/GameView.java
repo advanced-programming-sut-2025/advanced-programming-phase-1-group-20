@@ -136,6 +136,9 @@ public class GameView implements Screen, InputProcessor {
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
+    
+    // Fish catch display - will be implemented later
+    // private FishCatchDisplay fishCatchDisplay;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;

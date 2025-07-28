@@ -17,16 +17,16 @@
 - [x] Test all farm-to-village and village-to-farm transitions work properly
 - [x] Verify that paths are visible in both the game world and minimap
 - [ ] Test NPC rendering and verify that all 6 NPCs (Abigail, Pierre, Sebastian, Leah, Willy, Jojo) appear in the village with their sprites
-- [ ] Verify NPC animations work correctly (idle, walk, back, face, fly)
+- [ ] Verify NPC animations work correctly (idle, walk, back, face, up)
 - [x] Test lightning system during storm weather
 - [x] Test manual lightning trigger with 'L' key
 - [x] Verify lightning effects cover the entire screen with proper fade-out
 
 ## Future Tasks
 
-- [ ] Optimize the minimap rendering for better performance
-- [ ] Add more detailed map labels and legend
-- [ ] Add decorative elements along the paths (lampposts, signs, etc.)
+- [x] Optimize the minimap rendering for better performance
+- [x] Add more detailed map labels and legend
+- [x] Add decorative elements along the paths (lampposts, signs, etc.)
 - [ ] Add NPC movement patterns and AI behavior
 - [ ] Add NPC interaction animations and dialogue bubbles
 - [ ] Add thunder sound effects to accompany lightning

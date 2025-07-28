@@ -544,17 +544,36 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
         String resultText;
         if (isVictorious) {
-            resultText = "~Splendid catch! You've mastered the waters!~";
-            resultText += "\nExperience gained: " + xpGained + " points";
-            resultText += "\nHarvested: " + caughtFishQuantity + "x " + caughtFishType.getName();
+            resultText = "SPLENDID CATCH!";
+            resultText += "\nYou've mastered the waters!";
+            resultText += "\n\nRESULTS:";
+            resultText += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+            resultText += "\nFish: " + caughtFishType.getName();
             resultText += "\nQuality: " + getQualityDescription(caughtFishQuality);
+            resultText += "\nBase Value: " + caughtFishType.getBasePrice() + "g";
+            resultText += "\nQuantity: " + caughtFishQuantity;
+            resultText += "\nDescription: " + caughtFishType.getDescription();
+            resultText += "\nSeason: " + caughtFishType.getSeasons()[0];
+            resultText += "\nExperience gained: " + xpGained + " points";
+            resultText += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+            resultText += "\nFish added to your inventory!";
         } else {
-            resultText = "): The fish got away this time...";
+            resultText = "The fish got away this time...";
             resultText += "\nDon't give up, angler!";
+            resultText += "\nTry again with better timing!";
         }
 
         Label label = new Label(resultText, labelStyle);
         Label label1 = new Label(isCatchPerfect ? "~Flawless technique!~" : "Decent effort, keep practicing!", labelStyle);
+
+        // Create fish image display for successful catches
+        Image fishDisplayImage = null;
+        if (isVictorious) {
+            // Load the fish image using the AssetManager
+            Texture fishTexture = AssetManager.getAssetManager().getFishTexture(caughtFishType.getImageFilePath());
+            fishDisplayImage = new Image(fishTexture);
+            fishDisplayImage.setSize(200, 200); // Make it larger and more visible
+        }
 
         Skin buttonSkin = new Skin();
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
@@ -615,6 +634,14 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
         table.center();
         table.add(label);
+        if (isVictorious && fishDisplayImage != null) {
+            table.row();
+            // Add a label above the fish image
+            Label fishImageLabel = new Label("CAUGHT FISH:", labelStyle);
+            table.add(fishImageLabel).pad(10);
+            table.row();
+            table.add(fishDisplayImage).pad(20);
+        }
         if (isVictorious) {
             table.row();
             table.add(label1);
@@ -636,7 +663,44 @@ public class FishingMiniGame implements Screen, InputProcessor {
     }
 
     private void notifyServerOfVictory(int xpGained, FishType caughtFishType, Quality caughtFishQuality, int caughtFishQuantity) {
-        // TODO: Implement server notification
+        // Add fish to player's inventory
+        try {
+            org.example.common.models.Player.Player player = org.example.common.models.App.getGame().getCurrentPlayer();
+            
+            // Convert quality enum to integer for Fish constructor
+            int qualityInt = switch (caughtFishQuality) {
+                case Normal -> 0;
+                case Silver -> 1;
+                case Golden -> 2;
+                case Iridium -> 3;
+            };
+            
+            // Get current season
+            org.example.common.models.enums.Seasons currentSeason = org.example.common.models.App.getGame().getDate().getSeason();
+            
+            // Create fish object and add to inventory
+            org.example.common.models.entities.animal.Fish fish = new org.example.common.models.entities.animal.Fish(
+                caughtFishType, qualityInt, currentSeason
+            );
+            
+            // Add the fish to player's inventory
+            for (int i = 0; i < caughtFishQuantity; i++) {
+                player.addItem(fish);
+            }
+            
+            // Increase player's fishing skill XP
+            // Note: Skills are managed through the updateUnit() method
+            for (int i = 0; i < xpGained; i++) {
+                player.getSkills().get(3).updateUnit(); // Fishing skill is at index 3
+            }
+            
+            System.out.println("🎣 Fish added to inventory: " + caughtFishType.getName() + " x" + caughtFishQuantity);
+            System.out.println("⭐ Quality: " + caughtFishQuality);
+            System.out.println("🎯 XP gained: " + xpGained);
+            
+        } catch (Exception e) {
+            System.err.println("Error adding fish to inventory: " + e.getMessage());
+        }
     }
 
     private void incrementProgress(float delta) {
