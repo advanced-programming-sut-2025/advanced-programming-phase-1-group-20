@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.views.gameplay.CookingScreen;
 import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.common.models.App;
@@ -136,7 +137,7 @@ public class GameView implements Screen, InputProcessor {
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
-    
+
     // Fish catch display - will be implemented later
     // private FishCatchDisplay fishCatchDisplay;
 
@@ -517,7 +518,7 @@ public class GameView implements Screen, InputProcessor {
         // Debug: Log all key presses to help troubleshoot F4 issue
         String keyName = Input.Keys.toString(keycode);
         System.out.println("🔑 Key pressed: " + keycode + " (" + keyName + ") - F4 = " + Input.Keys.F4 + ", F12 = " + Input.Keys.F12);
-        
+
         if (keycode == Input.Keys.M) {
             toggleFullMap();
             return true;
@@ -530,6 +531,10 @@ public class GameView implements Screen, InputProcessor {
         }
         if(keycode == Input.Keys.B){
             Main.getGame().setScreen(new CraftingScreen(player, skin, this));
+            return true;
+        }
+        if(keycode == Input.Keys.C){
+            Main.getGame().setScreen(new CookingScreen(player, skin, this));
             return true;
         }
         if(keycode == Input.Keys.L){
@@ -1001,7 +1006,7 @@ public class GameView implements Screen, InputProcessor {
         if (controller != null && controller.getPlayerController() != null) {
             // Render nickname for current player
             controller.getPlayerController().renderNickname(Main.getBatch(), player, currentLightColor);
-            
+
             // Render nicknames for other players
             for (Player otherPlayer : App.getGame().getPlayers()) {
                 if (otherPlayer != player && otherPlayer.getUser() != null) {
@@ -1314,7 +1319,7 @@ public class GameView implements Screen, InputProcessor {
 
             // Zoom out to show entire map - adjusted zoom level to show all farms clearly
             camera.zoom = 12.0f; // Reduced zoom to show the entire map without being too zoomed out
-            
+
             // Center camera on the entire map center to show all farms and village
             float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
             float totalMapHeight = 156 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
@@ -1500,34 +1505,34 @@ public class GameView implements Screen, InputProcessor {
         try {
             // Capture the current screen
             Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            
+
             // Create a timestamp for the filename
             String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
             String filename = "screenshot_" + timestamp + ".png";
-            
+
             // Save the screenshot to the external storage directory
             String directory = System.getProperty("user.home") + "/Desktop/";
             String filepath = directory + filename;
-            
+
             // Create the directory if it doesn't exist
             java.io.File dir = new java.io.File(directory);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            
+
             // Save the pixmap to a PNG file
             // Use absolute path for better cross-platform compatibility
             com.badlogic.gdx.files.FileHandle fileHandle = Gdx.files.absolute(filepath);
             com.badlogic.gdx.graphics.PixmapIO.writePNG(fileHandle, pixmap);
-            
+
             // Dispose the pixmap to free memory
             pixmap.dispose();
-            
+
             System.out.println("📸 Screenshot saved: " + filepath);
-            
+
             // Show a temporary notification to the user
             showScreenshotNotification();
-            
+
         } catch (Exception e) {
             System.err.println("Failed to take screenshot: " + e.getMessage());
             e.printStackTrace();
@@ -1543,10 +1548,10 @@ public class GameView implements Screen, InputProcessor {
         notificationLabel.setColor(Color.GREEN);
         notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() - 100);
         notificationLabel.setFontScale(1.5f);
-        
+
         // Add the notification to the stage
         stage.addActor(notificationLabel);
-        
+
         // Schedule removal after 2 seconds
         Gdx.app.postRunnable(() -> {
             try {

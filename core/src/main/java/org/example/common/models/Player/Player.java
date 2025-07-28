@@ -725,6 +725,10 @@ public class Player {
         return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
     }
 
+    public boolean cookingExists(String name) {
+        return cookingItems.stream().anyMatch(cookingItem -> cookingItem.getName().equals(name));
+    }
+
     public boolean checkTeleportToVillage() {
         int x = getLocation().getX();
         int y = getLocation().getY();

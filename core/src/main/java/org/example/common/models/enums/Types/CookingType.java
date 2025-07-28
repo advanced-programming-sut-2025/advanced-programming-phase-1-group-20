@@ -20,11 +20,11 @@ public enum CookingType {
     Bread("bread", "1 wheat flour", 50,"" , "Stardrop Saloon" , 60 , "Bread"),
     SalmonDinner("salmon dinner", "1 salmon + 1 Amaranth + 1 Kale", 125, "" , "Leah reward" , 300 , "Salmon_Dinner"),
     VegetableMedley("vegetable medley", "1 tomato + 1 beet", 165,"" , "Foraging Level 2" , 120 , "Vegetable_Medley"),
-    FarmersLunch("farmer's lunch", "1 omelet + 1 parsnip", 200, "Farming (5 hours)" , "Farming level 1" , 150 , "Farmer%27s_Lunch"),
+    FarmersLunch("farmer's lunch", "1 omelet + 1 parsnip", 200, "Farming (5 hours)" , "Farming level 1" , 150 , "Farmers_Lunch"),
     SurvivalBurger("survival burger", "1 bread + 1 carrot + 1 eggplant", 125, "Foraging (5 hours)" , "Foraging level 3" , 180 , "Survival_Burger"),
-    DishOTheSea("dish O' the Sea", "2 sardines + 1 hash browns", 150, "Fishing (5 hours)" , "Fishing level 2" , 220 , "Dish_O%27_The_Sea"),
+    DishOTheSea("dish O' the Sea", "2 sardines + 1 hash browns", 150, "Fishing (5 hours)" , "Fishing level 2" , 220 , "Dish_O_The_Sea"),
     SeaFormPudding("seaform Pudding", "1 Flounder + 1 midnight carp ", 175,"Fishing (10 hours)" , "Fishing level 3" ,  300  , "Seafoam_Pudding"),
-    MinersTreat("miner's treat", "2 carrot + 1 suger +. 1 milk", 125, "Mining (5 hours)" , "Mining level 1" , 200 , "Miner%27s_Treat"),
+    MinersTreat("miner's treat", "2 carrot + 1 suger +. 1 milk", 125, "Mining (5 hours)" , "Mining level 1" , 200 , "Miners_Treat"),
     ;
     private final String name;
     private final String ingredients;
