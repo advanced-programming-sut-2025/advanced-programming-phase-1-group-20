@@ -3,8 +3,10 @@ package org.example.client.controllers.auth;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 //import org.example.client.controllers.WelcomeMenuController;
+import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.views.WelcomeMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
+import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
@@ -63,8 +65,8 @@ public class LoginMenuController {
         screen.showError("Login successful!");
         Gdx.app.postRunnable(() -> {
             getGame().getScreen().dispose();
-//            getGame().setScreen(new MainMenuView(new MainMenuController(),
-//                AssetManager.getAssetManager().getSkin()));
+            getGame().setScreen(new MainMenuScreen(new MainMenuController(),
+                AssetManager.getAssetManager().getSkin()));
         });
     }
 
