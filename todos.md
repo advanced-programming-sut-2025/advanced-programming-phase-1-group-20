@@ -30,4 +30,4 @@
 - [ ] Add NPC movement patterns and AI behavior
 - [ ] Add NPC interaction animations and dialogue bubbles
 - [ ] Add thunder sound effects to accompany lightning
-- [ ] Add more complex lightning patterns (forked lightning, multiple strikes) 
+- [x] Add more complex lightning patterns (forked lightning, multiple strikes) 

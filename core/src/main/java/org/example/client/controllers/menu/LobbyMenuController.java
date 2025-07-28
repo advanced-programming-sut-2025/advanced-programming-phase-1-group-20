@@ -358,11 +358,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
         }
 
         try {
-            Message message = new Message();
-            message.setType(Message.Type.START_LOBBY_GAME);
-
-            System.out.println("Sending START_LOBBY_GAME message");
-            networkClient.sendMessage(message);
+            System.out.println("Starting lobby game...");
+            networkClient.startLobbyGame();
 
             if (view != null) {
                 view.showStatus("Starting game...");

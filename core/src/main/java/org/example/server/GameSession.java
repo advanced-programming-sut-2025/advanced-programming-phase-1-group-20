@@ -27,6 +27,8 @@ public class GameSession {
     private boolean isActive;
 
     public GameSession(User creator) {
+        System.out.println("DEBUG: GameSession constructor called for creator: " + creator.getUsername());
+        
         this.sessionId = UUID.randomUUID().toString();
         this.playerConnections = new ConcurrentHashMap<>();
         this.gameLoop = Executors.newSingleThreadScheduledExecutor();
@@ -35,15 +37,17 @@ public class GameSession {
         this.isActive = false;
 
         // Create game instance with the creator as the first player
+        System.out.println("DEBUG: Creating game instance...");
         List<Player> players = new ArrayList<>();
         Player creatorPlayer = new Player(creator);
         players.add(creatorPlayer);
 
         this.gameInstance = new Game(players, creatorPlayer);
+        System.out.println("DEBUG: Game instance created successfully");
         // Don't set the game in App on server side - this is client-side only
         // App.setGame(this.gameInstance);
 
-        System.out.println("Created new game session: " + sessionId + " for user: " + creator.getUsername());
+        System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
     }
 
     public String getSessionId() {
@@ -67,22 +71,28 @@ public class GameSession {
     }
 
     public boolean addPlayer(PlayerConnection connection, User user) {
+        System.out.println("DEBUG: addPlayer called for user: " + user.getUsername());
+        
         if (isFull()) {
+            System.err.println("DEBUG: Game session is full, cannot add player");
             return false;
         }
 
         // Add player to game instance
+        System.out.println("DEBUG: Adding player to game instance...");
         Player newPlayer = new Player(user);
-        gameInstance.addPlayer(newPlayer);
+        boolean addedToGame = gameInstance.addPlayer(newPlayer);
+        System.out.println("DEBUG: Player added to game instance: " + addedToGame);
 
         // Add connection to session
+        System.out.println("DEBUG: Adding connection to session...");
         playerConnections.put(user.getUsername(), connection);
         connection.setGameSession(this);
 
         // Notify all players about new player
         broadcastPlayerJoined(user.getUsername());
 
-        System.out.println("Player " + user.getUsername() + " joined game session: " + sessionId);
+        System.out.println("DEBUG: Player " + user.getUsername() + " joined game session: " + sessionId);
         return true;
     }
 

@@ -106,7 +106,25 @@ public class Player {
 
         //graphic ui
         this.speed = 5;
-        rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+        
+        // Check if we're in a server environment (Gdx.files is null on server)
+        boolean isServerEnvironment = false;
+        try {
+            // Try to access Gdx.files - if it's null, we're on the server
+            if (com.badlogic.gdx.Gdx.files == null) {
+                isServerEnvironment = true;
+            }
+        } catch (Exception e) {
+            isServerEnvironment = true;
+        }
+        
+        if (isServerEnvironment) {
+            // Server environment - create collision rect with default dimensions
+            rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
+        } else {
+            // Client environment - create collision rect using actual sprite dimensions
+            rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+        }
 
 
         // TODO: delete
@@ -137,13 +155,29 @@ public class Player {
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
-         this.textureSheet = switch (currentFarm.getFarmIndex()) {
-            case 0 -> new Texture("sprites/Alex.png");
-            case 1 -> new Texture("sprites/Birdie.png");
-            case 2 -> new Texture("sprites/Gus.png");
-            case 3 -> new Texture("sprites/Leah.png");
-            default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
-        };
+        
+        // Check if we're in a server environment (Gdx.files is null on server)
+        boolean isServerEnvironment = false;
+        try {
+            // Try to access Gdx.files - if it's null, we're on the server
+            if (com.badlogic.gdx.Gdx.files == null) {
+                isServerEnvironment = true;
+            }
+        } catch (Exception e) {
+            isServerEnvironment = true;
+        }
+        
+        if (!isServerEnvironment) {
+            // Only create textures on client side
+            this.textureSheet = switch (currentFarm.getFarmIndex()) {
+                case 0 -> new Texture("sprites/Alex.png");
+                case 1 -> new Texture("sprites/Birdie.png");
+                case 2 -> new Texture("sprites/Gus.png");
+                case 3 -> new Texture("sprites/Leah.png");
+                default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
+            };
+        }
+        // On server side, textureSheet remains null
     }
 
     public Texture getTextureSheet() {
@@ -920,14 +954,34 @@ public class Player {
     }
 
     public void updatePosition() {
-        getPlayerSprite().setPosition(posX, posY);
+        Sprite sprite = getPlayerSprite();
+        if (sprite != null) {
+            sprite.setPosition(posX, posY);
+        }
         rect.move(posX, posY);
     }
 
     public Sprite getPlayerSprite() {
         if(playerSprite == null) {
-            playerSprite = new Sprite(new Texture(spriteFileLocation));
-            return playerSprite;
+            // Check if we're in a server environment (Gdx.files is null on server)
+            boolean isServerEnvironment = false;
+            try {
+                // Try to access Gdx.files - if it's null, we're on the server
+                if (com.badlogic.gdx.Gdx.files == null) {
+                    isServerEnvironment = true;
+                }
+            } catch (Exception e) {
+                isServerEnvironment = true;
+            }
+            
+            if (isServerEnvironment) {
+                // Server environment - return null or create a dummy sprite
+                // For now, we'll return null since sprites aren't needed on the server
+                return null;
+            } else {
+                // Client environment - create actual sprite
+                playerSprite = new Sprite(new Texture(spriteFileLocation));
+            }
         }
         return playerSprite;
     }
