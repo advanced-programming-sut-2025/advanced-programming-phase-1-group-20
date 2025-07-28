@@ -93,7 +93,7 @@ public class CraftingScreen implements Screen, Disposable {
             Texture hoverTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + "_hover" + ".png");
             hoverCraftingTextures.put(craftingType, hoverTex);
 
-            HoverImage image = new HoverImage(defaultTex, hoverTex);
+            HoverImage image = new HoverImage(defaultTex, hoverTex , 240);
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {

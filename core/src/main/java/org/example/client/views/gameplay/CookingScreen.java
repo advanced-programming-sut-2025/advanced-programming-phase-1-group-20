@@ -87,11 +87,10 @@ public class CookingScreen implements Screen, Disposable {
             }
             defaultCookingTextures.put(cookingType, defaultTex);
 
-//            Texture hoverTex = new Texture("content/CookingItems/" + cookingType.getImageFilepath() + "_hover" + ".png");
-            Texture hoverTex = new Texture("content/CookingItems/" + cookingType.getImageFilepath() + ".png");
+            Texture hoverTex = new Texture("content/CookingItems/" + cookingType.getImageFilepath() + "_hover" + ".png");
             hoverCookingTextures.put(cookingType, hoverTex);
 
-            HoverImage image = new HoverImage(defaultTex, hoverTex);
+            HoverImage image = new HoverImage(defaultTex, hoverTex, 240f);
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
