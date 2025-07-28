@@ -118,8 +118,8 @@ public class GameSession {
     }
 
     public void startGame() {
-        if (playerConnections.size() < 2) {
-            System.out.println("Cannot start game with less than 2 players");
+        if (playerConnections.size() < 1) {
+            System.out.println("Cannot start game with less than 1 player");
             return;
         }
 
@@ -152,8 +152,12 @@ public class GameSession {
     }
 
     public void processMessage(String username, Message message) {
-        if (!isActive && message.getType() != Message.Type.START_GAME) {
-            return; // Only allow start game messages before game is active
+        System.out.println("DEBUG: GameSession.processMessage - username: " + username + ", message type: " + message.getType() + ", isActive: " + isActive);
+        
+        // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
+        if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
+            System.out.println("DEBUG: Game not active, ignoring message type: " + message.getType());
+            return; // Only allow start game and farm selection messages before game is active
         }
 
         switch (message.getType()) {
@@ -176,6 +180,7 @@ public class GameSession {
                 handleTradeRequest(username, message);
                 break;
             case SELECT_FARM:
+                System.out.println("DEBUG: Routing SELECT_FARM message to handleFarmSelection");
                 handleFarmSelection(username, message);
                 break;
             case START_GAME:
@@ -263,28 +268,36 @@ public class GameSession {
     }
 
     private void handleFarmSelection(String username, Message message) {
+        System.out.println("DEBUG: handleFarmSelection called for username: " + username);
         int farmIndex = message.getIntFromBody("farmIndex");
+        System.out.println("DEBUG: Farm index requested: " + farmIndex);
+        
         Player player = gameInstance.getPlayerByUsername(username);
         
         if (player == null) {
-            System.err.println("Player not found: " + username);
+            System.err.println("DEBUG: Player not found: " + username);
             return;
         }
+        System.out.println("DEBUG: Player found: " + player.getUser().getUsername());
 
         // Check if farm index is valid (0-3)
         if (farmIndex < 0 || farmIndex > 3) {
+            System.err.println("DEBUG: Invalid farm index: " + farmIndex);
             sendErrorMessage(username, "Invalid farm index. Must be between 0 and 3.");
             return;
         }
 
-        // Check if farm index is available
-        if (!gameInstance.isFarmIndexAvailable(farmIndex)) {
-            sendErrorMessage(username, "Farm index " + farmIndex + " is already taken.");
+        // Check if farm index is available (allow players to change their own selection)
+        if (!gameInstance.isFarmIndexAvailable(farmIndex, player)) {
+            System.err.println("DEBUG: Farm index " + farmIndex + " is already taken by another player");
+            sendErrorMessage(username, "Farm index " + farmIndex + " is already taken by another player.");
             return;
         }
+        System.out.println("DEBUG: Farm index " + farmIndex + " is available");
 
         // Select the farm for the player
         gameInstance.selectFarm(player, farmIndex);
+        System.out.println("DEBUG: Farm " + farmIndex + " selected for player " + username);
         
         // Create response message
         Message response = new Message();
@@ -294,11 +307,13 @@ public class GameSession {
         response.putInBody("availableFarms", gameInstance.getAvailableFarmIndices());
         response.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
         
+        System.out.println("DEBUG: Broadcasting FARM_SELECTION_UPDATE to all players");
         // Broadcast to all players
         broadcastToAll(response);
         
         // Check if all players have selected farms
         if (gameInstance.allPlayersSelectedFarm()) {
+            System.out.println("DEBUG: All players have selected farms, initializing game");
             // Initialize the game with selected farms
             gameInstance.initializeMultiplayerGame();
             
@@ -320,6 +335,8 @@ public class GameSession {
             broadcastFullGameState();
             
             System.out.println("Farm selection complete - Game fully initialized for session: " + sessionId);
+        } else {
+            System.out.println("DEBUG: Not all players have selected farms yet");
         }
     }
 
@@ -335,10 +352,12 @@ public class GameSession {
     }
 
     private void broadcastToAll(Message message) {
+        System.out.println("DEBUG: broadcastToAll - message type: " + message.getType() + ", player connections: " + playerConnections.size());
         String messageJson = gson.toJson(message);
         playerConnections.values().forEach(connection -> {
             connection.sendMessage(messageJson);
         });
+        System.out.println("DEBUG: broadcastToAll - message sent to all players");
     }
 
     private void broadcastToOthers(String excludeUsername, Message message) {

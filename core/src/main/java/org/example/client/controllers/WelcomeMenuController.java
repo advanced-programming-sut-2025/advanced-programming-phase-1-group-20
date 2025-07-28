@@ -15,7 +15,6 @@ import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.menu.WelcomeMenuScreen;
-import org.example.client.views.FarmSelectionScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,15 +84,25 @@ public class WelcomeMenuController {
         Game game = new Game(players, player1);
         App.setGame(game);
 
-        // Create GameMap but don't assign farms yet - wait for farm selection
         GameMap map = new GameMap();
+        Farm farm1 = new Farm("guest farm" , player1 , true , 0);
+        player1.setCurrentFarm(farm1);
+        map.addFarm(farm1);
+        Farm farm2 = new Farm("guest farm" , player2 , false , 1);
+        player2.setCurrentFarm(farm2);
+        map.addFarm(farm2);
+        Farm farm3 = new Farm("guest farm" , player3 , true , 2);
+        player3.setCurrentFarm(farm3);
+        map.addFarm(farm3);
+        Farm farm4 = new Farm("guest farm" , player4 , false , 3);
+        player4.setCurrentFarm(farm4);
+        map.addFarm(farm4);
+
         game.setGameMap(map);
 
-        // Set the current user for the farm selection screen
-        App.setLoggedInUser(user1);
+        map.updateTilesFromRegions();
 
-        // Show farm selection screen instead of directly going to game
-        FarmSelectionScreen farmSelectionScreen = new FarmSelectionScreen();
-        getGame().setScreen(farmSelectionScreen);
+        GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
+        getGame().setScreen(gameMenuScreen);
     }
 }

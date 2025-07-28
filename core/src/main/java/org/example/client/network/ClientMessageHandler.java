@@ -62,7 +62,7 @@ public class ClientMessageHandler {
     
     private void processMessage(Message message) {
         try {
-            System.out.println("DEBUG: Processing message type: " + message.getType());
+            System.out.println("DEBUG: Processing message type: " + message.getType() + " with body: " + message.getBody());
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -104,9 +104,11 @@ public class ClientMessageHandler {
                     handleGameStarted(message);
                     break;
                 case FARM_SELECTION_UPDATE:
+                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_UPDATE message");
                     handleFarmSelectionUpdate(message);
                     break;
                 case FARM_SELECTION_COMPLETE:
+                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_COMPLETE message");
                     handleFarmSelectionComplete(message);
                     break;
                 // Lobby-related message types
@@ -186,10 +188,15 @@ public class ClientMessageHandler {
         Object playerSelections = message.getFromBody("playerSelections");
         
         System.out.println("DEBUG: Player " + username + " selected farm " + farmIndex);
+        System.out.println("DEBUG: Available farms: " + availableFarms);
+        System.out.println("DEBUG: Player selections: " + playerSelections);
         
         // Forward to lobby listener for UI updates
         if (lobbyListener != null) {
+            System.out.println("DEBUG: Forwarding FARM_SELECTION_UPDATE to lobby listener");
             lobbyListener.onLobbyMessage(message);
+        } else {
+            System.out.println("DEBUG: No lobby listener set for FARM_SELECTION_UPDATE");
         }
     }
 

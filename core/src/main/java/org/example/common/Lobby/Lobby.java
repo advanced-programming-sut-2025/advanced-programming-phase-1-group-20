@@ -117,7 +117,7 @@ public class Lobby {
     }
 
     public boolean canStartGame() {
-        return status == LobbyStatus.WAITING && players.size() >= 2;
+        return status == LobbyStatus.WAITING && players.size() >= 1;
     }
 
     public void updateActivity() {
