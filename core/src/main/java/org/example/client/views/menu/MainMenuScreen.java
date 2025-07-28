@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.controllers.menu.MainMenuController;
 import org.example.utils.AssetManager;
 import com.badlogic.gdx.graphics.Color;
+import java.util.List;
 
 public class MainMenuScreen implements Screen {
     private final MainMenuController controller;
@@ -132,6 +133,10 @@ public class MainMenuScreen implements Screen {
 
     public void showError(String message) {
         errorLabel.setText(message);
+    }
+
+    public void updateOnlinePlayersList(List<Object> players) {
+        // Stub method - online players functionality moved to multiplayer menu
     }
 
     @Override

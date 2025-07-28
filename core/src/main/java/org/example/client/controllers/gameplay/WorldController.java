@@ -42,6 +42,7 @@ public class WorldController {
     private List<Location> houseAnchors;
     private List<Location> barnAnchors;
     private List<Location> coopAnchors;
+    private List<Location> goldClockAnchors;
 
     //Markets
     private List<Location> blacksmith;
@@ -63,6 +64,8 @@ public class WorldController {
     private static final int BARN_TILES_H = 3;
     private static final int COOP_TILES_W = 3;
     private static final int COOP_TILES_H = 3;
+    private static final int GOLD_CLOCK_TILES_W = 3;
+    private static final int GOLD_CLOCK_TILES_H = 5;
 
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
@@ -81,6 +84,7 @@ public class WorldController {
         this.houseAnchors = new ArrayList<>();
         this.barnAnchors = new ArrayList<>();
         this.coopAnchors = new ArrayList<>();
+        this.goldClockAnchors = new ArrayList<>();
 
         // Initialize markets anchor collections
         this.blacksmith = new ArrayList<>();
@@ -135,6 +139,9 @@ public class WorldController {
         loadTexture("fishshop" , "content/map_elements/Fish_Shop.png");
         loadTexture("marnieshop" , "content/map_elements/Ranch.png");
         loadTexture("stardropsaloon" , "content/map_elements/Saloon.png");
+
+        // Clock texture
+        loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
         preloadArtisans();
@@ -280,7 +287,7 @@ public class WorldController {
             camera.position.set(cameraX, cameraY, 0);
             camera.update();
         }
-        
+
         Main.getBatch().setProjectionMatrix(camera.combined);
 
         renderedBuildings.clear();
@@ -288,6 +295,7 @@ public class WorldController {
         houseAnchors.clear();
         barnAnchors.clear();
         coopAnchors.clear();
+        goldClockAnchors.clear();
 
         blacksmith.clear();
         jojaMart.clear();
@@ -385,9 +393,11 @@ public class WorldController {
         Set<String> fishShopTiles = new HashSet<>();
         Set<String> marnieShopTiles = new HashSet<>();
         Set<String> starDropSaloonTiles = new HashSet<>();
+        Set<String> goldClockTiles = new HashSet<>();
 
 
         collectMarketTiles(blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
+        collectClockTiles(goldClockTiles);
 
 
 
@@ -417,6 +427,7 @@ public class WorldController {
                 }
 
                 detectMarketAnchors(location , x , y ,tileType ,  blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
+                detectClockAnchors(location, x, y, goldClockTiles);
 
                 // Render items if present
                 Item item = location.getItem();
@@ -519,6 +530,19 @@ public class WorldController {
         }
     }
 
+    private void collectClockTiles(Set<String> goldClockTiles) {
+        Village village = App.getGame().getGameMap().getVillage();
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location location = village.getItem(x, y);
+                if (location != null && location.getType() != null && location.getType().equals("gold_clock")) {
+                    String tileKey = x + "," + y;
+                    goldClockTiles.add(tileKey);
+                }
+            }
+        }
+    }
+
     private void detectBuildingAnchors(Location location, int x, int y, TileType tileType,
                                        Set<String> greenhouseTiles, Set<String> houseTiles,
                                        Set<String> barnTiles, Set<String> coopTiles) {
@@ -562,6 +586,13 @@ public class WorldController {
             case STARDROP_SALOON:
                 detectStarDropSaloon(location, x, y, starDropSaloonTiles);
                 break;
+        }
+    }
+
+    private void detectClockAnchors(Location location, int x, int y, Set<String> goldClockTiles) {
+        String tileKey = x + "," + y;
+        if (goldClockTiles.contains(tileKey)) {
+            detectGoldClockAnchor(location, x, y, goldClockTiles);
         }
     }
 
@@ -711,6 +742,16 @@ public class WorldController {
         }
     }
 
+    private void detectGoldClockAnchor(Location location, int x, int y, Set<String> goldClockTiles) {
+        // For 3x3 clock, detect the top-left corner
+        boolean hasLeft = goldClockTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = goldClockTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            goldClockAnchors.add(location);
+        }
+    }
+
     private void renderBuildings() {
         for (Location anchor : greenhouseAnchors) {
             renderGreenhouseAtAnchor(anchor);
@@ -726,6 +767,10 @@ public class WorldController {
 
         for (Location anchor : coopAnchors) {
             renderCoopAtAnchor(anchor);
+        }
+
+        for (Location anchor : goldClockAnchors) {
+            renderGoldClockAtAnchor(anchor);
         }
     }
 
@@ -848,6 +893,21 @@ public class WorldController {
         if (texture != null) {
             Main.getBatch().draw(texture, drawX, drawY,
                 TILE_SIZE * COOP_TILES_W, TILE_SIZE * COOP_TILES_H);
+        }
+    }
+
+    private void renderGoldClockAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        // Use global coordinates for village clock
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        Texture texture = getTexture("gold_clock");
+        if (texture != null) {
+            Main.getBatch().draw(texture, drawX, drawY,
+                TILE_SIZE * GOLD_CLOCK_TILES_W, TILE_SIZE * GOLD_CLOCK_TILES_H);
         }
     }
     private void renderBlackSmithAtAnchor(Location anchor) {
@@ -1119,9 +1179,7 @@ public class WorldController {
         textureCache.clear();
     }
 
-    /**
-     * Render all players in the game, not just the current player
-     */
+
     private void renderAllPlayers() {
         Game game = App.getGame();
         if (game == null || game.getPlayers() == null) {

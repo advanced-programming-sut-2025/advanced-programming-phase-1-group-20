@@ -122,10 +122,15 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
     // Game actions
     public void createMultiplayerGame() {
+        System.out.println("DEBUG: createMultiplayerGame() called, currentState: " + currentState);
         if (currentState == ConnectionState.AUTHENTICATED) {
             User currentUser = getAuthenticatedUser();
             String lobbyName = currentUser != null ? currentUser.getUsername() + "'s Lobby" : "New Lobby";
+            System.out.println("DEBUG: About to call networkClient.createLobby() with name: " + lobbyName);
             networkClient.createLobby(lobbyName, false, true, null);
+            System.out.println("DEBUG: networkClient.createLobby() called");
+        } else {
+            System.out.println("DEBUG: Not authenticated, cannot create multiplayer game");
         }
     }
 
@@ -145,6 +150,12 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
         if (currentState == ConnectionState.IN_GAME) {
             networkClient.leaveGame();
             currentState = ConnectionState.AUTHENTICATED;
+        }
+    }
+
+    public void requestLobbyList() {
+        if (currentState == ConnectionState.AUTHENTICATED) {
+            networkClient.requestLobbyList();
         }
     }
 
@@ -278,6 +289,10 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
     public User getAuthenticatedUser() {
         return networkClient.getAuthenticatedUser();
+    }
+
+    public NetworkClient getNetworkClient() {
+        return networkClient;
     }
 
     // Utility methods for UI

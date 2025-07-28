@@ -18,8 +18,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.menu.LobbyMenuController;
 import org.example.client.controllers.MultiplayerMenuController;
+import org.example.client.views.MultiplayerMenuScreen;
 import org.example.common.Lobby.Lobby;
 import org.example.common.Lobby.LobbyPlayer;
+import org.example.common.models.Message;
 
 import java.util.List;
 
@@ -103,6 +105,12 @@ public class LobbyMenuScreen implements Screen {
     }
 
     private void setupHeader() {
+        // Breadcrumb navigation
+        Label breadcrumbLabel = new Label("Main Menu > Multiplayer > Lobby Menu", skin);
+        breadcrumbLabel.setColor(Color.LIGHT_GRAY);
+        breadcrumbLabel.setFontScale(0.8f);
+        breadcrumbLabel.setAlignment(Align.left);
+
         titleLabel = new Label("LOBBY MENU", skin);
         titleLabel.setColor(new Color(0.2f, 0.8f, 1.0f, 1.0f)); // Cyan blue
         titleLabel.setFontScale(1.8f);
@@ -234,6 +242,13 @@ public class LobbyMenuScreen implements Screen {
     }
 
     private void layoutMainTable() {
+        // Breadcrumb
+        Label breadcrumbLabel = new Label("Main Menu > Multiplayer > Lobby Menu", skin);
+        breadcrumbLabel.setColor(Color.LIGHT_GRAY);
+        breadcrumbLabel.setFontScale(0.8f);
+        breadcrumbLabel.setAlignment(Align.left);
+        mainTable.add(breadcrumbLabel).fillX().padBottom(10).row();
+
         // Header
         Table headerTable = new Table();
         headerTable.add(titleLabel).expandX().center();
@@ -448,7 +463,7 @@ public class LobbyMenuScreen implements Screen {
     public void onLobbyCreated(Lobby lobby) {
         setCurrentLobby(lobby);
         clearCreateForm();
-        showStatus("Lobby created successfully!");
+        showStatus("Lobby created successfully! ID: " + lobby.getId());
     }
 
     public void onLobbyJoined(Lobby lobby) {

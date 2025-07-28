@@ -109,6 +109,7 @@ public class NetworkClient {
                     System.out.println("Received: " + messageText);
 
                     try {
+                        System.out.println("Received: " + messageText);
                         Message message = gson.fromJson(messageText, Message.class);
                         incomingMessages.offer(message);
 
@@ -129,7 +130,9 @@ public class NetworkClient {
 
                 @Override
                 public void onError(java.net.http.WebSocket webSocket, Throwable error) {
-                    System.err.println("WebSocket error: " + error.getMessage());
+                    String errorMessage = "WebSocket error: " + error.getMessage();
+                    System.err.println(errorMessage);
+                    setLastErrorMessage(errorMessage);
                     connectionState = ConnectionState.ERROR;
                     java.net.http.WebSocket.Listener.super.onError(webSocket, error);
                 }
@@ -153,7 +156,9 @@ public class NetworkClient {
             return true;
 
         } catch (java.util.concurrent.TimeoutException e) {
-            System.err.println("Connection timeout: Server did not respond within 5 seconds");
+            String errorMessage = "Connection timeout: Server did not respond within 5 seconds";
+            System.err.println(errorMessage);
+            setLastErrorMessage(errorMessage);
             connectionState = ConnectionState.ERROR;
             return false;
         } catch (Exception e) {
@@ -163,12 +168,17 @@ public class NetworkClient {
                     errorMessage = "Connection refused: Server is not running or not accessible at " + serverHost + ":" + serverPort;
                 } else if (e.getMessage().contains("Unknown host")) {
                     errorMessage = "Unknown host: Cannot resolve server address " + serverHost;
+                } else if (e.getMessage().contains("Network is unreachable")) {
+                    errorMessage = "Network is unreachable: Check your network connection and firewall settings";
+                } else if (e.getMessage().contains("No route to host")) {
+                    errorMessage = "No route to host: The server address " + serverHost + " is not reachable";
                 } else {
                     errorMessage = "Connection error: " + e.getMessage();
                 }
             }
             System.err.println(errorMessage);
             e.printStackTrace();
+            setLastErrorMessage(errorMessage);
             connectionState = ConnectionState.ERROR;
             return false;
         }
@@ -200,23 +210,28 @@ public class NetworkClient {
             if (message != null) {
                 try {
                     String messageJson = gson.toJson(message);
-                    System.out.println("Sending: " + messageJson);
+                    System.out.println("DEBUG: processOutgoingMessages - Sending: " + messageJson);
 
                     // Send via WebSocket
                     webSocket.sendText(messageJson, true);
+                    System.out.println("DEBUG: processOutgoingMessages - Message sent via WebSocket");
 
                 } catch (Exception e) {
-                    System.err.println("Failed to send message: " + e.getMessage());
+                    System.err.println("DEBUG: processOutgoingMessages - Failed to send message: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }
     }
 
     public void sendMessage(Message message) {
+        System.out.println("DEBUG: sendMessage() called with type: " + message.getType() + ", connectionState: " + connectionState);
         if (connectionState == ConnectionState.CONNECTED ||
             connectionState == ConnectionState.AUTHENTICATED) {
             outgoingMessages.offer(message);
+            System.out.println("DEBUG: Message added to outgoing queue. Queue size: " + outgoingMessages.size());
         } else {
+            System.out.println("DEBUG: Cannot send message: not connected to server (state: " + connectionState + ")");
             System.err.println("Cannot send message: not connected to server (state: " + connectionState + ")");
         }
     }
@@ -300,11 +315,14 @@ public class NetworkClient {
     }
 
     public void createLobby(String lobbyName, boolean isPrivate, boolean isVisible, String password) {
+        System.out.println("DEBUG: createLobby() called with name: " + lobbyName + ", isPrivate: " + isPrivate + ", isVisible: " + isVisible);
         if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.out.println("DEBUG: Not authenticated, cannot create lobby. ConnectionState: " + connectionState);
             System.err.println("Cannot create lobby: not authenticated (state: " + connectionState + ")");
             return;
         }
 
+        System.out.println("DEBUG: Creating CREATE_LOBBY message");
         Message createLobbyMessage = new Message();
         createLobbyMessage.setType(Message.Type.CREATE_LOBBY);
         createLobbyMessage.putInBody("lobbyName", lobbyName != null ? lobbyName : authenticatedUser.getUsername() + "'s Lobby");
@@ -315,8 +333,9 @@ public class NetworkClient {
         }
         createLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
 
+        System.out.println("DEBUG: About to send CREATE_LOBBY message");
         sendMessage(createLobbyMessage);
-        System.out.println("Lobby creation request sent: " + lobbyName);
+        System.out.println("DEBUG: CREATE_LOBBY message sent: " + lobbyName);
     }
 
     public void joinGame(String gameId) {
@@ -344,6 +363,19 @@ public class NetworkClient {
         leaveGameMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(leaveGameMessage);
+    }
+
+    public void requestLobbyList() {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message listLobbiesMessage = new Message();
+        listLobbiesMessage.setType(Message.Type.LIST_LOBBIES);
+        listLobbiesMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(listLobbiesMessage);
+        System.out.println("DEBUG: Lobby list request sent");
     }
 
     public void update() {
@@ -417,9 +449,13 @@ public class NetworkClient {
         return messageHandler;
     }
 
+    private String lastErrorMessage = "Network connection error";
+
     public String getLastErrorMessage() {
-        // This method can be used to get the last error message from the network client
-        // For now, we'll return a generic message since we don't store specific errors
-        return "Network connection error";
+        return lastErrorMessage;
+    }
+
+    private void setLastErrorMessage(String errorMessage) {
+        this.lastErrorMessage = errorMessage;
     }
 }

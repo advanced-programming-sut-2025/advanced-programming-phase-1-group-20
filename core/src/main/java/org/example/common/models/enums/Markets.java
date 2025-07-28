@@ -30,7 +30,7 @@ public enum Markets {
 
     private static Market creatBlackSmith() {
         int x = 35;  // Center-left of village (78/2 - 4)
-        int y = 75;  // Upper-middle area of village
+        int y = 130;  // Upper area of village
         TileType tileType = TileType.BlackSmith;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -88,7 +88,7 @@ public enum Markets {
 
     private static Market createJojaMarket() {
         int x = 40;  // Center-right of village (78/2 + 1)
-        int y = 75;  // Upper-middle area of village
+        int y = 130;  // Upper area of village
         TileType tileType = TileType.JojaMart;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -285,7 +285,7 @@ public enum Markets {
 
     private static Market createPierreGeneralStore() {
         int x = 30;  // Left side of village center
-        int y = 90;  // Middle area of village
+        int y = 125;  // Upper area of village
         TileType tileType = TileType.PIERRE_GENERAL_STORE;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -616,7 +616,7 @@ public enum Markets {
 
     private static Market createCarpentersShop() {
         int x = 45;  // Right side of village center
-        int y = 90;  // Middle area of village
+        int y = 125;  // Upper area of village
         TileType tileType = TileType.CARPENTERS_SHOP;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -668,7 +668,7 @@ public enum Markets {
 
     private static Market createMarnieShop() {
         int x = 25;  // Left side of village center
-        int y = 105; // Lower-middle area of village
+        int y = 135; // Upper area of village
         TileType tileType = TileType.MARNIE_SHOP;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -723,7 +723,7 @@ public enum Markets {
 
     private static Market createStarDropSaloon() {
         int x = 50;  // Right side of village center
-        int y = 105; // Lower-middle area of village
+        int y = 135; // Upper area of village
         TileType tileType = TileType.STARDROP_SALOON;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();
@@ -802,7 +802,7 @@ public enum Markets {
 
     private static Market createFishShop() {
         int x = 37;  // Center of village
-        int y = 120; // Lower area of village
+        int y = 140; // Upper area of village
         TileType tileType = TileType.FISH_SHOP;
         List<Product> items = new ArrayList<>();
         List<Product> springItems = new ArrayList<>();

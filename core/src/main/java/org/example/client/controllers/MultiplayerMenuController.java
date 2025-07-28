@@ -17,7 +17,7 @@ import org.example.utils.AssetManager;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class MultiplayerMenuController implements Controller, ClientMessageHandler.OnlinePlayersListener {
+public class MultiplayerMenuController implements Controller, ClientMessageHandler.OnlinePlayersListener, ClientMessageHandler.LobbyMessageListener {
     private MultiplayerMenuScreen view;
     private final ConnectionManager connectionManager;
 
@@ -34,7 +34,7 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
     @Override
     public void setupListeners() {
-
+        connectionManager.getNetworkClient().getMessageHandler().setLobbyListener(this);
     }
 
     public void connectToServer(String host, int port) {
@@ -102,23 +102,29 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
     }
 
     public void createGame() {
-        if (!connectionManager.canCreateGame()) {
+        System.out.println("DEBUG: createGame() called - redirecting to lobby creation");
+        if (!connectionManager.isAuthenticated()) {
+            System.out.println("DEBUG: Cannot create lobby - not authenticated");
             if (view != null) {
-                view.showError("Cannot create game - not authenticated");
+                view.showError("Cannot create lobby - not authenticated");
             }
             return;
         }
 
+        System.out.println("DEBUG: About to call connectionManager.createLobby()");
         if (view != null) {
-            view.updateStatus("Creating game...", com.badlogic.gdx.graphics.Color.YELLOW);
+            view.updateStatus("Creating lobby...", com.badlogic.gdx.graphics.Color.YELLOW);
         }
 
-        connectionManager.createMultiplayerGame();
+        // Create a lobby instead of a game session
+        User currentUser = connectionManager.getAuthenticatedUser();
+        String lobbyName = currentUser != null ? currentUser.getUsername() + "'s Lobby" : "New Lobby";
+        connectionManager.createLobby(lobbyName, false, true, null);
+        System.out.println("DEBUG: createLobby() called");
 
-        // Note: The actual game creation response will be handled by the ConnectionManager listeners
-        // For now, we'll show a temporary message
+        // Note: The actual lobby creation response will be handled by the ConnectionManager listeners
         if (view != null) {
-            view.showGameCreated("Pending...");
+            view.showGameCreated("Lobby creation pending...");
         }
     }
 
@@ -144,7 +150,6 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
         connectionManager.joinMultiplayerGame(gameId);
 
         // Note: The actual game join response will be handled by the ConnectionManager listeners
-        // For now, we'll show a temporary message
         if (view != null) {
             view.showGameJoined(gameId);
         }
@@ -181,10 +186,8 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
     }
 
     public void goBackToMainMenu() {
-        // Disconnect if connected
-        if (connectionManager.isConnected()) {
-            connectionManager.disconnect();
-        }
+        // Don't disconnect - keep connection alive for online players list
+        // Only disconnect if explicitly requested
 
         // Navigate back to main menu
         User loggedInUser = App.getLoggedInUser();
@@ -200,6 +203,14 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
             org.example.client.views.WelcomeMenuScreen welcomeScreen = new org.example.client.views.WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
             Main.getGame().setScreen(welcomeScreen);
         }
+    }
+
+    public void disconnectAndGoBack() {
+        // Explicitly disconnect when user wants to go offline
+        if (connectionManager.isConnected()) {
+            connectionManager.disconnect();
+        }
+        goBackToMainMenu();
     }
 
     // Utility methods for the view
@@ -238,6 +249,12 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
         }
     }
 
+    public void requestLobbyList() {
+        if (connectionManager.isAuthenticated()) {
+            connectionManager.requestLobbyList();
+        }
+    }
+
     public void handleOnlinePlayersListUpdate(List<Object> playersList) {
         if (view != null && playersList != null) {
             view.updateOnlinePlayersList(playersList);
@@ -248,5 +265,27 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
     @Override
     public void onOnlinePlayersUpdate(List<Object> players) {
         handleOnlinePlayersListUpdate(players);
+    }
+
+    @Override
+    public void onLobbyMessage(Message message) {
+        System.out.println("DEBUG: MultiplayerMenuController.onLobbyMessage() called with type: " + message.getType());
+        String messageText = message.getFromBody("message");
+
+        if (messageText != null && messageText.contains("Lobby created successfully")) {
+            System.out.println("DEBUG: Lobby created successfully!");
+            if (view != null) {
+                view.updateStatus("Lobby created successfully!", com.badlogic.gdx.graphics.Color.GREEN);
+            }
+        }
+
+        // Handle lobby list response
+        if (messageText != null && messageText.contains("Lobby list retrieved")) {
+            System.out.println("DEBUG: Lobby list received!");
+            Object lobbies = message.getFromBody("lobbies");
+            if (lobbies != null && view != null) {
+                view.updateLobbyList((List<Object>) lobbies);
+            }
+        }
     }
 }

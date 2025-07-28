@@ -47,6 +47,7 @@ public class LobbyManager {
     // =====================
 
     public Lobby createLobby(String lobbyName, String creatorId, LobbySettings settings) {
+        System.out.println("DEBUG: LobbyManager.createLobby() called with name: " + lobbyName + ", creator: " + creatorId);
         Lobby lobby = new Lobby(lobbyName, creatorId);
         lobby.setSettings(settings);
 
@@ -59,7 +60,8 @@ public class LobbyManager {
         lobbies.put(lobby.getId(), lobby);
         playerToLobbyMap.put(creatorId, lobby.getId());
 
-        System.out.println("Created lobby: " + lobby.getId() + " (" + lobbyName + ") by " + creatorId);
+        System.out.println("DEBUG: LobbyManager - Created lobby: " + lobby.getId() + " (" + lobbyName + ") by " + creatorId);
+        System.out.println("DEBUG: LobbyManager - Total lobbies now: " + lobbies.size());
         return lobby;
     }
 

@@ -3,21 +3,36 @@ package org.example.client.controllers.menu;
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.controllers.MultiplayerMenuController;
 import org.example.client.controllers.ProfileMenuController;
+import org.example.client.network.ClientMessageHandler;
+import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
 import org.example.client.views.ProfileMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
+import org.example.common.models.Message;
 import org.example.client.controllers.auth.LoginMenuController;
 import org.example.utils.AssetManager;
 import org.example.client.views.menu.MainMenuScreen;
 
+import java.util.List;
+
 import static org.example.client.Main.getGame;
 
-public class MainMenuController {
+public class MainMenuController implements ClientMessageHandler.OnlinePlayersListener {
     private MainMenuScreen view;
     private int currentImageIndex = 0;
     private float timeSinceLastChange = 0;
     private static final float IMAGE_CHANGE_INTERVAL = 0.1f;
+    private final NetworkClient networkClient;
+    private final ClientMessageHandler messageHandler;
+
+    public MainMenuController() {
+        this.networkClient = NetworkClient.getInstance();
+        this.messageHandler = networkClient.getMessageHandler();
+        
+        // Set up online players listener
+        this.messageHandler.setOnlinePlayersListener(this);
+    }
 
     public void setView(MainMenuScreen view) {
         this.view = view;
@@ -31,6 +46,28 @@ public class MainMenuController {
             Texture newTexture = AssetManager.getAssetManager().getMainMenuTexture(currentImageIndex);
             view.updateBackground(newTexture);
         }
+    }
+
+    public void requestOnlinePlayersList() {
+        try {
+            Message message = new Message();
+            message.setType(Message.Type.REQUEST_PLAYERS_LIST);
+            networkClient.sendMessage(message);
+        } catch (Exception e) {
+            System.err.println("Failed to request online players list: " + e.getMessage());
+        }
+    }
+
+    public void handleOnlinePlayersListUpdate(List<Object> playersList) {
+        if (view != null && playersList != null) {
+            view.updateOnlinePlayersList(playersList);
+        }
+    }
+
+    // OnlinePlayersListener implementation
+    @Override
+    public void onOnlinePlayersUpdate(List<Object> players) {
+        handleOnlinePlayersListUpdate(players);
     }
 
     public void handleSinglePlayer() {

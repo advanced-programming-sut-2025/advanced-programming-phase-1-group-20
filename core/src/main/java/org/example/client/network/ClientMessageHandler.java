@@ -62,6 +62,7 @@ public class ClientMessageHandler {
     
     private void processMessage(Message message) {
         try {
+            System.out.println("DEBUG: Processing message type: " + message.getType());
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -104,6 +105,7 @@ public class ClientMessageHandler {
                 case SEARCH_LOBBY:
                 case PLAYER_READY:
                 case START_LOBBY_GAME:
+                    System.out.println("DEBUG: Handling lobby message type: " + message.getType());
                     handleLobbyMessage(message);
                     break;
                 default:
@@ -116,10 +118,12 @@ public class ClientMessageHandler {
     }
     
     private void handleLobbyMessage(Message message) {
+        System.out.println("DEBUG: handleLobbyMessage called with type: " + message.getType());
         if (lobbyListener != null) {
+            System.out.println("DEBUG: Forwarding lobby message to listener");
             lobbyListener.onLobbyMessage(message);
         } else {
-            System.out.println("Lobby message received but no listener registered: " + message.getType());
+            System.out.println("DEBUG: Lobby message received but no listener registered: " + message.getType());
         }
     }
     
@@ -128,8 +132,9 @@ public class ClientMessageHandler {
         String sessionId = message.getFromBody("sessionId");
         String username = message.getFromBody("username");
         String gameId = message.getFromBody("gameId");
+        Object lobby = message.getFromBody("lobby");
         
-        System.out.println("Success: " + messageText);
+        System.out.println("DEBUG: handleSuccessMessage - message: " + messageText + ", lobby: " + (lobby != null ? "present" : "null"));
         
         if (sessionId != null && connectionListener != null) {
             connectionListener.onConnectionEstablished(sessionId);
@@ -146,6 +151,34 @@ public class ClientMessageHandler {
             networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
             if (connectionListener != null) {
                 connectionListener.onGameJoined(gameId);
+            }
+        }
+        
+        // Handle lobby creation success
+        if (lobby != null && messageText != null && messageText.contains("Lobby created successfully")) {
+            System.out.println("DEBUG: Lobby creation success received!");
+            System.out.println("DEBUG: Lobby object type: " + lobby.getClass().getSimpleName());
+            // Forward to lobby listener if available
+            if (lobbyListener != null) {
+                System.out.println("DEBUG: Forwarding lobby creation message to listener");
+                lobbyListener.onLobbyMessage(message);
+            } else {
+                System.out.println("DEBUG: No lobby listener available for lobby creation message");
+            }
+        }
+        
+        // Handle other lobby-related success messages
+        if (messageText != null && (messageText.contains("Lobby list retrieved") || 
+                                   messageText.contains("Joined lobby successfully") ||
+                                   messageText.contains("Left lobby successfully") ||
+                                   messageText.contains("Search completed"))) {
+            System.out.println("DEBUG: Lobby-related success message: " + messageText);
+            // Forward to lobby listener if available
+            if (lobbyListener != null) {
+                System.out.println("DEBUG: Forwarding lobby success message to listener");
+                lobbyListener.onLobbyMessage(message);
+            } else {
+                System.out.println("DEBUG: No lobby listener available for lobby success message");
             }
         }
     }

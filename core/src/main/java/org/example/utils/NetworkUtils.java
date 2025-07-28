@@ -17,6 +17,12 @@ public class NetworkUtils {
                     continue;
                 }
 
+                String interfaceName = networkInterface.getDisplayName().toLowerCase();
+                if (interfaceName.contains("utun") || interfaceName.contains("tun") ||
+                    interfaceName.contains("p2p") || interfaceName.contains("awdl")) {
+                    continue;
+                }
+
                 Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
                 while (addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();
@@ -26,17 +32,38 @@ public class NetworkUtils {
                         continue;
                     }
 
+                    // Skip reserved/private IP ranges that shouldn't be used for server binding
+                    String hostAddress = addr.getHostAddress();
+                    if (isReservedIP(hostAddress)) {
+                        continue;
+                    }
+
                     // Return the first valid IPv4 address
                     if (addr instanceof Inet4Address) {
                         return addr.getHostAddress();
                     }
                 }
             }
+
+            return "127.0.0.1";
         } catch (Exception e) {
             System.err.println("Error getting local IP address: " + e.getMessage());
         }
 
-        return null;
+        return "127.0.0.1";
+    }
+
+    private static boolean isReservedIP(String ipAddress) {
+        // Check for reserved IP ranges
+        if (ipAddress.startsWith("192.0.2.") ||    // TEST-NET-1
+            ipAddress.startsWith("198.51.100.") || // TEST-NET-2
+            ipAddress.startsWith("203.0.113.") ||  // TEST-NET-3
+            ipAddress.startsWith("169.254.") ||    // Link-local
+            ipAddress.startsWith("0.") ||          // Reserved
+            ipAddress.startsWith("127.")) {        // Loopback
+            return true;
+        }
+        return false;
     }
 
     public static List<String> getAllIPAddresses() {

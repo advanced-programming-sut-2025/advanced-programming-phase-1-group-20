@@ -1,14 +1,25 @@
 package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import org.example.client.Main;
+import org.example.client.controllers.GameMenuController;
 import org.example.client.network.ConnectionManager;
 import org.example.client.network.NetworkClient;
 import org.example.client.network.ClientMessageHandler;
+import org.example.client.views.GameView;
 import org.example.client.views.menu.LobbyMenuScreen;
 import org.example.common.Lobby.Lobby;
 import org.example.common.models.*;
+import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
+import org.example.common.models.Player.Player;
+import org.example.utils.AssetManager;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,11 +29,13 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     private final ConnectionManager connectionManager;
     private final ClientMessageHandler messageHandler;
     private User currentUser;
+    private final Gson gson;
 
     public LobbyMenuController() {
         this.networkClient = NetworkClient.getInstance();
         this.connectionManager = ConnectionManager.getInstance();
         this.messageHandler = networkClient.getMessageHandler();
+        this.gson = new Gson();
 
         // Register this controller to receive lobby messages
         this.messageHandler.setLobbyListener(this);
@@ -35,6 +48,127 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     @Override
     public void onLobbyMessage(Message message) {
         handleLobbyMessage(message);
+    }
+
+    // Helper method to safely deserialize Lobby objects from JSON
+    private Lobby deserializeLobby(Object lobbyObj) {
+        System.out.println("DEBUG: deserializeLobby called with object type: " + (lobbyObj != null ? lobbyObj.getClass().getSimpleName() : "null"));
+        
+        if (lobbyObj == null) {
+            System.out.println("DEBUG: lobbyObj is null");
+            return null;
+        }
+        
+        if (lobbyObj instanceof Lobby) {
+            System.out.println("DEBUG: Object is already a Lobby instance");
+            return (Lobby) lobbyObj;
+        }
+        
+        try {
+            // Convert to JSON string and back to Lobby object
+            String jsonString = gson.toJson(lobbyObj);
+            System.out.println("DEBUG: Converted to JSON: " + jsonString);
+            
+            // Try to parse with more detailed error handling
+            try {
+                Lobby lobby = gson.fromJson(jsonString, Lobby.class);
+                System.out.println("DEBUG: Successfully deserialized Lobby: " + (lobby != null ? lobby.getName() : "null"));
+                if (lobby != null) {
+                    System.out.println("DEBUG: Lobby details - ID: " + lobby.getId() + ", Name: " + lobby.getName() + ", Players: " + lobby.getPlayers().size());
+                }
+                return lobby;
+            } catch (Exception parseException) {
+                System.err.println("DEBUG: Gson parsing failed: " + parseException.getMessage());
+                parseException.printStackTrace();
+                
+                // Try manual parsing as fallback
+                return createLobbyFromMap(lobbyObj);
+            }
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to deserialize Lobby: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Fallback method to create Lobby from Map-like object
+    private Lobby createLobbyFromMap(Object lobbyObj) {
+        System.out.println("DEBUG: Attempting manual lobby creation from map");
+        try {
+            // Create a new Lobby with basic info
+            Lobby lobby = new Lobby();
+            
+            // Use reflection to get values from the map-like object
+            if (lobbyObj instanceof java.util.Map) {
+                java.util.Map<?, ?> map = (java.util.Map<?, ?>) lobbyObj;
+                
+                // Extract basic fields
+                Object idObj = map.get("id");
+                Object nameObj = map.get("name");
+                Object adminIdObj = map.get("adminId");
+                Object statusObj = map.get("status");
+                
+                if (idObj != null) lobby.setId(idObj.toString());
+                if (nameObj != null) lobby.setName(nameObj.toString());
+                if (adminIdObj != null) lobby.setAdminId(adminIdObj.toString());
+                
+                // Handle status enum
+                if (statusObj != null) {
+                    try {
+                        Lobby.LobbyStatus status = Lobby.LobbyStatus.valueOf(statusObj.toString());
+                        lobby.setStatus(status);
+                    } catch (Exception e) {
+                        System.err.println("DEBUG: Failed to parse status: " + statusObj);
+                        lobby.setStatus(Lobby.LobbyStatus.WAITING);
+                    }
+                }
+                
+                System.out.println("DEBUG: Manually created lobby: " + lobby.getName());
+                return lobby;
+            }
+        } catch (Exception e) {
+            System.err.println("DEBUG: Manual lobby creation failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Helper method to safely deserialize List<Lobby> objects from JSON
+    private List<Lobby> deserializeLobbyList(Object lobbiesObj) {
+        System.out.println("DEBUG: deserializeLobbyList called with object type: " + (lobbiesObj != null ? lobbiesObj.getClass().getSimpleName() : "null"));
+        
+        if (lobbiesObj == null) {
+            System.out.println("DEBUG: lobbiesObj is null");
+            return new ArrayList<>();
+        }
+        
+        if (lobbiesObj instanceof List) {
+            List<?> list = (List<?>) lobbiesObj;
+            if (list.isEmpty()) {
+                System.out.println("DEBUG: List is empty");
+                return new ArrayList<>();
+            }
+            
+            // Check if it's already a List<Lobby>
+            if (list.get(0) instanceof Lobby) {
+                System.out.println("DEBUG: List already contains Lobby objects");
+                return (List<Lobby>) list;
+            }
+            
+            // Convert each element
+            List<Lobby> result = new ArrayList<>();
+            for (Object obj : list) {
+                Lobby lobby = deserializeLobby(obj);
+                if (lobby != null) {
+                    result.add(lobby);
+                }
+            }
+            System.out.println("DEBUG: Converted " + result.size() + " lobbies from list");
+            return result;
+        }
+        
+        System.out.println("DEBUG: Object is not a List, returning empty list");
+        return new ArrayList<>();
     }
 
 
@@ -248,31 +382,40 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
 
         Gdx.app.postRunnable(() -> {
             try {
+                System.out.println("DEBUG: Processing lobby message on main thread: " + message.getType());
                 switch (message.getType()) {
                     case SUCCESS:
+                        System.out.println("DEBUG: Handling SUCCESS message");
                         handleSuccessMessage(message);
                         break;
                     case ERROR:
+                        System.out.println("DEBUG: Handling ERROR message");
                         handleErrorMessage(message);
                         break;
 
                     // Handle specific lobby message types
                     case LIST_LOBBIES:
+                        System.out.println("DEBUG: Handling LIST_LOBBIES message");
                         handleListLobbiesResponse(message);
                         break;
                     case JOIN_LOBBY:
+                        System.out.println("DEBUG: Handling JOIN_LOBBY message");
                         handleJoinLobbyResponse(message);
                         break;
                     case LEAVE_LOBBY:
+                        System.out.println("DEBUG: Handling LEAVE_LOBBY message");
                         handleLeaveLobbyResponse(message);
                         break;
                     case SEARCH_LOBBY:
+                        System.out.println("DEBUG: Handling SEARCH_LOBBY message");
                         handleSearchLobbyResponse(message);
                         break;
                     case PLAYER_READY:
+                        System.out.println("DEBUG: Handling PLAYER_READY message");
                         handlePlayerReadyResponse(message);
                         break;
                     case START_LOBBY_GAME:
+                        System.out.println("DEBUG: Handling START_LOBBY_GAME message");
                         handleStartGameResponse(message);
                         break;
 
@@ -292,8 +435,9 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     private void handleListLobbiesResponse(Message message) {
         System.out.println("Handling LIST_LOBBIES response");
         // The server sends SUCCESS message with lobbies data directly
-        List<Lobby> lobbies = message.getFromBody("lobbies");
-        if (lobbies != null) {
+        Object lobbiesObj = message.getFromBody("lobbies");
+        List<Lobby> lobbies = deserializeLobbyList(lobbiesObj);
+        if (lobbies != null && !lobbies.isEmpty()) {
             System.out.println("Received " + lobbies.size() + " lobbies");
             view.onLobbiesReceived(lobbies);
         } else {
@@ -305,7 +449,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     private void handleJoinLobbyResponse(Message message) {
         System.out.println("Handling JOIN_LOBBY response");
         // The server sends SUCCESS message with lobby data directly
-        Lobby lobby = message.getFromBody("lobby");
+        Object lobbyObj = message.getFromBody("lobby");
+        Lobby lobby = deserializeLobby(lobbyObj);
         if (lobby != null) {
             System.out.println("Joined lobby successfully: " + lobby.getName());
             view.onLobbyJoined(lobby);
@@ -325,8 +470,9 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     private void handleSearchLobbyResponse(Message message) {
         System.out.println("Handling SEARCH_LOBBY response");
         // The server sends SUCCESS message with lobbies data directly
-        List<Lobby> lobbies = message.getFromBody("lobbies");
-        if (lobbies != null) {
+        Object lobbiesObj = message.getFromBody("lobbies");
+        List<Lobby> lobbies = deserializeLobbyList(lobbiesObj);
+        if (lobbies != null && !lobbies.isEmpty()) {
             System.out.println("Search found " + lobbies.size() + " lobbies");
             view.onSearchResults(lobbies);
         } else {
@@ -356,6 +502,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             String gameSessionId = message.getFromBody("gameSessionId");
             System.out.println("Game starting with session ID: " + gameSessionId);
             view.onGameStarting(gameSessionId);
+            // Navigate to multiplayer game
+            navigateToMultiplayerGame(gameSessionId);
         } else {
             String error = message.getFromBody("error");
             System.err.println("Failed to start game: " + error);
@@ -363,9 +511,52 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
         }
     }
 
+    private void navigateToMultiplayerGame(String gameSessionId) {
+        try {
+            // Get current user
+            User currentUser = getCurrentUser();
+            if (currentUser == null) {
+                showError("No user logged in");
+                return;
+            }
+
+            // Create player for current user
+            Player player = new Player(currentUser);
+            
+            // Create a basic game structure for multiplayer
+            List<Player> players = new ArrayList<>();
+            players.add(player);
+            
+            Game game = new Game(players, player);
+            game.setSaveName("Multiplayer_" + gameSessionId);
+            
+            // Set the game in App
+            App.setGame(game);
+            
+            // Initialize the game map and farms
+            game.initializeMultiplayerGame();
+            
+            // Create and set the game view
+            GameView gameView = new GameView(new GameMenuController(player), player, game, 
+                AssetManager.getAssetManager().getSkin(), currentUser);
+            
+            // Navigate to game
+            Main.getGame().getScreen().dispose();
+            Main.getGame().setScreen(gameView);
+            
+            System.out.println("DEBUG: Navigated to multiplayer game with session ID: " + gameSessionId);
+            
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());
+            e.printStackTrace();
+            showError("Failed to start multiplayer game: " + e.getMessage());
+        }
+    }
+
     private void handleLobbyUpdatedResponse(Message message) {
         System.out.println("Handling LOBBY_UPDATED response");
-        Lobby lobby = message.getFromBody("lobby");
+        Object lobbyObj = message.getFromBody("lobby");
+        Lobby lobby = deserializeLobby(lobbyObj);
         if (lobby != null) {
             System.out.println("Lobby updated: " + lobby.getName());
             view.onLobbyUpdated(lobby);
@@ -381,32 +572,53 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
 
         System.out.println("Success message: " + messageText);
 
-        if (messageText.contains("Lobby created successfully")) {
-            Lobby lobby = message.getFromBody("lobby");
-            view.onLobbyCreated(lobby);
-        } else if (messageText.contains("Joined lobby successfully")) {
-            Lobby lobby = message.getFromBody("lobby");
-            view.onLobbyJoined(lobby);
-        } else if (messageText.contains("Left lobby successfully")) {
-            view.onLobbyLeft();
-        } else if (messageText.contains("Lobby list retrieved")) {
-            List<Lobby> lobbies = message.getFromBody("lobbies");
-            view.onLobbiesReceived(lobbies);
-        } else if (messageText.contains("Search completed")) {
-            List<Lobby> lobbies = message.getFromBody("lobbies");
-            view.onSearchResults(lobbies);
-        } else if (messageText.contains("Lobby updated")) {
-            Lobby lobby = message.getFromBody("lobby");
-            view.onLobbyUpdated(lobby);
-        } else if (messageText.contains("Player ready") || messageText.contains("Player not ready")) {
-            Boolean ready = message.getFromBody("ready");
-            view.onPlayerReadyChanged(ready);
-        } else if (messageText.contains("Game starting")) {
-            String gameSessionId = message.getFromBody("gameSessionId");
-            view.onGameStarting(gameSessionId);
-        }
+        try {
+            if (messageText.contains("Lobby created successfully")) {
+                System.out.println("DEBUG: Lobby creation success received!");
+                Object lobbyObj = message.getFromBody("lobby");
+                Lobby lobby = deserializeLobby(lobbyObj);
+                if (lobby != null) {
+                    view.onLobbyCreated(lobby);
+                } else {
+                    System.err.println("DEBUG: Failed to deserialize lobby from creation response");
+                }
+            } else if (messageText.contains("Joined lobby successfully")) {
+                Object lobbyObj = message.getFromBody("lobby");
+                Lobby lobby = deserializeLobby(lobbyObj);
+                if (lobby != null) {
+                    view.onLobbyJoined(lobby);
+                } else {
+                    System.err.println("DEBUG: Failed to deserialize lobby from join response");
+                }
+            } else if (messageText.contains("Left lobby successfully")) {
+                view.onLobbyLeft();
+            } else if (messageText.contains("Lobby list retrieved")) {
+                Object lobbiesObj = message.getFromBody("lobbies");
+                List<Lobby> lobbies = deserializeLobbyList(lobbiesObj);
+                view.onLobbiesReceived(lobbies);
+            } else if (messageText.contains("Search completed")) {
+                Object lobbiesObj = message.getFromBody("lobbies");
+                List<Lobby> lobbies = deserializeLobbyList(lobbiesObj);
+                view.onSearchResults(lobbies);
+            } else if (messageText.contains("Lobby updated")) {
+                Object lobbyObj = message.getFromBody("lobby");
+                Lobby lobby = deserializeLobby(lobbyObj);
+                if (lobby != null) {
+                    view.onLobbyUpdated(lobby);
+                }
+            } else if (messageText.contains("Player ready") || messageText.contains("Player not ready")) {
+                Boolean ready = message.getFromBody("ready");
+                view.onPlayerReadyChanged(ready);
+            } else if (messageText.contains("Game starting")) {
+                String gameSessionId = message.getFromBody("gameSessionId");
+                view.onGameStarting(gameSessionId);
+            }
 
-        view.showStatus(messageText);
+            view.showStatus(messageText);
+        } catch (Exception e) {
+            System.err.println("Error handling lobby message: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void handleErrorMessage(Message message) {

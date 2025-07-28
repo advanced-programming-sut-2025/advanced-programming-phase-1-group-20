@@ -53,6 +53,7 @@ public class Village {
     private Location[][] tiles;
     private List<Building> buildings;
     private Building townHall;
+    private Building goldClock;
     private String name;
     //private List<Shop> shops;
     private Map<String, Character> symbolMap;
@@ -68,9 +69,11 @@ public class Village {
         initializeVillage();
         initializeSymbols();
         initializeTownHall();
+        initializeGoldClock();
         initializeMarkets();
         markMarketAreas();
         markTownHall();
+        markGoldClock();
     }
 
     public Village() {
@@ -94,6 +97,7 @@ public class Village {
         symbolMap.put("coop", 'C');
         symbolMap.put("barn", 'B');
         symbolMap.put("town_hall", 'T');
+        symbolMap.put("gold_clock", 'C');
         symbolMap.put("empty", ' ');
     }
 
@@ -174,6 +178,14 @@ public class Village {
         buildings.add(townHall);
     }
 
+    private void initializeGoldClock() {
+        // Gold Clock at the exact center of the village
+        int clockX = width / 2; // Exact center X
+        int clockY = height / 2; // Exact center Y
+        this.goldClock = new Building(clockX, clockY, "Gold Clock", "public");
+        buildings.add(goldClock);
+    }
+
     private void markTownHall() {
         if (townHall != null) {
             int buildingX = townHall.getX();
@@ -192,12 +204,33 @@ public class Village {
         }
     }
 
+    private void markGoldClock() {
+        if (goldClock != null) {
+            int clockX = goldClock.getX();
+            int clockY = goldClock.getY();
+
+            // Mark a 3x5 area for the clock (narrower width, shorter height)
+            for (int y = clockY - 2; y <= clockY + 2; y++) {
+                for (int x = clockX - 1; x <= clockX + 1; x++) {
+                    if (contains(x, y)) {
+                        tiles[x][y] = new Location(x, y, TileType.BUILDING);
+                        tiles[x][y].setType("gold_clock");
+                    }
+                }
+            }
+        }
+    }
+
     public Market[] getMarkets() {
         return markets;
     }
 
     public Building getTownHall() {
         return townHall;
+    }
+
+    public Building getGoldClock() {
+        return goldClock;
     }
 
     private void initializeVillage() {

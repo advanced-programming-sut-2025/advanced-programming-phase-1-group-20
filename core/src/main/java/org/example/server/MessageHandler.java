@@ -55,6 +55,7 @@ public class MessageHandler {
     }
 
     public void processMessage(String username, Message message) {
+        System.out.println("DEBUG: Processing message from " + username + " with type: " + message.getType());
         PlayerConnection connection = playerConnections.get(username);
         if (connection == null) {
             System.err.println("No connection found for user: " + username);
@@ -78,6 +79,7 @@ public class MessageHandler {
 
             // Lobby messages
             case CREATE_LOBBY:
+                System.out.println("DEBUG: Handling CREATE_LOBBY message");
                 handleCreateLobby(connection, message);
                 break;
             case JOIN_LOBBY:
@@ -264,18 +266,24 @@ public class MessageHandler {
     // =====================
 
     private void handleCreateLobby(PlayerConnection connection, Message message) {
+        System.out.println("DEBUG: handleCreateLobby() called");
         User user = connection.getUser();
         if (user == null) {
+            System.out.println("DEBUG: User not authenticated in handleCreateLobby");
             sendErrorMessage(connection, "User not authenticated");
             return;
         }
 
+        System.out.println("DEBUG: User authenticated: " + user.getUsername());
         String lobbyName = message.getFromBody("lobbyName");
         Boolean isPrivate = message.getFromBody("isPrivate");
         Boolean isVisible = message.getFromBody("isVisible");
         String password = message.getFromBody("password");
 
+        System.out.println("DEBUG: Lobby parameters - name: " + lobbyName + ", isPrivate: " + isPrivate + ", isVisible: " + isVisible);
+
         if (lobbyName == null || lobbyName.trim().isEmpty()) {
+            System.out.println("DEBUG: Lobby name is empty or null");
             sendErrorMessage(connection, "Lobby name is required");
             return;
         }
@@ -288,6 +296,7 @@ public class MessageHandler {
         LobbySettings settings = new LobbySettings(isPrivate, isVisible, password);
 
         try {
+            System.out.println("DEBUG: About to call lobbyManager.createLobby()");
             Lobby lobby = lobbyManager.createLobby(lobbyName, user.getUsername(), settings);
 
             // Update online players manager (creator is automatically in lobby)
@@ -303,9 +312,10 @@ public class MessageHandler {
             // Update lobby activity
             lobbyManager.updateLobbyActivity(lobby.getId());
 
-            System.out.println("Lobby created: " + lobby.getId() + " by " + user.getUsername());
+            System.out.println("DEBUG: Lobby created successfully: " + lobby.getId() + " by " + user.getUsername());
         } catch (Exception e) {
-            System.err.println("Failed to create lobby: " + e.getMessage());
+            System.err.println("DEBUG: Failed to create lobby: " + e.getMessage());
+            e.printStackTrace();
             sendErrorMessage(connection, "Failed to create lobby");
         }
     }
