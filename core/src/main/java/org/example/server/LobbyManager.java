@@ -47,7 +47,7 @@ public class LobbyManager {
     // =====================
 
     public Lobby createLobby(String lobbyName, String creatorId, LobbySettings settings) {
-        System.out.println("DEBUG: LobbyManager.createLobby() called with name: " + lobbyName + ", creator: " + creatorId);
+        // System.out.println("DEBUG: LobbyManager.createLobby() called with name: " + lobbyName + ", creator: " + creatorId);
         Lobby lobby = new Lobby(lobbyName, creatorId);
         lobby.setSettings(settings);
 
@@ -60,13 +60,13 @@ public class LobbyManager {
         lobbies.put(lobby.getId(), lobby);
         playerToLobbyMap.put(creatorId, lobby.getId());
 
-        System.out.println("DEBUG: LobbyManager - Created lobby: " + lobby.getId() + " (" + lobbyName + ") by " + creatorId);
-        System.out.println("DEBUG: LobbyManager - Total lobbies now: " + lobbies.size());
+        // System.out.println("DEBUG: LobbyManager - Created lobby: " + lobby.getId() + " (" + lobbyName + ") by " + creatorId);
+        // System.out.println("DEBUG: LobbyManager - Total lobbies now: " + lobbies.size());
         return lobby;
     }
 
     public boolean joinLobby(String lobbyId, String playerId, String password) {
-        System.out.println("DEBUG: joinLobby called - lobbyId: " + lobbyId + ", playerId: " + playerId);
+        // System.out.println("DEBUG: joinLobby called - lobbyId: " + lobbyId + ", playerId: " + playerId);
 
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) {
@@ -74,7 +74,7 @@ public class LobbyManager {
             return false;
         }
 
-        System.out.println("DEBUG: Found lobby: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
+        // System.out.println("DEBUG: Found lobby: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
 
         // Check if lobby can be joined
         if (!lobby.canJoin()) {

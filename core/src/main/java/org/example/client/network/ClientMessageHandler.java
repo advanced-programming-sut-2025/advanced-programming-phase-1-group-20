@@ -97,6 +97,12 @@ public class ClientMessageHandler {
                 case ONLINE_PLAYERS_LIST:
                     handleOnlinePlayersList(message);
                     break;
+                case PLAYER_UPDATE:
+                    handlePlayerUpdate(message);
+                    break;
+                case START_GAME:
+                    handleGameStarted(message);
+                    break;
                 // Lobby-related message types
                 case CREATE_LOBBY:
                 case JOIN_LOBBY:
@@ -114,6 +120,42 @@ public class ClientMessageHandler {
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    private void handleGameStarted(Message message) {
+        System.out.println("DEBUG: handleGameStarted called");
+        String gameSessionId = message.getFromBody("gameSessionId");
+        String messageText = message.getFromBody("message");
+        Object gameData = message.getFromBody("gameData");
+        Object playersData = message.getFromBody("playersData");
+        String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
+        
+        // Handle playerCount which might come as Double from JSON
+        Object playerCountObj = message.getFromBody("playerCount");
+        Integer playerCount = null;
+        if (playerCountObj instanceof Double) {
+            playerCount = ((Double) playerCountObj).intValue();
+        } else if (playerCountObj instanceof Integer) {
+            playerCount = (Integer) playerCountObj;
+        }
+        
+        Boolean isActive = message.getFromBody("isActive");
+        
+        System.out.println("DEBUG: Game started - Session ID: " + gameSessionId + ", Message: " + messageText);
+        System.out.println("DEBUG: Current player: " + currentPlayerUsername + ", Player count: " + playerCount + ", Active: " + isActive);
+        
+        // Set connection state to IN_GAME
+        networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
+        
+        // Notify connection listener about game start
+        if (connectionListener != null) {
+            connectionListener.onGameJoined(gameSessionId);
+        }
+        
+        // Forward to lobby listener for UI updates
+        if (lobbyListener != null) {
+            lobbyListener.onLobbyMessage(message);
         }
     }
     
@@ -295,6 +337,22 @@ public class ClientMessageHandler {
             List<Object> players = (List<Object>) playersObj;
             onlinePlayersListener.onOnlinePlayersUpdate(players);
             System.out.println("Received online players list: " + players.size() + " players");
+        }
+    }
+    
+    private void handlePlayerUpdate(Message message) {
+        System.out.println("DEBUG: handlePlayerUpdate called");
+        try {
+            String action = message.getFromBody("action");
+            String username = message.getFromBody("username");
+            System.out.println("DEBUG: Player update - Action: " + action + ", Username: " + username);
+            
+            // Forward to appropriate listeners if needed
+            if (lobbyListener != null) {
+                lobbyListener.onLobbyMessage(message);
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling player update: " + e.getMessage());
         }
     }
     

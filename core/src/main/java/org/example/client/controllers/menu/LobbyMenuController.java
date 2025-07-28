@@ -416,6 +416,10 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
                         System.out.println("DEBUG: Handling START_LOBBY_GAME message");
                         handleStartGameResponse(message);
                         break;
+                    case START_GAME:
+                        System.out.println("DEBUG: Handling START_GAME message");
+                        handleStartGameResponse(message);
+                        break;
 
                     default:
                         System.out.println("Unhandled lobby message type: " + message.getType());
@@ -494,18 +498,30 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     }
 
     private void handleStartGameResponse(Message message) {
-        System.out.println("Handling START_LOBBY_GAME response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            String gameSessionId = message.getFromBody("gameSessionId");
+        System.out.println("Handling START_GAME response");
+        
+        // Handle both START_LOBBY_GAME and START_GAME message formats
+        String gameSessionId = message.getFromBody("gameSessionId");
+        String messageText = message.getFromBody("message");
+        
+        if (gameSessionId != null && messageText != null && messageText.contains("Game started successfully")) {
             System.out.println("Game starting with session ID: " + gameSessionId);
             view.onGameStarting(gameSessionId);
             // Navigate to multiplayer game
             navigateToMultiplayerGame(gameSessionId);
         } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to start game: " + error);
-            showError("Failed to start game: " + (error != null ? error : "Unknown error"));
+            // Fallback for old START_LOBBY_GAME format
+            String status = message.getFromBody("status");
+            if ("success".equals(status)) {
+                String oldGameSessionId = message.getFromBody("gameSessionId");
+                System.out.println("Game starting with session ID: " + oldGameSessionId);
+                view.onGameStarting(oldGameSessionId);
+                navigateToMultiplayerGame(oldGameSessionId);
+            } else {
+                String error = message.getFromBody("error");
+                System.err.println("Failed to start game: " + error);
+                showError("Failed to start game: " + (error != null ? error : "Unknown error"));
+            }
         }
     }
 
