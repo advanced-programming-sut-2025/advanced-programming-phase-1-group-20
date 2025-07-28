@@ -501,7 +501,7 @@ public class LobbyMenuScreen implements Screen {
 
     public void onGameStarting(String gameSessionId) {
         showStatus("Game starting! Session ID: " + gameSessionId);
-        // TODO: Navigate to game screen
+        // Navigation to game screen is handled by the controller
     }
 
     // =====================
@@ -539,12 +539,22 @@ public class LobbyMenuScreen implements Screen {
             // Only admin can start game
             boolean canStart = false;
             String currentUserName = controller.getCurrentUser().getUsername();
+            System.out.println("DEBUG: Current user: " + currentUserName);
+            System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().size());
+            
             for (LobbyPlayer player : lobby.getPlayers()) {
+                System.out.println("DEBUG: Player: " + player.getUsername() + ", Admin: " + player.isAdmin());
                 if (player.getUsername().equals(currentUserName) && player.isAdmin()) {
                     canStart = lobby.getPlayers().size() >= 2;
+                    System.out.println("DEBUG: User is admin, can start: " + canStart + " (players: " + lobby.getPlayers().size() + ")");
                     break;
                 }
             }
+            
+            if (!canStart) {
+                System.out.println("DEBUG: User is not admin or not enough players, disabling start button");
+            }
+            
             startGameButton.setDisabled(!canStart);
 
             currentLobbyTable.setVisible(true);

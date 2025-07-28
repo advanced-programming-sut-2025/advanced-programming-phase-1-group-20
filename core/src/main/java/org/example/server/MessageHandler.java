@@ -258,7 +258,16 @@ public class MessageHandler {
         error.setType(Message.Type.ERROR);
         error.putInBody("message", errorMessage);
         error.putInBody("timestamp", System.currentTimeMillis());
-        connection.sendMessage(error);
+        
+        System.out.println("DEBUG: Sending error message: " + errorMessage + " to " + connection.getUsername());
+        
+        try {
+            connection.sendMessage(error);
+            System.out.println("DEBUG: Error message sent successfully");
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to send error message: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // =====================
@@ -403,8 +412,18 @@ public class MessageHandler {
 
                 // Broadcast to remaining lobby members (if any)
                 Lobby updatedLobby = lobbyManager.getLobbyById(lobbyId);
+                System.out.println("DEBUG: Player left lobby, checking for remaining players");
+                System.out.println("DEBUG: Updated lobby: " + (updatedLobby != null ? "found" : "null"));
+                if (updatedLobby != null) {
+                    System.out.println("DEBUG: Remaining players: " + updatedLobby.getPlayers().size());
+                    System.out.println("DEBUG: Current admin: " + updatedLobby.getAdminId());
+                }
+                
                 if (updatedLobby != null && !updatedLobby.getPlayers().isEmpty()) {
+                    System.out.println("DEBUG: Broadcasting lobby update to remaining players");
                     broadcastLobbyUpdate(updatedLobby);
+                } else {
+                    System.out.println("DEBUG: No remaining players, not broadcasting update");
                 }
 
                 System.out.println("Player " + user.getUsername() + " left lobby " + lobbyId);
@@ -597,6 +616,10 @@ public class MessageHandler {
     private void broadcastLobbyUpdate(Lobby lobby) {
         if (lobby == null) return;
 
+        System.out.println("DEBUG: Broadcasting lobby update for lobby: " + lobby.getId());
+        System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().size());
+        System.out.println("DEBUG: Admin ID: " + lobby.getAdminId());
+
         Message updateMessage = new Message();
         updateMessage.setType(Message.Type.SUCCESS);
         updateMessage.putInBody("message", "Lobby updated");
@@ -604,9 +627,13 @@ public class MessageHandler {
 
         // Send to all players in the lobby
         for (LobbyPlayer player : lobby.getPlayers()) {
+            System.out.println("DEBUG: Sending lobby update to player: " + player.getId() + " (Admin: " + player.isAdmin() + ")");
             PlayerConnection connection = playerConnections.get(player.getId());
             if (connection != null) {
                 connection.sendMessage(updateMessage);
+                System.out.println("DEBUG: Lobby update sent to " + player.getId());
+            } else {
+                System.err.println("DEBUG: No connection found for player: " + player.getId());
             }
         }
     }

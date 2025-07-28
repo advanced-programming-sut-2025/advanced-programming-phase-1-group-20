@@ -86,21 +86,31 @@ public class PlayerConnection {
     // Message handling methods
     public void sendMessage(String messageJson) {
         if (wsContext == null || !wsContext.session.isOpen()) {
+            System.err.println("DEBUG: Cannot send message - WebSocket context is null or closed");
             return;
         }
         
         try {
+            System.out.println("DEBUG: Sending WebSocket message to " + username + ": " + messageJson);
             wsContext.send(messageJson);
+            System.out.println("DEBUG: WebSocket message sent successfully");
         } catch (Exception e) {
-            System.err.println("Failed to send message to " + username + ": " + e.getMessage());
+            System.err.println("DEBUG: Failed to send WebSocket message to " + username + ": " + e.getMessage());
+            e.printStackTrace();
             // Add to queue for retry
             outgoingMessages.offer(messageJson);
         }
     }
     
     public void sendMessage(Message message) {
-        String messageJson = gson.toJson(message);
-        sendMessage(messageJson);
+        try {
+            String messageJson = gson.toJson(message);
+            System.out.println("DEBUG: Sending message JSON: " + messageJson);
+            sendMessage(messageJson);
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to serialize message to JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     public void processIncomingMessage(String messageJson) {

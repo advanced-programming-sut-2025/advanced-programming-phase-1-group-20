@@ -109,8 +109,26 @@ public class NetworkClient {
                     System.out.println("Received: " + messageText);
 
                     try {
-                        System.out.println("Received: " + messageText);
+                        // Check if message is complete and valid JSON
+                        if (messageText == null || messageText.trim().isEmpty()) {
+                            System.err.println("Received empty message");
+                            return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
+                        }
+
+                        // Try to parse the JSON message
                         Message message = gson.fromJson(messageText, Message.class);
+                        
+                        // Validate the parsed message
+                        if (message == null) {
+                            System.err.println("Failed to parse message: result is null");
+                            return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
+                        }
+                        
+                        if (message.getType() == null) {
+                            System.err.println("Failed to parse message: message type is null");
+                            return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
+                        }
+
                         incomingMessages.offer(message);
 
                         // Handle session ID from welcome message
@@ -121,8 +139,15 @@ public class NetworkClient {
                                 System.out.println("Received session ID: " + sessionId);
                             }
                         }
+                    } catch (com.google.gson.JsonSyntaxException e) {
+                        System.err.println("JSON syntax error in message: " + e.getMessage());
+                        System.err.println("Problematic message: " + messageText);
+                        // Don't throw the exception, just log it and continue
                     } catch (Exception e) {
                         System.err.println("Failed to parse incoming message: " + e.getMessage());
+                        System.err.println("Problematic message: " + messageText);
+                        e.printStackTrace();
+                        // Don't throw the exception, just log it and continue
                     }
 
                     return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);

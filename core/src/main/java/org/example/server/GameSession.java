@@ -36,11 +36,12 @@ public class GameSession {
 
         // Create game instance with the creator as the first player
         List<Player> players = new ArrayList<>();
-        Player creatorPlayer = new Player();
+        Player creatorPlayer = new Player(creator);
         players.add(creatorPlayer);
 
         this.gameInstance = new Game(players, creatorPlayer);
-        App.setGame(this.gameInstance);
+        // Don't set the game in App on server side - this is client-side only
+        // App.setGame(this.gameInstance);
 
         System.out.println("Created new game session: " + sessionId + " for user: " + creator.getUsername());
     }

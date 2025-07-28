@@ -119,8 +119,13 @@ public class LobbyManager {
     }
 
     private void handlePlayerLeave(Lobby lobby, String playerId) {
+        System.out.println("DEBUG: handlePlayerLeave called for lobby: " + lobby.getId() + ", leaving player: " + playerId);
+        System.out.println("DEBUG: Was leaving player admin? " + lobby.isAdmin(playerId));
+        System.out.println("DEBUG: Players before leave: " + lobby.getPlayers().size());
+        
         if (lobby.getPlayers().isEmpty()) {
             // No players left, close lobby
+            System.out.println("DEBUG: No players left, closing lobby");
             closeLobby(lobby.getId());
             return;
         }
@@ -130,8 +135,14 @@ public class LobbyManager {
             LobbyPlayer newAdmin = lobby.getPlayers().get(0);
             newAdmin.setAdmin(true);
             lobby.setAdminId(newAdmin.getId());
-            System.out.println("Transferred admin in lobby " + lobby.getId() + " to " + newAdmin.getId());
+            System.out.println("DEBUG: Transferred admin in lobby " + lobby.getId() + " to " + newAdmin.getId());
+            System.out.println("DEBUG: New admin details - ID: " + newAdmin.getId() + ", Username: " + newAdmin.getUsername() + ", IsAdmin: " + newAdmin.isAdmin());
+        } else {
+            System.out.println("DEBUG: Leaving player was not admin, no transfer needed");
         }
+        
+        System.out.println("DEBUG: Players after leave: " + lobby.getPlayers().size());
+        System.out.println("DEBUG: Current admin ID: " + lobby.getAdminId());
     }
 
     public void closeLobby(String lobbyId) {

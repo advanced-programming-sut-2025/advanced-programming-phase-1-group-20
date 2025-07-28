@@ -13,6 +13,7 @@ import org.example.client.network.ClientMessageHandler;
 import org.example.client.views.GameView;
 import org.example.client.views.menu.LobbyMenuScreen;
 import org.example.common.Lobby.Lobby;
+import org.example.common.Lobby.LobbyPlayer;
 import org.example.common.models.*;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
@@ -601,10 +602,18 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
                 List<Lobby> lobbies = deserializeLobbyList(lobbiesObj);
                 view.onSearchResults(lobbies);
             } else if (messageText.contains("Lobby updated")) {
+                System.out.println("DEBUG: Received lobby updated message");
                 Object lobbyObj = message.getFromBody("lobby");
                 Lobby lobby = deserializeLobby(lobbyObj);
                 if (lobby != null) {
+                    System.out.println("DEBUG: Successfully deserialized updated lobby");
+                    System.out.println("DEBUG: Updated lobby - ID: " + lobby.getId() + ", Admin: " + lobby.getAdminId() + ", Players: " + lobby.getPlayers().size());
+                    for (LobbyPlayer player : lobby.getPlayers()) {
+                        System.out.println("DEBUG: Player: " + player.getUsername() + ", Admin: " + player.isAdmin());
+                    }
                     view.onLobbyUpdated(lobby);
+                } else {
+                    System.err.println("DEBUG: Failed to deserialize updated lobby");
                 }
             } else if (messageText.contains("Player ready") || messageText.contains("Player not ready")) {
                 Boolean ready = message.getFromBody("ready");
@@ -612,6 +621,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             } else if (messageText.contains("Game starting")) {
                 String gameSessionId = message.getFromBody("gameSessionId");
                 view.onGameStarting(gameSessionId);
+                // Navigate to multiplayer game
+                navigateToMultiplayerGame(gameSessionId);
             }
 
             view.showStatus(messageText);
