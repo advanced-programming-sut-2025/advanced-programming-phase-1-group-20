@@ -95,13 +95,13 @@ public class LobbyManager {
 
         // Add player to lobby
         LobbyPlayer player = new LobbyPlayer(playerId, playerId);
-        System.out.println("DEBUG: Created LobbyPlayer: " + player.getId() + " (username: " + player.getUsername() + ")");
+        // System.out.println("DEBUG: Created LobbyPlayer: " + player.getId() + " (username: " + player.getUsername() + ")");
 
         lobby.addPlayer(player);
         playerToLobbyMap.put(playerId, lobbyId);
 
-        System.out.println("DEBUG: Player " + playerId + " joined lobby " + lobbyId + ". New player count: " + lobby.getPlayers().size());
-        System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
+        // System.out.println("DEBUG: Player " + playerId + " joined lobby " + lobbyId + ". New player count: " + lobby.getPlayers().size());
+        // System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
         return true;
     }
 
@@ -129,13 +129,13 @@ public class LobbyManager {
     }
 
     private void handlePlayerLeave(Lobby lobby, String playerId) {
-        System.out.println("DEBUG: handlePlayerLeave called for lobby: " + lobby.getId() + ", leaving player: " + playerId);
-        System.out.println("DEBUG: Was leaving player admin? " + lobby.isAdmin(playerId));
-        System.out.println("DEBUG: Players before leave: " + lobby.getPlayers().size());
+        // System.out.println("DEBUG: handlePlayerLeave called for lobby: " + lobby.getId() + ", leaving player: " + playerId);
+        // System.out.println("DEBUG: Was leaving player admin? " + lobby.isAdmin(playerId));
+        // System.out.println("DEBUG: Players before leave: " + lobby.getPlayers().size());
 
         if (lobby.getPlayers().isEmpty()) {
             // No players left, close lobby
-            System.out.println("DEBUG: No players left, closing lobby");
+            // System.out.println("DEBUG: No players left, closing lobby");
             closeLobby(lobby.getId());
             return;
         }
@@ -145,14 +145,14 @@ public class LobbyManager {
             LobbyPlayer newAdmin = lobby.getPlayers().get(0);
             newAdmin.setAdmin(true);
             lobby.setAdminId(newAdmin.getId());
-            System.out.println("DEBUG: Transferred admin in lobby " + lobby.getId() + " to " + newAdmin.getId());
+            // System.out.println("DEBUG: Transferred admin in lobby " + lobby.getId() + " to " + newAdmin.getId());
             System.out.println("DEBUG: New admin details - ID: " + newAdmin.getId() + ", Username: " + newAdmin.getUsername() + ", IsAdmin: " + newAdmin.isAdmin());
         } else {
             System.out.println("DEBUG: Leaving player was not admin, no transfer needed");
         }
 
-        System.out.println("DEBUG: Players after leave: " + lobby.getPlayers().size());
-        System.out.println("DEBUG: Current admin ID: " + lobby.getAdminId());
+        // System.out.println("DEBUG: Players after leave: " + lobby.getPlayers().size());
+        // System.out.println("DEBUG: Current admin ID: " + lobby.getAdminId());
     }
 
     public void closeLobby(String lobbyId) {
@@ -220,7 +220,7 @@ public class LobbyManager {
     }
 
     public boolean canStartGame(String lobbyId, String requestingPlayerId) {
-        System.out.println("DEBUG: canStartGame called - lobbyId: " + lobbyId + ", requestingPlayerId: " + requestingPlayerId);
+        // System.out.println("DEBUG: canStartGame called - lobbyId: " + lobbyId + ", requestingPlayerId: " + requestingPlayerId);
 
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) {
@@ -228,8 +228,8 @@ public class LobbyManager {
             return false;
         }
 
-        System.out.println("DEBUG: Found lobby in canStartGame: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
-        System.out.println("DEBUG: Lobby players in canStartGame: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
+        // System.out.println("DEBUG: Found lobby in canStartGame: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
+        // System.out.println("DEBUG: Lobby players in canStartGame: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
 
         // Only admin can start game
         if (!lobby.isAdmin(requestingPlayerId)) {
@@ -239,7 +239,7 @@ public class LobbyManager {
 
         // Need at least 2 players
         if (lobby.getPlayers().size() < 2) {
-            System.err.println("DEBUG: Not enough players in canStartGame. Current count: " + lobby.getPlayers().size());
+            // System.err.println("DEBUG: Not enough players in canStartGame. Current count: " + lobby.getPlayers().size());
             return false;
         }
 

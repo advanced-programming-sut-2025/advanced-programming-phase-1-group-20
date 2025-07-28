@@ -13,33 +13,33 @@ public class EventDispatcher {
     private static EventDispatcher instance;
     private final Map<String, List<Consumer<Notification>>> listeners;
     private final List<Consumer<Notification>> broadcastListeners;
-    
+
     private EventDispatcher() {
         this.listeners = new ConcurrentHashMap<>();
         this.broadcastListeners = new CopyOnWriteArrayList<>();
     }
-    
+
     public static EventDispatcher getInstance() {
         if (instance == null) {
             instance = new EventDispatcher();
         }
         return instance;
     }
-    
+
     /**
      * Register a listener for a specific target.
      */
     public void addListener(String targetId, Consumer<Notification> listener) {
         listeners.computeIfAbsent(targetId, k -> new CopyOnWriteArrayList<>()).add(listener);
     }
-    
+
     /**
      * Register a listener for broadcast notifications.
      */
     public void addBroadcastListener(Consumer<Notification> listener) {
         broadcastListeners.add(listener);
     }
-    
+
     /**
      * Remove a listener for a specific target.
      */
@@ -49,14 +49,14 @@ public class EventDispatcher {
             targetListeners.remove(listener);
         }
     }
-    
+
     /**
      * Remove a broadcast listener.
      */
     public void removeBroadcastListener(Consumer<Notification> listener) {
         broadcastListeners.remove(listener);
     }
-    
+
     /**
      * Dispatch a notification to appropriate listeners.
      */
@@ -69,7 +69,7 @@ public class EventDispatcher {
                 System.err.println("Error in broadcast listener: " + e.getMessage());
             }
         }
-        
+
         // Dispatch to specific target listeners
         String targetId = notification.getTargetId();
         if (targetId != null) {
@@ -85,12 +85,10 @@ public class EventDispatcher {
             }
         }
     }
-    
-    /**
-     * Clear all listeners.
-     */
+
+
     public void clear() {
         listeners.clear();
         broadcastListeners.clear();
     }
-} 
+}

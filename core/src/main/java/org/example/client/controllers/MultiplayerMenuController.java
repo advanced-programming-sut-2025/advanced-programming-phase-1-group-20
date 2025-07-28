@@ -6,9 +6,11 @@ import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.ConnectionManager;
 import org.example.client.network.NetworkClient;
+import org.example.client.views.FarmSelectionScreen;
 import org.example.client.views.MultiplayerMenuScreen;
 import org.example.client.views.menu.LobbyMenuScreen;
 import org.example.client.views.menu.MainMenuScreen;
+
 import org.example.common.models.App;
 import org.example.common.models.Message;
 import org.example.common.models.entities.User;
@@ -200,9 +202,17 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
             // If no user is logged in, go to welcome screen
             Main.getGame().getScreen().dispose();
             org.example.client.controllers.WelcomeMenuController welcomeController = new org.example.client.controllers.WelcomeMenuController();
-            org.example.client.views.WelcomeMenuScreen welcomeScreen = new org.example.client.views.WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
-            Main.getGame().setScreen(welcomeScreen);
+            // TODO: Fix WelcomeMenuScreen navigation
+            // org.example.client.views.menu.WelcomeMenuScreen welcomeScreen = new org.example.client.views.menu.WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
+            // Main.getGame().setScreen(welcomeScreen);
         }
+    }
+
+    public void navigateToFarmSelection() {
+        // Navigate to farm selection screen
+        Main.getGame().getScreen().dispose();
+        FarmSelectionScreen farmSelectionScreen = new org.example.client.views.FarmSelectionScreen();
+        Main.getGame().setScreen(farmSelectionScreen);
     }
 
     public void disconnectAndGoBack() {
@@ -269,23 +279,40 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
     @Override
     public void onLobbyMessage(Message message) {
-        System.out.println("DEBUG: MultiplayerMenuController.onLobbyMessage() called with type: " + message.getType());
-        String messageText = message.getFromBody("message");
+        System.out.println("DEBUG: MultiplayerMenuController received lobby message: " + message.getType());
 
-        if (messageText != null && messageText.contains("Lobby created successfully")) {
-            System.out.println("DEBUG: Lobby created successfully!");
-            if (view != null) {
-                view.updateStatus("Lobby created successfully!", com.badlogic.gdx.graphics.Color.GREEN);
-            }
+        switch (message.getType()) {
+            case START_GAME:
+                handleGameStarted(message);
+                break;
+            case FARM_SELECTION_UPDATE:
+                handleFarmSelectionUpdate(message);
+                break;
+            case FARM_SELECTION_COMPLETE:
+                handleFarmSelectionComplete(message);
+                break;
+            default:
+                System.out.println("DEBUG: Unhandled lobby message type: " + message.getType());
         }
+    }
 
-        // Handle lobby list response
-        if (messageText != null && messageText.contains("Lobby list retrieved")) {
-            System.out.println("DEBUG: Lobby list received!");
-            Object lobbies = message.getFromBody("lobbies");
-            if (lobbies != null && view != null) {
-                view.updateLobbyList((List<Object>) lobbies);
-            }
+    private void handleGameStarted(Message message) {
+        Boolean inFarmSelection = message.getFromBody("inFarmSelectionPhase");
+        String sessionId = message.getFromBody("gameSessionId");
+
+        if (inFarmSelection != null && inFarmSelection) {
+            System.out.println("DEBUG: Game started with farm selection phase - navigating to FarmSelectionScreen");
+            navigateToFarmSelection();
         }
+    }
+
+    private void handleFarmSelectionUpdate(Message message) {
+        // This will be handled by the FarmSelectionScreen
+        System.out.println("DEBUG: Farm selection update received");
+    }
+
+    private void handleFarmSelectionComplete(Message message) {
+        // This will be handled by the FarmSelectionScreen
+        System.out.println("DEBUG: Farm selection complete");
     }
 }

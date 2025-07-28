@@ -6,6 +6,7 @@ public enum GameMenuCommands implements Command {
 
     // game related
     SelectMap(Pattern.compile("^game\\s+map\\s+(\\d+)$")),
+    SelectFarm(Pattern.compile("^select\\s+farm\\s+(\\d+)$")),
     ExitGame(Pattern.compile("^exit\\s+game$")),
     NextTurn(Pattern.compile("^next\\s+turn$")),
     VoteTerminate(Pattern.compile("^vote\\s+terminate\\s+(yes|no)$")),

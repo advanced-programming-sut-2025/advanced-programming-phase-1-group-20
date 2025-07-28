@@ -904,70 +904,8 @@ public class GameMenuController implements Controller {
     }
 
     public Result selectMap(String[] args) {
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-
-        if (args == null || args.length < 1) {
-            return Result.error("Map number not specified");
-        }
-
-        Game game = App.getGame();
-        if (game == null) {
-            return Result.error("No active game");
-        }
-
-        if (!game.isInMapSelectionPhase()) {
-            return Result.error("Map selection phase is over");
-        }
-
-        try {
-            int mapIndex = Integer.parseInt(args[0]);
-            if (mapIndex < 1 || mapIndex > 4) {
-                return Result.error("Invalid map number. Please choose a number between 1 and 4.");
-            }
-
-            System.out.println("What type of map do you want to select? (two lakes | bigger quarry)");
-            boolean farmType;
-
-            while (true) {
-                //TODO : get the input out of appview
-                String input = "appView.getInput()";
-                if (input.matches("two\\s+lakes") || input.matches("bigger\\s+quarry")) {
-                    if (input.matches("two\\s+lakes")) {
-                        farmType = true;
-                        System.out.println("Selected two lakes");
-                    } else {
-                        farmType = false;
-                        System.out.println("Selected bigger quarry");
-                    }
-                    break;
-                } else {
-                    System.out.println("Invalid input. Please try again.");
-                }
-            }
-
-            Farm newFarm = new Farm("mazrae'e", player, farmType, mapIndex - 1);
-            player.setCurrentFarm(newFarm);
-            Village village = App.getGame().getGameMap().getVillage();
-            player.setCurrentVillage(village);
-            App.getGame().getGameMap().addFarm(newFarm);
-
-            // Update the unified tiles array with the new farm data
-            App.getGame().getGameMap().updateTilesFromRegions();
-
-            game.selectMap(App.getGame().getCurrentPlayer(), mapIndex);
-
-            if (game.allPlayersSelectedMap()) {
-                App.makeAllChose();
-                game.nextTurn(gMap);
-                return Result.success("All players have selected their maps. The game has started!");
-            } else {
-                game.nextTurn(gMap);
-                return Result.success("Map " + mapIndex + " selected. It's now " + game.getCurrentPlayer().getUser().getUsername() + "'s turn to select a map.");
-            }
-        } catch (NumberFormatException e) {
-            return Result.error("Invalid map number format");
-        }
+        // This method is deprecated - use selectFarm instead
+        return Result.error("Map selection is deprecated. Use 'select farm <index>' instead.");
     }
 
 
@@ -1002,7 +940,7 @@ public class GameMenuController implements Controller {
         }
 
         if (!App.allChose()) {
-            return Result.error("Cannot advance turn during map selection phase");
+            return Result.error("Cannot advance turn during farm selection phase");
         }
 
         if (game.getCurrentPlayer() != player) {
@@ -1028,7 +966,7 @@ public class GameMenuController implements Controller {
             return Result.error("No active game");
         }
 
-        if (game.isInMapSelectionPhase()) {
+        if (game.isInFarmSelectionPhase()) {
             return Result.error("Cannot vote during map selection phase");
         }
 
@@ -2258,5 +2196,26 @@ public class GameMenuController implements Controller {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public Result selectFarm(String[] args) {
+        if (args == null || args.length < 1) {
+            return Result.error("Farm index not specified");
+        }
+
+        try {
+            int farmIndex = Integer.parseInt(args[0]);
+            if (farmIndex < 0 || farmIndex > 3) {
+                return Result.error("Invalid farm index. Please choose a number between 0 and 3.");
+            }
+
+            // Send farm selection to server via network
+            org.example.client.network.NetworkClient networkClient = org.example.client.network.NetworkClient.getInstance();
+            networkClient.selectFarm(farmIndex);
+
+            return Result.success("Farm selection request sent for farm index " + farmIndex + ".");
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid farm index format");
+        }
     }
 }

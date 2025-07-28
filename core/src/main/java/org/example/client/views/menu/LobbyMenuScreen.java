@@ -617,6 +617,7 @@ public class LobbyMenuScreen implements Screen {
     public void goBackToMultiplayerMenu() {
         Main.getGame().getScreen().dispose();
         MultiplayerMenuController multiplayerController = new MultiplayerMenuController();
+        multiplayerController.setupListeners();
         org.example.client.views.MultiplayerMenuScreen multiplayerScreen = new org.example.client.views.MultiplayerMenuScreen(multiplayerController, skin);
         Main.getGame().setScreen(multiplayerScreen);
     }

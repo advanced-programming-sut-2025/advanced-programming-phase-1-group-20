@@ -63,6 +63,11 @@ public class Message {
         LEAVE_GAME,
         START_GAME,
         
+        // Farm selection
+        SELECT_FARM,
+        FARM_SELECTION_UPDATE,
+        FARM_SELECTION_COMPLETE,
+        
         // Lobby management
         CREATE_LOBBY,
         JOIN_LOBBY,

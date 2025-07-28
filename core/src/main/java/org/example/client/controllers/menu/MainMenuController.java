@@ -2,11 +2,11 @@ package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.controllers.MultiplayerMenuController;
-import org.example.client.controllers.ProfileMenuController;
+import org.example.client.controllers.menu.ProfileMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
-import org.example.client.views.ProfileMenuScreen;
+import org.example.client.views.menu.ProfileMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.Message;
@@ -77,7 +77,9 @@ public class MainMenuController implements ClientMessageHandler.OnlinePlayersLis
     }
 
     public void handleMultiPlayer() {
-        getGame().setScreen(new MultiplayerMenuScreen(new MultiplayerMenuController(),
+        MultiplayerMenuController controller = new MultiplayerMenuController();
+        controller.setupListeners();
+        getGame().setScreen(new MultiplayerMenuScreen(controller,
             AssetManager.getAssetManager().getSkin()));
     }
 

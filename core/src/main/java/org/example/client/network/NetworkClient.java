@@ -418,6 +418,21 @@ public class NetworkClient {
         sendMessage(startGameMessage);
     }
 
+    public void selectFarm(int farmIndex) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            System.out.println("DEBUG: Cannot select farm: not authenticated or in game (state: " + connectionState + ")");
+            return;
+        }
+
+        Message selectFarmMessage = new Message();
+        selectFarmMessage.setType(Message.Type.SELECT_FARM);
+        selectFarmMessage.putInBody("farmIndex", farmIndex);
+        selectFarmMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        System.out.println("DEBUG: Sending SELECT_FARM message for farm index: " + farmIndex);
+        sendMessage(selectFarmMessage);
+    }
+
     public void joinLobby(String lobbyId, String password) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
             return;

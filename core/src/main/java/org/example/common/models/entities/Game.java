@@ -1,5 +1,6 @@
 package org.example.common.models.entities;
 
+import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
@@ -8,6 +9,7 @@ import java.io.Serializable; // دیگر نیازی به Serializable نیست �
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import java.util.Objects; // برای equals و hashCode
 
@@ -16,13 +18,14 @@ public class Game implements Serializable {
     private Player currentPlayer;
     private Date date;
     private int currentPlayerIndex;
-    private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections = new HashMap<>();
+    private boolean inFarmSelectionPhase;
+    private Map<Player, Integer> farmSelections = new HashMap<>();
     private Map<Player, Boolean> terminateVotes = new HashMap<>();
     private Player gameCreator;
     private boolean saved;
     private GameMap gameMap;
     private String saveName;
+    public boolean isMultiplayer = false;
 
 
     public Game() {
@@ -38,14 +41,14 @@ public class Game implements Serializable {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
 
-        this.inMapSelectionPhase = true;
+        this.inFarmSelectionPhase = true;
 
         this.saved = false;
 
 
         if (players != null) {
             for (Player player : players) {
-                mapSelections.put(player, -1);
+                farmSelections.put(player, -1);
                 terminateVotes.put(player, false);
             }
 
@@ -94,20 +97,20 @@ public class Game implements Serializable {
         this.currentPlayerIndex = currentPlayerIndex;
     }
 
-    public boolean isInMapSelectionPhase() {
-        return inMapSelectionPhase;
+    public boolean isInFarmSelectionPhase() {
+        return inFarmSelectionPhase;
     }
 
-    public void setInMapSelectionPhase(boolean inMapSelectionPhase) {
-        this.inMapSelectionPhase = inMapSelectionPhase;
+    public void setInFarmSelectionPhase(boolean inFarmSelectionPhase) {
+        this.inFarmSelectionPhase = inFarmSelectionPhase;
     }
 
-    public Map<Player, Integer> getMapSelections() {
-        return mapSelections;
+    public Map<Player, Integer> getFarmSelections() {
+        return farmSelections;
     }
 
-    public void setMapSelections(Map<Player, Integer> mapSelections) {
-        this.mapSelections = mapSelections;
+    public void setFarmSelections(Map<Player, Integer> farmSelections) {
+        this.farmSelections = farmSelections;
     }
 
     public Map<Player, Boolean> getTerminateVotes() {
@@ -152,24 +155,68 @@ public class Game implements Serializable {
     }
 
 
-    public boolean allPlayersSelectedMap() {
-        if (players == null || mapSelections == null) return false; // Null check
+    public boolean allPlayersSelectedFarm() {
+        if (players == null || farmSelections == null) return false; // Null check
         for (Player player : players) {
-            if (mapSelections.getOrDefault(player, -1) == -1) {
+            if (farmSelections.getOrDefault(player, -1) == -1) {
                 return false;
             }
         }
         return true;
     }
 
-    public void selectMap(Player player, int mapNumber) {
-        if (mapSelections != null) {
-            mapSelections.put(player, mapNumber);
+    public void selectFarm(Player player, int farmNumber) {
+        if (farmSelections != null) {
+            farmSelections.put(player, farmNumber);
         }
     }
 
-    public int getMapSelection(Player player) {
-        return mapSelections != null ? mapSelections.getOrDefault(player, -1) : -1;
+    public int getFarmSelection(Player player) {
+        return farmSelections != null ? farmSelections.getOrDefault(player, -1) : -1;
+    }
+
+    /**
+     * Check if a farm index is available for selection
+     */
+    public boolean isFarmIndexAvailable(int farmIndex) {
+        if (farmSelections == null) return true;
+
+        for (Integer selectedIndex : farmSelections.values()) {
+            if (selectedIndex != null && selectedIndex == farmIndex) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get list of available farm indices
+     */
+    public List<Integer> getAvailableFarmIndices() {
+        List<Integer> available = new ArrayList<>();
+        for (int i = 0; i <= 3; i++) {
+            if (isFarmIndexAvailable(i)) {
+                available.add(i);
+            }
+        }
+        return available;
+    }
+
+    /**
+     * Get map of player usernames to their selected farm indices
+     */
+    public Map<String, Integer> getPlayerFarmSelections() {
+        Map<String, Integer> selections = new HashMap<>();
+        if (farmSelections != null) {
+            for (Map.Entry<Player, Integer> entry : farmSelections.entrySet()) {
+                Player player = entry.getKey();
+                Integer farmIndex = entry.getValue();
+                if (player != null && player.getUser() != null && farmIndex != null && farmIndex >= 0) {
+                    selections.put(player.getUser().getUsername(), farmIndex);
+                }
+            }
+        }
+        return selections;
     }
 
     public void nextTurn(GameMap gameMap) {
@@ -258,10 +305,10 @@ public class Game implements Serializable {
     }
 
     // ===== MULTIPLAYER SUPPORT METHODS =====
-
     /**
      * Find a player by their username
      */
+
     public Player getPlayerByUsername(String username) {
         if (players != null && username != null) {
             for (Player player : players) {
@@ -290,8 +337,8 @@ public class Game implements Serializable {
             }
 
             // Initialize map selection and terminate vote
-            if (mapSelections != null) {
-                mapSelections.put(newPlayer, -1);
+            if (farmSelections != null) {
+                farmSelections.put(newPlayer, -1);
             }
             if (terminateVotes != null) {
                 terminateVotes.put(newPlayer, false);
@@ -311,8 +358,8 @@ public class Game implements Serializable {
 
             if (removed) {
                 // Clean up player data
-                if (mapSelections != null) {
-                    mapSelections.remove(player);
+                if (farmSelections != null) {
+                    farmSelections.remove(player);
                 }
                 if (terminateVotes != null) {
                     terminateVotes.remove(player);
@@ -338,21 +385,23 @@ public class Game implements Serializable {
             gameMap = new GameMap();
         }
 
-        // Initialize farms for all players
+        // Initialize farms for all players based on their selections
         if (players != null) {
-            for (int i = 0; i < players.size(); i++) {
-                Player player = players.get(i);
+            for (Player player : players) {
                 if (player != null) {
-                    // Create farm for each player
-                    org.example.common.models.MapDetails.Farm farm =
-                        new org.example.common.models.MapDetails.Farm(
-                            player.getUser().getUsername() + "'s Farm",
-                            player,
-                            i == 0, // First player gets main farm
-                            i
-                        );
-                    player.setCurrentFarm(farm);
-                    gameMap.addFarm(farm);
+                    Integer farmIndex = farmSelections.get(player);
+                    if (farmIndex != null && farmIndex >= 0 && farmIndex <= 3) {
+                        // Create farm for player based on their selection
+                        Farm farm =
+                            new Farm(
+                                player.getUser().getUsername() + "'s Farm",
+                                player,
+                                farmIndex == 0, // Farm 0 is considered the main farm
+                                farmIndex
+                            );
+                        player.setCurrentFarm(farm);
+                        gameMap.addFarm(farm);
+                    }
                 }
             }
         }
@@ -362,8 +411,8 @@ public class Game implements Serializable {
             gameMap.getVillage().initializeNPCs();
         }
 
-        // End map selection phase
-        this.inMapSelectionPhase = false;
+        // End farm selection phase
+        this.inFarmSelectionPhase = false;
     }
 
     /**
@@ -386,7 +435,7 @@ public class Game implements Serializable {
         state.put("currentPlayerIndex", currentPlayerIndex);
         state.put("currentPlayerUsername", currentPlayer != null && currentPlayer.getUser() != null ?
                   currentPlayer.getUser().getUsername() : null);
-        state.put("inMapSelectionPhase", inMapSelectionPhase);
+        state.put("inFarmSelectionPhase", inFarmSelectionPhase);
         state.put("playerCount", players != null ? players.size() : 0);
         state.put("gameTime", date != null ? date.toString() : null);
         state.put("weather", date != null ? date.getWeatherToday().toString() : null);

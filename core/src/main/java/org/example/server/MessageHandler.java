@@ -708,6 +708,11 @@ public class MessageHandler {
         startMessage.putInBody("message", "Game started successfully");
         startMessage.putInBody("gameSessionId", gameSession.getSessionId());
         
+        // Add farm selection phase information
+        startMessage.putInBody("inFarmSelectionPhase", true);
+        startMessage.putInBody("availableFarms", gameSession.getGameInstance().getAvailableFarmIndices());
+        startMessage.putInBody("playerSelections", gameSession.getGameInstance().getPlayerFarmSelections());
+        
         // Add game instance data
         startMessage.putInBody("gameData", gameSession.getGameInstance().getGameState());
         startMessage.putInBody("playersData", gameSession.getGameInstance().getPlayersData());
@@ -715,18 +720,18 @@ public class MessageHandler {
         // Add current player information
         startMessage.putInBody("currentPlayerUsername", gameSession.getGameInstance().getCurrentPlayer().getUser().getUsername());
         startMessage.putInBody("playerCount", gameSession.getPlayerCount());
-        startMessage.putInBody("isActive", gameSession.isActive());
+        startMessage.putInBody("isActive", false); // Not fully active until farm selection is complete
 
         // Send to all players in the lobby
         for (LobbyPlayer lobbyPlayer : lobby.getPlayers()) {
             PlayerConnection connection = playerConnections.get(lobbyPlayer.getId());
             if (connection != null) {
                 connection.sendMessage(startMessage);
-                // System.out.println("DEBUG: Sent game start message to " + lobbyPlayer.getId() + " with session ID: " + gameSession.getSessionId());
+                System.out.println("DEBUG: Sent game start message to " + lobbyPlayer.getId() + " with session ID: " + gameSession.getSessionId());
             }
         }
         
-        // System.out.println("DEBUG: Broadcasted game start to " + lobby.getPlayers().size() + " players");
+        System.out.println("DEBUG: Broadcasted game start to " + lobby.getPlayers().size() + " players - Farm selection phase");
     }
 
     private GameSession createGameSessionFromLobby(Lobby lobby) {

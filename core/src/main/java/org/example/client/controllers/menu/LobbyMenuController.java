@@ -504,11 +504,31 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
         String gameSessionId = message.getFromBody("gameSessionId");
         String messageText = message.getFromBody("message");
         
-        if (gameSessionId != null && messageText != null && messageText.contains("Game started successfully")) {
+        // Check for both old and new field names for backward compatibility
+        Boolean inFarmSelection = message.getFromBody("inFarmSelectionPhase");
+        Boolean inMapSelection = message.getFromBody("inMapSelectionPhase");
+        
+        // Use either field name
+        Boolean isInSelectionPhase = (inFarmSelection != null && inFarmSelection) || 
+                                   (inMapSelection != null && inMapSelection);
+        
+        System.out.println("DEBUG: START_GAME response - gameSessionId: " + gameSessionId + 
+                          ", inFarmSelection: " + inFarmSelection + 
+                          ", inMapSelection: " + inMapSelection + 
+                          ", isInSelectionPhase: " + isInSelectionPhase);
+        
+        if (gameSessionId != null && messageText != null) {
             System.out.println("Game starting with session ID: " + gameSessionId);
             view.onGameStarting(gameSessionId);
-            // Navigate to multiplayer game
-            navigateToMultiplayerGame(gameSessionId);
+            
+            // Always show farm selection for multiplayer unless server says to skip
+            if (isInSelectionPhase || (inFarmSelection == null && inMapSelection == null)) {
+                // Navigate to farm selection screen
+                navigateToFarmSelection();
+            } else {
+                // Navigate directly to multiplayer game (fallback)
+                navigateToMultiplayerGame(gameSessionId);
+            }
         } else {
             // Fallback for old START_LOBBY_GAME format
             String status = message.getFromBody("status");
@@ -516,7 +536,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
                 String oldGameSessionId = message.getFromBody("gameSessionId");
                 System.out.println("Game starting with session ID: " + oldGameSessionId);
                 view.onGameStarting(oldGameSessionId);
-                navigateToMultiplayerGame(oldGameSessionId);
+                // Always show farm selection for multiplayer in fallback
+                navigateToFarmSelection();
             } else {
                 String error = message.getFromBody("error");
                 System.err.println("Failed to start game: " + error);
@@ -547,8 +568,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             // Set the game in App
             App.setGame(game);
             
-            // Initialize the game map and farms
-            game.initializeMultiplayerGame();
+            // Don't initialize farms here - they should be initialized based on server-side farm selections
+            // The server will send the complete game state with proper farm assignments
             
             // Create and set the game view
             GameView gameView = new GameView(new GameMenuController(player), player, game, 
@@ -564,6 +585,24 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());
             e.printStackTrace();
             showError("Failed to start multiplayer game: " + e.getMessage());
+        }
+    }
+
+    private void navigateToFarmSelection() {
+        try {
+            System.out.println("DEBUG: Navigating to FarmSelectionScreen");
+            
+            // Navigate to farm selection screen
+            Main.getGame().getScreen().dispose();
+            org.example.client.views.FarmSelectionScreen farmSelectionScreen = new org.example.client.views.FarmSelectionScreen();
+            Main.getGame().setScreen(farmSelectionScreen);
+            
+            System.out.println("DEBUG: Successfully navigated to FarmSelectionScreen");
+            
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to navigate to farm selection: " + e.getMessage());
+            e.printStackTrace();
+            showError("Failed to navigate to farm selection: " + e.getMessage());
         }
     }
 
