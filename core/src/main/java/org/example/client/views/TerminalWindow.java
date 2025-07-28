@@ -324,6 +324,9 @@ public class TerminalWindow {
         addOutput("friendship level <name> - Show friendship level", TEXT_COLOR);
         addOutput("level <name> -a <amount> - Increase friendship level", TEXT_COLOR);
         addOutput("xp <name> -a <amount> - Increase XP", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Utility Commands:", Color.YELLOW);
+        addOutput("screenshot - Take a screenshot of the current game view", TEXT_COLOR);
     }
 
 

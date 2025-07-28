@@ -21,11 +21,24 @@ public class HoverImage extends Image {
      * @param tooltipTexture The texture for the tooltip pop-up.
      */
     public HoverImage(Texture defaultTexture, Texture tooltipTexture) {
+        this(defaultTexture, tooltipTexture, 120f);
+    }
+
+    /**
+     * @param defaultTexture The texture for the main image that triggers the hover effect.
+     * @param tooltipTexture The texture for the tooltip pop-up.
+     * @param maxSize The maximum size (width or height) for the tooltip in pixels.
+     */
+    public HoverImage(Texture defaultTexture, Texture tooltipTexture, float maxSize) {
         super(defaultTexture);
 
         // This is the tooltip actor that will pop up.
         this.tooltip = new Image(tooltipTexture);
         this.tooltip.setVisible(false); // The tooltip is hidden by default.
+        
+        // Scale the tooltip to a reasonable size
+        float scale = Math.min(maxSize / tooltipTexture.getWidth(), maxSize / tooltipTexture.getHeight());
+        this.tooltip.setSize(tooltipTexture.getWidth() * scale, tooltipTexture.getHeight() * scale);
 
         addListener(new InputListener() {
             /**

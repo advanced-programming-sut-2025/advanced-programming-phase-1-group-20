@@ -18,8 +18,18 @@ public enum CoopAnimalTypes {
             "Duck Feather", 250,
             Cages.BIG_CAGE, 2,
             "Produces duck eggs every other day. May occasionally drop feathers."),
-    RABBIT("Rabbit", 4000, "Wool", 150, "Rabbit's Foot", 1000, Cages.DELUXE_CAGE, 4, "Produces wool every 4 days. May rarely produce a rabbit's foot."),
-    DINOSAUR("Dinosaur", 100000, "Dinosaur Egg", 350, null, 0, Cages.DELUXE_CAGE, 7, "A rare dinosaur that lays prehistoric eggs once a week.");
+    RABBIT("Rabbit",
+        4000,
+        "Wool", 150,
+        "Rabbit's Foot", 1000,
+        Cages.DELUXE_CAGE, 4,
+        "Produces wool every 4 days. May rarely produce a rabbit's foot."),
+    DINOSAUR("Dinosaur",
+        100000,
+        "Dinosaur Egg", 350,
+        null, 0,
+        Cages.DELUXE_CAGE, 7,
+        "A rare dinosaur that lays prehistoric eggs once a week.");
 
     private final String name;
     private final int price;
@@ -45,9 +55,7 @@ public enum CoopAnimalTypes {
         this.description = description;
     }
 
-    /**
-     * Determine which product this animal should produce
-     */
+
     public Item determineProduct(CoopAnimal animal) {
         Random random = new Random();
 
