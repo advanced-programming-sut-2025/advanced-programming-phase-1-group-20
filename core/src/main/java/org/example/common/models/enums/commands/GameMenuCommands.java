@@ -131,6 +131,9 @@ public enum GameMenuCommands implements Command {
     CheatIncreaseFriendshipLevel(Pattern.compile("^level (?<name>.+) -a (?<amount>\\d+)$")),
     CheatIncreaseXP(Pattern.compile("^xp (?<name>.+) -a (?<amount>\\d+)$")),
 
+    // Screenshot command
+    TakeScreenshot(Pattern.compile("^screenshot$|^take\\s+screenshot$")),
+
     None(null);
 
     private final Pattern pattern;

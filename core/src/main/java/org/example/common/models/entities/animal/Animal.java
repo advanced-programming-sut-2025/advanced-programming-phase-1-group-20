@@ -12,5 +12,4 @@ public class Animal extends Item {
         this.name = name;
         this.price = price;
     }
-
 }

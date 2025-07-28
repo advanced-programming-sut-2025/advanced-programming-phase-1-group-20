@@ -47,6 +47,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.PixmapIO;
 import org.example.common.models.Items.Tree;
 import org.example.common.models.Items.Crop;
 import org.example.common.models.Items.Plant;
@@ -510,6 +511,10 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+        // Debug: Log all key presses to help troubleshoot F4 issue
+        String keyName = Input.Keys.toString(keycode);
+        System.out.println("🔑 Key pressed: " + keycode + " (" + keyName + ") - F4 = " + Input.Keys.F4 + ", F12 = " + Input.Keys.F12);
+        
         if (keycode == Input.Keys.M) {
             toggleFullMap();
             return true;
@@ -535,6 +540,11 @@ public class GameView implements Screen, InputProcessor {
             if (terminalWindow != null) {
                 terminalWindow.toggle();
             }
+            return true;
+        }
+        if(keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P){
+            System.out.println("🎯 Screenshot key pressed (F4/F12/P) - taking screenshot...");
+            takeScreenshot();
             return true;
         }
         return false;
@@ -1478,5 +1488,74 @@ public class GameView implements Screen, InputProcessor {
         if (binTexture != null) {
             Main.getBatch().draw(binTexture, worldX, worldY, 60, 60);
         }
+    }
+
+    /**
+     * Takes a screenshot of the current game view and saves it to a file
+     */
+    public void takeScreenshot() {
+        try {
+            // Capture the current screen
+            Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            
+            // Create a timestamp for the filename
+            String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+            String filename = "screenshot_" + timestamp + ".png";
+            
+            // Save the screenshot to the external storage directory
+            String directory = System.getProperty("user.home") + "/Desktop/";
+            String filepath = directory + filename;
+            
+            // Create the directory if it doesn't exist
+            java.io.File dir = new java.io.File(directory);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            
+            // Save the pixmap to a PNG file
+            // Use absolute path for better cross-platform compatibility
+            com.badlogic.gdx.files.FileHandle fileHandle = Gdx.files.absolute(filepath);
+            com.badlogic.gdx.graphics.PixmapIO.writePNG(fileHandle, pixmap);
+            
+            // Dispose the pixmap to free memory
+            pixmap.dispose();
+            
+            System.out.println("📸 Screenshot saved: " + filepath);
+            
+            // Show a temporary notification to the user
+            showScreenshotNotification();
+            
+        } catch (Exception e) {
+            System.err.println("Failed to take screenshot: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Shows a temporary notification that a screenshot was taken
+     */
+    private void showScreenshotNotification() {
+        // Create a temporary label to show the screenshot notification
+        Label notificationLabel = new Label("📸 Screenshot taken!", skin);
+        notificationLabel.setColor(Color.GREEN);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() - 100);
+        notificationLabel.setFontScale(1.5f);
+        
+        // Add the notification to the stage
+        stage.addActor(notificationLabel);
+        
+        // Schedule removal after 2 seconds
+        Gdx.app.postRunnable(() -> {
+            try {
+                Thread.sleep(2000);
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
     }
 }
