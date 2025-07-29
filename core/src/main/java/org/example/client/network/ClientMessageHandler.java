@@ -203,23 +203,48 @@ public class ClientMessageHandler {
     private void handleFarmSelectionComplete(Message message) {
         System.out.println("DEBUG: handleFarmSelectionComplete called");
         String messageText = message.getFromBody("message");
-        Object playerSelections = message.getFromBody("playerSelections");
+        Object completeGameStateObj = message.getFromBody("completeGameState");
         Boolean isActive = message.getFromBody("isActive");
         Object playersData = message.getFromBody("playersData");
         Object gameData = message.getFromBody("gameData");
         String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
         
         System.out.println("DEBUG: Farm selection complete - " + messageText);
-        System.out.println("DEBUG: Game is now active: " + isActive);
+        System.out.println("DEBUG: Complete game state received: " + (completeGameStateObj != null ? "yes" : "no"));
         
         // Set connection state to IN_GAME if the game is now fully active
         if (isActive != null && isActive) {
             networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
         }
         
-        // Forward to lobby listener for UI updates
+        // Forward to lobby listener for UI updates with enhanced data
         if (lobbyListener != null) {
-            lobbyListener.onLobbyMessage(message);
+            // If we have the new complete game state structure, use it
+            if (completeGameStateObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> completeGameState = (Map<String, Object>) completeGameStateObj;
+                
+                // Create a new message with all the data properly structured
+                Message enhancedMessage = new Message();
+                enhancedMessage.setType(Message.Type.FARM_SELECTION_COMPLETE);
+                enhancedMessage.putInBody("message", messageText);
+                enhancedMessage.putInBody("completeGameState", completeGameState);
+                enhancedMessage.putInBody("isActive", completeGameState.get("isActive"));
+                enhancedMessage.putInBody("gameSessionId", completeGameState.get("gameSessionId"));
+                enhancedMessage.putInBody("playerSelections", completeGameState.get("playerSelections"));
+                enhancedMessage.putInBody("playersData", completeGameState.get("playersData"));
+                enhancedMessage.putInBody("gameData", completeGameState.get("gameData"));
+                enhancedMessage.putInBody("currentPlayerUsername", completeGameState.get("currentPlayerUsername"));
+                enhancedMessage.putInBody("playerCount", completeGameState.get("playerCount"));
+                enhancedMessage.putInBody("allPlayersInfo", completeGameState.get("allPlayersInfo"));
+                
+                System.out.println("DEBUG: Forwarding enhanced FARM_SELECTION_COMPLETE to lobby listener");
+                lobbyListener.onLobbyMessage(enhancedMessage);
+            } else {
+                // Fallback to original message structure for backward compatibility
+                System.out.println("DEBUG: Using fallback message structure for FARM_SELECTION_COMPLETE");
+                lobbyListener.onLobbyMessage(message);
+            }
         }
     }
     

@@ -500,8 +500,7 @@ public enum Markets {
         autumnItems.add(new Product(spangleSeed, 5.0));
         winterItems.add(new Product(spangleSeed, 5.0));
 
-        //TODO : adding correct image file path
-        Item hopStarter = new Item("Hops Starter" , 60 ,  "" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
+        Item hopStarter = new Item("Hops Starter" , 60 ,  "content/Plants/Hops_Starter.png" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
         summerItems.add(new Product(hopStarter, 5.0));
         hopStarter.setPrice(90);
         springItems.add(new Product(hopStarter, 5.0));
@@ -827,6 +826,4 @@ public enum Markets {
     public Market createMarket() {
         return this.market;
     }
-
-
 }

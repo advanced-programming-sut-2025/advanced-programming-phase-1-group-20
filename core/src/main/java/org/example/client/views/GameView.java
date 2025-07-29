@@ -150,6 +150,10 @@ public class GameView implements Screen, InputProcessor {
         this.gameTime = 0;
         this.lightingUpdateTimer = 0;
 
+        // Initialize camera first
+        camera = new OrthographicCamera(120, 120);
+        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
         // Initialize lighting system
         initializeLighting();
 
@@ -173,13 +177,6 @@ public class GameView implements Screen, InputProcessor {
         initializeClock();
         createEnergyBar();
         updateWeatherAndSeasonDisplays();
-
-        camera = new OrthographicCamera(120, 120);
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // Set camera for climate system
-        climateSystem.setCamera(camera);
-        lightningSystem.setCamera(camera);
 
         initializeTables();
         controller.setView(this);
