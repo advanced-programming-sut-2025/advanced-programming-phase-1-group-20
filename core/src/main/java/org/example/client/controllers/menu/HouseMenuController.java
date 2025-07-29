@@ -227,7 +227,7 @@ public class HouseMenuController implements Controller {
             return Result.error("You don't have enough items for this artisan");
         }
 
-        if(!craftingItem.proccessItem(items)){
+        if(!craftingItem.processItem(items)){
             return Result.error("There is item processing on " + craftingItem.getName() + "!");
         }
 

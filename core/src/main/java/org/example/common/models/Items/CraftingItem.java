@@ -511,7 +511,7 @@ public class CraftingItem extends Item {
     }
 
 
-    public boolean proccessItem(String items) {
+    public boolean processItem(String items) {
         if(proccessingItem == null) {
             proccessingItem = createArtisan(items);
             return true;
