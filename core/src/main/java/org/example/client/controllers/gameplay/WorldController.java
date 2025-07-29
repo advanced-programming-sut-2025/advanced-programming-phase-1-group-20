@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
-import org.example.client.views.MarketMenuScreen;
 import org.example.client.views.GreenhouseRepairDialog;
+import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
@@ -1320,7 +1320,7 @@ public class WorldController {
                             break;
                         }
                     }
-                    
+
                     if (!isConstructed) {
                         // Show repair dialog
                         GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(

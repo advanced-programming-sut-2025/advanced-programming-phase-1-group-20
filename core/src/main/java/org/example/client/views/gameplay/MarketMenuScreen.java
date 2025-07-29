@@ -1,8 +1,9 @@
-package org.example.client.views;
+package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -21,6 +22,8 @@ import org.example.common.models.enums.Seasons;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MarketMenuScreen implements Screen, Disposable {
 
@@ -45,6 +48,10 @@ public class MarketMenuScreen implements Screen, Disposable {
     // This now holds a list of Product objects
     private List<Product> currentDisplayStock;
 
+    // Texture cache for item images with fallback support
+    private Map<String, Texture> itemTextureCache;
+    private Texture fallbackTexture;
+
     public MarketMenuScreen(Market market, Player player, Skin skin, Screen previousScreen, Seasons currentSeason) {
         this.market = market;
         this.player = player;
@@ -60,6 +67,44 @@ public class MarketMenuScreen implements Screen, Disposable {
         this.currentDisplayStock = new ArrayList<>(market.getPermanentStock());
 
         this.stage = new Stage(new ScreenViewport());
+        
+        // Initialize texture cache and fallback
+        this.itemTextureCache = new HashMap<>();
+        initializeFallbackTexture();
+    }
+
+    private void initializeFallbackTexture() {
+        try {
+            fallbackTexture = new Texture("content/ui/empty_slot.png");
+        } catch (Exception e) {
+            System.err.println("Failed to load fallback texture: " + e.getMessage());
+            // Use null as fallback, will be handled in getItemTexture
+            fallbackTexture = null;
+        }
+    }
+
+    private Texture getItemTexture(Item item) {
+        String imagePath = item.getImageFilepath();
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return fallbackTexture;
+        }
+
+        // Check cache first
+        if (itemTextureCache.containsKey(imagePath)) {
+            return itemTextureCache.get(imagePath);
+        }
+
+        // Try to load the texture
+        try {
+            Texture texture = new Texture(imagePath);
+            itemTextureCache.put(imagePath, texture);
+            return texture;
+        } catch (Exception e) {
+            System.err.println("Failed to load texture for item '" + item.getName() + "' at path '" + imagePath + "': " + e.getMessage());
+            // Cache the fallback to avoid repeated error messages
+            itemTextureCache.put(imagePath, fallbackTexture);
+            return fallbackTexture;
+        }
     }
 
     @Override
@@ -150,6 +195,7 @@ public class MarketMenuScreen implements Screen, Disposable {
         }
 
         // --- Header Row ---
+        itemDisplayTable.add(new Label("", skin)).width(50).pad(5); // Space for image
         itemDisplayTable.add(new Label("Item", skin, "default")).expandX().pad(5);
         itemDisplayTable.add(new Label("Price", skin, "default")).width(80).pad(5);
         itemDisplayTable.add(new Label("Stock", skin, "default")).width(100).pad(5);
@@ -158,6 +204,12 @@ public class MarketMenuScreen implements Screen, Disposable {
         for (Product product : stockList) {
             Item item = product.getItem();
             double stock = product.getAmount();
+
+            // Item Image
+            Texture itemTexture = getItemTexture(item);
+            Image itemImage = new Image(itemTexture);
+            itemImage.setSize(40, 40); // Set a reasonable size for the image
+            itemDisplayTable.add(itemImage).width(50).height(50).pad(5).center();
 
             // Item Name
             Label nameLabel = new Label(item.getName(), skin);
@@ -299,6 +351,15 @@ public class MarketMenuScreen implements Screen, Disposable {
     @Override
     public void dispose() {
         stage.dispose();
+        // Dispose of textures in the cache
+        for (Texture texture : itemTextureCache.values()) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+        if (fallbackTexture != null) {
+            fallbackTexture.dispose();
+        }
         // Don't dispose of the skin if it's shared across screens
     }
 }
