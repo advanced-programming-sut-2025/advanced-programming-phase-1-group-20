@@ -156,17 +156,27 @@ public enum ToolFunctionality {
                 // Check the tile type and perform the appropriate action
                 TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
 
-                // 1. Fill the watering can with water if the tile is water
-                if (tileType == TileType.WATER) {
-                    // This would need to be handled by the specific WateringCan class
-                    return true;
+                // 1. Fill the watering can with water if the tile is water or lake
+                if (tileType == TileType.WATER || tileType == TileType.LAKE) {
+                    // Check if watering can is already full
+                    if (tool.isFull()) {
+                        return false; // Already full
+                    }
+                    // Fill the watering can to full capacity
+                    return tool.fill();
                 }
 
                 // 2. Water crops if the tile is tilled soil with a crop
                 // Check if the tile is tilled soil
                 if (gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
-                    // Water the crop (implementation depends on the game mechanics)
-                    return true;
+                    // Check if watering can has water
+                    if (tool.getCurrentWater() > 0) {
+                        // Water the crop and consume water
+                        gameMap.getFarmByPlayer(player).sprinkle(targetX, targetY, 1);
+                        tool.consumeWater(1);
+                        return true;
+                    }
+                    return false; // No water in the can
                 }
 
                 return false;

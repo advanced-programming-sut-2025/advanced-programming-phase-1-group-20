@@ -77,35 +77,35 @@ public class GameMenuController implements Controller {
     public void showInventory() {
         Player player = App.getGame().getCurrentPlayer();
         Backpack backpack = player.getBackpack();
-        
+
         System.out.println("🎒 INVENTORY CONTENTS 🎒");
         System.out.println("========================");
-        
+
         if (backpack.getInventory().isEmpty()) {
             System.out.println("Your inventory is empty.");
             return;
         }
-        
+
         // Group items by type for better organization
         Map<String, List<Map.Entry<Item, Integer>>> groupedItems = new HashMap<>();
-        
+
         for (Map.Entry<Item, Integer> entry : backpack.getInventory().entrySet()) {
             Item item = entry.getKey();
             String category = getItemCategory(item);
             groupedItems.computeIfAbsent(category, k -> new ArrayList<>()).add(entry);
         }
-        
+
         // Display items by category
         for (String category : groupedItems.keySet()) {
             System.out.println("\n📂 " + category.toUpperCase() + ":");
             System.out.println("─".repeat(category.length() + 3));
-            
+
             for (Map.Entry<Item, Integer> entry : groupedItems.get(category)) {
                 Item item = entry.getKey();
                 int quantity = entry.getValue();
-                
+
                 System.out.println("  📦 " + item.getName() + " x" + quantity);
-                
+
                 // Special display for fish
                 if (item instanceof Fish) {
                     Fish fish = (Fish) item;
@@ -117,18 +117,18 @@ public class GameMenuController implements Controller {
                 } else {
                     System.out.println("     💰 Value: " + item.getBaseSellPrice() + "g");
                 }
-                
+
                 if (item.getDescription() != null && !item.getDescription().isEmpty()) {
                     System.out.println("     📝 " + item.getDescription());
                 }
                 System.out.println();
             }
         }
-        
+
         System.out.println("📊 Total items: " + backpack.countItems());
         System.out.println("🎒 Backpack type: " + backpack.getType());
     }
-    
+
     private String getItemCategory(Item item) {
         if (item instanceof Fish) {
             return "Fish";
@@ -740,7 +740,7 @@ public class GameMenuController implements Controller {
         result.append("FISHING RESULTS\n");
         result.append("=====================\n");
         result.append("Total fish caught: ").append(caughtFish.size()).append("\n\n");
-        
+
         for (Fish fish : caughtFish) {
             result.append("Fish: ").append(fish.getName()).append(" ").append(fish.getQualitySymbol()).append("\n");
             result.append("   Image: ").append(fish.getType().getImageFilePath()).append("\n");
@@ -751,7 +751,7 @@ public class GameMenuController implements Controller {
             result.append("   Season: ").append(fish.getSeason()).append("\n");
             result.append("   ──────────────────────────\n");
         }
-        
+
         result.append("\nAll fish have been added to your inventory!");
         result.append("\nUse 'show inventory' to see your current items.");
 
@@ -809,11 +809,11 @@ public class GameMenuController implements Controller {
                 }
             } else {
                 // Player is in village - check if coordinates are within village
-                if (x < GameMap.VILLAGE_X || x >= GameMap.VILLAGE_X + Village.width || 
+                if (x < GameMap.VILLAGE_X || x >= GameMap.VILLAGE_X + Village.width ||
                     y < GameMap.VILLAGE_Y || y >= GameMap.VILLAGE_Y + Village.height) {
                     return Result.error("Invalid coordinates for village. Use 'walk to farm <index>' to go to your farm.");
                 }
-                
+
                 Location destination = gMap.getVillage().getItem(x - GameMap.VILLAGE_X, y - GameMap.VILLAGE_Y);
                 energyNeeded = gMap.getVillage().calculateEnergyNeeded(currentLocation, destination);
 
@@ -994,9 +994,7 @@ public class GameMenuController implements Controller {
         return Result.success("Vote recorded. Waiting for other players to vote.");
     }
 
-    // TODO: check if the items required are right
-    public Result greenhouseBuild() {
-        Player player = App.getGame().getCurrentPlayer();
+    public Result greenhouseBuild(Player player) {
 
         int requiredWood = 500;
         int requiredStone = 1000;
@@ -1039,9 +1037,11 @@ public class GameMenuController implements Controller {
 
         player.getBackpack().remove(stoneItem, requiredStone);
 
-        // The greenhouse is a 5x6 grid (without counting the wall)
-        Location leftCorner = new Location(10, 10, TileType.GREENHOUSE);
-        Location rightCorner = new Location(16, 15, TileType.GREENHOUSE);
+        // Mark the greenhouse area as constructed
+        Farm farm = player.getCurrentFarm();
+        if (farm != null) {
+            farm.markConstructedGreenHouseArea();
+        }
 
         return Result.success("Greenhouse built successfully! You can now plant crops regardless of the season.");
     }

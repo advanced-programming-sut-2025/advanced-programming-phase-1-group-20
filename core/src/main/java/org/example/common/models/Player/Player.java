@@ -93,7 +93,7 @@ public class Player {
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
             Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null, null), 1);
-        backpack.add(new Tool("Initial Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
+        backpack.add(new Tool("Basic Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, null), 1);
         this.spouse = null;
 
@@ -496,133 +496,87 @@ public class Player {
             return false;
         }
 
-
-        boolean hasEnoughResources = true;
-        if (!hasEnoughResources) {
-            return false;
-        }
-
         Tool tool = (Tool) item;
 
         switch (tool.getMaterial()) {
             case BASIC -> {
                 int cost = 1_000;
-                Item cooper;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cooper = new Item("Cooper Tool", 5_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    cooper = new Item("Copper Trash Can", 1_000 , "");
-                }
-
-                if (!market.checkItem(this, cooper, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Cooper Bar") == null) {
+                
+                // Check for Copper Bar (5 required)
+                Item copperBar = getBackpack().getItem("Copper Bar");
+                if (copperBar == null || getBackpack().getInventory().get(copperBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Cooper Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+                
+                decreaseMoney(cost);
+                getBackpack().remove(copperBar, 5);
             }
             case COPPER -> {
-                Item iron;
                 int cost = 2_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    //TODO : adding correct image file path
-                    iron = new Item("Iron Tool", 5_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    //TODO : adding correct image file path
-                    iron = new Item("Iron Trash Can", 2_500 , "");
-                }
-
-                if (!market.checkItem(this, iron, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Iron") == null) {
+                
+                // Check for Iron Bar (5 required)
+                Item ironBar = getBackpack().getItem("Iron Bar");
+                if (ironBar == null || getBackpack().getInventory().get(ironBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iron");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+                
+                decreaseMoney(cost);
+                getBackpack().remove(ironBar, 5);
             }
             case IRON -> {
-                Item gold;
                 int cost = 5_000;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    gold = new Item("Gold Tool", 10_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    gold = new Item("Gold Trash Can", 5_000 , "");
-                }
-
-                if (!market.checkItem(this, gold, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Gold Bar") == null) {
+                
+                // Check for Gold Bar (5 required)
+                Item goldBar = getBackpack().getItem("Gold Bar");
+                if (goldBar == null || getBackpack().getInventory().get(goldBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Gold Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+                
+                decreaseMoney(cost);
+                getBackpack().remove(goldBar, 5);
             }
             case GOLD -> {
-                Item iridium;
                 int cost = 12_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    //TODO : adding correct image file path
-                    iridium = new Item("Iridium Tool", 25_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    //TODO : adding correct image file path
-                    iridium = new Item("Iridium Trash Can", 12_500 , "");
-                }
-
-                if (!market.checkItem(this, iridium, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Iridium Bar") == null) {
+                
+                // Check for Iridium Bar (5 required)
+                Item iridiumBar = getBackpack().getItem("Iridium Bar");
+                if (iridiumBar == null || getBackpack().getInventory().get(iridiumBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iridium Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+                
+                decreaseMoney(cost);
+                getBackpack().remove(iridiumBar, 5);
             }
             case IRIDIUM -> {
-                return false;
+                return false; // Already at highest material
             }
         }
 
@@ -632,7 +586,6 @@ public class Player {
         }
 
         backpack.remove(tool, 1);
-
         backpack.add(upgradedTool, 1);
 
         if (currentTool != null && currentTool.equals(tool)) {

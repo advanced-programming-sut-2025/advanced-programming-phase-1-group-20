@@ -511,7 +511,7 @@ public class GameView implements Screen, InputProcessor {
     public Label getLightingDescriptionLabel() { return lightingDescriptionLabel; }
     public ClimateSystem getClimateSystem() { return climateSystem; }
     public LightningSystem getLightningSystem() { return lightningSystem; }
-
+    public Stage getStage() { return stage; }
 
     @Override
     public boolean keyDown(int keycode) {

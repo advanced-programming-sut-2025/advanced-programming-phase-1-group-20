@@ -277,8 +277,6 @@ public class TerminalWindow {
             case CheatTeleportMarkets:
                 gameMenuController.cheatTeleportMarkets(args);
                 return Result.success("Teleported to market.");
-            case CheatBuildGreenHouse:
-                return gameMenuController.greenhouseBuild();
             case CheatGiveItems:
                 gameMenuController.cheatGiveItems();
                 return Result.success("Items given.");

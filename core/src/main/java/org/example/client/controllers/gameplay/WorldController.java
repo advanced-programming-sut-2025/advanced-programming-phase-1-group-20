@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.MarketMenuScreen;
+import org.example.client.views.GreenhouseRepairDialog;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
@@ -117,7 +118,7 @@ public class WorldController {
 
         // Pre-load tile textures
         loadTexture("lake", "content/flooring/lake.png");
-        loadTexture("stone", "content/Crafting/Stone.png");
+        loadTexture("stone", "content/Resource/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
         loadTexture("plowed", "content/plowed.png");
@@ -1311,7 +1312,23 @@ public class WorldController {
                 } else if (checkClicked(barnAnchors , BARN_TILES_W , BARN_TILES_H , touchPoint)) {
 
                 } else if (checkClicked(greenhouseAnchors , GREENHOUSE_TILES_W , GREENHOUSE_TILES_H , touchPoint)) {
-
+                    // Check if greenhouse is already constructed
+                    boolean isConstructed = false;
+                    for (Location anchor : greenhouseAnchors) {
+                        if (anchor.getTile() == TileType.CONSTRUCTED_GREENHOUSE) {
+                            isConstructed = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!isConstructed) {
+                        // Show repair dialog
+                        GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
+                            playerController.getPlayer(), controller, skin);
+                        repairDialog.show(controller.getView().getStage());
+                    } else {
+                        System.out.println("Greenhouse is already constructed!");
+                    }
                 }
             }
 
