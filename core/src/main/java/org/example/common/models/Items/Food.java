@@ -8,11 +8,13 @@ import java.util.regex.Pattern;
 public class Food extends Item {
     private int energy;
     private String buffer;
+    private String image;
 
     public Food(String foodName, int baseSellPrice, int energy, String buffer , String imageFilepath) {
         super(foodName, baseSellPrice , imageFilepath);
         this.energy = energy;
         this.buffer = buffer;
+        this.image = imageFilepath;
     }
 
     public int getEnergy() {
@@ -49,5 +51,10 @@ public class Food extends Item {
                 }
             }
         }
+    }
+
+    @Override
+    public String getImageFilepath() {
+        return "content/Cookingitems/" + image + ".png";
     }
 }

@@ -90,12 +90,16 @@ public class CookingScreen implements Screen, Disposable {
             Texture hoverTex = new Texture("content/CookingItems/" + cookingType.getImageFilepath() + "_hover" + ".png");
             hoverCookingTextures.put(cookingType, hoverTex);
 
-            HoverImage image = new HoverImage(defaultTex, hoverTex, 240f);
+            HoverImage image = new HoverImage(defaultTex, hoverTex, 480f);
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (event.getButton() == Input.Buttons.LEFT) {
-
+                        String[] args = new String[]{cookingType.getName()};
+                        Result result = controller.cookingPrepare(args);
+                        if(!result.success()){
+                            showErrorDialog("Error Cooking" , result.message());
+                        }
                     }
                     else if (event.getButton() == Input.Buttons.RIGHT) {
 
@@ -172,5 +176,32 @@ public class CookingScreen implements Screen, Disposable {
         for (Texture texture : hoverCookingTextures.values()) {
             texture.dispose();
         }
+    }
+
+
+    private void showErrorDialog(String title, String message) {
+        if (errorDialog == null) {
+            errorDialog = new Dialog("", skin, "dialog");
+            errorDialog.setModal(true);
+            errorDialog.setMovable(false);
+        }
+        errorDialog.getTitleLabel().setText(title);
+        errorDialog.getContentTable().clear();
+        errorDialog.getButtonTable().clear();
+
+        Label messageLabel = new Label(message, skin);
+        messageLabel.setWrap(true);
+        errorDialog.getContentTable().add(messageLabel).width(300).pad(20);
+
+        TextButton okButton = new TextButton("OK", skin);
+        errorDialog.button(okButton);
+        errorDialog.key(Input.Keys.ENTER, true);
+
+        errorDialog.show(stage);
+        errorDialog.pack();
+        errorDialog.setPosition(
+            Math.round((stage.getWidth() - errorDialog.getWidth()) / 2f),
+            Math.round((stage.getHeight() - errorDialog.getHeight()) / 2f)
+        );
     }
 }
