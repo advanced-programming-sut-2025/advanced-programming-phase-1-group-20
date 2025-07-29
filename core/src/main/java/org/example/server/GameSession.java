@@ -299,6 +299,11 @@ public class GameSession {
         gameInstance.selectFarm(player, farmIndex);
         System.out.println("DEBUG: Farm " + farmIndex + " selected for player " + username);
         
+        // Debug: Check current state
+        System.out.println("DEBUG: Current players: " + gameInstance.getPlayers().size());
+        System.out.println("DEBUG: Current farm selections: " + gameInstance.getPlayerFarmSelections());
+        System.out.println("DEBUG: All players selected farm: " + gameInstance.allPlayersSelectedFarm());
+        
         // Create response message
         Message response = new Message();
         response.setType(Message.Type.FARM_SELECTION_UPDATE);
@@ -316,6 +321,9 @@ public class GameSession {
             System.out.println("DEBUG: All players have selected farms, initializing game");
             // Initialize the game with selected farms
             gameInstance.initializeMultiplayerGame();
+            
+            // Set the game session as fully active
+            this.isActive = true;
             
             Message completeMessage = new Message();
             completeMessage.setType(Message.Type.FARM_SELECTION_COMPLETE);
@@ -337,6 +345,11 @@ public class GameSession {
             System.out.println("Farm selection complete - Game fully initialized for session: " + sessionId);
         } else {
             System.out.println("DEBUG: Not all players have selected farms yet");
+            System.out.println("DEBUG: Players who haven't selected: ");
+            for (Player p : gameInstance.getPlayers()) {
+                Integer selection = gameInstance.getFarmSelection(p);
+                System.out.println("DEBUG: - " + p.getUser().getUsername() + ": " + selection);
+            }
         }
     }
 

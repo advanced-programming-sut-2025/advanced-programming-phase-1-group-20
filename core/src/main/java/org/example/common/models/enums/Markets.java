@@ -105,8 +105,7 @@ public enum Markets {
         ancientSeed.setPrice(500);
         items.add(new Product(ancientSeed, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 125 , "grass.png" , "Place this on your farm to start a new patch of grass.");
+        Item grassStarter = new Item("Grass Starter" , 125 , "content/Grass_Starter.png" , "Place this on your farm to start a new patch of grass.");
         items.add(new Product(grassStarter, Double.POSITIVE_INFINITY));
 
 
@@ -308,8 +307,7 @@ public enum Markets {
         dehydrator.setPrice(10_000);
         items.add(new Product(dehydrator, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 1000 , "grass.png" , "A recipe to make Grass Starter");
+        Item grassStarter = new Item("Grass Starter" , 1000 , "content/Grass_Starter.png" , "A recipe to make Grass Starter");
         items.add(new Product(grassStarter, 1.0));
 
 

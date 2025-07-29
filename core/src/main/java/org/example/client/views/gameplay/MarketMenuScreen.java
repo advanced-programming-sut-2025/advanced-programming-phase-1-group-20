@@ -51,6 +51,7 @@ public class MarketMenuScreen implements Screen, Disposable {
     // Texture cache for item images with fallback support
     private Map<String, Texture> itemTextureCache;
     private Texture fallbackTexture;
+    private Texture backgroundTexture;
 
     public MarketMenuScreen(Market market, Player player, Skin skin, Screen previousScreen, Seasons currentSeason) {
         this.market = market;
@@ -118,8 +119,13 @@ public class MarketMenuScreen implements Screen, Disposable {
     private void createUI() {
         rootTable = new Table(skin);
         rootTable.setFillParent(true);
-        // You can set a background here if you want
-        // rootTable.setBackground(new TextureRegionDrawable(new Texture("path/to/background.png")));
+        // Set the crafting background
+        try {
+            backgroundTexture = new Texture("content/crafting_background.png");
+            rootTable.setBackground(new com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable(backgroundTexture));
+        } catch (Exception e) {
+            System.err.println("Failed to load market background: " + e.getMessage());
+        }
 
         // --- Top Bar (Market Name, Player Money) ---
         Table topBar = new Table();
@@ -359,6 +365,9 @@ public class MarketMenuScreen implements Screen, Disposable {
         }
         if (fallbackTexture != null) {
             fallbackTexture.dispose();
+        }
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
         }
         // Don't dispose of the skin if it's shared across screens
     }

@@ -29,6 +29,8 @@ public class PlayerController {
     private static final float FRAME_DURATION = 0.15f;
     private static final int VILLAGE_TRANSITION_THRESHOLD = 3;
     private static final int FARM_EDGE_DEBUG_THRESHOLD = 5;
+    private static final int MOVEMENT_ENERGY_PERCENTAGE = 5; // 0.05% of current energy per movement (5/10000 = 0.05%)
+    private static final int MIN_MOVEMENT_ENERGY_COST = 0; // No minimum cost for 0.05% calculation
     private long lastTransitionTime = 0;
     private static final long TRANSITION_COOLDOWN_MS = 500;
 
@@ -192,6 +194,23 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Calculate the energy cost for movement
+     * @return energy cost as a percentage of player's current energy
+     */
+    private int calculateMovementEnergyCost() {
+        // Calculate 0.05% of player's current energy as movement cost
+        int currentEnergy = player.getEnergy();
+        int energyCost = Math.max(MIN_MOVEMENT_ENERGY_COST, currentEnergy * MOVEMENT_ENERGY_PERCENTAGE / 10000);
+        
+        // Ensure we don't consume more than 1 energy for very low energy levels
+        if (currentEnergy < 2000 && energyCost > 1) {
+            energyCost = 1;
+        }
+        
+        return energyCost;
+    }
+
     private void handlePlayerInput(float delta) {
         if (justTransitionedToVillage) {
             System.out.println("Skipping input processing due to justTransitionedToVillage flag");
@@ -202,11 +221,14 @@ public class PlayerController {
 
         float newX = player.getPosX();
         float newY = player.getPosY();
+        boolean moved = false;
+        
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
             if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosX(newX);
                 facing = Dir.LEFT;
+                moved = true;
             }
         }
 
@@ -215,6 +237,7 @@ public class PlayerController {
             if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosX(newX);
                 facing = Dir.RIGHT;
+                moved = true;
             }
         }
 
@@ -223,6 +246,7 @@ public class PlayerController {
             if (isWalkable(newX /60, newY / 60)) {
                 player.setPosY(newY);
                 facing = Dir.UP;
+                moved = true;
             }
         }
 
@@ -231,6 +255,21 @@ public class PlayerController {
             if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosY(newY);
                 facing = Dir.DOWN;
+                moved = true;
+            }
+        }
+
+        // Consume energy when player moves
+        if (moved && !player.isEnergyUnlimited()) {
+            int energyCost = calculateMovementEnergyCost();
+            if (player.getEnergy() >= energyCost) {
+                player.decreaseEnergy(energyCost);
+                System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
+            } else {
+                System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
+                // Revert the movement if not enough energy
+                player.setPosX(player.getPosX());
+                player.setPosY(player.getPosY());
             }
         }
 

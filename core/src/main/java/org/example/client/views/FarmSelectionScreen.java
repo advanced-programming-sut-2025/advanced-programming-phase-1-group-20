@@ -29,6 +29,8 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.enums.PlayerEnums.Gender;
 
+import java.util.HashMap;
+
 public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMessageListener {
     private Stage stage;
     private SpriteBatch batch;
@@ -40,7 +42,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     private Table farmSelectionTable;
     private Table playerSelectionsTable;
     private TextButton[] farmButtons;
-    private List<String> availableFarms;
+    private List<Object> availableFarms;
     private Map<String, Integer> playerSelections;
     private boolean inFarmSelectionPhase = false;
     private String gameSessionId;
@@ -181,12 +183,18 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private boolean isFarmAvailable(int farmIndex) {
         if (availableFarms == null) return true;
-        // availableFarms can be either List<String> or List<Integer>, so check both
-        if (availableFarms.contains(farmIndex)) {
-            return true;
-        }
-        if (availableFarms.contains(String.valueOf(farmIndex))) {
-            return true;
+        
+        // Check if the farm index is in the available farms list
+        for (Object farm : availableFarms) {
+            if (farm instanceof Integer && (Integer) farm == farmIndex) {
+                return true;
+            }
+            if (farm instanceof String && farm.equals(String.valueOf(farmIndex))) {
+                return true;
+            }
+            if (farm instanceof Double && ((Double) farm).intValue() == farmIndex) {
+                return true;
+            }
         }
         return false;
     }
@@ -279,8 +287,19 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             gameSessionId = sessionId;
 
             // Extract farm selection data from the message
-            availableFarms = message.getFromBody("availableFarms");
-            playerSelections = message.getFromBody("playerSelections");
+            Object availableFarmsObj = message.getFromBody("availableFarms");
+            if (availableFarmsObj instanceof List) {
+                availableFarms = (List<Object>) availableFarmsObj;
+            } else {
+                availableFarms = new ArrayList<>();
+            }
+            
+            Object playerSelectionsObj = message.getFromBody("playerSelections");
+            if (playerSelectionsObj instanceof Map) {
+                playerSelections = (Map<String, Integer>) playerSelectionsObj;
+            } else {
+                playerSelections = new HashMap<>();
+            }
 
             statusLabel.setText(messageText != null ? messageText : "Game started! Select your farm.");
             statusLabel.setColor(Color.GREEN);
@@ -293,8 +312,19 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private void handleFarmSelectionUpdate(Message message) {
         System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionUpdate called");
-        availableFarms = message.getFromBody("availableFarms");
-        playerSelections = message.getFromBody("playerSelections");
+        
+        Object availableFarmsObj = message.getFromBody("availableFarms");
+        if (availableFarmsObj instanceof List) {
+            availableFarms = (List<Object>) availableFarmsObj;
+            System.out.println("DEBUG: FarmSelectionScreen - Updated availableFarms: " + availableFarms);
+        }
+        
+        Object playerSelectionsObj = message.getFromBody("playerSelections");
+        if (playerSelectionsObj instanceof Map) {
+            playerSelections = (Map<String, Integer>) playerSelectionsObj;
+            System.out.println("DEBUG: FarmSelectionScreen - Updated playerSelections: " + playerSelections);
+        }
+        
         String username = message.getFromBody("username");
         Integer farmIndex = message.getFromBody("farmIndex");
 
@@ -379,9 +409,38 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             // Set the game in App
             App.setGame(game);
 
-            // Don't initialize farms here - the server will handle farm initialization
-            // based on the farm selections that were made during the farm selection phase
-            // The server will send the complete game state via GAME_STATE_FULL message
+            // Initialize the game map with farms based on player selections
+            if (playerSelections != null && !playerSelections.isEmpty()) {
+                GameMap gameMap = new GameMap();
+                
+                // Create farms for each player based on their selections
+                for (Map.Entry<String, Integer> entry : playerSelections.entrySet()) {
+                    String username = entry.getKey();
+                    Integer farmIndex = entry.getValue();
+                    
+                    if (farmIndex != null && farmIndex >= 0 && farmIndex <= 3) {
+                        // Create a player for this username
+                        User farmUser = new User(username, "temp", "temp@temp.com", username, null);
+                        Player farmPlayer = new Player(farmUser);
+                        
+                        // Create farm for this player
+                        Farm farm = new Farm(username + "'s Farm", farmPlayer, farmIndex == 0, farmIndex);
+                        farmPlayer.setCurrentFarm(farm);
+                        gameMap.addFarm(farm);
+                        
+                        // If this is the current user's farm, update the current player
+                        if (username.equals(currentUser.getUsername())) {
+                            player.setCurrentFarm(farm);
+                        }
+                    }
+                }
+                
+                // Set the game map
+                game.setGameMap(gameMap);
+                gameMap.updateTilesFromRegions();
+                
+                System.out.println("DEBUG: FarmSelectionScreen - Initialized game map with " + playerSelections.size() + " farms");
+            }
 
             // Create and set the game view
             GameView gameView = new GameView(new GameMenuController(player), player, game,
@@ -392,7 +451,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             Main.getGame().setScreen(gameView);
 
             System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
-            System.out.println("DEBUG: Waiting for server to send complete game state...");
 
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Player {
     private List<Skill> skills;
@@ -77,7 +78,7 @@ public class Player {
         craftingItems = new ArrayList<CraftingItem>();
         cookingItems = new ArrayList<CookingItem>();
         backpack = new Backpack();
-        this.energy = 200;
+        this.energy = 300;
         this.hasCollapsed = false;
         this.friendships = new HashMap<>();
         this.isInVillage = false;
@@ -106,7 +107,7 @@ public class Player {
 
         //graphic ui
         this.speed = 5;
-        
+
         // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;
         try {
@@ -117,7 +118,7 @@ public class Player {
         } catch (Exception e) {
             isServerEnvironment = true;
         }
-        
+
         if (isServerEnvironment) {
             // Server environment - create collision rect with default dimensions
             rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
@@ -155,7 +156,7 @@ public class Player {
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
-        
+
         // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;
         try {
@@ -166,7 +167,7 @@ public class Player {
         } catch (Exception e) {
             isServerEnvironment = true;
         }
-        
+
         if (!isServerEnvironment) {
             // Only create textures on client side
             this.textureSheet = switch (currentFarm.getFarmIndex()) {
@@ -508,13 +509,13 @@ public class Player {
                 if (getMoney() < cost) {
                     return false;
                 }
-                
+
                 // Check for Copper Bar (5 required)
                 Item copperBar = getBackpack().getItem("Copper Bar");
                 if (copperBar == null || getBackpack().getInventory().get(copperBar) < 5) {
                     return false;
                 }
-                
+
                 decreaseMoney(cost);
                 getBackpack().remove(copperBar, 5);
             }
@@ -527,13 +528,13 @@ public class Player {
                 if (getMoney() < cost) {
                     return false;
                 }
-                
+
                 // Check for Iron Bar (5 required)
                 Item ironBar = getBackpack().getItem("Iron Bar");
                 if (ironBar == null || getBackpack().getInventory().get(ironBar) < 5) {
                     return false;
                 }
-                
+
                 decreaseMoney(cost);
                 getBackpack().remove(ironBar, 5);
             }
@@ -546,13 +547,13 @@ public class Player {
                 if (getMoney() < cost) {
                     return false;
                 }
-                
+
                 // Check for Gold Bar (5 required)
                 Item goldBar = getBackpack().getItem("Gold Bar");
                 if (goldBar == null || getBackpack().getInventory().get(goldBar) < 5) {
                     return false;
                 }
-                
+
                 decreaseMoney(cost);
                 getBackpack().remove(goldBar, 5);
             }
@@ -565,13 +566,13 @@ public class Player {
                 if (getMoney() < cost) {
                     return false;
                 }
-                
+
                 // Check for Iridium Bar (5 required)
                 Item iridiumBar = getBackpack().getItem("Iridium Bar");
                 if (iridiumBar == null || getBackpack().getInventory().get(iridiumBar) < 5) {
                     return false;
                 }
-                
+
                 decreaseMoney(cost);
                 getBackpack().remove(iridiumBar, 5);
             }
@@ -926,7 +927,7 @@ public class Player {
             } catch (Exception e) {
                 isServerEnvironment = true;
             }
-            
+
             if (isServerEnvironment) {
                 // Server environment - return null or create a dummy sprite
                 // For now, we'll return null since sprites aren't needed on the server
@@ -949,5 +950,18 @@ public class Player {
 
     public List<CraftingItem> getPlacedCraftingItems() {
         return placedCraftingItems;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(user, player.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user);
     }
 }
