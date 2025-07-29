@@ -25,7 +25,7 @@ public class Date implements Runnable {
 
     public Date() {
         this.day = 1;
-        this.season = 1;
+        this.season = 0;
         this.year = 1;
         this.hour = 9;
         this.minute = 0; // NEW
@@ -44,7 +44,7 @@ public class Date implements Runnable {
         } catch (Exception e) {
             isServerEnvironment = true;
         }
-        
+
         if (!isServerEnvironment) {
             // Only start the time thread on client side
             Thread timeThread = new Thread(this);
@@ -77,7 +77,7 @@ public class Date implements Runnable {
             if (this.minute >= 60) {
                 this.minute = 0;
                 this.hour++;
-                
+
                 // Check if we're in a server environment
                 boolean isServerEnvironment = false;
                 try {
@@ -87,7 +87,7 @@ public class Date implements Runnable {
                 } catch (Exception e) {
                     isServerEnvironment = true;
                 }
-                
+
                 if (!isServerEnvironment && App.getGame() != null) {
                     App.getGame().updateTurns();
                 }
@@ -111,7 +111,7 @@ public class Date implements Runnable {
         } catch (Exception e) {
             isServerEnvironment = true;
         }
-        
+
         if (!isServerEnvironment && App.getGame() != null) {
             App.getGame().getGameMap().getFarmByPlayer(App.getGame().getCurrentPlayer()).thor(location);
             System.out.println("Thor has struck the location");
@@ -135,7 +135,7 @@ public class Date implements Runnable {
         } catch (Exception e) {
             isServerEnvironment = true;
         }
-        
+
         if (!isServerEnvironment && App.getGame() != null) {
             for (int i = 0; i < days; i++) {
                 App.getGame().updateDailyGame();
@@ -163,7 +163,7 @@ public class Date implements Runnable {
         while (running) {
             try {
                 Thread.sleep(10_000); // every 10 seconds
-                
+
                 // Check if we're in a server environment
                 boolean isServerEnvironment = false;
                 try {
@@ -173,7 +173,7 @@ public class Date implements Runnable {
                 } catch (Exception e) {
                     isServerEnvironment = true;
                 }
-                
+
                 if (!isServerEnvironment && App.getGame() != null && App.getGame().getGameMap() != null) {
                     advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
                 }
