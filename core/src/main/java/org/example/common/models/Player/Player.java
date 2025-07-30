@@ -413,11 +413,48 @@ public class Player {
     }
 
     public boolean canUseEnergy(int amount) {
-        return energyUnlimited || (energyUsedInTurn + amount <= 50);
+        return energyUnlimited || (energy >= amount && energyUsedInTurn + amount <= 50);
+    }
+    
+    /**
+     * Check if player is effectively out of energy for the turn
+     * (cannot perform any meaningful actions)
+     */
+    public boolean isOutOfEnergyForTurn() {
+        if (energyUnlimited) {
+            System.out.println("Player " + getUser().getUsername() + " has unlimited energy");
+            return false;
+        }
+        
+        System.out.println("DEBUG: Checking energy for " + getUser().getUsername() + " - Energy: " + energy + ", Energy used this turn: " + energyUsedInTurn);
+        System.out.println("DEBUG: canUseEnergy(1) calculation - energy >= 1: " + (energy >= 1) + ", energyUsedInTurn + 1 <= 50: " + (energyUsedInTurn + 1 <= 50));
+        boolean outOfEnergy = !canUseEnergy(1);
+        System.out.println("DEBUG: canUseEnergy(1) returned: " + !outOfEnergy);
+        
+        if (outOfEnergy) {
+            System.out.println("Player " + getUser().getUsername() + " is out of energy for turn. Energy: " + energy + ", Energy used this turn: " + energyUsedInTurn);
+        }
+        
+        // Check if player can use at least 1 energy unit
+        // Most basic actions require at least 1 energy
+        return outOfEnergy;
+    }
+    
+    /**
+     * Helper method to check and advance turn if energy is depleted
+     */
+    private void checkAndAdvanceTurnIfEnergyDepleted() {
+        if (App.getGame() != null) {
+            App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
+        }
     }
 
     public void setEnergyUnlimited() {
         this.energyUnlimited = true;
+    }
+
+    public void setEnergyLimited() {
+        this.energyUnlimited = false;
     }
 
     public boolean isEnergyUnlimited() {
@@ -611,11 +648,15 @@ public class Player {
 
         // Check if the player has enough energy
         if (!energyUnlimited && energy < energyConsumption) {
+            // Check if player is out of energy and auto-advance turn if needed
+            checkAndAdvanceTurnIfEnergyDepleted();
             return false;
         }
 
         // Check if the player has used too much energy this turn
         if (!canUseEnergy(energyConsumption)) {
+            // Check if player is out of energy and auto-advance turn if needed
+            checkAndAdvanceTurnIfEnergyDepleted();
             return false;
         }
 
@@ -630,6 +671,9 @@ public class Player {
         if (success && !energyUnlimited) {
             energy -= energyConsumption;
             energyUsedInTurn += energyConsumption;
+            
+            // Check if player is out of energy after this action
+            checkAndAdvanceTurnIfEnergyDepleted();
         }
 
         return success;

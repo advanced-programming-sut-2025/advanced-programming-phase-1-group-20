@@ -15,6 +15,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
@@ -47,6 +49,7 @@ import org.example.client.views.fishing.FishingMiniGame;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.PixmapIO;
 import org.example.common.models.Items.Tree;
@@ -105,6 +108,10 @@ public class GameView implements Screen, InputProcessor {
 
     // Terminal window for cheat commands
     private TerminalWindow terminalWindow;
+    
+    // Friends system
+    private TextButton friendsButton;
+    private FriendsWindow friendsWindow;
 
 
 
@@ -137,6 +144,11 @@ public class GameView implements Screen, InputProcessor {
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
+    
+    // Vertical energy bars for all players
+    private static final int VERTICAL_ENERGY_BAR_WIDTH = 20;
+    private static final int VERTICAL_ENERGY_BAR_HEIGHT = 100;
+    private static final int ENERGY_BAR_SPACING = 30;
 
     // Fish catch display - will be implemented later
     // private FishCatchDisplay fishCatchDisplay;
@@ -168,6 +180,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize terminal window for cheat commands
         terminalWindow = new TerminalWindow(controller);
+        
+        // Initialize friends system
+        initializeFriendsButton();
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
@@ -488,6 +503,34 @@ public class GameView implements Screen, InputProcessor {
         pauseButton = new TextButton("Pause", skin);
         resumeButton = new TextButton("Resume", skin);
     }
+    
+    private void initializeFriendsButton() {
+        System.out.println("🔘 Initializing friends button...");
+        friendsButton = new TextButton("Friends", skin);
+        friendsButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("🔘 Friends button clicked!");
+                openFriendsWindow();
+            }
+        });
+        System.out.println("🔘 Friends button initialized successfully");
+    }
+    
+    private void openFriendsWindow() {
+        System.out.println("🎮 Opening friends window...");
+        try {
+            if (friendsWindow == null) {
+                System.out.println("Creating new FriendsWindow...");
+                friendsWindow = new FriendsWindow(player, skin, this);
+            }
+            System.out.println("Setting screen to friends window...");
+            Main.getGame().setScreen(friendsWindow);
+        } catch (Exception e) {
+            System.err.println("Error opening friends window: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // Getters
     public Player getPlayer() { return player; }
@@ -566,14 +609,17 @@ public class GameView implements Screen, InputProcessor {
             int tileX = (int) (worldCoords.x / 60);
             int tileY = (int) (worldCoords.y / 60);
 
-            if (player.getCurrentFarm() != null && player.getCurrentFarm().isInWater(tileX, tileY)) {
+            Player currentPlayer = App.getGame().getCurrentPlayer();
+            if (currentPlayer == null) return false;
+
+            if (currentPlayer.getCurrentFarm() != null && currentPlayer.getCurrentFarm().isInWater(tileX, tileY)) {
                 startFishingMiniGame();
                 return true;
             }
 
-            if (player.getCurrentTool() != null) {
-                float playerX = player.getPosX();
-                float playerY = player.getPosY();
+            if (currentPlayer.getCurrentTool() != null) {
+                float playerX = currentPlayer.getPosX();
+                float playerY = currentPlayer.getPosY();
                 float dx = worldCoords.x - playerX;
                 float dy = worldCoords.y - playerY;
 
@@ -587,7 +633,7 @@ public class GameView implements Screen, InputProcessor {
                 } else {
                     direction = dy > 0 ? "north" : "south";
                 }
-                player.useTool(direction, game.getGameMap());
+                currentPlayer.useTool(direction, game.getGameMap());
                 if (controller != null && controller.getPlayerController() != null) {
                     controller.getPlayerController().triggerToolSwing(direction, worldCoords.x, worldCoords.y);
                 }
@@ -943,8 +989,8 @@ public class GameView implements Screen, InputProcessor {
     public void show() {
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(this);   // GameView first
-        multiplexer.addProcessor(stage);  // Stage second
+        multiplexer.addProcessor(stage);  // Stage first (UI elements)
+        multiplexer.addProcessor(this);   // GameView second (world interactions)
         Gdx.input.setInputProcessor(multiplexer);
 
         mainTable.top().right();
@@ -953,6 +999,19 @@ public class GameView implements Screen, InputProcessor {
         mainTable.add(clockStack).size(120, 120).row();
         mainTable.add(energyBarTable).padTop(10);
         stage.addActor(mainTable);
+
+        // Add friends button to the stage (positioned in bottom-left corner)
+        if (friendsButton != null) {
+            System.out.println("🔘 Adding friends button to stage...");
+            Table friendsTable = new Table();
+            friendsTable.setFillParent(true);
+            friendsTable.bottom().left();
+            friendsTable.add(friendsButton).width(100).height(40).pad(20);
+            stage.addActor(friendsTable);
+            System.out.println("🔘 Friends button added to stage successfully");
+        } else {
+            System.err.println("❌ Friends button is null - cannot add to stage!");
+        }
 
         pauseTable.setFillParent(true);
         pauseTable.center();
@@ -973,6 +1032,7 @@ public class GameView implements Screen, InputProcessor {
             updateLighting(deltaTime);
             updateClockDisplay();
             updateWeatherAndSeasonDisplays();
+            updateEnergyBar(); // Update energy bar
 
             // Update rain system
             Date currentDate = getCurrentGameDate();
@@ -1030,6 +1090,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Render energy bar manually
         renderEnergyBar();
+        
+        // Render vertical energy bars for all players
+        renderVerticalEnergyBars();
 
         // Render minimap if visible
         renderMinimap();
@@ -1117,9 +1180,13 @@ public class GameView implements Screen, InputProcessor {
 
 
     private void updateEnergyBar() {
-        int currentEnergy = player.getEnergy();
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer == null) return;
+        
+        int currentEnergy = currentPlayer.getEnergy();
         if (currentEnergy != lastKnownEnergy) {
             lastKnownEnergy = currentEnergy;
+            System.out.println("Energy updated: " + currentEnergy); // Debug output
         }
     }
 
@@ -1195,7 +1262,8 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void renderNPCs(float deltaTime) {
-        if (player.getIsInVillage()){
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null && currentPlayer.getIsInVillage()){
             if (npcSpriteController != null) {
                 npcSpriteController.update(deltaTime);
                 npcSpriteController.render(Main.getBatch(), currentLightColor);
@@ -1208,12 +1276,15 @@ public class GameView implements Screen, InputProcessor {
     private void renderEnergyBar() {
         if (energyBarTable == null) return;
 
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer == null) return;
+
         // Get the position of the energy bar table - position it in the top-left corner
         float x = 20;
         float y = Gdx.graphics.getHeight() - ENERGY_BAR_HEIGHT - 20;
 
         // Calculate energy percentage
-        int currentEnergy = player.getEnergy();
+        int currentEnergy = currentPlayer.getEnergy();
         float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
         float barWidth = ENERGY_BAR_WIDTH * energyPercentage;
 
@@ -1241,15 +1312,91 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().end();
     }
+    
+    private void renderVerticalEnergyBars() {
+        Game game = App.getGame();
+        if (game == null || game.getCurrentPlayer() == null) return;
+        
+        // Only show energy bar for the current player (whose turn it is)
+        Player currentPlayer = game.getCurrentPlayer();
+        
+        // Save current projection matrix
+        Matrix4 originalProjection = Main.getBatch().getProjectionMatrix().cpy();
+        
+        // Set projection matrix to screen coordinates (orthographic projection)
+        Main.getBatch().setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        Main.getBatch().begin();
+        
+        // Position bar in the bottom right corner of the screen
+        float barX = Gdx.graphics.getWidth() - VERTICAL_ENERGY_BAR_WIDTH - 20;
+        float barY = 20; // 20px from bottom
+        
+        // Calculate energy percentage (assuming max energy is 200)
+        int currentEnergy = currentPlayer.getEnergy();
+        float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
+        float barHeight = VERTICAL_ENERGY_BAR_HEIGHT * energyPercentage;
+        
+        // Draw background (empty bar)
+        Main.getBatch().setColor(Color.DARK_GRAY);
+        Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, VERTICAL_ENERGY_BAR_HEIGHT);
+        
+        // Draw filled portion from bottom up
+        if (barHeight > 0) {
+            // Color based on energy level
+            if (energyPercentage > 0.6f) {
+                Main.getBatch().setColor(Color.GREEN);
+            } else if (energyPercentage > 0.3f) {
+                Main.getBatch().setColor(Color.YELLOW);
+            } else {
+                Main.getBatch().setColor(Color.RED);
+            }
+            Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, barHeight);
+        }
+        
+        // Draw border
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, 2); // Bottom border
+        Main.getBatch().draw(skin.getRegion("white"), barX, barY + VERTICAL_ENERGY_BAR_HEIGHT - 2, VERTICAL_ENERGY_BAR_WIDTH, 2); // Top border
+        Main.getBatch().draw(skin.getRegion("white"), barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
+        Main.getBatch().draw(skin.getRegion("white"), barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
+        
+        // Draw player name below the bar
+        String playerName = currentPlayer.getUser() != null ? currentPlayer.getUser().getUsername() : "Unknown";
+        if (playerName.length() > 8) {
+            playerName = playerName.substring(0, 8) + "...";
+        }
+        
+        // Draw player name using smallFont if available
+        if (smallFont != null) {
+            smallFont.setColor(Color.CYAN); // Current player always cyan
+            float nameX = barX - 5; // Center text under bar
+            float nameY = barY - 15;
+            smallFont.draw(Main.getBatch(), playerName, nameX, nameY);
+        }
+        
+        // Reset color and end batch
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().end();
+        
+        // Restore original projection matrix
+        Main.getBatch().setProjectionMatrix(originalProjection);
+    }
 
     public Skin getSkin() {
         return skin;
     }
 
+    public GameMenuController getController() {
+        return controller;
+    }
+
     private void startFishingMiniGame() {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer == null) return;
+        
         String poleName = "training rod"; // Default pole name
 
-        for (Item item : player.getBackpack().getInventory().keySet()) {
+        for (Item item : currentPlayer.getBackpack().getInventory().keySet()) {
             if (item instanceof Tool tool) {
                 if (tool.getType() == Tool.ToolType.FISHING_ROD) {
                     poleName = tool.getName(); // Use the actual tool name

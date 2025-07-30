@@ -509,6 +509,11 @@ public class GameMenuController implements Controller {
         return Result.success("energy unlimited");
     }
 
+    public Result energyLimited() {
+        App.getGame().getCurrentPlayer().setEnergyLimited();
+        return Result.success("energy limited");
+    }
+
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -2196,6 +2201,22 @@ public class GameMenuController implements Controller {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public WorldController getWorldController() {
+        return worldController;
+    }
+
+    /**
+     * Update the player reference to the current player
+     * This should be called when the turn advances
+     */
+    public void updatePlayer() {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            this.player = currentPlayer;
+            System.out.println("GameMenuController player updated to: " + currentPlayer.getUser().getUsername());
+        }
     }
 
     public Result selectFarm(String[] args) {

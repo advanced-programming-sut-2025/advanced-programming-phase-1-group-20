@@ -1283,6 +1283,13 @@ public class WorldController {
             // This is a crucial step!
             camera.unproject(touchPoint);
 
+            // Check if click was on another player
+            Player clickedPlayer = checkPlayerClick(touchPoint);
+            if (clickedPlayer != null && !clickedPlayer.equals(playerController.getPlayer())) {
+                showFriendInteractionWindow(clickedPlayer);
+                return;
+            }
+
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
             if(playerController.getPlayer().getIsInVillage()){
@@ -1378,5 +1385,105 @@ public class WorldController {
 
     public Map<String, Texture> getTextureCache() {
         return textureCache;
+    }
+
+    /**
+     * Update the PlayerController to follow the current player
+     * This should be called when the turn advances
+     */
+    public void updatePlayerController() {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null && playerController != null) {
+            // Create a new PlayerController for the current player
+            Farm currentFarm = App.getGame().getGameMap().getFarmByPlayer(currentPlayer);
+            if (currentFarm != null) {
+                // Update the farm reference to the current player's farm
+                this.farm = currentFarm;
+                
+                // Create new PlayerController for the current player
+                playerController = new PlayerController(currentPlayer, currentFarm, skin);
+                System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
+                System.out.println("Farm updated to: " + currentFarm.getName());
+                
+                // Force camera to update to the new player's position
+                float playerX = currentPlayer.getPosX();
+                float playerY = currentPlayer.getPosY();
+                
+                float mapWidth, mapHeight;
+                float mapOffsetX, mapOffsetY;
+
+                if (currentPlayer.getIsInVillage()) {
+                    // For village, use global village bounds
+                    mapWidth = Village.width * TILE_SIZE;
+                    mapHeight = Village.height * TILE_SIZE;
+                    mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
+                    mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
+                } else {
+                    // For farm, use farm bounds
+                    mapWidth = Farm.width * TILE_SIZE;
+                    mapHeight = Farm.height * TILE_SIZE;
+                    mapOffsetX = 0;
+                    mapOffsetY = 0;
+                }
+
+                float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+                float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+
+                float cameraX = playerX;
+                float minCameraX = mapOffsetX + halfCameraViewWidth;
+                float maxCameraX = mapOffsetX + mapWidth - halfCameraViewWidth;
+                cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+
+                float cameraY = playerY;
+                float minCameraY = mapOffsetY + halfCameraViewHeight;
+                float maxCameraY = mapOffsetY + mapHeight - halfCameraViewHeight;
+                cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+
+                camera.position.set(cameraX, cameraY, 0);
+                camera.update();
+                
+                System.out.println("Camera updated to follow player at: " + playerX + ", " + playerY);
+            }
+        }
+    }
+
+    private Player checkPlayerClick(Vector3 touchPoint) {
+        Game game = App.getGame();
+        if (game == null || game.getPlayers() == null) {
+            return null;
+        }
+
+        for (Player player : game.getPlayers()) {
+            if (player != null && !player.equals(playerController.getPlayer())) {
+                // Check if click is within player bounds
+                float playerX = player.getPosX();
+                float playerY = player.getPosY();
+                float playerWidth = 48; // Player render width
+                float playerHeight = 96; // Player render height
+
+                if (touchPoint.x >= playerX && touchPoint.x <= playerX + playerWidth &&
+                    touchPoint.y >= playerY && touchPoint.y <= playerY + playerHeight) {
+                    return player;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void showFriendInteractionWindow(Player targetPlayer) {
+        System.out.println("🤝 Opening friend interaction window for " + targetPlayer.getUser().getUsername());
+        try {
+            org.example.client.views.FriendInteractionWindow interactionWindow = 
+                new org.example.client.views.FriendInteractionWindow(
+                    playerController.getPlayer(), 
+                    targetPlayer, 
+                    skin, 
+                    controller.getView()
+                );
+            Main.getGame().setScreen(interactionWindow);
+        } catch (Exception e) {
+            System.err.println("Error opening friend interaction window: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

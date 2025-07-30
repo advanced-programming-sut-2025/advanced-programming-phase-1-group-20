@@ -289,10 +289,72 @@ public class Game implements Serializable {
         if (players != null && !players.isEmpty()) { // Null and empty check
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             currentPlayer = players.get(currentPlayerIndex);
+            System.out.println("Turn advanced to player: " + currentPlayer.getUser().getUsername() + " (index: " + currentPlayerIndex + ")");
+            
+            // Notify the WorldController to update the PlayerController
+            // This will make the camera follow the new player
+            try {
+                if (com.badlogic.gdx.Gdx.files != null) { // Check if we're in client environment
+                    org.example.client.views.GameView gameView = (org.example.client.views.GameView) org.example.client.Main.getGame().getScreen();
+                    if (gameView != null && gameView.getController() != null) {
+                        org.example.client.controllers.GameMenuController gameMenuController = gameView.getController();
+                        
+                        // Update the GameMenuController's player reference
+                        gameMenuController.updatePlayer();
+                        
+                        // Update the WorldController's PlayerController
+                        org.example.client.controllers.gameplay.WorldController worldController = gameMenuController.getWorldController();
+                        if (worldController != null) {
+                            worldController.updatePlayerController();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Could not update PlayerController: " + e.getMessage());
+            }
         }
 //        if (currentPlayerIndex == 0 && date != null) { // Null check for date
 //            date.advanceTime(1, gameMap);
 //        }
+    }
+    
+    /**
+     * Check if current player is out of energy and automatically advance turn
+     * if this is not a multiplayer game
+     */
+    public boolean checkAndAdvanceTurnIfEnergyDepleted() {
+        System.out.println("DEBUG: checkAndAdvanceTurnIfEnergyDepleted called");
+        System.out.println("DEBUG: currentPlayer = " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: gameMap = " + (gameMap != null ? "not null" : "null"));
+        System.out.println("DEBUG: isMultiplayer = " + isMultiplayer);
+        
+        if (currentPlayer == null || gameMap == null) {
+            System.out.println("DEBUG: Early return due to null currentPlayer or gameMap");
+            return false;
+        }
+        
+        // For single-player games (including "Try Game" mode), always advance turns
+        // For multiplayer games, don't auto-advance (players should manually advance)
+        if (isMultiplayer) {
+            System.out.println("Multiplayer game detected - not auto-advancing turn when energy depleted");
+            return false;
+        }
+        
+        System.out.println("DEBUG: Checking if player is out of energy for turn...");
+        System.out.println("DEBUG: Player energy: " + currentPlayer.getEnergy());
+        System.out.println("DEBUG: Player energy used this turn: " + currentPlayer.getEnergyUsedInTurn());
+        System.out.println("DEBUG: Player can use 1 energy: " + currentPlayer.canUseEnergy(1));
+        System.out.println("DEBUG: Player is out of energy for turn: " + currentPlayer.isOutOfEnergyForTurn());
+        
+        if (currentPlayer.isOutOfEnergyForTurn()) {
+            System.out.println("Player " + currentPlayer.getUser().getUsername() + " is out of energy for the turn. Advancing to next player.");
+            nextTurn(gameMap);
+            return true;
+        } else {
+            System.out.println("DEBUG: Player is not out of energy for turn");
+        }
+        
+        return false;
     }
 
     public void updateDailyGame() {

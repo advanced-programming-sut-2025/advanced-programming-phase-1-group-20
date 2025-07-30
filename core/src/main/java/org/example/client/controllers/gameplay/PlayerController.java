@@ -19,6 +19,7 @@ import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
 import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.App;
 
 public class PlayerController {
     private static final int FRAME_W = 16;
@@ -29,7 +30,7 @@ public class PlayerController {
     private static final int VILLAGE_TRANSITION_THRESHOLD = 3;
     private static final int FARM_EDGE_DEBUG_THRESHOLD = 5;
     private static final int MOVEMENT_ENERGY_PERCENTAGE = 5; // 0.05% of current energy per movement (5/10000 = 0.05%)
-    private static final int MIN_MOVEMENT_ENERGY_COST = 0; // No minimum cost for 0.05% calculation
+    private static final int MIN_MOVEMENT_ENERGY_COST = 1; // Minimum 1 energy cost per movement
     private long lastTransitionTime = 0;
     private static final long TRANSITION_COOLDOWN_MS = 500;
 
@@ -204,7 +205,8 @@ public class PlayerController {
             energyCost = 1;
         }
 
-        return energyCost;
+        // Always consume at least 1 energy for movement
+        return Math.max(1, energyCost);
     }
 
     private void handlePlayerInput(float delta) {
@@ -258,15 +260,31 @@ public class PlayerController {
         // Consume energy when player moves
         if (moved && !player.isEnergyUnlimited()) {
             int energyCost = calculateMovementEnergyCost();
+            System.out.println("Movement detected - Energy cost: " + energyCost + ", Current energy: " + player.getEnergy());
+            
             if (player.getEnergy() >= energyCost) {
                 player.decreaseEnergy(energyCost);
                 System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
+                
+                // Check if player is out of energy and auto-advance turn if needed
+                if (App.getGame() != null) {
+                    App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
+                }
             } else {
                 System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
                 // Revert the movement if not enough energy
                 player.setPosX(player.getPosX());
                 player.setPosY(player.getPosY());
+                
+                // Check if player is out of energy and auto-advance turn if needed
+                if (App.getGame() != null) {
+                    App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
+                }
             }
+        } else if (moved && player.isEnergyUnlimited()) {
+            System.out.println("Player moved - Energy unlimited mode");
+        } else if (!moved) {
+            System.out.println("No movement detected");
         }
 
         switch (facing) {
@@ -672,6 +690,19 @@ public class PlayerController {
 
     public Player getPlayer() {
         return player;
+    }
+
+    /**
+     * Update the player reference to follow the current player
+     * This should be called when the turn advances
+     */
+    public void updatePlayer(Player newPlayer) {
+        // Update the player reference
+        // Note: We can't change the final player field, so we need to create a new PlayerController
+        // This method is kept for compatibility but the actual update should be done by creating a new PlayerController
+        System.out.println("PlayerController: Attempting to update player reference");
+        System.out.println("PlayerController: Current player: " + (player != null ? player.getUser().getUsername() : "null"));
+        System.out.println("PlayerController: New player: " + (newPlayer != null ? newPlayer.getUser().getUsername() : "null"));
     }
 
     public TextureRegion getCurrentFrame() {
