@@ -263,7 +263,7 @@ public class NetworkClient {
 
     public boolean authenticate(User user, String jwtToken) {
         if (connectionState != ConnectionState.CONNECTED) {
-            System.err.println("Cannot authenticate: not connected to server");
+            System.err.println("Cannot authenticate: not connected to server (state: " + connectionState + ")");
             return false;
         }
 
@@ -275,6 +275,7 @@ public class NetworkClient {
         authMessage.putInBody("username", user.getUsername());
         authMessage.putInBody("token", jwtToken);
 
+        System.out.println("DEBUG: Sending authentication message for user: " + user.getUsername() + " with token: " + (jwtToken != null ? jwtToken.substring(0, Math.min(20, jwtToken.length())) + "..." : "null"));
         sendMessage(authMessage);
 
         System.out.println("Authentication request sent for user: " + user.getUsername());
@@ -401,6 +402,79 @@ public class NetworkClient {
 
         sendMessage(listLobbiesMessage);
         System.out.println("DEBUG: Lobby list request sent");
+    }
+
+    public void startLobbyGame() {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.out.println("DEBUG: Cannot start lobby game: not authenticated (state: " + connectionState + ")");
+            return;
+        }
+
+        Message startGameMessage = new Message();
+        startGameMessage.setType(Message.Type.START_LOBBY_GAME);
+        startGameMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        System.out.println("DEBUG: Sending START_LOBBY_GAME message");
+        sendMessage(startGameMessage);
+    }
+
+    public void selectFarm(int farmIndex) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            System.out.println("DEBUG: Cannot select farm: not authenticated or in game (state: " + connectionState + ")");
+            return;
+        }
+
+        Message selectFarmMessage = new Message();
+        selectFarmMessage.setType(Message.Type.SELECT_FARM);
+        selectFarmMessage.putInBody("farmIndex", farmIndex);
+        selectFarmMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        System.out.println("DEBUG: Sending SELECT_FARM message for farm index: " + farmIndex);
+        sendMessage(selectFarmMessage);
+    }
+
+    public void joinLobby(String lobbyId, String password) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message joinLobbyMessage = new Message();
+        joinLobbyMessage.setType(Message.Type.JOIN_LOBBY);
+        joinLobbyMessage.putInBody("lobbyId", lobbyId);
+        if (password != null && !password.trim().isEmpty()) {
+            joinLobbyMessage.putInBody("password", password);
+        }
+        joinLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(joinLobbyMessage);
+        System.out.println("DEBUG: JOIN_LOBBY message sent for lobby: " + lobbyId);
+    }
+
+    public void leaveLobby() {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message leaveLobbyMessage = new Message();
+        leaveLobbyMessage.setType(Message.Type.LEAVE_LOBBY);
+        leaveLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(leaveLobbyMessage);
+        System.out.println("DEBUG: LEAVE_LOBBY message sent");
+    }
+
+    public void setPlayerReady(boolean ready) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message readyMessage = new Message();
+        readyMessage.setType(Message.Type.PLAYER_READY);
+        readyMessage.putInBody("ready", ready);
+        readyMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(readyMessage);
+        System.out.println("DEBUG: PLAYER_READY message sent: " + ready);
     }
 
     public void update() {

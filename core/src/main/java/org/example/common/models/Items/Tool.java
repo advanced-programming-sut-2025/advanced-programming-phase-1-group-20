@@ -180,10 +180,15 @@ public class Tool extends Item {
         if (functionality != null) {
             ToolMaterial upgradeMaterial = functionality.getUpgradeMaterial(this);
             if (upgradeMaterial != null) {
-                // Create a new tool with the upgraded material
+                // Generate the correct image file path for the upgraded tool
+                String imageFilePath = generateImageFilePath(type, upgradeMaterial);
+                String toolName = generateToolName(type, upgradeMaterial);
+
+                // Create a new tool with the upgraded material and correct image path
                 return new Tool(
-                        upgradeMaterial.name() + " " + type.name(),
+                        toolName,
                         functionality.getBaseSellPrice(upgradeMaterial),
+                        imageFilePath,
                         "A " + upgradeMaterial.name().toLowerCase() + " " + type.name().toLowerCase() + ".",
                         type,
                         upgradeMaterial,
@@ -197,8 +202,9 @@ public class Tool extends Item {
         if (type == ToolType.TRASH_CAN) {
             return switch (material) {
                 case BASIC -> new Tool(
-                        "COPPER TRASH_CAN",
+                        "Copper Trash Can",
                         2000,
+                        "content/Tools/Trash_Can_Copper.png",
                         "A copper trash can for disposing of items.",
                         ToolType.TRASH_CAN,
                         ToolMaterial.COPPER,
@@ -207,8 +213,9 @@ public class Tool extends Item {
                         null
                 );
                 case COPPER -> new Tool(
-                        "IRON TRASH_CAN",
+                        "Iron Trash Can",
                         5000,
+                        "content/Tools/Trash_Can_Steel.png",
                         "An iron trash can for disposing of items.",
                         ToolType.TRASH_CAN,
                         ToolMaterial.IRON,
@@ -217,8 +224,9 @@ public class Tool extends Item {
                         null
                 );
                 case IRON -> new Tool(
-                        "GOLD TRASH_CAN",
+                        "Gold Trash Can",
                         10000,
+                        "content/Tools/Trash_Can_Gold.png",
                         "A gold trash can for disposing of items.",
                         ToolType.TRASH_CAN,
                         ToolMaterial.GOLD,
@@ -227,8 +235,9 @@ public class Tool extends Item {
                         null
                 );
                 case GOLD -> new Tool(
-                        "IRIDIUM TRASH_CAN",
+                        "Iridium Trash Can",
                         25000,
+                        "content/Tools/Trash_Can_Iridium.png",
                         "An iridium trash can for disposing of items.",
                         ToolType.TRASH_CAN,
                         ToolMaterial.IRIDIUM,
@@ -247,6 +256,94 @@ public class Tool extends Item {
         return null;
     }
 
+    private String generateImageFilePath(ToolType toolType, ToolMaterial material) {
+        String basePath = "content/Tools/";
+
+        switch (toolType) {
+            case HOE -> {
+                return switch (material) {
+                    case BASIC -> basePath + "Hoe/Hoe.png";
+                    case COPPER -> basePath + "Hoe/Copper_Hoe.png";
+                    case IRON -> basePath + "Hoe/Steel_Hoe.png";
+                    case GOLD -> basePath + "Hoe/Gold_Hoe.png";
+                    case IRIDIUM -> basePath + "Hoe/Iridium_Hoe.png";
+                };
+            }
+            case PICKAXE -> {
+                return switch (material) {
+                    case BASIC -> basePath + "Pickaxe/Pickaxe.png";
+                    case COPPER -> basePath + "Pickaxe/Copper_Pickaxe.png";
+                    case IRON -> basePath + "Pickaxe/Steel_Pickaxe.png";
+                    case GOLD -> basePath + "Pickaxe/Gold_Pickaxe.png";
+                    case IRIDIUM -> basePath + "Pickaxe/Iridium_Pickaxe.png";
+                };
+            }
+            case AXE -> {
+                return switch (material) {
+                    case BASIC -> basePath + "Axe/Axe.png";
+                    case COPPER -> basePath + "Axe/Copper_Axe.png";
+                    case IRON -> basePath + "Axe/Steel_Axe.png";
+                    case GOLD -> basePath + "Axe/Gold_Axe.png";
+                    case IRIDIUM -> basePath + "Axe/Iridium_Axe.png";
+                };
+            }
+            case WATERING_CAN -> {
+                return switch (material) {
+                    case BASIC -> basePath + "Watering_Can/Watering_Can.png";
+                    case COPPER -> basePath + "Watering_Can/Copper_Watering_Can.png";
+                    case IRON -> basePath + "Watering_Can/Steel_Watering_Can.png";
+                    case GOLD -> basePath + "Watering_Can/Gold_Watering_Can.png";
+                    case IRIDIUM -> basePath + "Watering_Can/Iridium_Watering_Can.png";
+                };
+            }
+            case SCYTHE -> {
+                return basePath + "Scythe.png";
+            }
+            case MILK_PAIL -> {
+                return basePath + "Milk_Pail.png";
+            }
+            case SHEARS -> {
+                return basePath + "Shears.png";
+            }
+            case FISHING_ROD -> {
+                return switch (material) {
+                    case BASIC -> basePath + "Fishing_Pole/Bamboo_Pole.png";
+                    case COPPER -> basePath + "Fishing_Pole/Fiberglass_Rod.png";
+                    case IRON -> basePath + "Fishing_Pole/Iridium_Rod.png";
+                    case GOLD -> basePath + "Fishing_Pole/Iridium_Rod.png";
+                    case IRIDIUM -> basePath + "Fishing_Pole/Advanced_Iridium_Rod.png";
+                };
+            }
+            default -> {
+                return "";
+            }
+        }
+    }
+
+    private String generateToolName(ToolType toolType, ToolMaterial material) {
+        String materialName = switch (material) {
+            case BASIC -> "Basic";
+            case COPPER -> "Copper";
+            case IRON -> "Iron";
+            case GOLD -> "Gold";
+            case IRIDIUM -> "Iridium";
+        };
+
+        String toolTypeName = switch (toolType) {
+            case HOE -> "Hoe";
+            case PICKAXE -> "Pickaxe";
+            case AXE -> "Axe";
+            case WATERING_CAN -> "Watering Can";
+            case FISHING_ROD -> "Fishing Rod";
+            case SCYTHE -> "Scythe";
+            case MILK_PAIL -> "Milk Pail";
+            case SHEARS -> "Shears";
+            case TRASH_CAN -> "Trash Can";
+        };
+
+        return materialName + " " + toolTypeName;
+    }
+
     public boolean fill() {
         if (type == ToolType.WATERING_CAN) {
             this.currentWater = this.capacity;
@@ -255,12 +352,58 @@ public class Tool extends Item {
         return false;
     }
 
+    public boolean fill(int amount) {
+        if (type == ToolType.WATERING_CAN) {
+            int newAmount = Math.min(this.currentWater + amount, this.capacity);
+            this.currentWater = newAmount;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean consumeWater(int amount) {
+        if (type == ToolType.WATERING_CAN) {
+            if (this.currentWater >= amount) {
+                this.currentWater -= amount;
+                return true;
+            }
+            return false; // Not enough water
+        }
+        return false; // Not a watering can
+    }
+
     public int getCurrentWater() {
         return currentWater;
     }
 
     public int getCapacity() {
         return capacity;
+    }
+
+    public boolean isEmpty() {
+        return type == ToolType.WATERING_CAN && currentWater <= 0;
+    }
+
+    public boolean isFull() {
+        return type == ToolType.WATERING_CAN && currentWater >= capacity;
+    }
+
+    public float getWaterPercentage() {
+        if (type == ToolType.WATERING_CAN && capacity > 0) {
+            return (float) currentWater / capacity;
+        }
+        return 0.0f;
+    }
+
+    public boolean needsRefill() {
+        return type == ToolType.WATERING_CAN && currentWater < capacity * 0.1f; // Less than 10% full
+    }
+
+    public String getWaterLevelString() {
+        if (type == ToolType.WATERING_CAN) {
+            return currentWater + "/" + capacity;
+        }
+        return "";
     }
 
     // TrashCan specific methods

@@ -6,6 +6,7 @@ public enum GameMenuCommands implements Command {
 
     // game related
     SelectMap(Pattern.compile("^game\\s+map\\s+(\\d+)$")),
+    SelectFarm(Pattern.compile("^select\\s+farm\\s+(\\d+)$")),
     ExitGame(Pattern.compile("^exit\\s+game$")),
     NextTurn(Pattern.compile("^next\\s+turn$")),
     VoteTerminate(Pattern.compile("^vote\\s+terminate\\s+(yes|no)$")),
@@ -71,6 +72,8 @@ public enum GameMenuCommands implements Command {
     PrintMap(Pattern.compile("^print\\s+map\\s+-l\\s+(?<x>\\d+),(?<y>\\d+)\\s+-s\\s+(?<size>\\d+)$")),
     TeleportToVillage(Pattern.compile("^teleport\\s+to\\s+village$")),
     TeleportToFarm(Pattern.compile("^teleport\\s+to\\s+farm$")),
+    WalkToVillage(Pattern.compile("^walk\\s+to\\s+village$")),
+    WalkToFarm(Pattern.compile("^walk\\s+to\\s+farm\\s+(?<farmIndex>\\d+)$")),
     TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
             "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
     TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),

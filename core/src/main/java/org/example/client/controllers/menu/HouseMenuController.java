@@ -135,7 +135,7 @@ public class HouseMenuController implements Controller {
         }
     }
 
-    private Result cookingPrepare(String[] args) {
+    public Result cookingPrepare(String[] args) {
         String name = args[0];
         Item item = ItemBuilder.build(name);
 
@@ -149,9 +149,6 @@ public class HouseMenuController implements Controller {
         if (!isCooking(item)) {
             return Result.error("Item is not a recipe");
         }
-        if (!(player.getCookingItems().contains((CookingItem) item) || house.getRefrigerator().contains(item))) {
-            return Result.error("You don't have the item in this house (and your back pack).");
-        }
 
 
         CookingItem cookingItem = (CookingItem) item;
@@ -164,6 +161,7 @@ public class HouseMenuController implements Controller {
         }
 
         player.decreaseEnergy(3);
+        player.addCookingItem(cookingItem);
         return Result.success("Food " + food.getName() + " cooked");
     }
 
@@ -229,7 +227,7 @@ public class HouseMenuController implements Controller {
             return Result.error("You don't have enough items for this artisan");
         }
 
-        if(!craftingItem.proccessItem(items)){
+        if(!craftingItem.processItem(items)){
             return Result.error("There is item processing on " + craftingItem.getName() + "!");
         }
 

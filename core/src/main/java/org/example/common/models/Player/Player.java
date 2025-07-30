@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class Player {
     private List<Skill> skills;
@@ -77,7 +78,7 @@ public class Player {
         craftingItems = new ArrayList<CraftingItem>();
         cookingItems = new ArrayList<CookingItem>();
         backpack = new Backpack();
-        this.energy = 200;
+        this.energy = 300;
         this.hasCollapsed = false;
         this.friendships = new HashMap<>();
         this.isInVillage = false;
@@ -93,7 +94,7 @@ public class Player {
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
             Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null, null), 1);
-        backpack.add(new Tool("Initial Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
+        backpack.add(new Tool("Basic Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, null), 1);
         this.spouse = null;
 
@@ -106,7 +107,25 @@ public class Player {
 
         //graphic ui
         this.speed = 5;
-        rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+
+        // Check if we're in a server environment (Gdx.files is null on server)
+        boolean isServerEnvironment = false;
+        try {
+            // Try to access Gdx.files - if it's null, we're on the server
+            if (com.badlogic.gdx.Gdx.files == null) {
+                isServerEnvironment = true;
+            }
+        } catch (Exception e) {
+            isServerEnvironment = true;
+        }
+
+        if (isServerEnvironment) {
+            // Server environment - create collision rect with default dimensions
+            rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
+        } else {
+            // Client environment - create collision rect using actual sprite dimensions
+            rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+        }
 
 
         // TODO: delete
@@ -137,13 +156,29 @@ public class Player {
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
-         this.textureSheet = switch (currentFarm.getFarmIndex()) {
-            case 0 -> new Texture("sprites/Alex.png");
-            case 1 -> new Texture("sprites/Birdie.png");
-            case 2 -> new Texture("sprites/Gus.png");
-            case 3 -> new Texture("sprites/Leah.png");
-            default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
-        };
+
+        // Check if we're in a server environment (Gdx.files is null on server)
+        boolean isServerEnvironment = false;
+        try {
+            // Try to access Gdx.files - if it's null, we're on the server
+            if (com.badlogic.gdx.Gdx.files == null) {
+                isServerEnvironment = true;
+            }
+        } catch (Exception e) {
+            isServerEnvironment = true;
+        }
+
+        if (!isServerEnvironment) {
+            // Only create textures on client side
+            this.textureSheet = switch (currentFarm.getFarmIndex()) {
+                case 0 -> new Texture("sprites/Alex.png");
+                case 1 -> new Texture("sprites/Birdie.png");
+                case 2 -> new Texture("sprites/Gus.png");
+                case 3 -> new Texture("sprites/Leah.png");
+                default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
+            };
+        }
+        // On server side, textureSheet remains null
     }
 
     public Texture getTextureSheet() {
@@ -462,133 +497,87 @@ public class Player {
             return false;
         }
 
-
-        boolean hasEnoughResources = true;
-        if (!hasEnoughResources) {
-            return false;
-        }
-
         Tool tool = (Tool) item;
 
         switch (tool.getMaterial()) {
             case BASIC -> {
                 int cost = 1_000;
-                Item cooper;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    cooper = new Item("Cooper Tool", 5_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    cooper = new Item("Copper Trash Can", 1_000 , "");
-                }
-
-                if (!market.checkItem(this, cooper, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Cooper Bar") == null) {
+
+                // Check for Copper Bar (5 required)
+                Item copperBar = getBackpack().getItem("Copper Bar");
+                if (copperBar == null || getBackpack().getInventory().get(copperBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Cooper Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+
+                decreaseMoney(cost);
+                getBackpack().remove(copperBar, 5);
             }
             case COPPER -> {
-                Item iron;
                 int cost = 2_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    //TODO : adding correct image file path
-                    iron = new Item("Iron Tool", 5_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    //TODO : adding correct image file path
-                    iron = new Item("Iron Trash Can", 2_500 , "");
-                }
-
-                if (!market.checkItem(this, iron, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Iron") == null) {
+
+                // Check for Iron Bar (5 required)
+                Item ironBar = getBackpack().getItem("Iron Bar");
+                if (ironBar == null || getBackpack().getInventory().get(ironBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iron");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+
+                decreaseMoney(cost);
+                getBackpack().remove(ironBar, 5);
             }
             case IRON -> {
-                Item gold;
                 int cost = 5_000;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    gold = new Item("Gold Tool", 10_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    gold = new Item("Gold Trash Can", 5_000 , "");
-                }
-
-                if (!market.checkItem(this, gold, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Gold Bar") == null) {
+
+                // Check for Gold Bar (5 required)
+                Item goldBar = getBackpack().getItem("Gold Bar");
+                if (goldBar == null || getBackpack().getInventory().get(goldBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Gold Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+
+                decreaseMoney(cost);
+                getBackpack().remove(goldBar, 5);
             }
             case GOLD -> {
-                Item iridium;
                 int cost = 12_500;
-                if (!toolName.equalsIgnoreCase("Trash Can")) {
-                    //TODO : adding correct image file path
-                    iridium = new Item("Iridium Tool", 25_000 , "");
+                if (!toolName.toLowerCase().contains("trash can")) {
                     cost = cost * 2;
-                } else {
-                    //TODO : adding correct image file path
-                    iridium = new Item("Iridium Trash Can", 12_500 , "");
-                }
-
-                if (!market.checkItem(this, iridium, 1)) {
-                    return false;
                 }
 
                 if (getMoney() < cost) {
                     return false;
                 }
-                if (getBackpack().getItem("Iridium Bar") == null) {
+
+                // Check for Iridium Bar (5 required)
+                Item iridiumBar = getBackpack().getItem("Iridium Bar");
+                if (iridiumBar == null || getBackpack().getInventory().get(iridiumBar) < 5) {
                     return false;
-                } else {
-                    Item item1 = getBackpack().getItem("Iridium Bar");
-                    if (getBackpack().getInventory().get(item1) < 5) {
-                        return false;
-                    }
                 }
-                decreaseMoney(getMoney() - cost);
-                getBackpack().remove(tool, 5);
+
+                decreaseMoney(cost);
+                getBackpack().remove(iridiumBar, 5);
             }
             case IRIDIUM -> {
-                return false;
+                return false; // Already at highest material
             }
         }
 
@@ -598,7 +587,6 @@ public class Player {
         }
 
         backpack.remove(tool, 1);
-
         backpack.add(upgradedTool, 1);
 
         if (currentTool != null && currentTool.equals(tool)) {
@@ -723,6 +711,10 @@ public class Player {
 
     public boolean craftingExists(String name) {
         return craftingItems.stream().anyMatch(craftingItem -> craftingItem.getName().equals(name));
+    }
+
+    public boolean cookingExists(String name) {
+        return cookingItems.stream().anyMatch(cookingItem -> cookingItem.getName().equals(name));
     }
 
     public boolean checkTeleportToVillage() {
@@ -916,14 +908,34 @@ public class Player {
     }
 
     public void updatePosition() {
-        getPlayerSprite().setPosition(posX, posY);
+        Sprite sprite = getPlayerSprite();
+        if (sprite != null) {
+            sprite.setPosition(posX, posY);
+        }
         rect.move(posX, posY);
     }
 
     public Sprite getPlayerSprite() {
         if(playerSprite == null) {
-            playerSprite = new Sprite(new Texture(spriteFileLocation));
-            return playerSprite;
+            // Check if we're in a server environment (Gdx.files is null on server)
+            boolean isServerEnvironment = false;
+            try {
+                // Try to access Gdx.files - if it's null, we're on the server
+                if (com.badlogic.gdx.Gdx.files == null) {
+                    isServerEnvironment = true;
+                }
+            } catch (Exception e) {
+                isServerEnvironment = true;
+            }
+
+            if (isServerEnvironment) {
+                // Server environment - return null or create a dummy sprite
+                // For now, we'll return null since sprites aren't needed on the server
+                return null;
+            } else {
+                // Client environment - create actual sprite
+                playerSprite = new Sprite(new Texture(spriteFileLocation));
+            }
         }
         return playerSprite;
     }
@@ -938,5 +950,18 @@ public class Player {
 
     public List<CraftingItem> getPlacedCraftingItems() {
         return placedCraftingItems;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(user, player.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(user);
     }
 }

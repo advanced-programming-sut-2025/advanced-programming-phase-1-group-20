@@ -1,4 +1,4 @@
-package org.example.client.views;
+package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -12,7 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.common.models.App;
-import org.example.client.controllers.ProfileMenuController;
+import org.example.client.controllers.menu.ProfileMenuController;
 import org.example.common.models.entities.User;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.graphics.Color;

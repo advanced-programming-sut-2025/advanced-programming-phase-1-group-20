@@ -11,7 +11,7 @@ import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
-import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.WelcomeMenuScreen;
 
 import java.util.ArrayList;
 import java.util.List;

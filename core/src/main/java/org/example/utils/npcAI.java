@@ -26,7 +26,7 @@ public class npcAI {
     public static String generateDialogue(NPC npc, String context) {
         try {
             String prompt = createPrompt(npc, context);
-            String response = callHuggingFaceApi(prompt);
+            String response = callApi(prompt);
             return processResponse(response, npc);
         } catch (Exception e) {
             System.err.println("Error generating dialogue: " + e.getMessage());
@@ -49,7 +49,7 @@ public class npcAI {
         return promptBuilder.toString();
     }
 
-    private static String callHuggingFaceApi(String prompt) throws Exception {
+    private static String callApi(String prompt) throws Exception {
         // Prepare the request body
         String body = "{\"model\": \"deepseek/deepseek-chat-v3-0324:free\",\n" +
                 "  \"messages\": [\n" +
@@ -103,9 +103,7 @@ public class npcAI {
                     .get(0).getAsJsonObject()
                     .getAsJsonObject("message")
                     .get("content").getAsString();
-            // Extract the generated text
 
-            // Clean up the text (remove any unwanted artifacts)
             generatedText = generatedText.trim();
 
             // If the response is empty or too short, use a fallback

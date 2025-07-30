@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameSession {
     private final String sessionId;
@@ -27,6 +28,8 @@ public class GameSession {
     private boolean isActive;
 
     public GameSession(User creator) {
+        System.out.println("DEBUG: GameSession constructor called for creator: " + creator.getUsername());
+        
         this.sessionId = UUID.randomUUID().toString();
         this.playerConnections = new ConcurrentHashMap<>();
         this.gameLoop = Executors.newSingleThreadScheduledExecutor();
@@ -35,15 +38,17 @@ public class GameSession {
         this.isActive = false;
 
         // Create game instance with the creator as the first player
+        System.out.println("DEBUG: Creating game instance...");
         List<Player> players = new ArrayList<>();
         Player creatorPlayer = new Player(creator);
         players.add(creatorPlayer);
 
         this.gameInstance = new Game(players, creatorPlayer);
+        System.out.println("DEBUG: Game instance created successfully");
         // Don't set the game in App on server side - this is client-side only
         // App.setGame(this.gameInstance);
 
-        System.out.println("Created new game session: " + sessionId + " for user: " + creator.getUsername());
+        System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
     }
 
     public String getSessionId() {
@@ -67,22 +72,28 @@ public class GameSession {
     }
 
     public boolean addPlayer(PlayerConnection connection, User user) {
+        // System.out.println("DEBUG: addPlayer called for user: " + user.getUsername());
+        
         if (isFull()) {
+            // System.err.println("DEBUG: Game session is full, cannot add player");
             return false;
         }
 
         // Add player to game instance
+        // System.out.println("DEBUG: Adding player to game instance...");
         Player newPlayer = new Player(user);
-        gameInstance.addPlayer(newPlayer);
+        boolean addedToGame = gameInstance.addPlayer(newPlayer);
+        // System.out.println("DEBUG: Player added to game instance: " + addedToGame);
 
         // Add connection to session
+        System.out.println("DEBUG: Adding connection to session...");
         playerConnections.put(user.getUsername(), connection);
         connection.setGameSession(this);
 
         // Notify all players about new player
         broadcastPlayerJoined(user.getUsername());
 
-        System.out.println("Player " + user.getUsername() + " joined game session: " + sessionId);
+        // System.out.println("DEBUG: Player " + user.getUsername() + " joined game session: " + sessionId);
         return true;
     }
 
@@ -108,27 +119,46 @@ public class GameSession {
     }
 
     public void startGame() {
-        if (playerConnections.size() < 2) {
-            System.out.println("Cannot start game with less than 2 players");
+        if (playerConnections.size() < 1) {
+            System.out.println("Cannot start game with less than 1 player");
             return;
         }
 
         this.isActive = true;
 
-        gameInstance.initializeMultiplayerGame();
+        // Don't initialize farms yet - wait for farm selection
+        // gameInstance.initializeMultiplayerGame();
 
         int tickRate = config.getGameTickRate();
         gameLoop.scheduleAtFixedRate(this::gameLoop, 0, 1000 / tickRate, TimeUnit.MILLISECONDS);
 
-        // Send full game state to all players
-        broadcastFullGameState();
+        // Send farm selection phase start message
+        Message farmSelectionStart = new Message();
+        farmSelectionStart.setType(Message.Type.START_GAME);
+        farmSelectionStart.putInBody("gameSessionId", sessionId);
+        farmSelectionStart.putInBody("message", "Game started! Please select your farm.");
+        farmSelectionStart.putInBody("inFarmSelectionPhase", true);
+        farmSelectionStart.putInBody("availableFarms", gameInstance.getAvailableFarmIndices());
+        farmSelectionStart.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
+        farmSelectionStart.putInBody("playersData", gameInstance.getPlayersData());
+        farmSelectionStart.putInBody("gameData", gameInstance.getGameState());
+        farmSelectionStart.putInBody("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ? 
+            gameInstance.getCurrentPlayer().getUser().getUsername() : null);
+        farmSelectionStart.putInBody("playerCount", gameInstance.getPlayerCount());
+        farmSelectionStart.putInBody("isActive", false); // Not fully active until farm selection is complete
 
-        System.out.println("Started game session: " + sessionId + " with " + playerConnections.size() + " players");
+        broadcastToAll(farmSelectionStart);
+
+        System.out.println("Started game session: " + sessionId + " with " + playerConnections.size() + " players - Farm selection phase");
     }
 
     public void processMessage(String username, Message message) {
-        if (!isActive && message.getType() != Message.Type.START_GAME) {
-            return; // Only allow start game messages before game is active
+        System.out.println("DEBUG: GameSession.processMessage - username: " + username + ", message type: " + message.getType() + ", isActive: " + isActive);
+        
+        // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
+        if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
+            System.out.println("DEBUG: Game not active, ignoring message type: " + message.getType());
+            return; // Only allow start game and farm selection messages before game is active
         }
 
         switch (message.getType()) {
@@ -149,6 +179,10 @@ public class GameSession {
                 break;
             case TRADE_REQUEST:
                 handleTradeRequest(username, message);
+                break;
+            case SELECT_FARM:
+                System.out.println("DEBUG: Routing SELECT_FARM message to handleFarmSelection");
+                handleFarmSelection(username, message);
                 break;
             case START_GAME:
                 startGame();
@@ -234,11 +268,129 @@ public class GameSession {
         }
     }
 
+    private void handleFarmSelection(String username, Message message) {
+        System.out.println("DEBUG: handleFarmSelection called for username: " + username);
+        int farmIndex = message.getIntFromBody("farmIndex");
+        System.out.println("DEBUG: Farm index requested: " + farmIndex);
+        
+        Player player = gameInstance.getPlayerByUsername(username);
+        
+        if (player == null) {
+            System.err.println("DEBUG: Player not found: " + username);
+            return;
+        }
+        System.out.println("DEBUG: Player found: " + player.getUser().getUsername());
+
+        // Check if farm index is valid (0-3)
+        if (farmIndex < 0 || farmIndex > 3) {
+            System.err.println("DEBUG: Invalid farm index: " + farmIndex);
+            sendErrorMessage(username, "Invalid farm index. Must be between 0 and 3.");
+            return;
+        }
+
+        // Check if farm index is available (allow players to change their own selection)
+        if (!gameInstance.isFarmIndexAvailable(farmIndex, player)) {
+            System.err.println("DEBUG: Farm index " + farmIndex + " is already taken by another player");
+            sendErrorMessage(username, "Farm index " + farmIndex + " is already taken by another player.");
+            return;
+        }
+        System.out.println("DEBUG: Farm index " + farmIndex + " is available");
+
+        // Select the farm for the player
+        gameInstance.selectFarm(player, farmIndex);
+        System.out.println("DEBUG: Farm " + farmIndex + " selected for player " + username);
+        
+        // Debug: Check current state
+        System.out.println("DEBUG: Current players: " + gameInstance.getPlayers().size());
+        System.out.println("DEBUG: Current farm selections: " + gameInstance.getPlayerFarmSelections());
+        System.out.println("DEBUG: All players selected farm: " + gameInstance.allPlayersSelectedFarm());
+        
+        // Create response message
+        Message response = new Message();
+        response.setType(Message.Type.FARM_SELECTION_UPDATE);
+        response.putInBody("username", username);
+        response.putInBody("farmIndex", farmIndex);
+        response.putInBody("availableFarms", gameInstance.getAvailableFarmIndices());
+        response.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
+        
+        System.out.println("DEBUG: Broadcasting FARM_SELECTION_UPDATE to all players");
+        // Broadcast to all players
+        broadcastToAll(response);
+        
+        // Check if all players have selected farms
+        if (gameInstance.allPlayersSelectedFarm()) {
+            System.out.println("DEBUG: All players have selected farms, initializing game");
+            // Initialize the game with selected farms
+            gameInstance.initializeMultiplayerGame();
+            
+            // Set the game session as fully active
+            this.isActive = true;
+            
+            // Create comprehensive game state for clients
+            Map<String, Object> completeGameState = new HashMap<>();
+            completeGameState.put("gameSessionId", sessionId);
+            completeGameState.put("isActive", true);
+            completeGameState.put("playerSelections", gameInstance.getPlayerFarmSelections());
+            completeGameState.put("playersData", gameInstance.getPlayersData());
+            completeGameState.put("gameData", gameInstance.getGameState());
+            completeGameState.put("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ? 
+                gameInstance.getCurrentPlayer().getUser().getUsername() : null);
+            completeGameState.put("playerCount", gameInstance.getPlayerCount());
+            
+            // Add all players with their farm assignments
+            Map<String, Object> allPlayersInfo = new HashMap<>();
+            for (Player p : gameInstance.getPlayers()) {
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("username", p.getUser().getUsername());
+                playerInfo.put("farmIndex", gameInstance.getFarmSelection(p));
+                playerInfo.put("farmName", p.getCurrentFarm() != null ? p.getCurrentFarm().getName() : "Unknown");
+                playerInfo.put("posX", p.getPosX());
+                playerInfo.put("posY", p.getPosY());
+                playerInfo.put("energy", p.getEnergy());
+                playerInfo.put("money", p.getMoney());
+                allPlayersInfo.put(p.getUser().getUsername(), playerInfo);
+            }
+            completeGameState.put("allPlayersInfo", allPlayersInfo);
+            
+            Message completeMessage = new Message();
+            completeMessage.setType(Message.Type.FARM_SELECTION_COMPLETE);
+            completeMessage.putInBody("message", "All players have selected their farms! Game is now starting.");
+            completeMessage.putInBody("completeGameState", completeGameState);
+            
+            broadcastToAll(completeMessage);
+            
+            // Also send a full game state update to ensure all clients have the complete game state
+            broadcastFullGameState();
+            
+            System.out.println("Farm selection complete - Game fully initialized for session: " + sessionId);
+        } else {
+            System.out.println("DEBUG: Not all players have selected farms yet");
+            System.out.println("DEBUG: Players who haven't selected: ");
+            for (Player p : gameInstance.getPlayers()) {
+                Integer selection = gameInstance.getFarmSelection(p);
+                System.out.println("DEBUG: - " + p.getUser().getUsername() + ": " + selection);
+            }
+        }
+    }
+
+    private void sendErrorMessage(String username, String errorMessage) {
+        Message errorMsg = new Message();
+        errorMsg.setType(Message.Type.ERROR);
+        errorMsg.putInBody("message", errorMessage);
+        
+        PlayerConnection connection = playerConnections.get(username);
+        if (connection != null) {
+            connection.sendMessage(errorMsg);
+        }
+    }
+
     private void broadcastToAll(Message message) {
+        System.out.println("DEBUG: broadcastToAll - message type: " + message.getType() + ", player connections: " + playerConnections.size());
         String messageJson = gson.toJson(message);
         playerConnections.values().forEach(connection -> {
             connection.sendMessage(messageJson);
         });
+        System.out.println("DEBUG: broadcastToAll - message sent to all players");
     }
 
     private void broadcastToOthers(String excludeUsername, Message message) {

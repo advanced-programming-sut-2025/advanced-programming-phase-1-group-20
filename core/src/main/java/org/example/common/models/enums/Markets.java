@@ -105,8 +105,7 @@ public enum Markets {
         ancientSeed.setPrice(500);
         items.add(new Product(ancientSeed, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 125 , "grass.png" , "Place this on your farm to start a new patch of grass.");
+        Item grassStarter = new Item("Grass Starter" , 125 , "content/Grass_Starter.png" , "Place this on your farm to start a new patch of grass.");
         items.add(new Product(grassStarter, Double.POSITIVE_INFINITY));
 
 
@@ -308,8 +307,7 @@ public enum Markets {
         dehydrator.setPrice(10_000);
         items.add(new Product(dehydrator, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 1000 , "grass.png" , "A recipe to make Grass Starter");
+        Item grassStarter = new Item("Grass Starter" , 1000 , "content/Grass_Starter.png" , "A recipe to make Grass Starter");
         items.add(new Product(grassStarter, 1.0));
 
 
@@ -502,8 +500,7 @@ public enum Markets {
         autumnItems.add(new Product(spangleSeed, 5.0));
         winterItems.add(new Product(spangleSeed, 5.0));
 
-        //TODO : adding correct image file path
-        Item hopStarter = new Item("Hops Starter" , 60 ,  "" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
+        Item hopStarter = new Item("Hops Starter" , 60 ,  "content/Plants/Hops_Starter.png" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
         summerItems.add(new Product(hopStarter, 5.0));
         hopStarter.setPrice(90);
         springItems.add(new Product(hopStarter, 5.0));
@@ -631,31 +628,22 @@ public enum Markets {
         Item stone = new Mineral(MineralType.Stone);
         items.add(new Product(stone, Double.POSITIVE_INFINITY));
 
-
-
-        //TODO : adding correct image file path
-        Item barn = new Item("Barn" , 6_000 , "");
+        Item barn = new Item("Barn" , 6_000 , "content/Buildings/Barn.png");
         items.add(new Product(barn,1.0));
-        //TODO : adding correct image file path
-        Item bigBarn = new Item("Big Barn" , 12_000 , "");
+        Item bigBarn = new Item("Big Barn" , 12_000 , "content/Buildings/Big Barn.png");
         items.add(new Product(bigBarn,1.0));
-        //TODO : adding correct image file path
-        Item deluxeBarn = new Item("Deluxe Barn" , 25_000 , "");
+        Item deluxeBarn = new Item("Deluxe Barn" , 25_000 , "content/Buildings/Deluxe Barn.png");
         items.add(new Product(deluxeBarn,1.0));
 
 
-        //TODO : adding correct image file path
-        Item coop = new Item("Coop" , 4_000 , "");
+        Item coop = new Item("Coop" , 4_000 , "content/Buildings/Coop.png");
         items.add(new Product(coop,1.0));
-        //TODO : adding correct image file path
-        Item bigCoop = new Item("Big Coop" , 10_000 , "");
+        Item bigCoop = new Item("Big Coop" , 10_000 , "content/Buildings/Big Coop.png");
         items.add(new Product(bigCoop,1.0));
-        //TODO : adding correct image file path
-        Item deluxeCoop = new Item("Deluxe Coop" , 20_000 , "");
+        Item deluxeCoop = new Item("Deluxe Coop" , 20_000 , "content/Buildings/Deluxe Coop.png");
         items.add(new Product(deluxeCoop,1.0));
 
-        //TODO : adding correct image file path
-        Item well = new Item("Well" , 1_000 , "");
+        Item well = new Item("Well" , 1_000 , "content/Buildings/Well.png");
         items.add(new Product(well,1.0));
         Item shippingBin = new ShippingBin();
         items.add(new Product(shippingBin,Double.POSITIVE_INFINITY));
@@ -814,24 +802,19 @@ public enum Markets {
         fishSmoker.setPrice(10_000);
         items.add(new Product(fishSmoker, 1.0));
 
-        //TODO : adding correct image file path
-        Item troutSoup = new Item("Trout Soup", 250, "" , "Pretty salty.");
+        Item troutSoup = new Item("Trout Soup", 250, "content/Recipe/Trout_Soup.png" , "Pretty salty.");
         items.add(new Product(troutSoup, 1.0));
 
-        //TODO : adding correct image file path
-        Item bambooPole = new Item("Bamboo Pole", 500, "" , "Use in the water to catch fish.");
+        Item bambooPole = new Item("Bamboo Pole", 500, "content/Tools/Fishing_Pole/Bamboo_Pole.png" , "Use in the water to catch fish.");
         items.add(new Product(bambooPole, 1.0));
 
-        //TODO : adding correct image file path
-        Item trainingRod = new Item("Training Rod", 25, "" ,"It's a lot easier to use than other rods, but can only catch basic fish.");
+        Item trainingRod = new Item("Training Rod", 25, "content/Tools/Fishing_Pole/Training_Rod.png" ,"It's a lot easier to use than other rods, but can only catch basic fish.");
         items.add(new Product(trainingRod, 1.0));
 
-        //TODO : adding correct image file path
-        Item fiberglassRod = new Item("Fiberglass Rod", 1800,"" , "Use in the water to catch fish.");
+        Item fiberglassRod = new Item("Fiberglass Rod", 1800,"content/Tools/Fishing_Pole/Fiberglass_Rod.png" , "Use in the water to catch fish.");
         items.add(new Product(fiberglassRod, 1.0));
 
-        //TODO : adding correct image file path
-        Item iridiumRod = new Item("Iridium Rod", 7500, "" ,"Use in the water to catch fish.");
+        Item iridiumRod = new Item("Iridium Rod", 7500, "content/Tools/Fishing_Pole/Advanced_Iridium_Rod.png" ,"Use in the water to catch fish.");
         items.add(new Product(iridiumRod, 1.0));
 
         int startHour = 9;
@@ -843,6 +826,4 @@ public enum Markets {
     public Market createMarket() {
         return this.market;
     }
-
-
 }

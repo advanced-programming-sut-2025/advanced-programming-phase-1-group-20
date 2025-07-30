@@ -71,9 +71,11 @@ public class Village {
         initializeTownHall();
         initializeGoldClock();
         initializeMarkets();
+        initializeNPCHouses();
         markMarketAreas();
         markTownHall();
         markGoldClock();
+        markNPCHouses();
     }
 
     public Village() {
@@ -98,6 +100,7 @@ public class Village {
         symbolMap.put("barn", 'B');
         symbolMap.put("town_hall", 'T');
         symbolMap.put("gold_clock", 'C');
+        symbolMap.put("npc_house", 'N');
         symbolMap.put("empty", ' ');
     }
 
@@ -186,6 +189,25 @@ public class Village {
         buildings.add(goldClock);
     }
 
+    private void initializeNPCHouses() {
+        // Add 5 NPC houses at the bottom of the village
+        // Position them in a row at the bottom, with some spacing
+        int houseWidth = 5;
+        int houseHeight = 5;
+        int bottomY = 5; // 5 tiles from bottom edge (Y=0 is bottom, Y=height-1 is top)
+        int startX = 10; // Start 10 tiles from left edge
+        int spacing = 8; // Space between houses
+        
+        for (int i = 0; i < 5; i++) {
+            int houseX = startX + (i * (houseWidth + spacing));
+            String houseName = "NPC House " + (i + 1);
+            Building npcHouse = new Building(houseX, bottomY, houseName, "npc_house");
+            // Set the sprite path for each NPC house
+            npcHouse.setSpritePath("content/map_elements/npc_house" + (i + 1) + ".png");
+            buildings.add(npcHouse);
+        }
+    }
+
     private void markTownHall() {
         if (townHall != null) {
             int buildingX = townHall.getX();
@@ -215,6 +237,27 @@ public class Village {
                     if (contains(x, y)) {
                         tiles[x][y] = new Location(x, y, TileType.BUILDING);
                         tiles[x][y].setType("gold_clock");
+                    }
+                }
+            }
+        }
+    }
+
+    private void markNPCHouses() {
+        // Mark all NPC houses on the map
+        for (Building building : buildings) {
+            if (building.getType().equals("npc_house")) {
+                int buildingX = building.getX();
+                int buildingY = building.getY();
+                int buildingWidth = building.getWidth();
+                int buildingHeight = building.getHeight();
+
+                for (int y = buildingY; y < buildingY + buildingHeight; y++) {
+                    for (int x = buildingX; x < buildingX + buildingWidth; x++) {
+                        if (contains(x, y)) {
+                            tiles[x][y] = new Location(x, y, TileType.BUILDING);
+                            tiles[x][y].setType("npc_house");
+                        }
                     }
                 }
             }
@@ -471,6 +514,12 @@ public class Village {
         }
 
         return null;
+    }
+
+    public static int calculateEnergyNeeded(Location from, Location to) {
+        int distance = Math.abs(from.getX() - to.getX()) + Math.abs(from.getY() - to.getY());
+        int baseEnergyCost = 2;
+        return distance * baseEnergyCost;
     }
 
     public int walk(int x, int y) {

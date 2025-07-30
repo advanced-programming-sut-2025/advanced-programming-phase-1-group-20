@@ -347,6 +347,17 @@ public class AssetManager {
         return fishingSafezoneTexture;
     }
 
+    public Texture getFishTexture(String fishImagePath) {
+        try {
+            Texture texture = new Texture(Gdx.files.internal(fishImagePath));
+            return texture;
+        } catch (Exception e) {
+            Gdx.app.error("AssetManager", "Failed to load fish texture: " + fishImagePath + " - " + e.getMessage());
+            // Return a fallback texture
+            return fishingFishIconTexture;
+        }
+    }
+
     public Texture[] getSnowTextures() {
         return snowTextures;
     }

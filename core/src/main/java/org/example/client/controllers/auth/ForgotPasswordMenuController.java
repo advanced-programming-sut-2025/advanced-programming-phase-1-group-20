@@ -1,7 +1,7 @@
 package org.example.client.controllers.auth;
 
 import com.badlogic.gdx.Gdx;
-import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.WelcomeMenuScreen;
 import org.example.client.views.menu.ForgotPasswordMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;

@@ -1,4 +1,4 @@
-package org.example.client.controllers;
+package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -6,11 +6,11 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.WelcomeMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
-import org.example.client.views.ProfileMenuScreen;
+import org.example.client.views.menu.ProfileMenuScreen;
 
 
 import static org.example.client.Main.getGame;
@@ -128,7 +128,7 @@ public class ProfileMenuController {
 
                 Gdx.app.postRunnable(() -> {
                     getGame().getScreen().dispose();
-                    getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
+                    getGame().setScreen(new WelcomeMenuScreen(new org.example.client.controllers.WelcomeMenuController(),
                         AssetManager.getAssetManager().getSkin()));
                 });
             }

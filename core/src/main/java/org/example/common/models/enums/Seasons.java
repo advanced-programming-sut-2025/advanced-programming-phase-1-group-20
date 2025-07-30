@@ -26,6 +26,4 @@ public enum Seasons {
         }
         return mixedSeeds[RANDOM.nextInt(mixedSeeds.length)];
     }
-
-
 }

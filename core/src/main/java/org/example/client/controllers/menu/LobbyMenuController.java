@@ -54,22 +54,22 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     // Helper method to safely deserialize Lobby objects from JSON
     private Lobby deserializeLobby(Object lobbyObj) {
         System.out.println("DEBUG: deserializeLobby called with object type: " + (lobbyObj != null ? lobbyObj.getClass().getSimpleName() : "null"));
-        
+
         if (lobbyObj == null) {
             System.out.println("DEBUG: lobbyObj is null");
             return null;
         }
-        
+
         if (lobbyObj instanceof Lobby) {
             System.out.println("DEBUG: Object is already a Lobby instance");
             return (Lobby) lobbyObj;
         }
-        
+
         try {
             // Convert to JSON string and back to Lobby object
             String jsonString = gson.toJson(lobbyObj);
             System.out.println("DEBUG: Converted to JSON: " + jsonString);
-            
+
             // Try to parse with more detailed error handling
             try {
                 Lobby lobby = gson.fromJson(jsonString, Lobby.class);
@@ -81,7 +81,7 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             } catch (Exception parseException) {
                 System.err.println("DEBUG: Gson parsing failed: " + parseException.getMessage());
                 parseException.printStackTrace();
-                
+
                 // Try manual parsing as fallback
                 return createLobbyFromMap(lobbyObj);
             }
@@ -98,21 +98,21 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
         try {
             // Create a new Lobby with basic info
             Lobby lobby = new Lobby();
-            
+
             // Use reflection to get values from the map-like object
             if (lobbyObj instanceof java.util.Map) {
                 java.util.Map<?, ?> map = (java.util.Map<?, ?>) lobbyObj;
-                
+
                 // Extract basic fields
                 Object idObj = map.get("id");
                 Object nameObj = map.get("name");
                 Object adminIdObj = map.get("adminId");
                 Object statusObj = map.get("status");
-                
+
                 if (idObj != null) lobby.setId(idObj.toString());
                 if (nameObj != null) lobby.setName(nameObj.toString());
                 if (adminIdObj != null) lobby.setAdminId(adminIdObj.toString());
-                
+
                 // Handle status enum
                 if (statusObj != null) {
                     try {
@@ -123,7 +123,7 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
                         lobby.setStatus(Lobby.LobbyStatus.WAITING);
                     }
                 }
-                
+
                 System.out.println("DEBUG: Manually created lobby: " + lobby.getName());
                 return lobby;
             }
@@ -137,25 +137,25 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     // Helper method to safely deserialize List<Lobby> objects from JSON
     private List<Lobby> deserializeLobbyList(Object lobbiesObj) {
         System.out.println("DEBUG: deserializeLobbyList called with object type: " + (lobbiesObj != null ? lobbiesObj.getClass().getSimpleName() : "null"));
-        
+
         if (lobbiesObj == null) {
             System.out.println("DEBUG: lobbiesObj is null");
             return new ArrayList<>();
         }
-        
+
         if (lobbiesObj instanceof List) {
             List<?> list = (List<?>) lobbiesObj;
             if (list.isEmpty()) {
                 System.out.println("DEBUG: List is empty");
                 return new ArrayList<>();
             }
-            
+
             // Check if it's already a List<Lobby>
             if (list.get(0) instanceof Lobby) {
                 System.out.println("DEBUG: List already contains Lobby objects");
                 return (List<Lobby>) list;
             }
-            
+
             // Convert each element
             List<Lobby> result = new ArrayList<>();
             for (Object obj : list) {
@@ -167,7 +167,7 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             System.out.println("DEBUG: Converted " + result.size() + " lobbies from list");
             return result;
         }
-        
+
         System.out.println("DEBUG: Object is not a List, returning empty list");
         return new ArrayList<>();
     }
@@ -358,11 +358,8 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
         }
 
         try {
-            Message message = new Message();
-            message.setType(Message.Type.START_LOBBY_GAME);
-
-            System.out.println("Sending START_LOBBY_GAME message");
-            networkClient.sendMessage(message);
+            System.out.println("Starting lobby game...");
+            networkClient.startLobbyGame();
 
             if (view != null) {
                 view.showStatus("Starting game...");
@@ -417,6 +414,10 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
                         break;
                     case START_LOBBY_GAME:
                         System.out.println("DEBUG: Handling START_LOBBY_GAME message");
+                        handleStartGameResponse(message);
+                        break;
+                    case START_GAME:
+                        System.out.println("DEBUG: Handling START_GAME message");
                         handleStartGameResponse(message);
                         break;
 
@@ -497,18 +498,50 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
     }
 
     private void handleStartGameResponse(Message message) {
-        System.out.println("Handling START_LOBBY_GAME response");
-        String status = message.getFromBody("status");
-        if ("success".equals(status)) {
-            String gameSessionId = message.getFromBody("gameSessionId");
+        System.out.println("Handling START_GAME response");
+
+        // Handle both START_LOBBY_GAME and START_GAME message formats
+        String gameSessionId = message.getFromBody("gameSessionId");
+        String messageText = message.getFromBody("message");
+
+        // Check for both old and new field names for backward compatibility
+        Boolean inFarmSelection = message.getFromBody("inFarmSelectionPhase");
+        Boolean inMapSelection = message.getFromBody("inMapSelectionPhase");
+
+        // Use either field name
+        Boolean isInSelectionPhase = (inFarmSelection != null && inFarmSelection) ||
+                                   (inMapSelection != null && inMapSelection);
+
+        System.out.println("DEBUG: START_GAME response - gameSessionId: " + gameSessionId +
+                          ", inFarmSelection: " + inFarmSelection +
+                          ", inMapSelection: " + inMapSelection +
+                          ", isInSelectionPhase: " + isInSelectionPhase);
+
+        if (gameSessionId != null && messageText != null) {
             System.out.println("Game starting with session ID: " + gameSessionId);
             view.onGameStarting(gameSessionId);
-            // Navigate to multiplayer game
-            navigateToMultiplayerGame(gameSessionId);
+
+            // Always show farm selection for multiplayer unless server says to skip
+            if (isInSelectionPhase || (inFarmSelection == null && inMapSelection == null)) {
+                navigateToFarmSelection();
+            } else {
+                // Navigate directly to multiplayer game (fallback)
+                navigateToMultiplayerGame(gameSessionId);
+            }
         } else {
-            String error = message.getFromBody("error");
-            System.err.println("Failed to start game: " + error);
-            showError("Failed to start game: " + (error != null ? error : "Unknown error"));
+            // Fallback for old START_LOBBY_GAME format
+            String status = message.getFromBody("status");
+            if ("success".equals(status)) {
+                String oldGameSessionId = message.getFromBody("gameSessionId");
+                System.out.println("Game starting with session ID: " + oldGameSessionId);
+                view.onGameStarting(oldGameSessionId);
+                // Always show farm selection for multiplayer in fallback
+                navigateToFarmSelection();
+            } else {
+                String error = message.getFromBody("error");
+                System.err.println("Failed to start game: " + error);
+                showError("Failed to start game: " + (error != null ? error : "Unknown error"));
+            }
         }
     }
 
@@ -523,34 +556,52 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
 
             // Create player for current user
             Player player = new Player(currentUser);
-            
+
             // Create a basic game structure for multiplayer
             List<Player> players = new ArrayList<>();
             players.add(player);
-            
+
             Game game = new Game(players, player);
             game.setSaveName("Multiplayer_" + gameSessionId);
-            
+
             // Set the game in App
             App.setGame(game);
-            
-            // Initialize the game map and farms
-            game.initializeMultiplayerGame();
-            
+
+            // Don't initialize farms here - they should be initialized based on server-side farm selections
+            // The server will send the complete game state with proper farm assignments
+
             // Create and set the game view
-            GameView gameView = new GameView(new GameMenuController(player), player, game, 
+            GameView gameView = new GameView(new GameMenuController(player), player, game,
                 AssetManager.getAssetManager().getSkin(), currentUser);
-            
+
             // Navigate to game
             Main.getGame().getScreen().dispose();
             Main.getGame().setScreen(gameView);
-            
+
             System.out.println("DEBUG: Navigated to multiplayer game with session ID: " + gameSessionId);
-            
+
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());
             e.printStackTrace();
             showError("Failed to start multiplayer game: " + e.getMessage());
+        }
+    }
+
+    private void navigateToFarmSelection() {
+        try {
+            System.out.println("DEBUG: Navigating to FarmSelectionScreen");
+
+            // Navigate to farm selection screen
+            Main.getGame().getScreen().dispose();
+            org.example.client.views.FarmSelectionScreen farmSelectionScreen = new org.example.client.views.FarmSelectionScreen();
+            Main.getGame().setScreen(farmSelectionScreen);
+
+            System.out.println("DEBUG: Successfully navigated to FarmSelectionScreen");
+
+        } catch (Exception e) {
+            System.err.println("DEBUG: Failed to navigate to farm selection: " + e.getMessage());
+            e.printStackTrace();
+            showError("Failed to navigate to farm selection: " + e.getMessage());
         }
     }
 

@@ -247,6 +247,18 @@ public class TerminalWindow {
                 gameMenuController.showInventory();
                 return Result.success("Inventory displayed.");
 
+            // Walking and navigation commands
+            case Walk:
+                return gameMenuController.walk(args);
+            case WalkToVillage:
+                return gameMenuController.walkToVillage();
+            case WalkToFarm:
+                return gameMenuController.walkToFarm(args);
+            case TeleportToVillage:
+                return gameMenuController.teleportToVillage();
+            case TeleportToFarm:
+                return gameMenuController.teleportToFarm();
+
             // Cheat commands
             case CheatAddItem:
                 gameMenuController.cheatAddItem(args);
@@ -265,8 +277,6 @@ public class TerminalWindow {
             case CheatTeleportMarkets:
                 gameMenuController.cheatTeleportMarkets(args);
                 return Result.success("Teleported to market.");
-            case CheatBuildGreenHouse:
-                return gameMenuController.greenhouseBuild();
             case CheatGiveItems:
                 gameMenuController.cheatGiveItems();
                 return Result.success("Items given.");
@@ -324,6 +334,13 @@ public class TerminalWindow {
         addOutput("friendship level <name> - Show friendship level", TEXT_COLOR);
         addOutput("level <name> -a <amount> - Increase friendship level", TEXT_COLOR);
         addOutput("xp <name> -a <amount> - Increase XP", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Navigation Commands:", Color.YELLOW);
+        addOutput("walk -l <x>,<y> - Walk to specific coordinates", TEXT_COLOR);
+        addOutput("walk to village - Walk from farm to village", TEXT_COLOR);
+        addOutput("walk to farm <index> - Walk from village to farm (0-3)", TEXT_COLOR);
+        addOutput("teleport to village - Teleport to village", TEXT_COLOR);
+        addOutput("teleport to farm - Teleport to farm", TEXT_COLOR);
         addOutput("", TEXT_COLOR);
         addOutput("Utility Commands:", Color.YELLOW);
         addOutput("screenshot - Take a screenshot of the current game view", TEXT_COLOR);

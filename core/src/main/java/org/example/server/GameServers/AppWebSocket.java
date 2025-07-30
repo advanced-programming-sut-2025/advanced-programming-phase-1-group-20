@@ -23,6 +23,23 @@ public class AppWebSocket {
     private final ServerConfig config;
     private final static Gson gson = new GsonBuilder()
         .serializeSpecialFloatingPointValues()
+        .registerTypeAdapter(Message.Type.class, new TypeAdapter<Message.Type>() {
+            @Override
+            public void write(JsonWriter out, Message.Type value) throws IOException {
+                out.value(value.name());
+            }
+
+            @Override
+            public Message.Type read(JsonReader in) throws IOException {
+                String value = in.nextString();
+                try {
+                    return Message.Type.valueOf(value);
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Unknown message type: " + value);
+                    return null;
+                }
+            }
+        })
         .create();
 
     public AppWebSocket(Javalin app, MessageHandler messageHandler) {
@@ -102,16 +119,21 @@ public class AppWebSocket {
         }
         
         try {
+            System.out.println("DEBUG: Parsing message JSON: " + messageJson);
             Message message = gson.fromJson(messageJson, Message.class);
+            System.out.println("DEBUG: Parsed message type: " + message.getType());
             
             // Handle authentication first
             if (message.getType() == Message.Type.AUTH_LOGIN) {
+                System.out.println("DEBUG: Handling AUTH_LOGIN message");
                 handleAuthentication(connection, message);
             } else if (connection.getUser() != null) {
                 // User is authenticated, forward to message handler
+                System.out.println("DEBUG: Forwarding message to MessageHandler: " + message.getType());
                 messageHandler.processMessage(connection.getUsername(), message);
             } else {
                 // User not authenticated
+                System.out.println("DEBUG: User not authenticated");
                 sendErrorMessage(ctx, "Authentication required");
             }
             

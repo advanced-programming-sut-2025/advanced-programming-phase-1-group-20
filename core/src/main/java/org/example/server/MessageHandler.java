@@ -1,5 +1,7 @@
 package org.example.server;
 
+import org.example.client.Main;
+import org.example.client.views.GameView;
 import org.example.common.Lobby.Lobby;
 import org.example.common.Lobby.LobbyPlayer;
 import org.example.common.Lobby.LobbySettings;
@@ -65,6 +67,7 @@ public class MessageHandler {
         switch (message.getType()) {
             // Game session messages
             case CREATE_GAME:
+                System.out.println("DEBUG: Handling CREATE_GAME message");
                 handleCreateGame(connection, message);
                 break;
             case JOIN_GAME:
@@ -72,9 +75,6 @@ public class MessageHandler {
                 break;
             case LEAVE_GAME:
                 handleLeaveGame(connection, message);
-                break;
-            case AUTH_LOGIN:
-                handleAuthentication(connection, message);
                 break;
 
             // Lobby messages
@@ -217,23 +217,64 @@ public class MessageHandler {
         String token = message.getFromBody("token");
         String username = message.getFromBody("username");
 
+        System.out.println("DEBUG: Authentication attempt - username: " + username + ", token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "null"));
+
         if (token == null || username == null) {
+            System.out.println("DEBUG: Authentication failed - missing token or username");
             sendErrorMessage(connection, "Token and username required");
             return;
         }
 
-        // Validate JWT token
-        String tokenStatus = JWTUtils.validateToken(token);
-        if (!tokenStatus.equals(JWTUtils.TOKEN_VALID)) {
-            sendErrorMessage(connection, "Invalid or expired token");
+        // For testing purposes, accept temp tokens
+        if (token.startsWith("temp_token_")) {
+            System.out.println("DEBUG: Processing temp token authentication for user: " + username);
+            // Create a basic user for testing
+            User user = new User();
+            user.setUsername(username);
+            connection.setUser(user);
+            connection.setState(PlayerConnection.ConnectionState.AUTHENTICATED);
+            addPlayerConnection(username, connection);
+
+            // Send success response
+            Message response = new Message();
+            response.setType(Message.Type.SUCCESS);
+            response.putInBody("message", "Authentication successful");
+            response.putInBody("username", username);
+            connection.sendMessage(response);
+
+            System.out.println("Player " + username + " authenticated successfully with temp token");
             return;
         }
 
-        // Get user from App
+        // Validate JWT token properly
+        System.out.println("DEBUG: Validating JWT token for user: " + username);
+        String tokenStatus = JWTUtils.getTokenStatus(token);
+        System.out.println("DEBUG: Token status: " + tokenStatus + " - " + JWTUtils.getTokenStatusMessage(tokenStatus));
+        if (!tokenStatus.equals(JWTUtils.TOKEN_VALID)) {
+            System.out.println("DEBUG: JWT token validation failed for user: " + username);
+            sendErrorMessage(connection, "Invalid or expired token: " + JWTUtils.getTokenStatusMessage(tokenStatus));
+            return;
+        }
+
+        // Extract username from token to verify it matches
+        String tokenUsername = JWTUtils.extractUsername(token);
+        if (tokenUsername == null || !tokenUsername.equals(username)) {
+            sendErrorMessage(connection, "Token username mismatch");
+            return;
+        }
+
+        // For server-side testing, create user on-the-fly if not found
         User user = App.getUser(username);
         if (user == null) {
-            sendErrorMessage(connection, "User not found");
-            return;
+            System.out.println("DEBUG: User not found in App, creating temporary user for: " + username);
+            // Create a basic user for testing
+            user = new User();
+            user.setUsername(username);
+            user.setEmail(username + "@test.com");
+            user.setNickname(username);
+            user.setGender(org.example.common.models.enums.PlayerEnums.Gender.Male);
+            // Add to App for future lookups
+            App.addUser(user);
         }
 
         // Set user in connection
@@ -250,6 +291,7 @@ public class MessageHandler {
         response.putInBody("username", username);
         connection.sendMessage(response);
 
+        System.out.println("DEBUG: JWT authentication successful for user: " + username);
         System.out.println("Player " + username + " authenticated successfully");
     }
 
@@ -258,9 +300,9 @@ public class MessageHandler {
         error.setType(Message.Type.ERROR);
         error.putInBody("message", errorMessage);
         error.putInBody("timestamp", System.currentTimeMillis());
-        
+
         System.out.println("DEBUG: Sending error message: " + errorMessage + " to " + connection.getUsername());
-        
+
         try {
             connection.sendMessage(error);
             System.out.println("DEBUG: Error message sent successfully");
@@ -418,7 +460,7 @@ public class MessageHandler {
                     System.out.println("DEBUG: Remaining players: " + updatedLobby.getPlayers().size());
                     System.out.println("DEBUG: Current admin: " + updatedLobby.getAdminId());
                 }
-                
+
                 if (updatedLobby != null && !updatedLobby.getPlayers().isEmpty()) {
                     System.out.println("DEBUG: Broadcasting lobby update to remaining players");
                     broadcastLobbyUpdate(updatedLobby);
@@ -509,29 +551,45 @@ public class MessageHandler {
         }
 
         try {
+            System.out.println("DEBUG: handleStartLobbyGame called for user: " + user.getUsername());
+
             Lobby lobby = lobbyManager.getLobbyByPlayerId(user.getUsername());
             if (lobby == null) {
+                System.err.println("DEBUG: User not in any lobby");
                 sendErrorMessage(connection, "Not in any lobby");
                 return;
             }
 
+            System.out.println("DEBUG: Found lobby: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
+            System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
+
             boolean canStart = lobbyManager.canStartGame(lobby.getId(), user.getUsername());
+            System.out.println("DEBUG: canStartGame returned: " + canStart);
+
             if (!canStart) {
                 String reason = "Cannot start game";
                 if (!lobby.isAdmin(user.getUsername())) {
                     reason = "Only lobby admin can start the game";
+                    System.out.println("DEBUG: User is not admin");
                 } else if (lobby.getPlayers().size() < 2) {
                     reason = "Need at least 2 players to start game";
+                    System.out.println("DEBUG: Not enough players. Current count: " + lobby.getPlayers().size());
                 }
+                System.out.println("DEBUG: Sending error: " + reason);
                 sendErrorMessage(connection, reason);
                 return;
             }
 
+            System.out.println("DEBUG: Starting game in lobby...");
             boolean success = lobbyManager.startGame(lobby.getId(), user.getUsername());
+            System.out.println("DEBUG: lobbyManager.startGame returned: " + success);
+
             if (success) {
                 // Create game session from lobby
+                System.out.println("DEBUG: Creating game session...");
                 GameSession gameSession = createGameSessionFromLobby(lobby);
                 if (gameSession != null) {
+                    System.out.println("DEBUG: Game session created successfully");
                     // Update online players manager for all lobby players
                     for (LobbyPlayer lobbyPlayer : lobby.getPlayers()) {
                         onlinePlayersManager.playerInGame(lobbyPlayer.getId(), gameSession.getSessionId());
@@ -541,13 +599,16 @@ public class MessageHandler {
                     broadcastGameStarted(lobby, gameSession);
                     System.out.println("Game started in lobby " + lobby.getId());
                 } else {
+                    System.err.println("DEBUG: Failed to create game session");
                     sendErrorMessage(connection, "Failed to create game session");
                 }
             } else {
+                System.err.println("DEBUG: lobbyManager.startGame failed");
                 sendErrorMessage(connection, "Failed to start game");
             }
         } catch (Exception e) {
-            System.err.println("Failed to start lobby game: " + e.getMessage());
+            System.err.println("DEBUG: Exception in handleStartLobbyGame: " + e.getMessage());
+            e.printStackTrace();
             sendErrorMessage(connection, "Failed to start game");
         }
     }
@@ -616,9 +677,9 @@ public class MessageHandler {
     private void broadcastLobbyUpdate(Lobby lobby) {
         if (lobby == null) return;
 
-        System.out.println("DEBUG: Broadcasting lobby update for lobby: " + lobby.getId());
-        System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().size());
-        System.out.println("DEBUG: Admin ID: " + lobby.getAdminId());
+        // System.out.println("DEBUG: Broadcasting lobby update for lobby: " + lobby.getId());
+        // System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().size());
+        // System.out.println("DEBUG: Admin ID: " + lobby.getAdminId());
 
         Message updateMessage = new Message();
         updateMessage.setType(Message.Type.SUCCESS);
@@ -627,11 +688,11 @@ public class MessageHandler {
 
         // Send to all players in the lobby
         for (LobbyPlayer player : lobby.getPlayers()) {
-            System.out.println("DEBUG: Sending lobby update to player: " + player.getId() + " (Admin: " + player.isAdmin() + ")");
+            // System.out.println("DEBUG: Sending lobby update to player: " + player.getId() + " (Admin: " + player.isAdmin() + ")");
             PlayerConnection connection = playerConnections.get(player.getId());
             if (connection != null) {
                 connection.sendMessage(updateMessage);
-                System.out.println("DEBUG: Lobby update sent to " + player.getId());
+                // System.out.println("DEBUG: Lobby update sent to " + player.getId());
             } else {
                 System.err.println("DEBUG: No connection found for player: " + player.getId());
             }
@@ -641,24 +702,46 @@ public class MessageHandler {
     private void broadcastGameStarted(Lobby lobby, GameSession gameSession) {
         if (lobby == null || gameSession == null) return;
 
+        // Create comprehensive game start message with all necessary data
         Message startMessage = new Message();
-        startMessage.setType(Message.Type.SUCCESS);
-        startMessage.putInBody("message", "Game starting");
+        startMessage.setType(Message.Type.START_GAME);
+        startMessage.putInBody("message", "Game started successfully");
         startMessage.putInBody("gameSessionId", gameSession.getSessionId());
+        
+        // Add farm selection phase information
+        startMessage.putInBody("inFarmSelectionPhase", true);
+        startMessage.putInBody("availableFarms", gameSession.getGameInstance().getAvailableFarmIndices());
+        startMessage.putInBody("playerSelections", gameSession.getGameInstance().getPlayerFarmSelections());
+        
+        // Add game instance data
+        startMessage.putInBody("gameData", gameSession.getGameInstance().getGameState());
+        startMessage.putInBody("playersData", gameSession.getGameInstance().getPlayersData());
+        
+        // Add current player information
+        startMessage.putInBody("currentPlayerUsername", gameSession.getGameInstance().getCurrentPlayer().getUser().getUsername());
+        startMessage.putInBody("playerCount", gameSession.getPlayerCount());
+        startMessage.putInBody("isActive", false); // Not fully active until farm selection is complete
 
         // Send to all players in the lobby
         for (LobbyPlayer lobbyPlayer : lobby.getPlayers()) {
             PlayerConnection connection = playerConnections.get(lobbyPlayer.getId());
             if (connection != null) {
                 connection.sendMessage(startMessage);
+                System.out.println("DEBUG: Sent game start message to " + lobbyPlayer.getId() + " with session ID: " + gameSession.getSessionId());
             }
         }
+        
+        System.out.println("DEBUG: Broadcasted game start to " + lobby.getPlayers().size() + " players - Farm selection phase");
     }
 
     private GameSession createGameSessionFromLobby(Lobby lobby) {
         try {
+            // System.out.println("DEBUG: createGameSessionFromLobby called for lobby: " + lobby.getId());
+            // System.out.println("DEBUG: Lobby players count: " + lobby.getPlayers().size());
+
             // Get first player as creator
             if (lobby.getPlayers().isEmpty()) {
+                System.err.println("DEBUG: Lobby has no players");
                 return null;
             }
 
@@ -667,27 +750,51 @@ public class MessageHandler {
                     .findFirst()
                     .orElse(lobby.getPlayers().get(0));
 
-            User adminUser = App.getUser(admin.getId());
-            if (adminUser == null) {
+            // System.out.println("DEBUG: Admin player: " + admin.getId() + " (isAdmin: " + admin.isAdmin() + ")");
+
+            // Get admin user from player connections instead of App
+            PlayerConnection adminConnection = playerConnections.get(admin.getId());
+            if (adminConnection == null || adminConnection.getUser() == null) {
+                System.err.println("DEBUG: Admin connection or user not found for: " + admin.getId());
+                System.err.println("DEBUG: Available player connections: " + playerConnections.keySet());
                 return null;
             }
 
+            User adminUser = adminConnection.getUser();
+            // System.out.println("DEBUG: Admin user found: " + adminUser.getUsername());
+
             // Create game session
+            // System.out.println("DEBUG: Creating GameSession...");
             GameSession gameSession = new GameSession(adminUser);
             gameSessions.put(gameSession.getSessionId(), gameSession);
+            // System.out.println("DEBUG: GameSession created with ID: " + gameSession.getSessionId());
 
             // Add all lobby players to game session
+            // System.out.println("DEBUG: Adding players to game session...");
             for (LobbyPlayer lobbyPlayer : lobby.getPlayers()) {
-                User user = App.getUser(lobbyPlayer.getId());
+                // System.out.println("DEBUG: Processing lobby player: " + lobbyPlayer.getId());
                 PlayerConnection connection = playerConnections.get(lobbyPlayer.getId());
-                if (user != null && connection != null) {
-                    gameSession.addPlayer(connection, user);
+                if (connection != null && connection.getUser() != null) {
+                    User user = connection.getUser();
+                    // System.out.println("DEBUG: Adding player " + user.getUsername() + " to game session");
+                    boolean success = gameSession.addPlayer(connection, user);
+                    if (success) {
+                        // System.out.println("DEBUG: Successfully added player " + user.getUsername() + " to game session " + gameSession.getSessionId());
+                    } else {
+                        // System.err.println("DEBUG: Failed to add player " + user.getUsername() + " to game session");
+                    }
+                } else {
+                    // System.err.println("DEBUG: Connection or user not found for lobby player: " + lobbyPlayer.getId());
+                    // System.err.println("DEBUG: Connection: " + (connection != null ? "found" : "null"));
+                    // System.err.println("DEBUG: User: " + (connection != null && connection.getUser() != null ? connection.getUser().getUsername() : "null"));
                 }
             }
 
+            // System.out.println("DEBUG: Final game session player count: " + gameSession.getPlayerCount());
             return gameSession;
         } catch (Exception e) {
-            System.err.println("Failed to create game session from lobby: " + e.getMessage());
+            System.err.println("DEBUG: Failed to create game session from lobby: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

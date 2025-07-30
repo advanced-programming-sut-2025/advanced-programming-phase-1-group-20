@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.views.menu.SignUpMenuScreen;
-import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.WelcomeMenuScreen;
 import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;

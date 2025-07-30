@@ -8,10 +8,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
-import org.example.client.views.MarketMenuScreen;
+import org.example.client.views.GreenhouseRepairDialog;
+import org.example.client.views.gameplay.GreenhouseScreen;
+import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
+import org.example.common.models.MapDetails.Building;
 import org.example.common.models.App;
 import org.example.common.models.Market;
 import org.example.common.models.enums.Types.*;
@@ -43,6 +46,7 @@ public class WorldController {
     private List<Location> barnAnchors;
     private List<Location> coopAnchors;
     private List<Location> goldClockAnchors;
+    private List<Location> npcHouseAnchors;
 
     //Markets
     private List<Location> blacksmith;
@@ -85,6 +89,7 @@ public class WorldController {
         this.barnAnchors = new ArrayList<>();
         this.coopAnchors = new ArrayList<>();
         this.goldClockAnchors = new ArrayList<>();
+        this.npcHouseAnchors = new ArrayList<>();
 
         // Initialize markets anchor collections
         this.blacksmith = new ArrayList<>();
@@ -114,7 +119,7 @@ public class WorldController {
 
         // Pre-load tile textures
         loadTexture("lake", "content/flooring/lake.png");
-        loadTexture("stone", "content/Crafting/Stone.png");
+        loadTexture("stone", "content/Resource/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
         loadTexture("plowed", "content/plowed.png");
@@ -296,6 +301,7 @@ public class WorldController {
         barnAnchors.clear();
         coopAnchors.clear();
         goldClockAnchors.clear();
+        npcHouseAnchors.clear();
 
         blacksmith.clear();
         jojaMart.clear();
@@ -394,10 +400,12 @@ public class WorldController {
         Set<String> marnieShopTiles = new HashSet<>();
         Set<String> starDropSaloonTiles = new HashSet<>();
         Set<String> goldClockTiles = new HashSet<>();
+        Set<String> npcHouseTiles = new HashSet<>();
 
 
         collectMarketTiles(blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
         collectClockTiles(goldClockTiles);
+        collectNPCHouseTiles(npcHouseTiles);
 
 
 
@@ -428,6 +436,7 @@ public class WorldController {
 
                 detectMarketAnchors(location , x , y ,tileType ,  blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
                 detectClockAnchors(location, x, y, goldClockTiles);
+                detectNPCHouseAnchors(location, x, y, npcHouseTiles);
 
                 // Render items if present
                 Item item = location.getItem();
@@ -543,6 +552,19 @@ public class WorldController {
         }
     }
 
+    private void collectNPCHouseTiles(Set<String> npcHouseTiles) {
+        Village village = App.getGame().getGameMap().getVillage();
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location location = village.getItem(x, y);
+                if (location != null && location.getType() != null && location.getType().equals("npc_house")) {
+                    String tileKey = x + "," + y;
+                    npcHouseTiles.add(tileKey);
+                }
+            }
+        }
+    }
+
     private void detectBuildingAnchors(Location location, int x, int y, TileType tileType,
                                        Set<String> greenhouseTiles, Set<String> houseTiles,
                                        Set<String> barnTiles, Set<String> coopTiles) {
@@ -593,6 +615,13 @@ public class WorldController {
         String tileKey = x + "," + y;
         if (goldClockTiles.contains(tileKey)) {
             detectGoldClockAnchor(location, x, y, goldClockTiles);
+        }
+    }
+
+    private void detectNPCHouseAnchors(Location location, int x, int y, Set<String> npcHouseTiles) {
+        String tileKey = x + "," + y;
+        if (npcHouseTiles.contains(tileKey)) {
+            detectNPCHouseAnchor(location, x, y, npcHouseTiles);
         }
     }
 
@@ -752,6 +781,16 @@ public class WorldController {
         }
     }
 
+    private void detectNPCHouseAnchor(Location location, int x, int y, Set<String> npcHouseTiles) {
+        // For 5x5 NPC houses, detect the top-left corner
+        boolean hasLeft = npcHouseTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = npcHouseTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            npcHouseAnchors.add(location);
+        }
+    }
+
     private void renderBuildings() {
         for (Location anchor : greenhouseAnchors) {
             renderGreenhouseAtAnchor(anchor);
@@ -771,6 +810,10 @@ public class WorldController {
 
         for (Location anchor : goldClockAnchors) {
             renderGoldClockAtAnchor(anchor);
+        }
+
+        for (Location anchor : npcHouseAnchors) {
+            renderNPCHouseAtAnchor(anchor);
         }
     }
 
@@ -908,6 +951,41 @@ public class WorldController {
         if (texture != null) {
             Main.getBatch().draw(texture, drawX, drawY,
                 TILE_SIZE * GOLD_CLOCK_TILES_W, TILE_SIZE * GOLD_CLOCK_TILES_H);
+        }
+    }
+
+    private void renderNPCHouseAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        // Use global coordinates for village NPC houses
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        // Find the building at this location to get the sprite path
+        Village village = App.getGame().getGameMap().getVillage();
+        Building building = null;
+        for (Building b : village.getBuildings()) {
+            if (b.getType().equals("npc_house") && b.contains(x, y)) {
+                building = b;
+                break;
+            }
+        }
+
+        if (building != null && building.getSpritePath() != null) {
+            // Load texture from the sprite path
+            Texture texture = new Texture(building.getSpritePath());
+            if (texture != null) {
+                Main.getBatch().draw(texture, drawX, drawY,
+                    TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+            }
+        } else {
+            // Fallback to a default house texture
+            Texture texture = getTexture("house");
+            if (texture != null) {
+                Main.getBatch().draw(texture, drawX, drawY,
+                    TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+            }
         }
     }
     private void renderBlackSmithAtAnchor(Location anchor) {
@@ -1234,8 +1312,18 @@ public class WorldController {
 
                 } else if (checkClicked(barnAnchors , BARN_TILES_W , BARN_TILES_H , touchPoint)) {
 
-                } else if (checkClicked(greenhouseAnchors , GREENHOUSE_TILES_W , GREENHOUSE_TILES_H , touchPoint)) {
+                } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPoint)) {
+                    boolean isConstructed = farm.getGreenHouse().getIsConstructed(); // Assuming you have a getter
 
+                    if (isConstructed) {
+                        Gdx.app.log("WorldController", "Entering constructed greenhouse.");
+                        Main.getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
+                    } else {
+                        // Show repair dialog if not constructed
+                        GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
+                            playerController.getPlayer(), controller, skin);
+                        repairDialog.show(controller.getView().getStage());
+                    }
                 }
             }
 
@@ -1284,5 +1372,11 @@ public class WorldController {
             }
         }
         return false;
+    }
+
+    //TODO  : temporarily for green house:
+
+    public Map<String, Texture> getTextureCache() {
+        return textureCache;
     }
 }

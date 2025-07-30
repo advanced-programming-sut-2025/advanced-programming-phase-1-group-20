@@ -14,7 +14,7 @@ import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
-import org.example.client.views.WelcomeMenuScreen;
+import org.example.client.views.menu.WelcomeMenuScreen;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +66,13 @@ public class WelcomeMenuController {
     public void handleTryGameButton() {
         getGame().getScreen().dispose();
 
-        User user1 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
+        User user1 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest1" , Gender.Male);
         Player player1 = new Player(user1);
-        User user2 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
+        User user2 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest2" , Gender.Male);
         Player player2 = new Player(user2);
-        User user3 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
+        User user3 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest3" , Gender.Male);
         Player player3 = new Player(user3);
-        User user4 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest" , Gender.Male);
+        User user4 = new User("guest user1" , "1234" , "guest@gmail.com" , "guest4" , Gender.Male);
         Player player4 = new Player(user4);
 
         List<Player> players = new ArrayList<>();

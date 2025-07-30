@@ -28,7 +28,7 @@ public class App {
     // Lists for game
     private static List<Item> items = new ArrayList<>();
 
-    private static boolean isMapSelectionPhase = false;
+    private static boolean isFarmSelectionPhase = false;
 
     public static void initialize() {
         if (!dataLoaded) {
@@ -237,12 +237,12 @@ public class App {
         return game;
     }
 
-    public static void toggleMapSelectionPhase() {
-        isMapSelectionPhase = !isMapSelectionPhase;
+    public static void toggleFarmSelectionPhase() {
+        isFarmSelectionPhase = !isFarmSelectionPhase;
     }
 
-    public static boolean isMapSelectionPhase() {
-        return isMapSelectionPhase;
+    public static boolean isFarmSelectionPhase() {
+        return isFarmSelectionPhase;
     }
 
     public static boolean allChose() {

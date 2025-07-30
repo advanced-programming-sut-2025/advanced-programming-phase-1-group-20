@@ -1,6 +1,10 @@
 package org.example.common.models.entities;
 
+import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Building;
+import org.example.common.models.common.Location;
+import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
 
@@ -8,6 +12,7 @@ import java.io.Serializable; // دیگر نیازی به Serializable نیست �
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 import java.util.Objects; // برای equals و hashCode
 
@@ -16,13 +21,14 @@ public class Game implements Serializable {
     private Player currentPlayer;
     private Date date;
     private int currentPlayerIndex;
-    private boolean inMapSelectionPhase;
-    private Map<Player, Integer> mapSelections = new HashMap<>();
+    private boolean inFarmSelectionPhase;
+    private Map<Player, Integer> farmSelections = new HashMap<>();
     private Map<Player, Boolean> terminateVotes = new HashMap<>();
     private Player gameCreator;
     private boolean saved;
     private GameMap gameMap;
     private String saveName;
+    public boolean isMultiplayer = false;
 
 
     public Game() {
@@ -38,14 +44,14 @@ public class Game implements Serializable {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
 
-        this.inMapSelectionPhase = true;
+        this.inFarmSelectionPhase = true;
 
         this.saved = false;
 
 
         if (players != null) {
             for (Player player : players) {
-                mapSelections.put(player, -1);
+                farmSelections.put(player, -1);
                 terminateVotes.put(player, false);
             }
 
@@ -94,20 +100,20 @@ public class Game implements Serializable {
         this.currentPlayerIndex = currentPlayerIndex;
     }
 
-    public boolean isInMapSelectionPhase() {
-        return inMapSelectionPhase;
+    public boolean isInFarmSelectionPhase() {
+        return inFarmSelectionPhase;
     }
 
-    public void setInMapSelectionPhase(boolean inMapSelectionPhase) {
-        this.inMapSelectionPhase = inMapSelectionPhase;
+    public void setInFarmSelectionPhase(boolean inFarmSelectionPhase) {
+        this.inFarmSelectionPhase = inFarmSelectionPhase;
     }
 
-    public Map<Player, Integer> getMapSelections() {
-        return mapSelections;
+    public Map<Player, Integer> getFarmSelections() {
+        return farmSelections;
     }
 
-    public void setMapSelections(Map<Player, Integer> mapSelections) {
-        this.mapSelections = mapSelections;
+    public void setFarmSelections(Map<Player, Integer> farmSelections) {
+        this.farmSelections = farmSelections;
     }
 
     public Map<Player, Boolean> getTerminateVotes() {
@@ -152,24 +158,127 @@ public class Game implements Serializable {
     }
 
 
-    public boolean allPlayersSelectedMap() {
-        if (players == null || mapSelections == null) return false; // Null check
+    public boolean allPlayersSelectedFarm() {
+        System.out.println("DEBUG: allPlayersSelectedFarm called");
+        System.out.println("DEBUG: players: " + players);
+        System.out.println("DEBUG: farmSelections: " + farmSelections);
+        System.out.println("DEBUG: players size: " + (players != null ? players.size() : "null"));
+        System.out.println("DEBUG: farmSelections size: " + (farmSelections != null ? farmSelections.size() : "null"));
+        
+        if (players == null || farmSelections == null) {
+            System.out.println("DEBUG: players or farmSelections is null");
+            return false; // Null check
+        }
+        
         for (Player player : players) {
-            if (mapSelections.getOrDefault(player, -1) == -1) {
+            System.out.println("DEBUG: Checking player: " + player.getUser().getUsername());
+            System.out.println("DEBUG: Player object: " + player);
+            System.out.println("DEBUG: Player hash code: " + player.hashCode());
+            
+            Integer selection = farmSelections.getOrDefault(player, -1);
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " selection: " + selection);
+            
+            // Check if the player exists in farmSelections
+            boolean playerInSelections = farmSelections.containsKey(player);
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " in farmSelections: " + playerInSelections);
+            
+            if (selection == -1) {
+                System.out.println("DEBUG: Player " + player.getUser().getUsername() + " has not selected a farm yet");
                 return false;
             }
         }
+        System.out.println("DEBUG: All players have selected farms");
         return true;
     }
 
-    public void selectMap(Player player, int mapNumber) {
-        if (mapSelections != null) {
-            mapSelections.put(player, mapNumber);
+    public void selectFarm(Player player, int farmNumber) {
+        System.out.println("DEBUG: selectFarm called for player " + player.getUser().getUsername() + " with farm " + farmNumber);
+        if (farmSelections != null) {
+            farmSelections.put(player, farmNumber);
+            System.out.println("DEBUG: Farm selection stored. Current selections: " + farmSelections);
+        } else {
+            System.out.println("DEBUG: farmSelections is null!");
         }
     }
 
-    public int getMapSelection(Player player) {
-        return mapSelections != null ? mapSelections.getOrDefault(player, -1) : -1;
+    public int getFarmSelection(Player player) {
+        return farmSelections != null ? farmSelections.getOrDefault(player, -1) : -1;
+    }
+
+    /**
+     * Check if a farm index is available for selection
+     */
+    public boolean isFarmIndexAvailable(int farmIndex) {
+        return isFarmIndexAvailable(farmIndex, null);
+    }
+
+    /**
+     * Check if a farm index is available for selection (allows player to change their own selection)
+     */
+    public boolean isFarmIndexAvailable(int farmIndex, Player requestingPlayer) {
+        System.out.println("DEBUG: isFarmIndexAvailable called for farm index: " + farmIndex + " by player: " + 
+                          (requestingPlayer != null ? requestingPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Current farm selections: " + farmSelections);
+        
+        if (farmSelections == null) {
+            System.out.println("DEBUG: farmSelections is null, farm " + farmIndex + " is available");
+            return true;
+        }
+
+        for (Map.Entry<Player, Integer> entry : farmSelections.entrySet()) {
+            Player player = entry.getKey();
+            Integer selectedIndex = entry.getValue();
+            if (selectedIndex != null && selectedIndex == farmIndex) {
+                // If the requesting player is the same as the player who selected this farm, allow it
+                if (requestingPlayer != null && player.equals(requestingPlayer)) {
+                    System.out.println("DEBUG: Farm " + farmIndex + " is available (player changing their own selection)");
+                    return true;
+                } else {
+                    System.out.println("DEBUG: Farm " + farmIndex + " is not available (selected by " + 
+                                     (player != null ? player.getUser().getUsername() : "unknown player") + ")");
+                    return false;
+                }
+            }
+        }
+        System.out.println("DEBUG: Farm " + farmIndex + " is available");
+        return true;
+    }
+
+    /**
+     * Get list of available farm indices
+     */
+    public List<Integer> getAvailableFarmIndices() {
+        List<Integer> available = new ArrayList<>();
+        for (int i = 0; i <= 3; i++) {
+            if (isFarmIndexAvailable(i)) {
+                available.add(i);
+            }
+        }
+        return available;
+    }
+
+    /**
+     * Get map of player usernames to their selected farm indices
+     */
+    public Map<String, Integer> getPlayerFarmSelections() {
+        System.out.println("DEBUG: getPlayerFarmSelections called");
+        System.out.println("DEBUG: farmSelections: " + farmSelections);
+        
+        Map<String, Integer> selections = new HashMap<>();
+        if (farmSelections != null) {
+            for (Map.Entry<Player, Integer> entry : farmSelections.entrySet()) {
+                Player player = entry.getKey();
+                Integer farmIndex = entry.getValue();
+                System.out.println("DEBUG: Processing player: " + (player != null ? player.getUser().getUsername() : "null") + 
+                                 ", farmIndex: " + farmIndex);
+                if (player != null && player.getUser() != null && farmIndex != null) {
+                    selections.put(player.getUser().getUsername(), farmIndex);
+                    System.out.println("DEBUG: Added selection for " + player.getUser().getUsername() + ": " + farmIndex);
+                }
+            }
+        }
+        System.out.println("DEBUG: Final selections map: " + selections);
+        return selections;
     }
 
     public void nextTurn(GameMap gameMap) {
@@ -258,10 +367,10 @@ public class Game implements Serializable {
     }
 
     // ===== MULTIPLAYER SUPPORT METHODS =====
-
     /**
      * Find a player by their username
      */
+
     public Player getPlayerByUsername(String username) {
         if (players != null && username != null) {
             for (Player player : players) {
@@ -290,8 +399,8 @@ public class Game implements Serializable {
             }
 
             // Initialize map selection and terminate vote
-            if (mapSelections != null) {
-                mapSelections.put(newPlayer, -1);
+            if (farmSelections != null) {
+                farmSelections.put(newPlayer, -1);
             }
             if (terminateVotes != null) {
                 terminateVotes.put(newPlayer, false);
@@ -311,8 +420,8 @@ public class Game implements Serializable {
 
             if (removed) {
                 // Clean up player data
-                if (mapSelections != null) {
-                    mapSelections.remove(player);
+                if (farmSelections != null) {
+                    farmSelections.remove(player);
                 }
                 if (terminateVotes != null) {
                     terminateVotes.remove(player);
@@ -338,21 +447,89 @@ public class Game implements Serializable {
             gameMap = new GameMap();
         }
 
-        // Initialize farms for all players
+        // Set multiplayer flag
+        this.isMultiplayer = true;
+
+        // Initialize farms for all players based on their selections
         if (players != null) {
-            for (int i = 0; i < players.size(); i++) {
-                Player player = players.get(i);
+            for (Player player : players) {
                 if (player != null) {
-                    // Create farm for each player
-                    org.example.common.models.MapDetails.Farm farm =
-                        new org.example.common.models.MapDetails.Farm(
-                            player.getUser().getUsername() + "'s Farm",
-                            player,
-                            i == 0, // First player gets main farm
-                            i
-                        );
-                    player.setCurrentFarm(farm);
-                    gameMap.addFarm(farm);
+                    Integer farmIndex = farmSelections.get(player);
+                    if (farmIndex != null && farmIndex >= 0 && farmIndex <= 3) {
+                        // Create farm for player based on their selection
+                        Farm farm =
+                            new Farm(
+                                player.getUser().getUsername() + "'s Farm",
+                                player,
+                                farmIndex == 0, // Farm 0 is considered the main farm
+                                farmIndex
+                            );
+                        player.setCurrentFarm(farm);
+                        gameMap.addFarm(farm);
+                        System.out.println("DEBUG: Created farm " + farmIndex + " for player " + player.getUser().getUsername());
+                    }
+                }
+            }
+        }
+
+        // Position players in their farms using global coordinates
+        if (players != null) {
+            for (Player player : players) {
+                if (player != null && player.getCurrentFarm() != null) {
+                    Farm farm = player.getCurrentFarm();
+                    int farmIndex = farm.getFarmIndex();
+                    
+                    // Get the farm's building location
+                    Building building = farm.getBuilding();
+                    int houseCenterX = building.getX() + building.getWidth() / 2;
+                    int houseCenterY = building.getY() + building.getHeight() / 2;
+                    
+                    // Calculate global coordinates based on farm index
+                    int globalStartX = 0, globalStartY = 0;
+                    switch (farmIndex) {
+                        case 0: // Top-Left
+                            globalStartX = 0;
+                            globalStartY = 0;
+                            break;
+                        case 1: // Bottom-Left
+                            globalStartX = 0;
+                            globalStartY = 78;
+                            break;
+                        case 2: // Top-Right
+                            globalStartX = 156;
+                            globalStartY = 0;
+                            break;
+                        case 3: // Bottom-Right
+                            globalStartX = 156;
+                            globalStartY = 78;
+                            break;
+                    }
+                    
+                    // Position player near the house in global coordinates
+                    int playerStartX = globalStartX + houseCenterX;
+                    int playerStartY = globalStartY + houseCenterY - 3; // 3 tiles below house center
+                    
+                    // Ensure player is within farm boundaries
+                    if (playerStartY < globalStartY) {
+                        playerStartY = globalStartY + houseCenterY + 3;
+                    }
+                    if (playerStartX < globalStartX) {
+                        playerStartX = globalStartX + houseCenterX + 3;
+                    }
+                    if (playerStartX >= globalStartX + Farm.width) {
+                        playerStartX = globalStartX + houseCenterX - 3;
+                    }
+                    if (playerStartY >= globalStartY + Farm.height) {
+                        playerStartY = globalStartY + houseCenterY - 3;
+                    }
+                    
+                    // Create global location and set player position
+                    Location globalLocation = new Location(playerStartX, playerStartY, TileType.Dirt);
+                    player.setLocation(globalLocation);
+                    player.setIsInVillage(false);
+                    
+                    System.out.println("DEBUG: Positioned player " + player.getUser().getUsername() + 
+                                     " at global coordinates (" + playerStartX + ", " + playerStartY + ") in farm " + farmIndex);
                 }
             }
         }
@@ -362,8 +539,13 @@ public class Game implements Serializable {
             gameMap.getVillage().initializeNPCs();
         }
 
-        // End map selection phase
-        this.inMapSelectionPhase = false;
+        // Update global game map tiles from all farms
+        gameMap.updateTilesFromRegions();
+
+        // End farm selection phase
+        this.inFarmSelectionPhase = false;
+        
+        System.out.println("DEBUG: Multiplayer game initialized with " + (players != null ? players.size() : 0) + " players");
     }
 
     /**
@@ -386,7 +568,7 @@ public class Game implements Serializable {
         state.put("currentPlayerIndex", currentPlayerIndex);
         state.put("currentPlayerUsername", currentPlayer != null && currentPlayer.getUser() != null ?
                   currentPlayer.getUser().getUsername() : null);
-        state.put("inMapSelectionPhase", inMapSelectionPhase);
+        state.put("inFarmSelectionPhase", inFarmSelectionPhase);
         state.put("playerCount", players != null ? players.size() : 0);
         state.put("gameTime", date != null ? date.toString() : null);
         state.put("weather", date != null ? date.getWeatherToday().toString() : null);
@@ -424,6 +606,25 @@ public class Game implements Serializable {
         }
 
         return playersData;
+    }
+
+    /**
+     * Sync farm selections from server data
+     */
+    public void syncFarmSelectionsFromServer(Map<String, Integer> serverSelections) {
+        System.out.println("DEBUG: syncFarmSelectionsFromServer called with: " + serverSelections);
+        if (serverSelections != null && players != null) {
+            for (Player player : players) {
+                if (player != null && player.getUser() != null) {
+                    String username = player.getUser().getUsername();
+                    Integer farmIndex = serverSelections.get(username);
+                    if (farmIndex != null) {
+                        farmSelections.put(player, farmIndex);
+                        System.out.println("DEBUG: Synced farm selection for " + username + ": " + farmIndex);
+                    }
+                }
+            }
+        }
     }
 
     /**

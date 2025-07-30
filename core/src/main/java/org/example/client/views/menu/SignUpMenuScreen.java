@@ -148,6 +148,7 @@ public class SignUpMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 String randomPass = controller.generateRandomPassword();
+                passwordField.setPasswordMode(false);
                 passwordField.setText(randomPass);
                 confirmPasswordField.setText(randomPass);
             }

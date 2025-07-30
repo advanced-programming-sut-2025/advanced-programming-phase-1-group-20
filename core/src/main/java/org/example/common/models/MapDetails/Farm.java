@@ -80,7 +80,10 @@ public class Farm {
         this.coops = new ArrayList<>();
         this.shippingBins = new ArrayList<>();
         owner.setPlayerColor(setOwnerColor());
-        App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
+        // Only set location if App.getGame() is not null (client-side only)
+        if (App.getGame() != null) {
+            App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
+        }
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();
@@ -499,13 +502,15 @@ public class Farm {
             {false, true,  true,  true,  true, false}
         };
         if (farmType) {
-            Lake l11 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER, stardewLakeMask);
-            Lake l12 = new Lake(50, 30, 4, 4, "lake", Lake.LakeType.RIVER); // fallback, still rectangular
+            // Create different types of lakes for variety
+            Lake l11 = new Lake(20, 30, 6, 6, "Mountain Lake", Lake.LakeType.MOUNTAIN_LAKE, stardewLakeMask);
+            Lake l12 = new Lake(50, 30, 4, 4, "River", Lake.LakeType.RIVER); // fallback, still rectangular
             lakes.add(l11);
             lakes.add(l12);
             return lakes;
         }
-        Lake l1 = new Lake(20, 30, 6, 6, "lake", Lake.LakeType.RIVER, stardewLakeMask);
+        // Single lake for regular farms - make it a mountain lake for legendary fish access
+        Lake l1 = new Lake(20, 30, 6, 6, "Mountain Lake", Lake.LakeType.MOUNTAIN_LAKE, stardewLakeMask);
         lakes.add(l1);
         return lakes;
     }

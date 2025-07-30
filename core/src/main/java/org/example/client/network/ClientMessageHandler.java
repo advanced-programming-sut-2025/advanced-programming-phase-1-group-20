@@ -62,7 +62,7 @@ public class ClientMessageHandler {
     
     private void processMessage(Message message) {
         try {
-            System.out.println("DEBUG: Processing message type: " + message.getType());
+            System.out.println("DEBUG: Processing message type: " + message.getType() + " with body: " + message.getBody());
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -97,6 +97,20 @@ public class ClientMessageHandler {
                 case ONLINE_PLAYERS_LIST:
                     handleOnlinePlayersList(message);
                     break;
+                case PLAYER_UPDATE:
+                    handlePlayerUpdate(message);
+                    break;
+                case START_GAME:
+                    handleGameStarted(message);
+                    break;
+                case FARM_SELECTION_UPDATE:
+                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_UPDATE message");
+                    handleFarmSelectionUpdate(message);
+                    break;
+                case FARM_SELECTION_COMPLETE:
+                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_COMPLETE message");
+                    handleFarmSelectionComplete(message);
+                    break;
                 // Lobby-related message types
                 case CREATE_LOBBY:
                 case JOIN_LOBBY:
@@ -114,6 +128,123 @@ public class ClientMessageHandler {
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    private void handleGameStarted(Message message) {
+        System.out.println("DEBUG: handleGameStarted called");
+        String gameSessionId = message.getFromBody("gameSessionId");
+        String messageText = message.getFromBody("message");
+        Object gameData = message.getFromBody("gameData");
+        Object playersData = message.getFromBody("playersData");
+        String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
+        
+        // Handle playerCount which might come as Double from JSON
+        Object playerCountObj = message.getFromBody("playerCount");
+        Integer playerCount = null;
+        if (playerCountObj instanceof Double) {
+            playerCount = ((Double) playerCountObj).intValue();
+        } else if (playerCountObj instanceof Integer) {
+            playerCount = (Integer) playerCountObj;
+        }
+        
+        Boolean isActive = message.getFromBody("isActive");
+        
+        // Check for both old and new field names for backward compatibility
+        Boolean inFarmSelection = message.getFromBody("inFarmSelectionPhase");
+        Boolean inMapSelection = message.getFromBody("inMapSelectionPhase");
+        
+        // Use either field name
+        Boolean isInSelectionPhase = (inFarmSelection != null && inFarmSelection) || 
+                                   (inMapSelection != null && inMapSelection);
+        
+        System.out.println("DEBUG: Game started - Session ID: " + gameSessionId + ", Message: " + messageText);
+        System.out.println("DEBUG: In farm selection phase: " + isInSelectionPhase + ", Active: " + isActive);
+        
+        // Only set to IN_GAME if the game is fully active (not in farm selection phase)
+        if (isActive != null && isActive && !isInSelectionPhase) {
+            networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
+        } else {
+            // Stay in AUTHENTICATED state during farm selection phase
+            networkClient.setConnectionState(NetworkClient.ConnectionState.AUTHENTICATED);
+        }
+        
+        // Notify connection listener about game start
+        if (connectionListener != null) {
+            connectionListener.onGameJoined(gameSessionId);
+        }
+        
+        // Forward to lobby listener for UI updates
+        if (lobbyListener != null) {
+            lobbyListener.onLobbyMessage(message);
+        }
+    }
+
+    private void handleFarmSelectionUpdate(Message message) {
+        System.out.println("DEBUG: handleFarmSelectionUpdate called");
+        String username = message.getFromBody("username");
+        Integer farmIndex = message.getFromBody("farmIndex");
+        Object availableFarms = message.getFromBody("availableFarms");
+        Object playerSelections = message.getFromBody("playerSelections");
+        
+        System.out.println("DEBUG: Player " + username + " selected farm " + farmIndex);
+        System.out.println("DEBUG: Available farms: " + availableFarms);
+        System.out.println("DEBUG: Player selections: " + playerSelections);
+        
+        // Forward to lobby listener for UI updates
+        if (lobbyListener != null) {
+            System.out.println("DEBUG: Forwarding FARM_SELECTION_UPDATE to lobby listener");
+            lobbyListener.onLobbyMessage(message);
+        } else {
+            System.out.println("DEBUG: No lobby listener set for FARM_SELECTION_UPDATE");
+        }
+    }
+
+    private void handleFarmSelectionComplete(Message message) {
+        System.out.println("DEBUG: handleFarmSelectionComplete called");
+        String messageText = message.getFromBody("message");
+        Object completeGameStateObj = message.getFromBody("completeGameState");
+        Boolean isActive = message.getFromBody("isActive");
+        Object playersData = message.getFromBody("playersData");
+        Object gameData = message.getFromBody("gameData");
+        String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
+        
+        System.out.println("DEBUG: Farm selection complete - " + messageText);
+        System.out.println("DEBUG: Complete game state received: " + (completeGameStateObj != null ? "yes" : "no"));
+        
+        // Set connection state to IN_GAME if the game is now fully active
+        if (isActive != null && isActive) {
+            networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
+        }
+        
+        // Forward to lobby listener for UI updates with enhanced data
+        if (lobbyListener != null) {
+            // If we have the new complete game state structure, use it
+            if (completeGameStateObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> completeGameState = (Map<String, Object>) completeGameStateObj;
+                
+                // Create a new message with all the data properly structured
+                Message enhancedMessage = new Message();
+                enhancedMessage.setType(Message.Type.FARM_SELECTION_COMPLETE);
+                enhancedMessage.putInBody("message", messageText);
+                enhancedMessage.putInBody("completeGameState", completeGameState);
+                enhancedMessage.putInBody("isActive", completeGameState.get("isActive"));
+                enhancedMessage.putInBody("gameSessionId", completeGameState.get("gameSessionId"));
+                enhancedMessage.putInBody("playerSelections", completeGameState.get("playerSelections"));
+                enhancedMessage.putInBody("playersData", completeGameState.get("playersData"));
+                enhancedMessage.putInBody("gameData", completeGameState.get("gameData"));
+                enhancedMessage.putInBody("currentPlayerUsername", completeGameState.get("currentPlayerUsername"));
+                enhancedMessage.putInBody("playerCount", completeGameState.get("playerCount"));
+                enhancedMessage.putInBody("allPlayersInfo", completeGameState.get("allPlayersInfo"));
+                
+                System.out.println("DEBUG: Forwarding enhanced FARM_SELECTION_COMPLETE to lobby listener");
+                lobbyListener.onLobbyMessage(enhancedMessage);
+            } else {
+                // Fallback to original message structure for backward compatibility
+                System.out.println("DEBUG: Using fallback message structure for FARM_SELECTION_COMPLETE");
+                lobbyListener.onLobbyMessage(message);
+            }
         }
     }
     
@@ -234,6 +365,25 @@ public class ClientMessageHandler {
         Object gameState = message.getFromBody("gameState");
         Object playersData = message.getFromBody("players");
         
+        System.out.println("DEBUG: handleFullGameState called - gameState: " + (gameState != null ? "present" : "null") + 
+                          ", playersData: " + (playersData != null ? "present" : "null"));
+        
+        // Update the local game state with server data
+        if (gameState != null) {
+            try {
+                // Update the current game in App with server state
+                Game currentGame = App.getGame();
+                if (currentGame != null) {
+                    // Update game state from server data
+                    // This would need proper deserialization and state synchronization
+                    System.out.println("DEBUG: Updating local game state with server data");
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to update game state: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
         if (gameState != null && gameStateListener != null) {
             gameStateListener.onGameStateUpdate(gameState);
         }
@@ -295,6 +445,22 @@ public class ClientMessageHandler {
             List<Object> players = (List<Object>) playersObj;
             onlinePlayersListener.onOnlinePlayersUpdate(players);
             System.out.println("Received online players list: " + players.size() + " players");
+        }
+    }
+    
+    private void handlePlayerUpdate(Message message) {
+        // System.out.println("DEBUG: handlePlayerUpdate called");
+        try {
+            String action = message.getFromBody("action");
+            String username = message.getFromBody("username");
+            // System.out.println("DEBUG: Player update - Action: " + action + ", Username: " + username);
+            
+            // Forward to appropriate listeners if needed
+            if (lobbyListener != null) {
+                lobbyListener.onLobbyMessage(message);
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling player update: " + e.getMessage());
         }
     }
     

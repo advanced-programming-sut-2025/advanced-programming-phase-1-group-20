@@ -41,7 +41,7 @@ public class CraftingScreen implements Screen, Disposable {
     private final Map<CraftingType, Texture> hoverCraftingTextures = new HashMap<>();
     private final Map<CraftingType, ProgressBar> progressBars = new HashMap<>(); // Map for progress bars
 
-    private final Texture backgroundTexture; // اضافه شده
+    private final Texture backgroundTexture;
 
     private Dialog errorDialog;
     private HouseMenuController controller;
@@ -93,7 +93,7 @@ public class CraftingScreen implements Screen, Disposable {
             Texture hoverTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + "_hover" + ".png");
             hoverCraftingTextures.put(craftingType, hoverTex);
 
-            HoverImage image = new HoverImage(defaultTex, hoverTex);
+            HoverImage image = new HoverImage(defaultTex, hoverTex , 240);
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {

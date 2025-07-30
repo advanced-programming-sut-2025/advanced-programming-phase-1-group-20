@@ -190,4 +190,8 @@ public class Plant extends Item {
     public String getImageFilepath() {
         return "content/Plants/" + type.getImageFilePath() + ".png";
     }
+
+    public boolean isOneTimeHarvest() {
+        return type.isOneTimeHarvest();
+    }
 }

@@ -67,15 +67,15 @@ public class Lake implements Serializable {
     }
 
     private boolean canHaveLegendaryFish(FishType fishType) {
-        if (fishType == FishType.CRIMSONFISH && name.equals("Ocean")) {
+        if (fishType == FishType.CRIMSONFISH && type == LakeType.OCEAN) {
             return true;
-        } else if (fishType == FishType.ANGLER && name.equals("Mountain Lake")) {
+        } else if (fishType == FishType.ANGLER && type == LakeType.MOUNTAIN_LAKE) {
             return true;
-        } else if (fishType == FishType.LEGEND && name.equals("Mountain Lake")) {
+        } else if (fishType == FishType.LEGEND && type == LakeType.MOUNTAIN_LAKE) {
             return true;
-        } else if (fishType == FishType.GLACIERFISH && name.equals("Winter Lake")) {
+        } else if (fishType == FishType.GLACIERFISH && type == LakeType.WINTER_LAKE) {
             return true;
-        } else if (fishType == FishType.MUTANT_CARP && name.equals("Sewers")) {
+        } else if (fishType == FishType.MUTANT_CARP && type == LakeType.SEWERS) {
             return true;
         }
         return false;
@@ -152,6 +152,10 @@ public class Lake implements Serializable {
     }
 
     public enum LakeType {
-        RIVER
+        RIVER,
+        OCEAN,
+        MOUNTAIN_LAKE,
+        WINTER_LAKE,
+        SEWERS
     }
 }

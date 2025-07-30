@@ -14,8 +14,7 @@ public class Fish extends Item implements Serializable {
     private final Seasons season;
 
     public Fish(FishType type, int q, Seasons season) {
-        //TODO : adding correct file path
-        super(type.getName(), calculatePrice(type.getBasePrice(), q) , "");
+        super(type.getName(), calculatePrice(type.getBasePrice(), q), type.getImageFilePath());
         this.type = type;
         this.q = q;
         this.season = season;
