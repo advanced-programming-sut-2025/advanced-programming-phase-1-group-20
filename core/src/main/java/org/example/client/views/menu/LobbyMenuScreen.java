@@ -13,14 +13,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.menu.LobbyMenuController;
 import org.example.client.controllers.MultiplayerMenuController;
 import org.example.common.Lobby.Lobby;
 import org.example.common.Lobby.LobbyPlayer;
-import org.example.common.models.Message;
 
 import java.util.List;
 
