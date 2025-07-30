@@ -1199,7 +1199,9 @@ public class GameView implements Screen, InputProcessor {
             if (npcSpriteController != null) {
                 npcSpriteController.update(deltaTime);
                 npcSpriteController.render(Main.getBatch(), currentLightColor);
+            } else {
             }
+        } else {
         }
     }
 

@@ -43,6 +43,11 @@ public class NPC extends Mob {
     private float animationTimer = 0f;
     private static final float FRAME_DURATION = 0.2f; // Time per frame
 
+    // Movement tracking
+    private float lastPosX = 0;
+    private float lastPosY = 0;
+    private boolean isMoving = false;
+
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
         this.character = character;
@@ -60,6 +65,11 @@ public class NPC extends Mob {
         this.level1Dialogues = new ArrayList<>();
         this.level2Dialogues = new ArrayList<>();
         this.level3Dialogues = new ArrayList<>();
+
+        // Initialize movement tracking to prevent initial positioning from being detected as movement
+        this.lastPosX = 0;
+        this.lastPosY = 0;
+        this.isMoving = false;
 
         initializeDefaultDialogues();
 
@@ -399,7 +409,16 @@ public class NPC extends Mob {
     }
 
     public void setPosX(float posX) {
-        this.posX = posX;
+        // Only track movement if NPC has been positioned before (not initial positioning from 0,0)
+        if (this.posX != 0 || this.posY != 0) {
+            this.lastPosX = this.posX;
+            this.posX = posX;
+            updateMovementState();
+        } else {
+            // Initial positioning - don't track as movement
+            this.posX = posX;
+            this.lastPosX = posX;
+        }
     }
 
     public float getPosY() {
@@ -407,7 +426,16 @@ public class NPC extends Mob {
     }
 
     public void setPosY(float posY) {
-        this.posY = posY;
+        // Only track movement if NPC has been positioned before (not initial positioning from 0,0)
+        if (this.posX != 0 || this.posY != 0) {
+            this.lastPosY = this.posY;
+            this.posY = posY;
+            updateMovementState();
+        } else {
+            // Initial positioning - don't track as movement
+            this.posY = posY;
+            this.lastPosY = posY;
+        }
     }
 
     public float getSpeed() {
@@ -444,5 +472,27 @@ public class NPC extends Mob {
 
     public static float getFrameDuration() {
         return FRAME_DURATION;
+    }
+
+    // Movement tracking methods
+    private void updateMovementState() {
+        float deltaX = Math.abs(posX - lastPosX);
+        float deltaY = Math.abs(posY - lastPosY);
+        this.isMoving = deltaX > 0.1f || deltaY > 0.1f; // Small threshold to avoid floating point precision issues
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public void setMoving(boolean moving) {
+        this.isMoving = moving;
+    }
+
+    // Method to force NPC into proper idle state
+    public void forceIdleState() {
+        this.currentAnimation = "idle";
+        this.isMoving = false;
+        this.animationTimer = 0f;
     }
 }

@@ -183,7 +183,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private boolean isFarmAvailable(int farmIndex) {
         if (availableFarms == null) return true;
-        
+
         // Check if the farm index is in the available farms list
         for (Object farm : availableFarms) {
             if (farm instanceof Integer && (Integer) farm == farmIndex) {
@@ -202,7 +202,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     private void updatePlayerSelectionsDisplay() {
         System.out.println("DEBUG: FarmSelectionScreen.updatePlayerSelectionsDisplay called");
         System.out.println("DEBUG: FarmSelectionScreen - playerSelections: " + playerSelections);
-        
+
         playerSelectionsTable.clear();
 
         Label selectionsTitle = new Label("Player Selections:", skin);
@@ -293,7 +293,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             } else {
                 availableFarms = new ArrayList<>();
             }
-            
+
             Object playerSelectionsObj = message.getFromBody("playerSelections");
             if (playerSelectionsObj instanceof Map) {
                 playerSelections = (Map<String, Integer>) playerSelectionsObj;
@@ -312,19 +312,19 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private void handleFarmSelectionUpdate(Message message) {
         System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionUpdate called");
-        
+
         Object availableFarmsObj = message.getFromBody("availableFarms");
         if (availableFarmsObj instanceof List) {
             availableFarms = (List<Object>) availableFarmsObj;
             System.out.println("DEBUG: FarmSelectionScreen - Updated availableFarms: " + availableFarms);
         }
-        
+
         Object playerSelectionsObj = message.getFromBody("playerSelections");
         if (playerSelectionsObj instanceof Map) {
             playerSelections = (Map<String, Integer>) playerSelectionsObj;
             System.out.println("DEBUG: FarmSelectionScreen - Updated playerSelections: " + playerSelections);
         }
-        
+
         String username = message.getFromBody("username");
         Integer farmIndex = message.getFromBody("farmIndex");
 
@@ -345,43 +345,70 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     private void handleFarmSelectionComplete(Message message) {
         System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionComplete called");
         inFarmSelectionPhase = false;
-        
+
         // Extract data from the new message structure
         Object completeGameStateObj = message.getFromBody("completeGameState");
         String messageText = message.getFromBody("message");
-        
+        Boolean isActive = message.getFromBody("isActive");
+        Boolean inFarmSelectionPhase = message.getFromBody("inFarmSelectionPhase");
+
         System.out.println("DEBUG: Complete game state object: " + (completeGameStateObj != null ? "present" : "null"));
-        
+        System.out.println("DEBUG: Message text: " + messageText);
+        System.out.println("DEBUG: Is active: " + isActive);
+        System.out.println("DEBUG: In farm selection phase: " + inFarmSelectionPhase);
+
+        // Validate that we have the required data
+        if (completeGameStateObj == null) {
+            System.err.println("DEBUG: No complete game state received, cannot proceed to game");
+            statusLabel.setText("Error: No game state received from server");
+            statusLabel.setColor(Color.RED);
+            return;
+        }
+
+        if (isActive == null || !isActive) {
+            System.err.println("DEBUG: Game is not active, cannot proceed");
+            statusLabel.setText("Error: Game is not active");
+            statusLabel.setColor(Color.RED);
+            return;
+        }
+
         // Extract data from the complete game state if available
         final String gameSessionId;
         final Object playersData;
         final Object gameData;
         final String currentPlayerUsername;
         final Object allPlayersInfoObj;
-        final Boolean isActive;
-        
+
         if (completeGameStateObj instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> completeGameState = (Map<String, Object>) completeGameStateObj;
-            
+
             gameSessionId = (String) completeGameState.get("gameSessionId");
             playersData = completeGameState.get("playersData");
             gameData = completeGameState.get("gameData");
             currentPlayerUsername = (String) completeGameState.get("currentPlayerUsername");
             allPlayersInfoObj = completeGameState.get("allPlayersInfo");
-            isActive = (Boolean) completeGameState.get("isActive");
-            
-            System.out.println("DEBUG: Extracted from complete game state - sessionId: " + gameSessionId + ", isActive: " + isActive);
+
+            System.out.println("DEBUG: Extracted from complete game state - sessionId: " + gameSessionId);
+            System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
+            System.out.println("DEBUG: All players info: " + (allPlayersInfoObj != null ? "present" : "null"));
         } else {
             // Fallback to old structure
-            isActive = message.getFromBody("isActive");
             gameSessionId = message.getFromBody("gameSessionId");
             playersData = message.getFromBody("playersData");
             gameData = message.getFromBody("gameData");
             currentPlayerUsername = message.getFromBody("currentPlayerUsername");
             allPlayersInfoObj = message.getFromBody("allPlayersInfo");
-            
-            System.out.println("DEBUG: Using fallback structure - sessionId: " + gameSessionId + ", isActive: " + isActive);
+
+            System.out.println("DEBUG: Using fallback structure - sessionId: " + gameSessionId);
+        }
+
+        // Validate essential data
+        if (gameSessionId == null) {
+            System.err.println("DEBUG: No game session ID received");
+            statusLabel.setText("Error: No game session ID");
+            statusLabel.setColor(Color.RED);
+            return;
         }
 
         statusLabel.setText(messageText != null ? messageText : "Farm selection complete! Game is starting...");
@@ -400,23 +427,20 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         infoLabel.setColor(Color.GREEN);
 
         // Navigate to the actual multiplayer game after a short delay
-        if (isActive != null && isActive && gameSessionId != null) {
-            System.out.println("DEBUG: FarmSelectionScreen - Farm selection complete, navigating to multiplayer game");
+        System.out.println("DEBUG: FarmSelectionScreen - Farm selection complete, navigating to multiplayer game");
 
-            // Use a timer to navigate after showing the completion message
-            new Thread(() -> {
-                try {
-                    Thread.sleep(2000); // Wait 2 seconds to show completion message
-                    Gdx.app.postRunnable(() -> {
-                        navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
-                    });
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }).start();
-        } else {
-            System.out.println("DEBUG: FarmSelectionScreen - Cannot navigate: isActive=" + isActive + ", gameSessionId=" + gameSessionId);
-        }
+        // Use a timer to navigate after showing the completion message
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000); // Wait 2 seconds to show completion message
+                Gdx.app.postRunnable(() -> {
+                    navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
+                });
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("DEBUG: Navigation thread interrupted");
+            }
+        }).start();
     }
 
     private void navigateToMultiplayerGame(String gameSessionId, Object playersData, Object gameData, String currentPlayerUsername, Object allPlayersInfoObj) {
@@ -428,8 +452,12 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             User currentUser = networkClient.getAuthenticatedUser();
             if (currentUser == null) {
                 System.err.println("DEBUG: No authenticated user found");
+                statusLabel.setText("Error: No authenticated user");
+                statusLabel.setColor(Color.RED);
                 return;
             }
+
+            System.out.println("DEBUG: Current authenticated user: " + currentUser.getUsername());
 
             // Create a complete game structure for multiplayer with all players
             List<Player> allPlayers = new ArrayList<>();
@@ -440,27 +468,28 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             if (allPlayersInfoObj instanceof Map) {
                 @SuppressWarnings("unchecked")
                 Map<String, Object> allPlayersInfo = (Map<String, Object>) allPlayersInfoObj;
-                
+
                 System.out.println("DEBUG: Processing " + allPlayersInfo.size() + " players from server");
-                
+
                 for (Map.Entry<String, Object> entry : allPlayersInfo.entrySet()) {
                     String username = entry.getKey();
                     Object playerInfoObj = entry.getValue();
-                    
+
                     if (playerInfoObj instanceof Map) {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> playerInfo = (Map<String, Object>) playerInfoObj;
-                        
+
                         // Create user and player for this username
                         User user = new User(username, "temp", "temp@temp.com", username, null);
                         Player player = new Player(user);
-                        
+
                         // Set player properties from server data
                         Object posX = playerInfo.get("posX");
                         Object posY = playerInfo.get("posY");
                         Object energy = playerInfo.get("energy");
                         Object money = playerInfo.get("money");
-                        
+                        Object isCurrentPlayer = playerInfo.get("isCurrentPlayer");
+
                         if (posX instanceof Number) player.setPosX(((Number) posX).floatValue());
                         if (posY instanceof Number) player.setPosY(((Number) posY).floatValue());
                         if (energy instanceof Number) player.setEnergy(((Number) energy).intValue());
@@ -473,7 +502,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                                 player.decreaseMoney(currentMoney - targetMoney);
                             }
                         }
-                        
+
                         // Create farm for this player
                         Object farmIndexObj = playerInfo.get("farmIndex");
                         if (farmIndexObj instanceof Number) {
@@ -485,40 +514,45 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                                 System.out.println("DEBUG: Created farm " + farmIndex + " for player " + username);
                             }
                         }
-                        
+
                         allPlayers.add(player);
-                        
-                        // Identify current player
+
+                        // Identify current player (the one for this client)
                         if (username.equals(currentUser.getUsername())) {
                             currentPlayer = player;
                             System.out.println("DEBUG: Identified current player: " + username);
                         }
+
+                        // Log if this player is the current player in the game
+                        if (isCurrentPlayer instanceof Boolean && (Boolean) isCurrentPlayer) {
+                            System.out.println("DEBUG: Player " + username + " is the current player in the game");
+                        }
                     }
                 }
             }
-            
+
             // Fallback: if we don't have all players info, create basic structure
             if (allPlayers.isEmpty()) {
                 System.out.println("DEBUG: No allPlayersInfo available, creating fallback structure");
                 currentPlayer = new Player(currentUser);
                 allPlayers.add(currentPlayer);
-                
+
                 // Create farms based on player selections
                 if (playerSelections != null && !playerSelections.isEmpty()) {
                     for (Map.Entry<String, Integer> entry : playerSelections.entrySet()) {
                         String username = entry.getKey();
                         Integer farmIndex = entry.getValue();
-                        
+
                         if (farmIndex != null && farmIndex >= 0 && farmIndex <= 3) {
                             // Create a player for this username
                             User farmUser = new User(username, "temp", "temp@temp.com", username, null);
                             Player farmPlayer = new Player(farmUser);
-                            
+
                             // Create farm for this player
                             Farm farm = new Farm(username + "'s Farm", farmPlayer, farmIndex == 0, farmIndex);
                             farmPlayer.setCurrentFarm(farm);
                             gameMap.addFarm(farm);
-                            
+
                             // If this is the current user's farm, update the current player
                             if (username.equals(currentUser.getUsername())) {
                                 currentPlayer.setCurrentFarm(farm);
@@ -530,8 +564,17 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Ensure we have a current player
             if (currentPlayer == null) {
+                System.err.println("DEBUG: Failed to identify current player, creating fallback");
                 currentPlayer = new Player(currentUser);
                 allPlayers.add(currentPlayer);
+            }
+
+            // Validate that current player has a farm
+            if (currentPlayer.getCurrentFarm() == null) {
+                System.err.println("DEBUG: Current player has no farm assigned");
+                statusLabel.setText("Error: No farm assigned to current player");
+                statusLabel.setColor(Color.RED);
+                return;
             }
 
             // Create the game with all players
@@ -539,29 +582,33 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             game.setSaveName("Multiplayer_" + gameSessionId);
             game.setGameMap(gameMap);
             game.isMultiplayer = true; // Mark as multiplayer game
-            
+
             // Sync farm selections from server data
             if (playerSelections != null) {
                 game.syncFarmSelectionsFromServer(playerSelections);
             }
-            
+
             // Set the game in App
             App.setGame(game);
-            
+
             // Debug: Verify game state
             System.out.println("DEBUG: Game created with " + game.getPlayers().size() + " players");
             System.out.println("DEBUG: Current player: " + (game.getCurrentPlayer() != null ? game.getCurrentPlayer().getUser().getUsername() : "null"));
-            System.out.println("DEBUG: Current player's farm: " + (game.getCurrentPlayer() != null && game.getCurrentPlayer().getCurrentFarm() != null ? 
+            System.out.println("DEBUG: Current player's farm: " + (game.getCurrentPlayer() != null && game.getCurrentPlayer().getCurrentFarm() != null ?
                 game.getCurrentPlayer().getCurrentFarm().getName() : "null"));
             System.out.println("DEBUG: Game map farms: " + (game.getGameMap() != null ? game.getGameMap().getFarms().size() : "null"));
             System.out.println("DEBUG: Farm selections: " + game.getPlayerFarmSelections());
 
             // Initialize the game map
+            System.out.println("FarmSelectionScreen: About to initialize NPCs...");
             if (gameMap.getVillage() != null) {
+                System.out.println("FarmSelectionScreen: Village is not null, calling initializeNPCs()");
                 gameMap.getVillage().initializeNPCs();
+            } else {
+                System.out.println("FarmSelectionScreen: Village is null, cannot initialize NPCs");
             }
             gameMap.updateTilesFromRegions();
-            
+
             System.out.println("DEBUG: FarmSelectionScreen - Initialized game with " + allPlayers.size() + " players");
 
             // Create and set the game view
@@ -583,6 +630,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                     System.out.println("DEBUG: Setting new screen to GameView...");
                     mainGame.setScreen(gameView);
                     System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
+                    System.out.println("DEBUG: Each player now has their own Player object and the same game state");
                 } else {
                     System.err.println("DEBUG: Main game instance is null on main thread!");
                 }
@@ -591,6 +639,8 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());
             e.printStackTrace();
+            statusLabel.setText("Error: Failed to start game");
+            statusLabel.setColor(Color.RED);
         }
     }
 

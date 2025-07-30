@@ -311,13 +311,11 @@ public class InventoryScreen implements Screen {
                     public void dragStop(InputEvent event, float x, float y, int pointer) {
                         // Handle drop
                         if (draggedItem != null) {
-                            // Check if dropped on trash can
+                            // Check if dropped on trash can - search up the actor hierarchy
                             Actor hit = stage.hit(event.getStageX(), event.getStageY(), true);
-                            if (hit != null && hit.getUserObject() != null && hit.getUserObject() instanceof Tool) {
-                                Tool trashCan = (Tool) hit.getUserObject();
-                                if (trashCan.getType() == Tool.ToolType.TRASH_CAN) {
-                                    sellItemToTrashCan(draggedItem, trashCan);
-                                }
+                            Tool trashCan = findTrashCanInHierarchy(hit);
+                            if (trashCan != null) {
+                                sellItemToTrashCan(draggedItem, trashCan);
                             }
 
                             // Clean up dragged item
@@ -515,6 +513,21 @@ public class InventoryScreen implements Screen {
         }
 
         return trashCanArea;
+    }
+
+    private Tool findTrashCanInHierarchy(Actor actor) {
+        // Search up the actor hierarchy to find a trash can
+        Actor current = actor;
+        while (current != null) {
+            if (current.getUserObject() != null && current.getUserObject() instanceof Tool) {
+                Tool tool = (Tool) current.getUserObject();
+                if (tool.getType() == Tool.ToolType.TRASH_CAN) {
+                    return tool;
+                }
+            }
+            current = current.getParent();
+        }
+        return null;
     }
 
         private Tool findBestTrashCan(Backpack backpack) {

@@ -22,27 +22,40 @@ public class NPCSpriteController implements Disposable {
     private Map<String, Texture> npcTextures;
 
     public NPCSpriteController() {
+        System.out.println("NPCSpriteController: Initializing...");
         this.npcAnimations = new HashMap<>();
         this.npcTextures = new HashMap<>();
         loadNPCSprites();
+        System.out.println("NPCSpriteController: Initialization complete");
     }
 
     private void loadNPCSprites() {
+        System.out.println("NPCSpriteController: Loading NPC sprites...");
         String[] npcNames = {"Abigail", "Pierre", "Sebastian", "Leah", "Willy", "Jojo"};
         String[] animationTypes = {"idle", "walk", "back", "face", "fly"};
 
         for (String npcName : npcNames) {
+            System.out.println("NPCSpriteController: Loading sprites for " + npcName);
             Map<String, Animation<TextureRegion>> animations = new HashMap<>();
 
             for (String animType : animationTypes) {
                 Animation<TextureRegion> animation = loadNPCAnimation(npcName, animType);
                 if (animation != null) {
                     animations.put(animType, animation);
+                    System.out.println("NPCSpriteController: Successfully loaded " + animType + " animation for " + npcName);
+                } else {
+                    System.out.println("NPCSpriteController: Failed to load " + animType + " animation for " + npcName);
                 }
             }
 
+            if (animations.isEmpty()) {
+                System.err.println("NPCSpriteController: WARNING - No animations loaded for " + npcName);
+            }
+
             npcAnimations.put(npcName, animations);
+            System.out.println("NPCSpriteController: Completed loading for " + npcName + " - " + animations.size() + " animations loaded");
         }
+        System.out.println("NPCSpriteController: Finished loading all NPC sprites");
     }
 
     private Animation<TextureRegion> loadNPCAnimation(String npcName, String animationType) {
@@ -50,19 +63,78 @@ public class NPCSpriteController implements Disposable {
             // Load individual frames for the animation
             Array<TextureRegion> frames = new Array<>();
 
+            // Handle Willy's special naming convention
+            String basePath;
+            if (npcName.equals("Willy")) {
+                // Willy uses different naming: WillyIdle_0.png, Walk_1.png, etc.
+                switch (animationType) {
+                    case "idle":
+                        basePath = "content/NPC/Willy/WillyIdle_%d.png";
+                        break;
+                    case "walk":
+                        basePath = "content/NPC/Willy/Walk_%d.png";
+                        break;
+                    case "face":
+                        basePath = "content/NPC/Willy/WillyFace_%d.png";
+                        break;
+                    case "back":
+                        basePath = "content/NPC/Willy/back_%d.png";
+                        break;
+                    case "fly":
+                        basePath = "content/NPC/Willy/tool_%d.png"; // Willy uses tool_ for fly animation
+                        break;
+                    default:
+                        basePath = "content/NPC/Willy/WillyIdle_%d.png"; // Default to idle
+                        break;
+                }
+            } else {
+                // Standard naming for other NPCs
+                basePath = String.format("content/NPC/%s/%s_%%d.png", npcName, animationType);
+            }
+
             // Most NPCs have 4 frames per animation (0-3)
             for (int i = 0; i < 4; i++) {
-                String framePath = String.format("content/NPC/%s/%s_%d.png", npcName, animationType, i);
+                String framePath = String.format(basePath, i);
+                System.out.println("Loading NPC sprite: " + framePath);
                 Texture frameTexture = new Texture(framePath);
                 TextureRegion frame = new TextureRegion(frameTexture);
                 frames.add(frame);
             }
 
+            System.out.println("Successfully loaded animation " + animationType + " for " + npcName);
             return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP);
         } catch (Exception e) {
+            System.err.println("Failed to load animation " + animationType + " for " + npcName + ": " + e.getMessage());
             // If animation doesn't exist, try to load just the first frame
             try {
-                String framePath = String.format("content/NPC/%s/%s_0.png", npcName, animationType);
+                String framePath;
+                if (npcName.equals("Willy")) {
+                    // Handle Willy's special naming for fallback
+                    switch (animationType) {
+                        case "idle":
+                            framePath = "content/NPC/Willy/WillyIdle_0.png";
+                            break;
+                        case "walk":
+                            framePath = "content/NPC/Willy/Walk_0.png";
+                            break;
+                        case "face":
+                            framePath = "content/NPC/Willy/WillyFace_0.png";
+                            break;
+                        case "back":
+                            framePath = "content/NPC/Willy/back_0.png";
+                            break;
+                        case "fly":
+                            framePath = "content/NPC/Willy/tool_0.png";
+                            break;
+                        default:
+                            framePath = "content/NPC/Willy/WillyIdle_0.png";
+                            break;
+                    }
+                } else {
+                    framePath = String.format("content/NPC/%s/%s_0.png", npcName, animationType);
+                }
+
+                System.out.println("Trying to load single frame: " + framePath);
                 Texture frameTexture = new Texture(framePath);
                 TextureRegion frame = new TextureRegion(frameTexture);
 
@@ -71,6 +143,7 @@ public class NPCSpriteController implements Disposable {
 
                 return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP);
             } catch (Exception e2) {
+                System.err.println("Failed to load even single frame for " + npcName + " " + animationType + ": " + e2.getMessage());
                 // If even the first frame doesn't exist, return null
                 return null;
             }
@@ -93,6 +166,8 @@ public class NPCSpriteController implements Disposable {
             return null;
         }
 
+
+
         Animation<TextureRegion> animation = getNPCAnimation(npcName, animationType);
         if (animation == null) {
             // Fallback to idle animation
@@ -100,13 +175,27 @@ public class NPCSpriteController implements Disposable {
             if (animation == null) {
                 return null;
             }
+            // Force animation type to idle if we're using fallback
+            animationType = "idle";
         }
 
-        // Update animation timer
-        float currentTimer = npc.getAnimationTimer() + deltaTime;
-        npc.setAnimationTimer(currentTimer);
+        // For idle animation or stationary NPCs, always return the first frame (idle_0)
+        if ("idle".equals(animationType) && !npc.isMoving()) {
+            // Reset animation timer to ensure we stay on frame 0
+            npc.setAnimationTimer(0f);
+            return animation.getKeyFrame(0, false); // Return first frame (idle_0) without animation
+        }
 
-        return animation.getKeyFrame(currentTimer, true);
+        // Only update animation timer if NPC is moving or not on idle animation
+        if (npc.isMoving() || !"idle".equals(animationType)) {
+            float currentTimer = npc.getAnimationTimer() + deltaTime;
+            npc.setAnimationTimer(currentTimer);
+            return animation.getKeyFrame(currentTimer, true);
+        } else {
+            // Fallback: For idle and not moving, return static frame (idle_0)
+            npc.setAnimationTimer(0f);
+            return animation.getKeyFrame(0, false);
+        }
     }
 
     public void setNPCAnimation(NPC npc, String animationType) {
@@ -127,34 +216,25 @@ public class NPCSpriteController implements Disposable {
         Village village = game.getGameMap().getVillage();
         if (village == null) return;
 
-        // For now, we'll render NPCs based on the Npcs enum
-        // In the future, we can add a proper residents list to the Village class
-        renderNPCsFromEnum(batch, lightingColor);
+        // Render NPCs from the village's residents list
+        renderNPCsFromVillage(batch, lightingColor, village);
     }
 
-    private void renderNPCsFromEnum(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, com.badlogic.gdx.graphics.Color lightingColor) {
+    private void renderNPCsFromVillage(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, com.badlogic.gdx.graphics.Color lightingColor, Village village) {
         // Set batch color for lighting
         batch.setColor(lightingColor);
 
-        // Render NPCs based on the Npcs enum
-        for (org.example.common.models.enums.Npcs npcEnum : org.example.common.models.enums.Npcs.values()) {
-            renderNPCFromEnum(batch, npcEnum);
+        // Render NPCs from the village's residents list
+        int npcCount = village.getResidents().size();
+        if (npcCount > 0) {
+            System.out.println("Rendering " + npcCount + " NPCs");
+            for (NPC npc : village.getResidents()) {
+                renderNPC(batch, npc);
+            }
         }
 
-        // Reset batch color
+        // Reset batch colorss
         batch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-    }
-
-
-
-    private void renderNPCFromEnum(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, org.example.common.models.enums.Npcs npcEnum) {
-        // Create a temporary NPC for rendering
-        NPC npc = new NPC(npcEnum.getCharacteristic(), npcEnum.getName(), npcEnum.getJob(), new HashMap<>());
-        npc.setSpriteName(npcEnum.getName());
-        npc.setPosX(npcEnum.getLocation().getX() * 60f);
-        npc.setPosY(npcEnum.getLocation().getY() * 60f);
-
-        renderNPC(batch, npc);
     }
 
     private void renderNPC(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, NPC npc) {
@@ -170,6 +250,9 @@ public class NPCSpriteController implements Disposable {
             float height = currentFrame.getRegionHeight() * scale;
 
             batch.draw(currentFrame, x, y, width, height);
+        } else {
+            System.out.println("Failed to get frame for NPC " + npc.getName() + " with sprite " + npc.getSpriteName());
+            System.out.println("  Animation: " + npc.getCurrentAnimation() + ", Timer: " + npc.getAnimationTimer());
         }
     }
 

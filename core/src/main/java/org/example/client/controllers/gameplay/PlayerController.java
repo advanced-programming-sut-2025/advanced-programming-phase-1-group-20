@@ -21,12 +21,11 @@ import org.example.common.models.entities.Game;
 import org.example.common.models.enums.Types.TileType;
 
 public class PlayerController {
-
     private static final int FRAME_W = 16;
     private static final int FRAME_H = 32;
     private static final int RENDER_W = 48;
     private static final int RENDER_H = 96;
-    private static final float FRAME_DURATION = 0.15f;
+    private static final float FRAME_DURATION = 0.2f;
     private static final int VILLAGE_TRANSITION_THRESHOLD = 3;
     private static final int FARM_EDGE_DEBUG_THRESHOLD = 5;
     private static final int MOVEMENT_ENERGY_PERCENTAGE = 5; // 0.05% of current energy per movement (5/10000 = 0.05%)
@@ -194,20 +193,17 @@ public class PlayerController {
         }
     }
 
-    /**
-     * Calculate the energy cost for movement
-     * @return energy cost as a percentage of player's current energy
-     */
+
     private int calculateMovementEnergyCost() {
         // Calculate 0.05% of player's current energy as movement cost
         int currentEnergy = player.getEnergy();
         int energyCost = Math.max(MIN_MOVEMENT_ENERGY_COST, currentEnergy * MOVEMENT_ENERGY_PERCENTAGE / 10000);
-        
+
         // Ensure we don't consume more than 1 energy for very low energy levels
         if (currentEnergy < 2000 && energyCost > 1) {
             energyCost = 1;
         }
-        
+
         return energyCost;
     }
 
@@ -222,7 +218,7 @@ public class PlayerController {
         float newX = player.getPosX();
         float newY = player.getPosY();
         boolean moved = false;
-        
+
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             newX -= player.getSpeed();
             if (isWalkable(newX / 60, newY / 60)) {
