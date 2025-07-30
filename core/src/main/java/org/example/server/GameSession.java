@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GameSession {
     private final String sessionId;
@@ -299,6 +300,11 @@ public class GameSession {
         gameInstance.selectFarm(player, farmIndex);
         System.out.println("DEBUG: Farm " + farmIndex + " selected for player " + username);
         
+        // Debug: Check current state
+        System.out.println("DEBUG: Current players: " + gameInstance.getPlayers().size());
+        System.out.println("DEBUG: Current farm selections: " + gameInstance.getPlayerFarmSelections());
+        System.out.println("DEBUG: All players selected farm: " + gameInstance.allPlayersSelectedFarm());
+        
         // Create response message
         Message response = new Message();
         response.setType(Message.Type.FARM_SELECTION_UPDATE);
@@ -317,17 +323,39 @@ public class GameSession {
             // Initialize the game with selected farms
             gameInstance.initializeMultiplayerGame();
             
+            // Set the game session as fully active
+            this.isActive = true;
+            
+            // Create comprehensive game state for clients
+            Map<String, Object> completeGameState = new HashMap<>();
+            completeGameState.put("gameSessionId", sessionId);
+            completeGameState.put("isActive", true);
+            completeGameState.put("playerSelections", gameInstance.getPlayerFarmSelections());
+            completeGameState.put("playersData", gameInstance.getPlayersData());
+            completeGameState.put("gameData", gameInstance.getGameState());
+            completeGameState.put("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ? 
+                gameInstance.getCurrentPlayer().getUser().getUsername() : null);
+            completeGameState.put("playerCount", gameInstance.getPlayerCount());
+            
+            // Add all players with their farm assignments
+            Map<String, Object> allPlayersInfo = new HashMap<>();
+            for (Player p : gameInstance.getPlayers()) {
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("username", p.getUser().getUsername());
+                playerInfo.put("farmIndex", gameInstance.getFarmSelection(p));
+                playerInfo.put("farmName", p.getCurrentFarm() != null ? p.getCurrentFarm().getName() : "Unknown");
+                playerInfo.put("posX", p.getPosX());
+                playerInfo.put("posY", p.getPosY());
+                playerInfo.put("energy", p.getEnergy());
+                playerInfo.put("money", p.getMoney());
+                allPlayersInfo.put(p.getUser().getUsername(), playerInfo);
+            }
+            completeGameState.put("allPlayersInfo", allPlayersInfo);
+            
             Message completeMessage = new Message();
             completeMessage.setType(Message.Type.FARM_SELECTION_COMPLETE);
             completeMessage.putInBody("message", "All players have selected their farms! Game is now starting.");
-            completeMessage.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
-            completeMessage.putInBody("gameSessionId", sessionId);
-            completeMessage.putInBody("isActive", true);
-            completeMessage.putInBody("playersData", gameInstance.getPlayersData());
-            completeMessage.putInBody("gameData", gameInstance.getGameState());
-            completeMessage.putInBody("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ? 
-                gameInstance.getCurrentPlayer().getUser().getUsername() : null);
-            completeMessage.putInBody("playerCount", gameInstance.getPlayerCount());
+            completeMessage.putInBody("completeGameState", completeGameState);
             
             broadcastToAll(completeMessage);
             
@@ -337,6 +365,11 @@ public class GameSession {
             System.out.println("Farm selection complete - Game fully initialized for session: " + sessionId);
         } else {
             System.out.println("DEBUG: Not all players have selected farms yet");
+            System.out.println("DEBUG: Players who haven't selected: ");
+            for (Player p : gameInstance.getPlayers()) {
+                Integer selection = gameInstance.getFarmSelection(p);
+                System.out.println("DEBUG: - " + p.getUser().getUsername() + ": " + selection);
+            }
         }
     }
 

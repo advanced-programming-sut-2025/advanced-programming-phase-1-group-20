@@ -105,8 +105,7 @@ public enum Markets {
         ancientSeed.setPrice(500);
         items.add(new Product(ancientSeed, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 125 , "grass.png" , "Place this on your farm to start a new patch of grass.");
+        Item grassStarter = new Item("Grass Starter" , 125 , "content/Grass_Starter.png" , "Place this on your farm to start a new patch of grass.");
         items.add(new Product(grassStarter, Double.POSITIVE_INFINITY));
 
 
@@ -308,8 +307,7 @@ public enum Markets {
         dehydrator.setPrice(10_000);
         items.add(new Product(dehydrator, 1.0));
 
-        //TODO : adding correct image file path
-        Item grassStarter = new Item("Grass Starter" , 1000 , "grass.png" , "A recipe to make Grass Starter");
+        Item grassStarter = new Item("Grass Starter" , 1000 , "content/Grass_Starter.png" , "A recipe to make Grass Starter");
         items.add(new Product(grassStarter, 1.0));
 
 
@@ -502,8 +500,7 @@ public enum Markets {
         autumnItems.add(new Product(spangleSeed, 5.0));
         winterItems.add(new Product(spangleSeed, 5.0));
 
-        //TODO : adding correct image file path
-        Item hopStarter = new Item("Hops Starter" , 60 ,  "" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
+        Item hopStarter = new Item("Hops Starter" , 60 ,  "content/Plants/Hops_Starter.png" ,"Plant these in the summer. Takes 11 days to grow, but keeps producing after that. Grows on a trellis.");
         summerItems.add(new Product(hopStarter, 5.0));
         hopStarter.setPrice(90);
         springItems.add(new Product(hopStarter, 5.0));
@@ -829,6 +826,4 @@ public enum Markets {
     public Market createMarket() {
         return this.market;
     }
-
-
 }

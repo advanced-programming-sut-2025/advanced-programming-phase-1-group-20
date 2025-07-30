@@ -29,6 +29,8 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.enums.PlayerEnums.Gender;
 
+import java.util.HashMap;
+
 public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMessageListener {
     private Stage stage;
     private SpriteBatch batch;
@@ -40,7 +42,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     private Table farmSelectionTable;
     private Table playerSelectionsTable;
     private TextButton[] farmButtons;
-    private List<String> availableFarms;
+    private List<Object> availableFarms;
     private Map<String, Integer> playerSelections;
     private boolean inFarmSelectionPhase = false;
     private String gameSessionId;
@@ -181,12 +183,18 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private boolean isFarmAvailable(int farmIndex) {
         if (availableFarms == null) return true;
-        // availableFarms can be either List<String> or List<Integer>, so check both
-        if (availableFarms.contains(farmIndex)) {
-            return true;
-        }
-        if (availableFarms.contains(String.valueOf(farmIndex))) {
-            return true;
+        
+        // Check if the farm index is in the available farms list
+        for (Object farm : availableFarms) {
+            if (farm instanceof Integer && (Integer) farm == farmIndex) {
+                return true;
+            }
+            if (farm instanceof String && farm.equals(String.valueOf(farmIndex))) {
+                return true;
+            }
+            if (farm instanceof Double && ((Double) farm).intValue() == farmIndex) {
+                return true;
+            }
         }
         return false;
     }
@@ -279,8 +287,19 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             gameSessionId = sessionId;
 
             // Extract farm selection data from the message
-            availableFarms = message.getFromBody("availableFarms");
-            playerSelections = message.getFromBody("playerSelections");
+            Object availableFarmsObj = message.getFromBody("availableFarms");
+            if (availableFarmsObj instanceof List) {
+                availableFarms = (List<Object>) availableFarmsObj;
+            } else {
+                availableFarms = new ArrayList<>();
+            }
+            
+            Object playerSelectionsObj = message.getFromBody("playerSelections");
+            if (playerSelectionsObj instanceof Map) {
+                playerSelections = (Map<String, Integer>) playerSelectionsObj;
+            } else {
+                playerSelections = new HashMap<>();
+            }
 
             statusLabel.setText(messageText != null ? messageText : "Game started! Select your farm.");
             statusLabel.setColor(Color.GREEN);
@@ -293,8 +312,19 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private void handleFarmSelectionUpdate(Message message) {
         System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionUpdate called");
-        availableFarms = message.getFromBody("availableFarms");
-        playerSelections = message.getFromBody("playerSelections");
+        
+        Object availableFarmsObj = message.getFromBody("availableFarms");
+        if (availableFarmsObj instanceof List) {
+            availableFarms = (List<Object>) availableFarmsObj;
+            System.out.println("DEBUG: FarmSelectionScreen - Updated availableFarms: " + availableFarms);
+        }
+        
+        Object playerSelectionsObj = message.getFromBody("playerSelections");
+        if (playerSelectionsObj instanceof Map) {
+            playerSelections = (Map<String, Integer>) playerSelectionsObj;
+            System.out.println("DEBUG: FarmSelectionScreen - Updated playerSelections: " + playerSelections);
+        }
+        
         String username = message.getFromBody("username");
         Integer farmIndex = message.getFromBody("farmIndex");
 
@@ -313,13 +343,46 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     }
 
     private void handleFarmSelectionComplete(Message message) {
+        System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionComplete called");
         inFarmSelectionPhase = false;
+        
+        // Extract data from the new message structure
+        Object completeGameStateObj = message.getFromBody("completeGameState");
         String messageText = message.getFromBody("message");
-        Boolean isActive = message.getFromBody("isActive");
-        String gameSessionId = message.getFromBody("gameSessionId");
-        Object playersData = message.getFromBody("playersData");
-        Object gameData = message.getFromBody("gameData");
-        String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
+        
+        System.out.println("DEBUG: Complete game state object: " + (completeGameStateObj != null ? "present" : "null"));
+        
+        // Extract data from the complete game state if available
+        final String gameSessionId;
+        final Object playersData;
+        final Object gameData;
+        final String currentPlayerUsername;
+        final Object allPlayersInfoObj;
+        final Boolean isActive;
+        
+        if (completeGameStateObj instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> completeGameState = (Map<String, Object>) completeGameStateObj;
+            
+            gameSessionId = (String) completeGameState.get("gameSessionId");
+            playersData = completeGameState.get("playersData");
+            gameData = completeGameState.get("gameData");
+            currentPlayerUsername = (String) completeGameState.get("currentPlayerUsername");
+            allPlayersInfoObj = completeGameState.get("allPlayersInfo");
+            isActive = (Boolean) completeGameState.get("isActive");
+            
+            System.out.println("DEBUG: Extracted from complete game state - sessionId: " + gameSessionId + ", isActive: " + isActive);
+        } else {
+            // Fallback to old structure
+            isActive = message.getFromBody("isActive");
+            gameSessionId = message.getFromBody("gameSessionId");
+            playersData = message.getFromBody("playersData");
+            gameData = message.getFromBody("gameData");
+            currentPlayerUsername = message.getFromBody("currentPlayerUsername");
+            allPlayersInfoObj = message.getFromBody("allPlayersInfo");
+            
+            System.out.println("DEBUG: Using fallback structure - sessionId: " + gameSessionId + ", isActive: " + isActive);
+        }
 
         statusLabel.setText(messageText != null ? messageText : "Farm selection complete! Game is starting...");
         statusLabel.setColor(Color.GREEN);
@@ -345,16 +408,18 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 try {
                     Thread.sleep(2000); // Wait 2 seconds to show completion message
                     Gdx.app.postRunnable(() -> {
-                        navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername);
+                        navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
                     });
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }).start();
+        } else {
+            System.out.println("DEBUG: FarmSelectionScreen - Cannot navigate: isActive=" + isActive + ", gameSessionId=" + gameSessionId);
         }
     }
 
-    private void navigateToMultiplayerGame(String gameSessionId, Object playersData, Object gameData, String currentPlayerUsername) {
+    private void navigateToMultiplayerGame(String gameSessionId, Object playersData, Object gameData, String currentPlayerUsername, Object allPlayersInfoObj) {
         try {
             System.out.println("DEBUG: FarmSelectionScreen - Navigating to multiplayer game with session ID: " + gameSessionId);
 
@@ -366,33 +431,162 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 return;
             }
 
-            // Create player for current user
-            Player player = new Player(currentUser);
+            // Create a complete game structure for multiplayer with all players
+            List<Player> allPlayers = new ArrayList<>();
+            Player currentPlayer = null;
+            GameMap gameMap = new GameMap();
 
-            // Create a basic game structure for multiplayer
-            List<Player> players = new ArrayList<>();
-            players.add(player);
+            // Process all players info if available
+            if (allPlayersInfoObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> allPlayersInfo = (Map<String, Object>) allPlayersInfoObj;
+                
+                System.out.println("DEBUG: Processing " + allPlayersInfo.size() + " players from server");
+                
+                for (Map.Entry<String, Object> entry : allPlayersInfo.entrySet()) {
+                    String username = entry.getKey();
+                    Object playerInfoObj = entry.getValue();
+                    
+                    if (playerInfoObj instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> playerInfo = (Map<String, Object>) playerInfoObj;
+                        
+                        // Create user and player for this username
+                        User user = new User(username, "temp", "temp@temp.com", username, null);
+                        Player player = new Player(user);
+                        
+                        // Set player properties from server data
+                        Object posX = playerInfo.get("posX");
+                        Object posY = playerInfo.get("posY");
+                        Object energy = playerInfo.get("energy");
+                        Object money = playerInfo.get("money");
+                        
+                        if (posX instanceof Number) player.setPosX(((Number) posX).floatValue());
+                        if (posY instanceof Number) player.setPosY(((Number) posY).floatValue());
+                        if (energy instanceof Number) player.setEnergy(((Number) energy).intValue());
+                        if (money instanceof Number) {
+                            int currentMoney = player.getMoney();
+                            int targetMoney = ((Number) money).intValue();
+                            if (targetMoney > currentMoney) {
+                                player.increaseMoney(targetMoney - currentMoney);
+                            } else if (targetMoney < currentMoney) {
+                                player.decreaseMoney(currentMoney - targetMoney);
+                            }
+                        }
+                        
+                        // Create farm for this player
+                        Object farmIndexObj = playerInfo.get("farmIndex");
+                        if (farmIndexObj instanceof Number) {
+                            int farmIndex = ((Number) farmIndexObj).intValue();
+                            if (farmIndex >= 0 && farmIndex <= 3) {
+                                Farm farm = new Farm(username + "'s Farm", player, farmIndex == 0, farmIndex);
+                                player.setCurrentFarm(farm);
+                                gameMap.addFarm(farm);
+                                System.out.println("DEBUG: Created farm " + farmIndex + " for player " + username);
+                            }
+                        }
+                        
+                        allPlayers.add(player);
+                        
+                        // Identify current player
+                        if (username.equals(currentUser.getUsername())) {
+                            currentPlayer = player;
+                            System.out.println("DEBUG: Identified current player: " + username);
+                        }
+                    }
+                }
+            }
+            
+            // Fallback: if we don't have all players info, create basic structure
+            if (allPlayers.isEmpty()) {
+                System.out.println("DEBUG: No allPlayersInfo available, creating fallback structure");
+                currentPlayer = new Player(currentUser);
+                allPlayers.add(currentPlayer);
+                
+                // Create farms based on player selections
+                if (playerSelections != null && !playerSelections.isEmpty()) {
+                    for (Map.Entry<String, Integer> entry : playerSelections.entrySet()) {
+                        String username = entry.getKey();
+                        Integer farmIndex = entry.getValue();
+                        
+                        if (farmIndex != null && farmIndex >= 0 && farmIndex <= 3) {
+                            // Create a player for this username
+                            User farmUser = new User(username, "temp", "temp@temp.com", username, null);
+                            Player farmPlayer = new Player(farmUser);
+                            
+                            // Create farm for this player
+                            Farm farm = new Farm(username + "'s Farm", farmPlayer, farmIndex == 0, farmIndex);
+                            farmPlayer.setCurrentFarm(farm);
+                            gameMap.addFarm(farm);
+                            
+                            // If this is the current user's farm, update the current player
+                            if (username.equals(currentUser.getUsername())) {
+                                currentPlayer.setCurrentFarm(farm);
+                            }
+                        }
+                    }
+                }
+            }
 
-            Game game = new Game(players, player);
+            // Ensure we have a current player
+            if (currentPlayer == null) {
+                currentPlayer = new Player(currentUser);
+                allPlayers.add(currentPlayer);
+            }
+
+            // Create the game with all players
+            Game game = new Game(allPlayers, currentPlayer);
             game.setSaveName("Multiplayer_" + gameSessionId);
-
+            game.setGameMap(gameMap);
+            game.isMultiplayer = true; // Mark as multiplayer game
+            
+            // Sync farm selections from server data
+            if (playerSelections != null) {
+                game.syncFarmSelectionsFromServer(playerSelections);
+            }
+            
             // Set the game in App
             App.setGame(game);
+            
+            // Debug: Verify game state
+            System.out.println("DEBUG: Game created with " + game.getPlayers().size() + " players");
+            System.out.println("DEBUG: Current player: " + (game.getCurrentPlayer() != null ? game.getCurrentPlayer().getUser().getUsername() : "null"));
+            System.out.println("DEBUG: Current player's farm: " + (game.getCurrentPlayer() != null && game.getCurrentPlayer().getCurrentFarm() != null ? 
+                game.getCurrentPlayer().getCurrentFarm().getName() : "null"));
+            System.out.println("DEBUG: Game map farms: " + (game.getGameMap() != null ? game.getGameMap().getFarms().size() : "null"));
+            System.out.println("DEBUG: Farm selections: " + game.getPlayerFarmSelections());
 
-            // Don't initialize farms here - the server will handle farm initialization
-            // based on the farm selections that were made during the farm selection phase
-            // The server will send the complete game state via GAME_STATE_FULL message
+            // Initialize the game map
+            if (gameMap.getVillage() != null) {
+                gameMap.getVillage().initializeNPCs();
+            }
+            gameMap.updateTilesFromRegions();
+            
+            System.out.println("DEBUG: FarmSelectionScreen - Initialized game with " + allPlayers.size() + " players");
 
             // Create and set the game view
-            GameView gameView = new GameView(new GameMenuController(player), player, game,
+            System.out.println("DEBUG: Creating GameView...");
+            GameView gameView = new GameView(new GameMenuController(currentPlayer), currentPlayer, game,
                 AssetManager.getAssetManager().getSkin(), currentUser);
+            System.out.println("DEBUG: GameView created successfully");
 
-            // Navigate to game
-            Main.getGame().getScreen().dispose();
-            Main.getGame().setScreen(gameView);
-
-            System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
-            System.out.println("DEBUG: Waiting for server to send complete game state...");
+            // Navigate to game - always use postRunnable to ensure it happens on the main thread
+            System.out.println("DEBUG: Scheduling screen change on main thread...");
+            Gdx.app.postRunnable(() -> {
+                System.out.println("DEBUG: Getting Main game instance on main thread...");
+                Main mainGame = Main.getGame();
+                if (mainGame != null) {
+                    System.out.println("DEBUG: Main game instance found, disposing current screen...");
+                    if (mainGame.getScreen() != null) {
+                        mainGame.getScreen().dispose();
+                    }
+                    System.out.println("DEBUG: Setting new screen to GameView...");
+                    mainGame.setScreen(gameView);
+                    System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
+                } else {
+                    System.err.println("DEBUG: Main game instance is null on main thread!");
+                }
+            });
 
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());

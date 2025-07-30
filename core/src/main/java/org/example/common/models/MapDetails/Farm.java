@@ -80,7 +80,10 @@ public class Farm {
         this.coops = new ArrayList<>();
         this.shippingBins = new ArrayList<>();
         owner.setPlayerColor(setOwnerColor());
-        App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
+        // Only set location if App.getGame() is not null (client-side only)
+        if (App.getGame() != null) {
+            App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
+        }
         initializeFarm();
         initializeSymbols();
         setInitialOwnerLocation();

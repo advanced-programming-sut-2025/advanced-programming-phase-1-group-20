@@ -2,6 +2,9 @@ package org.example.common.models.entities;
 
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.MapDetails.Building;
+import org.example.common.models.common.Location;
+import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
 
@@ -444,6 +447,9 @@ public class Game implements Serializable {
             gameMap = new GameMap();
         }
 
+        // Set multiplayer flag
+        this.isMultiplayer = true;
+
         // Initialize farms for all players based on their selections
         if (players != null) {
             for (Player player : players) {
@@ -460,7 +466,70 @@ public class Game implements Serializable {
                             );
                         player.setCurrentFarm(farm);
                         gameMap.addFarm(farm);
+                        System.out.println("DEBUG: Created farm " + farmIndex + " for player " + player.getUser().getUsername());
                     }
+                }
+            }
+        }
+
+        // Position players in their farms using global coordinates
+        if (players != null) {
+            for (Player player : players) {
+                if (player != null && player.getCurrentFarm() != null) {
+                    Farm farm = player.getCurrentFarm();
+                    int farmIndex = farm.getFarmIndex();
+                    
+                    // Get the farm's building location
+                    Building building = farm.getBuilding();
+                    int houseCenterX = building.getX() + building.getWidth() / 2;
+                    int houseCenterY = building.getY() + building.getHeight() / 2;
+                    
+                    // Calculate global coordinates based on farm index
+                    int globalStartX = 0, globalStartY = 0;
+                    switch (farmIndex) {
+                        case 0: // Top-Left
+                            globalStartX = 0;
+                            globalStartY = 0;
+                            break;
+                        case 1: // Bottom-Left
+                            globalStartX = 0;
+                            globalStartY = 78;
+                            break;
+                        case 2: // Top-Right
+                            globalStartX = 156;
+                            globalStartY = 0;
+                            break;
+                        case 3: // Bottom-Right
+                            globalStartX = 156;
+                            globalStartY = 78;
+                            break;
+                    }
+                    
+                    // Position player near the house in global coordinates
+                    int playerStartX = globalStartX + houseCenterX;
+                    int playerStartY = globalStartY + houseCenterY - 3; // 3 tiles below house center
+                    
+                    // Ensure player is within farm boundaries
+                    if (playerStartY < globalStartY) {
+                        playerStartY = globalStartY + houseCenterY + 3;
+                    }
+                    if (playerStartX < globalStartX) {
+                        playerStartX = globalStartX + houseCenterX + 3;
+                    }
+                    if (playerStartX >= globalStartX + Farm.width) {
+                        playerStartX = globalStartX + houseCenterX - 3;
+                    }
+                    if (playerStartY >= globalStartY + Farm.height) {
+                        playerStartY = globalStartY + houseCenterY - 3;
+                    }
+                    
+                    // Create global location and set player position
+                    Location globalLocation = new Location(playerStartX, playerStartY, TileType.Dirt);
+                    player.setLocation(globalLocation);
+                    player.setIsInVillage(false);
+                    
+                    System.out.println("DEBUG: Positioned player " + player.getUser().getUsername() + 
+                                     " at global coordinates (" + playerStartX + ", " + playerStartY + ") in farm " + farmIndex);
                 }
             }
         }
@@ -470,8 +539,13 @@ public class Game implements Serializable {
             gameMap.getVillage().initializeNPCs();
         }
 
+        // Update global game map tiles from all farms
+        gameMap.updateTilesFromRegions();
+
         // End farm selection phase
         this.inFarmSelectionPhase = false;
+        
+        System.out.println("DEBUG: Multiplayer game initialized with " + (players != null ? players.size() : 0) + " players");
     }
 
     /**
@@ -532,6 +606,25 @@ public class Game implements Serializable {
         }
 
         return playersData;
+    }
+
+    /**
+     * Sync farm selections from server data
+     */
+    public void syncFarmSelectionsFromServer(Map<String, Integer> serverSelections) {
+        System.out.println("DEBUG: syncFarmSelectionsFromServer called with: " + serverSelections);
+        if (serverSelections != null && players != null) {
+            for (Player player : players) {
+                if (player != null && player.getUser() != null) {
+                    String username = player.getUser().getUsername();
+                    Integer farmIndex = serverSelections.get(username);
+                    if (farmIndex != null) {
+                        farmSelections.put(player, farmIndex);
+                        System.out.println("DEBUG: Synced farm selection for " + username + ": " + farmIndex);
+                    }
+                }
+            }
+        }
     }
 
     /**
