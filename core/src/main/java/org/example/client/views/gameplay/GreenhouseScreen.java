@@ -15,20 +15,29 @@ public class GreenhouseScreen implements Screen {
     private final GreenhouseController greenhouseController;
     private final PlayerController playerController;
     private final OrthographicCamera camera;
+    private static final int TILE_SIZE = 60; // Make sure this matches the controller
 
     public GreenhouseScreen(PlayerController playerController, GreenHouse greenHouse, WorldController worldController) {
         this.playerController = playerController;
         this.camera = new OrthographicCamera();
         this.camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
+        // --- NEW CODE TO CENTER THE VIEW ---
+        // Calculate the center of the greenhouse map in pixels
+        float mapCenterX = (GreenHouse.getWidth() * TILE_SIZE) / 2f;
+        float mapCenterY = (GreenHouse.getHeight() * TILE_SIZE) / 2f;
+
+        // Set the camera's position to the center of the map
+        this.camera.position.set(mapCenterX, mapCenterY, 0);
+        this.camera.update(); // Apply the position change
+        // --- END OF NEW CODE ---
+
         // Set player's starting position inside the greenhouse
-        // For example, near the entrance at the bottom-center
-        float startX = (GreenHouse.getWidth() * 60) / 2f;
-        float startY = 60f; // One tile up from the bottom edge
+        float startX = mapCenterX; // Start player in the center as well
+        float startY = TILE_SIZE; // Near the bottom edge
         playerController.getPlayer().setPosX(startX);
         playerController.getPlayer().setPosY(startY);
 
-        // Create the controller, passing the existing texture cache from the WorldController
         this.greenhouseController = new GreenhouseController(playerController, greenHouse, camera, worldController.getTextureCache());
     }
 
@@ -37,15 +46,19 @@ public class GreenhouseScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Player movement logic
-        playerController.update();
+        // 1. Update logic
+        greenhouseController.updateCamera();
 
-        // Greenhouse rendering logic
+        // 2. Render background
+        greenhouseController.renderBackground();
+
+        // 3. Render all sprites
         Main.getBatch().begin();
-        greenhouseController.update(); // This now renders everything: background, tiles, plants, player
+        greenhouseController.renderGameObjects();
+        playerController.update();
         Main.getBatch().end();
 
-        // Input handling
+        // 4. Handle input
         greenhouseController.handleInput();
     }
 
@@ -53,12 +66,14 @@ public class GreenhouseScreen implements Screen {
     public void resize(int width, int height) {
         camera.viewportWidth = width;
         camera.viewportHeight = height;
+        // Re-center the view on resize if the aspect ratio changes things
+        float mapCenterX = (GreenHouse.getWidth() * TILE_SIZE) / 2f;
+        float mapCenterY = (GreenHouse.getHeight() * TILE_SIZE) / 2f;
+        camera.position.set(mapCenterX, mapCenterY, 0);
         camera.update();
     }
 
-    // Add a method in WorldController to expose the texture cache
-    // public Map<String, Texture> getTextureCache() { return this.textureCache; }
-
+    // ... rest of the file is the same
     @Override
     public void show() { }
 
