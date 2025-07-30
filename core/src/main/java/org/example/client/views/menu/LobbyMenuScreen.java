@@ -18,7 +18,6 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.menu.LobbyMenuController;
 import org.example.client.controllers.MultiplayerMenuController;
-import org.example.client.views.MultiplayerMenuScreen;
 import org.example.common.Lobby.Lobby;
 import org.example.common.Lobby.LobbyPlayer;
 import org.example.common.models.Message;
@@ -541,7 +540,7 @@ public class LobbyMenuScreen implements Screen {
             String currentUserName = controller.getCurrentUser().getUsername();
             System.out.println("DEBUG: Current user: " + currentUserName);
             System.out.println("DEBUG: Lobby players: " + lobby.getPlayers().size());
-            
+
             for (LobbyPlayer player : lobby.getPlayers()) {
                 System.out.println("DEBUG: Player: " + player.getUsername() + ", Admin: " + player.isAdmin());
                 if (player.getUsername().equals(currentUserName) && player.isAdmin()) {
@@ -550,11 +549,11 @@ public class LobbyMenuScreen implements Screen {
                     break;
                 }
             }
-            
+
             if (!canStart) {
                 System.out.println("DEBUG: User is not admin or not enough players, disabling start button");
             }
-            
+
             startGameButton.setDisabled(!canStart);
 
             currentLobbyTable.setVisible(true);
