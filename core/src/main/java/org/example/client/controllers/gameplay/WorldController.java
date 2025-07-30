@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.GreenhouseRepairDialog;
+import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
@@ -1311,23 +1312,17 @@ public class WorldController {
 
                 } else if (checkClicked(barnAnchors , BARN_TILES_W , BARN_TILES_H , touchPoint)) {
 
-                } else if (checkClicked(greenhouseAnchors , GREENHOUSE_TILES_W , GREENHOUSE_TILES_H , touchPoint)) {
-                    // Check if greenhouse is already constructed
-                    boolean isConstructed = false;
-                    for (Location anchor : greenhouseAnchors) {
-                        if (anchor.getTile() == TileType.CONSTRUCTED_GREENHOUSE) {
-                            isConstructed = true;
-                            break;
-                        }
-                    }
+                } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPoint)) {
+                    boolean isConstructed = farm.getGreenHouse().getIsConstructed(); // Assuming you have a getter
 
-                    if (!isConstructed) {
-                        // Show repair dialog
+                    if (isConstructed) {
+                        Gdx.app.log("WorldController", "Entering constructed greenhouse.");
+                        Main.getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
+                    } else {
+                        // Show repair dialog if not constructed
                         GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
                             playerController.getPlayer(), controller, skin);
                         repairDialog.show(controller.getView().getStage());
-                    } else {
-                        System.out.println("Greenhouse is already constructed!");
                     }
                 }
             }
@@ -1377,5 +1372,11 @@ public class WorldController {
             }
         }
         return false;
+    }
+
+    //TODO  : temporarily for green house:
+
+    public Map<String, Texture> getTextureCache() {
+        return textureCache;
     }
 }

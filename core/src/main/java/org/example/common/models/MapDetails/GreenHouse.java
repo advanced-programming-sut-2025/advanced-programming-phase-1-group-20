@@ -65,11 +65,15 @@ public class GreenHouse {
         return isBuilt;
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return height;
+    }
+
+    public List<Plant> getGreenHousePlants() {
+        return greenHousePlants;
     }
 }
