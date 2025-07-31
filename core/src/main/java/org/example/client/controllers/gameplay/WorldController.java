@@ -138,12 +138,12 @@ public class WorldController {
 
         // Markets textures
         loadTexture("blacksmith", "content/map_elements/Blacksmith.png");
-        loadTexture("jojamart", "content/map_elements/Jojamart.png");
-        loadTexture("pierre" , "content/map_elements/Pierres_shop.png");
-        loadTexture("carpenters" , "content/map_elements/Carpenter's_Shop.png");
-        loadTexture("fishshop" , "content/map_elements/Fish_Shop.png");
-        loadTexture("marnieshop" , "content/map_elements/Ranch.png");
-        loadTexture("stardropsaloon" , "content/map_elements/Saloon.png");
+        loadTexture("joja_mart", "content/map_elements/Jojamart.png");
+        loadTexture("pierre_store" , "content/map_elements/Pierres_shop.png");
+        loadTexture("carpenters_shop" , "content/map_elements/Carpenter's_Shop.png");
+        loadTexture("fish_shop" , "content/map_elements/Fish_Shop.png");
+        loadTexture("marnie_shop" , "content/map_elements/Ranch.png");
+        loadTexture("stardrop_saloon" , "content/map_elements/Saloon.png");
 
         // Clock texture
         loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
@@ -1023,7 +1023,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("jojamart");
+        Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1037,7 +1037,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("pierre");
+        Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1051,7 +1051,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("carpenters");
+        Texture texture = getTexture("carpenters_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1065,7 +1065,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("fishshop");
+        Texture texture = getTexture("fish_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1079,7 +1079,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("marnieshop");
+        Texture texture = getTexture("marnie_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1093,7 +1093,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("stardropsaloon");
+        Texture texture = getTexture("stardrop_saloon");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1122,7 +1122,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("jojamart");
+        Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1136,7 +1136,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("pierre");
+        Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1150,7 +1150,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("carpenters");
+        Texture texture = getTexture("carpenters_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1164,7 +1164,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("fishshop");
+        Texture texture = getTexture("fish_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1178,7 +1178,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("marnieshop");
+        Texture texture = getTexture("marnie_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1192,7 +1192,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("stardropsaloon");
+        Texture texture = getTexture("stardrop_saloon");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
