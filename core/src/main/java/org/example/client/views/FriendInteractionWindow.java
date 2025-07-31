@@ -11,9 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.common.models.App;
 import org.example.common.models.Player.Player;
-import org.example.common.models.entities.Friendship;
+import org.example.common.models.entities.FriendShip;
 
 public class FriendInteractionWindow implements Screen {
     private static final float WINDOW_WIDTH = 400;
@@ -64,7 +63,7 @@ public class FriendInteractionWindow implements Screen {
         windowTable.add(titleLabel).padTop(20).padBottom(30).row();
 
         // Get friendship level
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         String levelText = "Friendship Level: " + friendship.getLevel() + " (" + friendship.getXp() + "/" + friendship.getMaxXpForCurrentLevel() + " XP)";
         Label levelLabel = new Label(levelText, skin);
         levelLabel.setColor(Color.CYAN);
@@ -91,7 +90,7 @@ public class FriendInteractionWindow implements Screen {
         stage.addActor(mainTable);
     }
 
-    private void createInteractionButtons(Table windowTable, Friendship friendship) {
+    private void createInteractionButtons(Table windowTable, FriendShip friendship) {
         // Hug button
         TextButton hugButton = new TextButton("Hug", skin);
         hugButton.addListener(new ChangeListener() {
@@ -125,7 +124,7 @@ public class FriendInteractionWindow implements Screen {
         windowTable.add(marriageButton).width(200).height(40).pad(10).row();
     }
 
-    private void performHug(Friendship friendship) {
+    private void performHug(FriendShip friendship) {
         if (!arePlayersNearEachOther()) {
             showErrorDialog("You need to be near " + targetPlayer.getUser().getUsername() + " to hug them.");
             return;
@@ -133,13 +132,13 @@ public class FriendInteractionWindow implements Screen {
 
         boolean success = currentPlayer.hugMob(targetPlayer);
         if (success) {
-            showSuccessDialog("You hugged " + targetPlayer.getUser().getUsername() + "! Friendship increased by " + Friendship.XP_HUG + " XP.");
+            showSuccessDialog("You hugged " + targetPlayer.getUser().getUsername() + "! Friendship increased by " + FriendShip.XP_HUG + " XP.");
         } else {
             showErrorDialog("You have already hugged " + targetPlayer.getUser().getUsername() + " today.");
         }
     }
 
-    private void performBuyFlowers(Friendship friendship) {
+    private void performBuyFlowers(FriendShip friendship) {
         if (!arePlayersNearEachOther()) {
             showErrorDialog("You need to be near " + targetPlayer.getUser().getUsername() + " to give them flowers.");
             return;
@@ -152,7 +151,7 @@ public class FriendInteractionWindow implements Screen {
         }
 
         // Check if friendship level is high enough (level 1 or higher)
-        if (friendship.getLevel() < Friendship.LEVEL_1) {
+        if (friendship.getLevel() < FriendShip.LEVEL_1) {
             showErrorDialog("You need friendship level 1 or higher to give flowers.");
             return;
         }
@@ -167,14 +166,14 @@ public class FriendInteractionWindow implements Screen {
         }
     }
 
-    private void performMarriageProposal(Friendship friendship) {
+    private void performMarriageProposal(FriendShip friendship) {
         if (!arePlayersNearEachOther()) {
             showErrorDialog("You need to be near " + targetPlayer.getUser().getUsername() + " to propose marriage.");
             return;
         }
 
         // Check if friendship level is high enough (level 3 or higher)
-        if (friendship.getLevel() < Friendship.LEVEL_3) {
+        if (friendship.getLevel() < FriendShip.LEVEL_3) {
             showErrorDialog("You need friendship level 3 or higher to propose marriage.");
             return;
         }
@@ -199,7 +198,7 @@ public class FriendInteractionWindow implements Screen {
         showMarriageProposalDialog(friendship);
     }
 
-    private void showMarriageProposalDialog(Friendship friendship) {
+    private void showMarriageProposalDialog(FriendShip friendship) {
         Dialog proposalDialog = new Dialog("💍 Marriage Proposal", skin) {
             @Override
             protected void result(Object object) {
@@ -236,7 +235,7 @@ public class FriendInteractionWindow implements Screen {
         proposalDialog.show(stage);
     }
 
-    private void performMarriageProposalAction(Friendship friendship) {
+    private void performMarriageProposalAction(FriendShip friendship) {
         boolean success = currentPlayer.proposeMarriageTo(targetPlayer);
         if (success) {
             showSuccessDialog("💍 Marriage proposal sent to " + targetPlayer.getUser().getUsername() + "!");

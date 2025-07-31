@@ -60,11 +60,6 @@ public class Fish extends Item implements Serializable {
         };
     }
 
-    /**
-     * Get a symbol representing the fish's quality.
-     *
-     * @return A symbol representing the quality (★, ★★, or ★★★)
-     */
     public String getQualitySymbol() {
         switch (q) {
             case 1:

@@ -11,12 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.client.views.gameplay.InventoryScreen;
-import org.example.common.models.App;
-import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;
-import org.example.common.models.entities.Friendship;
-import org.example.common.models.entities.Game;
+import org.example.common.models.entities.FriendShip;
 
 import java.util.Map;
 
@@ -59,11 +55,11 @@ public class FriendsWindow implements Screen {
         // Main container
         mainTable = new Table();
         mainTable.setFillParent(true);
-        
+
         // Create a more compact window
         Table windowTable = new Table();
         windowTable.setBackground(new Image(createBackgroundTexture()).getDrawable());
-        
+
         // Title
         Label titleLabel = new Label("Friends", skin);
         titleLabel.setFontScale(1.5f);
@@ -75,8 +71,8 @@ public class FriendsWindow implements Screen {
         friendsListTable.top();
 
                 // Get all friendships for current player
-        Map<Player, Friendship> friendships = currentPlayer.getAllFriendships();
-        
+        Map<Player, FriendShip> friendships = currentPlayer.getAllFriendships();
+
         if (friendships.isEmpty()) {
             Label noFriendsLabel = new Label("No friends yet. Play with other players to make friends!", skin);
             noFriendsLabel.setColor(Color.LIGHT_GRAY);
@@ -84,26 +80,26 @@ public class FriendsWindow implements Screen {
             friendsListTable.add(noFriendsLabel).width(400).pad(20);
         } else {
             // Add each friend to the list
-            for (Map.Entry<Player, Friendship> entry : friendships.entrySet()) {
+            for (Map.Entry<Player, FriendShip> entry : friendships.entrySet()) {
                 Player friend = entry.getKey();
-                Friendship friendship = entry.getValue();
-                
+                FriendShip friendship = entry.getValue();
+
                 Table friendRow = createFriendRow(friend, friendship);
                 friendsListTable.add(friendRow).fillX().padBottom(5).row();
             }
         }
-        
+
         // Create scroll pane for friends list
         scrollPane = new ScrollPane(friendsListTable, skin);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setScrollingDisabled(true, false);
-        
+
         // Calculate appropriate height based on friend count
         int friendCount = Math.max(1, friendships.size());
         float contentHeight = Math.min(300, friendCount * 60 + 100); // Max 300px, ~60px per friend
-        
+
         windowTable.add(scrollPane).width(500).height(contentHeight).pad(15).row();
-        
+
         // Close button
         TextButton closeButton = new TextButton("Close", skin);
         closeButton.addListener(new ChangeListener() {
@@ -112,17 +108,17 @@ public class FriendsWindow implements Screen {
                 hideFriendsWindow();
             }
         });
-        
+
         windowTable.add(closeButton).pad(15).width(100).height(35);
-        
+
         // Center the window on screen
         mainTable.center();
         mainTable.add(windowTable);
-        
+
         stage.addActor(mainTable);
     }
 
-    private Table createFriendRow(Player friend, Friendship friendship) {
+    private Table createFriendRow(Player friend, FriendShip friendship) {
         Table row = new Table();
         // Friend name
         String friendName = friend.getUser() != null ? friend.getUser().getUsername() : "Unknown Player";
@@ -152,7 +148,7 @@ public class FriendsWindow implements Screen {
         return row;
     }
 
-    private void showGiftMenu(Player friend, Friendship friendship) {
+    private void showGiftMenu(Player friend, FriendShip friendship) {
         selectedFriend = friend;
 
         // Create gift menu dialog
@@ -168,7 +164,7 @@ public class FriendsWindow implements Screen {
         sendGiftButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (friendship.getLevel() >= Friendship.LEVEL_1) {
+                if (friendship.getLevel() >= FriendShip.LEVEL_1) {
                     openInventoryForGiftSelection(friend);
                     giftDialog.hide();
                 } else {
@@ -213,7 +209,7 @@ public class FriendsWindow implements Screen {
         Main.getGame().setScreen(giftInventoryScreen);
     }
 
-    private void showGiftHistory(Player friend, Friendship friendship) {
+    private void showGiftHistory(Player friend, FriendShip friendship) {
         Dialog historyDialog = new Dialog("Gift History with " + friend.getUser().getUsername(), skin);
 
         Table historyTable = new Table();
@@ -232,7 +228,7 @@ public class FriendsWindow implements Screen {
 
             // Add each gift record
             for (int i = 0; i < friendship.getGiftHistory().size(); i++) {
-                Friendship.GiftRecord gift = friendship.getGiftHistory().get(i);
+                FriendShip.GiftRecord gift = friendship.getGiftHistory().get(i);
                 Table giftRow = createGiftHistoryRow(gift, i, friendship);
                 historyTable.add(giftRow).fillX().padBottom(5).row();
             }
@@ -255,7 +251,7 @@ public class FriendsWindow implements Screen {
         historyDialog.show(stage);
     }
 
-    private Table createGiftHistoryRow(Friendship.GiftRecord gift, int giftIndex, Friendship friendship) {
+    private Table createGiftHistoryRow(FriendShip.GiftRecord gift, int giftIndex, FriendShip friendship) {
         Table row = new Table();
 
         String itemName = gift.getItem() != null ? gift.getItem().getName() : "Unknown Item";
@@ -287,7 +283,7 @@ public class FriendsWindow implements Screen {
         return row;
     }
 
-    private void showRatingDialog(int giftIndex, Friendship friendship) {
+    private void showRatingDialog(int giftIndex, FriendShip friendship) {
         Dialog ratingDialog = new Dialog("Rate Gift", skin);
 
         Label promptLabel = new Label("Rate this gift (1-5 stars):", skin);
@@ -373,7 +369,7 @@ public class FriendsWindow implements Screen {
         isVisible = true;
         Gdx.input.setInputProcessor(stage);
     }
-    
+
     public void hideFriendsWindow() {
         isVisible = false;
         Main.getGame().setScreen(previousScreen);
@@ -403,13 +399,13 @@ public class FriendsWindow implements Screen {
     public void show() {
         showFriendsWindow();
     }
-    
+
     @Override
     public void hide() {
         // This is the Screen interface method - don't call setScreen here to avoid infinite loop
         isVisible = false;
     }
-    
+
     @Override
     public void dispose() {
         stage.dispose();

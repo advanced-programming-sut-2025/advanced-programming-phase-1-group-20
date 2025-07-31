@@ -15,7 +15,7 @@ import org.example.common.models.MapDetails.Village;
 import org.example.common.models.Market;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
-import org.example.common.models.entities.Friendship;
+import org.example.common.models.entities.FriendShip;
 import org.example.common.models.entities.NPC;
 import org.example.common.models.entities.NPCFriendship;
 import org.example.common.models.entities.User;
@@ -35,7 +35,7 @@ public class Player {
     private List<CraftingItem> placedCraftingItems;
     private List<CookingItem> cookingItems;
     private Backpack backpack;
-    private Map<Player, Friendship> friendships;
+    private Map<Player, FriendShip> friendships;
     private User user;
     private int energy;
     private boolean energyUnlimited;
@@ -93,7 +93,7 @@ public class Player {
         backpack.add(new Tool("Basic Watering Can", 0, "content/Tools/Watering_Can/Watering_Can.png", "A basic watering can for watering crops.",
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
-            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, null, null), 1);
+            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, Skills.FARMING, null), 1);
         backpack.add(new Tool("Basic Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, null), 1);
         this.spouse = null;
@@ -106,12 +106,11 @@ public class Player {
 
 
         //graphic ui
-        this.speed = 5;
+        this.speed = 4;
 
         // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;
         try {
-            // Try to access Gdx.files - if it's null, we're on the server
             if (com.badlogic.gdx.Gdx.files == null) {
                 isServerEnvironment = true;
             }
@@ -128,7 +127,7 @@ public class Player {
         }
 
 
-        // TODO: delete
+        // TODO: testing!
         this.money = 10000000;
 
         placedCraftingItems = new ArrayList<>();
@@ -189,9 +188,9 @@ public class Player {
         this.currentVillage = currentVillage;
     }
 
-    public Friendship getFriendship(Player player) {
+    public FriendShip getFriendship(Player player) {
         if (!friendships.containsKey(player)) {
-            Friendship friendship = new Friendship(this, player);
+            FriendShip friendship = new FriendShip(this, player);
             friendships.put(player, friendship);
             if (!player.friendships.containsKey(this)) {
                 player.friendships.put(this, friendship);
@@ -200,7 +199,7 @@ public class Player {
         return friendships.get(player);
     }
 
-    public Map<Player, Friendship> getAllFriendships() {
+    public Map<Player, FriendShip> getAllFriendships() {
         return friendships;
     }
 
@@ -229,7 +228,7 @@ public class Player {
     }
 
     public void applyDailyDecayToAllFriendships() {
-        for (Friendship friendship : friendships.values()) {
+        for (FriendShip friendship : friendships.values()) {
             friendship.applyDailyDecay();
         }
     }
@@ -333,36 +332,7 @@ public class Player {
     public void showArtisanItems() {
     }
 
-//    public void move(int x, int y) {
-//        //checking the Tile around.
-//        //TODO: چک رو اضافه میکنم که چک کنه و اضافه کنی بهش (taha)
-//        //TODO: اضافه کردم تابع چک رو اضافه کن به تابع
-//        TileType tile = TileType.GRASS;
-//        //etc
-//        if (tile == TileType.WATER) {
-//            //implementing func.
-//        }
-//        //TODO: باید مشخص کنیم که تایل آب رو واتر بذاریم یا لیک
-////        int energyNeeded = GameMap.calculateEnergyNeeded(this.location, new Location(x, y, TileType.GRASS));
-////        Location furthestCanGo = GameMap.findFurthestCanGo(this.location, new Location(x, y, TileType.GRASS));
-//        int energyNeeded = 10;
-//        if (10 > energy) {
-//            this.hasCollapsed = true;
-//            this.energy = 0;
 
-    /// /            this.location = furthestCanGo;
-//        } else {
-//            // Update the player's location
-//            this.location = new Location(x, y, TileType.GRASS);
-//            //TODO: توی لوکیشن جدید باید تایلش رو گرس بدیم؟
-//
-//            // Consume energy
-//            if (!energyUnlimited) {
-//                this.energy -= energyNeeded;
-//                this.energyUsedInTurn += energyNeeded;
-//            }
-//        }
-//    }
     public void addCraftingItem(CraftingItem craftingItem) {
         craftingItems.add(craftingItem);
     }
@@ -411,7 +381,7 @@ public class Player {
     public void resetEnergyUsedInTurn() {
         this.energyUsedInTurn = 0;
     }
-    
+
     public void addEnergyUsedInTurn(int amount) {
         this.energyUsedInTurn += amount;
     }
@@ -419,31 +389,26 @@ public class Player {
     public boolean canUseEnergy(int amount) {
         return energyUnlimited || (energy >= amount && energyUsedInTurn + amount <= 50);
     }
-    
-    /**
-     * Check if player is effectively out of energy for the turn
-     * (cannot perform any meaningful actions)
-     */
     public boolean isOutOfEnergyForTurn() {
         if (energyUnlimited) {
             System.out.println("Player " + getUser().getUsername() + " has unlimited energy");
             return false;
         }
-        
+
         System.out.println("DEBUG: Checking energy for " + getUser().getUsername() + " - Energy: " + energy + ", Energy used this turn: " + energyUsedInTurn);
         System.out.println("DEBUG: canUseEnergy(1) calculation - energy >= 1: " + (energy >= 1) + ", energyUsedInTurn + 1 <= 50: " + (energyUsedInTurn + 1 <= 50));
         boolean outOfEnergy = !canUseEnergy(1);
         System.out.println("DEBUG: canUseEnergy(1) returned: " + !outOfEnergy);
-        
+
         if (outOfEnergy) {
             System.out.println("Player " + getUser().getUsername() + " is out of energy for turn. Energy: " + energy + ", Energy used this turn: " + energyUsedInTurn);
         }
-        
+
         // Check if player can use at least 1 energy unit
         // Most basic actions require at least 1 energy
         return outOfEnergy;
     }
-    
+
     /**
      * Helper method to check and advance turn if energy is depleted
      */
@@ -675,7 +640,7 @@ public class Player {
         if (success && !energyUnlimited) {
             energy -= energyConsumption;
             addEnergyUsedInTurn(energyConsumption);
-            
+
             // Check if player is out of energy after this action
             checkAndAdvanceTurnIfEnergyDepleted();
         }

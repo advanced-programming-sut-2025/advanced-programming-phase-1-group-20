@@ -11,12 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.client.network.NetworkClient;
-import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
-import org.example.common.models.entities.Friendship;
+import org.example.common.models.entities.FriendShip;
 
 import java.util.Map;
 
@@ -265,10 +263,10 @@ public class GiftInventoryScreen implements Screen {
         }
 
         // Get friendship and attempt to send gift
-        Friendship friendship = currentPlayer.getFriendship(friendToGift);
+        FriendShip friendship = currentPlayer.getFriendship(friendToGift);
 
         // Check friendship level requirement
-        if (friendship.getLevel() < Friendship.LEVEL_1) {
+        if (friendship.getLevel() < FriendShip.LEVEL_1) {
             showErrorDialog("You need friendship level 1 or higher to send gifts!");
             return;
         }
