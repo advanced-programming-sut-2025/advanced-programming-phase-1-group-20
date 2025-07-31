@@ -417,6 +417,7 @@ public class AssetManager {
 
         // Village building textures
         loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
+        loadTexture("town_hall", "content/Buildings/house.png"); // Using house texture as placeholder for town hall
         loadTexture("npc_house", "content/map_elements/npc_house1.png"); // Default NPC house texture
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");

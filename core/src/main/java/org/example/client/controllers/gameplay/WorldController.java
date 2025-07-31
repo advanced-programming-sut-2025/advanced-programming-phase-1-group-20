@@ -544,6 +544,7 @@ public class WorldController {
                             break;
                         case MARNIE_SHOP:
                             marnieShopTiles.add(tileKey);
+                            break;
                         case STARDROP_SALOON :
                             starDropSaloonTiles.add(tileKey);
                             break;
