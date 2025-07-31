@@ -219,6 +219,24 @@ public class GameView implements Screen, InputProcessor {
             System.out.println("DEBUG: Setting view in controller...");
             controller.setView(this);
             
+            // Validate critical components
+            System.out.println("DEBUG: Validating critical components...");
+            if (clockStack == null) {
+                System.err.println("ERROR: clockStack is null after initialization");
+            } else {
+                System.out.println("DEBUG: clockStack is valid");
+            }
+            if (mainTable == null) {
+                System.err.println("ERROR: mainTable is null after initialization");
+            } else {
+                System.out.println("DEBUG: mainTable is valid");
+            }
+            if (energyBarTable == null) {
+                System.err.println("ERROR: energyBarTable is null after initialization");
+            } else {
+                System.out.println("DEBUG: energyBarTable is valid");
+            }
+            
             System.out.println("DEBUG: GameView constructor completed successfully");
         } catch (Exception e) {
             System.err.println("ERROR: Failed to initialize GameView: " + e.getMessage());
@@ -270,57 +288,78 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void initializeClock() {
-        clockBackgroundTexture = new Texture("content/clock/clock.png");
-        clockNeedleTexture = new Texture("content/clock/flesh.png");
+        try {
+            System.out.println("DEBUG: Loading clock textures...");
+            clockBackgroundTexture = new Texture(Gdx.files.internal("content/clock/clock.png"));
+            clockNeedleTexture = new Texture(Gdx.files.internal("content/clock/flesh.png"));
+            System.out.println("DEBUG: Clock textures loaded successfully");
 
-        clockBackgroundImage = new Image(clockBackgroundTexture);
-        clockNeedleImage = new Image(clockNeedleTexture);
+            clockBackgroundImage = new Image(clockBackgroundTexture);
+            clockNeedleImage = new Image(clockNeedleTexture);
 
-        float clockSize = 120f;
-        clockBackgroundImage.setSize(clockSize, clockSize);
-        clockNeedleImage.setSize(13f, 33f);
+            float clockSize = 120f;
+            clockBackgroundImage.setSize(clockSize, clockSize);
+            clockNeedleImage.setSize(13f, 33f);
 
-        clockNeedleImage.setOrigin(clockNeedleImage.getWidth() / 2, 0);
-        clockNeedleImage.setPosition(
-            (clockBackgroundImage.getWidth() - clockNeedleImage.getWidth()) / 2 - 20f,
-            (clockBackgroundImage.getHeight() - clockNeedleImage.getHeight()) / 2 + 35f
-        );
+            clockNeedleImage.setOrigin(clockNeedleImage.getWidth() / 2, 0);
+            clockNeedleImage.setPosition(
+                (clockBackgroundImage.getWidth() - clockNeedleImage.getWidth()) / 2 - 20f,
+                (clockBackgroundImage.getHeight() - clockNeedleImage.getHeight()) / 2 + 35f
+            );
 
-        Group clockGroup = new Group();
-        clockGroup.setSize(clockBackgroundImage.getWidth(), clockBackgroundImage.getHeight());
+            Group clockGroup = new Group();
+            clockGroup.setSize(clockBackgroundImage.getWidth(), clockBackgroundImage.getHeight());
 
-        clockGroup.addActor(clockBackgroundImage);
+            clockGroup.addActor(clockBackgroundImage);
 
-        createWeatherAndSeasonDisplays(clockGroup, clockSize);
+            createWeatherAndSeasonDisplays(clockGroup, clockSize);
 
-        clockGroup.addActor(clockNeedleImage);
+            clockGroup.addActor(clockNeedleImage);
 
-        createClockLabels();
+            createClockLabels();
 
-        clockStack = new Stack();
-        clockStack.add(clockGroup);
-        clockStack.add(createTextTable());
-        clockStack.setSize(clockSize, clockSize);
+            clockStack = new Stack();
+            clockStack.add(clockGroup);
+            clockStack.add(createTextTable());
+            clockStack.setSize(clockSize, clockSize);
+            System.out.println("DEBUG: Clock initialization completed successfully");
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to initialize clock: " + e.getMessage());
+            e.printStackTrace();
+            // Create a minimal clock stack to prevent null pointer exceptions
+            clockStack = new Stack();
+            System.out.println("DEBUG: Created minimal clock stack due to initialization failure");
+        }
     }
 
     private void createWeatherAndSeasonDisplays(Group clockGroup, float clockSize) {
-        weatherDisplayImage = new Image();
-        seasonDisplayImage = new Image();
+        try {
+            System.out.println("DEBUG: Creating weather and season displays...");
+            weatherDisplayImage = new Image();
+            seasonDisplayImage = new Image();
 
-        float height = AssetManager.getAssetManager().getFallTexture().getHeight() * 2.05f;
-        float width = AssetManager.getAssetManager().getFallTexture().getWidth() * 1.8f;
+            float height = AssetManager.getAssetManager().getFallTexture().getHeight() * 2.05f;
+            float width = AssetManager.getAssetManager().getFallTexture().getWidth() * 1.8f;
 
-        float centerX = (clockSize - width) / 2;
-        float centerY = (clockSize - height) / 2;
+            float centerX = (clockSize - width) / 2;
+            float centerY = (clockSize - height) / 2;
 
-        weatherDisplayImage.setSize(width, height);
-        weatherDisplayImage.setPosition(centerX , centerY + 19.65f);
+            weatherDisplayImage.setSize(width, height);
+            weatherDisplayImage.setPosition(centerX , centerY + 19.65f);
 
-        seasonDisplayImage.setSize(width, height);
-        seasonDisplayImage.setPosition(centerX + 38f, centerY + 19.65f);
+            seasonDisplayImage.setSize(width, height);
+            seasonDisplayImage.setPosition(centerX + 38f, centerY + 19.65f);
 
-        clockGroup.addActor(weatherDisplayImage);
-        clockGroup.addActor(seasonDisplayImage);
+            clockGroup.addActor(weatherDisplayImage);
+            clockGroup.addActor(seasonDisplayImage);
+            System.out.println("DEBUG: Weather and season displays created successfully");
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to create weather and season displays: " + e.getMessage());
+            e.printStackTrace();
+            // Create empty images to prevent null pointer exceptions
+            weatherDisplayImage = new Image();
+            seasonDisplayImage = new Image();
+        }
     }
 
     private void createClockLabels() {
@@ -1017,41 +1056,59 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void show() {
-        stage = new Stage(new ScreenViewport());
-        InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);  // Stage first (UI elements)
-        multiplexer.addProcessor(this);   // GameView second (world interactions)
-        Gdx.input.setInputProcessor(multiplexer);
+        System.out.println("DEBUG: GameView.show() called");
+        try {
+            stage = new Stage(new ScreenViewport());
+            System.out.println("DEBUG: Stage created successfully");
+            
+            InputMultiplexer multiplexer = new InputMultiplexer();
+            multiplexer.addProcessor(stage);  // Stage first (UI elements)
+            multiplexer.addProcessor(this);   // GameView second (world interactions)
+            Gdx.input.setInputProcessor(multiplexer);
+            System.out.println("DEBUG: Input processor set successfully");
 
-        mainTable.top().right();
-        mainTable.setFillParent(true);
-        mainTable.padTop(10).padRight(10);
-        mainTable.add(clockStack).size(120, 120).row();
-        mainTable.add(energyBarTable).padTop(10);
-        stage.addActor(mainTable);
+            mainTable.top().right();
+            mainTable.setFillParent(true);
+            mainTable.padTop(10).padRight(10);
+            mainTable.add(clockStack).size(120, 120).row();
+            mainTable.add(energyBarTable).padTop(10);
+            stage.addActor(mainTable);
+            System.out.println("DEBUG: Main table added to stage");
 
-        // Add friends button to the stage (positioned in bottom-left corner)
-        if (friendsButton != null) {
-            System.out.println("🔘 Adding friends button to stage...");
-            Table friendsTable = new Table();
-            friendsTable.setFillParent(true);
-            friendsTable.bottom().left();
-            friendsTable.add(friendsButton).width(100).height(40).pad(20);
-            stage.addActor(friendsTable);
-            System.out.println("🔘 Friends button added to stage successfully");
-        } else {
-            System.err.println("❌ Friends button is null - cannot add to stage!");
+            // Add friends button to the stage (positioned in bottom-left corner)
+            if (friendsButton != null) {
+                System.out.println("🔘 Adding friends button to stage...");
+                Table friendsTable = new Table();
+                friendsTable.setFillParent(true);
+                friendsTable.bottom().left();
+                friendsTable.add(friendsButton).width(100).height(40).pad(20);
+                stage.addActor(friendsTable);
+                System.out.println("🔘 Friends button added to stage successfully");
+            } else {
+                System.err.println("❌ Friends button is null - cannot add to stage!");
+            }
+
+            pauseTable.setFillParent(true);
+            pauseTable.center();
+            pauseTable.add(resumeButton).width(200).height(20).pad(10);
+            pauseTable.setVisible(false);
+            stage.addActor(pauseTable);
+            System.out.println("DEBUG: Pause table added to stage");
+            
+            System.out.println("DEBUG: GameView.show() completed successfully");
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to initialize GameView show(): " + e.getMessage());
+            e.printStackTrace();
         }
-
-        pauseTable.setFillParent(true);
-        pauseTable.center();
-        pauseTable.add(resumeButton).width(200).height(20).pad(10);
-        pauseTable.setVisible(false);
-        stage.addActor(pauseTable);
     }
 
     @Override
     public void render(float deltaTime) {
+        // Debug: Track if render is being called
+        if (gameTime == 0) {
+            System.out.println("DEBUG: GameView.render() called for the first time");
+        }
+        
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background

@@ -717,7 +717,9 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     @Override
     public void hide() {
+        System.out.println("DEBUG: FarmSelectionScreen.hide() called");
         Gdx.input.setInputProcessor(null);
+        System.out.println("DEBUG: FarmSelectionScreen.hide() completed");
     }
 
     @Override
