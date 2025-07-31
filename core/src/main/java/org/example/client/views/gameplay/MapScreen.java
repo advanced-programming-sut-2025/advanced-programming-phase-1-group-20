@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -63,6 +64,11 @@ public class MapScreen implements Screen, InputProcessor {
     private static final int TILE_SIZE = 60;
     private static final float MAP_ZOOM = 12f; // Zoom out to show entire map
 
+    // Nickname rendering
+    private BitmapFont nicknameFont;
+    private static final float NICKNAME_OFFSET_Y = 120f;
+    private static final Color NICKNAME_TEXT_COLOR = Color.BLACK;
+
     public MapScreen(Player player, Skin skin, Screen previousScreen) {
         this.player = player;
         this.skin = skin;
@@ -80,7 +86,16 @@ public class MapScreen implements Screen, InputProcessor {
         // Initialize stage
         stage = new Stage(new ScreenViewport());
 
+        // Initialize nickname font
+        initializeNicknameFont();
+
         setupUI();
+    }
+
+    private void initializeNicknameFont() {
+        nicknameFont = new BitmapFont();
+        nicknameFont.getData().setScale(2.0f); // Make the font bigger
+        nicknameFont.setColor(NICKNAME_TEXT_COLOR);
     }
 
     private void setupUI() {
@@ -270,8 +285,8 @@ public class MapScreen implements Screen, InputProcessor {
             }
         }
 
-        renderPlayersOnFullMap();
         renderBuildingsAndStructures();
+        renderPlayersOnFullMap();
     }
 
     private void renderBuildingsAndStructures() {
@@ -498,53 +513,40 @@ public class MapScreen implements Screen, InputProcessor {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null) return;
 
-        System.out.println("DEBUG: Rendering players on full map. Total players: " + App.getGame().getPlayers().size());
-        System.out.println("DEBUG: Camera position: (" + camera.position.x + ", " + camera.position.y + ")");
-        System.out.println("DEBUG: Camera zoom: " + camera.zoom);
-        System.out.println("DEBUG: Total map dimensions: " + (GameMap.TOTAL_WIDTH * TILE_SIZE) + " x " + (GameMap.TOTAL_HEIGHT * TILE_SIZE));
+
 
         // Render all players
         for (Player player : App.getGame().getPlayers()) {
             if (player == null) {
-                System.out.println("DEBUG: Skipping null player");
                 continue;
             }
-
-            System.out.println("DEBUG: Processing player: " + player.getUser().getUsername());
 
             // Get player's farm
             Farm playerFarm = player.getCurrentFarm();
             if (playerFarm == null) {
-                System.out.println("DEBUG: Player " + player.getUser().getUsername() + " has no farm, skipping");
                 continue;
             }
-
-            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " is in village: " + player.getIsInVillage());
 
             // Get player's location and farm index
             Location playerLocation = player.getLocation();
             int farmIndex = getFarmIndex(playerFarm);
-            
-            // If player is in village, use village coordinates instead of farm coordinates
+
             if (player.getIsInVillage()) {
                 float worldX = (GameMap.VILLAGE_X + playerLocation.getX()) * TILE_SIZE;
                 float worldY = (GameMap.VILLAGE_Y + playerLocation.getY()) * TILE_SIZE;
-                
-                System.out.println("DEBUG: Player " + player.getUser().getUsername() + " village world coordinates: (" + worldX + ", " + worldY + ")");
-                
+
+
+
                 // Render player sprite using PlayerController-style gridding
                 renderPlayerSprite(player, worldX, worldY);
                 continue;
             }
-            
-            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " location: (" + playerLocation.getX() + ", " + playerLocation.getY() + ")");
-            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " farm index: " + farmIndex);
-            
+
+
+
             // Calculate world coordinates with farm offset
             float worldX = (getFarmStartX(farmIndex) + playerLocation.getX()) * TILE_SIZE;
             float worldY = (getFarmStartY(farmIndex) + playerLocation.getY()) * TILE_SIZE;
-            
-            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " world coordinates: (" + worldX + ", " + worldY + ")");
 
             // Render player sprite using PlayerController-style gridding
             renderPlayerSprite(player, worldX, worldY);
@@ -552,7 +554,6 @@ public class MapScreen implements Screen, InputProcessor {
 
         // Reset color to white
         batch.setColor(Color.WHITE);
-        System.out.println("DEBUG: Finished rendering players on full map");
     }
 
     private void renderPlayerSprite(Player player, float worldX, float worldY) {
@@ -561,11 +562,10 @@ public class MapScreen implements Screen, InputProcessor {
         final int FRAME_H = 32;
         final int RENDER_W = 48;
         final int RENDER_H = 96;
-        
+
         // Get player's texture sheet
         Texture textureSheet = player.getTextureSheet();
         if (textureSheet == null) {
-            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " has no texture sheet, using fallback");
             // Fallback to colored dot
             Player currentPlayer = App.getGame().getCurrentPlayer();
             boolean isCurrentPlayer = (player == currentPlayer);
@@ -579,10 +579,10 @@ public class MapScreen implements Screen, InputProcessor {
 
         // Split the texture sheet into a grid (like PlayerController does)
         TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
-        
+
         // Use the first frame of the down animation (grid[0][0])
         TextureRegion playerFrame = grid[0][0];
-        
+
         // Determine if this is the current player
         Player currentPlayer = App.getGame().getCurrentPlayer();
         boolean isCurrentPlayer = (player == currentPlayer);
@@ -590,14 +590,42 @@ public class MapScreen implements Screen, InputProcessor {
         // Set color based on whether it's the current player or not
         if (isCurrentPlayer) {
             batch.setColor(Color.WHITE); // Current player gets normal colors
-            System.out.println("DEBUG: Drawing current player sprite");
         } else {
             batch.setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
-            System.out.println("DEBUG: Drawing other player sprite");
         }
 
         // Draw the player sprite
         batch.draw(playerFrame, worldX - RENDER_W/2, worldY - RENDER_H/2, RENDER_W, RENDER_H);
+
+        // Render nickname
+        renderPlayerNickname(player, worldX, worldY);
+    }
+
+    private void renderPlayerNickname(Player player, float worldX, float worldY) {
+        if (player == null || player.getUser() == null || nicknameFont == null) {
+            return;
+        }
+
+        String nickname = player.getUser().getNickname();
+        if (nickname == null || nickname.trim().isEmpty()) {
+            nickname = player.getUser().getUsername(); // Fallback to username
+        }
+
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return; // No nickname to display
+        }
+
+        float nicknameWidth = nicknameFont.draw(batch, nickname, 0, 0).width;
+        float nicknameX = worldX - (nicknameWidth / 2f); // Center above player
+        float nicknameY = worldY + NICKNAME_OFFSET_Y;
+
+        // Draw nickname text
+        Color originalColor = batch.getColor().cpy();
+        batch.setColor(NICKNAME_TEXT_COLOR);
+        nicknameFont.draw(batch, nickname, nicknameX, nicknameY);
+
+        // Reset batch color
+        batch.setColor(originalColor);
     }
 
     private boolean shouldRenderGrass(TileType tileType) {
@@ -731,5 +759,13 @@ public class MapScreen implements Screen, InputProcessor {
     public void dispose() {
         stage.dispose();
         batch.dispose();
+        if (nicknameFont != null) {
+            nicknameFont.dispose();
+        }
+    }
+
+    // TODO: update whenever server sends a notification
+    public void serverUpdate() {
+
     }
 }
