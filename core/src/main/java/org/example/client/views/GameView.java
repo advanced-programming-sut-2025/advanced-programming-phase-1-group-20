@@ -1451,24 +1451,7 @@ public class GameView implements Screen, InputProcessor {
         pixmap.dispose();
     }
 
-    private void toggleCameraZoom() {
-        isCameraZoomedOut = !isCameraZoomedOut;
-        if (isCameraZoomedOut) {
-            // Zoom out to show entire game map
-            camera.zoom = zoomedOutZoom;
-            // Center camera on the entire game map center
-            float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
-            float totalMapHeight = 312 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
-            camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
-        } else {
-            // Return to normal zoom
-            camera.zoom = normalZoom;
-        }
-        camera.update();
-    }
-
-
-
+    // TODO: remove!
     private void renderBuildingsAndStructures() {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null) return;
@@ -1511,8 +1494,6 @@ public class GameView implements Screen, InputProcessor {
             for (Lake lake : farm.getLakes()) {
                 renderLake(lake, farm, TILE_SIZE);
             }
-
-            // Note: Shipping bins are rendered as items on tiles, not as separate structures
         }
 
         // Render village buildings and markets (outside farm loop)
@@ -1881,9 +1862,13 @@ public class GameView implements Screen, InputProcessor {
             // Check if player is in their farm (not in village)
             if (player.getIsInVillage()) continue;
 
-            // Get player's position
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
+            // Get player's location and farm index
+            Location playerLocation = player.getLocation();
+            int farmIndex = playerFarm.getFarmIndex();
+            
+            // Calculate world coordinates with farm offset
+            float worldX = (getFarmStartX(farmIndex) + playerLocation.getX()) * TILE_SIZE;
+            float worldY = (getFarmStartY(farmIndex) + playerLocation.getY()) * TILE_SIZE;
 
             // Determine if this is the current player
             Player currentPlayer = App.getGame().getCurrentPlayer();
@@ -1900,7 +1885,7 @@ public class GameView implements Screen, InputProcessor {
 
             // Draw player dot
             Texture whiteTexture = new Texture("content/grass/spring.png");
-            Main.getBatch().draw(whiteTexture, playerX - 5, playerY - 5, 10, 10);
+            Main.getBatch().draw(whiteTexture, worldX - 5, worldY - 5, 10, 10);
             whiteTexture.dispose();
         }
 

@@ -61,7 +61,7 @@ public class MapScreen implements Screen, InputProcessor {
 
     // Map rendering constants
     private static final int TILE_SIZE = 60;
-    private static final float MAP_ZOOM = 13.5f; // Zoom out to show entire map
+    private static final float MAP_ZOOM = 12f; // Zoom out to show entire map
 
     public MapScreen(Player player, Skin skin, Screen previousScreen) {
         this.player = player;
@@ -494,46 +494,110 @@ public class MapScreen implements Screen, InputProcessor {
         };
     }
 
-    private void renderPlayersOnFullMap() {
+        private void renderPlayersOnFullMap() {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null) return;
 
+        System.out.println("DEBUG: Rendering players on full map. Total players: " + App.getGame().getPlayers().size());
+        System.out.println("DEBUG: Camera position: (" + camera.position.x + ", " + camera.position.y + ")");
+        System.out.println("DEBUG: Camera zoom: " + camera.zoom);
+        System.out.println("DEBUG: Total map dimensions: " + (GameMap.TOTAL_WIDTH * TILE_SIZE) + " x " + (GameMap.TOTAL_HEIGHT * TILE_SIZE));
+
         // Render all players
         for (Player player : App.getGame().getPlayers()) {
-            if (player == null) continue;
-
-            // Only show players if they are in their own farm
-            Farm playerFarm = player.getCurrentFarm();
-            if (playerFarm == null) continue;
-
-            // Check if player is in their farm (not in village)
-            if (player.getIsInVillage()) continue;
-
-            // Get player's position
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
-
-            // Determine if this is the current player
-            Player currentPlayer = App.getGame().getCurrentPlayer();
-            boolean isCurrentPlayer = (player == currentPlayer);
-
-            // Set color based on whether it's the current player or not
-            if (isCurrentPlayer) {
-                // Draw current player as a red dot
-                batch.setColor(Color.RED);
-            } else {
-                // Draw other players as blue dots
-                batch.setColor(Color.BLUE);
+            if (player == null) {
+                System.out.println("DEBUG: Skipping null player");
+                continue;
             }
 
-            // Draw player dot
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            batch.draw(whiteTexture, playerX - 5, playerY - 5, 10, 10);
-            whiteTexture.dispose();
+            System.out.println("DEBUG: Processing player: " + player.getUser().getUsername());
+
+            // Get player's farm
+            Farm playerFarm = player.getCurrentFarm();
+            if (playerFarm == null) {
+                System.out.println("DEBUG: Player " + player.getUser().getUsername() + " has no farm, skipping");
+                continue;
+            }
+
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " is in village: " + player.getIsInVillage());
+
+            // Get player's location and farm index
+            Location playerLocation = player.getLocation();
+            int farmIndex = getFarmIndex(playerFarm);
+            
+            // If player is in village, use village coordinates instead of farm coordinates
+            if (player.getIsInVillage()) {
+                float worldX = (GameMap.VILLAGE_X + playerLocation.getX()) * TILE_SIZE;
+                float worldY = (GameMap.VILLAGE_Y + playerLocation.getY()) * TILE_SIZE;
+                
+                System.out.println("DEBUG: Player " + player.getUser().getUsername() + " village world coordinates: (" + worldX + ", " + worldY + ")");
+                
+                // Render player sprite using PlayerController-style gridding
+                renderPlayerSprite(player, worldX, worldY);
+                continue;
+            }
+            
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " location: (" + playerLocation.getX() + ", " + playerLocation.getY() + ")");
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " farm index: " + farmIndex);
+            
+            // Calculate world coordinates with farm offset
+            float worldX = (getFarmStartX(farmIndex) + playerLocation.getX()) * TILE_SIZE;
+            float worldY = (getFarmStartY(farmIndex) + playerLocation.getY()) * TILE_SIZE;
+            
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " world coordinates: (" + worldX + ", " + worldY + ")");
+
+            // Render player sprite using PlayerController-style gridding
+            renderPlayerSprite(player, worldX, worldY);
         }
 
         // Reset color to white
         batch.setColor(Color.WHITE);
+        System.out.println("DEBUG: Finished rendering players on full map");
+    }
+
+    private void renderPlayerSprite(Player player, float worldX, float worldY) {
+        // PlayerController constants for sprite rendering
+        final int FRAME_W = 16;
+        final int FRAME_H = 32;
+        final int RENDER_W = 48;
+        final int RENDER_H = 96;
+        
+        // Get player's texture sheet
+        Texture textureSheet = player.getTextureSheet();
+        if (textureSheet == null) {
+            System.out.println("DEBUG: Player " + player.getUser().getUsername() + " has no texture sheet, using fallback");
+            // Fallback to colored dot
+            Player currentPlayer = App.getGame().getCurrentPlayer();
+            boolean isCurrentPlayer = (player == currentPlayer);
+            batch.setColor(isCurrentPlayer ? Color.RED : Color.BLUE);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            float dotSize = 30;
+            batch.draw(whiteTexture, worldX - dotSize/2, worldY - dotSize/2, dotSize, dotSize);
+            whiteTexture.dispose();
+            return;
+        }
+
+        // Split the texture sheet into a grid (like PlayerController does)
+        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
+        
+        // Use the first frame of the down animation (grid[0][0])
+        TextureRegion playerFrame = grid[0][0];
+        
+        // Determine if this is the current player
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        boolean isCurrentPlayer = (player == currentPlayer);
+
+        // Set color based on whether it's the current player or not
+        if (isCurrentPlayer) {
+            batch.setColor(Color.WHITE); // Current player gets normal colors
+            System.out.println("DEBUG: Drawing current player sprite");
+        } else {
+            batch.setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
+            System.out.println("DEBUG: Drawing other player sprite");
+        }
+
+        // Draw the player sprite
+        batch.draw(playerFrame, worldX - RENDER_W/2, worldY - RENDER_H/2, RENDER_W, RENDER_H);
     }
 
     private boolean shouldRenderGrass(TileType tileType) {
