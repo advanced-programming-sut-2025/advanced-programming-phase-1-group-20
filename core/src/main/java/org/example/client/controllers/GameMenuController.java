@@ -2207,12 +2207,12 @@ public class GameMenuController implements Controller {
         return worldController;
     }
 
-    /**
-     * Update the player reference to the current player
-     * This should be called when the turn advances
-     */
     public void updatePlayer() {
+        System.out.println("DEBUG: GameMenuController.updatePlayer called");
         Player currentPlayer = App.getGame().getCurrentPlayer();
+        System.out.println("DEBUG: Current player from App.getGame(): " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Current GameMenuController player: " + (this.player != null ? this.player.getUser().getUsername() : "null"));
+
         if (currentPlayer != null) {
             this.player = currentPlayer;
             System.out.println("GameMenuController player updated to: " + currentPlayer.getUser().getUsername());

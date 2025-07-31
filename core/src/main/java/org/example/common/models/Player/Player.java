@@ -411,6 +411,10 @@ public class Player {
     public void resetEnergyUsedInTurn() {
         this.energyUsedInTurn = 0;
     }
+    
+    public void addEnergyUsedInTurn(int amount) {
+        this.energyUsedInTurn += amount;
+    }
 
     public boolean canUseEnergy(int amount) {
         return energyUnlimited || (energy >= amount && energyUsedInTurn + amount <= 50);
@@ -670,7 +674,7 @@ public class Player {
 
         if (success && !energyUnlimited) {
             energy -= energyConsumption;
-            energyUsedInTurn += energyConsumption;
+            addEnergyUsedInTurn(energyConsumption);
             
             // Check if player is out of energy after this action
             checkAndAdvanceTurnIfEnergyDepleted();

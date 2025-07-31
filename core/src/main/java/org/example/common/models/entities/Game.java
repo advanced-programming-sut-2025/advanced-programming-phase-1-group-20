@@ -282,14 +282,23 @@ public class Game implements Serializable {
     }
 
     public void nextTurn(GameMap gameMap) {
+        System.out.println("DEBUG: nextTurn called");
+        System.out.println("DEBUG: Current player before turn change: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Current player index before turn change: " + currentPlayerIndex);
+        System.out.println("DEBUG: Total players: " + (players != null ? players.size() : "null"));
+        
         if (currentPlayer != null) { // Null check
             currentPlayer.resetEnergyUsedInTurn();
+            System.out.println("DEBUG: Reset energy used in turn for: " + currentPlayer.getUser().getUsername());
         }
 
         if (players != null && !players.isEmpty()) { // Null and empty check
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
             currentPlayer = players.get(currentPlayerIndex);
             System.out.println("Turn advanced to player: " + currentPlayer.getUser().getUsername() + " (index: " + currentPlayerIndex + ")");
+            System.out.println("DEBUG: New current player farm: " + (currentPlayer.getCurrentFarm() != null ? currentPlayer.getCurrentFarm().getName() : "null"));
+            System.out.println("DEBUG: New current player position: " + currentPlayer.getPosX() + ", " + currentPlayer.getPosY());
+            System.out.println("DEBUG: New current player is in village: " + currentPlayer.getIsInVillage());
             
             // Notify the WorldController to update the PlayerController
             // This will make the camera follow the new player
@@ -298,19 +307,26 @@ public class Game implements Serializable {
                     org.example.client.views.GameView gameView = (org.example.client.views.GameView) org.example.client.Main.getGame().getScreen();
                     if (gameView != null && gameView.getController() != null) {
                         org.example.client.controllers.GameMenuController gameMenuController = gameView.getController();
+                        System.out.println("DEBUG: Found GameMenuController: " + (gameMenuController != null ? "not null" : "null"));
                         
                         // Update the GameMenuController's player reference
                         gameMenuController.updatePlayer();
                         
                         // Update the WorldController's PlayerController
                         org.example.client.controllers.gameplay.WorldController worldController = gameMenuController.getWorldController();
+                        System.out.println("DEBUG: Found WorldController: " + (worldController != null ? "not null" : "null"));
                         if (worldController != null) {
                             worldController.updatePlayerController();
                         }
+                    } else {
+                        System.out.println("DEBUG: GameView or controller is null");
                     }
+                } else {
+                    System.out.println("DEBUG: Not in client environment (Gdx.files is null)");
                 }
             } catch (Exception e) {
                 System.out.println("Could not update PlayerController: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 //        if (currentPlayerIndex == 0 && date != null) { // Null check for date
