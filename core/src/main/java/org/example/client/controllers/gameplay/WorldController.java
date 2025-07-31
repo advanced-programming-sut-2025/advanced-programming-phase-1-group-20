@@ -155,6 +155,7 @@ public class WorldController {
         preloadPlants();
         preloadTrees();
         preloadCrops();
+        preloadMinerals();
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -200,6 +201,11 @@ public class WorldController {
                 String plantPath = "content/Plants/" + plantType.getImageFilePath() + "_" + "Stage_" + i + ".png";
                 loadTexture(key, plantPath);
             }
+            if(plantType.isGiantable()){
+                String giantKey = plantType.getImageFilePath() + "_Giant";
+                String giantPath = "content/Plants/Giant_" + plantType.getImageFilePath() + ".png";
+                loadTexture(giantKey , giantPath);
+            }
         }
     }
 
@@ -218,6 +224,14 @@ public class WorldController {
             String key = cropType.getImageFilePath();
             String cropPath = "content/Crops/" + cropType.getImageFilePath() + ".png";
             loadTexture(key, cropPath);
+        }
+    }
+
+    public void preloadMinerals(){
+        for(MineralType mineralType : MineralType.values()) {
+            String key = mineralType.getImageFilepath();
+            String mineralPath = "content/Minerals/" + key + "_Ore.png";
+            loadTexture(key , mineralPath);
         }
     }
 
@@ -456,10 +470,10 @@ public class WorldController {
             renderTreeItem(worldX, worldY, season , tree);
         } else if (item instanceof Crop crop) {
             renderCropItem(worldX, worldY , crop);
-        } else if (item instanceof Plant) {
-            renderPlantItem(worldX, worldY);
-        } else if (item instanceof Mineral) {
-            renderMineralItem(worldX, worldY);
+        } else if (item instanceof Plant plant) {
+            renderPlantItem(worldX, worldY , plant);
+        } else if (item instanceof Mineral mineral) {
+            renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
         }
@@ -1199,10 +1213,10 @@ public class WorldController {
             renderTreeItem(worldX, worldY, season , tree);
         } else if (item instanceof Crop crop) {
             renderCropItem(worldX, worldY , crop);
-        } else if (item instanceof Plant) {
-            renderPlantItem(worldX, worldY);
-        } else if (item instanceof Mineral) {
-            renderMineralItem(worldX, worldY);
+        } else if (item instanceof Plant plant) {
+            renderPlantItem(worldX, worldY , plant);
+        } else if (item instanceof Mineral mineral) {
+            renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
         }
@@ -1229,15 +1243,22 @@ public class WorldController {
         }
     }
 
-    private void renderPlantItem(float worldX, float worldY) {
-        Texture plantTexture = getTexture("crop");
+    private void renderPlantItem(float worldX, float worldY , Plant plant) {
+        String key;
+        if(plant.getIsGiant()){
+            key = plant.getImageFilepath() + "_Giant";
+        }else{
+            key = plant.getImageFilepath() + "_" + plant.getStage() + ".png";
+        }
+        Texture plantTexture = getTexture(key);
         if (plantTexture != null) {
             Main.getBatch().draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
     }
 
-    private void renderMineralItem(float worldX, float worldY) {
-        Texture mineralTexture = getTexture("stone");
+    private void renderMineralItem(float worldX, float worldY , Mineral mineral) {
+        String key = mineral.getImageFilepath();
+        Texture mineralTexture = getTexture(key);
         if (mineralTexture != null) {
             Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
