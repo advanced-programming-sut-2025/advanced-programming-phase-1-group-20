@@ -721,111 +721,113 @@ public class Farm {
         return tiles[x][y];
     }
 
+    /**
+     * Places an item on the map and checks if it forms a giant crop.
+     * @param x The x-coordinate to place the item at.
+     * @param y The y-coordinate to place the item at.
+     * @param item The item to place.
+     */
     public void placeItem(int x, int y, Item item) {
         Location tile = tiles[x][y];
         tile.setItem(item);
-        if (item.isGiantable()) {
-            if (checkFourDirectionsForGiants(x, y, item.getName()) == 1) {
-                Plant[] plants = new Plant[4];
-                for (int i = x - 1; i < x; i++) {
-                    for (int j = y; j < y + 1; j++) {
-                        plants[i] = (Plant) getItem(i, j).getItem();
-                    }
-                }
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
+        if (item instanceof Plant && item.isGiantable()) {
+            // After placing a plant, check if it completes a 2x2 square
+            checkForGiantCrop(x, y, (Plant) item);
+        }
+    }
 
-                for (int i = x - 1; i < x; i++) {
-                    for (int j = y; j < y + 1; j++) {
-                        plants[i].isGiant(stage);
-                        plants[i].setDaysCounter(0);
-                    }
-                }
+    /**
+     * Checks if the newly placed plant at (x, y) completes a 2x2 giant crop.
+     * @param x The x-coordinate of the new plant.
+     * @param y The y-coordinate of the new plant.
+     * @param newPlant The new plant that was just placed.
+     */
+    private void checkForGiantCrop(int x, int y, Plant newPlant) {
+        // A new plant can complete a 2x2 square in four ways, depending on which corner it is.
+        // We check all four possible top-left corners of a 2x2 square that could include (x, y).
+        int[] dx = {0, -1, 0, -1}; // Offsets to get the top-left corner
+        int[] dy = {0, 0, -1, -1};
 
-            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 2) {
-                Plant[] plants = new Plant[4];
-                for (int i = x - 1; i < x; i++) {
-                    for (int j = y - 1; j < y; j++) {
-                        plants[i] = (Plant) getItem(i, j).getItem();
-                    }
-                }
+        for (int i = 0; i < 4; i++) {
+            int topLeftX = x + dx[i];
+            int topLeftY = y + dy[i];
 
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
-
-                for (int i = x - 1; i < x; i++) {
-                    for (int j = y - 1; j < y; j++) {
-                        plants[i].isGiant(stage);
-                        plants[i].setDaysCounter(0);
-                    }
-                }
-            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 3) {
-                Plant[] plants = new Plant[4];
-                for (int i = x; i < x + 1; i++) {
-                    for (int j = y - 1; j < y; j++) {
-                        plants[i] = (Plant) getItem(i, j).getItem();
-                    }
-                }
-
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
-
-                for (int i = x; i < x + 1; i++) {
-                    for (int j = y - 1; j < y; j++) {
-                        plants[i].isGiant(stage);
-                        plants[i].setDaysCounter(0);
-                    }
-                }
-            } else if (checkFourDirectionsForGiants(x, y, item.getName()) == 4) {
-                Plant[] plants = new Plant[4];
-                for (int i = x; i < x + 1; i++) {
-                    for (int j = y; j < y + 1; j++) {
-                        plants[i] = (Plant) getItem(i, j).getItem();
-                    }
-                }
-
-                int stage = Math.max(plants[0].getStage(), Math.max(plants[1].getStage(), Math.max(plants[2].getStage(), Math.max(plants[3].getStage(), 0))));
-
-                for (int i = x; i < x + 1; i++) {
-                    for (int j = y; j < y + 1; j++) {
-                        plants[i].isGiant(stage);
-                        plants[i].setDaysCounter(0);
-                    }
-                }
+            // Check if this 2x2 square is valid and ready to become a giant crop
+            if (isGiantSquareReady(topLeftX, topLeftY, newPlant.getName())) {
+                transformToGiantCrop(topLeftX, topLeftY);
+                break; // A plant can only be part of one giant crop transformation
             }
         }
     }
 
+    /**
+     * Verifies if a 2x2 square starting at (tlx, tly) consists of four identical, mature plants.
+     * @param tlx Top-left x-coordinate.
+     * @param tly Top-left y-coordinate.
+     * @param name The name of the plant to check for.
+     * @return True if a giant crop can be formed, false otherwise.
+     */
+    private boolean isGiantSquareReady(int tlx, int tly, String name) {
+        for (int i = tlx; i < tlx + 2; i++) {
+            for (int j = tly; j < tly + 2; j++) {
+                if (!contains(i, j)) {
+                    return false; // Square is out of bounds
+                }
+                Location loc = getItem(i, j);
+                if (loc == null || !(loc.getItem() instanceof Plant)) {
+                    return false; // Not a plant
+                }
+                Plant plant = (Plant) loc.getItem();
+                if (!plant.getName().equals(name) || !plant.isGiantable()) {
+                    return false; // Not the same type or not giantable
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Transforms four individual plants in a 2x2 square into a single giant crop.
+     * @param tlx Top-left x-coordinate of the square.
+     * @param tly Top-left y-coordinate of the square.
+     */
+    private void transformToGiantCrop(int tlx, int tly) {
+        Plant[] plants = new Plant[4];
+        plants[0] = (Plant) getItem(tlx, tly).getItem();
+        plants[1] = (Plant) getItem(tlx + 1, tly).getItem();
+        plants[2] = (Plant) getItem(tlx, tly + 1).getItem();
+        plants[3] = (Plant) getItem(tlx + 1, tly + 1).getItem();
+
+        // Find the maximum growth stage among the four plants
+        int maxStage = 0;
+        for (Plant p : plants) {
+            if (p.getStage() > maxStage) {
+                maxStage = p.getStage();
+            }
+        }
+
+        // Create the new giant plant based on one of the old plants' type
+        Plant giantPlant = new Plant( plants[0].getType());
+        giantPlant.isGiant(maxStage); // Mark as giant and set its stage
+        giantPlant.setDaysCounter(0);
+
+        // Clear the old plants and place the new giant plant as an anchor in the top-left corner
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                getItem(tlx + i, tly + j).setItem(null);
+            }
+        }
+        getItem(tlx, tly).setItem(giantPlant); // Set the anchor
+    }
+
+
+    // This method is no longer needed as the logic is now cleaner and more robust
+    @Deprecated
     public int checkFourDirectionsForGiants(int x, int y, String itemName) {
-        int[][] DIRECTIONS = {
-            {-1, 1},
-            {-1, -1},
-            {1, -1},
-            {1, 1}
-        };
-
-        for (int dir = 0; dir < DIRECTIONS.length; dir++) {
-            int dx = DIRECTIONS[dir][0];
-            int dy = DIRECTIONS[dir][1];
-
-            int x1 = x + dx;
-            int y1 = y;
-            int x2 = x + dx;
-            int y2 = y + dy;
-            int x3 = x;
-            int y3 = y + dy;
-
-            if (contains(x1, y1) &&
-                contains(x2, y2) &&
-                contains(x3, y3)) {
-
-                if (getItem(x1, y1).getItem().getName() == itemName &&
-                    getItem(x2, y2).getItem().getName() == itemName &&
-                    getItem(x3, y3).getItem().getName() == itemName) {
-                    return dir + 1; // 1 to 4
-                }
-            }
-        }
-        return 0;
+        return 0; // Deprecated, do not use
     }
+
 
     public boolean isInOtherPlayersFarm(Player player, int x, int y) {
         for (Farm farm : App.getGame().getGameMap().getFarms()) {
