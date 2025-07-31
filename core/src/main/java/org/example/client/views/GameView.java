@@ -133,8 +133,7 @@ public class GameView implements Screen, InputProcessor {
     private boolean isMapVisible = false;
     private Group minimapGroup;
 
-    // Full map display
-    private boolean isFullMapVisible = false;
+
 
     // Camera zoom state
     private boolean isCameraZoomedOut = false;
@@ -1123,8 +1122,7 @@ public class GameView implements Screen, InputProcessor {
             controller.update(); // This will render world elements while batch is active
         }
 
-        // Render full map if M key is pressed
-        renderFullMap();
+
 
         renderNPCs(deltaTime);
 
@@ -1469,116 +1467,11 @@ public class GameView implements Screen, InputProcessor {
         camera.update();
     }
 
-    private void toggleFullMap() {
-        isFullMapVisible = !isFullMapVisible;
-        if (isFullMapVisible) {
-            // Update the tiles array to ensure it's current
-            GameMap gameMap = App.getGame().getGameMap();
-            if (gameMap != null) {
-                gameMap.updateTilesFromRegions();
-            }
 
-            // Zoom out to show entire map - adjusted zoom level to show all farms clearly
-            camera.zoom = 12.0f; // Reduced zoom to show the entire map without being too zoomed out
-
-            // Center camera on the entire map center to show all farms and village
-            float totalMapWidth = 234 * 60; // GameMap.TOTAL_WIDTH * TILE_SIZE
-            float totalMapHeight = 156 * 60; // GameMap.TOTAL_HEIGHT * TILE_SIZE
-            camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
-        } else {
-            // Return to normal zoom
-            camera.zoom = normalZoom;
-        }
-        camera.update();
-    }
-
-    private void renderFullMap() {
-        if (!isFullMapVisible) return;
-
-        Gdx.app.log("GameView", "Rendering full map...");
-
-        GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) {
-            Gdx.app.log("GameView", "GameMap is null, cannot render full map");
-            return;
-        }
-
-        // Get the unified tiles array
-        Location[][] tiles = gameMap.getTiles();
-        if (tiles == null) {
-            Gdx.app.log("GameView", "Tiles array is null, cannot render full map");
-            return;
-        }
-
-        String currentSeason = getCurrentSeason();
-        final int TILE_SIZE = 60;
-
-        int tilesRendered = 0;
-        int nonNullTiles = 0;
-
-        // Render all tiles from the unified array
-        for (int x = 0; x < GameMap.TOTAL_WIDTH; x++) {
-            for (int y = 0; y < GameMap.TOTAL_HEIGHT; y++) {
-                Location location = tiles[x][y];
-                if (location != null) {
-                    nonNullTiles++;
-                    float worldX = x * TILE_SIZE;
-                    float worldY = y * TILE_SIZE;
-
-                    TileType tileType = location.getTile();
-
-                    // Draw grass first for appropriate tile types
-                    if (shouldRenderGrass(tileType)) {
-                        Texture grassTexture = AssetManager.getAssetManager().getTileTextureForType("grass", currentSeason);
-                        if (grassTexture != null) {
-                            Main.getBatch().draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                            tilesRendered++;
-                        }
-                    }
-
-                    // Draw tile-specific texture
-                    Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
-                    if (tileTexture != null) {
-                        Main.getBatch().draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                        tilesRendered++;
-                    } else {
-                        // Fallback to colored rectangle if texture not found
-                        Color tileColor = getTileColor(tileType);
-                        if (tileColor != null) {
-                            Main.getBatch().setColor(tileColor);
-                            Texture whiteTexture = new Texture("content/grass/spring.png");
-                            Main.getBatch().draw(whiteTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
-                            whiteTexture.dispose();
-                            Main.getBatch().setColor(Color.WHITE);
-                            tilesRendered++;
-                        }
-                    }
-
-                    // Render items on tiles
-                    Item item = location.getItem();
-                    if (item != null) {
-                        renderItemOnTile(x, y, item, currentSeason);
-                    }
-                }
-            }
-        }
-
-        Gdx.app.log("GameView", "Rendered " + tilesRendered + " tiles out of " + nonNullTiles + " non-null tiles");
-
-        renderPlayersOnFullMap();
-        Gdx.app.log("GameView", "About to render buildings and structures...");
-        renderBuildingsAndStructures();
-        Gdx.app.log("GameView", "Finished rendering full map");
-    }
 
     private void renderBuildingsAndStructures() {
-        Gdx.app.log("GameView", "Starting to render buildings and structures...");
-        
         GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) {
-            Gdx.app.log("GameView", "GameMap is null, cannot render buildings");
-            return;
-        }
+        if (gameMap == null) return;
 
         final int TILE_SIZE = 60;
 
@@ -1625,45 +1518,30 @@ public class GameView implements Screen, InputProcessor {
         // Render village buildings and markets (outside farm loop)
         Village village = gameMap.getVillage();
         if (village != null) {
-            Gdx.app.log("GameView", "Found village, rendering village buildings...");
             renderVillageBuildings(village, TILE_SIZE);
-        } else {
-            Gdx.app.log("GameView", "Village is null, cannot render village buildings");
         }
-        
-        Gdx.app.log("GameView", "Finished rendering buildings and structures");
     }
 
     private void renderVillageBuildings(Village village, int tileSize) {
-        Gdx.app.log("GameView", "Starting to render village buildings...");
-        
         // Render markets
         Market[] markets = village.getMarkets();
         if (markets != null) {
-            Gdx.app.log("GameView", "Found " + markets.length + " markets to render");
             for (Market market : markets) {
                 if (market != null) {
                     renderMarket(market, tileSize);
                 }
             }
-        } else {
-            Gdx.app.log("GameView", "No markets found in village");
         }
 
         // Render other village buildings
         List<Building> buildings = village.getBuildings();
         if (buildings != null) {
-            Gdx.app.log("GameView", "Found " + buildings.size() + " buildings to render");
             for (Building building : buildings) {
                 if (building != null) {
                     renderVillageBuilding(building, tileSize);
                 }
             }
-        } else {
-            Gdx.app.log("GameView", "No buildings found in village");
         }
-        
-        Gdx.app.log("GameView", "Finished rendering village buildings");
     }
 
     private void renderMarket(Market market, int tileSize) {
@@ -1675,16 +1553,11 @@ public class GameView implements Screen, InputProcessor {
         String marketKey = getMarketTextureKey(market.getName());
         Texture marketTexture = AssetManager.getAssetManager().getTileTexture(marketKey);
 
-        // Debug logging
-        Gdx.app.log("GameView", "Rendering market: " + market.getName() + " at (" + market.getX() + ", " + market.getY() + ")");
-        Gdx.app.log("GameView", "Market texture key: " + marketKey + ", texture found: " + (marketTexture != null));
-
         if (marketTexture != null) {
             // Markets are typically 3x3 tiles
             float marketWidth = 3 * tileSize;
             float marketHeight = 3 * tileSize;
             Main.getBatch().draw(marketTexture, worldX, worldY, marketWidth, marketHeight);
-            Gdx.app.log("GameView", "Drew market texture at world coords: (" + worldX + ", " + worldY + ")");
         } else {
             // Fallback: draw colored rectangle
             Main.getBatch().setColor(Color.PURPLE);
@@ -1694,7 +1567,6 @@ public class GameView implements Screen, InputProcessor {
             Main.getBatch().draw(whiteTexture, worldX, worldY, marketWidth, marketHeight);
             whiteTexture.dispose();
             Main.getBatch().setColor(Color.WHITE);
-            Gdx.app.log("GameView", "Drew purple fallback rectangle for market at world coords: (" + worldX + ", " + worldY + ")");
         }
     }
 
@@ -1707,15 +1579,10 @@ public class GameView implements Screen, InputProcessor {
         String buildingKey = getVillageBuildingTextureKey(building.getName(), building.getType());
         Texture buildingTexture = AssetManager.getAssetManager().getTileTexture(buildingKey);
 
-        // Debug logging
-        Gdx.app.log("GameView", "Rendering village building: " + building.getName() + " at (" + building.getX() + ", " + building.getY() + ")");
-        Gdx.app.log("GameView", "Building texture key: " + buildingKey + ", texture found: " + (buildingTexture != null));
-
         if (buildingTexture != null) {
             float buildingWidth = building.getWidth() * tileSize;
             float buildingHeight = building.getHeight() * tileSize;
             Main.getBatch().draw(buildingTexture, worldX, worldY, buildingWidth, buildingHeight);
-            Gdx.app.log("GameView", "Drew building texture at world coords: (" + worldX + ", " + worldY + ")");
         } else {
             // Fallback: draw colored rectangle
             Main.getBatch().setColor(Color.ORANGE);
@@ -1725,7 +1592,6 @@ public class GameView implements Screen, InputProcessor {
             Main.getBatch().draw(whiteTexture, worldX, worldY, buildingWidth, buildingHeight);
             whiteTexture.dispose();
             Main.getBatch().setColor(Color.WHITE);
-            Gdx.app.log("GameView", "Drew orange fallback rectangle for building at world coords: (" + worldX + ", " + worldY + ")");
         }
     }
 

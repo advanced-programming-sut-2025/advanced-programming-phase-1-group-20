@@ -39,6 +39,7 @@ import org.example.common.models.common.Location;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
+import org.example.common.models.enums.Seasons;
 import org.example.utils.AssetManager;
 import java.util.List;
 
@@ -123,8 +124,13 @@ public class MapScreen implements Screen, InputProcessor {
         multiplexer.addProcessor(this);   // MapScreen second (key events)
         Gdx.input.setInputProcessor(multiplexer);
 
+        // Update the tiles array to ensure it's current
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap != null) {
+            gameMap.updateTilesFromRegions();
+        }
+
         // Center camera on the entire map
-        GameMap gameMap = game.getGameMap();
         if (gameMap != null) {
             float totalMapWidth = GameMap.TOTAL_WIDTH * TILE_SIZE;
             float totalMapHeight = GameMap.TOTAL_HEIGHT * TILE_SIZE;
@@ -194,11 +200,442 @@ public class MapScreen implements Screen, InputProcessor {
         // Begin rendering
         batch.begin();
 
+        // Render the full map
+        renderFullMap();
+
         batch.end();
 
         // Render UI
         stage.act(delta);
         stage.draw();
+    }
+
+    private void renderFullMap() {
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Get the unified tiles array
+        Location[][] tiles = gameMap.getTiles();
+        if (tiles == null) return;
+
+        String currentSeason = getCurrentSeason();
+
+        int tilesRendered = 0;
+        int nonNullTiles = 0;
+
+        // Render all tiles from the unified array
+        for (int x = 0; x < GameMap.TOTAL_WIDTH; x++) {
+            for (int y = 0; y < GameMap.TOTAL_HEIGHT; y++) {
+                Location location = tiles[x][y];
+                if (location != null) {
+                    nonNullTiles++;
+                    float worldX = x * TILE_SIZE;
+                    float worldY = y * TILE_SIZE;
+
+                    TileType tileType = location.getTile();
+
+                    // Draw grass first for appropriate tile types
+                    if (shouldRenderGrass(tileType)) {
+                        Texture grassTexture = AssetManager.getAssetManager().getTileTextureForType("grass", currentSeason);
+                        if (grassTexture != null) {
+                            batch.draw(grassTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                            tilesRendered++;
+                        }
+                    }
+
+                    // Draw tile-specific texture
+                    Texture tileTexture = AssetManager.getAssetManager().getTileTextureForType(tileType.toString().toLowerCase(), currentSeason);
+                    if (tileTexture != null) {
+                        batch.draw(tileTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                        tilesRendered++;
+                    } else {
+                        // Fallback to colored rectangle if texture not found
+                        Color tileColor = getTileColor(tileType);
+                        if (tileColor != null) {
+                            batch.setColor(tileColor);
+                            Texture whiteTexture = new Texture("content/grass/spring.png");
+                            batch.draw(whiteTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+                            whiteTexture.dispose();
+                            batch.setColor(Color.WHITE);
+                            tilesRendered++;
+                        }
+                    }
+
+                    // Render items on tiles
+                    Item item = location.getItem();
+                    if (item != null) {
+                        renderItemOnTile(x, y, item, currentSeason);
+                    }
+                }
+            }
+        }
+
+        renderPlayersOnFullMap();
+        renderBuildingsAndStructures();
+    }
+
+    private void renderBuildingsAndStructures() {
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Render buildings and structures for all farms
+        for (Farm farm : gameMap.getFarms()) {
+            if (farm == null) continue;
+
+            // Render the main house
+            Building house = farm.getBuilding();
+            if (house != null) {
+                renderBuilding(house, farm, TILE_SIZE);
+            }
+
+            // Render barns
+            for (Barn barn : farm.getBarns()) {
+                renderBarn(barn, farm, TILE_SIZE);
+            }
+
+            // Render coops
+            for (Coop coop : farm.getCoops()) {
+                renderCoop(coop, farm, TILE_SIZE);
+            }
+
+            // Render greenhouse
+            GreenHouse greenhouse = farm.getGreenHouse();
+            if (greenhouse != null) {
+                renderGreenhouse(greenhouse, farm, TILE_SIZE);
+            }
+
+            // Render quarry
+            Quarry quarry = farm.getQuarry();
+            if (quarry != null) {
+                renderQuarry(quarry, farm, TILE_SIZE);
+            }
+
+            // Render lakes
+            for (Lake lake : farm.getLakes()) {
+                renderLake(lake, farm, TILE_SIZE);
+            }
+        }
+
+        // Render village buildings and markets
+        Village village = gameMap.getVillage();
+        if (village != null) {
+            renderVillageBuildings(village, TILE_SIZE);
+        }
+    }
+
+    private void renderVillageBuildings(Village village, int tileSize) {
+        // Render markets
+        Market[] markets = village.getMarkets();
+        if (markets != null) {
+            for (Market market : markets) {
+                if (market != null) {
+                    renderMarket(market, tileSize);
+                }
+            }
+        }
+
+        // Render other village buildings
+        List<Building> buildings = village.getBuildings();
+        if (buildings != null) {
+            for (Building building : buildings) {
+                if (building != null) {
+                    renderVillageBuilding(building, tileSize);
+                }
+            }
+        }
+    }
+
+    private void renderMarket(Market market, int tileSize) {
+        String marketName = market.getName();
+        String textureKey = getMarketTextureKey(marketName);
+        Texture marketTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (marketTexture != null) {
+            float worldX = (GameMap.VILLAGE_X + market.getX()) * tileSize;
+            float worldY = (GameMap.VILLAGE_Y + market.getY()) * tileSize;
+            batch.draw(marketTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderVillageBuilding(Building building, int tileSize) {
+        String buildingName = building.getName();
+        String buildingType = building.getType();
+        String textureKey = getVillageBuildingTextureKey(buildingName, buildingType);
+        Texture buildingTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (buildingTexture != null) {
+            float worldX = (GameMap.VILLAGE_X + building.getX()) * tileSize;
+            float worldY = (GameMap.VILLAGE_Y + building.getY()) * tileSize;
+            batch.draw(buildingTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private String getMarketTextureKey(String marketName) {
+        return switch (marketName.toLowerCase()) {
+            case "pierre's general store" -> "pierre_general_store";
+            case "blacksmith" -> "blacksmith";
+            case "carpenter's shop" -> "carpenters_shop";
+            default -> "market";
+        };
+    }
+
+    private String getVillageBuildingTextureKey(String buildingName, String buildingType) {
+        return switch (buildingType.toLowerCase()) {
+            case "house" -> "house";
+            case "shop" -> "shop";
+            case "public" -> "public_building";
+            default -> "building";
+        };
+    }
+
+    private void renderBuilding(Building building, Farm farm, int tileSize) {
+        String buildingName = building.getName();
+        String textureKey = "house"; // Default to house texture
+        Texture buildingTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (buildingTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + building.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + building.getY()) * tileSize;
+            batch.draw(buildingTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderBarn(Barn barn, Farm farm, int tileSize) {
+        String textureKey = "barn";
+        Texture barnTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (barnTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + barn.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + barn.getY()) * tileSize;
+            batch.draw(barnTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderCoop(Coop coop, Farm farm, int tileSize) {
+        String textureKey = "coop";
+        Texture coopTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (coopTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + coop.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + coop.getY()) * tileSize;
+            batch.draw(coopTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderGreenhouse(GreenHouse greenhouse, Farm farm, int tileSize) {
+        String textureKey = greenhouse.getIsConstructed() ? "greenhouse_constructed" : "greenhouse_unconstructed";
+        Texture greenhouseTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (greenhouseTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + greenhouse.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + greenhouse.getY()) * tileSize;
+            batch.draw(greenhouseTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderQuarry(Quarry quarry, Farm farm, int tileSize) {
+        String textureKey = "quarry";
+        Texture quarryTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (quarryTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + quarry.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + quarry.getY()) * tileSize;
+            batch.draw(quarryTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private void renderLake(Lake lake, Farm farm, int tileSize) {
+        String textureKey = "lake";
+        Texture lakeTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
+
+        if (lakeTexture != null) {
+            int farmIndex = getFarmIndex(farm);
+            float worldX = (getFarmStartX(farmIndex) + lake.getX()) * tileSize;
+            float worldY = (getFarmStartY(farmIndex) + lake.getY()) * tileSize;
+            batch.draw(lakeTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+        }
+    }
+
+    private int getFarmIndex(Farm farm) {
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap != null) {
+            List<Farm> farms = gameMap.getFarms();
+            for (int i = 0; i < farms.size(); i++) {
+                if (farms.get(i) == farm) {
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
+    private int getFarmStartX(int farmIndex) {
+        return switch (farmIndex) {
+            case 0 -> 0;      // Bottom-Left
+            case 1 -> 0;      // Top-Left
+            case 2 -> 156;     // Top-Right
+            case 3 -> 156;     // Bottom-Right
+            default -> 0;
+        };
+    }
+
+    private int getFarmStartY(int farmIndex) {
+        return switch (farmIndex) {
+            case 0 -> 0;      // Bottom-Left
+            case 1 -> 78;    // Top-Left
+            case 2 -> 0;    // Top-Right
+            case 3 -> 78;      // Bottom-Right
+            default -> 0;
+        };
+    }
+
+    private void renderPlayersOnFullMap() {
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap == null) return;
+
+        // Render all players
+        for (Player player : App.getGame().getPlayers()) {
+            if (player == null) continue;
+
+            // Only show players if they are in their own farm
+            Farm playerFarm = player.getCurrentFarm();
+            if (playerFarm == null) continue;
+
+            // Check if player is in their farm (not in village)
+            if (player.getIsInVillage()) continue;
+
+            // Get player's position
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+
+            // Determine if this is the current player
+            Player currentPlayer = App.getGame().getCurrentPlayer();
+            boolean isCurrentPlayer = (player == currentPlayer);
+
+            // Set color based on whether it's the current player or not
+            if (isCurrentPlayer) {
+                // Draw current player as a red dot
+                batch.setColor(Color.RED);
+            } else {
+                // Draw other players as blue dots
+                batch.setColor(Color.BLUE);
+            }
+
+            // Draw player dot
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            batch.draw(whiteTexture, playerX - 5, playerY - 5, 10, 10);
+            whiteTexture.dispose();
+        }
+
+        // Reset color to white
+        batch.setColor(Color.WHITE);
+    }
+
+    private boolean shouldRenderGrass(TileType tileType) {
+        return tileType == TileType.Dirt || tileType == TileType.PATH ||
+            tileType == TileType.PLOWED || tileType == TileType.CROP;
+    }
+
+    private void renderItemOnTile(int x, int y, Item item, String season) {
+        float worldX = x * TILE_SIZE;
+        float worldY = y * TILE_SIZE;
+
+        if (item instanceof Tree tree) {
+            renderTreeItem(worldX, worldY, season, tree);
+        } else if (item instanceof Crop crop) {
+            renderCropItem(worldX, worldY, crop);
+        } else if (item instanceof Plant) {
+            renderPlantItem(worldX, worldY);
+        } else if (item instanceof Mineral) {
+            renderMineralItem(worldX, worldY);
+        } else if (item instanceof ShippingBin) {
+            renderShippingBinItem(worldX, worldY);
+        }
+    }
+
+    private void renderTreeItem(float worldX, float worldY, String season, Tree tree) {
+        int stage = tree.getStage() + 1;
+        String key = tree.getImageFilepath() + "_" + stage;
+        Texture treeTexture = AssetManager.getAssetManager().getTileTexture(key);
+        if (treeTexture != null) {
+            float treeSize = TILE_SIZE * 2f; // TILE_SIZE * TREE_SIZE_MULTIPLIER
+            float offsetX = (TILE_SIZE - treeSize) / 2; // Center the larger tree
+            float offsetY = (TILE_SIZE - treeSize) / 2;
+
+            batch.draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+        }
+    }
+
+    private void renderCropItem(float worldX, float worldY, Crop crop) {
+        String key = crop.getImageFilepath();
+        Texture cropTexture = AssetManager.getAssetManager().getTileTexture(key);
+        if (cropTexture != null) {
+            batch.draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderPlantItem(float worldX, float worldY) {
+        Texture plantTexture = AssetManager.getAssetManager().getTileTexture("crop");
+        if (plantTexture != null) {
+            batch.draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderMineralItem(float worldX, float worldY) {
+        Texture mineralTexture = AssetManager.getAssetManager().getTileTexture("stone");
+        if (mineralTexture != null) {
+            batch.draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderShippingBinItem(float worldX, float worldY) {
+        Texture binTexture = AssetManager.getAssetManager().getTileTexture("shipping_bin");
+        if (binTexture != null) {
+            batch.draw(binTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private Color getTileColor(TileType tileType) {
+        switch (tileType) {
+            case Dirt:
+                return new Color(0.6f, 0.4f, 0.2f, 1f); // Brown
+            case WATER:
+                return new Color(0.2f, 0.4f, 0.8f, 1f); // Blue
+            case STONE:
+                return new Color(0.5f, 0.5f, 0.5f, 1f); // Gray
+            case TREE:
+                return new Color(0.4f, 0.3f, 0.2f, 1f); // Dark brown
+            case VILLAGE:
+                return new Color(0.7f, 0.5f, 0.3f, 1f); // Village brown
+            case MARKET:
+                return new Color(0.9f, 0.7f, 0.5f, 1f); // Market color
+            case PATH:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case BUILDING:
+                return new Color(0.8f, 0.6f, 0.4f, 1f); // Light brown
+            case SAND:
+                return new Color(0.9f, 0.8f, 0.6f, 1f); // Sand color
+            case PLOWED:
+                return new Color(0.5f, 0.3f, 0.1f, 1f); // Dark brown
+            case CROP:
+                return new Color(0.2f, 0.8f, 0.2f, 1f); // Green
+            default:
+                return new Color(0.3f, 0.3f, 0.3f, 1f); // Default gray
+        }
+    }
+
+    private String getCurrentSeason() {
+        Date gameDate = App.getGame().getCurrentDate();
+        if (gameDate != null) {
+            Seasons season = gameDate.getSeason();
+            return season.toString().toLowerCase();
+        }
+        return "spring"; // Default to spring
     }
 
     @Override
