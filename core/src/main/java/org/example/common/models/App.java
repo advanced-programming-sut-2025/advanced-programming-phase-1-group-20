@@ -131,6 +131,11 @@ public class App {
             // Clear the JWT token and expiration time
             loggedInUser.setJwtToken(null);
             loggedInUser.setTokenExpirationTime(0);
+            // Clear refresh token and expiration time
+            loggedInUser.setRefreshToken(null);
+            loggedInUser.setRefreshTokenExpirationTime(0);
+            // Disable stay logged in
+            loggedInUser.setStayLoggedIn(false);
             loggedInUser = null;
         }
         org.example.utils.AutoLoginUtil.clearAutoLogin();

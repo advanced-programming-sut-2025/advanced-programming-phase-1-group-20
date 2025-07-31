@@ -4,13 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 //import org.example.client.controllers.WelcomeMenuController;
 import org.example.client.controllers.menu.MainMenuController;
-import org.example.client.views.menu.WelcomeMenuScreen;
+
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.client.views.menu.MainMenuScreen;
 import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
+import org.example.utils.auth.RefreshTokenUtils;
+import org.example.utils.AutoLoginUtil;
 
 import static org.example.client.Main.getGame;
 
@@ -51,14 +53,31 @@ public class LoginMenuController {
             return;
         }
 
-        user.setStayLoggedIn(stayLoggedIn);
-        App.setLoggedInUser(user);
+        // Always generate JWT access token for the session
+        String accessToken = JWTUtils.generateToken(username);
+        user.setJwtToken(accessToken);
+        user.setTokenExpirationTime(JWTUtils.extractExpirationTime(accessToken));
 
+        // Set stay logged in preference
+        user.setStayLoggedIn(stayLoggedIn);
+
+        // Handle refresh token for "stay logged in" functionality
         if (stayLoggedIn) {
-            String token = JWTUtils.generateToken(username);
-            user.setJwtToken(token);
-            user.setTokenExpirationTime(JWTUtils.extractExpirationTime(token));
+            // Generate and save refresh token for auto-login
+            String refreshToken = RefreshTokenUtils.generateRefreshToken(username);
+            if (refreshToken != null) {
+                user.setRefreshToken(refreshToken);
+                user.setRefreshTokenExpirationTime(RefreshTokenUtils.extractRefreshTokenExpiration(refreshToken));
+                AutoLoginUtil.saveAutoLogin(username);
+            }
+        } else {
+            // Clear any existing refresh token
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpirationTime(0);
+            AutoLoginUtil.clearAutoLogin();
         }
+
+        App.setLoggedInUser(user);
 
         App.addUser(user);
 
