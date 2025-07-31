@@ -99,23 +99,13 @@ public class PlayerController {
         this.gameMap = App.getGame().getGameMap();
         this.skin = skin;
 
-        System.out.println("DEBUG: PlayerController constructor - Loading texture sheet for player: " + player.getUser().getUsername());
         Texture sheet = player.getTextureSheet();
         if (sheet == null) {
-            System.err.println("WARNING: Player texture sheet is null, using fallback texture");
-            try {
-                sheet = new Texture(Gdx.files.internal("sprites/Alex.png"));
-                System.out.println("DEBUG: Successfully loaded fallback texture");
-            } catch (Exception e) {
-                System.err.println("ERROR: Failed to load fallback texture: " + e.getMessage());
-                throw new RuntimeException("Failed to load player texture", e);
-            }
+            sheet = new Texture(Gdx.files.internal("sprites/Alex.png"));
         }
 
-        System.out.println("DEBUG: Creating texture regions from sheet...");
         TextureRegion[][] grid = TextureRegion.split(sheet, FRAME_W, FRAME_H);
 
-        System.out.println("DEBUG: Building animations...");
         walkDown = buildAnim(grid[0]);
         walkLeft = buildAnim(grid[3]);
         walkRight = buildAnim(grid[1]);
@@ -123,9 +113,7 @@ public class PlayerController {
 
         currentAnim = walkDown;
 
-        System.out.println("DEBUG: Initializing nickname font...");
         initializeNicknameFont();
-        System.out.println("DEBUG: PlayerController constructor completed successfully");
     }
 
     private static Animation<TextureRegion> buildAnim(TextureRegion[] row) {
