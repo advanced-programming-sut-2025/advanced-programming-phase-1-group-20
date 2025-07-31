@@ -217,7 +217,7 @@ public class Game implements Serializable {
      */
     public boolean isFarmIndexAvailable(int farmIndex, Player requestingPlayer) {
         System.out.println("DEBUG: isFarmIndexAvailable called for farm index: " + farmIndex + " by player: " +
-                          (requestingPlayer != null ? requestingPlayer.getUser().getUsername() : "null"));
+            (requestingPlayer != null ? requestingPlayer.getUser().getUsername() : "null"));
         System.out.println("DEBUG: Current farm selections: " + farmSelections);
 
         if (farmSelections == null) {
@@ -235,7 +235,7 @@ public class Game implements Serializable {
                     return true;
                 } else {
                     System.out.println("DEBUG: Farm " + farmIndex + " is not available (selected by " +
-                                     (player != null ? player.getUser().getUsername() : "unknown player") + ")");
+                        (player != null ? player.getUser().getUsername() : "unknown player") + ")");
                     return false;
                 }
             }
@@ -270,7 +270,7 @@ public class Game implements Serializable {
                 Player player = entry.getKey();
                 Integer farmIndex = entry.getValue();
                 System.out.println("DEBUG: Processing player: " + (player != null ? player.getUser().getUsername() : "null") +
-                                 ", farmIndex: " + farmIndex);
+                    ", farmIndex: " + farmIndex);
                 if (player != null && player.getUser() != null && farmIndex != null) {
                     selections.put(player.getUser().getUsername(), farmIndex);
                     System.out.println("DEBUG: Added selection for " + player.getUser().getUsername() + ": " + farmIndex);
@@ -286,7 +286,8 @@ public class Game implements Serializable {
         System.out.println("DEBUG: Current player before turn change: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
         System.out.println("DEBUG: Current player index before turn change: " + currentPlayerIndex);
         System.out.println("DEBUG: Total players: " + (players != null ? players.size() : "null"));
-        
+        System.out.println("DEBUG: isMultiplayer = " + isMultiplayer);
+
         if (currentPlayer != null) { // Null check
             currentPlayer.resetEnergyUsedInTurn();
             System.out.println("DEBUG: Reset energy used in turn for: " + currentPlayer.getUser().getUsername());
@@ -299,7 +300,7 @@ public class Game implements Serializable {
             System.out.println("DEBUG: New current player farm: " + (currentPlayer.getCurrentFarm() != null ? currentPlayer.getCurrentFarm().getName() : "null"));
             System.out.println("DEBUG: New current player position: " + currentPlayer.getPosX() + ", " + currentPlayer.getPosY());
             System.out.println("DEBUG: New current player is in village: " + currentPlayer.getIsInVillage());
-            
+
             // Notify the WorldController to update the PlayerController
             // This will make the camera follow the new player
             try {
@@ -308,10 +309,10 @@ public class Game implements Serializable {
                     if (gameView != null && gameView.getController() != null) {
                         org.example.client.controllers.GameMenuController gameMenuController = gameView.getController();
                         System.out.println("DEBUG: Found GameMenuController: " + (gameMenuController != null ? "not null" : "null"));
-                        
+
                         // Update the GameMenuController's player reference
                         gameMenuController.updatePlayer();
-                        
+
                         // Update the WorldController's PlayerController
                         org.example.client.controllers.gameplay.WorldController worldController = gameMenuController.getWorldController();
                         System.out.println("DEBUG: Found WorldController: " + (worldController != null ? "not null" : "null"));
@@ -333,7 +334,7 @@ public class Game implements Serializable {
 //            date.advanceTime(1, gameMap);
 //        }
     }
-    
+
     /**
      * Check if current player is out of energy and automatically advance turn
      * if this is not a multiplayer game
@@ -343,25 +344,25 @@ public class Game implements Serializable {
         System.out.println("DEBUG: currentPlayer = " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
         System.out.println("DEBUG: gameMap = " + (gameMap != null ? "not null" : "null"));
         System.out.println("DEBUG: isMultiplayer = " + isMultiplayer);
-        
+
         if (currentPlayer == null || gameMap == null) {
             System.out.println("DEBUG: Early return due to null currentPlayer or gameMap");
             return false;
         }
-        
+
         // For single-player games (including "Try Game" mode), always advance turns
         // For multiplayer games, don't auto-advance (players should manually advance)
         if (isMultiplayer) {
             System.out.println("Multiplayer game detected - not auto-advancing turn when energy depleted");
             return false;
         }
-        
+
         System.out.println("DEBUG: Checking if player is out of energy for turn...");
         System.out.println("DEBUG: Player energy: " + currentPlayer.getEnergy());
         System.out.println("DEBUG: Player energy used this turn: " + currentPlayer.getEnergyUsedInTurn());
         System.out.println("DEBUG: Player can use 1 energy: " + currentPlayer.canUseEnergy(1));
         System.out.println("DEBUG: Player is out of energy for turn: " + currentPlayer.isOutOfEnergyForTurn());
-        
+
         if (currentPlayer.isOutOfEnergyForTurn()) {
             System.out.println("Player " + currentPlayer.getUser().getUsername() + " is out of energy for the turn. Advancing to next player.");
             nextTurn(gameMap);
@@ -369,7 +370,7 @@ public class Game implements Serializable {
         } else {
             System.out.println("DEBUG: Player is not out of energy for turn");
         }
-        
+
         return false;
     }
 
@@ -607,7 +608,7 @@ public class Game implements Serializable {
                     player.setIsInVillage(false);
 
                     System.out.println("DEBUG: Positioned player " + player.getUser().getUsername() +
-                                     " at global coordinates (" + playerStartX + ", " + playerStartY + ") in farm " + farmIndex);
+                        " at global coordinates (" + playerStartX + ", " + playerStartY + ") in farm " + farmIndex);
                 }
             }
         }
@@ -649,7 +650,7 @@ public class Game implements Serializable {
 
         state.put("currentPlayerIndex", currentPlayerIndex);
         state.put("currentPlayerUsername", currentPlayer != null && currentPlayer.getUser() != null ?
-                  currentPlayer.getUser().getUsername() : null);
+            currentPlayer.getUser().getUsername() : null);
         state.put("inFarmSelectionPhase", inFarmSelectionPhase);
         state.put("playerCount", players != null ? players.size() : 0);
         state.put("gameTime", date != null ? date.toString() : null);

@@ -6,12 +6,15 @@ import org.example.client.controllers.auth.SignUpMenuController;
 import org.example.client.views.menu.SignUpMenuScreen;
 import org.example.client.views.menu.LoginRegisterMenuScreen;
 import org.example.common.models.App;
+import org.example.common.models.MapDetails.Building;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
+import org.example.common.models.common.Location;
 import org.example.common.models.Player.Player;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
+import org.example.common.models.enums.Types.TileType;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.menu.WelcomeMenuScreen;
@@ -99,6 +102,66 @@ public class WelcomeMenuController {
         map.addFarm(farm4);
 
         game.setGameMap(map);
+
+        // Position players in their farms using global coordinates (like in multiplayer mode)
+        for (Player player : players) {
+            if (player != null && player.getCurrentFarm() != null) {
+                Farm farm = player.getCurrentFarm();
+                int farmIndex = farm.getFarmIndex();
+
+                // Get the farm's building location
+                Building building = farm.getBuilding();
+                int houseCenterX = building.getX() + building.getWidth() / 2;
+                int houseCenterY = building.getY() + building.getHeight() / 2;
+
+                // Calculate global coordinates based on farm index
+                int globalStartX = 0, globalStartY = 0;
+                switch (farmIndex) {
+                    case 0: // Top-Left
+                        globalStartX = 0;
+                        globalStartY = 0;
+                        break;
+                    case 1: // Bottom-Left
+                        globalStartX = 0;
+                        globalStartY = 78;
+                        break;
+                    case 2: // Top-Right
+                        globalStartX = 156;
+                        globalStartY = 0;
+                        break;
+                    case 3: // Bottom-Right
+                        globalStartX = 156;
+                        globalStartY = 78;
+                        break;
+                }
+
+                // Position player near the house in global coordinates
+                int playerStartX = globalStartX + houseCenterX;
+                int playerStartY = globalStartY + houseCenterY - 3; // 3 tiles below house center
+
+                // Ensure player is within farm boundaries
+                if (playerStartY < globalStartY) {
+                    playerStartY = globalStartY + houseCenterY + 3;
+                }
+                if (playerStartX < globalStartX) {
+                    playerStartX = globalStartX + houseCenterX + 3;
+                }
+                if (playerStartX >= globalStartX + Farm.width) {
+                    playerStartX = globalStartX + houseCenterX - 3;
+                }
+                if (playerStartY >= globalStartY + Farm.height) {
+                    playerStartY = globalStartY + houseCenterY - 3;
+                }
+
+                // Create global location and set player position
+                Location globalLocation = new Location(playerStartX, playerStartY, TileType.Dirt);
+                player.setLocation(globalLocation);
+                player.setIsInVillage(false);
+
+                System.out.println("DEBUG: Positioned player " + player.getUser().getUsername() +
+                    " at global coordinates (" + playerStartX + ", " + playerStartY + ") in farm " + farmIndex);
+            }
+        }
 
         map.updateTilesFromRegions();
 

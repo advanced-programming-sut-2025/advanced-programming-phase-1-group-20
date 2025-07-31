@@ -30,8 +30,18 @@ public class GameSaveLoadManager {
     }
 
     public static void initialize() {
-        initializeCollection();
-        System.out.println("GameSaveLoadManager initialized for MongoDB.");
+        try {
+            initializeCollection();
+            System.out.println("GameSaveLoadManager initialized for MongoDB.");
+        } catch (Exception e) {
+            System.err.println("Failed to initialize GameSaveLoadManager: " + e.getMessage());
+            System.err.println("MongoDB is not running. Game saves will not be persisted.");
+            System.err.println("To fix this, please install and start MongoDB:");
+            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
+            System.err.println("2. Start MongoDB: brew services start mongodb-community");
+            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
+            e.printStackTrace();
+        }
     }
 
     public static boolean saveCurrentGame() {
@@ -65,8 +75,8 @@ public class GameSaveLoadManager {
     }
 
     private static boolean saveGameInternal(Game game, String identifier, boolean replaceExisting) {
-        initializeCollection();
         try {
+            initializeCollection();
             String gameJson = gson.toJson(game);
 
             Document gameDoc = new Document(SAVE_NAME_FIELD, identifier)
@@ -82,6 +92,11 @@ public class GameSaveLoadManager {
             return true;
         } catch (Exception e) {
             System.err.println("Failed to save game to MongoDB: " + e.getMessage());
+            System.err.println("MongoDB is not running. Game will not be saved.");
+            System.err.println("To fix this, please install and start MongoDB:");
+            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
+            System.err.println("2. Start MongoDB: brew services start mongodb-community");
+            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
             return false;
         }
@@ -96,8 +111,8 @@ public class GameSaveLoadManager {
     }
 
     public static Game loadGame(String identifier) {
-        initializeCollection();
         try {
+            initializeCollection();
             Document gameDoc = gamesCollection.find(Filters.eq(SAVE_NAME_FIELD, identifier)).first();
             if (gameDoc != null) {
                 String gameJson = gameDoc.getString(GAME_DATA_FIELD);
@@ -108,6 +123,11 @@ public class GameSaveLoadManager {
             }
         } catch (Exception e) {
             System.err.println("Failed to load game from MongoDB: " + e.getMessage());
+            System.err.println("MongoDB is not running. Cannot load saved games.");
+            System.err.println("To fix this, please install and start MongoDB:");
+            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
+            System.err.println("2. Start MongoDB: brew services start mongodb-community");
+            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
         }
         return null;

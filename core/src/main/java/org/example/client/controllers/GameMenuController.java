@@ -2216,6 +2216,19 @@ public class GameMenuController implements Controller {
         if (currentPlayer != null) {
             this.player = currentPlayer;
             System.out.println("GameMenuController player updated to: " + currentPlayer.getUser().getUsername());
+
+            if (playerController != null && view != null) {
+                Farm currentFarm = currentPlayer.getCurrentFarm();
+                if (currentFarm != null) {
+                    playerController = new PlayerController(currentPlayer, currentFarm, view.getSkin());
+                    System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
+                }
+            }
+
+            // Update the WorldController to follow the new player
+            if (worldController != null) {
+                worldController.updatePlayerController();
+            }
         }
     }
 

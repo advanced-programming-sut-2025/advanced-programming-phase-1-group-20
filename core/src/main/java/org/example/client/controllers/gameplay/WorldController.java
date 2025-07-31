@@ -1409,15 +1409,16 @@ public class WorldController {
         return textureCache;
     }
 
-    /**
-     * Update the PlayerController to follow the current player
-     * This should be called when the turn advances
-     */
+
     public void updatePlayerController() {
         Player currentPlayer = App.getGame().getCurrentPlayer();
+        System.out.println("DEBUG: updatePlayerController called for player: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+
         if (currentPlayer != null && playerController != null) {
             // Create a new PlayerController for the current player
             Farm currentFarm = App.getGame().getGameMap().getFarmByPlayer(currentPlayer);
+            System.out.println("DEBUG: Found farm for player: " + (currentFarm != null ? currentFarm.getName() + " (index: " + currentFarm.getFarmIndex() + ")" : "null"));
+
             if (currentFarm != null) {
                 // Update the farm reference to the current player's farm
                 this.farm = currentFarm;
@@ -1441,11 +1442,38 @@ public class WorldController {
                     mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
                     mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
                 } else {
-                    // For farm, use farm bounds
+                    // For farm, use global farm bounds based on farm index
+                    Farm playerFarm = currentPlayer.getCurrentFarm();
+                    if (playerFarm != null) {
+                        int farmIndex = playerFarm.getFarmIndex();
+                        switch (farmIndex) {
+                            case 0: // Top-Left
+                                mapOffsetX = 0;
+                                mapOffsetY = 0;
+                                break;
+                            case 1: // Bottom-Left
+                                mapOffsetX = 0;
+                                mapOffsetY = 78 * TILE_SIZE;
+                                break;
+                            case 2: // Top-Right
+                                mapOffsetX = 156 * TILE_SIZE;
+                                mapOffsetY = 0;
+                                break;
+                            case 3: // Bottom-Right
+                                mapOffsetX = 156 * TILE_SIZE;
+                                mapOffsetY = 78 * TILE_SIZE;
+                                break;
+                            default:
+                                mapOffsetX = 0;
+                                mapOffsetY = 0;
+                                break;
+                        }
+                    } else {
+                        mapOffsetX = 0;
+                        mapOffsetY = 0;
+                    }
                     mapWidth = Farm.width * TILE_SIZE;
                     mapHeight = Farm.height * TILE_SIZE;
-                    mapOffsetX = 0;
-                    mapOffsetY = 0;
                 }
 
                 float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
@@ -1465,6 +1493,8 @@ public class WorldController {
                 camera.update();
 
                 System.out.println("Camera updated to follow player at: " + playerX + ", " + playerY);
+                System.out.println("DEBUG: Camera position set to: (" + cameraX + ", " + cameraY + ")");
+                System.out.println("DEBUG: Map bounds - width: " + mapWidth + ", height: " + mapHeight + ", offset: (" + mapOffsetX + ", " + mapOffsetY + ")");
             }
         }
     }

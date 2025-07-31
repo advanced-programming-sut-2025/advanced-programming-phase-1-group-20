@@ -426,21 +426,13 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         infoLabel.setText("All players have selected their farms!");
         infoLabel.setColor(Color.GREEN);
 
-        // Navigate to the actual multiplayer game after a short delay
-        System.out.println("DEBUG: FarmSelectionScreen - Farm selection complete, navigating to multiplayer game");
+        // Navigate to the actual multiplayer game immediately
+        System.out.println("DEBUG: FarmSelectionScreen - Farm selection complete, navigating to multiplayer game immediately");
 
-        // Use a timer to navigate after showing the completion message
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000); // Wait 2 seconds to show completion message
-                Gdx.app.postRunnable(() -> {
-                    navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
-                });
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("DEBUG: Navigation thread interrupted");
-            }
-        }).start();
+        // Navigate immediately instead of waiting
+        Gdx.app.postRunnable(() -> {
+            navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
+        });
     }
 
     private void navigateToMultiplayerGame(String gameSessionId, Object playersData, Object gameData, String currentPlayerUsername, Object allPlayersInfoObj) {
@@ -620,19 +612,28 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             // Navigate to game - always use postRunnable to ensure it happens on the main thread
             System.out.println("DEBUG: Scheduling screen change on main thread...");
             Gdx.app.postRunnable(() -> {
-                System.out.println("DEBUG: Getting Main game instance on main thread...");
-                Main mainGame = Main.getGame();
-                if (mainGame != null) {
-                    System.out.println("DEBUG: Main game instance found, disposing current screen...");
-                    if (mainGame.getScreen() != null) {
-                        mainGame.getScreen().dispose();
+                try {
+                    System.out.println("DEBUG: Getting Main game instance on main thread...");
+                    Main mainGame = Main.getGame();
+                    if (mainGame != null) {
+                        System.out.println("DEBUG: Main game instance found, disposing current screen...");
+                        if (mainGame.getScreen() != null) {
+                            mainGame.getScreen().dispose();
+                        }
+                        System.out.println("DEBUG: Setting new screen to GameView...");
+                        mainGame.setScreen(gameView);
+                        System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
+                        System.out.println("DEBUG: Each player now has their own Player object and the same game state");
+                    } else {
+                        System.err.println("DEBUG: Main game instance is null on main thread!");
+                        statusLabel.setText("Error: Failed to get main game instance");
+                        statusLabel.setColor(Color.RED);
                     }
-                    System.out.println("DEBUG: Setting new screen to GameView...");
-                    mainGame.setScreen(gameView);
-                    System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
-                    System.out.println("DEBUG: Each player now has their own Player object and the same game state");
-                } else {
-                    System.err.println("DEBUG: Main game instance is null on main thread!");
+                } catch (Exception e) {
+                    System.err.println("DEBUG: Error during screen transition: " + e.getMessage());
+                    e.printStackTrace();
+                    statusLabel.setText("Error: Failed to transition to game");
+                    statusLabel.setColor(Color.RED);
                 }
             });
 

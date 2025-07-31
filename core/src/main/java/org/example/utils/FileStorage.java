@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class FileStorage {
     private static MongoCollection<Document> usersCollection;
@@ -27,34 +28,28 @@ public class FileStorage {
         initializeCollection();
         try {
             for (User user : users.values()) {
-                Document userDoc = new Document("username", user.getUsername())
+                Document doc = new Document()
+                    .append("username", user.getUsername())
                     .append("passwordHash", user.getPassword())
                     .append("email", user.getEmail())
                     .append("nickname", user.getNickname())
-                    .append("gender", user.getGender().name())
+                    .append("gender", user.getGender().toString())
                     .append("stayLoggedIn", user.isStayLoggedIn())
                     .append("securityQuestionIndex", user.getSecurityQuestionIndex())
                     .append("securityAnswer", user.getSecurityAnswer())
                     .append("mostEarnedMoney", user.getMostEarnedMoney())
-                    .append("gamesPlayed", user.getGamesPlayed());
-
-                // **** تغییر در اینجا: Inventory از List<Item> به List<Document> نگاشت می‌شود ****
-                List<Document> inventoryList = new ArrayList<>();
-                if (user.getInventory() != null) {
-                    for (Item item : user.getInventory()) { // حالا ایتریت روی List<Item>
-                        // این بخش باید با فیلدهای واقعی کلاس Item شما مطابقت داشته باشد.
-                        // فرض می‌کنیم Item دارای getName(), getPrice(), getDescription() است.
-                        inventoryList.add(new Document("name", item.getName())
+                    .append("gamesPlayed", user.getGamesPlayed())
+                    .append("inventory", user.getInventory().stream()
+                        .map(item -> new Document()
+                            .append("name", item.getName())
                             .append("price", item.getPrice())
-                            .append("description", item.getDescription())); // اضافه کردن سایر فیلدهای مورد نیاز
-                    }
-                }
-                userDoc.append("inventory", inventoryList);
-
-
+                            .append("imageFilePath", item.getImageFilepath())
+                            .append("description", item.getDescription()))
+                        .collect(Collectors.toList())
+                    );
                 usersCollection.replaceOne(
                     Filters.eq("username", user.getUsername()),
-                    userDoc,
+                    doc,
                     new ReplaceOptions().upsert(true)
                 );
             }
@@ -62,6 +57,11 @@ public class FileStorage {
             return true;
         } catch (Exception e) {
             System.err.println("Failed to save users to MongoDB: " + e.getMessage());
+            System.err.println("MongoDB is not running. User data will not be persisted.");
+            System.err.println("To fix this, please install and start MongoDB:");
+            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
+            System.err.println("2. Start MongoDB: brew services start mongodb-community");
+            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
             return false;
         }
@@ -109,6 +109,11 @@ public class FileStorage {
             return users;
         } catch (Exception e) {
             System.err.println("Failed to load users from MongoDB: " + e.getMessage());
+            System.err.println("MongoDB is not running. Starting with empty user database.");
+            System.err.println("To fix this, please install and start MongoDB:");
+            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
+            System.err.println("2. Start MongoDB: brew services start mongodb-community");
+            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
             return new HashMap<>();
         }

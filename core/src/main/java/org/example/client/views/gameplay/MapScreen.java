@@ -94,7 +94,7 @@ public class MapScreen implements Screen, InputProcessor {
 
     private void initializeNicknameFont() {
         nicknameFont = new BitmapFont();
-        nicknameFont.getData().setScale(2.0f); // Make the font bigger
+        nicknameFont.getData().setScale(10.0f); // Make the font triple the size
         nicknameFont.setColor(NICKNAME_TEXT_COLOR);
     }
 
@@ -560,8 +560,8 @@ public class MapScreen implements Screen, InputProcessor {
         // PlayerController constants for sprite rendering
         final int FRAME_W = 16;
         final int FRAME_H = 32;
-        final int RENDER_W = 48;
-        final int RENDER_H = 96;
+        final int RENDER_W = 96;  // Doubled from 48
+        final int RENDER_H = 192; // Doubled from 96
 
         // Get player's texture sheet
         Texture textureSheet = player.getTextureSheet();
@@ -580,9 +580,7 @@ public class MapScreen implements Screen, InputProcessor {
         // Split the texture sheet into a grid (like PlayerController does)
         TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
 
-        // Use the first frame of the down animation (grid[0][0])
         TextureRegion playerFrame = grid[0][0];
-
         // Determine if this is the current player
         Player currentPlayer = App.getGame().getCurrentPlayer();
         boolean isCurrentPlayer = (player == currentPlayer);
