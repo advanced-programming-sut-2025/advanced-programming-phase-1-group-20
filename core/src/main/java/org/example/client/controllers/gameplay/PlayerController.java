@@ -196,9 +196,17 @@ public class PlayerController {
 
 
     private int calculateMovementEnergyCost() {
-        // Use a fixed energy cost for movement instead of percentage-based calculation
-        // This prevents the issue where players with high energy can't move due to calculation errors
-        return 5; // Fixed 5 energy cost per movement
+        // Calculate 0.05% of player's current energy as movement cost
+        int currentEnergy = player.getEnergy();
+        int energyCost = Math.max(MIN_MOVEMENT_ENERGY_COST, currentEnergy * MOVEMENT_ENERGY_PERCENTAGE / 10000);
+
+        // Ensure we don't consume more than 1 energy for very low energy levels
+        if (currentEnergy < 2000 && energyCost > 1) {
+            energyCost = 1;
+        }
+
+        // Always consume at least 1 energy for movement
+        return Math.max(1, energyCost);
     }
 
     private void handlePlayerInput(float delta) {
@@ -254,18 +262,16 @@ public class PlayerController {
             int energyCost = calculateMovementEnergyCost();
             System.out.println("Movement detected - Energy cost: " + energyCost + ", Current energy: " + player.getEnergy());
 
-            if (player.canUseEnergy(energyCost)) {
+            if (player.getEnergy() >= energyCost) {
                 player.decreaseEnergy(energyCost);
-                // Update energy used in turn
-                player.addEnergyUsedInTurn(energyCost);
-                System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy() + ", Energy used this turn: " + player.getEnergyUsedInTurn());
+                System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
 
                 // Check if player is out of energy and auto-advance turn if needed
                 if (App.getGame() != null) {
                     App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
                 }
             } else {
-                System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost + ", Energy used this turn: " + player.getEnergyUsedInTurn());
+                System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
                 // Revert the movement if not enough energy
                 player.setPosX(player.getPosX());
                 player.setPosY(player.getPosY());
@@ -686,7 +692,10 @@ public class PlayerController {
         return player;
     }
 
-
+    /**
+     * Update the player reference to follow the current player
+     * This should be called when the turn advances
+     */
     public void updatePlayer(Player newPlayer) {
         // Update the player reference
         // Note: We can't change the final player field, so we need to create a new PlayerController

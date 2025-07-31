@@ -29,8 +29,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 public class WorldController {
     private PlayerController playerController;
@@ -81,9 +79,11 @@ public class WorldController {
         this.farm = farm;
         this.camera = camera;
         this.skin = skin;
-        this.controller = controller;
         this.textureCache = new HashMap<>();
         this.renderedBuildings = new HashSet<>();
+        this.controller = controller;
+
+        // Initialize building anchor collections
         this.greenhouseAnchors = new ArrayList<>();
         this.houseAnchors = new ArrayList<>();
         this.barnAnchors = new ArrayList<>();
@@ -91,6 +91,7 @@ public class WorldController {
         this.goldClockAnchors = new ArrayList<>();
         this.npcHouseAnchors = new ArrayList<>();
 
+        // Initialize markets anchor collections
         this.blacksmith = new ArrayList<>();
         this.jojaMart = new ArrayList<>();
         this.pierreGeneralStore = new ArrayList<>();
@@ -99,22 +100,9 @@ public class WorldController {
         this.marnieShop = new ArrayList<>();
         this.starDropSaloon = new ArrayList<>();
 
+
+        // Pre-load all textures
         preloadTextures();
-        
-        // Initialize sprites for all players to ensure they are visible
-        initializeAllPlayerSprites();
-    }
-    
-    private void initializeAllPlayerSprites() {
-        Game game = App.getGame();
-        if (game != null && game.getPlayers() != null) {
-            for (Player player : game.getPlayers()) {
-                if (player != null) {
-                    // Force sprite initialization for all players
-                    player.getPlayerSprite();
-                }
-            }
-        }
     }
 
     private void preloadTextures() {
@@ -1276,71 +1264,10 @@ public class WorldController {
             return;
         }
 
-        Player currentPlayer = game.getCurrentPlayer();
-        
         for (Player player : game.getPlayers()) {
-            if (player != null) {
-                // Render player sprite if available
-                if (player.getPlayerSprite() != null) {
-                    player.getPlayerSprite().draw(Main.getBatch());
-                }
-                
-                // Also render player as a colored dot for visibility
-                float playerX = player.getPosX();
-                float playerY = player.getPosY();
-                
-                // Use different colors for current player vs other players
-                if (player.equals(currentPlayer)) {
-                    Main.getBatch().setColor(Color.RED);
-                } else {
-                    Main.getBatch().setColor(Color.BLUE);
-                }
-                
-                // Draw player as a colored dot
-                Texture whiteTexture = new Texture("content/grass/spring.png");
-                Main.getBatch().draw(whiteTexture, playerX - 5, playerY - 5, 10, 10);
-                whiteTexture.dispose();
-                
-                // Reset color
-                Main.getBatch().setColor(Color.WHITE);
-                
-                // Render nickname if available
-                if (player.getUser() != null && player.getUser().getNickname() != null) {
-                    renderPlayerNickname(player, currentPlayer);
-                }
+            if (player != null && player.getPlayerSprite() != null) {
+                player.getPlayerSprite().draw(Main.getBatch());
             }
-        }
-    }
-    
-    private void renderPlayerNickname(Player player, Player currentPlayer) {
-        // Create a simple font for rendering nicknames
-        BitmapFont font = new BitmapFont();
-        font.getData().setScale(0.6f);
-        
-        String nickname = player.getUser().getNickname();
-        if (nickname == null || nickname.trim().isEmpty()) {
-            nickname = player.getUser().getUsername();
-        }
-        
-        if (nickname != null && !nickname.trim().isEmpty()) {
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
-            
-            // Calculate nickname position (centered above player head)
-            float nicknameWidth = font.draw(Main.getBatch(), nickname, 0, 0).width;
-            float nicknameX = playerX + 30f - (nicknameWidth / 2f);
-            float nicknameY = playerY + 120f;
-            
-            // Determine text color
-            Color textColor = (player.equals(currentPlayer)) ? Color.LIGHT_GRAY : Color.WHITE;
-            
-            // Draw nickname text
-            Color originalColor = Main.getBatch().getColor().cpy();
-            Main.getBatch().setColor(textColor);
-            font.draw(Main.getBatch(), nickname, nicknameX, nicknameY);
-            
-            // Reset batch color
-            Main.getBatch().setColor(originalColor);
         }
     }
 
@@ -1465,33 +1392,23 @@ public class WorldController {
      * This should be called when the turn advances
      */
     public void updatePlayerController() {
-        System.out.println("DEBUG: updatePlayerController called");
         Player currentPlayer = App.getGame().getCurrentPlayer();
-        System.out.println("DEBUG: Current player from App.getGame(): " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
-        System.out.println("DEBUG: Current playerController player: " + (playerController != null ? playerController.getPlayer().getUser().getUsername() : "null"));
-        
         if (currentPlayer != null && playerController != null) {
             // Create a new PlayerController for the current player
             Farm currentFarm = App.getGame().getGameMap().getFarmByPlayer(currentPlayer);
-            System.out.println("DEBUG: Current farm for player: " + (currentFarm != null ? currentFarm.getName() : "null"));
-            System.out.println("DEBUG: Current farm index: " + (currentFarm != null ? currentFarm.getFarmIndex() : "null"));
-            
             if (currentFarm != null) {
                 // Update the farm reference to the current player's farm
                 this.farm = currentFarm;
-                System.out.println("DEBUG: Farm reference updated to: " + currentFarm.getName());
-                
+
                 // Create new PlayerController for the current player
                 playerController = new PlayerController(currentPlayer, currentFarm, skin);
                 System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
                 System.out.println("Farm updated to: " + currentFarm.getName());
-                
+
                 // Force camera to update to the new player's position
                 float playerX = currentPlayer.getPosX();
                 float playerY = currentPlayer.getPosY();
-                System.out.println("DEBUG: Player position: " + playerX + ", " + playerY);
-                System.out.println("DEBUG: Player is in village: " + currentPlayer.getIsInVillage());
-                
+
                 float mapWidth, mapHeight;
                 float mapOffsetX, mapOffsetY;
 
@@ -1501,14 +1418,12 @@ public class WorldController {
                     mapHeight = Village.height * TILE_SIZE;
                     mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
                     mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
-                    System.out.println("DEBUG: Using village bounds - width: " + mapWidth + ", height: " + mapHeight + ", offset: " + mapOffsetX + ", " + mapOffsetY);
                 } else {
                     // For farm, use farm bounds
                     mapWidth = Farm.width * TILE_SIZE;
                     mapHeight = Farm.height * TILE_SIZE;
                     mapOffsetX = 0;
                     mapOffsetY = 0;
-                    System.out.println("DEBUG: Using farm bounds - width: " + mapWidth + ", height: " + mapHeight + ", offset: " + mapOffsetX + ", " + mapOffsetY);
                 }
 
                 float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
@@ -1526,14 +1441,9 @@ public class WorldController {
 
                 camera.position.set(cameraX, cameraY, 0);
                 camera.update();
-                
-                System.out.println("DEBUG: Camera updated to follow player at: " + playerX + ", " + playerY);
-                System.out.println("DEBUG: Camera position set to: " + cameraX + ", " + cameraY);
-            } else {
-                System.out.println("ERROR: Could not find farm for player: " + currentPlayer.getUser().getUsername());
+
+                System.out.println("Camera updated to follow player at: " + playerX + ", " + playerY);
             }
-        } else {
-            System.out.println("ERROR: Current player or playerController is null");
         }
     }
 
@@ -1563,11 +1473,11 @@ public class WorldController {
     private void showFriendInteractionWindow(Player targetPlayer) {
         System.out.println("🤝 Opening friend interaction window for " + targetPlayer.getUser().getUsername());
         try {
-            org.example.client.views.FriendInteractionWindow interactionWindow = 
+            org.example.client.views.FriendInteractionWindow interactionWindow =
                 new org.example.client.views.FriendInteractionWindow(
-                    playerController.getPlayer(), 
-                    targetPlayer, 
-                    skin, 
+                    playerController.getPlayer(),
+                    targetPlayer,
+                    skin,
                     controller.getView()
                 );
             Main.getGame().setScreen(interactionWindow);
