@@ -56,24 +56,45 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
         // Set server address and connect
         networkClient.setServerAddress(host, port);
 
-        // Attempt connection in background
+        // Attempt connection in background with retry mechanism
         new Thread(() -> {
-            try {
-                boolean success = networkClient.connect();
-                if (success) {
-                    currentState = ConnectionState.CONNECTED;
-                    lastError = null; // Clear any previous errors
-                    connectionFuture.complete(true);
-                } else {
-                    currentState = ConnectionState.ERROR;
-                    String networkError = networkClient.getLastErrorMessage();
-                    lastError = networkError != null ? networkError : "Failed to establish connection to " + host + ":" + port;
-                    connectionFuture.complete(false);
+            int maxRetries = 3;
+            int retryCount = 0;
+
+            while (retryCount < maxRetries) {
+                try {
+                    System.out.println("Connection attempt " + (retryCount + 1) + " of " + maxRetries);
+
+                    // Add a small delay between retries
+                    if (retryCount > 0) {
+                        Thread.sleep(1000); // Wait 1 second between retries
+                    }
+
+                    boolean success = networkClient.connect();
+                    if (success) {
+                        currentState = ConnectionState.CONNECTED;
+                        lastError = null; // Clear any previous errors
+                        connectionFuture.complete(true);
+                        return;
+                    } else {
+                        retryCount++;
+                        if (retryCount >= maxRetries) {
+                            currentState = ConnectionState.ERROR;
+                            String networkError = networkClient.getLastErrorMessage();
+                            lastError = networkError != null ? networkError : "Failed to establish connection to " + host + ":" + port;
+                            connectionFuture.complete(false);
+                        }
+                    }
+                } catch (Exception e) {
+                    retryCount++;
+                    System.err.println("Connection attempt " + retryCount + " failed: " + e.getMessage());
+
+                    if (retryCount >= maxRetries) {
+                        currentState = ConnectionState.ERROR;
+                        lastError = "Connection error: " + e.getMessage();
+                        connectionFuture.complete(false);
+                    }
                 }
-            } catch (Exception e) {
-                currentState = ConnectionState.ERROR;
-                lastError = "Connection error: " + e.getMessage();
-                connectionFuture.complete(false);
             }
         }).start();
 

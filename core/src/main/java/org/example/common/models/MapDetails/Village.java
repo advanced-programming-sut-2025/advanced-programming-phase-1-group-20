@@ -15,6 +15,7 @@ import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.enums.Types.TreeType;
 import org.example.common.models.enums.Charactristic;
 import org.example.common.models.enums.Jobs;
+import org.example.common.models.Items.Item;
 
 import java.util.*;
 
@@ -197,7 +198,7 @@ public class Village {
         int bottomY = 5; // 5 tiles from bottom edge (Y=0 is bottom, Y=height-1 is top)
         int startX = 10; // Start 10 tiles from left edge
         int spacing = 8; // Space between houses
-        
+
         for (int i = 0; i < 5; i++) {
             int houseX = startX + (i * (houseWidth + spacing));
             String houseName = "NPC House " + (i + 1);
@@ -285,12 +286,8 @@ public class Village {
 
         //initializeBuildings();
         //markBuildings();
-//        initializeNPCs();
+        initializeNPCs();
 //        initializeShops();
-
-        placeRandomObjects("stone", 100);
-        placeRandomObjects("tree", 100);
-        //TODO: درخت و سنگ داره یا نه؟
 
         // Create paths connecting farms to village center
         createVillagePaths();
@@ -336,10 +333,10 @@ public class Village {
 
         // Path to upper village area
         createPathFromCenterToEntrance(centerX, centerY, centerX, height - 1);
-        
-        // Path to lower village area  
+
+        // Path to lower village area
         createPathFromCenterToEntrance(centerX, centerY, centerX, 0);
-        
+
         // Diagonal paths for better connectivity
         createDiagonalPath(centerX, centerY, 0, height - 1);  // Upper left
         createDiagonalPath(centerX, centerY, width - 1, height - 1);  // Upper right
@@ -404,7 +401,7 @@ public class Village {
     private void createHorizontalPath(int leftY, int rightY) {
         // Create horizontal path connecting left and right entrances at similar Y levels
         int pathY = (leftY + rightY) / 2;  // Average Y coordinate
-        
+
         for (int x = 0; x < width; x++) {
             if (contains(x, pathY) && tiles[x][pathY].getTile() == TileType.Dirt) {
                 tiles[x][pathY] = new Location(x, pathY, TileType.PATH);
@@ -621,10 +618,15 @@ public class Village {
 
     public void initializeNPCs() {
         Random rand = new Random();
-        
+
+        System.out.println("Village.initializeNPCs(): Starting NPC initialization...");
+
         // Initialize residents list if it's null
         if (this.residents == null) {
             this.residents = new ArrayList<>();
+            System.out.println("Village.initializeNPCs(): Created new residents list");
+        } else {
+            System.out.println("Village.initializeNPCs(): Residents list already exists with " + residents.size() + " NPCs");
         }
 
         // Get the game instance once to avoid repeated calls
@@ -634,36 +636,141 @@ public class Village {
             return;
         }
 
-        // Create NPCs with their sprites
-        createNPCWithSprite("Abigail", 20, 50, Charactristic.HARD_WORKING, Jobs.STUDENT);
-        createNPCWithSprite("Pierre", 80, 80, Charactristic.GREEDY, Jobs.SELLER);
-        createNPCWithSprite("Sebastian", 40, 120, Charactristic.LAZY, Jobs.ENGINEER);
-        createNPCWithSprite("Leah", 120, 40, Charactristic.JEALOUS, Jobs.STUDENT);
-        createNPCWithSprite("Willy", 60, 200, Charactristic.KIND, Jobs.FISHER);
-        createNPCWithSprite("Jojo", 140, 160, Charactristic.HARD_WORKING, Jobs.SELLER);
+        System.out.println("Village.initializeNPCs(): Game and current player are valid");
+
+        // Create NPCs using the enum data for NPCs that have sprites available
+        // Available sprites: Abigail, Pierre, Sebastian, Leah, Willy, Jojo
+        System.out.println("Village.initializeNPCs(): Creating NPCs...");
+        createNPCFromEnum("Sebastian");
+        createNPCFromEnum("Abigail");
+        createNPCFromEnum("Pierre");
+        createNPCFromEnum("Leah");
+        createNPCFromEnum("Willy");
+        createNPCFromEnum("Jojo");
+        System.out.println("Village.initializeNPCs(): NPCs initialized. Total residents: " + residents.size());
+
+        // Print details of each NPC
+        for (NPC npc : residents) {
+            System.out.println("Village.initializeNPCs(): NPC " + npc.getName() + " at position (" + npc.getPosX() + ", " + npc.getPosY() + ") with sprite " + npc.getSpriteName());
+        }
+
+        // Print house positions for reference
+        System.out.println("Village.initializeNPCs(): House positions:");
+        for (Building building : buildings) {
+            if (building.getType().equals("npc_house")) {
+                System.out.println("Village.initializeNPCs(): House at (" + building.getX() + ", " + building.getY() + ") - " + building.getName());
+            }
+        }
     }
-    
+
     private void createNPCWithSprite(String npcName, int x, int y, Charactristic characteristic, Jobs job) {
         // Create NPC with missions
         HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
         NPC npc = new NPC(characteristic, npcName, job, missions);
-        
+
         // Set sprite name for rendering
         npc.setSpriteName(npcName);
-        
+
         // Set position
         Location location = new Location(x, y, TileType.VILLAGE);
         npc.setLocation(location);
         npc.setPosX(x * 60f); // Convert tile coordinates to pixel coordinates
         npc.setPosY(y * 60f);
-        
+
         // Set description based on NPC
         setNPCDescription(npc, npcName);
-        
+
         // Add to residents list
         residents.add(npc);
     }
-    
+
+    private void createNPCFromEnum(String npcName) {
+        // Get NPC data from enum
+        org.example.common.models.enums.Npcs npcEnum = org.example.common.models.enums.Npcs.fromName(npcName);
+        if (npcEnum == null) {
+            System.err.println("Warning: NPC enum not found for " + npcName);
+            return;
+        }
+
+        // Create NPC with missions
+        HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
+        NPC npc = new NPC(npcEnum.getCharacteristic(), npcEnum.getName(), npcEnum.getJob(), missions);
+
+        // Set sprite name for rendering
+        npc.setSpriteName(npcEnum.getName());
+
+        // Position NPC under their house based on their name
+        // Houses are positioned at: 10, 23, 36, 49, 62 (X coordinates)
+        // Each house is 5 tiles wide, so center of each house is at: 12, 25, 38, 51, 64
+        // NPCs positioned just below their houses
+        int npcX, npcY;
+        switch (npcName) {
+            case "Abigail":
+                npcX = 12; // Under first house (10 + 2)
+                npcY = 3;  // Just below the houses (houses are at Y=5, so NPCs at Y=3)
+                break;
+            case "Pierre":
+                npcX = 25; // Under second house (23 + 2)
+                npcY = 3;
+                break;
+            case "Sebastian":
+                npcX = 38; // Under third house (36 + 2)
+                npcY = 3;
+                break;
+            case "Leah":
+                npcX = 51; // Under fourth house (49 + 2)
+                npcY = 3;
+                break;
+            case "Willy":
+                npcX = 64; // Under fifth house (62 + 2)
+                npcY = 3;
+                break;
+            case "Jojo":
+                npcX = 15; // Near first house but offset
+                npcY = 3;
+                break;
+            default:
+                // Default position if NPC not in switch
+                npcX = 12;
+                npcY = 3;
+                break;
+        }
+
+        // Set position under house (using local village coordinates)
+        Location location = new Location(npcX, npcY, org.example.common.models.enums.Types.TileType.VILLAGE);
+        npc.setLocation(location);
+
+        // Convert to pixel coordinates and add village offset to get world coordinates
+        float pixelX = npcX * 60f; // Local village pixel coordinates
+        float pixelY = npcY * 60f;
+
+        // Add village offset to get global world coordinates
+        float worldX = (GameMap.VILLAGE_X * 60f) + pixelX; // 4680 + pixelX
+        float worldY = (GameMap.VILLAGE_Y * 60f) + pixelY; // 0 + pixelY
+
+        npc.setPosX(worldX);
+        npc.setPosY(worldY);
+
+        // Ensure NPC is in proper idle state (not moving, idle animation)
+        npc.forceIdleState();
+
+        System.out.println("NPC " + npcName + " positioned at local (" + npcX + ", " + npcY + ") -> world (" + worldX + ", " + worldY + ")");
+
+        // Set description from enum
+        npc.setDescription(npcEnum.getDescription());
+
+        // Add favorite items from enum
+        for (String itemName : npcEnum.getFavoriteItems()) {
+            // TODO: Convert string item names to actual Item objects
+            // For now, we'll just use the string names
+        }
+
+        // Add to residents list
+        residents.add(npc);
+
+        System.out.println("Village.createNPCFromEnum(): Positioned " + npcName + " at (" + npcX + ", " + npcY + ")");
+    }
+
     private void setNPCDescription(NPC npc, String npcName) {
         switch (npcName) {
             case "Abigail":
@@ -757,9 +864,9 @@ public class Village {
         return buildings;
     }
 
-//    public List<NPC> getResidents() {
-//        //...
-//    }
+    public List<NPC> getResidents() {
+        return residents;
+    }
 //
 //    public List<Shop> getShops() {
 //        //...

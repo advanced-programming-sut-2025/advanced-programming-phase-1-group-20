@@ -188,10 +188,17 @@ public class Plant extends Item {
 
     @Override
     public String getImageFilepath() {
+        if(isGiant){
+            return "content/Plants/Giant_" + type.getImageFilePath() + ".png";
+        }
         return "content/Plants/" + type.getImageFilePath() + ".png";
     }
 
     public boolean isOneTimeHarvest() {
         return type.isOneTimeHarvest();
+    }
+
+    public PlantType getType() {
+        return type;
     }
 }

@@ -672,7 +672,6 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
             } else if (messageText.contains("Game starting")) {
                 String gameSessionId = message.getFromBody("gameSessionId");
                 view.onGameStarting(gameSessionId);
-                // Navigate to multiplayer game
                 navigateToMultiplayerGame(gameSessionId);
             }
 

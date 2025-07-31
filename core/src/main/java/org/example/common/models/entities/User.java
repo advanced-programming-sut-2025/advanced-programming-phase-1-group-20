@@ -26,6 +26,8 @@ public class User implements Serializable {
     private List<Item> inventory;
     private String jwtToken;
     private long tokenExpirationTime;
+    private String refreshToken;
+    private long refreshTokenExpirationTime;
 
     public User(String username, String password, String email, String nickname, Gender gender) {
         this.username = username;
@@ -182,7 +184,27 @@ public class User implements Serializable {
     }
 
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public long getRefreshTokenExpirationTime() {
+        return refreshTokenExpirationTime;
+    }
+
+    public void setRefreshTokenExpirationTime(long refreshTokenExpirationTime) {
+        this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+    }
+
     public boolean isTokenValid() {
         return jwtToken != null && tokenExpirationTime > System.currentTimeMillis();
+    }
+
+    public boolean isRefreshTokenValid() {
+        return refreshToken != null && refreshTokenExpirationTime > System.currentTimeMillis();
     }
 }

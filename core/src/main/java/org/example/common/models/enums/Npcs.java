@@ -82,6 +82,17 @@ public enum Npcs {
             "The owner of the local general store who is always looking to make a profit. " +
                     "He's constantly worried about competition from the big chain stores and will do anything to increase his sales. " +
                     "He charges premium prices for 'locally sourced' goods and is known to haggle aggressively when buying from local farmers."
+    ),
+
+    JOJO(
+            "Jojo",
+            Charactristic.HARD_WORKING,
+            Jobs.SELLER,
+            new Location(40, 20, TileType.VILLAGE),
+            Arrays.asList("Parsnip", "Potato", "Cauliflower"),
+            "A hardworking merchant who runs a shop in the village. He's always looking for good deals and quality produce. " +
+                    "He takes pride in offering competitive prices and excellent customer service. " +
+                    "Jojo believes in supporting local farmers and building strong community relationships through fair trade."
     );
 
 

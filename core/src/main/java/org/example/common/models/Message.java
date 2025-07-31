@@ -96,6 +96,11 @@ public class Message {
         TALK_TO_NPC,
         TALK_TO_PLAYER,
         
+        // Friends and Gifts
+        SEND_GIFT,
+        GIFT_RECEIVED,
+        GIFT_NOTIFICATION,
+        
         // Inventory and items
         INVENTORY_UPDATE,
         ITEM_DROP,

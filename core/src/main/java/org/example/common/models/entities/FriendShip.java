@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Friendship {
+public class FriendShip {
     // Friendship levels
     public static final int LEVEL_0 = 0; // Initial level can talk and trade
     public static final int LEVEL_1 = 1; // Can gift
@@ -44,7 +44,7 @@ public class Friendship {
     private boolean energyBoostedToday = false;
     private Map<Long, int[]> lastInteractionDates = new HashMap<>();
 
-    public Friendship(Player player1, Player player2) {
+    public FriendShip(Player player1, Player player2) {
         this.player1 = player1;
         this.player2 = player2;
         this.level = LEVEL_0;
@@ -56,7 +56,7 @@ public class Friendship {
         this.married = false;
     }
 
-    public Friendship() {
+    public FriendShip() {
 
     }
 

@@ -509,6 +509,11 @@ public class GameMenuController implements Controller {
         return Result.success("energy unlimited");
     }
 
+    public Result energyLimited() {
+        App.getGame().getCurrentPlayer().setEnergyLimited();
+        return Result.success("energy limited");
+    }
+
     private Result sellProduct(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
@@ -1051,14 +1056,14 @@ public class GameMenuController implements Controller {
         StringBuilder result = new StringBuilder();
         result.append("friendships status:\n");
 
-        Map<Player, Friendship> friendships = player.getAllFriendships();
+        Map<Player, FriendShip> friendships = player.getAllFriendships();
 
         if (friendships.isEmpty()) {
             result.append("You have no friendships yet.");
         } else {
-            for (Map.Entry<Player, Friendship> entry : friendships.entrySet()) {
+            for (Map.Entry<Player, FriendShip> entry : friendships.entrySet()) {
                 Player friend = entry.getKey();
-                Friendship friendship = entry.getValue();
+                FriendShip friendship = entry.getValue();
 
                 result.append("- ").append(friend.getUser().getUsername())
                     .append(": Level ").append(friendship.getLevel())
@@ -1095,7 +1100,7 @@ public class GameMenuController implements Controller {
         }
 
         // Get or create friendship
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -1110,7 +1115,7 @@ public class GameMenuController implements Controller {
             }
         }
 
-        return Result.success("Message sent to " + username + ". Friendship increased by " + Friendship.XP_TALK + " XP.");
+        return Result.success("Message sent to " + username + ". Friendship increased by " + FriendShip.XP_TALK + " XP.");
     }
 
     private Result talkHistory(String[] args) {
@@ -1130,7 +1135,7 @@ public class GameMenuController implements Controller {
             return Result.error("Player with username " + username + " not found.");
         }
 
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -1202,7 +1207,7 @@ public class GameMenuController implements Controller {
     public Result giftList() {
         Player currentPlayer = App.getGame().getCurrentPlayer();
         StringBuilder result = new StringBuilder();
-        for (Friendship friendShip : currentPlayer.getAllFriendships().values()) {
+        for (FriendShip friendShip : currentPlayer.getAllFriendships().values()) {
             result.append("gift history with: ").append(friendShip.getTheOtherPlayer(currentPlayer).getUser().getUsername()).append("\n");
             friendShip.getGiftHistory().forEach(gift -> result.append("~Gift Name: ").append(gift).append("\n").append("~Amount: ").append(gift.getAmount()).append("\n"));
         }
@@ -1222,7 +1227,7 @@ public class GameMenuController implements Controller {
 
         // Find the gift in the player's gift history
         boolean ratedAny = false;
-        for (Friendship friendship : currentPlayer.getAllFriendships().values()) {
+        for (FriendShip friendship : currentPlayer.getAllFriendships().values()) {
             if (friendship.rateGift(giftIndex - 1, rating)) {
                 ratedAny = true;
                 int xpChange = 15 + 30 * (rating - 3);
@@ -1241,7 +1246,7 @@ public class GameMenuController implements Controller {
     public Result giftHistory(String[] args) {
         String username = args[0];
         Player player = App.getGame().getPlayer(App.getUser(username));
-        Friendship friendship = App.getGame().getCurrentPlayer().getFriendship(player);
+        FriendShip friendship = App.getGame().getCurrentPlayer().getFriendship(player);
         return Result.success(friendship.getGiftHistory().toString());
     }
 
@@ -1268,7 +1273,7 @@ public class GameMenuController implements Controller {
         }
 
         // Check friendship level
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -1313,7 +1318,7 @@ public class GameMenuController implements Controller {
             return Result.error("You don't have a flower to give.");
         }
 
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -1357,7 +1362,7 @@ public class GameMenuController implements Controller {
             return Result.error("You don't have a " + ringName + " to propose with.");
         }
 
-        Friendship friendship = currentPlayer.getFriendship(targetPlayer);
+        FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -1405,7 +1410,7 @@ public class GameMenuController implements Controller {
         }
 
         // Check friendship level
-        Friendship friendship = currentPlayer.getFriendship(proposer);
+        FriendShip friendship = currentPlayer.getFriendship(proposer);
         if (friendship == null) {
             return Result.error("Friendship with " + username + " not found.");
         }
@@ -2124,7 +2129,7 @@ public class GameMenuController implements Controller {
         String name = args[0];
         Player player = App.getGame().getCurrentPlayer();
         Player player2 = App.getGame().getPlayer(App.getUser(name));
-        Friendship friendship = player.getFriendship(player2);
+        FriendShip friendship = player.getFriendship(player2);
         return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
     }
 
@@ -2134,7 +2139,7 @@ public class GameMenuController implements Controller {
         int level = Integer.parseInt(amount);
         Player player = App.getGame().getCurrentPlayer();
         Player player2 = App.getGame().getPlayer(App.getUser(name));
-        Friendship friendship = player.getFriendship(player2);
+        FriendShip friendship = player.getFriendship(player2);
         friendship.increaseFriendShipLevel(level);
         return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
     }
@@ -2146,7 +2151,7 @@ public class GameMenuController implements Controller {
         int level = Integer.parseInt(amount);
         Player player = App.getGame().getCurrentPlayer();
         Player player2 = App.getGame().getPlayer(App.getUser(name));
-        Friendship friendship = player.getFriendship(player2);
+        FriendShip friendship = player.getFriendship(player2);
         friendship.increaseXp(level);
         return Result.success("Friendship Level: " + friendship.getLevel() + "Friendship XP: " + friendship.getXp());
     }
@@ -2196,6 +2201,22 @@ public class GameMenuController implements Controller {
 
     public PlayerController getPlayerController() {
         return playerController;
+    }
+
+    public WorldController getWorldController() {
+        return worldController;
+    }
+
+    public void updatePlayer() {
+        System.out.println("DEBUG: GameMenuController.updatePlayer called");
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        System.out.println("DEBUG: Current player from App.getGame(): " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Current GameMenuController player: " + (this.player != null ? this.player.getUser().getUsername() : "null"));
+
+        if (currentPlayer != null) {
+            this.player = currentPlayer;
+            System.out.println("GameMenuController player updated to: " + currentPlayer.getUser().getUsername());
+        }
     }
 
     public Result selectFarm(String[] args) {

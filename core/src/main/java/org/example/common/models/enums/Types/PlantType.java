@@ -41,10 +41,10 @@ public enum PlantType {
     Eggplant("Eggplant", "Eggplant Seeds", new int[]{1, 1, 1, 1}, 5, false, 5, 60, true, 20, new Seasons[]{Seasons.AUTUMN}, false, "Eggplant") ,
     FairyRose("Fairy Rose", "Fairy Seeds", new int[]{1, 4, 4, 3}, 12, true, 0, 290, true, 45, new Seasons[]{Seasons.AUTUMN}, false, "Fairy_Rose") ,
     Grape("Grape", "Grape Starter", new int[]{1, 1, 2, 3, 3}, 10, false, 3, 80, true, 38, new Seasons[]{Seasons.AUTUMN}, false, "Grape") ,
-    Pumpkin("Pumpkin", "Pumpkin Seeds", new int[]{1, 2, 3, 4, 3}, 13, true, 0, 320, false, 0, new Seasons[]{Seasons.AUTUMN}, true, "Pumpkin") ,
+    Pumpkin("Pumpkin", "Pumpkin Seeds", new int[]{1, 2, 3, 4, 3}, 13, true, 0, 320, false, 0, new Seasons[]{Seasons.AUTUMN}, false, "Pumpkin") ,
     Yam("Yam", "Yam Seeds", new int[]{1, 3, 3, 3}, 10, true, 0, 160, true, 45, new Seasons[]{Seasons.AUTUMN}, false, "Yam") ,
     SweetGemBerry("Sweet Gem Berry", "Rare Seed", new int[]{2, 4, 6, 6, 6}, 24, true, 0, 3000, false, 0, new Seasons[]{Seasons.AUTUMN}, false, "Sweet_Gem_Berry") ,
-    Powdermelon("Powdermelon", "Powdermelon Seeds", new int[]{1, 2, 1, 2, 1}, 7, true, 0, 60, true, 63, new Seasons[]{Seasons.WINTER}, false, "Powdermelon") ,
+    Powdermelon("Powdermelon", "Powdermelon Seeds", new int[]{1, 2, 1, 2, 1}, 7, true, 0, 60, true, 63, new Seasons[]{Seasons.WINTER}, true, "Powdermelon") ,
     AncientFruit("Ancient Fruit", "Ancient Seeds", new int[]{2, 7, 7, 7, 5}, 28, false, 7, 550, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN}, false, "Ancient_Fruit") ,
     ;
     private final String name;

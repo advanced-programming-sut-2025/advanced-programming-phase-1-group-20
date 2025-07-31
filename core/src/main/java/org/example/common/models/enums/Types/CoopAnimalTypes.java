@@ -111,4 +111,13 @@ public enum CoopAnimalTypes {
     public String getDescription() {
         return description;
     }
+
+    public static CoopAnimalTypes fromName(String name) {
+        for (CoopAnimalTypes type : CoopAnimalTypes.values()) {
+            if (type.getName().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

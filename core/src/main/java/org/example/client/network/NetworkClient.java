@@ -90,9 +90,14 @@ public class NetworkClient {
             String wsUri = "ws://" + serverHost + ":" + serverPort + "/ws/game";
             System.out.println("Attempting WebSocket connection to: " + wsUri);
 
-            // Use Java 11+ WebSocket client
+            System.out.println("Creating HTTP client...");
             java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
             webSocketBuilder = httpClient.newWebSocketBuilder();
+            System.out.println("WebSocket builder created successfully");
+
+            // Add WebSocket headers for better compatibility
+            webSocketBuilder.header("User-Agent", "StardewValley-Client/1.0");
+            System.out.println("WebSocket headers configured");
 
             // Create WebSocket listener
             java.net.http.WebSocket.Listener listener = new java.net.http.WebSocket.Listener() {
@@ -117,13 +122,13 @@ public class NetworkClient {
 
                         // Try to parse the JSON message
                         Message message = gson.fromJson(messageText, Message.class);
-                        
+
                         // Validate the parsed message
                         if (message == null) {
                             System.err.println("Failed to parse message: result is null");
                             return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
                         }
-                        
+
                         if (message.getType() == null) {
                             System.err.println("Failed to parse message: message type is null");
                             return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
@@ -170,9 +175,10 @@ public class NetworkClient {
                 }
             };
 
-            // Connect to WebSocket
+            // Connect to WebSocket with longer timeout
+            System.out.println("Building WebSocket connection...");
             webSocket = webSocketBuilder.buildAsync(URI.create(wsUri), listener)
-                .get(5, java.util.concurrent.TimeUnit.SECONDS);
+                .get(10, java.util.concurrent.TimeUnit.SECONDS);
 
             // Start network thread for processing outgoing messages
             startNetworkThread();
@@ -181,7 +187,7 @@ public class NetworkClient {
             return true;
 
         } catch (java.util.concurrent.TimeoutException e) {
-            String errorMessage = "Connection timeout: Server did not respond within 5 seconds";
+            String errorMessage = "Connection timeout: Server did not respond within 10 seconds";
             System.err.println(errorMessage);
             setLastErrorMessage(errorMessage);
             connectionState = ConnectionState.ERROR;

@@ -396,9 +396,28 @@ public class AssetManager {
         loadTexture("coop", "content/buildings/Coop.png");
         loadTexture("house", "content/buildings/house.png");
 
+        // Additional barn and coop textures
+        loadTexture("big_barn", "content/Buildings/Big Barn.png");
+        loadTexture("deluxe_barn", "content/Buildings/Deluxe Barn.png");
+        loadTexture("big_coop", "content/Buildings/Big Coop.png");
+        loadTexture("deluxe_coop", "content/Buildings/Deluxe Coop.png");
+
         // Greenhouse textures
         loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
+
+        // Market textures for village
+        loadTexture("blacksmith", "content/map_elements/Blacksmith.png");
+        loadTexture("joja_mart", "content/map_elements/Jojamart.png");
+        loadTexture("pierre_store", "content/map_elements/Pierres_shop.png");
+        loadTexture("carpenters_shop", "content/map_elements/Carpenter's_Shop.png");
+        loadTexture("fish_shop", "content/map_elements/Fish_Shop.png");
+        loadTexture("marnie_shop", "content/map_elements/Ranch.png");
+        loadTexture("stardrop_saloon", "content/map_elements/Saloon.png");
+
+        // Village building textures
+        loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
+        loadTexture("npc_house", "content/map_elements/npc_house1.png"); // Default NPC house texture
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
         preloadTrees();
@@ -481,15 +500,29 @@ public class AssetManager {
             case "constructed_greenhouse":
                 return getTileTexture("grass_" + season.toLowerCase()); // Buildings are rendered separately
             case "village":
+                return getTileTexture("grass_" + season.toLowerCase()); // Village tiles use grass
             case "market":
+                return getTileTexture("grass_" + season.toLowerCase()); // Markets are rendered separately
             case "blacksmith":
+                return getTileTexture("blacksmith");
             case "jojamart":
+            case "joja_mart":
+                return getTileTexture("joja_mart");
             case "pierre_general_store":
+            case "pierre_store":
+                return getTileTexture("pierre_store");
             case "carpenters_shop":
+                return getTileTexture("carpenters_shop");
             case "fish_shop":
+                return getTileTexture("fish_shop");
             case "marnie_shop":
+                return getTileTexture("marnie_shop");
             case "stardrop_saloon":
-                return getTileTexture("path"); // Use path texture for village buildings
+                return getTileTexture("stardrop_saloon");
+            case "gold_clock":
+                return getTileTexture("gold_clock");
+            case "npc_house":
+                return getTileTexture("npc_house");
             case "sand":
                 return getTileTexture("grass_" + season.toLowerCase()); // Use grass as fallback for sand
             default:

@@ -296,6 +296,9 @@ public enum Markets {
         Item rice = new Item("Rice", 200, "content/Crops/Rice.png" , "A basic grain often served under vegetables.");
         items.add(new Product(rice, Double.POSITIVE_INFINITY));
 
+        Item bouquet = new Item("Bouquet" , 100 , "content/Bouquet.png" , "is a carefully arranged and often tied bundle of flowers");
+        items.add(new Product(bouquet, 2.0));
+
         Item wheatFlour = new Item("Wheat Flour", 100, "content/Farming/Wheat_Flour.png" , "A common cooking ingredient made from crushed wheat seeds.");
         items.add(new Product(wheatFlour, Double.POSITIVE_INFINITY));
 

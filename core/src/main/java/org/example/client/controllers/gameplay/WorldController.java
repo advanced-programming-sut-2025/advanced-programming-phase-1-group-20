@@ -138,12 +138,12 @@ public class WorldController {
 
         // Markets textures
         loadTexture("blacksmith", "content/map_elements/Blacksmith.png");
-        loadTexture("jojamart", "content/map_elements/Jojamart.png");
-        loadTexture("pierre" , "content/map_elements/Pierres_shop.png");
-        loadTexture("carpenters" , "content/map_elements/Carpenter's_Shop.png");
-        loadTexture("fishshop" , "content/map_elements/Fish_Shop.png");
-        loadTexture("marnieshop" , "content/map_elements/Ranch.png");
-        loadTexture("stardropsaloon" , "content/map_elements/Saloon.png");
+        loadTexture("joja_mart", "content/map_elements/Jojamart.png");
+        loadTexture("pierre_store" , "content/map_elements/Pierres_shop.png");
+        loadTexture("carpenters_shop" , "content/map_elements/Carpenter's_Shop.png");
+        loadTexture("fish_shop" , "content/map_elements/Fish_Shop.png");
+        loadTexture("marnie_shop" , "content/map_elements/Ranch.png");
+        loadTexture("stardrop_saloon" , "content/map_elements/Saloon.png");
 
         // Clock texture
         loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
@@ -155,6 +155,7 @@ public class WorldController {
         preloadPlants();
         preloadTrees();
         preloadCrops();
+        preloadMinerals();
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -200,6 +201,11 @@ public class WorldController {
                 String plantPath = "content/Plants/" + plantType.getImageFilePath() + "_" + "Stage_" + i + ".png";
                 loadTexture(key, plantPath);
             }
+            if(plantType.isGiantable()){
+                String giantKey = plantType.getImageFilePath() + "_Giant";
+                String giantPath = "content/Plants/Giant_" + plantType.getImageFilePath() + ".png";
+                loadTexture(giantKey , giantPath);
+            }
         }
     }
 
@@ -218,6 +224,14 @@ public class WorldController {
             String key = cropType.getImageFilePath();
             String cropPath = "content/Crops/" + cropType.getImageFilePath() + ".png";
             loadTexture(key, cropPath);
+        }
+    }
+
+    public void preloadMinerals(){
+        for(MineralType mineralType : MineralType.values()) {
+            String key = mineralType.getImageFilepath();
+            String mineralPath = "content/Minerals/" + key + "_Ore.png";
+            loadTexture(key , mineralPath);
         }
     }
 
@@ -456,10 +470,10 @@ public class WorldController {
             renderTreeItem(worldX, worldY, season , tree);
         } else if (item instanceof Crop crop) {
             renderCropItem(worldX, worldY , crop);
-        } else if (item instanceof Plant) {
-            renderPlantItem(worldX, worldY);
-        } else if (item instanceof Mineral) {
-            renderMineralItem(worldX, worldY);
+        } else if (item instanceof Plant plant) {
+            renderPlantItem(worldX, worldY , plant);
+        } else if (item instanceof Mineral mineral) {
+            renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
         }
@@ -1009,7 +1023,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("jojamart");
+        Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1023,7 +1037,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("pierre");
+        Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1037,7 +1051,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("carpenters");
+        Texture texture = getTexture("carpenters_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1051,7 +1065,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("fishshop");
+        Texture texture = getTexture("fish_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1065,7 +1079,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("marnieshop");
+        Texture texture = getTexture("marnie_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1079,7 +1093,7 @@ public class WorldController {
         float drawX = x * TILE_SIZE;
         float drawY = y * TILE_SIZE;
 
-        Texture texture = getTexture("stardropsaloon");
+        Texture texture = getTexture("stardrop_saloon");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1108,7 +1122,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("jojamart");
+        Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1122,7 +1136,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("pierre");
+        Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1136,7 +1150,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("carpenters");
+        Texture texture = getTexture("carpenters_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1150,7 +1164,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("fishshop");
+        Texture texture = getTexture("fish_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1164,7 +1178,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("marnieshop");
+        Texture texture = getTexture("marnie_shop");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1178,7 +1192,7 @@ public class WorldController {
         float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
         float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
 
-        Texture texture = getTexture("stardropsaloon");
+        Texture texture = getTexture("stardrop_saloon");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
                 , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
@@ -1199,10 +1213,10 @@ public class WorldController {
             renderTreeItem(worldX, worldY, season , tree);
         } else if (item instanceof Crop crop) {
             renderCropItem(worldX, worldY , crop);
-        } else if (item instanceof Plant) {
-            renderPlantItem(worldX, worldY);
-        } else if (item instanceof Mineral) {
-            renderMineralItem(worldX, worldY);
+        } else if (item instanceof Plant plant) {
+            renderPlantItem(worldX, worldY , plant);
+        } else if (item instanceof Mineral mineral) {
+            renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
         }
@@ -1229,15 +1243,22 @@ public class WorldController {
         }
     }
 
-    private void renderPlantItem(float worldX, float worldY) {
-        Texture plantTexture = getTexture("crop");
+    private void renderPlantItem(float worldX, float worldY , Plant plant) {
+        String key;
+        if(plant.getIsGiant()){
+            key = plant.getImageFilepath() + "_Giant";
+        }else{
+            key = plant.getImageFilepath() + "_" + plant.getStage() + ".png";
+        }
+        Texture plantTexture = getTexture(key);
         if (plantTexture != null) {
             Main.getBatch().draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
     }
 
-    private void renderMineralItem(float worldX, float worldY) {
-        Texture mineralTexture = getTexture("stone");
+    private void renderMineralItem(float worldX, float worldY , Mineral mineral) {
+        String key = mineral.getImageFilepath();
+        Texture mineralTexture = getTexture(key);
         if (mineralTexture != null) {
             Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
@@ -1282,6 +1303,13 @@ public class WorldController {
             // 3. Convert the screen coordinates to your game's world coordinates.
             // This is a crucial step!
             camera.unproject(touchPoint);
+
+            // Check if click was on another player
+            Player clickedPlayer = checkPlayerClick(touchPoint);
+            if (clickedPlayer != null && !clickedPlayer.equals(playerController.getPlayer())) {
+                showFriendInteractionWindow(clickedPlayer);
+                return;
+            }
 
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
@@ -1378,5 +1406,105 @@ public class WorldController {
 
     public Map<String, Texture> getTextureCache() {
         return textureCache;
+    }
+
+    /**
+     * Update the PlayerController to follow the current player
+     * This should be called when the turn advances
+     */
+    public void updatePlayerController() {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null && playerController != null) {
+            // Create a new PlayerController for the current player
+            Farm currentFarm = App.getGame().getGameMap().getFarmByPlayer(currentPlayer);
+            if (currentFarm != null) {
+                // Update the farm reference to the current player's farm
+                this.farm = currentFarm;
+
+                // Create new PlayerController for the current player
+                playerController = new PlayerController(currentPlayer, currentFarm, skin);
+                System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
+                System.out.println("Farm updated to: " + currentFarm.getName());
+
+                // Force camera to update to the new player's position
+                float playerX = currentPlayer.getPosX();
+                float playerY = currentPlayer.getPosY();
+
+                float mapWidth, mapHeight;
+                float mapOffsetX, mapOffsetY;
+
+                if (currentPlayer.getIsInVillage()) {
+                    // For village, use global village bounds
+                    mapWidth = Village.width * TILE_SIZE;
+                    mapHeight = Village.height * TILE_SIZE;
+                    mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
+                    mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
+                } else {
+                    // For farm, use farm bounds
+                    mapWidth = Farm.width * TILE_SIZE;
+                    mapHeight = Farm.height * TILE_SIZE;
+                    mapOffsetX = 0;
+                    mapOffsetY = 0;
+                }
+
+                float halfCameraViewWidth = camera.viewportWidth * camera.zoom / 2;
+                float halfCameraViewHeight = camera.viewportHeight * camera.zoom / 2;
+
+                float cameraX = playerX;
+                float minCameraX = mapOffsetX + halfCameraViewWidth;
+                float maxCameraX = mapOffsetX + mapWidth - halfCameraViewWidth;
+                cameraX = Math.max(minCameraX, Math.min(cameraX, maxCameraX));
+
+                float cameraY = playerY;
+                float minCameraY = mapOffsetY + halfCameraViewHeight;
+                float maxCameraY = mapOffsetY + mapHeight - halfCameraViewHeight;
+                cameraY = Math.max(minCameraY, Math.min(cameraY, maxCameraY));
+
+                camera.position.set(cameraX, cameraY, 0);
+                camera.update();
+
+                System.out.println("Camera updated to follow player at: " + playerX + ", " + playerY);
+            }
+        }
+    }
+
+    private Player checkPlayerClick(Vector3 touchPoint) {
+        Game game = App.getGame();
+        if (game == null || game.getPlayers() == null) {
+            return null;
+        }
+
+        for (Player player : game.getPlayers()) {
+            if (player != null && !player.equals(playerController.getPlayer())) {
+                // Check if click is within player bounds
+                float playerX = player.getPosX();
+                float playerY = player.getPosY();
+                float playerWidth = 48; // Player render width
+                float playerHeight = 96; // Player render height
+
+                if (touchPoint.x >= playerX && touchPoint.x <= playerX + playerWidth &&
+                    touchPoint.y >= playerY && touchPoint.y <= playerY + playerHeight) {
+                    return player;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void showFriendInteractionWindow(Player targetPlayer) {
+        System.out.println("🤝 Opening friend interaction window for " + targetPlayer.getUser().getUsername());
+        try {
+            org.example.client.views.FriendInteractionWindow interactionWindow =
+                new org.example.client.views.FriendInteractionWindow(
+                    playerController.getPlayer(),
+                    targetPlayer,
+                    skin,
+                    controller.getView()
+                );
+            Main.getGame().setScreen(interactionWindow);
+        } catch (Exception e) {
+            System.err.println("Error opening friend interaction window: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

@@ -9,9 +9,13 @@ import org.example.common.models.common.Result;
 import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
+import org.example.utils.auth.RefreshTokenUtils;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
 import org.example.client.views.menu.WelcomeMenuScreen;
+import org.example.client.controllers.WelcomeMenuController;
+import org.example.client.Main;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -201,9 +205,9 @@ public class LoginRegisterMenuController implements Controller {
         String username = args[0];
         String password = args[1];
         String stayLoggedInStr = args[2];
-        boolean stayLoggedIn = true;
-        if (stayLoggedInStr == null || stayLoggedInStr.isEmpty()) {
-            stayLoggedIn = false;
+        boolean stayLoggedIn = false;
+        if (stayLoggedInStr != null && !stayLoggedInStr.isEmpty()) {
+            stayLoggedIn = Boolean.parseBoolean(stayLoggedInStr);
         }
 
         User user = App.getUser(username);
@@ -216,34 +220,44 @@ public class LoginRegisterMenuController implements Controller {
             return Result.error("wrong password");
         }
 
-        // Generate JWT token for the user
-        String token = JWTUtils.generateToken(username);
+        // Always generate JWT access token for the session
+        String accessToken = JWTUtils.generateToken(username);
+        long accessTokenExpiration = JWTUtils.extractExpirationTime(accessToken);
 
-        // Extract expiration time from token using the utility method
-        long expirationTime = JWTUtils.extractExpirationTime(token);
-
-        if (expirationTime == 0) {
+        if (accessTokenExpiration == 0) {
             return Result.error("failed to generate valid authentication token");
         }
 
-        // Store token and expiration time in user object
-        user.setJwtToken(token);
-        user.setTokenExpirationTime(expirationTime);
+        // Store access token and expiration time in user object
+        user.setJwtToken(accessToken);
+        user.setTokenExpirationTime(accessTokenExpiration);
 
+        // Set stay logged in preference
         user.setStayLoggedIn(stayLoggedIn);
-        App.setLoggedInUser(user);
 
+        // Handle refresh token for "stay logged in" functionality
         if (stayLoggedIn) {
-            AutoLoginUtil.saveAutoLogin(username);
+            // Generate and save refresh token for auto-login
+            String refreshToken = RefreshTokenUtils.generateRefreshToken(username);
+            if (refreshToken != null) {
+                user.setRefreshToken(refreshToken);
+                user.setRefreshTokenExpirationTime(RefreshTokenUtils.extractRefreshTokenExpiration(refreshToken));
+                AutoLoginUtil.saveAutoLogin(username);
+            }
         } else {
+            // Clear any existing refresh token
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpirationTime(0);
             AutoLoginUtil.clearAutoLogin();
         }
+
+        App.setLoggedInUser(user);
 
         App.saveData();
 
         // Calculate time until token expiration for user feedback
         long currentTime = System.currentTimeMillis();
-        long timeUntilExpiration = expirationTime - currentTime;
+        long timeUntilExpiration = accessTokenExpiration - currentTime;
         long hoursUntilExpiration = timeUntilExpiration / (60 * 60 * 1000);
 
         return Result.success("logged in successfully. Your session will expire in " + hoursUntilExpiration + " hours.");

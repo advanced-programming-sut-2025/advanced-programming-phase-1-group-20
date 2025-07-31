@@ -100,4 +100,13 @@ public enum BarnAnimalTypes {
     public String getDescription() {
         return description;
     }
+
+    public static BarnAnimalTypes fromName(String name) {
+        for (BarnAnimalTypes type : BarnAnimalTypes.values()) {
+            if (type.getName().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
 }

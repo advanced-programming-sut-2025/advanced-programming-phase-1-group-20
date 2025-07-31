@@ -33,6 +33,7 @@ public abstract class Notification extends NetworkEvent {
         PLAYER_JOINED,
         PLAYER_LEFT,
         TRADE_REQUEST,
-        SYSTEM_MESSAGE
+        SYSTEM_MESSAGE,
+        GIFT_RECEIVED
     }
 } 
