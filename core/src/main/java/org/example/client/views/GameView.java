@@ -154,47 +154,77 @@ public class GameView implements Screen, InputProcessor {
     // private FishCatchDisplay fishCatchDisplay;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
-        this.controller = controller;
-        this.player = player;
-        this.game = game;
-        this.skin = skin;
-        this.user = user;
-        this.gameTime = 0;
-        this.lightingUpdateTimer = 0;
+        try {
+            System.out.println("DEBUG: GameView constructor started");
+            System.out.println("DEBUG: Player: " + (player != null ? player.getUser().getUsername() : "null"));
+            System.out.println("DEBUG: Player's farm: " + (player != null && player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
+            System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
+            System.out.println("DEBUG: Skin: " + (skin != null ? "not null" : "null"));
+            System.out.println("DEBUG: User: " + (user != null ? user.getUsername() : "null"));
+            
+            this.controller = controller;
+            this.player = player;
+            this.game = game;
+            this.skin = skin;
+            this.user = user;
+            this.gameTime = 0;
+            this.lightingUpdateTimer = 0;
 
-        // Initialize camera first
-        camera = new OrthographicCamera(120, 120);
-        camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            // Initialize camera first
+            System.out.println("DEBUG: Initializing camera...");
+            camera = new OrthographicCamera(120, 120);
+            camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // Initialize lighting system
-        initializeLighting();
+            // Initialize lighting system
+            System.out.println("DEBUG: Initializing lighting system...");
+            initializeLighting();
 
-        // Initialize rain system - NEW
-        climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
+            // Initialize rain system - NEW
+            System.out.println("DEBUG: Initializing climate system...");
+            climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
 
-        // Initialize lightning system - NEW
-        lightningSystem = new LightningSystem(camera);
+            // Initialize lightning system - NEW
+            System.out.println("DEBUG: Initializing lightning system...");
+            lightningSystem = new LightningSystem(camera);
 
-        // Initialize lighting overlay texture
-        createLightingOverlayTexture();
+            // Initialize lighting overlay texture
+            System.out.println("DEBUG: Creating lighting overlay texture...");
+            createLightingOverlayTexture();
 
-        // Initialize terminal window for cheat commands
-        terminalWindow = new TerminalWindow(controller);
-        
-        // Initialize friends system
-        initializeFriendsButton();
+            // Initialize terminal window for cheat commands
+            System.out.println("DEBUG: Initializing terminal window...");
+            terminalWindow = new TerminalWindow(controller);
+            
+            // Initialize friends system
+            System.out.println("DEBUG: Initializing friends button...");
+            initializeFriendsButton();
 
-        // Initialize NPC sprite controller
-        npcSpriteController = new NPCSpriteController();
+            // Initialize NPC sprite controller
+            System.out.println("DEBUG: Initializing NPC sprite controller...");
+            npcSpriteController = new NPCSpriteController();
 
-        loadCustomFont();
-        initializeLabels();
-        initializeClock();
-        createEnergyBar();
-        updateWeatherAndSeasonDisplays();
+            System.out.println("DEBUG: Loading custom font...");
+            loadCustomFont();
+            System.out.println("DEBUG: Initializing labels...");
+            initializeLabels();
+            System.out.println("DEBUG: Initializing clock...");
+            initializeClock();
+            System.out.println("DEBUG: Creating energy bar...");
+            createEnergyBar();
+            System.out.println("DEBUG: Updating weather and season displays...");
+            updateWeatherAndSeasonDisplays();
 
-        initializeTables();
-        controller.setView(this);
+            System.out.println("DEBUG: Initializing tables...");
+            initializeTables();
+            System.out.println("DEBUG: Setting view in controller...");
+            controller.setView(this);
+            
+            System.out.println("DEBUG: GameView constructor completed successfully");
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to initialize GameView: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to prevent silent failures
+        }
     }
 
     private void initializeLighting() {

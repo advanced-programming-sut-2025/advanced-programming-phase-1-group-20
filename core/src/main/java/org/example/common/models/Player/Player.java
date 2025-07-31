@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import com.badlogic.gdx.Gdx;
 
 public class Player {
     private List<Skill> skills;
@@ -154,6 +155,10 @@ public class Player {
     }
 
     public void setCurrentFarm(Farm currentFarm) {
+        System.out.println("DEBUG: setCurrentFarm called for player: " + (user != null ? user.getUsername() : "null"));
+        System.out.println("DEBUG: Farm: " + (currentFarm != null ? currentFarm.getName() : "null"));
+        System.out.println("DEBUG: Farm index: " + (currentFarm != null ? currentFarm.getFarmIndex() : "null"));
+        
         this.currentFarm = currentFarm;
 
         // Check if we're in a server environment (Gdx.files is null on server)
@@ -167,15 +172,34 @@ public class Player {
             isServerEnvironment = true;
         }
 
+        System.out.println("DEBUG: Is server environment: " + isServerEnvironment);
+
         if (!isServerEnvironment) {
             // Only create textures on client side
-            this.textureSheet = switch (currentFarm.getFarmIndex()) {
-                case 0 -> new Texture("sprites/Alex.png");
-                case 1 -> new Texture("sprites/Birdie.png");
-                case 2 -> new Texture("sprites/Gus.png");
-                case 3 -> new Texture("sprites/Leah.png");
-                default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
-            };
+            System.out.println("DEBUG: Creating texture sheet for farm index: " + currentFarm.getFarmIndex());
+            try {
+                this.textureSheet = switch (currentFarm.getFarmIndex()) {
+                    case 0 -> new Texture(Gdx.files.internal("sprites/Alex.png"));
+                    case 1 -> new Texture(Gdx.files.internal("sprites/Birdie.png"));
+                    case 2 -> new Texture(Gdx.files.internal("sprites/Gus.png"));
+                    case 3 -> new Texture(Gdx.files.internal("sprites/Leah.png"));
+                    default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
+                };
+                System.out.println("DEBUG: Successfully created texture sheet");
+            } catch (Exception e) {
+                System.err.println("ERROR: Failed to create texture sheet: " + e.getMessage());
+                e.printStackTrace();
+                // Try to use a fallback texture
+                try {
+                    this.textureSheet = new Texture(Gdx.files.internal("sprites/Alex.png"));
+                    System.out.println("DEBUG: Using fallback texture sheet");
+                } catch (Exception fallbackException) {
+                    System.err.println("ERROR: Failed to load fallback texture: " + fallbackException.getMessage());
+                    this.textureSheet = null;
+                }
+            }
+        } else {
+            System.out.println("DEBUG: Server environment - texture sheet remains null");
         }
         // On server side, textureSheet remains null
     }
@@ -859,9 +883,6 @@ public class Player {
         }
     }
 
-    /**
-     * Walk to farm from village
-     */
     public boolean walkToFarm(int farmIndex) {
         if (!canWalkToFarm(farmIndex)) {
             System.out.println("You need to be near the village exit to walk to the farm.");

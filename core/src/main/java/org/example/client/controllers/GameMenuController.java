@@ -42,8 +42,22 @@ public class GameMenuController implements Controller {
 
     public void setView(GameView view){
         this.view = view;
+        
+        // Ensure player has a current farm before creating PlayerController
+        if (player.getCurrentFarm() == null) {
+            System.err.println("ERROR: Player has no current farm when creating PlayerController");
+            System.err.println("Player: " + (player != null ? player.getUser().getUsername() : "null"));
+            throw new IllegalStateException("Player must have a current farm before creating PlayerController");
+        }
+        
+        System.out.println("DEBUG: Creating PlayerController for player: " + player.getUser().getUsername());
+        System.out.println("DEBUG: Player's farm: " + player.getCurrentFarm().getName());
         playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin());
+        System.out.println("DEBUG: PlayerController created successfully");
+        
+        System.out.println("DEBUG: Creating WorldController...");
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera() , view.getSkin() , this);
+        System.out.println("DEBUG: WorldController created successfully");
     }
 
     public GameView getView() {

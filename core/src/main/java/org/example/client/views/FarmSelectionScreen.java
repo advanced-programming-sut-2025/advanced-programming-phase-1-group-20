@@ -569,6 +569,35 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 allPlayers.add(currentPlayer);
             }
 
+            // Ensure current player has a farm assigned
+            if (currentPlayer.getCurrentFarm() == null) {
+                System.err.println("DEBUG: Current player has no farm assigned, creating default farm");
+                // Find an available farm index or use 0 as default
+                int defaultFarmIndex = 0;
+                if (playerSelections != null && !playerSelections.isEmpty()) {
+                    // Find the first available farm index
+                    for (int i = 0; i <= 3; i++) {
+                        boolean farmTaken = false;
+                        for (Integer selectedFarm : playerSelections.values()) {
+                            if (selectedFarm != null && selectedFarm == i) {
+                                farmTaken = true;
+                                break;
+                            }
+                        }
+                        if (!farmTaken) {
+                            defaultFarmIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // Create a default farm for the current player
+                Farm defaultFarm = new Farm(currentUser.getUsername() + "'s Farm", currentPlayer, defaultFarmIndex == 0, defaultFarmIndex);
+                currentPlayer.setCurrentFarm(defaultFarm);
+                gameMap.addFarm(defaultFarm);
+                System.out.println("DEBUG: Created default farm " + defaultFarmIndex + " for current player " + currentUser.getUsername());
+            }
+
             // Validate that current player has a farm
             if (currentPlayer.getCurrentFarm() == null) {
                 System.err.println("DEBUG: Current player has no farm assigned");
@@ -613,26 +642,42 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Create and set the game view
             System.out.println("DEBUG: Creating GameView...");
-            GameView gameView = new GameView(new GameMenuController(currentPlayer), currentPlayer, game,
+            System.out.println("DEBUG: About to create GameMenuController for player: " + currentPlayer.getUser().getUsername());
+            GameMenuController gameMenuController = new GameMenuController(currentPlayer);
+            System.out.println("DEBUG: GameMenuController created successfully");
+            
+            System.out.println("DEBUG: About to create GameView with:");
+            System.out.println("  - Controller: " + (gameMenuController != null ? "not null" : "null"));
+            System.out.println("  - Player: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+            System.out.println("  - Game: " + (game != null ? "not null" : "null"));
+            System.out.println("  - Skin: " + (AssetManager.getAssetManager().getSkin() != null ? "not null" : "null"));
+            System.out.println("  - User: " + (currentUser != null ? currentUser.getUsername() : "null"));
+            
+            GameView gameView = new GameView(gameMenuController, currentPlayer, game,
                 AssetManager.getAssetManager().getSkin(), currentUser);
             System.out.println("DEBUG: GameView created successfully");
 
             // Navigate to game - always use postRunnable to ensure it happens on the main thread
             System.out.println("DEBUG: Scheduling screen change on main thread...");
             Gdx.app.postRunnable(() -> {
-                System.out.println("DEBUG: Getting Main game instance on main thread...");
-                Main mainGame = Main.getGame();
-                if (mainGame != null) {
-                    System.out.println("DEBUG: Main game instance found, disposing current screen...");
-                    if (mainGame.getScreen() != null) {
-                        mainGame.getScreen().dispose();
+                try {
+                    System.out.println("DEBUG: Getting Main game instance on main thread...");
+                    Main mainGame = Main.getGame();
+                    if (mainGame != null) {
+                        System.out.println("DEBUG: Main game instance found, disposing current screen...");
+                        if (mainGame.getScreen() != null) {
+                            mainGame.getScreen().dispose();
+                        }
+                        System.out.println("DEBUG: Setting new screen to GameView...");
+                        mainGame.setScreen(gameView);
+                        System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
+                        System.out.println("DEBUG: Each player now has their own Player object and the same game state");
+                    } else {
+                        System.err.println("DEBUG: Main game instance is null on main thread!");
                     }
-                    System.out.println("DEBUG: Setting new screen to GameView...");
-                    mainGame.setScreen(gameView);
-                    System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
-                    System.out.println("DEBUG: Each player now has their own Player object and the same game state");
-                } else {
-                    System.err.println("DEBUG: Main game instance is null on main thread!");
+                } catch (Exception e) {
+                    System.err.println("ERROR: Failed to navigate to GameView on main thread: " + e.getMessage());
+                    e.printStackTrace();
                 }
             });
 
