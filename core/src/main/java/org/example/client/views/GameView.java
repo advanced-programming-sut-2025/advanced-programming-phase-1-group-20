@@ -108,12 +108,10 @@ public class GameView implements Screen, InputProcessor {
 
     // Terminal window for cheat commands
     private TerminalWindow terminalWindow;
-    
+
     // Friends system
     private TextButton friendsButton;
     private FriendsWindow friendsWindow;
-
-
 
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
@@ -144,7 +142,7 @@ public class GameView implements Screen, InputProcessor {
     private int lastKnownEnergy = -1;
     private static final int ENERGY_BAR_WIDTH = 120;
     private static final int ENERGY_BAR_HEIGHT = 15;
-    
+
     // Vertical energy bars for all players
     private static final int VERTICAL_ENERGY_BAR_WIDTH = 20;
     private static final int VERTICAL_ENERGY_BAR_HEIGHT = 100;
@@ -180,7 +178,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize terminal window for cheat commands
         terminalWindow = new TerminalWindow(controller);
-        
+
         // Initialize friends system
         initializeFriendsButton();
 
@@ -503,22 +501,22 @@ public class GameView implements Screen, InputProcessor {
         pauseButton = new TextButton("Pause", skin);
         resumeButton = new TextButton("Resume", skin);
     }
-    
+
     private void initializeFriendsButton() {
-        System.out.println("🔘 Initializing friends button...");
+        System.out.println("Initializing friends button...");
         friendsButton = new TextButton("Friends", skin);
         friendsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                System.out.println("🔘 Friends button clicked!");
+                System.out.println("Friends button clicked!");
                 openFriendsWindow();
             }
         });
-        System.out.println("🔘 Friends button initialized successfully");
+        System.out.println("Friends button initialized successfully");
     }
-    
+
     private void openFriendsWindow() {
-        System.out.println("🎮 Opening friends window...");
+        System.out.println("Opening friends window...");
         try {
             if (friendsWindow == null) {
                 System.out.println("Creating new FriendsWindow...");
@@ -556,9 +554,6 @@ public class GameView implements Screen, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         // Debug: Log all key presses to help troubleshoot F4 issue
-        String keyName = Input.Keys.toString(keycode);
-        System.out.println("🔑 Key pressed: " + keycode + " (" + keyName + ") - F4 = " + Input.Keys.F4 + ", F12 = " + Input.Keys.F12);
-
         if (keycode == Input.Keys.M) {
             toggleFullMap();
             return true;
@@ -591,7 +586,7 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if(keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P){
-            System.out.println("🎯 Screenshot key pressed (F4/F12/P) - taking screenshot...");
+            System.out.println("Screenshot key pressed (F4/F12/P) - taking screenshot...");
             takeScreenshot();
             return true;
         }
@@ -777,13 +772,13 @@ public class GameView implements Screen, InputProcessor {
             // Calculate farm position on minimap
             float farmX, farmY;
             switch (farmIndex) {
-                case 0: // Bottom-Left
-                    farmX = 120;
-                    farmY = 120 + 234 * scale; // Below village
-                    break;
-                case 1: // Top-Left
+                case 0: // Top-Left
                     farmX = 120;
                     farmY = 120; // Above village
+                    break;
+                case 1: // Bottom-Left
+                    farmX = 120;
+                    farmY = 120 + 234 * scale; // Below village
                     break;
                 case 2: // Top-Right
                     farmX = 120 + 78 * scale;
@@ -1090,7 +1085,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Render energy bar manually
         renderEnergyBar();
-        
+
         // Render vertical energy bars for all players
         renderVerticalEnergyBars();
 
@@ -1182,7 +1177,7 @@ public class GameView implements Screen, InputProcessor {
     private void updateEnergyBar() {
         Player currentPlayer = App.getGame().getCurrentPlayer();
         if (currentPlayer == null) return;
-        
+
         int currentEnergy = currentPlayer.getEnergy();
         if (currentEnergy != lastKnownEnergy) {
             lastKnownEnergy = currentEnergy;
@@ -1312,34 +1307,34 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().end();
     }
-    
+
     private void renderVerticalEnergyBars() {
         Game game = App.getGame();
         if (game == null || game.getCurrentPlayer() == null) return;
-        
+
         // Only show energy bar for the current player (whose turn it is)
         Player currentPlayer = game.getCurrentPlayer();
-        
+
         // Save current projection matrix
         Matrix4 originalProjection = Main.getBatch().getProjectionMatrix().cpy();
-        
+
         // Set projection matrix to screen coordinates (orthographic projection)
         Main.getBatch().setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         Main.getBatch().begin();
-        
+
         // Position bar in the bottom right corner of the screen
         float barX = Gdx.graphics.getWidth() - VERTICAL_ENERGY_BAR_WIDTH - 20;
         float barY = 20; // 20px from bottom
-        
+
         // Calculate energy percentage (assuming max energy is 200)
         int currentEnergy = currentPlayer.getEnergy();
         float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
         float barHeight = VERTICAL_ENERGY_BAR_HEIGHT * energyPercentage;
-        
+
         // Draw background (empty bar)
         Main.getBatch().setColor(Color.DARK_GRAY);
         Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, VERTICAL_ENERGY_BAR_HEIGHT);
-        
+
         // Draw filled portion from bottom up
         if (barHeight > 0) {
             // Color based on energy level
@@ -1352,20 +1347,20 @@ public class GameView implements Screen, InputProcessor {
             }
             Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, barHeight);
         }
-        
+
         // Draw border
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, 2); // Bottom border
         Main.getBatch().draw(skin.getRegion("white"), barX, barY + VERTICAL_ENERGY_BAR_HEIGHT - 2, VERTICAL_ENERGY_BAR_WIDTH, 2); // Top border
         Main.getBatch().draw(skin.getRegion("white"), barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
         Main.getBatch().draw(skin.getRegion("white"), barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
-        
+
         // Draw player name below the bar
         String playerName = currentPlayer.getUser() != null ? currentPlayer.getUser().getUsername() : "Unknown";
         if (playerName.length() > 8) {
             playerName = playerName.substring(0, 8) + "...";
         }
-        
+
         // Draw player name using smallFont if available
         if (smallFont != null) {
             smallFont.setColor(Color.CYAN); // Current player always cyan
@@ -1373,11 +1368,11 @@ public class GameView implements Screen, InputProcessor {
             float nameY = barY - 15;
             smallFont.draw(Main.getBatch(), playerName, nameX, nameY);
         }
-        
+
         // Reset color and end batch
         Main.getBatch().setColor(Color.WHITE);
         Main.getBatch().end();
-        
+
         // Restore original projection matrix
         Main.getBatch().setProjectionMatrix(originalProjection);
     }
@@ -1393,7 +1388,7 @@ public class GameView implements Screen, InputProcessor {
     private void startFishingMiniGame() {
         Player currentPlayer = App.getGame().getCurrentPlayer();
         if (currentPlayer == null) return;
-        
+
         String poleName = "training rod"; // Default pole name
 
         for (Item item : currentPlayer.getBackpack().getInventory().keySet()) {
@@ -1674,7 +1669,7 @@ public class GameView implements Screen, InputProcessor {
             // Dispose the pixmap to free memory
             pixmap.dispose();
 
-            System.out.println("📸 Screenshot saved: " + filepath);
+            System.out.println("Screenshot saved: " + filepath);
 
             // Show a temporary notification to the user
             showScreenshotNotification();
