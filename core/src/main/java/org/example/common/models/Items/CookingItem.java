@@ -2,6 +2,7 @@ package org.example.common.models.Items;
 
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.entities.animal.Fish;
+import org.example.common.models.enums.Ingredients;
 import org.example.common.models.enums.Types.CookingType;
 import org.example.common.models.enums.Types.ItemBuilder;
 
@@ -16,7 +17,7 @@ public class CookingItem extends Item {
         this.type = type;
     }
 
-    public String getIngredients() {
+    public Ingredients getIngredients() {
         return type.getIngredient();
     }
 
@@ -36,35 +37,7 @@ public class CookingItem extends Item {
 
 
     public boolean canCook(Backpack inventory) {
-        Map<Item, Integer> items = inventory.getInventory();
-        String[] parts = type.getIngredient().split("\\+");
-        for (String part : parts) {
-            part = part.trim();
-            String[] itemData = part.split(" ", 2);
-
-            int requiredItem = Integer.parseInt(itemData[0]);
-            String itemName = itemData[1];
-            if (itemName.startsWith("any")) {
-                itemName = itemName.replace("any ", "");
-                Item item = ItemBuilder.build(itemName);
-                if (!(item instanceof Fish)) {
-                    return false;
-                }
-                if (inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
-                    return false;
-                }
-            } else {
-                itemName = itemName.trim();
-                if (inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
-                    return false;
-                }
-                items.putIfAbsent(inventory.getItem(itemName), requiredItem);
-            }
-        }
-        for (Item item : new HashSet<>(items.keySet())) {
-            inventory.remove(item, items.get(item));
-        }
-        return true;
+        return type.getIngredient().checkRecipe(inventory);
     }
 
     public Food cook(Backpack inventory) {
