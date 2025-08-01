@@ -130,6 +130,9 @@ public class Player {
         // TODO: testing!
         this.money = 10000000;
 
+        // Initialize location based on default position
+        this.location = new Location((int) (posX / 60), (int) (posY / 60), org.example.common.models.enums.Types.TileType.Dirt);
+
         placedCraftingItems = new ArrayList<>();
     }
 
@@ -448,7 +451,9 @@ public class Player {
 
     public void setPosX(float posX) {
         this.posX = posX;
-        location.setxAxis((int) (posX/60));
+        if (location != null) {
+            location.setxAxis((int) (posX/60));
+        }
     }
 
     public float getPosY(){
@@ -457,7 +462,9 @@ public class Player {
 
     public void setPosY(float posY) {
         this.posY = posY;
-        location.setyAxis((int) (posY/60));
+        if (location != null) {
+            location.setyAxis((int) (posY/60));
+        }
     }
 
     public boolean equipTool(String toolName) {

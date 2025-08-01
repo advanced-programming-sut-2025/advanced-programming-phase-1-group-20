@@ -628,7 +628,11 @@ public class Game implements Serializable {
         // End farm selection phase
         this.inFarmSelectionPhase = false;
 
+        // In multiplayer mode, don't set a specific current player here
+        // Each client will set their own current player based on their user
+        // The currentPlayer will be set by the client when they create their game instance
         System.out.println("DEBUG: Multiplayer game initialized with " + (players != null ? players.size() : 0) + " players");
+        System.out.println("DEBUG: Current player will be set by each client individually");
     }
 
     /**

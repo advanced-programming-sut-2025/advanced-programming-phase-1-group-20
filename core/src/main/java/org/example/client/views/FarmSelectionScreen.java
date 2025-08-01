@@ -622,6 +622,16 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 game.syncFarmSelectionsFromServer(playerSelections);
             }
 
+            // In multiplayer mode, set the current player to this client's player
+            // instead of using the turn-based system
+            game.setCurrentPlayer(currentPlayer);
+            
+            // Find the index of the current player in the players list
+            int currentPlayerIndex = allPlayers.indexOf(currentPlayer);
+            if (currentPlayerIndex >= 0) {
+                game.setCurrentPlayerIndex(currentPlayerIndex);
+            }
+
             // Set the game in App
             App.setGame(game);
 
@@ -669,9 +679,23 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             System.out.println("DEBUG: Player's farm: " + currentPlayer.getCurrentFarm().getName());
             System.out.println("DEBUG: Game in App: " + (App.getGame() != null ? "set" : "null"));
             
-            GameView gameView = new GameView(new GameMenuController(currentPlayer), currentPlayer, game,
-                AssetManager.getAssetManager().getSkin(), currentUser);
-            System.out.println("DEBUG: GameView created successfully");
+            // Create GameView with exception handling
+            final GameView gameView;
+            try {
+                System.out.println("DEBUG: About to create GameView...");
+                gameView = new GameView(new GameMenuController(currentPlayer), currentPlayer, game,
+                    AssetManager.getAssetManager().getSkin(), currentUser);
+                System.out.println("DEBUG: GameView created successfully");
+                System.out.println("DEBUG: GameView stage: " + (gameView.getStage() != null ? "not null" : "null"));
+                System.out.println("DEBUG: GameView controller: " + (gameView.getController() != null ? "not null" : "null"));
+                System.out.println("DEBUG: GameView player: " + (gameView.getPlayer() != null ? gameView.getPlayer().getUser().getUsername() : "null"));
+            } catch (Exception e) {
+                System.err.println("DEBUG: Exception during GameView creation: " + e.getMessage());
+                e.printStackTrace();
+                statusLabel.setText("Error: Failed to create GameView");
+                statusLabel.setColor(Color.RED);
+                return;
+            }
 
             // Navigate to game - always use postRunnable to ensure it happens on the main thread
             System.out.println("DEBUG: Scheduling screen change on main thread...");
@@ -713,6 +737,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     @Override
     public void render(float delta) {
+        // Process network messages
+        NetworkClient networkClient = NetworkClient.getInstance();
+        networkClient.update();
+
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -741,6 +769,12 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     public void hide() {
         System.out.println("DEBUG: FarmSelectionScreen.hide() called");
         Gdx.input.setInputProcessor(null);
+        // Unregister as lobby listener to prevent interference with screen transition
+        NetworkClient networkClient = NetworkClient.getInstance();
+        if (networkClient != null && networkClient.getMessageHandler() != null) {
+            networkClient.getMessageHandler().setLobbyListener(null);
+            System.out.println("DEBUG: FarmSelectionScreen unregistered as lobby listener");
+        }
         System.out.println("DEBUG: FarmSelectionScreen.hide() completed");
     }
 

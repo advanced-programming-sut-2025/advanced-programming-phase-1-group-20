@@ -717,8 +717,8 @@ public class MessageHandler {
         startMessage.putInBody("gameData", gameSession.getGameInstance().getGameState());
         startMessage.putInBody("playersData", gameSession.getGameInstance().getPlayersData());
         
-        // Add current player information
-        startMessage.putInBody("currentPlayerUsername", gameSession.getGameInstance().getCurrentPlayer().getUser().getUsername());
+        // Don't send a specific current player username - each client will set their own
+        startMessage.putInBody("currentPlayerUsername", null);
         startMessage.putInBody("playerCount", gameSession.getPlayerCount());
         startMessage.putInBody("isActive", false); // Not fully active until farm selection is complete
 

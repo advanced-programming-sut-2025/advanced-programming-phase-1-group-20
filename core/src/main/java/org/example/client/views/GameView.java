@@ -19,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.InputMultiplexer;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.gameplay.CookingScreen;
@@ -156,6 +157,13 @@ public class GameView implements Screen, InputProcessor {
     // private FishCatchDisplay fishCatchDisplay;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
+        System.out.println("DEBUG: GameView constructor called");
+        System.out.println("DEBUG: Controller: " + (controller != null ? "not null" : "null"));
+        System.out.println("DEBUG: Player: " + (player != null ? player.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
+        System.out.println("DEBUG: Skin: " + (skin != null ? "not null" : "null"));
+        System.out.println("DEBUG: User: " + (user != null ? user.getUsername() : "null"));
+        
         this.controller = controller;
         this.player = player;
         this.game = game;
@@ -167,35 +175,50 @@ public class GameView implements Screen, InputProcessor {
         // Initialize camera first
         camera = new OrthographicCamera(120, 120);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        System.out.println("DEBUG: Camera initialized");
 
         // Initialize lighting system
         initializeLighting();
+        System.out.println("DEBUG: Lighting initialized");
 
         // Initialize rain system - NEW
         climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
+        System.out.println("DEBUG: Climate system initialized");
 
         // Initialize lightning system - NEW
         lightningSystem = new LightningSystem(camera);
+        System.out.println("DEBUG: Lightning system initialized");
 
         // Initialize lighting overlay texture
         createLightingOverlayTexture();
+        System.out.println("DEBUG: Lighting overlay texture created");
 
         // Initialize terminal window for cheat commands
         terminalWindow = new TerminalWindow(controller);
+        System.out.println("DEBUG: Terminal window initialized");
 
         // Initialize friends system
         initializeFriendsButton();
+        System.out.println("DEBUG: Friends button initialized");
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
+        System.out.println("DEBUG: NPC sprite controller initialized");
 
         loadCustomFont();
+        System.out.println("DEBUG: Custom font loaded");
         initializeLabels();
+        System.out.println("DEBUG: Labels initialized");
         initializeClock();
+        System.out.println("DEBUG: Clock initialized");
         updateWeatherAndSeasonDisplays();
+        System.out.println("DEBUG: Weather and season displays updated");
 
         initializeTables();
+        System.out.println("DEBUG: Tables initialized");
         controller.setView(this);
+        System.out.println("DEBUG: Controller view set");
+        System.out.println("DEBUG: GameView constructor completed successfully");
     }
 
     private void initializeLighting() {
@@ -1057,17 +1080,21 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void show() {
+        System.out.println("DEBUG: GameView.show() called");
         stage = new Stage(new ScreenViewport());
+        System.out.println("DEBUG: Stage created");
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);  // Stage first (UI elements)
         multiplexer.addProcessor(this);   // GameView second (world interactions)
         Gdx.input.setInputProcessor(multiplexer);
+        System.out.println("DEBUG: Input processor set");
 
         mainTable.top().right();
         mainTable.setFillParent(true);
         mainTable.padTop(10).padRight(10);
         mainTable.add(clockStack).size(120, 120).row();
         stage.addActor(mainTable);
+        System.out.println("DEBUG: Main table added to stage");
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
@@ -1087,10 +1114,13 @@ public class GameView implements Screen, InputProcessor {
         pauseTable.add(resumeButton).width(200).height(20).pad(10);
         pauseTable.setVisible(false);
         stage.addActor(pauseTable);
+        System.out.println("DEBUG: Pause table added to stage");
+        System.out.println("DEBUG: GameView.show() completed successfully");
     }
 
     @Override
     public void render(float deltaTime) {
+        System.out.println("DEBUG: GameView.render() called with deltaTime: " + deltaTime);
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background

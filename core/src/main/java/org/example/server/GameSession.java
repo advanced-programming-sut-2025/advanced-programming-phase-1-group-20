@@ -142,8 +142,8 @@ public class GameSession {
         farmSelectionStart.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
         farmSelectionStart.putInBody("playersData", gameInstance.getPlayersData());
         farmSelectionStart.putInBody("gameData", gameInstance.getGameState());
-        farmSelectionStart.putInBody("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ?
-            gameInstance.getCurrentPlayer().getUser().getUsername() : null);
+        // Don't send a specific current player username - each client will set their own
+        farmSelectionStart.putInBody("currentPlayerUsername", null);
         farmSelectionStart.putInBody("playerCount", gameInstance.getPlayerCount());
         farmSelectionStart.putInBody("isActive", false); // Not fully active until farm selection is complete
 
@@ -335,8 +335,8 @@ public class GameSession {
             completeGameState.put("playerSelections", gameInstance.getPlayerFarmSelections());
             completeGameState.put("playersData", gameInstance.getPlayersData());
             completeGameState.put("gameData", gameInstance.getGameState());
-            completeGameState.put("currentPlayerUsername", gameInstance.getCurrentPlayer() != null ?
-                gameInstance.getCurrentPlayer().getUser().getUsername() : null);
+            // Don't send a specific current player username - each client will set their own
+            completeGameState.put("currentPlayerUsername", null);
             completeGameState.put("playerCount", gameInstance.getPlayerCount());
 
             // Add all players with their farm assignments and current state
@@ -350,7 +350,8 @@ public class GameSession {
                 playerInfo.put("posY", p.getPosY());
                 playerInfo.put("energy", p.getEnergy());
                 playerInfo.put("money", p.getMoney());
-                playerInfo.put("isCurrentPlayer", p.equals(gameInstance.getCurrentPlayer()));
+                // Don't mark any specific player as current - each client will determine their own
+                playerInfo.put("isCurrentPlayer", false);
                 allPlayersInfo.put(p.getUser().getUsername(), playerInfo);
 
                 System.out.println("DEBUG: Player " + p.getUser().getUsername() + " - Farm: " +

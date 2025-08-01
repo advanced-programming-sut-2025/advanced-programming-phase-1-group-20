@@ -160,6 +160,12 @@ public class ClientMessageHandler {
 
         System.out.println("DEBUG: Game started - Session ID: " + gameSessionId + ", Message: " + messageText);
         System.out.println("DEBUG: In farm selection phase: " + isInSelectionPhase + ", Active: " + isActive);
+        System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
+
+        // In multiplayer mode, currentPlayerUsername will be null since each client sets their own current player
+        if (currentPlayerUsername == null) {
+            System.out.println("DEBUG: No specific current player from server - each client will set their own");
+        }
 
         // Only set to IN_GAME if the game is fully active (not in farm selection phase)
         if (isActive != null && isActive && !isInSelectionPhase) {
@@ -214,6 +220,12 @@ public class ClientMessageHandler {
         System.out.println("DEBUG: Complete game state received: " + (completeGameStateObj != null ? "yes" : "no"));
         System.out.println("DEBUG: Is active: " + isActive);
         System.out.println("DEBUG: In farm selection phase: " + inFarmSelectionPhase);
+        System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
+
+        // In multiplayer mode, currentPlayerUsername will be null since each client sets their own current player
+        if (currentPlayerUsername == null) {
+            System.out.println("DEBUG: No specific current player from server - each client will set their own");
+        }
 
         // Validate essential data
         if (completeGameStateObj == null) {
