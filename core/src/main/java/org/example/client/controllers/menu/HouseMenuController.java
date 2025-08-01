@@ -250,10 +250,4 @@ public class HouseMenuController implements Controller {
         return Result.success("Artisan item " + item.getName() + " arrived");
     }
 
-
-    public void getOut() {
-        //TODO : change this
-//        appView.navigateMenu(new GameMenu(appView, player.getUser(), player));
-    }
-
 }

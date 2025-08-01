@@ -137,8 +137,16 @@ public enum Ingredients {
                     }
                     itemsNeeded.put(mushroom, requiredAmount);
                 }else if(itemName.equals("Any Fish")) {
-                    //TODO : list of fishes
-                    return false;
+                    List<Item> fishes = ItemBuilder.getFishes();
+                    String fish = hasItem(fishes , backpack);
+                    if(fish == null) {
+                        return false;
+                    }else{
+                        if (backpack.getNumberOfItem(fish) < requiredAmount) {
+                            return false;
+                        }
+                    }
+                    itemsNeeded.put(fish, requiredAmount);
                 }else {
                     if(!backpack.hasItems(List.of(itemName))) {
                         return false;
