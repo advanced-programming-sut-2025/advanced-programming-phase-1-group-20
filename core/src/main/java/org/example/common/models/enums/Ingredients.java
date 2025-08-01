@@ -99,68 +99,70 @@ public enum Ingredients {
 
     public boolean checkRecipe(Backpack backpack) {
         Map<String , Integer> itemsNeeded = new HashMap<>();
-        for(Map.Entry<String, Integer> entry : this.recipe.entrySet()) {
-            String itemName = entry.getKey();
-            int requiredAmount = entry.getValue();
-            if(itemName.equals("Any Fruit")) {
-                List<Item> fruits = ItemBuilder.getFruits();
-                String fruit = hasItem(fruits , backpack);
-                if(fruit == null) {
-                    return false;
-                }else{
-                    if (backpack.getNumberOfItem(fruit) < requiredAmount) {
+        if(!recipe.isEmpty()){
+            for(Map.Entry<String, Integer> entry : this.recipe.entrySet()) {
+                String itemName = entry.getKey();
+                int requiredAmount = entry.getValue();
+                if(itemName.equals("Any Fruit")) {
+                    List<Item> fruits = ItemBuilder.getFruits();
+                    String fruit = hasItem(fruits , backpack);
+                    if(fruit == null) {
                         return false;
+                    }else{
+                        if (backpack.getNumberOfItem(fruit) < requiredAmount) {
+                            return false;
+                        }
                     }
-                }
-                itemsNeeded.put(fruit, requiredAmount);
-            }else if(itemName.equals("Any Vegetable")) {
-                List<Item> vegetables = ItemBuilder.getVegetables();
-                String vegetable = hasItem(vegetables , backpack);
-                if(vegetable == null) {
+                    itemsNeeded.put(fruit, requiredAmount);
+                }else if(itemName.equals("Any Vegetable")) {
+                    List<Item> vegetables = ItemBuilder.getVegetables();
+                    String vegetable = hasItem(vegetables , backpack);
+                    if(vegetable == null) {
+                        return false;
+                    }else {
+                        if (backpack.getNumberOfItem(vegetable) < requiredAmount) {
+                            return false;
+                        }
+                    }
+                    itemsNeeded.put(vegetable, requiredAmount);
+                }else if(itemName.equals("Any Mushroom")) {
+                    List<Item> mushrooms = ItemBuilder.getMushrooms();
+                    String mushroom = hasItem(mushrooms , backpack);
+                    if(mushroom == null) {
+                        return false;
+                    }else {
+                        if (backpack.getNumberOfItem(mushroom) < requiredAmount) {
+                            return false;
+                        }
+                    }
+                    itemsNeeded.put(mushroom, requiredAmount);
+                }else if(itemName.equals("Any Fish")) {
+                    //TODO : list of fishes
                     return false;
                 }else {
-                    if (backpack.getNumberOfItem(vegetable) < requiredAmount) {
+                    if(!backpack.hasItems(List.of(itemName))) {
                         return false;
+                    }else{
+                        if (backpack.getNumberOfItem(itemName) < requiredAmount) {
+                            return false;
+                        }
                     }
+                    itemsNeeded.put(itemName, requiredAmount);
                 }
-                itemsNeeded.put(vegetable, requiredAmount);
-            }else if(itemName.equals("Any Mushroom")) {
-                List<Item> mushrooms = ItemBuilder.getMushrooms();
-                String mushroom = hasItem(mushrooms , backpack);
-                if(mushroom == null) {
-                    return false;
-                }else {
-                    if (backpack.getNumberOfItem(mushroom) < requiredAmount) {
-                        return false;
-                    }
-                }
-                itemsNeeded.put(mushroom, requiredAmount);
-            }else if(itemName.equals("Any Fish")) {
-                //TODO : list of fishes
-                return false;
-            } else if (itemName.isEmpty()) {
-                return true;
-            } else {
-                if(!backpack.hasItems(List.of(itemName))) {
-                    return false;
-                }else{
-                    if (backpack.getNumberOfItem(itemName) < requiredAmount) {
-                        return false;
-                    }
-                }
-                itemsNeeded.put(itemName, requiredAmount);
             }
         }
 
 
-        for(Map.Entry<String, Integer> entry : itemsNeeded.entrySet()) {
-            String itemName = entry.getKey();
-            int amountToRemove = entry.getValue();
+        if(!itemsNeeded.isEmpty()) {
+            for(Map.Entry<String, Integer> entry : itemsNeeded.entrySet()) {
+                String itemName = entry.getKey();
+                int amountToRemove = entry.getValue();
 
-            Item itemInstance = backpack.getItem(itemName); // Get an instance of the item to remove
+                Item itemInstance = backpack.getItem(itemName); // Get an instance of the item to remove
 
-            if (itemInstance != null) {
-                backpack.remove(itemInstance, amountToRemove);
+                if (itemInstance != null) {
+                    backpack.remove(itemInstance, amountToRemove);
+                }
             }
         }
         return true;
