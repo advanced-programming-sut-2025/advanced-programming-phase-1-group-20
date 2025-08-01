@@ -42,6 +42,16 @@ public class GameMenuController implements Controller {
 
     public void setView(GameView view){
         this.view = view;
+        
+        // Debug: Check if player and farm are valid
+        System.out.println("DEBUG: GameMenuController.setView - Player: " + (player != null ? player.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: GameMenuController.setView - Player's farm: " + (player != null && player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
+        
+        if (player == null || player.getCurrentFarm() == null) {
+            System.err.println("DEBUG: Player or farm is null in GameMenuController.setView");
+            return;
+        }
+        
         playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera() , view.getSkin() , this);
     }

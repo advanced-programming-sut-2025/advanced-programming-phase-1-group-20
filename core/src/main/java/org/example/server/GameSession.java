@@ -367,6 +367,16 @@ public class GameSession {
             completeMessage.putInBody("inFarmSelectionPhase", false);
 
             System.out.println("DEBUG: Broadcasting FARM_SELECTION_COMPLETE to all players");
+            String messageJson = gson.toJson(completeMessage);
+            System.out.println("DEBUG: FARM_SELECTION_COMPLETE message JSON length: " + messageJson.length());
+            System.out.println("DEBUG: FARM_SELECTION_COMPLETE message JSON (first 500 chars): " + messageJson.substring(0, Math.min(500, messageJson.length())));
+            
+            // Check if message is too large for WebSocket frame
+            if (messageJson.length() > 65536) { // 64KB limit for WebSocket frames
+                System.err.println("WARNING: FARM_SELECTION_COMPLETE message is too large (" + messageJson.length() + " bytes)");
+                System.err.println("This may cause WebSocket frame fragmentation issues");
+            }
+            
             broadcastToAll(completeMessage);
 
             // Also send a full game state update to ensure all clients have the complete game state

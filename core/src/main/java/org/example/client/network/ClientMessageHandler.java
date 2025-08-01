@@ -234,6 +234,7 @@ public class ClientMessageHandler {
 
         // Forward to lobby listener for UI updates with enhanced data
         if (lobbyListener != null) {
+            System.out.println("DEBUG: ClientMessageHandler - Lobby listener is set, forwarding FARM_SELECTION_COMPLETE");
             // If we have the new complete game state structure, use it
             if (completeGameStateObj instanceof Map) {
                 @SuppressWarnings("unchecked")
@@ -257,7 +258,9 @@ public class ClientMessageHandler {
                 System.out.println("DEBUG: Forwarding enhanced FARM_SELECTION_COMPLETE to lobby listener");
                 System.out.println("DEBUG: Game session ID: " + completeGameState.get("gameSessionId"));
                 System.out.println("DEBUG: All players info: " + (completeGameState.get("allPlayersInfo") != null ? "present" : "null"));
+                System.out.println("DEBUG: About to call lobbyListener.onLobbyMessage");
                 lobbyListener.onLobbyMessage(enhancedMessage);
+                System.out.println("DEBUG: lobbyListener.onLobbyMessage called");
             } else {
                 // Fallback to original message structure for backward compatibility
                 System.out.println("DEBUG: Using fallback message structure for FARM_SELECTION_COMPLETE");
@@ -271,8 +274,9 @@ public class ClientMessageHandler {
     private void handleLobbyMessage(Message message) {
         System.out.println("DEBUG: handleLobbyMessage called with type: " + message.getType());
         if (lobbyListener != null) {
-            System.out.println("DEBUG: Forwarding lobby message to listener");
+            System.out.println("DEBUG: Forwarding lobby message to listener: " + lobbyListener.getClass().getSimpleName());
             lobbyListener.onLobbyMessage(message);
+            System.out.println("DEBUG: Lobby message forwarded successfully");
         } else {
             System.out.println("DEBUG: Lobby message received but no listener registered: " + message.getType());
         }
@@ -506,6 +510,7 @@ public class ClientMessageHandler {
     }
 
     public void setLobbyListener(LobbyMessageListener listener) {
+        System.out.println("DEBUG: ClientMessageHandler.setLobbyListener called with listener: " + (listener != null ? listener.getClass().getSimpleName() : "null"));
         this.lobbyListener = listener;
     }
 

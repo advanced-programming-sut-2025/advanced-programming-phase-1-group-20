@@ -9,9 +9,10 @@ import org.example.common.models.common.Result;
 import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.utils.AutoLoginUtil;
-import org.example.utils.auth.RefreshTokenUtils;
+
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
+
 import org.example.client.views.menu.WelcomeMenuScreen;
 import org.example.client.controllers.WelcomeMenuController;
 import org.example.client.Main;
@@ -235,19 +236,12 @@ public class LoginRegisterMenuController implements Controller {
         // Set stay logged in preference
         user.setStayLoggedIn(stayLoggedIn);
 
-        // Handle refresh token for "stay logged in" functionality
+        // Handle auto-login functionality
         if (stayLoggedIn) {
-            // Generate and save refresh token for auto-login
-            String refreshToken = RefreshTokenUtils.generateRefreshToken(username);
-            if (refreshToken != null) {
-                user.setRefreshToken(refreshToken);
-                user.setRefreshTokenExpirationTime(RefreshTokenUtils.extractRefreshTokenExpiration(refreshToken));
-                AutoLoginUtil.saveAutoLogin(username);
-            }
+            // Save encrypted credentials for auto-login
+            AutoLoginUtil.saveAutoLogin(username, user.getPassword());
         } else {
-            // Clear any existing refresh token
-            user.setRefreshToken(null);
-            user.setRefreshTokenExpirationTime(0);
+            // Clear any existing auto-login data
             AutoLoginUtil.clearAutoLogin();
         }
 

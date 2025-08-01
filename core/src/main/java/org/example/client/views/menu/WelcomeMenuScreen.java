@@ -244,7 +244,6 @@ public class WelcomeMenuScreen implements Screen {
 
         // Perform auto-login check
         if (AutoLoginUtil.checkAndPerformAutoLogin()) {
-            // Auto-login successful, controller should handle navigation
             isAutoLoginChecking = false;
         } else {
             // No auto-login, show main menu

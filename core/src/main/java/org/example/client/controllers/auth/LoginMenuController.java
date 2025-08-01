@@ -11,7 +11,7 @@ import org.example.common.models.App;
 import org.example.common.models.entities.User;
 import org.example.utils.AssetManager;
 import org.example.utils.auth.JWTUtils;
-import org.example.utils.auth.RefreshTokenUtils;
+
 import org.example.utils.AutoLoginUtil;
 
 import static org.example.client.Main.getGame;
@@ -61,19 +61,12 @@ public class LoginMenuController {
         // Set stay logged in preference
         user.setStayLoggedIn(stayLoggedIn);
 
-        // Handle refresh token for "stay logged in" functionality
+        // Handle auto-login functionality
         if (stayLoggedIn) {
-            // Generate and save refresh token for auto-login
-            String refreshToken = RefreshTokenUtils.generateRefreshToken(username);
-            if (refreshToken != null) {
-                user.setRefreshToken(refreshToken);
-                user.setRefreshTokenExpirationTime(RefreshTokenUtils.extractRefreshTokenExpiration(refreshToken));
-                AutoLoginUtil.saveAutoLogin(username);
-            }
+            // Save encrypted credentials for auto-login
+            AutoLoginUtil.saveAutoLogin(username, user.getPassword());
         } else {
-            // Clear any existing refresh token
-            user.setRefreshToken(null);
-            user.setRefreshTokenExpirationTime(0);
+            // Clear any existing auto-login data
             AutoLoginUtil.clearAutoLogin();
         }
 
