@@ -544,11 +544,9 @@ public class MapScreen implements Screen, InputProcessor {
 
 
 
-            // Calculate world coordinates with farm offset
-            float worldX = (getFarmStartX(farmIndex) + playerLocation.getX()) * TILE_SIZE;
-            float worldY = (getFarmStartY(farmIndex) + playerLocation.getY()) * TILE_SIZE;
+            float worldX = (playerLocation.getX()) * TILE_SIZE;
+            float worldY = (playerLocation.getY()) * TILE_SIZE;
 
-            // Render player sprite using PlayerController-style gridding
             renderPlayerSprite(player, worldX, worldY);
         }
 

@@ -65,4 +65,12 @@ public class ItemBuilder {
         return PlantType.getVegetables();
     }
 
+    public static List<Item> getFishes() {
+        List<Item> fishes = new ArrayList<>();
+        for (FishType fishType : FishType.values()) {
+            fishes.add(new Fish(fishType, fishType.getSeasons()[0]));
+        }
+        return fishes;
+    }
+
 }
