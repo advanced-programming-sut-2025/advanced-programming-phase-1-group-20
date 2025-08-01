@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -28,7 +29,7 @@ public class FriendInteractionWindow implements Screen {
     private boolean isVisible;
 
     public FriendInteractionWindow(Player currentPlayer, Player targetPlayer, Skin skin, Screen previousScreen) {
-        System.out.println("🤝 Creating FriendInteractionWindow for " + targetPlayer.getUser().getUsername());
+        System.out.println("Creating FriendInteractionWindow for " + targetPlayer.getUser().getUsername());
         this.currentPlayer = currentPlayer;
         this.targetPlayer = targetPlayer;
         this.skin = skin;
@@ -283,9 +284,13 @@ public class FriendInteractionWindow implements Screen {
     }
 
     private Texture createColorTexture(Color color) {
-        // This would normally create a 1x1 pixel texture with the specified color
-        // For now, return null and use table backgrounds without textures
-        return null;
+        // Create a 1x1 pixel texture with the specified color
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
     }
 
     public void showInteractionWindow() {

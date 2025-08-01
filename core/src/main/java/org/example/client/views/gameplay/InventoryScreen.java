@@ -27,6 +27,7 @@ import org.example.common.models.Items.Tool;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.badlogic.gdx.graphics.Pixmap;
 
 // Simple class to mark equipped tool slots
 class EquippedToolOverlay {
@@ -707,23 +708,33 @@ public class InventoryScreen implements Screen {
                         float slotX = 50 + (col * 102); // 50 is inventory table X position, 102 is slot width + padding
                         float slotY = 120 + ((ROWS_PER_PAGE - 1 - row) * 102); // 120 is inventory table Y position, 102 is slot height + padding
 
+                        // Create a white texture for rendering
+                        Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                        whitePixmap.setColor(Color.WHITE);
+                        whitePixmap.fill();
+                        Texture whiteTexture = new Texture(whitePixmap);
+                        whitePixmap.dispose();
+
                         // Begin batch for overlay rendering
                         Main.getBatch().begin();
 
                         // Draw a bright yellow border overlay (94x94 to match cell size)
                         Main.getBatch().setColor(new Color(1f, 1f, 0f, 0.8f)); // Bright yellow with transparency
-                        Main.getBatch().draw(skin.getRegion("white"), slotX + 4, slotY + 4, 94, 94);
+                        Main.getBatch().draw(whiteTexture, slotX + 4, slotY + 4, 94, 94);
 
                         // Draw a darker border outline
                         Main.getBatch().setColor(new Color(1f, 0.8f, 0f, 1f)); // Darker yellow for border
-                        Main.getBatch().draw(skin.getRegion("white"), slotX + 4, slotY + 4, 94, 2); // Top border
-                        Main.getBatch().draw(skin.getRegion("white"), slotX + 4, slotY + 96, 94, 2); // Bottom border
-                        Main.getBatch().draw(skin.getRegion("white"), slotX + 4, slotY + 4, 2, 94); // Left border
-                        Main.getBatch().draw(skin.getRegion("white"), slotX + 96, slotY + 4, 2, 94); // Right border
+                        Main.getBatch().draw(whiteTexture, slotX + 4, slotY + 4, 94, 2); // Top border
+                        Main.getBatch().draw(whiteTexture, slotX + 4, slotY + 96, 94, 2); // Bottom border
+                        Main.getBatch().draw(whiteTexture, slotX + 4, slotY + 4, 2, 94); // Left border
+                        Main.getBatch().draw(whiteTexture, slotX + 96, slotY + 4, 2, 94); // Right border
 
                         // Reset color
                         Main.getBatch().setColor(Color.WHITE);
                         Main.getBatch().end();
+
+                        // Dispose of the white texture
+                        whiteTexture.dispose();
 
                         return; // Only one equipped tool at a time
                     }

@@ -95,7 +95,7 @@ public class EnhancedNetworkClient {
         connectionState = ConnectionState.CONNECTING;
 
         try {
-            String wsUrl = "ws://" + serverHost + ":" + serverPort + "/ws";
+            String wsUrl = "ws://" + serverHost + ":" + serverPort + "/ws/game";
             WebSocket.Builder builder = httpClient.newWebSocketBuilder();
 
             webSocket = builder.buildAsync(URI.create(wsUrl), new WebSocket.Listener() {
