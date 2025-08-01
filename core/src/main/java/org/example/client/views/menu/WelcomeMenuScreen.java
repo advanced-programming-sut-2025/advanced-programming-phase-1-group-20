@@ -10,7 +10,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.example.client.Main;
 import org.example.client.controllers.WelcomeMenuController;
+import org.example.client.controllers.menu.MainMenuController;
 import org.example.utils.AutoLoginUtil;
 import org.example.utils.AssetManager;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -242,14 +244,16 @@ public class WelcomeMenuScreen implements Screen {
     private void checkAutoLogin() {
         isAutoLoginChecking = true;
 
-        // Perform auto-login check
-        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
-            isAutoLoginChecking = false;
-        } else {
-            // No auto-login, show main menu
-            isAutoLoginChecking = false;
-            showMainMenu();
-        }
+        // Perform auto-login check TODO: debug
+//        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
+//            isAutoLoginChecking = false;
+////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
+//        } else {
+//            // No auto-login, show main menu
+//            isAutoLoginChecking = false;
+//            showMainMenu();
+//        }
+        showMainMenu();
     }
 
     // =================
