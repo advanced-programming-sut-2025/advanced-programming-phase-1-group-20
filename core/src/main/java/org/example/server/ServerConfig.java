@@ -63,7 +63,7 @@ public class ServerConfig {
 
     // New configuration for movement update throttling
     public int getMovementUpdateThrottle() {
-        return Integer.parseInt(dotenv.get("MOVEMENT_UPDATE_THROTTLE", "100")); // Minimum 100ms between movement updates
+        return Integer.parseInt(dotenv.get("MOVEMENT_UPDATE_THROTTLE", "16")); // Minimum 16ms between movement updates (60 FPS)
     }
 
     // Development Configuration

@@ -770,8 +770,18 @@ public class PlayerController {
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
             if (networkClient != null && networkClient.isAuthenticated() && App.getGame().isMultiplayer) {
-                networkClient.sendPlayerMove(player.getPosX(), player.getPosY());
-                System.out.println("DEBUG: Sent movement update to server - Position: (" + player.getPosX() + ", " + player.getPosY() + ")");
+                // Send both pixel coordinates and tile coordinates for better synchronization
+                float x = player.getPosX();
+                float y = player.getPosY();
+                int tileX = Math.round(x / 60);
+                int tileY = Math.round(y / 60);
+                
+                networkClient.sendPlayerMove(x, y);
+                
+                // Update player's location to match the movement
+                player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
+                
+                System.out.println("DEBUG: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
             }
         } catch (Exception e) {
             System.err.println("Error sending movement to server: " + e.getMessage());

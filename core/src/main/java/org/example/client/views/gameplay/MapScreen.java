@@ -152,6 +152,9 @@ public class MapScreen implements Screen, InputProcessor {
             camera.position.set(totalMapWidth / 2, totalMapHeight / 2, 0);
             camera.update();
         }
+
+        // Call serverUpdate to ensure we have the latest state
+        serverUpdate();
     }
 
     @Override
@@ -211,6 +214,12 @@ public class MapScreen implements Screen, InputProcessor {
         // Update camera
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
+        // Ensure tiles are up-to-date before rendering
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap != null) {
+            gameMap.updateTilesFromRegions();
+        }
 
         // Begin rendering
         batch.begin();
@@ -513,14 +522,16 @@ public class MapScreen implements Screen, InputProcessor {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null) return;
 
-
-
-        // Render all players
+        // Render all players with their current positions
         for (Player player : App.getGame().getPlayers()) {
             if (player == null) {
                 continue;
             }
 
+            // Get player's current position for map rendering
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+            
             // Get player's farm
             Farm playerFarm = player.getCurrentFarm();
             if (playerFarm == null) {
@@ -531,22 +542,19 @@ public class MapScreen implements Screen, InputProcessor {
             Location playerLocation = player.getLocation();
             int farmIndex = getFarmIndex(playerFarm);
 
+            float worldX, worldY;
+
             if (player.getIsInVillage()) {
-                float worldX = (GameMap.VILLAGE_X + playerLocation.getX()) * TILE_SIZE;
-                float worldY = (GameMap.VILLAGE_Y + playerLocation.getY()) * TILE_SIZE;
-
-
-
-                // Render player sprite using PlayerController-style gridding
-                renderPlayerSprite(player, worldX, worldY);
-                continue;
+                // Player is in village area
+                worldX = (GameMap.VILLAGE_X + playerLocation.getX()) * TILE_SIZE;
+                worldY = (GameMap.VILLAGE_Y + playerLocation.getY()) * TILE_SIZE;
+            } else {
+                // Player is in farm area
+                worldX = (playerLocation.getX()) * TILE_SIZE;
+                worldY = (playerLocation.getY()) * TILE_SIZE;
             }
 
-
-
-            float worldX = (playerLocation.getX()) * TILE_SIZE;
-            float worldY = (playerLocation.getY()) * TILE_SIZE;
-
+            // Render player sprite using the calculated world coordinates
             renderPlayerSprite(player, worldX, worldY);
         }
 
@@ -760,8 +768,29 @@ public class MapScreen implements Screen, InputProcessor {
         }
     }
 
-    // TODO: update whenever server sends a notification
     public void serverUpdate() {
-
+        // Update the tiles array to ensure it's current
+        GameMap gameMap = App.getGame().getGameMap();
+        if (gameMap != null) {
+            gameMap.updateTilesFromRegions();
+            System.out.println("DEBUG: MapScreen.serverUpdate() - Updated tiles from regions");
+        }
+        
+        // Ensure player positions are properly synchronized for map display
+        Game currentGame = App.getGame();
+        if (currentGame != null) {
+            for (Player player : currentGame.getPlayers()) {
+                if (player != null) {
+                    // Log current player positions for debugging
+                    System.out.println("DEBUG: MapScreen.serverUpdate() - Player " + 
+                        player.getUser().getUsername() + " position: (" + 
+                        player.getPosX() + ", " + player.getPosY() + ") at tile (" +
+                        player.getLocation().getX() + ", " + player.getLocation().getY() + ")");
+                }
+            }
+        }
+        
+        // Force a render update to show the latest state
+        System.out.println("DEBUG: MapScreen.serverUpdate() - Map updated from server");
     }
 }

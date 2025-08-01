@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.example.common.models.common.Location;
+import org.example.server.controllers.MovementController;
 
 public class GameSession {
     private final String sessionId;
@@ -27,6 +29,7 @@ public class GameSession {
     private final ServerConfig config;
     private boolean isActive;
     private final Map<String, Long> lastMovementTime; // Track last movement time per player
+    private final MovementController movementController;
 
     public GameSession(User creator) {
         System.out.println("DEBUG: GameSession constructor called for creator: " + creator.getUsername());
@@ -44,13 +47,15 @@ public class GameSession {
         List<Player> players = new ArrayList<>();
         Player creatorPlayer = new Player(creator);
         players.add(creatorPlayer);
-
         this.gameInstance = new Game(players, creatorPlayer);
         System.out.println("DEBUG: Game instance created successfully");
-        // Don't set the game in App on server side - this is client-side only
-        // App.setGame(this.gameInstance);
 
-        System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
+        this.movementController = new MovementController(gameInstance, this, config.getMovementUpdateThrottle());
+
+        // Add creator as first player
+        addPlayer(null, creator); // Connection will be set later
+
+        System.out.println("DEBUG: Created new game session: " + sessionId + " with creator: " + creator.getUsername());
     }
 
     public String getSessionId() {
@@ -103,6 +108,11 @@ public class GameSession {
     }
 
     public void removePlayer(String username) {
+        // Clear movement history for the player
+        if (movementController != null) {
+            movementController.clearPlayerMovementHistory(username);
+        }
+
         PlayerConnection connection = playerConnections.remove(username);
         if (connection != null) {
             // Remove player from game instance
@@ -174,6 +184,7 @@ public class GameSession {
 
         switch (message.getType()) {
             case PLAYER_MOVE:
+                System.out.println("DEBUG: GameSession.processMessage() - Received PLAYER_MOVE message for player: " + username);
                 handlePlayerMove(username, message);
                 break;
             case USE_TOOL:
@@ -217,36 +228,17 @@ public class GameSession {
     }
 
     private void handlePlayerMove(String username, Message message) {
-        float x = message.getFromBody("x");
-        float y = message.getFromBody("y");
+        System.out.println("DEBUG: GameSession.handlePlayerMove() - Delegating to MovementController for player: " + username);
 
-        Player player = gameInstance.getPlayerByUsername(username);
-        if (player != null) {
-            // Check movement throttling to prevent excessive updates
-            long currentTime = System.currentTimeMillis();
-            Long lastTime = lastMovementTime.get(username);
-            int throttleMs = config.getMovementUpdateThrottle();
-            
-            if (lastTime != null && (currentTime - lastTime) < throttleMs) {
-                // Skip update if too soon since last movement
-                return;
-            }
-            
-            // Update player position on server
-            player.setPosX(x);
-            player.setPosY(y);
+        // Use the MovementController to handle player movement
+        boolean movementProcessed = movementController.handlePlayerMove(username, message);
 
-            // Add username to message for client identification
-            message.putInBody("username", username);
-            message.putInBody("timestamp", currentTime);
-
-            // Broadcast movement to other players immediately
-            broadcastToOthers(username, message);
-            
-            // Update last movement time
-            lastMovementTime.put(username, currentTime);
-            
-            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ")");
+        if (movementProcessed) {
+            System.out.println("DEBUG: GameSession.handlePlayerMove() - Movement processed successfully, broadcasting game state update");
+            // Broadcast a game state update to ensure all clients have the latest map state
+            broadcastGameStateUpdate();
+        } else {
+            System.out.println("DEBUG: GameSession.handlePlayerMove() - Movement was throttled or failed");
         }
     }
 
@@ -263,7 +255,7 @@ public class GameSession {
 
             // Broadcast action to all players immediately
             broadcastToAll(message);
-            
+
             // Send immediate game state update for tool effects
             broadcastGameStateUpdate();
         }
@@ -272,7 +264,7 @@ public class GameSession {
     private void handlePlantSeed(String username, Message message) {
         // Implementation for planting seeds
         broadcastToAll(message);
-        
+
         // Send immediate game state update for planted seeds
         broadcastGameStateUpdate();
     }
@@ -280,7 +272,7 @@ public class GameSession {
     private void handleHarvestCrop(String username, Message message) {
         // Implementation for harvesting crops
         broadcastToAll(message);
-        
+
         // Send immediate game state update for harvested crops
         broadcastGameStateUpdate();
     }
@@ -418,13 +410,13 @@ public class GameSession {
             String messageJson = gson.toJson(completeMessage);
             System.out.println("DEBUG: FARM_SELECTION_COMPLETE message JSON length: " + messageJson.length());
             System.out.println("DEBUG: FARM_SELECTION_COMPLETE message JSON (first 500 chars): " + messageJson.substring(0, Math.min(500, messageJson.length())));
-            
+
             // Check if message is too large for WebSocket frame
             if (messageJson.length() > 65536) { // 64KB limit for WebSocket frames
                 System.err.println("WARNING: FARM_SELECTION_COMPLETE message is too large (" + messageJson.length() + " bytes)");
                 System.err.println("This may cause WebSocket frame fragmentation issues");
             }
-            
+
             broadcastToAll(completeMessage);
 
             // Also send a full game state update to ensure all clients have the complete game state
@@ -466,7 +458,7 @@ public class GameSession {
         System.out.println("DEBUG: broadcastToAll - message sent to all players");
     }
 
-    private void broadcastToOthers(String excludeUsername, Message message) {
+    public void broadcastToOthers(String excludeUsername, Message message) {
         String messageJson = gson.toJson(message);
         playerConnections.entrySet().stream()
             .filter(entry -> !entry.getKey().equals(excludeUsername))
@@ -499,12 +491,29 @@ public class GameSession {
     }
 
     private void broadcastGameStateUpdate() {
-        Message message = new Message();
-        message.setType(Message.Type.GAME_STATE_UPDATE);
-        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
-        message.putInBody("weather", gameInstance.getCurrentDate().getWeatherToday().toString());
-        broadcastToAll(message);
+        try {
+            // Create a game state update message
+            Message gameStateMessage = new Message();
+            gameStateMessage.setType(Message.Type.GAME_STATE_UPDATE);
+
+            // Include current game state data
+            Map<String, Object> gameState = new HashMap<>();
+            gameState.put("players", gameInstance.getPlayers());
+            gameState.put("currentDate", gameInstance.getCurrentDate());
+            gameState.put("gameMap", gameInstance.getGameMap());
+
+            gameStateMessage.putInBody("gameState", gameState);
+            gameStateMessage.putInBody("timestamp", System.currentTimeMillis());
+
+            // Broadcast to all players
+            broadcastToAll(gameStateMessage);
+
+            System.out.println("DEBUG: Broadcasted game state update to all players");
+        } catch (Exception e) {
+            System.err.println("Error broadcasting game state update: " + e.getMessage());
+        }
     }
+
 
     public void stopSession() {
         this.isActive = false;

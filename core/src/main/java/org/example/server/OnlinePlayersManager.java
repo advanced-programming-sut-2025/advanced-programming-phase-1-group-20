@@ -145,10 +145,6 @@ public class OnlinePlayersManager {
         }
     }
 
-    // =====================
-    // PLAYER INFO CLASS
-    // =====================
-
     public static class OnlinePlayerInfo {
         public enum PlayerStatus {
             ONLINE,      // Connected but not in lobby/game
