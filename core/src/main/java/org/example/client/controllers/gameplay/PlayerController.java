@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
+import org.example.client.network.NetworkClient;
 import org.example.common.models.App;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -266,6 +267,9 @@ public class PlayerController {
                 player.decreaseEnergy(energyCost);
                 System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
 
+                // Send movement update to server for multiplayer synchronization
+                sendMovementToServer();
+
                 // Check if player is out of energy and auto-advance turn if needed
                 if (App.getGame() != null) {
                     App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
@@ -283,6 +287,9 @@ public class PlayerController {
             }
         } else if (moved && player.isEnergyUnlimited()) {
             System.out.println("Player moved - Energy unlimited mode");
+
+            // Send movement update to server for multiplayer synchronization
+            sendMovementToServer();
         } else if (!moved) {
             System.out.println("No movement detected");
         }
@@ -756,6 +763,18 @@ public class PlayerController {
     public void dispose() {
         if (nicknameFont != null) {
             nicknameFont.dispose();
+        }
+    }
+
+    private void sendMovementToServer() {
+        try {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null && networkClient.isAuthenticated() && App.getGame().isMultiplayer) {
+                networkClient.sendPlayerMove(player.getPosX(), player.getPosY());
+                System.out.println("DEBUG: Sent movement update to server - Position: (" + player.getPosX() + ", " + player.getPosY() + ")");
+            }
+        } catch (Exception e) {
+            System.err.println("Error sending movement to server: " + e.getMessage());
         }
     }
 }

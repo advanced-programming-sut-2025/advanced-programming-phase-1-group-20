@@ -163,7 +163,7 @@ public class GameView implements Screen, InputProcessor {
         System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
         System.out.println("DEBUG: Skin: " + (skin != null ? "not null" : "null"));
         System.out.println("DEBUG: User: " + (user != null ? user.getUsername() : "null"));
-        
+
         this.controller = controller;
         this.player = player;
         this.game = game;
@@ -634,6 +634,10 @@ public class GameView implements Screen, InputProcessor {
             Main.getGame().setScreen(new MapScreen(player, skin, this));
             return true;
         }
+        if (keycode == Input.Keys.F) {
+            toggleMinimap();
+            return true;
+        }
 
         if (keycode == Input.Keys.ESCAPE) {
             // Show InventoryScreen and pass this as previousScreen
@@ -805,62 +809,6 @@ public class GameView implements Screen, InputProcessor {
         return group;
     }
 
-    private void renderMinimap() {
-        if (!isMapVisible || minimapGroup == null) return;
-
-        // Get the game map
-        GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) return;
-
-        // Calculate map scale (234x312 world map to 500x500 display)
-        float scaleX = 500f / 234f;
-        float scaleY = 500f / 312f;
-        float scale = Math.min(scaleX, scaleY); // Use the smaller scale to fit everything
-
-        // Start rendering minimap
-        Main.getBatch().begin();
-
-        // Render the actual map tiles
-        renderMinimapTiles(gameMap, scale);
-
-        // Render player position
-        Player currentPlayer = App.getGame().getCurrentPlayer();
-        if (currentPlayer != null) {
-            float playerX = currentPlayer.getPosX() / 60f * scale + 120;
-            float playerY = currentPlayer.getPosY() / 60f * scale + 120;
-
-            // Draw player as a red dot
-            Main.getBatch().setColor(Color.RED);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            Main.getBatch().draw(whiteTexture, playerX - 3, playerY - 3, 6, 6);
-            whiteTexture.dispose();
-        }
-
-        // Render other players
-        for (Player otherPlayer : App.getGame().getPlayers()) {
-            if (otherPlayer != currentPlayer) {
-                float otherX = otherPlayer.getPosX() / 60f * scale + 120;
-                float otherY = otherPlayer.getPosY() / 60f * scale + 120;
-
-                // Draw other players as blue dots
-                Main.getBatch().setColor(Color.BLUE);
-                Texture whiteTexture = new Texture("content/grass/spring.png");
-                Main.getBatch().draw(whiteTexture, otherX - 3, otherY - 3, 6, 6);
-                whiteTexture.dispose();
-            }
-        }
-
-        // Reset color to white
-        Main.getBatch().setColor(Color.WHITE);
-
-        // Render labels
-        renderMinimapLabels();
-
-        // Reset color and end batch
-        Main.getBatch().setColor(Color.WHITE);
-        Main.getBatch().end();
-    }
-
     private void renderMinimapTiles(GameMap gameMap, float scale) {
         // Render farms
         for (int farmIndex = 0; farmIndex < 4; farmIndex++) {
@@ -1017,65 +965,106 @@ public class GameView implements Screen, InputProcessor {
         villageLabel.draw(Main.getBatch(), 1f);
     }
 
-    private void renderMinimapLegend(Texture whiteTexture) {
-        float legendX = 120;
-        float legendY = 650;
+    private void renderMinimap() {
+        if (game == null || game.getGameMap() == null) {
+            return;
+        }
 
-        // Legend title
-        Label legendTitle = new Label("Legend:", skin);
-        legendTitle.setPosition(legendX, legendY);
-        legendTitle.setColor(Color.WHITE);
-        legendTitle.draw(Main.getBatch(), 1f);
+        // Calculate scale for minimap
+        float scaleX = 500f / 234f;
+        float scaleY = 500f / 312f;
+        float scale = Math.min(scaleX, scaleY);
 
-        // Player indicator
+        // Render tiles
+        renderMinimapTiles(game.getGameMap(), scale);
+
+        // Render players
+        renderMinimapPlayers(scale);
+
+        // Render labels
+        renderMinimapLabels();
+    }
+
+    private void renderMinimapPlayers(float scale) {
+        if (game == null || game.getPlayers() == null) {
+            return;
+        }
+
+        for (Player player : game.getPlayers()) {
+            if (player != null && player.getCurrentFarm() != null) {
+                renderPlayerOnMinimap(player, scale);
+            }
+        }
+    }
+
+    private void renderPlayerOnMinimap(Player player, float scale) {
+        Farm farm = player.getCurrentFarm();
+        int farmIndex = farm.getFarmIndex();
+
+        // Calculate the farm's position on minimap
+        float farmX, farmY;
+        switch (farmIndex) {
+            case 0: // Top-Left
+                farmX = 120;
+                farmY = 120;
+                break;
+            case 1: // Bottom-Left
+                farmX = 120;
+                farmY = 120 + 234 * scale;
+                break;
+            case 2: // Top-Right
+                farmX = 120 + 78 * scale;
+                farmY = 120;
+                break;
+            case 3: // Bottom-Right
+                farmX = 120 + 78 * scale;
+                farmY = 120 + 234 * scale;
+                break;
+            default:
+                return;
+        }
+
+        // Calculate global farm boundaries based on farm index
+        int globalFarmStartX, globalFarmStartY;
+        switch (farmIndex) {
+            case 0: // Top-Left
+                globalFarmStartX = 0;
+                globalFarmStartY = 0;
+                break;
+            case 1: // Bottom-Left
+                globalFarmStartX = 0;
+                globalFarmStartY = 78;
+                break;
+            case 2: // Top-Right
+                globalFarmStartX = 156;
+                globalFarmStartY = 0;
+                break;
+            case 3: // Bottom-Right
+                globalFarmStartX = 156;
+                globalFarmStartY = 78;
+                break;
+            default:
+                return;
+        }
+
+        // Calculate the player's local position within their farm
+        float playerGlobalX = player.getPosX() / 60; // Convert to tile coordinates
+        float playerGlobalY = player.getPosY() / 60;
+        
+        // Calculate local position within the farm
+        float playerLocalX = playerGlobalX - globalFarmStartX;
+        float playerLocalY = playerGlobalY - globalFarmStartY;
+
+        // Calculate the player's position on the minimap
+        float playerMapX = farmX + playerLocalX * scale;
+        float playerMapY = farmY + playerLocalY * scale;
+
+        // Render a simple colored circle for the player
         Main.getBatch().setColor(Color.RED);
-        Main.getBatch().draw(whiteTexture, legendX, legendY - 20, 4, 4);
+        Texture whiteTexture = new Texture("content/grass/spring.png"); // Use any texture as a base
+        Main.getBatch().draw(whiteTexture, playerMapX, playerMapY, scale * 2, scale * 2);
+        whiteTexture.dispose();
         Main.getBatch().setColor(Color.WHITE);
-
-        Label playerLabel = new Label("You", skin);
-        playerLabel.setPosition(legendX + 10, legendY - 20);
-        playerLabel.setColor(Color.WHITE);
-        playerLabel.draw(Main.getBatch(), 1f);
-
-        // Other players indicator
-        Main.getBatch().setColor(Color.BLUE);
-        Main.getBatch().draw(whiteTexture, legendX, legendY - 40, 4, 4);
-        Main.getBatch().setColor(Color.WHITE);
-
-        Label othersLabel = new Label("Other Players", skin);
-        othersLabel.setPosition(legendX + 10, legendY - 40);
-        othersLabel.setColor(Color.WHITE);
-        othersLabel.draw(Main.getBatch(), 1f);
-
-        // Farm indicator
-        Main.getBatch().setColor(0.2f, 0.8f, 0.2f, 1f);
-        Main.getBatch().draw(whiteTexture, legendX, legendY - 60, 8, 8);
-        Main.getBatch().setColor(Color.WHITE);
-
-        Label farmLabel = new Label("Farms", skin);
-        farmLabel.setPosition(legendX + 10, legendY - 60);
-        farmLabel.setColor(Color.WHITE);
-        farmLabel.draw(Main.getBatch(), 1f);
-
-        // Village indicator
-        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
-        Main.getBatch().draw(whiteTexture, legendX, legendY - 80, 8, 8);
-        Main.getBatch().setColor(Color.WHITE);
-
-        Label villageLegendLabel = new Label("Village", skin);
-        villageLegendLabel.setPosition(legendX + 10, legendY - 80);
-        villageLegendLabel.setColor(Color.WHITE);
-        villageLegendLabel.draw(Main.getBatch(), 1f);
-
-        // Path indicator
-        Main.getBatch().setColor(0.8f, 0.6f, 0.4f, 1f);
-        Main.getBatch().draw(whiteTexture, legendX, legendY - 100, 8, 8);
-        Main.getBatch().setColor(Color.WHITE);
-
-        Label pathLegendLabel = new Label("Paths", skin);
-        pathLegendLabel.setPosition(legendX + 10, legendY - 100);
-        pathLegendLabel.setColor(Color.WHITE);
-        pathLegendLabel.draw(Main.getBatch(), 1f);
     }
 
     @Override
@@ -1104,9 +1093,9 @@ public class GameView implements Screen, InputProcessor {
             friendsTable.bottom().left();
             friendsTable.add(friendsButton).width(100).height(40).pad(20);
             stage.addActor(friendsTable);
-            System.out.println("🔘 Friends button added to stage successfully");
+            System.out.println("Friends button added to stage successfully");
         } else {
-            System.err.println("❌ Friends button is null - cannot add to stage!");
+            System.err.println("Friends button is null - cannot add to stage!");
         }
 
         pauseTable.setFillParent(true);
@@ -1188,12 +1177,14 @@ public class GameView implements Screen, InputProcessor {
         // Render vertical energy bars for all players
         renderVerticalEnergyBars();
 
-        // Render minimap if visible
-        renderMinimap();
-
         // Render terminal window if visible
         if (terminalWindow != null) {
             terminalWindow.render(deltaTime);
+        }
+
+        // Render minimap if visible
+        if (isMapVisible) {
+            renderMinimap();
         }
     }
 
@@ -1345,14 +1336,9 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void renderNPCs(float deltaTime) {
-        Player currentPlayer = App.getGame().getCurrentPlayer();
-        if (currentPlayer != null && currentPlayer.getIsInVillage()) {
-            if (npcSpriteController != null) {
-                npcSpriteController.update(deltaTime);
-                npcSpriteController.render(Main.getBatch(), currentLightColor);
-            } else {
-            }
-        } else {
+        if (npcSpriteController != null) {
+            npcSpriteController.update(deltaTime);
+            npcSpriteController.render(Main.getBatch(), currentLightColor);
         }
     }
 
@@ -1370,6 +1356,13 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
         Main.getBatch().begin();
 
+        // Create a white texture for rendering
+        Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        whitePixmap.setColor(Color.WHITE);
+        whitePixmap.fill();
+        Texture whiteTexture = new Texture(whitePixmap);
+        whitePixmap.dispose();
+
         // Position bar in the bottom right corner of the screen
         float barX = Gdx.graphics.getWidth() - VERTICAL_ENERGY_BAR_WIDTH - 20;
         float barY = 20; // 20px from bottom
@@ -1381,7 +1374,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Draw background (empty bar)
         Main.getBatch().setColor(Color.DARK_GRAY);
-        Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, VERTICAL_ENERGY_BAR_HEIGHT);
+        Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, VERTICAL_ENERGY_BAR_HEIGHT);
 
         // Draw filled portion from bottom up
         if (barHeight > 0) {
@@ -1393,15 +1386,15 @@ public class GameView implements Screen, InputProcessor {
             } else {
                 Main.getBatch().setColor(Color.RED);
             }
-            Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, barHeight);
+            Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, barHeight);
         }
 
         // Draw border
         Main.getBatch().setColor(Color.WHITE);
-        Main.getBatch().draw(skin.getRegion("white"), barX, barY, VERTICAL_ENERGY_BAR_WIDTH, 2); // Bottom border
-        Main.getBatch().draw(skin.getRegion("white"), barX, barY + VERTICAL_ENERGY_BAR_HEIGHT - 2, VERTICAL_ENERGY_BAR_WIDTH, 2); // Top border
-        Main.getBatch().draw(skin.getRegion("white"), barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
-        Main.getBatch().draw(skin.getRegion("white"), barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
+        Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, 2); // Bottom border
+        Main.getBatch().draw(whiteTexture, barX, barY + VERTICAL_ENERGY_BAR_HEIGHT - 2, VERTICAL_ENERGY_BAR_WIDTH, 2); // Top border
+        Main.getBatch().draw(whiteTexture, barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
+        Main.getBatch().draw(whiteTexture, barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
 
         // Draw player name below the bar
         String playerName = currentPlayer.getUser() != null ? currentPlayer.getUser().getUsername() : "Unknown";
@@ -1423,6 +1416,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Restore original projection matrix
         Main.getBatch().setProjectionMatrix(originalProjection);
+
+        // Dispose of the white texture
+        whiteTexture.dispose();
     }
 
     public Skin getSkin() {
@@ -1453,26 +1449,6 @@ public class GameView implements Screen, InputProcessor {
         Main.getGame().setScreen(fishingMiniGame);
     }
 
-    private void renderLightingOverlay() {
-        if (lightingOverlayTexture == null) return;
-
-        // Create a lighting color that blends with the current lighting
-        Color overlayColor = new Color(currentLightColor);
-
-        // Adjust alpha based on lighting intensity - more subtle effect
-        float lightingIntensity = lighting.getLightIntensity();
-        overlayColor.a = (1.0f - lightingIntensity) * 0.3f; // Subtle darkening effect
-
-        // Set batch color for the overlay
-        Main.getBatch().setColor(overlayColor);
-
-        // Draw the full-screen overlay
-        Main.getBatch().draw(lightingOverlayTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        // Reset batch color
-        Main.getBatch().setColor(Color.WHITE);
-    }
-
     private void createLightingOverlayTexture() {
         Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pixmap.setColor(1f, 1f, 1f, 1f); // Pure white
@@ -1480,513 +1456,6 @@ public class GameView implements Screen, InputProcessor {
         lightingOverlayTexture = new Texture(pixmap);
         pixmap.dispose();
     }
-
-    // TODO: remove!
-    private void renderBuildingsAndStructures() {
-        GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) return;
-
-        final int TILE_SIZE = 60;
-
-        // Render buildings and structures for all farms
-        for (Farm farm : gameMap.getFarms()) {
-            if (farm == null) continue;
-
-            // Render the main house
-            Building house = farm.getBuilding();
-            if (house != null) {
-                renderBuilding(house, farm, TILE_SIZE);
-            }
-
-            // Render barns
-            for (Barn barn : farm.getBarns()) {
-                renderBarn(barn, farm, TILE_SIZE);
-            }
-
-            // Render coops
-            for (Coop coop : farm.getCoops()) {
-                renderCoop(coop, farm, TILE_SIZE);
-            }
-
-            // Render greenhouse
-            GreenHouse greenhouse = farm.getGreenHouse();
-            if (greenhouse != null) {
-                renderGreenhouse(greenhouse, farm, TILE_SIZE);
-            }
-
-            // Render quarry
-            Quarry quarry = farm.getQuarry();
-            if (quarry != null) {
-                renderQuarry(quarry, farm, TILE_SIZE);
-            }
-
-            // Render lakes
-            for (Lake lake : farm.getLakes()) {
-                renderLake(lake, farm, TILE_SIZE);
-            }
-        }
-
-        // Render village buildings and markets (outside farm loop)
-        Village village = gameMap.getVillage();
-        if (village != null) {
-            renderVillageBuildings(village, TILE_SIZE);
-        }
-    }
-
-    private void renderVillageBuildings(Village village, int tileSize) {
-        // Render markets
-        Market[] markets = village.getMarkets();
-        if (markets != null) {
-            for (Market market : markets) {
-                if (market != null) {
-                    renderMarket(market, tileSize);
-                }
-            }
-        }
-
-        // Render other village buildings
-        List<Building> buildings = village.getBuildings();
-        if (buildings != null) {
-            for (Building building : buildings) {
-                if (building != null) {
-                    renderVillageBuilding(building, tileSize);
-                }
-            }
-        }
-    }
-
-    private void renderMarket(Market market, int tileSize) {
-        // Calculate global coordinates (village starts at x=78, y=0)
-        float worldX = (GameMap.VILLAGE_X + market.getX()) * tileSize;
-        float worldY = (GameMap.VILLAGE_Y + market.getY()) * tileSize;
-
-        // Get market texture based on type
-        String marketKey = getMarketTextureKey(market.getName());
-        Texture marketTexture = AssetManager.getAssetManager().getTileTexture(marketKey);
-
-        if (marketTexture != null) {
-            // Markets are typically 3x3 tiles
-            float marketWidth = 3 * tileSize;
-            float marketHeight = 3 * tileSize;
-            Main.getBatch().draw(marketTexture, worldX, worldY, marketWidth, marketHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.PURPLE);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float marketWidth = 3 * tileSize;
-            float marketHeight = 3 * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, marketWidth, marketHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderVillageBuilding(Building building, int tileSize) {
-        // Calculate global coordinates (village starts at x=78, y=0)
-        float worldX = (GameMap.VILLAGE_X + building.getX()) * tileSize;
-        float worldY = (GameMap.VILLAGE_Y + building.getY()) * tileSize;
-
-        // Get building texture based on type
-        String buildingKey = getVillageBuildingTextureKey(building.getName(), building.getType());
-        Texture buildingTexture = AssetManager.getAssetManager().getTileTexture(buildingKey);
-
-        if (buildingTexture != null) {
-            float buildingWidth = building.getWidth() * tileSize;
-            float buildingHeight = building.getHeight() * tileSize;
-            Main.getBatch().draw(buildingTexture, worldX, worldY, buildingWidth, buildingHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.ORANGE);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float buildingWidth = building.getWidth() * tileSize;
-            float buildingHeight = building.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, buildingWidth, buildingHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private String getMarketTextureKey(String marketName) {
-        if (marketName == null) return "market";
-
-        switch (marketName.toLowerCase()) {
-            case "black smith":
-            case "blacksmith":
-                return "blacksmith";
-            case "joja market":
-            case "joja mart":
-                return "joja_mart";
-            case "pierre general store":
-                return "pierre_store";
-            case "carpenters shop":
-                return "carpenters_shop";
-            case "fish shop":
-                return "fish_shop";
-            case "marnie shop":
-                return "marnie_shop";
-            case "star drop saloon":
-            case "stardrop saloon":
-                return "stardrop_saloon";
-            default:
-                return "market";
-        }
-    }
-
-    private String getVillageBuildingTextureKey(String buildingName, String buildingType) {
-        if (buildingName == null) return "building";
-
-        switch (buildingName.toLowerCase()) {
-            case "town hall":
-                return "town_hall";
-            case "gold clock":
-                return "gold_clock";
-            case "npc house":
-            case "npc house 1":
-            case "npc house 2":
-            case "npc house 3":
-            case "npc house 4":
-            case "npc house 5":
-                return "npc_house";
-            default:
-                return "building";
-        }
-    }
-
-    private void renderBuilding(Building building, Farm farm, int tileSize) {
-        // Calculate global coordinates based on farm position
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + building.getX()) * tileSize;
-        float worldY = (farmStartY + building.getY()) * tileSize;
-
-        // Try to get building texture
-        String buildingKey = "house"; // Default house texture
-        Texture buildingTexture = AssetManager.getAssetManager().getTileTexture(buildingKey);
-
-        if (buildingTexture != null) {
-            // Draw building with proper size (5x5 tiles)
-            float buildingWidth = building.getWidth() * tileSize;
-            float buildingHeight = building.getHeight() * tileSize;
-            Main.getBatch().draw(buildingTexture, worldX, worldY, buildingWidth, buildingHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.BROWN);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float buildingWidth = building.getWidth() * tileSize;
-            float buildingHeight = building.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, buildingWidth, buildingHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderBarn(Barn barn, Farm farm, int tileSize) {
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + barn.getX()) * tileSize;
-        float worldY = (farmStartY + barn.getY()) * tileSize;
-
-        // Try to get barn texture based on type
-        String barnKey = "barn";
-        if (barn.getType() != null) {
-            switch (barn.getType()) {
-                case BIG_BARN:
-                    barnKey = "big_barn";
-                    break;
-                case DELUXE_BARN:
-                    barnKey = "deluxe_barn";
-                    break;
-                default:
-                    barnKey = "barn";
-                    break;
-            }
-        }
-
-        Texture barnTexture = AssetManager.getAssetManager().getTileTexture(barnKey);
-
-        if (barnTexture != null) {
-            float barnWidth = barn.getWidth() * tileSize;
-            float barnHeight = barn.getHeight() * tileSize;
-            Main.getBatch().draw(barnTexture, worldX, worldY, barnWidth, barnHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.ORANGE);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float barnWidth = barn.getWidth() * tileSize;
-            float barnHeight = barn.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, barnWidth, barnHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderCoop(Coop coop, Farm farm, int tileSize) {
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + coop.getX()) * tileSize;
-        float worldY = (farmStartY + coop.getY()) * tileSize;
-
-        // Try to get coop texture based on type
-        String coopKey = "coop";
-        if (coop.getType() != null) {
-            switch (coop.getType()) {
-                case BIG_CAGE:
-                    coopKey = "big_coop";
-                    break;
-                case DELUXE_CAGE:
-                    coopKey = "deluxe_coop";
-                    break;
-                default:
-                    coopKey = "coop";
-                    break;
-            }
-        }
-
-        Texture coopTexture = AssetManager.getAssetManager().getTileTexture(coopKey);
-
-        if (coopTexture != null) {
-            float coopWidth = coop.getWidth() * tileSize;
-            float coopHeight = coop.getHeight() * tileSize;
-            Main.getBatch().draw(coopTexture, worldX, worldY, coopWidth, coopHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.YELLOW);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float coopWidth = coop.getWidth() * tileSize;
-            float coopHeight = coop.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, coopWidth, coopHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderGreenhouse(GreenHouse greenhouse, Farm farm, int tileSize) {
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + greenhouse.getX()) * tileSize;
-        float worldY = (farmStartY + greenhouse.getY()) * tileSize;
-
-        // Try to get greenhouse texture
-        String greenhouseKey = "greenhouse";
-        Texture greenhouseTexture = AssetManager.getAssetManager().getTileTexture(greenhouseKey);
-
-        if (greenhouseTexture != null) {
-            float greenhouseWidth = greenhouse.getWidth() * tileSize;
-            float greenhouseHeight = greenhouse.getHeight() * tileSize;
-            Main.getBatch().draw(greenhouseTexture, worldX, worldY, greenhouseWidth, greenhouseHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.GREEN);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float greenhouseWidth = greenhouse.getWidth() * tileSize;
-            float greenhouseHeight = greenhouse.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, greenhouseWidth, greenhouseHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderQuarry(Quarry quarry, Farm farm, int tileSize) {
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + quarry.getX()) * tileSize;
-        float worldY = (farmStartY + quarry.getY()) * tileSize;
-
-        // Try to get quarry texture
-        String quarryKey = "quarry";
-        Texture quarryTexture = AssetManager.getAssetManager().getTileTexture(quarryKey);
-
-        if (quarryTexture != null) {
-            float quarryWidth = quarry.getWidth() * tileSize;
-            float quarryHeight = quarry.getHeight() * tileSize;
-            Main.getBatch().draw(quarryTexture, worldX, worldY, quarryWidth, quarryHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.GRAY);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float quarryWidth = quarry.getWidth() * tileSize;
-            float quarryHeight = quarry.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, quarryWidth, quarryHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-    private void renderLake(Lake lake, Farm farm, int tileSize) {
-        int farmStartX = getFarmStartX(farm.getFarmIndex());
-        int farmStartY = getFarmStartY(farm.getFarmIndex());
-
-        float worldX = (farmStartX + lake.getX()) * tileSize;
-        float worldY = (farmStartY + lake.getY()) * tileSize;
-
-        // Try to get lake texture
-        String lakeKey = "lake";
-        Texture lakeTexture = AssetManager.getAssetManager().getTileTexture(lakeKey);
-
-        if (lakeTexture != null) {
-            float lakeWidth = lake.getWidth() * tileSize;
-            float lakeHeight = lake.getHeight() * tileSize;
-            Main.getBatch().draw(lakeTexture, worldX, worldY, lakeWidth, lakeHeight);
-        } else {
-            // Fallback: draw colored rectangle
-            Main.getBatch().setColor(Color.BLUE);
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            float lakeWidth = lake.getWidth() * tileSize;
-            float lakeHeight = lake.getHeight() * tileSize;
-            Main.getBatch().draw(whiteTexture, worldX, worldY, lakeWidth, lakeHeight);
-            whiteTexture.dispose();
-            Main.getBatch().setColor(Color.WHITE);
-        }
-    }
-
-
-    private int getFarmStartX(int farmIndex) {
-        switch (farmIndex) {
-            case 0: // Top-Left
-                return 0;
-            case 1: // Bottom-Left
-                return 0;
-            case 2: // Top-Right
-                return 156;
-            case 3: // Bottom-Right
-                return 156;
-            default:
-                return 0;
-        }
-    }
-
-    private int getFarmStartY(int farmIndex) {
-        switch (farmIndex) {
-            case 0: // Top-Left
-                return 0;
-            case 1: // Bottom-Left
-                return 78;
-            case 2: // Top-Right
-                return 0;
-            case 3: // Bottom-Right
-                return 78;
-            default:
-                return 0;
-        }
-    }
-
-    private void renderPlayersOnFullMap() {
-        GameMap gameMap = App.getGame().getGameMap();
-        if (gameMap == null) return;
-
-        final int TILE_SIZE = 60;
-
-        // Render all players
-        for (Player player : App.getGame().getPlayers()) {
-            if (player == null) continue;
-
-            // Only show players if they are in their own farm
-            Farm playerFarm = player.getCurrentFarm();
-            if (playerFarm == null) continue;
-
-            // Check if player is in their farm (not in village)
-            if (player.getIsInVillage()) continue;
-
-            // Get player's location and farm index
-            Location playerLocation = player.getLocation();
-            int farmIndex = playerFarm.getFarmIndex();
-            
-            // Calculate world coordinates with farm offset
-            float worldX = (getFarmStartX(farmIndex) + playerLocation.getX()) * TILE_SIZE;
-            float worldY = (getFarmStartY(farmIndex) + playerLocation.getY()) * TILE_SIZE;
-
-            // Determine if this is the current player
-            Player currentPlayer = App.getGame().getCurrentPlayer();
-            boolean isCurrentPlayer = (player == currentPlayer);
-
-            // Set color based on whether it's the current player or not
-            if (isCurrentPlayer) {
-                // Draw current player as a red dot
-                Main.getBatch().setColor(Color.RED);
-            } else {
-                // Draw other players as blue dots
-                Main.getBatch().setColor(Color.BLUE);
-            }
-
-            // Draw player dot
-            Texture whiteTexture = new Texture("content/grass/spring.png");
-            Main.getBatch().draw(whiteTexture, worldX - 5, worldY - 5, 10, 10);
-            whiteTexture.dispose();
-        }
-
-        // Reset color to white
-        Main.getBatch().setColor(Color.WHITE);
-    }
-
-    private boolean shouldRenderGrass(TileType tileType) {
-        return tileType == TileType.Dirt || tileType == TileType.PATH ||
-            tileType == TileType.PLOWED || tileType == TileType.CROP;
-    }
-
-    private void renderItemOnTile(int x, int y, Item item, String season) {
-        float worldX = x * 60; // TILE_SIZE
-        float worldY = y * 60; // TILE_SIZE
-
-        if (item instanceof Tree tree) {
-            renderTreeItem(worldX, worldY, season, tree);
-        } else if (item instanceof Crop crop) {
-            renderCropItem(worldX, worldY, crop);
-        } else if (item instanceof Plant) {
-            renderPlantItem(worldX, worldY);
-        } else if (item instanceof Mineral) {
-            renderMineralItem(worldX, worldY);
-        } else if (item instanceof ShippingBin) {
-            renderShippingBinItem(worldX, worldY);
-        }
-    }
-
-    private void renderTreeItem(float worldX, float worldY, String season, Tree tree) {
-        int stage = tree.getStage() + 1;
-        String key = tree.getImageFilepath() + "_" + stage;
-        Texture treeTexture = AssetManager.getAssetManager().getTileTexture(key);
-        if (treeTexture != null) {
-            float treeSize = 60 * 2f; // TILE_SIZE * TREE_SIZE_MULTIPLIER
-            float offsetX = (60 - treeSize) / 2; // Center the larger tree
-            float offsetY = (60 - treeSize) / 2;
-
-            Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
-        }
-    }
-
-    private void renderCropItem(float worldX, float worldY, Crop crop) {
-        String key = crop.getImageFilepath();
-        Texture cropTexture = AssetManager.getAssetManager().getTileTexture(key);
-        if (cropTexture != null) {
-            Main.getBatch().draw(cropTexture, worldX, worldY, 60, 60);
-        }
-    }
-
-    private void renderPlantItem(float worldX, float worldY) {
-        Texture plantTexture = AssetManager.getAssetManager().getTileTexture("crop");
-        if (plantTexture != null) {
-            Main.getBatch().draw(plantTexture, worldX, worldY, 60, 60);
-        }
-    }
-
-    private void renderMineralItem(float worldX, float worldY) {
-        Texture mineralTexture = AssetManager.getAssetManager().getTileTexture("stone");
-        if (mineralTexture != null) {
-            Main.getBatch().draw(mineralTexture, worldX, worldY, 60, 60);
-        }
-    }
-
-    private void renderShippingBinItem(float worldX, float worldY) {
-        Texture binTexture = AssetManager.getAssetManager().getTileTexture("shipping_bin");
-        if (binTexture != null) {
-            Main.getBatch().draw(binTexture, worldX, worldY, 60, 60);
-        }
-    }
-
 
     public void takeScreenshot() {
         try {
@@ -2026,11 +1495,7 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
-    /**
-     * Shows a temporary notification that a screenshot was taken
-     */
     void showScreenshotNotification() {
-        // Create a temporary label to show the screenshot notification
         Label notificationLabel = new Label("Screenshot taken!", skin);
         notificationLabel.setColor(Color.GREEN);
         notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() - 100);

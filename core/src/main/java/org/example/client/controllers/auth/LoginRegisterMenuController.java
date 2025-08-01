@@ -238,8 +238,8 @@ public class LoginRegisterMenuController implements Controller {
 
         // Handle auto-login functionality
         if (stayLoggedIn) {
-            // Save encrypted credentials for auto-login
-            AutoLoginUtil.saveAutoLogin(username, user.getPassword());
+            // Save username for auto-login
+            AutoLoginUtil.saveAutoLogin(username);
         } else {
             // Clear any existing auto-login data
             AutoLoginUtil.clearAutoLogin();

@@ -454,6 +454,8 @@ public class Player {
         if (location != null) {
             location.setxAxis((int) (posX/60));
         }
+        // Update sprite position when position changes
+        updatePosition();
     }
 
     public float getPosY(){
@@ -465,6 +467,8 @@ public class Player {
         if (location != null) {
             location.setyAxis((int) (posY/60));
         }
+        // Update sprite position when position changes
+        updatePosition();
     }
 
     public boolean equipTool(String toolName) {

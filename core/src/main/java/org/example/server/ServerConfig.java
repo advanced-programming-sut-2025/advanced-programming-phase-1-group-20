@@ -54,11 +54,16 @@ public class ServerConfig {
     }
 
     public int getGameTickRate() {
-        return Integer.parseInt(dotenv.get("GAME_TICK_RATE", "20"));
+        return Integer.parseInt(dotenv.get("GAME_TICK_RATE", "10")); // Reduced from 20 to 10 for better performance
     }
 
     public int getHeartbeatInterval() {
         return Integer.parseInt(dotenv.get("HEARTBEAT_INTERVAL", "30"));
+    }
+
+    // New configuration for movement update throttling
+    public int getMovementUpdateThrottle() {
+        return Integer.parseInt(dotenv.get("MOVEMENT_UPDATE_THROTTLE", "100")); // Minimum 100ms between movement updates
     }
 
     // Development Configuration

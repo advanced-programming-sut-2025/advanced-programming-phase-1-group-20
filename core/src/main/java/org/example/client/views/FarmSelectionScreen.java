@@ -31,6 +31,7 @@ import org.example.common.models.enums.PlayerEnums.Gender;
 
 import java.util.HashMap;
 
+// TODO: remove debug prints
 public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMessageListener {
     private Stage stage;
     private SpriteBatch batch;
@@ -161,11 +162,11 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         System.out.println("DEBUG: FarmSelectionScreen.updateFarmSelectionUI called - inFarmSelectionPhase: " + inFarmSelectionPhase);
         System.out.println("DEBUG: FarmSelectionScreen - availableFarms: " + availableFarms);
         System.out.println("DEBUG: FarmSelectionScreen - playerSelections: " + playerSelections);
-        
+
         // Always update UI if we have farm selection data, regardless of phase flag
         boolean shouldUpdate = inFarmSelectionPhase || (availableFarms != null || playerSelections != null);
         System.out.println("DEBUG: FarmSelectionScreen - shouldUpdate: " + shouldUpdate);
-        
+
         if (shouldUpdate) {
             // Update farm button states
             for (int i = 0; i < 4; i++) {
@@ -191,7 +192,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     private boolean isFarmAvailable(int farmIndex) {
         System.out.println("DEBUG: FarmSelectionScreen.isFarmAvailable called for farm " + farmIndex);
         System.out.println("DEBUG: FarmSelectionScreen - availableFarms: " + availableFarms);
-        
+
         if (availableFarms == null) {
             System.out.println("DEBUG: FarmSelectionScreen - availableFarms is null, returning true");
             return true;
@@ -200,7 +201,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         // Check if the farm index is in the available farms list
         for (Object farm : availableFarms) {
             System.out.println("DEBUG: FarmSelectionScreen - Checking farm object: " + farm + " (type: " + (farm != null ? farm.getClass().getSimpleName() : "null") + ")");
-            
+
             if (farm instanceof Integer && (Integer) farm == farmIndex) {
                 System.out.println("DEBUG: FarmSelectionScreen - Farm " + farmIndex + " is available (Integer match)");
                 return true;
@@ -526,6 +527,8 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
                         if (posX instanceof Number) player.setPosX(((Number) posX).floatValue());
                         if (posY instanceof Number) player.setPosY(((Number) posY).floatValue());
+                        // Update sprite position after setting coordinates
+                        player.updatePosition();
                         if (energy instanceof Number) player.setEnergy(((Number) energy).intValue());
                         if (money instanceof Number) {
                             int currentMoney = player.getMoney();
@@ -625,7 +628,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             // In multiplayer mode, set the current player to this client's player
             // instead of using the turn-based system
             game.setCurrentPlayer(currentPlayer);
-            
+
             // Find the index of the current player in the players list
             int currentPlayerIndex = allPlayers.indexOf(currentPlayer);
             if (currentPlayerIndex >= 0) {
@@ -660,13 +663,13 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             System.out.println("DEBUG: Current player: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
             System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
             System.out.println("DEBUG: Current user: " + (currentUser != null ? currentUser.getUsername() : "null"));
-            
+
             // Ensure the game is properly set in App before creating the GameMenuController
             if (App.getGame() != game) {
                 System.err.println("DEBUG: Game not properly set in App, setting it now");
                 App.setGame(game);
             }
-            
+
             // Verify that the current player has a valid farm before creating the GameMenuController
             if (currentPlayer.getCurrentFarm() == null) {
                 System.err.println("DEBUG: Current player has no farm assigned, cannot create GameMenuController");
@@ -674,30 +677,16 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 statusLabel.setColor(Color.RED);
                 return;
             }
-            
+
             System.out.println("DEBUG: Creating GameMenuController with player: " + currentPlayer.getUser().getUsername());
             System.out.println("DEBUG: Player's farm: " + currentPlayer.getCurrentFarm().getName());
             System.out.println("DEBUG: Game in App: " + (App.getGame() != null ? "set" : "null"));
-            
-            // Create GameView with exception handling
-            final GameView gameView;
-            try {
-                System.out.println("DEBUG: About to create GameView...");
-                gameView = new GameView(new GameMenuController(currentPlayer), currentPlayer, game,
-                    AssetManager.getAssetManager().getSkin(), currentUser);
-                System.out.println("DEBUG: GameView created successfully");
-                System.out.println("DEBUG: GameView stage: " + (gameView.getStage() != null ? "not null" : "null"));
-                System.out.println("DEBUG: GameView controller: " + (gameView.getController() != null ? "not null" : "null"));
-                System.out.println("DEBUG: GameView player: " + (gameView.getPlayer() != null ? gameView.getPlayer().getUser().getUsername() : "null"));
-            } catch (Exception e) {
-                System.err.println("DEBUG: Exception during GameView creation: " + e.getMessage());
-                e.printStackTrace();
-                statusLabel.setText("Error: Failed to create GameView");
-                statusLabel.setColor(Color.RED);
-                return;
-            }
 
-            // Navigate to game - always use postRunnable to ensure it happens on the main thread
+            // Create GameView with exception handling
+            GameView gameView = new GameView(new GameMenuController(currentPlayer),
+                currentPlayer, game, AssetManager.getAssetManager().getSkin(), currentUser);
+
+
             System.out.println("DEBUG: Scheduling screen change on main thread...");
             Gdx.app.postRunnable(() -> {
                 try {

@@ -3,6 +3,7 @@ package org.example.client.controllers.gameplay;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -1286,10 +1287,105 @@ public class WorldController {
             return;
         }
 
+        // Check if full map is visible by checking the map visibility state
+        boolean isFullMapVisible = false;
+        if (controller != null && controller.getView() != null) {
+            try {
+                // Try to access the isMapVisible field from GameView
+                java.lang.reflect.Field field = controller.getView().getClass().getDeclaredField("isMapVisible");
+                field.setAccessible(true);
+                isFullMapVisible = (Boolean) field.get(controller.getView());
+            } catch (Exception e) {
+                // If we can't access the field, assume full map is not visible
+                isFullMapVisible = false;
+            }
+        }
+
         for (Player player : game.getPlayers()) {
             if (player != null && player.getPlayerSprite() != null) {
-                player.getPlayerSprite().draw(Main.getBatch());
+                if (isFullMapVisible) {
+                    // When full map is visible, render players at their correct positions
+                    // relative to the full map view
+                    renderPlayerOnFullMap(player);
+                } else {
+                    // Normal rendering when full map is not visible
+                    player.getPlayerSprite().draw(Main.getBatch());
+                }
             }
+        }
+    }
+
+    private void renderPlayerOnFullMap(Player player) {
+        if (player.getCurrentFarm() == null) {
+            return;
+        }
+
+        Farm farm = player.getCurrentFarm();
+        int farmIndex = farm.getFarmIndex();
+
+        // Calculate global farm boundaries based on farm index
+        int globalFarmStartX, globalFarmStartY;
+        switch (farmIndex) {
+            case 0: // Top-Left
+                globalFarmStartX = 0;
+                globalFarmStartY = 0;
+                break;
+            case 1: // Bottom-Left
+                globalFarmStartX = 0;
+                globalFarmStartY = 78;
+                break;
+            case 2: // Top-Right
+                globalFarmStartX = 156;
+                globalFarmStartY = 0;
+                break;
+            case 3: // Bottom-Right
+                globalFarmStartX = 156;
+                globalFarmStartY = 78;
+                break;
+            default:
+                return;
+        }
+
+        // Calculate the player's local position within their farm
+        float playerGlobalX = player.getPosX() / TILE_SIZE; // Convert to tile coordinates
+        float playerGlobalY = player.getPosY() / TILE_SIZE;
+        
+        // Calculate local position within the farm
+        float playerLocalX = playerGlobalX - globalFarmStartX;
+        float playerLocalY = playerGlobalY - globalFarmStartY;
+
+        // Calculate the farm's position on the full map
+        float farmStartX, farmStartY;
+        switch (farmIndex) {
+            case 0: // Top-Left
+                farmStartX = 0;
+                farmStartY = 0;
+                break;
+            case 1: // Bottom-Left
+                farmStartX = 0;
+                farmStartY = Farm.height * TILE_SIZE;
+                break;
+            case 2: // Top-Right
+                farmStartX = (Farm.width + Village.width) * TILE_SIZE;
+                farmStartY = 0;
+                break;
+            case 3: // Bottom-Right
+                farmStartX = (Farm.width + Village.width) * TILE_SIZE;
+                farmStartY = Farm.height * TILE_SIZE;
+                break;
+            default:
+                return;
+        }
+
+        // Calculate the player's position on the full map
+        float playerMapX = farmStartX + playerLocalX * TILE_SIZE;
+        float playerMapY = farmStartY + playerLocalY * TILE_SIZE;
+
+        // Update the player sprite position for full map rendering
+        Sprite playerSprite = player.getPlayerSprite();
+        if (playerSprite != null) {
+            playerSprite.setPosition(playerMapX, playerMapY);
+            playerSprite.draw(Main.getBatch());
         }
     }
 

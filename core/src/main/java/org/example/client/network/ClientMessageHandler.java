@@ -384,13 +384,52 @@ public class ClientMessageHandler {
         Float x = message.getFromBody("x");
         Float y = message.getFromBody("y");
 
-        if (username != null && x != null && y != null && gameStateListener != null) {
-            gameStateListener.onPlayerMove(username, x, y);
+        if (username != null && x != null && y != null) {
+            System.out.println("DEBUG: Received player move - " + username + " moved to (" + x + ", " + y + ")");
+            
+            // Update the player's position in the game state
+            Game currentGame = App.getGame();
+            if (currentGame != null) {
+                Player targetPlayer = currentGame.getPlayerByUsername(username);
+                if (targetPlayer != null) {
+                    targetPlayer.setPosX(x);
+                    targetPlayer.setPosY(y);
+                    // Update the sprite position to reflect the new coordinates
+                    targetPlayer.updatePosition();
+                    System.out.println("DEBUG: Updated player " + username + " position in game state and sprite");
+                } else {
+                    System.out.println("DEBUG: Player " + username + " not found in current game");
+                }
+            }
+
+            // Notify the game state listener
+            if (gameStateListener != null) {
+                gameStateListener.onPlayerMove(username, x, y);
+            }
+        } else {
+            System.err.println("DEBUG: Invalid player move message - missing data");
         }
     }
 
     private void handleGameStateUpdate(Message message) {
         Object gameState = message.getFromBody("gameState");
+        Object dateState = message.getFromBody("dateState");
+
+        // Sync date from server
+        if (dateState != null) {
+            try {
+                Game currentGame = App.getGame();
+                if (currentGame != null) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> serverDateState = (Map<String, Object>) dateState;
+                    currentGame.syncDateFromServer(serverDateState);
+                    System.out.println("DEBUG: Date synced from server in game state update");
+                }
+            } catch (Exception e) {
+                System.err.println("DEBUG: Error syncing date from game state update: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
         if (gameState != null && gameStateListener != null) {
             gameStateListener.onGameStateUpdate(gameState);
@@ -400,9 +439,27 @@ public class ClientMessageHandler {
     private void handleFullGameState(Message message) {
         Object gameState = message.getFromBody("gameState");
         Object playersData = message.getFromBody("players");
+        Object dateState = message.getFromBody("dateState");
 
         System.out.println("DEBUG: handleFullGameState called - gameState: " + (gameState != null ? "present" : "null") +
-                          ", playersData: " + (playersData != null ? "present" : "null"));
+                          ", playersData: " + (playersData != null ? "present" : "null") +
+                          ", dateState: " + (dateState != null ? "present" : "null"));
+
+        // Sync date from server
+        if (dateState != null) {
+            try {
+                Game currentGame = App.getGame();
+                if (currentGame != null) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> serverDateState = (Map<String, Object>) dateState;
+                    currentGame.syncDateFromServer(serverDateState);
+                    System.out.println("DEBUG: Date synced from server in full game state");
+                }
+            } catch (Exception e) {
+                System.err.println("DEBUG: Error syncing date from full game state: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
 
         // Update the local game state with server data
         if (gameState != null) {
@@ -411,8 +468,10 @@ public class ClientMessageHandler {
                 Game currentGame = App.getGame();
                 if (currentGame != null) {
                     // Update game state from server data
-                    // This would need proper deserialization and state synchronization
-                    System.out.println("DEBUG: Updating local game state with server data");
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> serverGameState = (Map<String, Object>) gameState;
+                    currentGame.syncGameStateFromServer(serverGameState);
+                    System.out.println("DEBUG: Updated local game state with server data");
                 }
             } catch (Exception e) {
                 System.err.println("Failed to update game state: " + e.getMessage());

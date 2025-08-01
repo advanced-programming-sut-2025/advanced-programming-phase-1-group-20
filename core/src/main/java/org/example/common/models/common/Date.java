@@ -303,4 +303,85 @@ public class Date implements Runnable {
         return this.minute;
     }
 
+    /**
+     * Get date state as a map for network synchronization
+     */
+    public Map<String, Object> getDateState() {
+        Map<String, Object> state = new HashMap<>();
+        state.put("day", this.day);
+        state.put("season", this.season);
+        state.put("year", this.year);
+        state.put("hour", this.hour);
+        state.put("minute", this.minute);
+        state.put("weatherToday", this.weatherToday != null ? this.weatherToday.toString() : null);
+        state.put("weatherTomorrow", this.weatherTomorrow != null ? this.weatherTomorrow.toString() : null);
+        return state;
+    }
+
+    /**
+     * Sync date state from server data
+     */
+    public void syncFromServer(Map<String, Object> serverDateState) {
+        if (serverDateState == null) {
+            System.out.println("DEBUG: Cannot sync date - serverDateState is null");
+            return;
+        }
+
+        try {
+            // Temporarily stop the time thread to prevent conflicts during sync
+            boolean wasRunning = this.running;
+            if (wasRunning) {
+                this.running = false;
+            }
+
+            // Update date fields
+            if (serverDateState.containsKey("day")) {
+                this.day = (Integer) serverDateState.get("day");
+            }
+            if (serverDateState.containsKey("season")) {
+                this.season = (Integer) serverDateState.get("season");
+            }
+            if (serverDateState.containsKey("year")) {
+                this.year = (Integer) serverDateState.get("year");
+            }
+            if (serverDateState.containsKey("hour")) {
+                this.hour = (Integer) serverDateState.get("hour");
+            }
+            if (serverDateState.containsKey("minute")) {
+                this.minute = (Integer) serverDateState.get("minute");
+            }
+
+            // Update weather
+            if (serverDateState.containsKey("weatherToday")) {
+                String weatherTodayStr = (String) serverDateState.get("weatherToday");
+                if (weatherTodayStr != null) {
+                    this.weatherToday = Weather.valueOf(weatherTodayStr);
+                }
+            }
+            if (serverDateState.containsKey("weatherTomorrow")) {
+                String weatherTomorrowStr = (String) serverDateState.get("weatherTomorrow");
+                if (weatherTomorrowStr != null) {
+                    this.weatherTomorrow = Weather.valueOf(weatherTomorrowStr);
+                }
+            }
+
+            // Restart the time thread if it was running before
+            if (wasRunning) {
+                this.running = true;
+            }
+
+            System.out.println("DEBUG: Date synced from server - " + getCurrentTimeString());
+        } catch (Exception e) {
+            System.err.println("DEBUG: Error syncing date from server: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get a string representation of the current date for network transmission
+     */
+    @Override
+    public String toString() {
+        return String.format("Year %d, %s %02d, %02d:%02d", year, getSeason(), day, hour, minute);
+    }
 }

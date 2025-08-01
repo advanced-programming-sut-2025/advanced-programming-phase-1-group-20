@@ -659,6 +659,7 @@ public class Game implements Serializable {
         state.put("playerCount", players != null ? players.size() : 0);
         state.put("gameTime", date != null ? date.toString() : null);
         state.put("weather", date != null ? date.getWeatherToday().toString() : null);
+        state.put("dateState", date != null ? date.getDateState() : null);
         state.put("saved", saved);
 
         return state;
@@ -737,6 +738,19 @@ public class Game implements Serializable {
     }
 
     /**
+     * Sync date from server data
+     */
+    public void syncDateFromServer(Map<String, Object> serverDateState) {
+        if (serverDateState != null) {
+            // Ensure date is initialized
+            if (this.date == null) {
+                this.date = new Date();
+            }
+            this.date.syncFromServer(serverDateState);
+        }
+    }
+
+    /**
      * Check if game is ready to start (has enough players)
      */
     public boolean isReadyToStart() {
@@ -748,5 +762,24 @@ public class Game implements Serializable {
      */
     public int getPlayerCount() {
         return players != null ? players.size() : 0;
+    }
+
+    /**
+     * Sync game state from server data
+     */
+    public void syncGameStateFromServer(Map<String, Object> serverGameState) {
+        if (serverGameState == null) {
+            return;
+        }
+
+        // Sync date if present
+        if (serverGameState.containsKey("dateState")) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> dateState = (Map<String, Object>) serverGameState.get("dateState");
+            syncDateFromServer(dateState);
+        }
+
+        // Sync other game state as needed
+        // This can be expanded to sync other game properties
     }
 }

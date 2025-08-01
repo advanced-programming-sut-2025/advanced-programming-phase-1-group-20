@@ -26,6 +26,7 @@ public class GameSession {
     private final Gson gson;
     private final ServerConfig config;
     private boolean isActive;
+    private final Map<String, Long> lastMovementTime; // Track last movement time per player
 
     public GameSession(User creator) {
         System.out.println("DEBUG: GameSession constructor called for creator: " + creator.getUsername());
@@ -36,6 +37,7 @@ public class GameSession {
         this.gson = new Gson();
         this.config = ServerConfig.getInstance();
         this.isActive = false;
+        this.lastMovementTime = new ConcurrentHashMap<>();
 
         // Create game instance with the creator as the first player
         System.out.println("DEBUG: Creating game instance...");
@@ -93,6 +95,9 @@ public class GameSession {
         // Notify all players about new player
         broadcastPlayerJoined(user.getUsername());
 
+        // Send immediate game state update for new player
+        broadcastGameStateUpdate();
+
         // System.out.println("DEBUG: Player " + user.getUsername() + " joined game session: " + sessionId);
         return true;
     }
@@ -106,8 +111,14 @@ public class GameSession {
                 gameInstance.removePlayer(player);
             }
 
+            // Clean up movement tracking
+            lastMovementTime.remove(username);
+
             // Notify remaining players
             broadcastPlayerLeft(username);
+
+            // Send immediate game state update for player leaving
+            broadcastGameStateUpdate();
 
             System.out.println("Player " + username + " left game session: " + sessionId);
 
@@ -197,8 +208,8 @@ public class GameSession {
             // Update game time and state
             gameInstance.updateGameState();
 
-            // Send periodic state updates
-            broadcastGameStateUpdate();
+            // No periodic state updates - updates happen immediately when events occur
+            // This prevents unnecessary network traffic and ensures real-time responsiveness
         } catch (Exception e) {
             System.err.println("Error in game loop for session " + sessionId + ": " + e.getMessage());
             e.printStackTrace();
@@ -211,11 +222,31 @@ public class GameSession {
 
         Player player = gameInstance.getPlayerByUsername(username);
         if (player != null) {
+            // Check movement throttling to prevent excessive updates
+            long currentTime = System.currentTimeMillis();
+            Long lastTime = lastMovementTime.get(username);
+            int throttleMs = config.getMovementUpdateThrottle();
+            
+            if (lastTime != null && (currentTime - lastTime) < throttleMs) {
+                // Skip update if too soon since last movement
+                return;
+            }
+            
+            // Update player position on server
             player.setPosX(x);
             player.setPosY(y);
 
-            // Broadcast movement to other players
+            // Add username to message for client identification
+            message.putInBody("username", username);
+            message.putInBody("timestamp", currentTime);
+
+            // Broadcast movement to other players immediately
             broadcastToOthers(username, message);
+            
+            // Update last movement time
+            lastMovementTime.put(username, currentTime);
+            
+            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ")");
         }
     }
 
@@ -230,19 +261,28 @@ public class GameSession {
             // Execute tool use on server
             player.useTool(direction, gameInstance.getGameMap());
 
-            // Broadcast action to all players
+            // Broadcast action to all players immediately
             broadcastToAll(message);
+            
+            // Send immediate game state update for tool effects
+            broadcastGameStateUpdate();
         }
     }
 
     private void handlePlantSeed(String username, Message message) {
         // Implementation for planting seeds
         broadcastToAll(message);
+        
+        // Send immediate game state update for planted seeds
+        broadcastGameStateUpdate();
     }
 
     private void handleHarvestCrop(String username, Message message) {
         // Implementation for harvesting crops
         broadcastToAll(message);
+        
+        // Send immediate game state update for harvested crops
+        broadcastGameStateUpdate();
     }
 
     private void handleChat(String username, Message message) {
@@ -316,6 +356,9 @@ public class GameSession {
         // Broadcast to all players
         broadcastToAll(response);
 
+        // Send immediate game state update for farm selection
+        broadcastGameStateUpdate();
+
         // Check if all players have selected farms
         if (gameInstance.allPlayersSelectedFarm()) {
             System.out.println("DEBUG: All players have selected farms, initializing game");
@@ -327,6 +370,9 @@ public class GameSession {
             // Set the game session as fully active
             this.isActive = true;
 
+            // Send immediate full game state update for game initialization
+            broadcastFullGameState();
+
             // Create comprehensive game state for clients
             Map<String, Object> completeGameState = new HashMap<>();
             completeGameState.put("gameSessionId", sessionId);
@@ -335,6 +381,7 @@ public class GameSession {
             completeGameState.put("playerSelections", gameInstance.getPlayerFarmSelections());
             completeGameState.put("playersData", gameInstance.getPlayersData());
             completeGameState.put("gameData", gameInstance.getGameState());
+            completeGameState.put("dateState", gameInstance.getCurrentDate().getDateState());
             // Don't send a specific current player username - each client will set their own
             completeGameState.put("currentPlayerUsername", null);
             completeGameState.put("playerCount", gameInstance.getPlayerCount());
@@ -447,14 +494,14 @@ public class GameSession {
         message.setType(Message.Type.GAME_STATE_FULL);
         message.putInBody("gameState", gameInstance.getGameState());
         message.putInBody("players", gameInstance.getPlayersData());
-        message.putInBody("worldTime", gameInstance.getCurrentDate().toString());
+        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
         broadcastToAll(message);
     }
 
     private void broadcastGameStateUpdate() {
         Message message = new Message();
         message.setType(Message.Type.GAME_STATE_UPDATE);
-        message.putInBody("worldTime", gameInstance.getCurrentDate().toString());
+        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
         message.putInBody("weather", gameInstance.getCurrentDate().getWeatherToday().toString());
         broadcastToAll(message);
     }
