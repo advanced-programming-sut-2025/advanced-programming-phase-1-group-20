@@ -4,6 +4,7 @@ package org.example.common.models.Items;
 import com.badlogic.gdx.graphics.Texture;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.entities.animal.Fish;
+import org.example.common.models.enums.Ingredients;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
 
@@ -28,40 +29,34 @@ public class CraftingItem extends Item {
         progressBar = 0;
     }
 
-    public String getIngredients() {
+    public Ingredients getIngredients() {
+        // This method now correctly gets the recipe from the Ingredients enum
         return type.getIngredients();
     }
-
 
     public String getSource() {
         return type.getSource();
     }
 
-
+    /**
+     * Checks if the inventory has the required items, and if so, removes them.
+     * This logic remains the same and now works with the refactored enums.
+     */
     public boolean canCraft(Backpack inventory) {
-        Map<Item, Integer> items = new HashMap<>();
-        String[] parts = type.getIngredients().split("\\+");
-        for (String part : parts) {
-            part = part.trim();
-            String[] itemData = part.split(" ", 2);
+        return type.getIngredients().checkRecipe(inventory);
+    }
 
-            int requiredItem = Integer.parseInt(itemData[0]);
-            String itemName = itemData[1];
-            itemName = itemName.trim();
-            if (inventory.getItem(itemName) == null || requiredItem > inventory.getNumberOfItem(itemName)) {
-                return false;
+    public ArtisanItem createArtisanItem(Backpack inventory , ArtisanItem artisanItem) {
+        if(type.getArtisanItems().contains(artisanItem)) {
+            if(artisanItem.getIngredient().checkRecipe(inventory)){
+                return artisanItem;
             }
-            items.put(inventory.getItem(itemName), requiredItem);
         }
-        for (Item item : new HashSet<>(items.keySet())) {
-            inventory.remove(item, items.get(item));
-        }
-
-
-        return true;
+        return null;
     }
 
     public ArtisanItem createArtisan(String items) {
+
         if (type.getName().equals("Bee House")) {
             return new ArtisanItem(ArtisanType.Honey);
         } else if (type.getName().equals("Cheese Press")) {
@@ -85,16 +80,15 @@ public class CraftingItem extends Item {
             String[] regexes = new String[]{"^\\s*1\\s+Wheat\\s*$", "^\\s*1\\s+Rice\\s*$", // beer and vinegar
                     "^\\s*1\\s+Honey\\s*$", "^\\s*1\\s+Hops\\s*$", //Mead , Pale Ale
                     "^\\s*5\\s+Coffee Bean\\s*$", // Coffee
-                    //juices : from 5 to 26
+                    //Vegetables -> juices : from 5 to 26
                     "^\\s*1\\s+Amaranth\\s*$", "^\\s*1\\s+Artichoke\\s*$",
                     "^\\s*1\\s+Beet\\s*$", "^\\s*1\\s+Bok Choy\\s*$", "^\\s*1\\s+Broccoli\\s*$",
                     "^\\s*1\\s+Carrot\\s*$", "^\\s*1\\s+Cauliflower\\s*$", "^\\s*1\\s+Corn\\s*$",
                     "^\\s*1\\s+Eggplant\\s*$", "^\\s*1\\s+Garlic\\s*$", "^\\s*1\\s+Green Bean\\s*$",
                     "^\\s*1\\s+Kale\\s*$", "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$",
                     "^\\s*1\\s+Pumpkin\\s*$", "^\\s*1\\s+Radish\\s*$", "^\\s*1\\s+Red Cabbage\\s*$",
-                    "^\\s*1\\s+Summer Squash\\s*$", "^\\s*1\\s+Taro Root\\s*$",
-                    "^\\s*1\\s+Tea Leaves\\s*$", "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
-                    //Wine : from 27 to 52
+                    "^\\s*1\\s+Summer Squash\\s*$" , "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
+                    //Fruits -> wine : from 27 to 52
                     "^\\s*1\\s+Ancient Fruit\\s*$", "^\\s*1\\s+Apple\\s*$", "^\\s*1\\s+Apricot\\s*$",
                     "^\\s*1\\s+Banana\\s*$", "^\\s*1\\s+Blackberry\\s*$", "^\\s*1\\s+Blueberry\\s*$",
                     "^\\s*1\\s+Cactus Fruit\\s*$", "^\\s*1\\s+Cherry\\s*$", "^\\s*1\\s+Coconut\\s*$",
@@ -204,12 +198,12 @@ public class CraftingItem extends Item {
                     "^\\s*1\\s+Eggplant\\s*$", "^\\s*1\\s+Garlic\\s*$", "^\\s*1\\s+Green Bean\\s*$",
                     "^\\s*1\\s+Kale\\s*$", "^\\s*1\\s+Parsnip\\s*$", "^\\s*1\\s+Potato\\s*$",
                     "^\\s*1\\s+Pumpkin\\s*$", "^\\s*1\\s+Radish\\s*$", "^\\s*1\\s+Red Cabbage\\s*$",
-                    "^\\s*1\\s+Summer Squash\\s*$", "^\\s*1\\s+Taro Root\\s*$",
-                    "^\\s*1\\s+Tea Leaves\\s*$", "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
+                    "^\\s*1\\s+Summer Squash\\s*$", "^\\s*1\\s+Tea Leaves\\s*$"
+                    , "^\\s*1\\s+Tomato\\s*$", "^\\s*1\\s+Unmilled Rice\\s*$",
                     //Fruits : (Jelly)
                     "^\\s*1\\s+Ancient Fruit\\s*$", "^\\s*1\\s+Apple\\s*$", "^\\s*1\\s+Apricot\\s*$",
                     "^\\s*1\\s+Banana\\s*$", "^\\s*1\\s+Blackberry\\s*$", "^\\s*1\\s+Blueberry\\s*$",
-                    "^\\s*1\\s+Cactus Fruit\\s*$", "^\\s*1\\s+Cherry\\s*$", "^\\s*1\\s+Coconut\\s*$",
+                    "^\\s*1\\s+Cherry\\s*$", "^\\s*1\\s+Coconut\\s*$",
                     "^\\s*1\\s+Cranberries\\s*$", "^\\s*1\\s+Crystal Fruit\\s*$", "^\\s*1\\s+Grape\\s*$",
                     "^\\s*1\\s+Hot Pepper\\s*$", "^\\s*1\\s+Mango\\s*$", "^\\s*1\\s+Melon\\s*$",
                     "^\\s*1\\s+Orange\\s*$", "^\\s*1\\s+Peach\\s*$", "^\\s*1\\s+Pineapple\\s*$",
@@ -511,9 +505,9 @@ public class CraftingItem extends Item {
     }
 
 
-    public boolean processItem(String items) {
+    public boolean processItem(Backpack backpack , ArtisanItem item) {
         if(proccessingItem == null) {
-            proccessingItem = createArtisan(items);
+            proccessingItem = createArtisanItem(backpack, item);
             return true;
         }
         return false;

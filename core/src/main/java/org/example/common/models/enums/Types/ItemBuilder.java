@@ -3,7 +3,11 @@ package org.example.common.models.enums.Types;
 import org.example.common.models.Items.*;
 import org.example.common.models.entities.animal.Fish;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ItemBuilder {
+
     public static Item build(String name) {
         MineralType mineralType = MineralType.fromName(name);
         if (mineralType != null) {
@@ -44,4 +48,21 @@ public class ItemBuilder {
 
         return null;
     }
+
+    public static List<Item> getFruits() {
+        List<Item> fruits = new ArrayList<>();
+        fruits.addAll(CropType.getFruits());
+        fruits.addAll(TreeType.getFruits());
+        fruits.addAll(PlantType.getFruits());
+        return fruits;
+    }
+
+    public static List<Item> getMushrooms() {
+        return CropType.getMushrooms();
+    }
+
+    public static List<Item> getVegetables() {
+        return PlantType.getVegetables();
+    }
+
 }

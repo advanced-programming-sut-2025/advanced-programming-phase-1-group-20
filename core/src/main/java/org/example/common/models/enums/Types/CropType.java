@@ -1,30 +1,37 @@
 package org.example.common.models.enums.Types;
 
+import org.example.common.models.Items.Fruit;
+import org.example.common.models.Items.Item;
 import org.example.common.models.enums.Seasons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum CropType {
+    //Fruits:
+    CrystalFruit("Crystal Fruit", new Seasons[]{Seasons.WINTER}, 150, 63, "Crystal_Fruit") ,
+    WildPlum("Wild Plum", new Seasons[]{Seasons.AUTUMN}, 80, 25, "Wild_Plum") ,
+    Salmonberry("Salmonberry", new Seasons[]{Seasons.SPRING}, 5, 25, "Salmonberry") ,
+    SpiceBerry("Spice Berry", new Seasons[]{Seasons.SUMMER}, 80, 25, "Spice_Berry") ,
+    Blackberry("Blackberry", new Seasons[]{Seasons.AUTUMN}, 25, 25, "Blackberry") ,
+
+    //mushrooms
+    Chanterelle("Chanterelle", new Seasons[]{Seasons.AUTUMN}, 160, 75, "Chanterelle") ,
     CommonMushroom("Common Mushroom", new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, 40, 38, "Common_Mushroom") ,
+    Morel("Morel", new Seasons[]{Seasons.SPRING}, 150, 20, "Morel") ,
+    RedMushroom("Red Mushroom", new Seasons[]{Seasons.SUMMER}, 75, -50, "Red_Mushroom") ,
+    PurpleMushroom("Purple Mushroom", new Seasons[]{Seasons.AUTUMN}, 90, 30, "Purple_Mushroom") ,
+
     Daffodil("Daffodil", new Seasons[]{Seasons.SPRING}, 30, 0, "Daffodil") ,
     Dandelion("Dandelion", new Seasons[]{Seasons.SPRING}, 40, 25, "Dandelion") ,
     Leek("Leek", new Seasons[]{Seasons.SPRING}, 60, 40, "Leek") ,
-    Morel("Morel", new Seasons[]{Seasons.SPRING}, 150, 20, "Morel") ,
-    Salmonberry("Salmonberry", new Seasons[]{Seasons.SPRING}, 5, 25, "Salmonberry") ,
     SpringOnion("SPRING Onion", new Seasons[]{Seasons.SPRING}, 8, 13, "Spring_Onion") ,
     WildHorseradish("Wild Horseradish", new Seasons[]{Seasons.SPRING}, 50, 13, "Wild_Horseradish") ,
     FiddleheadFern("Fiddlehead Fern", new Seasons[]{Seasons.SUMMER}, 90, 25, "Fiddlehead_Fern") ,
-    Grape("Grape", new Seasons[]{Seasons.SUMMER}, 80, 38, "Grape") ,
-    RedMushroom("Red Mushroom", new Seasons[]{Seasons.SUMMER}, 75, -50, "Red_Mushroom") ,
-    SpiceBerry("Spice Berry", new Seasons[]{Seasons.SUMMER}, 80, 25, "Spice_Berry") ,
     SweetPea("Sweet Pea", new Seasons[]{Seasons.SUMMER}, 50, 0, "Sweet_Pea") ,
-    Blackberry("Blackberry", new Seasons[]{Seasons.AUTUMN}, 25, 25, "Blackberry") ,
-    Chanterelle("Chanterelle", new Seasons[]{Seasons.AUTUMN}, 160, 75, "Chanterelle") ,
     Hazelnut("Hazelnut", new Seasons[]{Seasons.AUTUMN}, 40, 38, "Hazelnut") ,
-    PurpleMushroom("Purple Mushroom", new Seasons[]{Seasons.AUTUMN}, 90, 30, "Purple_Mushroom") ,
-    WildPlum("Wild Plum", new Seasons[]{Seasons.AUTUMN}, 80, 25, "Wild_Plum") ,
     Crocus("Crocus", new Seasons[]{Seasons.WINTER}, 60, 0, "Crocus") ,
-    CrystalFruit("Crystal Fruit", new Seasons[]{Seasons.WINTER}, 150, 63, "Crystal_Fruit") ,
     Holly("Holly", new Seasons[]{Seasons.WINTER}, 80, -37, "Holly") ,
     SnowYam("Snow Yam", new Seasons[]{Seasons.WINTER}, 100, 30, "Snow_Yam") ,
     WinterRoot("Winter Root", new Seasons[]{Seasons.WINTER}, 70, 25, "Winter_Root") ,
@@ -35,6 +42,7 @@ public enum CropType {
     private final int baseSellPrice;
     private final int energy;
     private final String imageFilePath;
+
 
     CropType(String name, Seasons[] seasons, int baseSellPrice, int energy , String imageFilePath) {
         this.name = name;
@@ -77,8 +85,30 @@ public enum CropType {
         System.out.println("Name: " + getName());
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         String season = Arrays.toString(getSeasons()).replace("[", "").replace("]", "")
-                .replace(" ", "");
+            .replace(" ", "");
         System.out.println("Season: " + season);
         System.out.println("Energy: " + getEnergy());
+    }
+
+
+
+    public static List<Item> getFruits() {
+        List<Item> fruits = new ArrayList<>();
+        fruits.add(new Fruit(CrystalFruit.name , CrystalFruit.baseSellPrice , CrystalFruit.getEnergy(), CrystalFruit.imageFilePath));
+        fruits.add(new Fruit(WildPlum.name, WildPlum.baseSellPrice, WildPlum.getEnergy(), WildPlum.imageFilePath));
+        fruits.add(new Fruit(Salmonberry.name, Salmonberry.baseSellPrice, Salmonberry.getEnergy(), Salmonberry.imageFilePath));
+        fruits.add(new Fruit(SpiceBerry.name, SpiceBerry.baseSellPrice, SpiceBerry.getEnergy(), SpiceBerry.imageFilePath));
+        fruits.add(new Fruit(Blackberry.name, Blackberry.baseSellPrice, Blackberry.getEnergy(), Blackberry.imageFilePath));
+        return fruits;
+    }
+
+    public static List<Item> getMushrooms() {
+        List<Item> mushrooms = new ArrayList<>();
+        mushrooms.add(new Fruit(Chanterelle.name, Chanterelle.baseSellPrice, Chanterelle.getEnergy(), Chanterelle.imageFilePath));
+        mushrooms.add(new Fruit(CommonMushroom.name, CommonMushroom.baseSellPrice, CommonMushroom.getEnergy(), CommonMushroom.imageFilePath));
+        mushrooms.add(new Fruit(Morel.name, Morel.baseSellPrice, Morel.getEnergy(), Morel.imageFilePath));
+        mushrooms.add(new Fruit(RedMushroom.name, RedMushroom.baseSellPrice, RedMushroom.getEnergy(), RedMushroom.imageFilePath));
+        mushrooms.add(new Fruit(PurpleMushroom.name, PurpleMushroom.baseSellPrice, PurpleMushroom.getEnergy(), PurpleMushroom.imageFilePath));
+        return mushrooms;
     }
 }

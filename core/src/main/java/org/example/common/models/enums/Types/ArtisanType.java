@@ -1,49 +1,58 @@
 package org.example.common.models.enums.Types;
 
+import org.example.common.models.Items.Item;
+import org.example.common.models.enums.Ingredients;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public enum ArtisanType {
-    Honey("Honey", "It's a sweet syrup produced by bees.", 75, 4 * 24, "", 350, "Bee House", "Honey"),
-    Cheese("Cheese", "It's your basic cheese.", 100, 3, "1 Milk or Large Milk", 230, "Cheese Press", "Cheese"),
-    GoatCheese("Goat Cheese", "Soft cheese made from goat's milk.", 100, 3, "1 Goat Milk or 1 Large Goat Milk", 400, "Cheese Press", "Cheese_Press"),
-    Beer("Beer", "Drink in moderation.", 50, 24, "1 Wheat", 200, "Keg", "Beer"),
-    Vinegar("Vinegar", "An aged fermented liquid used in many cooking recipes.", 13, 10, "1 Rice", 100, "Keg", "Vinegar"),
-    Coffee("Coffee", "It smells delicious. This is sure to give you a boost.", 75, 2, "5 Coffee Bean", 150, "Keg", "Coffee"),
-    Juice("Juice", "A sweet, nutritious beverage.", 0, 4 * 24, "1 any Vegetable", 0, "Keg", "Juice"),
-    Mead("Mead", "A fermented beverage made from honey. Drink in moderation.", 100, 10, "1 Honey", 300, "Keg", "Mead"),
-    PaleAle("Pale Ale", "Drink in moderation.", 50, 3 * 24, "1 Hops", 300, "Keg", "Pale_Ale"),
-    Wine("Wine", "Drink in moderation.", 0, 7 * 24, "1 any Fruit", 0, "Keg", "Wine"),
-    DriedMushrooms("Dried Mushrooms", "A package of gourmet mushrooms.", 50, 24, "5 any Mushroom", 0, "Dehydrator", "Dried_Mushrooms"),
-    DriedFruit("Dried Fruit", "Chewy pieces of dried fruit.", 75, 24, "5 any Fruit except Grapes", 0, "Dehydrator", "Dried_Fruit"),
-    Raisins("Raisins", "It's said to be the Junimos' favorite food.", 125, 24, "5 Grapes", 600, "Dehydrator", "Raisins"),
-    Coal("Coal", "A combustible rock that is useful for crafting and smelting.", 15, 1, "10 Wood", 50, "Charcoal Klin", "Coal"),
-    Pickles("Pickles", "A jar of your home-made pickles.", 0, 6, "1 any Vegetable", 0, "Preserves Jar", "Pickles"),
-    Jelly("Jelly", "Gooey.", 0, 3 * 24, "1 any Fruit", 0, "Preserves Jar", "Jelly"),
-    SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, "1 any Fish + Coal", 0, "Fish Smoker", "Smoked_Fish"),
-    IronBar("Iron Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iron + Coal", 0, "Furnace", "Iron_Bar"),
-    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Copper + Coal", 0, "Furnace", "Copper_Bar"),
-    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Gold + Coal", 0, "Furnace", "Gold_Bar"),
-    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, "1 Iridium + Coal", 0, "Furnace", "Iridium_Bar"),
-    Cloth("Cloth", "A bolt of fine wool cloth.", 0, 4, "1 Wool", 470, "Loom", "Cloth"),
-    Mayonnaise("Mayonnaise", "It looks spreadable.", 50, 3, "1 Egg or 1 Large Egg", 190, "Mayonnaise Machine", "Mayonnaise"),
-    DuckMayonnaise("Duck Mayonnaise", "It's a rich, yellow mayonnaise.", 75, 3, "1 Duck Egg", 37, "Mayonnaise Machine", "Duck_Mayonnaise"),
-    DinosaurMayonnaise("Dinosaur Mayonnaise", "It's thick and creamy, with a vivid green hue. It smells like grass and leather.", 125, 3, "1 Dinosaur Egg", 800, "Mayonnaise Machine", "Dinosaur_Mayonnaise"),
-    TruffleOil("Truffle Oil", "A gourmet cooking ingredient.", 38, 6, "1 Truffle", 1065, "Oil Maker", "Truffle_Oil"),
-    Oil("Oil", "All purpose cooking oil.", 13, 6, "1 Corn or 1 Sunflower Seeds or Sunflower", 100, "Oil Maker", "Oil");
+    Honey("Honey", "It's a sweet syrup produced by bees.", 75, 4 * 24, Ingredients.Honey, 350, "Bee House", "Honey"),
+    Cheese("Cheese", "It's your basic cheese.", 100, 3, Ingredients.Cheese, 230, "Cheese Press", "Cheese"),
+    GoatCheese("Goat Cheese", "Soft cheese made from goat's milk.", 100, 3, Ingredients.GoatCheese, 400, "Cheese Press", "Cheese_Press"),
+    Beer("Beer", "Drink in moderation.", 50, 24, Ingredients.Beer, 200, "Keg", "Beer"),
+    Vinegar("Vinegar", "An aged fermented liquid used in many cooking recipes.", 13, 10, Ingredients.Vinegar, 100, "Keg", "Vinegar"),
+    Coffee("Coffee", "It smells delicious. This is sure to give you a boost.", 75, 2, Ingredients.Coffee, 150, "Keg", "Coffee"),
+    Juice("Juice", "A sweet, nutritious beverage.", 0, 4 * 24, Ingredients.Juice, 0, "Keg", "Juice"),
+    Mead("Mead", "A fermented beverage made from honey. Drink in moderation.", 100, 10, Ingredients.Mead, 300, "Keg", "Mead"),
+    PaleAle("Pale Ale", "Drink in moderation.", 50, 3 * 24, Ingredients.PaleAle, 300, "Keg", "Pale_Ale"),
+    Wine("Wine", "Drink in moderation.", 0, 7 * 24, Ingredients.Wine, 0, "Keg", "Wine"),
+    DriedMushrooms("Dried Mushrooms", "A package of gourmet mushrooms.", 50, 24, Ingredients.DriedMushrooms, 0, "Dehydrator", "Dried_Mushrooms"),
+    DriedFruit("Dried Fruit", "Chewy pieces of dried fruit.", 75, 24, Ingredients.DriedFruit, 0, "Dehydrator", "Dried_Fruit"),
+    Raisins("Raisins", "It's said to be the Junimos' favorite food.", 125, 24, Ingredients.Raisins, 600, "Dehydrator", "Raisins"),
+    Coal("Coal", "A combustible rock that is useful for crafting and smelting.", 15, 1, Ingredients.Charcoal, 50, "Charcoal Klin", "Coal"),
+    Pickles("Pickles", "A jar of your home-made pickles.", 0, 6, Ingredients.Pickles, 0, "Preserves Jar", "Pickles"),
+    Jelly("Jelly", "Gooey.", 0, 3 * 24, Ingredients.Jelly, 0, "Preserves Jar", "Jelly"),
+    SmokedFish("Smoked Fish", "A whole fish, smoked to perfection.", 0, 1, Ingredients.SmokedFish, 0, "Fish Smoker", "Smoked_Fish"),
+
+    //Ores
+    IronBar("Iron Bar", "Turns ore and coal into metal bars.", 0, 4, Ingredients.IronBar, 0, "Furnace", "Iron_Bar"),
+    CopperBar("Copper Bar", "Turns ore and coal into metal bars.", 0, 4, Ingredients.CopperBar, 0, "Furnace", "Copper_Bar"),
+    GoldBar("Gold Bar", "Turns ore and coal into metal bars.", 0, 4, Ingredients.GoldBar, 0, "Furnace", "Gold_Bar"),
+    IridiumBar("Iridium Bar", "Turns ore and coal into metal bars.", 0, 4, Ingredients.IridiumBar, 0, "Furnace", "Iridium_Bar"),
+
+    Cloth("Cloth", "A bolt of fine wool cloth.", 0, 4, Ingredients.Cloth, 470, "Loom", "Cloth"),
+    Mayonnaise("Mayonnaise", "It looks spreadable.", 50, 3, Ingredients.Mayonnaise, 190, "Mayonnaise Machine", "Mayonnaise"),
+    DuckMayonnaise("Duck Mayonnaise", "It's a rich, yellow mayonnaise.", 75, 3, Ingredients.DuckMayonnaise, 375, "Mayonnaise Machine", "Duck_Mayonnaise"),
+    DinosaurMayonnaise("Dinosaur Mayonnaise", "It's thick and creamy, with a vivid green hue. It smells like grass and leather.", 125, 3, Ingredients.DinosaurMayonnaise, 800, "Mayonnaise Machine", "Dinosaur_Mayonnaise"),
+    TruffleOil("Truffle Oil", "A gourmet cooking ingredient.", 38, 6, Ingredients.TruffleOil, 1065, "Oil Maker", "Truffle_Oil"),
+    Oil("Oil", "All purpose cooking oil.", 13, 6, Ingredients.Oil, 100, "Oil Maker", "Oil");
 
     private final String name;
     private final String description;
-    private final String ingridient;
+    private final Ingredients ingredients;
     private final String source;
     private int proccessingTime;
     private int energy;
     private int baseSellPrice;
     private final String imageFilepath;
 
-    ArtisanType(String name, String description, int energy, int proccessingTime, String ingridient, int baseSellPrice, String source , String imageFilepath) {
+    ArtisanType(String name, String description, int energy, int proccessingTime, Ingredients ingredients, int baseSellPrice, String source, String imageFilepath) {
         this.name = name;
         this.description = description;
         this.energy = energy;
         this.proccessingTime = proccessingTime;
-        this.ingridient = ingridient;
+        this.ingredients = ingredients;
         this.baseSellPrice = baseSellPrice;
         this.source = source;
         this.imageFilepath = imageFilepath;
@@ -58,48 +67,22 @@ public enum ArtisanType {
         return null;
     }
 
-    public String getName() {
-        return name;
+    // New getter for the recipe map
+    public Ingredients getIngredients() {
+        return this.ingredients;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public int getEnergy() {
-        return energy;
-    }
-
-    public void setEnergy(int energy) {
-        this.energy = energy;
-    }
-
-    public int getProcessingTime() {
-        return proccessingTime;
-    }
-
-    public String getIngredient() {
-        return ingridient;
-    }
-
-    public int getBaseSellPrice() {
-        return baseSellPrice;
-    }
-
-    public void setBaseSellPrice(int baseSellPrice) {
-        this.baseSellPrice = baseSellPrice;
-    }
+    // Other getters and setters...
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public int getEnergy() { return energy; }
+    public void setEnergy(int energy) { this.energy = energy; }
+    public int getProcessingTime() { return proccessingTime; }
+    public int getBaseSellPrice() { return baseSellPrice; }
+    public void setBaseSellPrice(int baseSellPrice) { this.baseSellPrice = baseSellPrice; }
+    public void setProccessingTime(int proccessingTime) { this.proccessingTime = proccessingTime; }
+    public String getSource() { return source; }
+    public String getImageFilepath() { return imageFilepath; }
 
 
-    public void setProccessingTime(int proccessingTime) {
-        this.proccessingTime = proccessingTime;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public String getImageFilepath() {
-        return imageFilepath;
-    }
 }

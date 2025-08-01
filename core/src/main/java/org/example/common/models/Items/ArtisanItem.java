@@ -1,6 +1,9 @@
 package org.example.common.models.Items;
 
+import org.example.common.models.enums.Ingredients;
 import org.example.common.models.enums.Types.ArtisanType;
+
+import java.util.Map;
 
 public class ArtisanItem extends Item {
     private ArtisanType type;
@@ -38,8 +41,8 @@ public class ArtisanItem extends Item {
         type.setProccessingTime(proccessingTime);
     }
 
-    public String getIngredient() {
-        return type.getIngredient();
+    public Ingredients getIngredient() {
+        return type.getIngredients();
     }
 
     public int getBaseSellPrice() {

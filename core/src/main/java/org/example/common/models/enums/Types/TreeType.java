@@ -1,21 +1,27 @@
 package org.example.common.models.enums.Types;
 
+import org.example.common.models.Items.Fruit;
+import org.example.common.models.Items.Item;
 import org.example.common.models.enums.Seasons;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public enum TreeType {
+    //Fruits:
+    AppleTree("Apple Tree", "Apple Sapling", "Apple", 100, true, 38, new Seasons[]{Seasons.AUTUMN}, "Apple") ,
     ApricotTree("Apricot Tree", "Apricot Sapling", "Apricot", 59, true, 38, new Seasons[]{Seasons.SPRING}, "Apricot") ,
-    CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}, "Cherry") ,
     BananaTree("Banana Tree", "Banana Sapling", "Banana", 150, true, 75, new Seasons[]{Seasons.SUMMER}, "Banana") ,
+    CherryTree("Cherry Tree", "Cherry Sapling", "Cherry", 80, true, 38, new Seasons[]{Seasons.SPRING}, "Cherry") ,
     MangoTree("Mango Tree", "Mango Sapling", "Mango", 130, true, 100, new Seasons[]{Seasons.SUMMER}, "Mango") ,
     OrangeTree("Orange Tree", "Orange Sapling", "Orange", 100, true, 38, new Seasons[]{Seasons.SUMMER}, "Orange") ,
     PeachTree("Peach Tree", "Peach Sapling", "Peach", 140, true, 38, new Seasons[]{Seasons.SUMMER}, "Peach") ,
-    AppleTree("Apple Tree", "Apple Sapling", "Apple", 100, true, 38, new Seasons[]{Seasons.AUTUMN}, "Apple") ,
     PomegranateTree("Pomegranate Tree", "Pomegranate Sapling", "Pomegranate", 140, true, 38, new Seasons[]{Seasons.AUTUMN}, "Pomegranate") ,
+
+    PineTree("Pine Tree", "Pine Cones", "Pine Tar", 100, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Pine") ,
     OakTree("Oak Tree", "Acorns", "Oak Resin", 150, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Oak") ,
     MapleTree("Maple Tree", "Maple Seeds", "Maple Syrup", 200, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Maple") ,
-    PineTree("Pine Tree", "Pine Cones", "Pine Tar", 100, false, 0, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Pine") ,
     MahoganyTree("Mahogany Tree", "Mahogany Seeds", "Sap", 2, true, -2, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Mahogany") ,
     MushroomTree("Mushroom Tree", "Mushroom Tree Seeds", "Common Mushroom", 40, true, 38, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "MushroomTree") ,
     MysticTree("Mystic Tree", "Mystic Tree Seeds", "Mystic Syrup", 1000, true, 500, new Seasons[]{Seasons.SPRING, Seasons.SUMMER, Seasons.AUTUMN, Seasons.WINTER}, "Mystic_Tree") ,
@@ -99,9 +105,17 @@ public enum TreeType {
         System.out.println("Base Sell Price: " + getBaseSellPrice());
         System.out.println("Is Edible: " + isEdible());
         System.out.println("Energy: " + getEnergy());
-//        String season = Arrays.toString(seasons)
-//                .replace("[", "").replace("]", "")
-//                .replace(" " , "");
         System.out.println("Season: " + Arrays.toString(getSeasons()));
+    }
+
+
+    public static List<Item> getFruits() {
+        List<Item> fruits = new ArrayList<>();
+        for(TreeType treeType : TreeType.values()) {
+            if(treeType.isEdible){
+                fruits.add(new Fruit(treeType.getFruit(), treeType.getBaseSellPrice(), treeType.getEnergy(), treeType.getImageFilePath()));
+            }
+        }
+        return fruits;
     }
 }
