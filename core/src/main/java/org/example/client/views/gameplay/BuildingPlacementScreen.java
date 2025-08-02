@@ -70,7 +70,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
     private boolean canPlace = false;
 
     // Constants
-    private static final int TILE_SIZE = 60;
+    private static final int TILE_SIZE = 30; // Smaller tiles to show full farm
 
     public BuildingPlacementScreen(Player player, Item buildingItem, Screen previousScreen, Skin skin) {
         this.player = player;
@@ -81,7 +81,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
 
         // Initialize camera and viewport
         camera = new OrthographicCamera();
-        viewport = new FitViewport(800, 600, camera);
+        viewport = new FitViewport(1200, 800, camera); // Larger viewport to show full farm
         batch = new SpriteBatch();
         textureCache = new HashMap<>();
 
@@ -110,6 +110,24 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         loadTexture("house", "content/Buildings/House.png");
         loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
+        
+        // Load tree textures
+        loadTexture("tree_spring", "content/Trees/Apple_Stage_1.png");
+        loadTexture("tree_summer", "content/Trees/Apple_Stage_1.png");
+        loadTexture("tree_fall", "content/Trees/Apple_Stage_1.png");
+        loadTexture("tree_winter", "content/Trees/Apple_Stage_1.png");
+        
+        // Load crop textures
+        loadTexture("crop_spring", "content/Crops/Wheat_Stage_1.png");
+        loadTexture("crop_summer", "content/Crops/Wheat_Stage_1.png");
+        loadTexture("crop_fall", "content/Crops/Wheat_Stage_1.png");
+        loadTexture("crop_winter", "content/Crops/Wheat_Stage_1.png");
+        
+        // Load mineral textures
+        loadTexture("stone", "content/Rock/mainStone.png");
+        loadTexture("iron_ore", "content/Minerals/Iron_Ore.png");
+        loadTexture("gold_ore", "content/Minerals/Gold_Ore.png");
+        loadTexture("diamond_ore", "content/Minerals/Diamond_Ore.png");
         
         // Load building preview texture
         if (buildingItem.getImageFilepath() != null) {
@@ -169,8 +187,18 @@ public class BuildingPlacementScreen implements Screen, Disposable {
                     previewY = tileY;
                     isPlacing = true;
                     
-                    // Check if placement is valid
-                    canPlace = farm.canBuild(tileX, tileY, 2, 2); // Assuming 2x2 building size
+                    // Check if placement is valid based on building type
+                    String buildingName = buildingItem.getName().toLowerCase();
+                    int buildingWidth = 2;
+                    int buildingHeight = 2;
+                    if (buildingName.contains("barn")) {
+                        buildingWidth = 4;
+                        buildingHeight = 3;
+                    } else if (buildingName.contains("coop")) {
+                        buildingWidth = 3;
+                        buildingHeight = 3;
+                    }
+                    canPlace = farm.canBuild(tileX, tileY, buildingWidth, buildingHeight);
                     confirmButton.setDisabled(!canPlace);
                     
                     updateInstructionLabel();
@@ -506,11 +534,63 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         float worldX = x * TILE_SIZE;
         float worldY = y * TILE_SIZE;
 
+        if (item instanceof org.example.common.models.Items.Tree) {
+            renderTreeItem(worldX, worldY, season, (org.example.common.models.Items.Tree) item);
+        } else if (item instanceof Crop) {
+            renderCropItem(worldX, worldY, (Crop) item);
+        } else if (item instanceof Plant) {
+            renderPlantItem(worldX, worldY, (Plant) item);
+        } else if (item instanceof Mineral) {
+            renderMineralItem(worldX, worldY, (Mineral) item);
+        } else {
+            try {
+                Texture itemTexture = new Texture(item.getImageFilepath());
+                batch.draw(itemTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+            } catch (Exception e) {
+                // If texture loading fails, skip rendering this item
+            }
+        }
+    }
+
+    private void renderTreeItem(float worldX, float worldY, String season, org.example.common.models.Items.Tree tree) {
+        Texture treeTexture = getTexture("tree_" + season);
+        if (treeTexture != null) {
+            batch.draw(treeTexture, worldX, worldY, TILE_SIZE * 2, TILE_SIZE * 2);
+        }
+    }
+
+    private void renderCropItem(float worldX, float worldY, Crop crop) {
+        Texture cropTexture = getTexture("crop_spring"); // Use spring as default
+        if (cropTexture != null) {
+            batch.draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+        }
+    }
+
+    private void renderPlantItem(float worldX, float worldY, Plant plant) {
         try {
-            Texture itemTexture = new Texture(item.getImageFilepath());
-            batch.draw(itemTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
+            Texture plantTexture = new Texture(plant.getImageFilepath());
+            batch.draw(plantTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         } catch (Exception e) {
             // If texture loading fails, skip rendering this item
+        }
+    }
+
+    private void renderMineralItem(float worldX, float worldY, Mineral mineral) {
+        String mineralType = mineral.getName().toLowerCase();
+        Texture mineralTexture = null;
+        
+        if (mineralType.contains("iron")) {
+            mineralTexture = getTexture("iron_ore");
+        } else if (mineralType.contains("gold")) {
+            mineralTexture = getTexture("gold_ore");
+        } else if (mineralType.contains("diamond")) {
+            mineralTexture = getTexture("diamond_ore");
+        } else {
+            mineralTexture = getTexture("stone");
+        }
+        
+        if (mineralTexture != null) {
+            batch.draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
     }
 
@@ -593,8 +673,10 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Set up camera and batch
-        camera.position.set(Farm.width * TILE_SIZE / 2, Farm.height * TILE_SIZE / 2, 0);
+        // Set up camera and batch to show full farm
+        float farmWidth = Farm.width * TILE_SIZE;
+        float farmHeight = Farm.height * TILE_SIZE;
+        camera.position.set(farmWidth / 2, farmHeight / 2, 0);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
@@ -608,7 +690,17 @@ public class BuildingPlacementScreen implements Screen, Disposable {
             if (previewTexture != null) {
                 float alpha = canPlace ? 0.7f : 0.3f;
                 batch.setColor(1, 1, 1, alpha);
-                batch.draw(previewTexture, previewX * TILE_SIZE, previewY * TILE_SIZE, 2 * TILE_SIZE, 2 * TILE_SIZE);
+                // Adjust preview size based on building type
+                int previewWidth = 2 * TILE_SIZE;
+                int previewHeight = 2 * TILE_SIZE;
+                if (buildingItem.getName().toLowerCase().contains("barn")) {
+                    previewWidth = 4 * TILE_SIZE;
+                    previewHeight = 3 * TILE_SIZE;
+                } else if (buildingItem.getName().toLowerCase().contains("coop")) {
+                    previewWidth = 3 * TILE_SIZE;
+                    previewHeight = 3 * TILE_SIZE;
+                }
+                batch.draw(previewTexture, previewX * TILE_SIZE, previewY * TILE_SIZE, previewWidth, previewHeight);
                 batch.setColor(1, 1, 1, 1);
             }
         }
