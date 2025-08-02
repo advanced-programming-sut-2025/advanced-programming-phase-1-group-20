@@ -2,7 +2,6 @@ package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
 import org.example.client.controllers.MultiplayerMenuController;
-import org.example.client.controllers.menu.ProfileMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
@@ -13,9 +12,7 @@ import org.example.common.models.Message;
 import org.example.client.controllers.auth.LoginMenuController;
 import org.example.utils.AssetManager;
 import org.example.client.views.menu.MainMenuScreen;
-
 import java.util.List;
-
 import static org.example.client.Main.getGame;
 
 public class MainMenuController implements ClientMessageHandler.OnlinePlayersListener {
@@ -29,7 +26,7 @@ public class MainMenuController implements ClientMessageHandler.OnlinePlayersLis
     public MainMenuController() {
         this.networkClient = NetworkClient.getInstance();
         this.messageHandler = networkClient.getMessageHandler();
-        
+
         // Set up online players listener
         this.messageHandler.setOnlinePlayersListener(this);
     }

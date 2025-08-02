@@ -11,8 +11,6 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.controllers.MultiplayerMenuController;
 import org.example.client.network.ConnectionManager;
-import org.example.common.models.App;
-
 import java.util.List;
 import java.util.Map;
 
