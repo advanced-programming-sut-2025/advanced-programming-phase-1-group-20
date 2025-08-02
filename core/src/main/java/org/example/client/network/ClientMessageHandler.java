@@ -6,7 +6,6 @@ import org.example.common.models.App;
 import org.example.common.models.entities.Game;
 import org.example.common.models.Player.Player;
 import org.example.common.Lobby.Lobby;
-import org.example.common.models.common.Location;
 
 import java.util.List;
 import java.util.Map;
@@ -157,7 +156,7 @@ public class ClientMessageHandler {
 
         // Use either field name
         Boolean isInSelectionPhase = (inFarmSelection != null && inFarmSelection) ||
-                                   (inMapSelection != null && inMapSelection);
+            (inMapSelection != null && inMapSelection);
 
         System.out.println("DEBUG: Game started - Session ID: " + gameSessionId + ", Message: " + messageText);
         System.out.println("DEBUG: In farm selection phase: " + isInSelectionPhase + ", Active: " + isActive);
@@ -337,9 +336,9 @@ public class ClientMessageHandler {
 
         // Handle other lobby-related success messages
         if (messageText != null && (messageText.contains("Lobby list retrieved") ||
-                                   messageText.contains("Joined lobby successfully") ||
-                                   messageText.contains("Left lobby successfully") ||
-                                   messageText.contains("Search completed"))) {
+            messageText.contains("Joined lobby successfully") ||
+            messageText.contains("Left lobby successfully") ||
+            messageText.contains("Search completed"))) {
             System.out.println("DEBUG: Lobby-related success message: " + messageText);
             // Forward to lobby listener if available
             if (lobbyListener != null) {
@@ -384,60 +383,31 @@ public class ClientMessageHandler {
         String username = message.getFromBody("username");
         Float x = message.getFromBody("x");
         Float y = message.getFromBody("y");
-        Integer tileX = message.getIntFromBody("tileX");
-        Integer tileY = message.getIntFromBody("tileY");
 
         if (username != null && x != null && y != null) {
-            System.out.println("DEBUG: Received player move - " + username + " moved to (" + x + ", " + y + ") at tile (" + tileX + ", " + tileY + ")");
-            
-            // Update the player's position in the game state immediately
+            System.out.println("DEBUG: Received player move - " + username + " moved to (" + x + ", " + y + ")");
+
+            // Update the player's position in the game state
             Game currentGame = App.getGame();
             if (currentGame != null) {
                 Player targetPlayer = currentGame.getPlayerByUsername(username);
                 if (targetPlayer != null) {
-                    // Update position immediately for real-time response
                     targetPlayer.setPosX(x);
                     targetPlayer.setPosY(y);
-                    
-                    // Update tile coordinates if provided
-                    if (tileX != null && tileY != null) {
-                        targetPlayer.setLocation(new Location(tileX, tileY, targetPlayer.getLocation().getTile()));
-                    }
-                    
-                    System.out.println("DEBUG: Updated player " + username + " position in game state immediately");
-                    
-                    // Trigger immediate map update for real-time display
-                    triggerMapUpdate();
+                    // Update the sprite position to reflect the new coordinates
+                    targetPlayer.updatePosition();
+                    System.out.println("DEBUG: Updated player " + username + " position in game state and sprite");
                 } else {
                     System.out.println("DEBUG: Player " + username + " not found in current game");
                 }
             }
 
-            // Notify the game state listener immediately
+            // Notify the game state listener
             if (gameStateListener != null) {
                 gameStateListener.onPlayerMove(username, x, y);
             }
         } else {
             System.err.println("DEBUG: Invalid player move message - missing data");
-        }
-    }
-    
-    private void triggerMapUpdate() {
-        // Check if MapScreen is currently active and trigger an update
-        try {
-            // Get the current screen from the game
-            Game currentGame = App.getGame();
-            if (currentGame != null) {
-                // Try to get the current screen and update it if it's MapScreen
-                com.badlogic.gdx.Screen currentScreen = org.example.client.Main.getGame().getScreen();
-                if (currentScreen instanceof org.example.client.views.gameplay.MapScreen) {
-                    org.example.client.views.gameplay.MapScreen mapScreen = (org.example.client.views.gameplay.MapScreen) currentScreen;
-                    mapScreen.serverUpdate();
-                    System.out.println("DEBUG: Called MapScreen.serverUpdate() for player movement");
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("DEBUG: Error triggering map update: " + e.getMessage());
         }
     }
 
@@ -464,9 +434,6 @@ public class ClientMessageHandler {
         if (gameState != null && gameStateListener != null) {
             gameStateListener.onGameStateUpdate(gameState);
         }
-        
-        // Trigger map update for game state changes
-        triggerMapUpdate();
     }
 
     private void handleFullGameState(Message message) {
@@ -475,8 +442,8 @@ public class ClientMessageHandler {
         Object dateState = message.getFromBody("dateState");
 
         System.out.println("DEBUG: handleFullGameState called - gameState: " + (gameState != null ? "present" : "null") +
-                          ", playersData: " + (playersData != null ? "present" : "null") +
-                          ", dateState: " + (dateState != null ? "present" : "null"));
+            ", playersData: " + (playersData != null ? "present" : "null") +
+            ", dateState: " + (dateState != null ? "present" : "null"));
 
         // Sync date from server
         if (dateState != null) {

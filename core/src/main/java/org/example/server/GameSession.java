@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
-import org.example.common.models.common.Location;
-import org.example.server.controllers.MovementController;
 
 public class GameSession {
     private final String sessionId;
@@ -29,33 +27,36 @@ public class GameSession {
     private final ServerConfig config;
     private boolean isActive;
     private final Map<String, Long> lastMovementTime; // Track last movement time per player
-    private final MovementController movementController;
 
     public GameSession(User creator) {
-        System.out.println("DEBUG: GameSession constructor called for creator: " + creator.getUsername());
+        System.out.println("DEBUG: GameSession constructor called for creator: " + (creator != null ? creator.getUsername() : "null"));
 
-        this.sessionId = UUID.randomUUID().toString();
-        this.playerConnections = new ConcurrentHashMap<>();
-        this.gameLoop = Executors.newSingleThreadScheduledExecutor();
-        this.gson = new Gson();
-        this.config = ServerConfig.getInstance();
-        this.isActive = false;
-        this.lastMovementTime = new ConcurrentHashMap<>();
+        try {
+            this.sessionId = UUID.randomUUID().toString();
+            this.playerConnections = new ConcurrentHashMap<>();
+            this.gameLoop = Executors.newSingleThreadScheduledExecutor();
+            this.gson = new Gson();
+            this.config = ServerConfig.getInstance();
+            this.isActive = false;
+            this.lastMovementTime = new ConcurrentHashMap<>();
 
-        // Create game instance with the creator as the first player
-        System.out.println("DEBUG: Creating game instance...");
-        List<Player> players = new ArrayList<>();
-        Player creatorPlayer = new Player(creator);
-        players.add(creatorPlayer);
-        this.gameInstance = new Game(players, creatorPlayer);
-        System.out.println("DEBUG: Game instance created successfully");
+            // Create game instance with the creator as the first player
+            System.out.println("DEBUG: Creating game instance...");
+            List<Player> players = new ArrayList<>();
+            Player creatorPlayer = new Player(creator);
+            players.add(creatorPlayer);
 
-        this.movementController = new MovementController(gameInstance, this, config.getMovementUpdateThrottle());
+            this.gameInstance = new Game(players, creatorPlayer);
+            System.out.println("DEBUG: Game instance created successfully");
+            // Don't set the game in App on server side - this is client-side only
+            // App.setGame(this.gameInstance);
 
-        // Add creator as first player
-        addPlayer(null, creator); // Connection will be set later
-
-        System.out.println("DEBUG: Created new game session: " + sessionId + " with creator: " + creator.getUsername());
+            System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
+        } catch (Exception e) {
+            System.err.println("DEBUG: Exception in GameSession constructor: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-throw to let caller handle
+        }
     }
 
     public String getSessionId() {
@@ -108,11 +109,6 @@ public class GameSession {
     }
 
     public void removePlayer(String username) {
-        // Clear movement history for the player
-        if (movementController != null) {
-            movementController.clearPlayerMovementHistory(username);
-        }
-
         PlayerConnection connection = playerConnections.remove(username);
         if (connection != null) {
             // Remove player from game instance
@@ -184,7 +180,6 @@ public class GameSession {
 
         switch (message.getType()) {
             case PLAYER_MOVE:
-                System.out.println("DEBUG: GameSession.processMessage() - Received PLAYER_MOVE message for player: " + username);
                 handlePlayerMove(username, message);
                 break;
             case USE_TOOL:
@@ -228,17 +223,36 @@ public class GameSession {
     }
 
     private void handlePlayerMove(String username, Message message) {
-        System.out.println("DEBUG: GameSession.handlePlayerMove() - Delegating to MovementController for player: " + username);
+        float x = message.getFromBody("x");
+        float y = message.getFromBody("y");
 
-        // Use the MovementController to handle player movement
-        boolean movementProcessed = movementController.handlePlayerMove(username, message);
+        Player player = gameInstance.getPlayerByUsername(username);
+        if (player != null) {
+            // Check movement throttling to prevent excessive updates
+            long currentTime = System.currentTimeMillis();
+            Long lastTime = lastMovementTime.get(username);
+            int throttleMs = config.getMovementUpdateThrottle();
 
-        if (movementProcessed) {
-            System.out.println("DEBUG: GameSession.handlePlayerMove() - Movement processed successfully, broadcasting game state update");
-            // Broadcast a game state update to ensure all clients have the latest map state
-            broadcastGameStateUpdate();
-        } else {
-            System.out.println("DEBUG: GameSession.handlePlayerMove() - Movement was throttled or failed");
+            if (lastTime != null && (currentTime - lastTime) < throttleMs) {
+                // Skip update if too soon since last movement
+                return;
+            }
+
+            // Update player position on server
+            player.setPosX(x);
+            player.setPosY(y);
+
+            // Add username to message for client identification
+            message.putInBody("username", username);
+            message.putInBody("timestamp", currentTime);
+
+            // Broadcast movement to other players immediately
+            broadcastToOthers(username, message);
+
+            // Update last movement time
+            lastMovementTime.put(username, currentTime);
+
+            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ")");
         }
     }
 
@@ -491,29 +505,12 @@ public class GameSession {
     }
 
     private void broadcastGameStateUpdate() {
-        try {
-            // Create a game state update message
-            Message gameStateMessage = new Message();
-            gameStateMessage.setType(Message.Type.GAME_STATE_UPDATE);
-
-            // Include current game state data
-            Map<String, Object> gameState = new HashMap<>();
-            gameState.put("players", gameInstance.getPlayers());
-            gameState.put("currentDate", gameInstance.getCurrentDate());
-            gameState.put("gameMap", gameInstance.getGameMap());
-
-            gameStateMessage.putInBody("gameState", gameState);
-            gameStateMessage.putInBody("timestamp", System.currentTimeMillis());
-
-            // Broadcast to all players
-            broadcastToAll(gameStateMessage);
-
-            System.out.println("DEBUG: Broadcasted game state update to all players");
-        } catch (Exception e) {
-            System.err.println("Error broadcasting game state update: " + e.getMessage());
-        }
+        Message message = new Message();
+        message.setType(Message.Type.GAME_STATE_UPDATE);
+        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
+        message.putInBody("weather", gameInstance.getCurrentDate().getWeatherToday().toString());
+        broadcastToAll(message);
     }
-
 
     public void stopSession() {
         this.isActive = false;

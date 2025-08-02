@@ -7,6 +7,7 @@ import org.example.common.Lobby.LobbyPlayer;
 import org.example.common.Lobby.LobbySettings;
 import org.example.common.models.*;
 import org.example.common.models.entities.User;
+import org.example.common.models.Player.Player;
 import org.example.server.GameServers.PlayerConnection;
 import org.example.utils.auth.JWTUtils;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageHandler {
@@ -36,7 +38,8 @@ public class MessageHandler {
     public void addPlayerConnection(String username, PlayerConnection connection) {
         playerConnections.put(username, connection);
         onlinePlayersManager.playerConnected(username, connection);
-        System.out.println("Added player connection: " + username);
+        System.out.println("DEBUG: Added player connection: " + username);
+        System.out.println("DEBUG: Current player connections: " + playerConnections.keySet());
     }
 
     public void removePlayerConnection(String username) {
@@ -58,6 +61,7 @@ public class MessageHandler {
 
     public void processMessage(String username, Message message) {
         System.out.println("DEBUG: Processing message from " + username + " with type: " + message.getType());
+        System.out.println("DEBUG: Available player connections: " + playerConnections.keySet());
         PlayerConnection connection = playerConnections.get(username);
         if (connection == null) {
             System.err.println("No connection found for user: " + username);
@@ -65,6 +69,12 @@ public class MessageHandler {
         }
 
         switch (message.getType()) {
+            // Authentication messages
+            case AUTH_LOGIN:
+                System.out.println("DEBUG: Handling AUTH_LOGIN message");
+                handleAuthentication(connection, message);
+                break;
+
             // Game session messages
             case CREATE_GAME:
                 System.out.println("DEBUG: Handling CREATE_GAME message");
@@ -265,6 +275,7 @@ public class MessageHandler {
 
         // For server-side testing, create user on-the-fly if not found
         User user = App.getUser(username);
+        System.out.println("DEBUG: Looking up user in App: " + username + ", found: " + (user != null));
         if (user == null) {
             System.out.println("DEBUG: User not found in App, creating temporary user for: " + username);
             // Create a basic user for testing
@@ -275,6 +286,8 @@ public class MessageHandler {
             user.setGender(org.example.common.models.enums.PlayerEnums.Gender.Male);
             // Add to App for future lookups
             App.addUser(user);
+            System.out.println("DEBUG: Added user to App: " + username);
+            System.out.println("DEBUG: App users count: " + App.getUsers().size());
         }
 
         // Set user in connection
@@ -312,9 +325,6 @@ public class MessageHandler {
         }
     }
 
-    // =====================
-    // LOBBY MESSAGE HANDLERS
-    // =====================
 
     private void handleCreateLobby(PlayerConnection connection, Message message) {
         System.out.println("DEBUG: handleCreateLobby() called");
@@ -545,9 +555,30 @@ public class MessageHandler {
 
     private void handleStartLobbyGame(PlayerConnection connection, Message message) {
         User user = connection.getUser();
-        if (user == null) {
-            sendErrorMessage(connection, "User not authenticated");
+        System.out.println("DEBUG: handleStartLobbyGame - connection user: " + (user != null ? user.getUsername() : "null"));
+        System.out.println("DEBUG: handleStartLobbyGame - connection state: " + connection.getState());
+        System.out.println("DEBUG: handleStartLobbyGame - available player connections: " + playerConnections.keySet());
+
+        // Ensure connection is properly authenticated
+        if (connection.getState() != PlayerConnection.ConnectionState.AUTHENTICATED && 
+            connection.getState() != PlayerConnection.ConnectionState.IN_GAME) {
+            System.out.println("DEBUG: Connection state invalid: " + connection.getState());
+            sendErrorMessage(connection, "Invalid connection state");
             return;
+        }
+
+        if (user == null) {
+            System.out.println("DEBUG: User is null but connection state is: " + connection.getState());
+            // Re-authenticate if we have the username but lost the user object
+            if (connection.getUsername() != null) {
+                user = new User();
+                user.setUsername(connection.getUsername());
+                connection.setUser(user);
+                System.out.println("DEBUG: Re-authenticated user: " + user.getUsername());
+            } else {
+                sendErrorMessage(connection, "User not authenticated");
+                return;
+            }
         }
 
         try {
@@ -609,7 +640,7 @@ public class MessageHandler {
         } catch (Exception e) {
             System.err.println("DEBUG: Exception in handleStartLobbyGame: " + e.getMessage());
             e.printStackTrace();
-            sendErrorMessage(connection, "Failed to start game");
+            sendErrorMessage(connection, "Failed to start game: " + e.getMessage());
         }
     }
 
@@ -707,16 +738,16 @@ public class MessageHandler {
         startMessage.setType(Message.Type.START_GAME);
         startMessage.putInBody("message", "Game started successfully");
         startMessage.putInBody("gameSessionId", gameSession.getSessionId());
-        
+
         // Add farm selection phase information
         startMessage.putInBody("inFarmSelectionPhase", true);
         startMessage.putInBody("availableFarms", gameSession.getGameInstance().getAvailableFarmIndices());
         startMessage.putInBody("playerSelections", gameSession.getGameInstance().getPlayerFarmSelections());
-        
+
         // Add game instance data
         startMessage.putInBody("gameData", gameSession.getGameInstance().getGameState());
         startMessage.putInBody("playersData", gameSession.getGameInstance().getPlayersData());
-        
+
         // Don't send a specific current player username - each client will set their own
         startMessage.putInBody("currentPlayerUsername", null);
         startMessage.putInBody("playerCount", gameSession.getPlayerCount());
@@ -730,14 +761,14 @@ public class MessageHandler {
                 System.out.println("DEBUG: Sent game start message to " + lobbyPlayer.getId() + " with session ID: " + gameSession.getSessionId());
             }
         }
-        
+
         System.out.println("DEBUG: Broadcasted game start to " + lobby.getPlayers().size() + " players - Farm selection phase");
     }
 
     private GameSession createGameSessionFromLobby(Lobby lobby) {
         try {
-            // System.out.println("DEBUG: createGameSessionFromLobby called for lobby: " + lobby.getId());
-            // System.out.println("DEBUG: Lobby players count: " + lobby.getPlayers().size());
+            System.out.println("DEBUG: createGameSessionFromLobby called for lobby: " + lobby.getId());
+            System.out.println("DEBUG: Lobby players count: " + lobby.getPlayers().size());
 
             // Get first player as creator
             if (lobby.getPlayers().isEmpty()) {
@@ -750,43 +781,101 @@ public class MessageHandler {
                     .findFirst()
                     .orElse(lobby.getPlayers().get(0));
 
-            // System.out.println("DEBUG: Admin player: " + admin.getId() + " (isAdmin: " + admin.isAdmin() + ")");
+            System.out.println("DEBUG: Admin player: " + admin.getId() + " (isAdmin: " + admin.isAdmin() + ")");
 
             // Get admin user from player connections instead of App
             PlayerConnection adminConnection = playerConnections.get(admin.getId());
+            System.out.println("DEBUG: Looking for admin connection with key: " + admin.getId());
+            System.out.println("DEBUG: Available player connections: " + playerConnections.keySet());
+            System.out.println("DEBUG: Admin connection found: " + (adminConnection != null));
+            if (adminConnection != null) {
+                System.out.println("DEBUG: Admin connection user: " + (adminConnection.getUser() != null ? adminConnection.getUser().getUsername() : "null"));
+            }
+
+            // Also try to get user from App as fallback
+            User appUser = App.getUser(admin.getId());
+            System.out.println("DEBUG: Looking up admin user in App: " + admin.getId() + ", found: " + (appUser != null));
+
+            User adminUser;
             if (adminConnection == null || adminConnection.getUser() == null) {
                 System.err.println("DEBUG: Admin connection or user not found for: " + admin.getId());
                 System.err.println("DEBUG: Available player connections: " + playerConnections.keySet());
-                return null;
+
+                // Create a new user object from the lobby player info
+                adminUser = new User();
+                adminUser.setUsername(admin.getId());
+                System.out.println("DEBUG: Created new user for admin: " + adminUser.getUsername());
+            } else {
+                adminUser = adminConnection.getUser();
             }
 
-            User adminUser = adminConnection.getUser();
             // System.out.println("DEBUG: Admin user found: " + adminUser.getUsername());
 
             // Create game session
-            // System.out.println("DEBUG: Creating GameSession...");
+            System.out.println("DEBUG: Creating GameSession...");
             GameSession gameSession = new GameSession(adminUser);
             gameSessions.put(gameSession.getSessionId(), gameSession);
-            // System.out.println("DEBUG: GameSession created with ID: " + gameSession.getSessionId());
+            System.out.println("DEBUG: GameSession created with ID: " + gameSession.getSessionId());
+
+            // First, update the admin's connection in the game session
+            if (adminConnection != null) {
+                System.out.println("DEBUG: Updating admin's connection in game session");
+                gameSession.addPlayer(adminConnection, adminUser);
+            }
 
             // Add all lobby players to game session
-            // System.out.println("DEBUG: Adding players to game session...");
+            System.out.println("DEBUG: Adding players to game session...");
             for (LobbyPlayer lobbyPlayer : lobby.getPlayers()) {
-                // System.out.println("DEBUG: Processing lobby player: " + lobbyPlayer.getId());
+                // Skip admin since we already added them
+                if (lobbyPlayer.getId().equals(adminUser.getUsername())) {
+                    continue;
+                }
+
+                System.out.println("DEBUG: Processing lobby player: " + lobbyPlayer.getId());
                 PlayerConnection connection = playerConnections.get(lobbyPlayer.getId());
+                
+                // Try to find connection by username if not found by ID
+                if (connection == null) {
+                    System.out.println("DEBUG: Connection not found by ID, trying to find by username...");
+                    for (Map.Entry<String, PlayerConnection> entry : playerConnections.entrySet()) {
+                        if (entry.getValue().getUser() != null && 
+                            entry.getValue().getUser().getUsername().equals(lobbyPlayer.getId())) {
+                            connection = entry.getValue();
+                            System.out.println("DEBUG: Found connection by username: " + lobbyPlayer.getId());
+                            break;
+                        }
+                    }
+                }
+                
                 if (connection != null && connection.getUser() != null) {
                     User user = connection.getUser();
-                    // System.out.println("DEBUG: Adding player " + user.getUsername() + " to game session");
+                    System.out.println("DEBUG: Adding player " + user.getUsername() + " to game session");
                     boolean success = gameSession.addPlayer(connection, user);
                     if (success) {
-                        // System.out.println("DEBUG: Successfully added player " + user.getUsername() + " to game session " + gameSession.getSessionId());
+                        System.out.println("DEBUG: Successfully added player " + user.getUsername() + " to game session " + gameSession.getSessionId());
                     } else {
-                        // System.err.println("DEBUG: Failed to add player " + user.getUsername() + " to game session");
+                        System.err.println("DEBUG: Failed to add player " + user.getUsername() + " to game session");
                     }
                 } else {
-                    // System.err.println("DEBUG: Connection or user not found for lobby player: " + lobbyPlayer.getId());
-                    // System.err.println("DEBUG: Connection: " + (connection != null ? "found" : "null"));
-                    // System.err.println("DEBUG: User: " + (connection != null && connection.getUser() != null ? connection.getUser().getUsername() : "null"));
+                    System.err.println("DEBUG: Connection or user not found for lobby player: " + lobbyPlayer.getId());
+                    System.err.println("DEBUG: Connection: " + (connection != null ? "found" : "null"));
+                    System.err.println("DEBUG: User: " + (connection != null && connection.getUser() != null ? connection.getUser().getUsername() : "null"));
+                    
+                    // Create a fallback user if connection is not found
+                    if (connection == null) {
+                        System.out.println("DEBUG: Creating fallback user for lobby player: " + lobbyPlayer.getId());
+                        User fallbackUser = new User();
+                        fallbackUser.setUsername(lobbyPlayer.getId());
+                        
+                        // Try to add player to game session without connection
+                        Player newPlayer = new Player(fallbackUser);
+                        boolean addedToGame = gameSession.getGameInstance().addPlayer(newPlayer);
+                        if (addedToGame) {
+                            System.out.println("DEBUG: Successfully added fallback player " + fallbackUser.getUsername() + " to game instance");
+                        } else {
+                            System.err.println("DEBUG: Failed to add fallback player " + fallbackUser.getUsername() + " to game instance");
+                        }
+                    }
                 }
             }
 
@@ -805,6 +894,10 @@ public class MessageHandler {
 
     public Map<String, PlayerConnection> getPlayerConnections() {
         return playerConnections;
+    }
+
+    public Set<String> getPlayerConnectionUsernames() {
+        return playerConnections.keySet();
     }
 
     public void shutdown() {

@@ -466,14 +466,42 @@ public class Game implements Serializable {
      * Add a new player to the game
      */
     public boolean addPlayer(Player newPlayer) {
-        if (players != null && newPlayer != null && !players.contains(newPlayer)) {
+        System.out.println("DEBUG: Game.addPlayer called for player: " + (newPlayer != null ? newPlayer.getUser().getUsername() : "null"));
+        System.out.println("DEBUG: Current players list: " + (players != null ? players.size() : "null"));
+        
+        try {
+            if (players == null) {
+                System.err.println("DEBUG: Players list is null, initializing...");
+                players = new ArrayList<>();
+            }
+            
+            if (newPlayer == null) {
+                System.err.println("DEBUG: New player is null");
+                return false;
+            }
+            
+            if (newPlayer.getUser() == null) {
+                System.err.println("DEBUG: New player's user is null");
+                return false;
+            }
+            
+            if (players.contains(newPlayer)) {
+                System.err.println("DEBUG: Player already exists in game");
+                return false;
+            }
+            
+            System.out.println("DEBUG: Adding player to game instance...");
             players.add(newPlayer);
 
             // Initialize friendship with existing players
             for (Player existingPlayer : players) {
-                if (existingPlayer != newPlayer) {
-                    existingPlayer.getFriendship(newPlayer);
-                    newPlayer.getFriendship(existingPlayer);
+                if (existingPlayer != newPlayer && existingPlayer != null) {
+                    try {
+                        existingPlayer.getFriendship(newPlayer);
+                        newPlayer.getFriendship(existingPlayer);
+                    } catch (Exception e) {
+                        System.err.println("DEBUG: Error initializing friendship: " + e.getMessage());
+                    }
                 }
             }
 
@@ -485,9 +513,13 @@ public class Game implements Serializable {
                 terminateVotes.put(newPlayer, false);
             }
 
+            System.out.println("DEBUG: Player successfully added to game. Total players: " + players.size());
             return true;
+        } catch (Exception e) {
+            System.err.println("DEBUG: Exception in Game.addPlayer: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     /**

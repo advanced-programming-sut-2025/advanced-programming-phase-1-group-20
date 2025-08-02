@@ -63,6 +63,7 @@ public class Player {
     }
 
     public Player(User user) {
+        System.out.println("DEBUG: Player constructor called for user: " + (user != null ? user.getUsername() : "null"));
         this.user = user;
         skills = new ArrayList<Skill>();
         //adding skills:
@@ -126,6 +127,8 @@ public class Player {
         if (isServerEnvironment) {
             // Server environment - create collision rect with default dimensions
             rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
+            // Don't initialize texture on server
+            this.textureSheet = null;
         } else {
             // Client environment - create collision rect using default dimensions
             rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions

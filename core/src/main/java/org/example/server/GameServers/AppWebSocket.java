@@ -8,14 +8,11 @@ import com.google.gson.stream.JsonWriter;
 import io.javalin.Javalin;
 import io.javalin.websocket.WsContext;
 import org.example.common.models.Message;
-import org.example.common.models.Player.Player;
-import org.example.common.models.entities.Game;
 import org.example.server.MessageHandler;
 import org.example.server.ServerConfig;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.example.common.models.entities.User;
 
@@ -261,15 +258,6 @@ public class AppWebSocket {
             ctx.send(errorJson);
         } catch (Exception e) {
             System.err.println("Failed to send error message: " + e.getMessage());
-        }
-    }
-
-    public static void broadcast(Game game, HashMap<String, String> msg) {
-        for (Player p : game.getPlayers()) {
-            PlayerConnection pc = connectedPlayers.get(p.getUser().getUsername());
-            if (pc != null) {
-                pc.sendMessage(gson.toJson(msg));
-            }
         }
     }
 
