@@ -42,7 +42,7 @@ public class LoginMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.top().padTop(100);
 
-        Label title = new Label("LOGIN", skin, "title");
+        Label title = new Label("LOGIN", skin, "default");
         title.setFontScale(1.8f);
         title.setColor(Color.ROYAL);
         mainTable.add(title).colspan(2).padBottom(40).row();
