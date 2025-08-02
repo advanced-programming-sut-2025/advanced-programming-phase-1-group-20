@@ -92,8 +92,9 @@ public class LoginMenuController {
     }
 
     public void handleBack() {
-        getGame().getScreen().dispose();
-        getGame().setScreen(new WelcomeMenuScreen(new WelcomeMenuController(),
-            AssetManager.getAssetManager().getSkin()));
+        WelcomeMenuScreen welcomeScreen = new WelcomeMenuScreen(new WelcomeMenuController(),
+            AssetManager.getAssetManager().getSkin());
+        welcomeScreen.updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+        getGame().setScreen(welcomeScreen);
     }
 }
