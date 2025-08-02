@@ -290,6 +290,34 @@ public class TerminalWindow {
             case CheatIncreaseXP:
                 return gameMenuController.increaseXP(args);
 
+            // Backpack and inventory commands
+            case UpgradeBackpack:
+                return gameMenuController.upgradeBackpack();
+            case ShowBackpackInfo:
+                return gameMenuController.showBackpackInfo();
+            case TrashItem:
+                return gameMenuController.trashItem(args);
+
+            // Skill-related commands
+            case ShowSkills:
+                return gameMenuController.showSkills();
+            case ShowSkillInfo:
+                return gameMenuController.showSkillInfo(args);
+
+            // Money command
+            case ShowMoney:
+                return gameMenuController.showMoney();
+
+            // Tool-related commands
+            case ToolEquip:
+                return gameMenuController.equipTool(args);
+            case ToolUse:
+                return gameMenuController.useTool(args);
+            case ToolShowCurrent:
+                return gameMenuController.showCurrentTool();
+            case ToolShowAvailable:
+                return gameMenuController.showAvailableTools();
+
             // Default case for unhandled commands
             default:
                 return Result.error("Command not implemented yet.");
@@ -344,6 +372,24 @@ public class TerminalWindow {
         addOutput("", TEXT_COLOR);
         addOutput("Utility Commands:", Color.YELLOW);
         addOutput("screenshot - Take a screenshot of the current game view", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Backpack Commands:", Color.YELLOW);
+        addOutput("upgrade backpack - Upgrade your backpack capacity", TEXT_COLOR);
+        addOutput("backpack info - Show backpack information", TEXT_COLOR);
+        addOutput("trash item <item> <amount> - Dispose of items (requires trash can)", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Skill Commands:", Color.YELLOW);
+        addOutput("show skills - Show all skills and their levels", TEXT_COLOR);
+        addOutput("skill info <skill> - Show detailed information about a skill", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Money Commands:", Color.YELLOW);
+        addOutput("money - Show current money", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Tool Commands:", Color.YELLOW);
+        addOutput("tools equip <tool> - Equip a tool from your backpack", TEXT_COLOR);
+        addOutput("tools use -d <direction> - Use the equipped tool in a direction", TEXT_COLOR);
+        addOutput("show current tool - Show the currently equipped tool", TEXT_COLOR);
+        addOutput("show available tools - Show all tools in your backpack", TEXT_COLOR);
     }
 
 

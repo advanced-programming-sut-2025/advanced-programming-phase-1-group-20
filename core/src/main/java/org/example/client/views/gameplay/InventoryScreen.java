@@ -232,10 +232,10 @@ public class InventoryScreen implements Screen {
             // Make trash can items smaller
             if (item.getName().toLowerCase().contains("trash can")) {
                 image.setSize(60, 60);
-                slot.add(image).size(60, 60).padTop(-70).row();
+                slot.add(image).size(60, 60).padTop(-70).center().row();
             } else {
                 image.setSize(80, 80);
-                slot.add(image).size(80, 80).padTop(-70).row();
+                slot.add(image).size(80, 80).padTop(-70).center().row();
             }
 
             // Create count label
@@ -244,7 +244,7 @@ public class InventoryScreen implements Screen {
             countLabel.setColor(Color.WHITE);
             countLabel.setFontScale(0.9f);
 
-            slot.add(countLabel);
+            slot.add(countLabel).center();
 
             // Highlight if it's the currently equipped tool
             if (item instanceof Tool && player.getCurrentTool() != null &&
@@ -259,24 +259,30 @@ public class InventoryScreen implements Screen {
                 Tool wateringCan = (Tool) item;
                 float waterPercentage = wateringCan.getWaterPercentage();
 
-                if (wateringCan.getCapacity() > 0 && wateringCan.getCurrentWater() > 0) {
-                    // Create water level bar
-                    Table waterBar = new Table();
-                    waterBar.setBackground(skin.newDrawable("white", new Color(0.2f, 0.6f, 1f, 0.8f)));
-                    waterBar.setSize(75 * waterPercentage, 5);
+                // Create a small progress bar that sits at the bottom-left corner of the slot.
+                // Adding the bar directly to the slot (instead of the stage) ensures the
+                // watering-can image keeps its original position and the overall grid layout
+                // remains intact.
+                Table barBackground = new Table();
+                barBackground.setBackground(skin.newDrawable("white", new Color(0.3f, 0.3f, 0.3f, 0.8f)));
+                barBackground.setSize(75, 5);
 
-                    slot.add(waterBar).size(75 * waterPercentage, 5).padTop(2);
+                Table barFill = new Table();
+                barFill.setBackground(skin.newDrawable("white", new Color(0.2f, 0.6f, 1f, 0.9f)));
+                barFill.setSize(75 * waterPercentage, 5);
 
-                    // Add water level text
-                    Label waterLabel = new Label(wateringCan.getWaterLevelString(), skin);
-                    waterLabel.setColor(new Color(0.2f, 0.6f, 1f, 1f));
-                    waterLabel.setFontScale(0.5f);
-                    slot.add(waterLabel).padTop(1);
-                } else {
-                    // Add empty space to maintain consistent layout when no water bar is shown
-                    slot.add().size(75, 5).padTop(2);
-                    slot.add().size(0, 0).padTop(1);
-                }
+                // Use a stack so the blue fill is rendered on top of the grey background
+                Stack barStack = new Stack();
+                barStack.add(barBackground);
+                barStack.add(barFill);
+
+                // Move to a new row so the bar sits on its own line (image → count label → bar)
+                slot.row();
+
+                // Place the bar inside the slot with a slight negative top-padding so it
+                // visually appears just beneath the watering-can image, without stretching
+                // or moving the image itself.
+                slot.add(barStack).size(75, 5).padTop(-8).left();
             }
 
             // Add drag and drop functionality for non-tool items

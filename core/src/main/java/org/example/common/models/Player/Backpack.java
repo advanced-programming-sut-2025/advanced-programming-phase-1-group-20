@@ -13,6 +13,7 @@ public class Backpack {
 
     public Backpack() {
         inventory = new HashMap<>();
+        type = Type.Initial; // Set default type
     }
 
     public boolean add(Item item, int quantity) {
@@ -24,6 +25,8 @@ public class Backpack {
             if (countItems() == 24) {
                 return false;
             }
+        } else if (type == Type.Deluxe) {
+            // Deluxe backpack has unlimited capacity
         }
         inventory.put(item, inventory.getOrDefault(item, 0) + quantity);
         return true;
@@ -102,7 +105,7 @@ public class Backpack {
         } else if (type == Type.Big) {
             return countItems() >= 24;
         } else if (type == Type.Deluxe) {
-            return countItems() == Integer.MAX_VALUE; // Assuming Deluxe has 36 slots
+            return false; // Deluxe backpack never gets full
         }
         return countItems() >= 12; // Default to Initial capacity
     }
@@ -113,6 +116,28 @@ public class Backpack {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public boolean upgradeBackpack() {
+        switch (type) {
+            case Initial:
+                type = Type.Big;
+                return true;
+            case Big:
+                type = Type.Deluxe;
+                return true;
+            case Deluxe:
+                return false; // Already at max level
+        }
+        return false;
+    }
+
+    public int getCapacity() {
+        return switch (type) {
+            case Initial -> 12;
+            case Big -> 24;
+            case Deluxe -> Integer.MAX_VALUE;
+        };
     }
 
     public boolean hasToolOfType(String type) {

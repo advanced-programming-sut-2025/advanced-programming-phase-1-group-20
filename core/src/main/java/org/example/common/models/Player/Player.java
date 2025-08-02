@@ -90,9 +90,17 @@ public class Player {
         backpack.add(new Tool("Basic Watering Can", 0, "content/Tools/Watering_Can/Watering_Can.png", "A basic watering can for watering crops.",
             Tool.ToolType.WATERING_CAN, Tool.ToolMaterial.BASIC, 5, Skills.FARMING, ToolFunctionality.WATERING_CAN), 1);
         backpack.add(new Tool("Scythe", 0, "content/Tools/Scythe.png", "A tool for harvesting crops and cutting grass.",
-            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, Skills.FARMING, null), 1);
+            Tool.ToolType.SCYTHE, Tool.ToolMaterial.BASIC, 2, Skills.FARMING, ToolFunctionality.SCYTHE), 1);
         backpack.add(new Tool("Basic Trash Can", 0, "content/Tools/Trash_Can_Copper.png", "A basic trash can for disposing of items.",
-            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, null), 1);
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.BASIC, 0, null, ToolFunctionality.TRASH_CAN), 1);
+
+        // the other tools should be added later, when the player has more money or skills
+//        backpack.add(new Tool("Bamboo Pole", 0, "content/Tools/Fishing_Pole/Bamboo_Pole.png", "A basic fishing rod for catching fish.",
+//            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD), 1);
+//        backpack.add(new Tool("Milk Pail", 0, "content/Tools/Milk_Pail.png", "A pail for milking cows.",
+//            Tool.ToolType.MILK_PAIL, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.MILK_PAIL), 1);
+//        backpack.add(new Tool("Shears", 0, "content/Tools/shears/Shears.png", "Shears for collecting wool from sheep.",
+//            Tool.ToolType.SHEARS, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.SHEARS), 1);
         this.spouse = null;
 
         this.isMarried = false;
@@ -649,6 +657,16 @@ public class Player {
             energy -= energyConsumption;
             addEnergyUsedInTurn(energyConsumption);
 
+            // Add skill experience based on tool type
+            if (currentTool.getAssociatedSkill() != null) {
+                switch (currentTool.getAssociatedSkill()) {
+                    case FARMING -> addFarmingExperience();
+                    case MINING -> addMiningExperience();
+                    case FORAGING -> addForagingExperience();
+                    case FISHING -> addFishingExperience();
+                }
+            }
+
             // Check if player is out of energy after this action
             checkAndAdvanceTurnIfEnergyDepleted();
         }
@@ -668,6 +686,111 @@ public class Player {
         }
 
         return 0;
+    }
+
+    // Add skill experience for different activities
+    public void addFarmingExperience() {
+        // Harvesting crops gives 5 units to farming skill
+        for (Skill skill : skills) {
+            if (skill.getName().equals("farming")) {
+                skill.addUnits(5);
+                break;
+            }
+        }
+    }
+
+    public void addMiningExperience() {
+        // Breaking rocks/ores gives 10 units to mining skill
+        for (Skill skill : skills) {
+            if (skill.getName().equals("mining")) {
+                skill.addUnits(10);
+                break;
+            }
+        }
+    }
+
+    public void addForagingExperience() {
+        // Collecting items from nature gives 10 units to foraging skill
+        for (Skill skill : skills) {
+            if (skill.getName().equals("foraging")) {
+                skill.addUnits(10);
+                break;
+            }
+        }
+    }
+
+    public void addFishingExperience() {
+        // Catching fish gives 5 units to fishing skill
+        for (Skill skill : skills) {
+            if (skill.getName().equals("fishing")) {
+                skill.addUnits(5);
+                break;
+            }
+        }
+    }
+
+    // Get skill by name
+    public Skill getSkillByName(String skillName) {
+        for (Skill skill : skills) {
+            if (skill.getName().equals(skillName.toLowerCase())) {
+                return skill;
+            }
+        }
+        return null;
+    }
+
+    // Get skill by enum
+    public Skill getSkill(Skills skillEnum) {
+        if (skillEnum == null) {
+            return null;
+        }
+        return getSkillByName(skillEnum.name().toLowerCase());
+    }
+
+    // Backpack upgrade methods
+    public boolean upgradeBackpack() {
+        return backpack.upgradeBackpack();
+    }
+
+    public int getBackpackCapacity() {
+        return backpack.getCapacity();
+    }
+
+    public Backpack.Type getBackpackType() {
+        return backpack.getType();
+    }
+
+    // Trash can functionality
+    public boolean trashItem(String itemName, int amount) {
+        Item item = backpack.getItem(itemName);
+        if (item == null) {
+            return false;
+        }
+
+        int currentAmount = backpack.getNumberOfItem(itemName);
+        if (currentAmount < amount) {
+            return false;
+        }
+
+        // Get the current trash can
+        Tool trashCan = getCurrentTool();
+        if (trashCan == null || trashCan.getType() != Tool.ToolType.TRASH_CAN) {
+            return false;
+        }
+
+        // Calculate return value based on trash can type
+        int itemValue = item.getBaseSellPrice() * amount;
+        int returnValue = trashCan.calculateReturnValue(itemValue);
+
+        // Remove the item
+        backpack.remove(item, amount);
+
+        // Add money back if the trash can provides returns
+        if (returnValue > 0) {
+            increaseMoney(returnValue);
+        }
+
+        return true;
     }
 
     public int getMoney() {

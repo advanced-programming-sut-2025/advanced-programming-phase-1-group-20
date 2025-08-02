@@ -8,6 +8,7 @@ import org.example.common.models.Market;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.PlayerEnums.Skills;
+import org.example.common.models.enums.Types.ToolFunctionality;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,16 +68,25 @@ public enum Markets {
         Item iridiumTool = new Item("Irididium Tool" , 25_000 , "");
         items.add(new Product(iridiumTool, 1.0));
 
-        Item cooperTrashCan = new Item("Copper Trash Can" , 1_000 , "content/Tools/Trash_Can_Copper.png");
+        // Trash cans with proper Tool functionality
+        Item cooperTrashCan = new Tool("Copper Trash Can", 1000, "content/Tools/Trash_Can_Copper.png", 
+            "A copper trash can for disposing of items.",
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.COPPER, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(cooperTrashCan, 1.0));
 
-        Item ironTrashCan = new Item("Iron Trash Can" , 2_500 , "content/Tools/Trash_Can_Steel.png");
+        Item ironTrashCan = new Tool("Iron Trash Can", 2500, "content/Tools/Trash_Can_Steel.png", 
+            "An iron trash can for disposing of items.",
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.IRON, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(ironTrashCan, 1.0));
 
-        Item goldTrashCan = new Item("Gold Trash Can" , 5_000 , "content/Tools/Trash_Can_Gold.png");
+        Item goldTrashCan = new Tool("Gold Trash Can", 5000, "content/Tools/Trash_Can_Gold.png", 
+            "A gold trash can for disposing of items.",
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.GOLD, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(goldTrashCan, 1.0));
 
-        Item iridiumTrashCan = new Item("Iridium Trash Can" , 12_500 , "content/Tools/Trash_Can_Iridium.png");
+        Item iridiumTrashCan = new Tool("Iridium Trash Can", 12500, "content/Tools/Trash_Can_Iridium.png", 
+            "An iridium trash can for disposing of items.",
+            Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.IRIDIUM, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(iridiumTrashCan, 1.0));
 
 
@@ -316,6 +326,13 @@ public enum Markets {
 
         Item sugar = new Item("Sugar", 100, "content/Crops/Sugar.png" , "Adds sweetness to pastries and candies. Too much can be unhealthy.");
         items.add(new Product(sugar, Double.POSITIVE_INFINITY));
+
+        // Backpack upgrades
+        Item largePack = new Item("Large Pack", 2000, "content/Tools/36_Backpack.png", "Upgrade your backpack to hold 24 items.");
+        items.add(new Product(largePack, 1.0));
+
+        Item deluxePack = new Item("Deluxe Pack", 10000, "content/Tools/36_Backpack.png", "Upgrade your backpack to hold unlimited items.");
+        items.add(new Product(deluxePack, 1.0));
 
         Item soil = new Item("Deluxe Retaining Soil" , 150 , "content/Crafting/Deluxe_Retaining_Soil.png" ,"This soil has a 100% chance of staying watered overnight. Mix into tilled soil.");
         items.add(new Product(soil, Double.POSITIVE_INFINITY));
@@ -667,10 +684,12 @@ public enum Markets {
         List<Product> autumnItems = new ArrayList<>();
         List<Product> winterItems = new ArrayList<>();
 
-        Item shears = new Tool("Shears" , 1_000 , "Use this to collect wool from sheep", Tool.ToolType.SHEARS , Tool.ToolMaterial.BASIC , 8 , Skills.FARMING );
+        Item shears = new Tool("Shears", 1000, "content/Tools/shears/Shears.png", "Use this to collect wool from sheep", 
+            Tool.ToolType.SHEARS, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.SHEARS);
         items.add(new Product(shears, 1.0));
 
-        Item milkPail = new Tool("Milk Pail" , 1_000 , "Gather milk from your animals." , Tool.ToolType.MILK_PAIL , Tool.ToolMaterial.BASIC , 5 , Skills.FARMING );
+        Item milkPail = new Tool("Milk Pail", 1000, "content/Tools/Milk_Pail.png", "Gather milk from your animals.", 
+            Tool.ToolType.MILK_PAIL, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.MILK_PAIL);
         items.add(new Product(milkPail, 1.0));
 
         Item chicken = new CoopAnimal(CoopAnimalTypes.CHICKEN, "Chicken");
@@ -808,16 +827,25 @@ public enum Markets {
         Item troutSoup = new Item("Trout Soup", 250, "content/Recipe/Trout_Soup.png" , "Pretty salty.");
         items.add(new Product(troutSoup, 1.0));
 
-        Item bambooPole = new Item("Bamboo Pole", 500, "content/Tools/Fishing_Pole/Bamboo_Pole.png" , "Use in the water to catch fish.");
-        items.add(new Product(bambooPole, 1.0));
-
-        Item trainingRod = new Item("Training Rod", 25, "content/Tools/Fishing_Pole/Training_Rod.png" ,"It's a lot easier to use than other rods, but can only catch basic fish.");
+        // Fishing rods with proper Tool functionality
+        Item trainingRod = new Tool("Training Rod", 25, "content/Tools/Fishing_Pole/Training_Rod.png", 
+            "It's a lot easier to use than other rods, but can only catch basic fish.",
+            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(trainingRod, 1.0));
 
-        Item fiberglassRod = new Item("Fiberglass Rod", 1800,"content/Tools/Fishing_Pole/Fiberglass_Rod.png" , "Use in the water to catch fish.");
+        Item bambooPole = new Tool("Bamboo Pole", 500, "content/Tools/Fishing_Pole/Bamboo_Pole.png", 
+            "Use in the water to catch fish.",
+            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD);
+        items.add(new Product(bambooPole, 1.0));
+
+        Item fiberglassRod = new Tool("Fiberglass Rod", 1800, "content/Tools/Fishing_Pole/Fiberglass_Rod.png", 
+            "Use in the water to catch fish.",
+            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.COPPER, 6, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(fiberglassRod, 1.0));
 
-        Item iridiumRod = new Item("Iridium Rod", 7500, "content/Tools/Fishing_Pole/Advanced_Iridium_Rod.png" ,"Use in the water to catch fish.");
+        Item iridiumRod = new Tool("Iridium Rod", 7500, "content/Tools/Fishing_Pole/Advanced_Iridium_Rod.png", 
+            "Use in the water to catch fish.",
+            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 4, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(iridiumRod, 1.0));
 
         int startHour = 9;

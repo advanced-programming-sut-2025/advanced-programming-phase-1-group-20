@@ -14,6 +14,7 @@ import org.example.common.models.MapDetails.Village;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
+import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.common.Result;
@@ -566,7 +567,7 @@ public class GameMenuController implements Controller {
 
     // Tool-related methods
 
-    private Result equipTool(String[] args) {
+    public Result equipTool(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
 
         if (args == null || args.length < 1) {
@@ -583,7 +584,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    private Result showCurrentTool() {
+    public Result showCurrentTool() {
         Player player = App.getGame().getCurrentPlayer();
 
         Tool currentTool = player.getCurrentTool();
@@ -596,7 +597,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    private Result showAvailableTools() {
+    public Result showAvailableTools() {
         Player player = App.getGame().getCurrentPlayer();
 
         List<Tool> tools = player.getAvailableTools();
@@ -613,7 +614,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    private Result useTool(String[] args) {
+    public Result useTool(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
@@ -2260,5 +2261,108 @@ public class GameMenuController implements Controller {
         } catch (NumberFormatException e) {
             return Result.error("Invalid farm index format");
         }
+    }
+
+    public Result showMoney() {
+        Player player = App.getGame().getCurrentPlayer();
+        return Result.success("Current money: " + player.getMoney() + " coins");
+    }
+
+    public Result upgradeBackpack() {
+        Player player = App.getGame().getCurrentPlayer();
+        if (player.upgradeBackpack()) {
+            return Result.success("Backpack upgraded successfully! New capacity: " + player.getBackpackCapacity());
+        } else {
+            return Result.error("Backpack is already at maximum level");
+        }
+    }
+
+    public Result showBackpackInfo() {
+        Player player = App.getGame().getCurrentPlayer();
+        Backpack backpack = player.getBackpack();
+        StringBuilder info = new StringBuilder();
+        info.append("Backpack Type: ").append(backpack.getType()).append("\n");
+        info.append("Capacity: ").append(backpack.getCapacity()).append(" items\n");
+        info.append("Current Items: ").append(backpack.countItems()).append("\n");
+        
+        if (backpack.getType() == Backpack.Type.Initial) {
+            info.append("Next upgrade: Big Backpack (24 items)");
+        } else if (backpack.getType() == Backpack.Type.Big) {
+            info.append("Next upgrade: Deluxe Backpack (unlimited)");
+        } else {
+            info.append("Backpack is at maximum level");
+        }
+        
+        return Result.success(info.toString());
+    }
+
+    public Result trashItem(String[] args) {
+        if (args.length < 2) {
+            return Result.error("Usage: trash item <item_name> <amount>");
+        }
+        
+        String itemName = args[0];
+        int amount;
+        try {
+            amount = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid amount format");
+        }
+        
+        Player player = App.getGame().getCurrentPlayer();
+        
+        // Check if player has a trash can equipped
+        Tool currentTool = player.getCurrentTool();
+        if (currentTool == null || currentTool.getType() != Tool.ToolType.TRASH_CAN) {
+            return Result.error("You need to equip a trash can to dispose of items");
+        }
+        
+        if (player.trashItem(itemName, amount)) {
+            return Result.success("Successfully disposed of " + amount + " " + itemName);
+        } else {
+            return Result.error("Failed to dispose of item. Check if you have enough items and a trash can equipped.");
+        }
+    }
+
+    public Result showSkills() {
+        Player player = App.getGame().getCurrentPlayer();
+        StringBuilder skillsInfo = new StringBuilder();
+        skillsInfo.append("Skills Information:\n");
+        
+        for (Skill skill : player.getSkills()) {
+            skillsInfo.append(skill.getName()).append(": Level ").append(skill.getLevel())
+                    .append(" (").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel())
+                    .append(" units)\n");
+        }
+        
+        return Result.success(skillsInfo.toString());
+    }
+
+    public Result showSkillInfo(String[] args) {
+        if (args.length < 1) {
+            return Result.error("Usage: skill info <skill_name>");
+        }
+        
+        String skillName = args[0].toLowerCase();
+        Player player = App.getGame().getCurrentPlayer();
+        Skill skill = player.getSkillByName(skillName);
+        
+        if (skill == null) {
+            return Result.error("Skill not found: " + skillName);
+        }
+        
+        StringBuilder info = new StringBuilder();
+        info.append("Skill: ").append(skill.getName()).append("\n");
+        info.append("Level: ").append(skill.getLevel()).append("/").append(skill.getMaxLevel()).append("\n");
+        info.append("Experience: ").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel()).append(" units\n");
+        info.append("Progress: ").append(String.format("%.1f", skill.getProgressToNextLevel() * 100)).append("%\n");
+        
+        if (skill.getLevel() >= skill.getMaxLevel()) {
+            info.append("Status: Maximum level reached!");
+        } else {
+            info.append("Status: ").append(skill.getUnitsNeededForNextLevel() - skill.getUnits()).append(" more units needed for next level");
+        }
+        
+        return Result.success(info.toString());
     }
 }

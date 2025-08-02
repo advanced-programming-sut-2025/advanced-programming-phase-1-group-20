@@ -137,6 +137,18 @@ public enum GameMenuCommands implements Command {
     // Screenshot command
     TakeScreenshot(Pattern.compile("^screenshot$|^take\\s+screenshot$")),
 
+    // Backpack and inventory commands
+    UpgradeBackpack(Pattern.compile("^upgrade\\s+backpack$")),
+    ShowBackpackInfo(Pattern.compile("^backpack\\s+info$")),
+    TrashItem(Pattern.compile("^trash\\s+item\\s+(.+)\\s+(\\d+)$")),
+
+    // Skill-related commands
+    ShowSkills(Pattern.compile("^show\\s+skills$")),
+    ShowSkillInfo(Pattern.compile("^skill\\s+info\\s+(farming|mining|foraging|fishing)$")),
+
+    // Money command
+    ShowMoney(Pattern.compile("^money$")),
+
     None(null);
 
     private final Pattern pattern;

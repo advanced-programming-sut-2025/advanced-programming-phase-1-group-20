@@ -441,6 +441,218 @@ public enum ToolFunctionality {
             },
             // Associated skill for Pickaxe
             Skills.MINING
+    ),
+
+    FISHING_ROD(
+            // Use function for Fishing Rod
+            (tool, params) -> {
+                // Fishing is handled separately in the fishing controller
+                // This is just a placeholder for the tool functionality
+                return true;
+            },
+            // Upgrade function for Fishing Rod
+            (tool) -> {
+                Tool.ToolMaterial currentMaterial = tool.getMaterial();
+                switch (currentMaterial) {
+                    case BASIC:
+                        return Tool.ToolMaterial.COPPER;
+                    case COPPER:
+                        return Tool.ToolMaterial.IRON;
+                    case IRON:
+                        return Tool.ToolMaterial.GOLD;
+                    case GOLD:
+                        return Tool.ToolMaterial.IRIDIUM;
+                    default:
+                        return null; // Already at highest material
+                }
+            },
+            // Energy consumption function for Fishing Rod
+            (material) -> {
+                switch (material) {
+                    case BASIC:
+                        return 8;
+                    case COPPER:
+                        return 6;
+                    case IRON:
+                        return 4;
+                    case GOLD:
+                        return 2;
+                    case IRIDIUM:
+                        return 1;
+                    default:
+                        return 8;
+                }
+            },
+            // Base sell price function for Fishing Rod
+            (material) -> {
+                switch (material) {
+                    case BASIC:
+                        return 500;
+                    case COPPER:
+                        return 1800;
+                    case IRON:
+                        return 7500;
+                    case GOLD:
+                        return 15000;
+                    case IRIDIUM:
+                        return 30000;
+                    default:
+                        return 500;
+                }
+            },
+            // Associated skill for Fishing Rod
+            Skills.FISHING
+    ),
+
+    SCYTHE(
+            // Use function for Scythe
+            (tool, params) -> {
+                String direction = (String) params[0];
+                GameMap gameMap = (GameMap) params[1];
+                Player player = (Player) params[2];
+
+                // Get the target tile coordinates based on the player's location and direction
+                Location playerLocation = player.getLocation();
+                int targetX = playerLocation.xAxis;
+                int targetY = playerLocation.yAxis;
+
+                // Adjust coordinates based on direction
+                switch (direction.toLowerCase()) {
+                    case "north" -> targetY--;
+                    case "south" -> targetY++;
+                    case "east" -> targetX++;
+                    case "west" -> targetX--;
+                    case "north-east" -> {
+                        targetX++;
+                        targetY--;
+                    }
+                    case "north-west" -> {
+                        targetX--;
+                        targetY--;
+                    }
+                    case "south-east" -> {
+                        targetX++;
+                        targetY++;
+                    }
+                    case "south-west" -> {
+                        targetX--;
+                        targetY++;
+                    }
+                    default -> {
+                        return false;
+                    }
+                }
+
+                // Check if the target tile is valid
+                if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
+                    return false;
+                }
+
+                // Check if the tile is dirt (grass) or has crops
+                TileType tileType = gameMap.getFarmByPlayer(player).getTile(targetX, targetY);
+                if (tileType == TileType.Dirt) {
+                    // Cut grass - this is handled by the existing changeTile method
+                    return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.Dirt, player);
+                }
+
+                // Check if there are crops to harvest
+                if (gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
+                    // Harvest crops - this will be handled by the existing harvest system
+                    // The scythe can be used to harvest, but the actual harvesting logic
+                    // is handled in the PlantController
+                    return true;
+                }
+
+                return false;
+            },
+            // Upgrade function for Scythe (Scythe doesn't upgrade)
+            (tool) -> null,
+            // Energy consumption function for Scythe
+            (material) -> 2,
+            // Base sell price function for Scythe
+            (material) -> 0,
+            // Associated skill for Scythe
+            Skills.FARMING
+    ),
+
+    MILK_PAIL(
+            // Use function for Milk Pail
+            (tool, params) -> {
+                // Milk pail functionality is handled in animal controller
+                // This is just a placeholder
+                return true;
+            },
+            // Upgrade function for Milk Pail (Milk Pail doesn't upgrade)
+            (tool) -> null,
+            // Energy consumption function for Milk Pail
+            (material) -> 4,
+            // Base sell price function for Milk Pail
+            (material) -> 1000,
+            // Associated skill for Milk Pail
+            Skills.FARMING
+    ),
+
+    SHEARS(
+            // Use function for Shears
+            (tool, params) -> {
+                // Shears functionality is handled in animal controller
+                // This is just a placeholder
+                return true;
+            },
+            // Upgrade function for Shears (Shears don't upgrade)
+            (tool) -> null,
+            // Energy consumption function for Shears
+            (material) -> 4,
+            // Base sell price function for Shears
+            (material) -> 1000,
+            // Associated skill for Shears
+            Skills.FARMING
+    ),
+
+    TRASH_CAN(
+            // Use function for Trash Can
+            (tool, params) -> {
+                // Trash can functionality is handled in inventory system
+                // This is just a placeholder
+                return false;
+            },
+            // Upgrade function for Trash Can
+            (tool) -> {
+                Tool.ToolMaterial currentMaterial = tool.getMaterial();
+                switch (currentMaterial) {
+                    case BASIC:
+                        return Tool.ToolMaterial.COPPER;
+                    case COPPER:
+                        return Tool.ToolMaterial.IRON;
+                    case IRON:
+                        return Tool.ToolMaterial.GOLD;
+                    case GOLD:
+                        return Tool.ToolMaterial.IRIDIUM;
+                    default:
+                        return null; // Already at highest material
+                }
+            },
+            // Energy consumption function for Trash Can
+            (material) -> 0, // Trash can doesn't consume energy
+            // Base sell price function for Trash Can
+            (material) -> {
+                switch (material) {
+                    case BASIC:
+                        return 0;
+                    case COPPER:
+                        return 2000;
+                    case IRON:
+                        return 5000;
+                    case GOLD:
+                        return 10000;
+                    case IRIDIUM:
+                        return 25000;
+                    default:
+                        return 0;
+                }
+            },
+            // Associated skill for Trash Can (none)
+            null
     );
 
     // Function pointer for tool use functionality
