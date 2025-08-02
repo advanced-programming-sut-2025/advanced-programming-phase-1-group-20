@@ -92,9 +92,12 @@ public class LoginMenuController {
     }
 
     public void handleBack() {
-        WelcomeMenuScreen welcomeScreen = new WelcomeMenuScreen(new WelcomeMenuController(),
-            AssetManager.getAssetManager().getSkin());
+        WelcomeMenuController welcomeController = new WelcomeMenuController();
+        WelcomeMenuScreen welcomeScreen = new WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
+
         welcomeScreen.updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+
+        getGame().getScreen().dispose();
         getGame().setScreen(welcomeScreen);
     }
 }

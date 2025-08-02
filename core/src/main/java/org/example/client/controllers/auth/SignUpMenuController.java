@@ -2,6 +2,7 @@ package org.example.client.controllers.auth;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import org.example.client.controllers.WelcomeMenuController;
 import org.example.client.controllers.menu.MainMenuController;
 import org.example.client.views.menu.SignUpMenuScreen;
 import org.example.client.views.menu.WelcomeMenuScreen;
@@ -140,9 +141,13 @@ public class SignUpMenuController {
     }
 
     public void handleBack() {
+        WelcomeMenuController welcomeController = new WelcomeMenuController();
+        WelcomeMenuScreen welcomeScreen = new WelcomeMenuScreen(welcomeController, AssetManager.getAssetManager().getSkin());
+
+        welcomeScreen.updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+
         getGame().getScreen().dispose();
-        getGame().setScreen(new WelcomeMenuScreen(new org.example.client.controllers.WelcomeMenuController(),
-            AssetManager.getAssetManager().getSkin()));
+        getGame().setScreen(welcomeScreen);
     }
 
     private boolean isValidEmail(String email) {
