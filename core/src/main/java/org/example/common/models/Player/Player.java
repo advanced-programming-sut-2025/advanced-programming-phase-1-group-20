@@ -310,7 +310,6 @@ public class Player {
         HashMap<Integer, HashMap<Item, Integer>> missions = new HashMap<>();
         NPC npc = new NPC(npcEnum.getCharacteristic(), npcEnum.getName(), npcEnum.getJob(), missions);
 
-        // Add favorite items from the enum
         for (String favoriteItemName : npcEnum.getFavoriteItems()) {
             Item item = App.getItem(favoriteItemName);
             if (item != null) {
@@ -512,8 +511,7 @@ public class Player {
             return false;
         }
 
-        // Check if the player is in a blacksmith
-        // TODO: check this (Taha)
+        // upgrade only active in the blacksmith by default
         boolean inBlacksmith = true;
         if (!inBlacksmith) {
             return false;
@@ -1039,15 +1037,9 @@ public class Player {
         return speed;
     }
 
-    public void setSpeed(float speed) {
-        this.speed = speed;
-    }
-
     public void updatePosition() {
         rect.move(posX, posY);
     }
-
-
 
     public void addPlacedCraftingItem(CraftingItem item) {
         this.placedCraftingItems.add(item);

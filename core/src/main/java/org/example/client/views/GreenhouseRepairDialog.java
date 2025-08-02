@@ -59,7 +59,7 @@ public class GreenhouseRepairDialog extends Dialog {
 
         // Create buttons
         Table buttonTable = new Table();
-        
+
         TextButton repairButton = new TextButton("Repair Greenhouse", skin);
         repairButton.addListener(new ChangeListener() {
             @Override
@@ -81,11 +81,11 @@ public class GreenhouseRepairDialog extends Dialog {
 
         buttonTable.add(repairButton).padRight(10);
         buttonTable.add(cancelButton);
-        
+
         contentTable.add(buttonTable).colspan(2);
 
         getContentTable().add(contentTable);
-        
+
         // Add key listener for Escape key
         addListener(new InputListener() {
             @Override

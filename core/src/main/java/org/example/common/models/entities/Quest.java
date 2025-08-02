@@ -1,9 +1,11 @@
 package org.example.common.models.entities;
 
+import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
 import org.example.common.models.enums.Npcs;
+import org.example.common.models.MapDetails.Village;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -139,7 +141,31 @@ public class Quest {
         }
 
         if (itemReward != null && itemRewardAmount > 0) {
-            player.getBackpack().add(itemReward, itemRewardAmount);
+            // Special handling for friendship level rewards
+            if (itemReward.getName().equals("Friendship Level")) {
+                // Get the NPC from the village instead of creating a new one
+                Game game = App.getGame();
+                if (game != null && game.getGameMap() != null && game.getGameMap().getVillage() != null) {
+                    Village village = game.getGameMap().getVillage();
+                    NPC villageNPC = null;
+                    
+                    // Find the NPC in the village residents
+                    for (NPC resident : village.getResidents()) {
+                        if (resident.getName().equals(npc.getName())) {
+                            villageNPC = resident;
+                            break;
+                        }
+                    }
+                    
+                    if (villageNPC != null) {
+                        NPCFriendship friendship = villageNPC.getFriendship(player);
+                        // Increase points to reach the next level (200 points per level)
+                        friendship.increasePoints(200 * itemRewardAmount);
+                    }
+                }
+            } else {
+                player.getBackpack().add(itemReward, itemRewardAmount);
+            }
         }
 
         isCompleted = true;

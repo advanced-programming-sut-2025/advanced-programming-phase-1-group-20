@@ -565,9 +565,27 @@ public class Farm {
         int quarryWidth = q.getWidth();
         int quarryHeight = q.getHeight();
 
+        Random rand = new Random();
+        
         for (int y = quarryY; y < quarryY + quarryHeight; y++) {
             for (int x = quarryX; x < quarryX + quarryWidth; x++) {
-                tiles[x][y] = new Location(x, y, TileType.QUARRY);
+                // 70% chance for regular quarry tile, 30% chance for special stones
+                if (rand.nextDouble() < 0.7) {
+                    tiles[x][y] = new Location(x, y, TileType.QUARRY);
+                } else {
+                    // Place special stones with different probabilities
+                    double stoneType = rand.nextDouble();
+                    if (stoneType < 0.4) {
+                        // 40% of special stones are IRIDIUM_STONE
+                        tiles[x][y] = new Location(x, y, TileType.IRIDIUM_STONE);
+                    } else if (stoneType < 0.7) {
+                        // 30% of special stones are JEWEL_STONE
+                        tiles[x][y] = new Location(x, y, TileType.JEWEL_STONE);
+                    } else {
+                        // 30% of special stones are GOLD_STONE
+                        tiles[x][y] = new Location(x, y, TileType.GOLD_STONE);
+                    }
+                }
             }
         }
     }

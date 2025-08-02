@@ -71,7 +71,7 @@ public class WelcomeMenuScreen implements Screen {
         setupBackground();
         setupLoadingScreen();
         setupMainMenu();
-        showLoadingScreen();
+//        showLoadingScreen();
     }
 
     private void setupBackground() {
@@ -126,6 +126,7 @@ public class WelcomeMenuScreen implements Screen {
         setupButtonListeners();
 
         stage.addActor(mainTable);
+        showMainMenu(); // TODO: Uncomment this when auto-login is implemented
     }
 
     private void createButtons() {

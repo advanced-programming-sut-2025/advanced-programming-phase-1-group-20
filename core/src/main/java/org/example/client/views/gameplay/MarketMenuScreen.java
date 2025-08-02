@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
 import org.example.client.views.ToolUpgradeDialog;
+import org.example.client.views.gameplay.BuildingPlacementScreen;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
@@ -27,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MarketMenuScreen implements Screen, Disposable {
-
     private Stage stage;
     private Skin skin;
     private Market market;
@@ -69,7 +69,7 @@ public class MarketMenuScreen implements Screen, Disposable {
         this.currentDisplayStock = new ArrayList<>(market.getPermanentStock());
 
         this.stage = new Stage(new ScreenViewport());
-        
+
         // Initialize texture cache and fallback
         this.itemTextureCache = new HashMap<>();
         initializeFallbackTexture();
@@ -211,35 +211,58 @@ public class MarketMenuScreen implements Screen, Disposable {
         for (Product product : stockList) {
             Item item = product.getItem();
             double stock = product.getAmount();
+            boolean isAvailable = stock > 0;
 
             // Item Image
             Texture itemTexture = getItemTexture(item);
             Image itemImage = new Image(itemTexture);
             itemImage.setSize(40, 40); // Set a reasonable size for the image
+
+            // Make unavailable items darker
+            if (!isAvailable) {
+                itemImage.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+            }
+
             itemDisplayTable.add(itemImage).width(50).height(50).pad(5).center();
 
             // Item Name
             Label nameLabel = new Label(item.getName(), skin);
             nameLabel.setWrap(true);
+
+            // Make unavailable items darker
+            if (!isAvailable) {
+                nameLabel.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+            }
+
             itemDisplayTable.add(nameLabel).expandX().fillX().pad(5).align(Align.left);
 
             // Price
-            itemDisplayTable.add(new Label("$" + item.getPrice(), skin)).width(80).pad(5);
+            Label priceLabel = new Label("$" + item.getPrice(), skin);
+            if (!isAvailable) {
+                priceLabel.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+            }
+            itemDisplayTable.add(priceLabel).width(80).pad(5);
 
             // Stock
             String stockText = (stock == Double.POSITIVE_INFINITY) ? "Infinite" : String.valueOf((int) stock);
-            itemDisplayTable.add(new Label(stockText, skin)).width(100).pad(5);
+            Label stockLabel = new Label(stockText, skin);
+            if (!isAvailable) {
+                stockLabel.setColor(0.5f, 0.5f, 0.5f, 0.7f);
+            }
+            itemDisplayTable.add(stockLabel).width(100).pad(5);
 
             // Buy Button
             TextButton buyButton = new TextButton("Buy", skin);
-            if (stock <= 0) {
+            if (!isAvailable) {
                 buyButton.setText("Out of Stock");
                 buyButton.setDisabled(true);
             }
             buyButton.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    showBuyConfirmation(item);
+                    if (isAvailable) {
+                        showBuyConfirmation(item);
+                    }
                 }
             });
             itemDisplayTable.add(buyButton).width(100).pad(5).row();
@@ -250,6 +273,12 @@ public class MarketMenuScreen implements Screen, Disposable {
         // Special handling for Blacksmith tool upgrades
         if (market.getName().equals("Black Smith") && isToolUpgradeItem(item)) {
             showToolUpgradeDialog();
+            return;
+        }
+
+        // Special handling for building purchases from Carpenter's Shop
+        if (market.getName().equals("Carpenters Shop") && isBuildingItem(item)) {
+            handleBuildingPurchase(item);
             return;
         }
 
@@ -335,9 +364,30 @@ public class MarketMenuScreen implements Screen, Disposable {
 
     private boolean isToolUpgradeItem(Item item) {
         String itemName = item.getName().toLowerCase();
-        return itemName.contains("tool upgrade service") || itemName.contains("tool") || 
-               itemName.contains("cooper") || itemName.contains("iron") || 
+        return itemName.contains("tool upgrade service") || itemName.contains("tool") ||
+               itemName.contains("cooper") || itemName.contains("iron") ||
                itemName.contains("gold") || itemName.contains("iridium");
+    }
+
+    private boolean isBuildingItem(Item item) {
+        String itemName = item.getName().toLowerCase();
+        return itemName.contains("barn") || itemName.contains("coop") || itemName.contains("well");
+    }
+
+    private void handleBuildingPurchase(Item item) {
+        // First purchase the building
+        String[] args = new String[]{item.getName(), "1"};
+        Result result = controller.purchase(args);
+
+        if (result.success()) {
+            // Update money display
+            updateMoneyLabel();
+
+            BuildingPlacementScreen placementScreen = new BuildingPlacementScreen(player, item, this, skin);
+            Main.getGame().setScreen(placementScreen);
+        } else {
+            showErrorDialog("Purchase Failed", result.message());
+        }
     }
 
     private void showToolUpgradeDialog() {

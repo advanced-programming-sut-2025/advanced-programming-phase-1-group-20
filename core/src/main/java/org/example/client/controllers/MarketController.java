@@ -139,7 +139,7 @@ public class MarketController implements Controller {
         return Result.error("You are not in Black Smith!");
     }
 
-    private Result build(String[] args) {
+    public Result build(String[] args) {
         String buildingName = args[0];
         int x = Integer.parseInt(args[1]);
         int y = Integer.parseInt(args[2]);

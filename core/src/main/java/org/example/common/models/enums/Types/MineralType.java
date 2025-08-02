@@ -19,6 +19,8 @@ public enum MineralType {
     Iridium("Iridium", "An exotic ore with many curious properties. Can be smelted into bars.", 100, "Iridium") ,
     Coal("Coal", "A combustible rock that is useful for crafting and smelting.", 15, "Coal") ,
     Wood("Wood" , "A sturdy, yet flexible plant material with a wide variety of uses." , 10, "Wood") ,
+    Hardwood("Hardwood", "A dense, durable wood that's perfect for crafting high-quality items.", 25, "Hardwood") ,
+    Wool("Wool", "Soft, fluffy fiber obtained from sheep. Used for crafting cloth.", 340, "Wool") ,
     Stone("Stone" , "A common material with many uses in crafting and building." , 15, "Stone") ,
     ;
     private final String name;

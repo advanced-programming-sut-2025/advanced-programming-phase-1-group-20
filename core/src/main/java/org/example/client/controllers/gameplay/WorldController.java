@@ -123,7 +123,7 @@ public class WorldController {
         loadTexture("stone", "content/Resource/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
-        loadTexture("plowed", "content/plowed.png");
+        loadTexture("plowed", "content/map_elements/shoveled.png");
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
 
@@ -659,6 +659,12 @@ public class WorldController {
                 return getTexture("iron_ore");
             case GOLD_ORE:
                 return getTexture("gold_ore");
+            case IRIDIUM_STONE:
+                return getTexture("iridium_stone");
+            case JEWEL_STONE:
+                return getTexture("jewel_stone");
+            case GOLD_STONE:
+                return getTexture("gold_stone");
             case TREE:
                 return getTexture("tree_" + season);
             case CROP:
@@ -1349,7 +1355,7 @@ public class WorldController {
         // Calculate the player's local position within their farm
         float playerGlobalX = player.getPosX() / TILE_SIZE; // Convert to tile coordinates
         float playerGlobalY = player.getPosY() / TILE_SIZE;
-        
+
         // Calculate local position within the farm
         float playerLocalX = playerGlobalX - globalFarmStartX;
         float playerLocalY = playerGlobalY - globalFarmStartY;

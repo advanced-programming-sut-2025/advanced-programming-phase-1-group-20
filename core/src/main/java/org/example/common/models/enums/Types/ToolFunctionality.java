@@ -380,7 +380,56 @@ public enum ToolFunctionality {
                         tileType == TileType.IRON_ORE ||
                         tileType == TileType.GOLD_ORE ||
                         tileType == TileType.DIAMOND_ORE ||
-                        tileType == TileType.EMERALD_ORE) {
+                        tileType == TileType.EMERALD_ORE ||
+                        tileType == TileType.IRIDIUM_STONE ||
+                        tileType == TileType.JEWEL_STONE ||
+                        tileType == TileType.GOLD_STONE) {
+
+                    // Give items based on the tile type
+                    switch (tileType) {
+                        case STONE:
+                            // Give Stone item
+                            Item stone = new Mineral(MineralType.Stone);
+                            player.getBackpack().add(stone, 1);
+                            break;
+                        case IRON_ORE:
+                            // Give Iron item
+                            Item iron = new Mineral(MineralType.Iron);
+                            player.getBackpack().add(iron, 1);
+                            break;
+                        case GOLD_ORE:
+                            // Give Gold item
+                            Item gold = new Mineral(MineralType.Gold);
+                            player.getBackpack().add(gold, 1);
+                            break;
+                        case DIAMOND_ORE:
+                            // Give Diamond item
+                            Item diamond = new Mineral(MineralType.Diamond);
+                            player.getBackpack().add(diamond, 1);
+                            break;
+                        case EMERALD_ORE:
+                            // Give Emerald item
+                            Item emerald = new Mineral(MineralType.Emerald);
+                            player.getBackpack().add(emerald, 1);
+                            break;
+                        case IRIDIUM_STONE:
+                            // Give Iridium item
+                            Item iridium = new Mineral(MineralType.Iridium);
+                            player.getBackpack().add(iridium, 1);
+                            break;
+                        case JEWEL_STONE:
+                            // Give a random gem (Ruby, Amethyst, Topaz, Jade, Aquamarine)
+                            MineralType[] gems = {MineralType.Ruby, MineralType.Amethyst, MineralType.Topaz, MineralType.Jade, MineralType.Aquamarine};
+                            MineralType randomGem = gems[(int)(Math.random() * gems.length)];
+                            Item gem = new Mineral(randomGem);
+                            player.getBackpack().add(gem, 1);
+                            break;
+                        case GOLD_STONE:
+                            // Give Gold item
+                            Item goldFromStone = new Mineral(MineralType.Gold);
+                            player.getBackpack().add(goldFromStone, 1);
+                            break;
+                    }
 
                     // Break the rock/ore
                     return gameMap.getFarmByPlayer(player).changeTile(targetX, targetY, TileType.Dirt, player);

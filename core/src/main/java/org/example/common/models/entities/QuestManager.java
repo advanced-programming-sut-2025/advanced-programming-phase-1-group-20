@@ -50,20 +50,22 @@ public class QuestManager {
 
     private void initializeQuestsForSebastian() {
         List<Quest> sebastianQuests = new ArrayList<>();
-        // Quest 1: Deliver 50 Iron (
-        //TODO : adding correct file path
-        Item ironOre = new Item("Iron Ore", 10 , "");
-        if (ironOre != null) {
-            Map<Item, Integer> requirements = Quest.createRequirement(ironOre, 50);
+        
+        // Quest 1: Deliver 50 Iron
+        Item iron = App.getItem("Iron");
+        if (iron != null) {
+            Map<Item, Integer> requirements = Quest.createRequirement(iron, 50);
             Quest quest = new Quest(
                     nextQuestId++,
                     "Iron Delivery",
-                    "Sebastian needs 50 Iron Ore for his engineering project.",
+                    "Sebastian needs 50 Iron for his engineering project.",
                     Npcs.SEBASTIAN,
                     requirements,
-                    5000,
-                    0, //  friendship level requirement
-                    0  //  days passed requirement
+                    5000, // 5,000 gold reward
+                    App.getItem("Diamond"),
+                    2,   // 2 diamonds reward
+                    0,   // No friendship level requirement
+                    0    // No days passed requirement
             );
             sebastianQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -79,11 +81,11 @@ public class QuestManager {
                     "Sebastian has a craving for a Pumpkin Pie. Can you make one for him?",
                     Npcs.SEBASTIAN,
                     requirements,
-                    500, // 500 gold reward
-                    App.getItem("Friendship Level"),
-                    1,   // 1 friendship level reward
-                    1,   // Requires friendship level 1
-                    0    // No days passed requirement
+                    5000, // 5,000 gold reward
+                    App.getItem("Quartz"),
+                    50,   // 50 quartz reward
+                    0,    // No friendship level requirement
+                    0     // No days passed requirement
             );
             sebastianQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -99,11 +101,11 @@ public class QuestManager {
                     "Sebastian needs 150 Stone for a basement renovation project.",
                     Npcs.SEBASTIAN,
                     requirements,
-                    500, // 500 gold reward
+                    5000, // 5,000 gold reward
                     App.getItem("Quartz"),
-                    50,  // 50 quartz reward
-                    0,   // No friendship level requirement
-                    28   // Requires 28 days (1 season) to pass
+                    50,   // 50 quartz reward
+                    0,    // No friendship level requirement
+                    0     // No days passed requirement
             );
             sebastianQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -145,11 +147,11 @@ public class QuestManager {
                     "Abigail wants to carve a pumpkin. Can you bring her one?",
                     Npcs.ABIGAIL,
                     requirements,
-                    1000, // 1,000 gold reward
-                    App.getItem("Automatic Watering Can"),
-                    1,    // 1 automatic watering can reward
-                    1,    // Requires friendship level 1
-                    0     // No days passed requirement
+                    500, // 500 gold reward
+                    App.getItem("Iridium Sprinkler"),
+                    1,   // 1 iridium sprinkler reward
+                    0,   // No friendship level requirement
+                    0    // No days passed requirement
             );
             abigailQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -165,11 +167,11 @@ public class QuestManager {
                     "Abigail needs 50 Wheat for a special project.",
                     Npcs.ABIGAIL,
                     requirements,
-                    0, // No gold reward
-                    App.getItem("Diamond"),
-                    2,  // 2 diamonds reward
-                    0,  // No friendship level requirement
-                    35  // Requires 35 days to pass
+                    500, // 500 gold reward
+                    App.getItem("Iridium Sprinkler"),
+                    1,   // 1 iridium sprinkler reward
+                    0,   // No friendship level requirement
+                    0    // No days passed requirement
             );
             abigailQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -191,7 +193,7 @@ public class QuestManager {
                     "Harvey needs 12 of any crop for his medical research.",
                     Npcs.HARVEY,
                     requirements,
-                    500, // 500 gold reward
+                    750, // 750 gold reward
                     App.getItem("Friendship Level"),
                     1,   // 1 friendship level reward
                     0,   // No friendship level requirement
@@ -212,9 +214,9 @@ public class QuestManager {
                     Npcs.HARVEY,
                     requirements,
                     750, // 750 gold reward
-                    App.getItem("Iridium Watering Can"),
-                    1,   // 1 iridium watering can reward
-                    1,   // Requires friendship level 1
+                    App.getItem("Friendship Level"),
+                    1,   // 1 friendship level reward
+                    0,   // No friendship level requirement
                     0    // No days passed requirement
             );
             harveyQuests.add(quest);
@@ -232,10 +234,10 @@ public class QuestManager {
                     Npcs.HARVEY,
                     requirements,
                     750, // 750 gold reward
-                    App.getItem("Friendship Level"),
-                    1,   // 1 friendship level reward
+                    App.getItem("Salad"),
+                    5,   // 5 salads reward
                     0,   // No friendship level requirement
-                    42   // Requires 42 days (1.5 seasons) to pass
+                    0    // No days passed requirement
             );
             harveyQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -244,12 +246,11 @@ public class QuestManager {
         npcQuests.put(Npcs.HARVEY, harveyQuests);
     }
 
-
     private void initializeQuestsForLeah() {
         List<Quest> leahQuests = new ArrayList<>();
 
         // Quest 1: Deliver 10 Hardwood
-        Item hardwood = App.getItem("Hardwood"); //TODO
+        Item hardwood = App.getItem("Hardwood");
         if (hardwood != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(hardwood, 10);
             Quest quest = new Quest(
@@ -259,8 +260,8 @@ public class QuestManager {
                     Npcs.LEAH,
                     requirements,
                     500, // 500 gold reward
-                    App.getItem("Salmon Recipe"),
-                    1,   // 1 salmon recipe reward
+                    App.getItem("Salmon Dinner"),
+                    1,   // 1 salmon dinner recipe reward
                     0,   // No friendship level requirement
                     0    // No days passed requirement
             );
@@ -279,30 +280,10 @@ public class QuestManager {
                     Npcs.LEAH,
                     requirements,
                     500, // 500 gold reward
-                    App.getItem("Scarecrow"),
-                    3,   // 3 scarecrows reward
-                    1,   // Requires friendship level 1
-                    0    // No days passed requirement
-            );
-            leahQuests.add(quest);
-            allQuests.put(quest.getId(), quest);
-        }
-
-        // Quest 3: Deliver a Bottle of Wine
-        Item wine = ItemBuilder.build("Wine");
-        if (wine != null) {
-            Map<Item, Integer> requirements = Quest.createRequirement(wine, 1);
-            Quest quest = new Quest(
-                    nextQuestId++,
-                    "Wine for Inspiration",
-                    "Leah wants a bottle of Wine to help with her artistic inspiration.",
-                    Npcs.LEAH,
-                    requirements,
-                    500, // 500 gold reward
-                    App.getItem("Salad"),
-                    5,   // 5 salads reward
+                    App.getItem("Deluxe Scarecrow"),
+                    3,   // 3 deluxe scarecrows reward
                     0,   // No friendship level requirement
-                    49   // Requires 49 days to pass
+                    0    // No days passed requirement
             );
             leahQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -314,58 +295,60 @@ public class QuestManager {
     private void initializeQuestsForRobin() {
         List<Quest> robinQuests = new ArrayList<>();
 
-        // Quest 1: Deliver 1000 Wood
+        // Quest 1: Deliver 80 Wood
         Item wood = ItemBuilder.build("Wood");
-        if (wood != null) {
-            Map<Item, Integer> requirements = Quest.createRequirement(wood, 1000);
-            Quest quest = new Quest(
-                    nextQuestId++,
-                    "Wood Collection",
-                    "Robin needs 1000 Wood for her carpentry projects.",
-                    Npcs.ROBIN,
-                    requirements,
-                    25000, // 25,000 gold reward
-                    0,     // No friendship level requirement
-                    0      // No days passed requirement
-            );
-            robinQuests.add(quest);
-            allQuests.put(quest.getId(), quest);
-        }
-
-        // Quest 2: Deliver 80 Wood
         if (wood != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(wood, 80);
             Quest quest = new Quest(
                     nextQuestId++,
-                    "More Wood Needed",
-                    "Robin needs 80 more Wood for a special project.",
+                    "Wood Collection",
+                    "Robin needs 80 Wood for her carpentry projects.",
                     Npcs.ROBIN,
                     requirements,
                     1000, // 1,000 gold reward
                     App.getItem("Bee House"),
-                    3,    // 3 beehives reward
-                    1,    // Requires friendship level 1
+                    3,    // 3 bee houses reward
+                    0,    // No friendship level requirement
                     0     // No days passed requirement
             );
             robinQuests.add(quest);
             allQuests.put(quest.getId(), quest);
         }
 
-        // Quest 3: Deliver 10 Irons
+        // Quest 2: Deliver 10 Iron Bars
         Item ironBar = ItemBuilder.build("Iron Bar");
         if (ironBar != null) {
             Map<Item, Integer> requirements = Quest.createRequirement(ironBar, 10);
             Quest quest = new Quest(
                     nextQuestId++,
                     "Iron for Tools",
-                    "Robin needs 10 Irons to make new tools.",
+                    "Robin needs 10 Iron Bars to make new tools.",
                     Npcs.ROBIN,
                     requirements,
                     1000, // 1,000 gold reward
-                    App.getItem("Deluxe Cooking Recipe"),
-                    1,    // 1 deluxe cooking recipe reward
+                    App.getItem("Bee House"),
+                    3,    // 3 bee houses reward
                     0,    // No friendship level requirement
-                    56    // Requires 56 days (2 seasons) to pass
+                    0     // No days passed requirement
+            );
+            robinQuests.add(quest);
+            allQuests.put(quest.getId(), quest);
+        }
+
+        // Quest 3: Deliver 1000 Wood
+        if (wood != null) {
+            Map<Item, Integer> requirements = Quest.createRequirement(wood, 1000);
+            Quest quest = new Quest(
+                    nextQuestId++,
+                    "Massive Wood Collection",
+                    "Robin needs 1000 Wood for a major construction project.",
+                    Npcs.ROBIN,
+                    requirements,
+                    25000, // 25,000 gold reward
+                    null,  // No item reward
+                    0,    // No item quantity
+                    0,    // No friendship level requirement
+                    0     // No days passed requirement
             );
             robinQuests.add(quest);
             allQuests.put(quest.getId(), quest);

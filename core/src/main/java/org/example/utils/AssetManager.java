@@ -387,7 +387,10 @@ public class AssetManager {
         loadTexture("stone", "content/Crafting/Stone.png");
         loadTexture("iron_ore", "content/Crafting/Iron_Ore.png");
         loadTexture("gold_ore", "content/Crafting/Gold_Ore.png");
-        loadTexture("plowed", "content/plowed.png");
+        loadTexture("iridium_stone", "content/map_elements/iridium_stone.png");
+        loadTexture("jewel_stone", "content/map_elements/jewel_stone.png");
+        loadTexture("gold_stone", "content/map_elements/gold_stone.png");
+        loadTexture("plowed", "content/map_elements/shoveled.png");
         loadTexture("path", "content/path.png");
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
 
@@ -475,6 +478,12 @@ public class AssetManager {
                 return getTileTexture("iron_ore");
             case "gold_ore":
                 return getTileTexture("gold_ore");
+            case "iridium_stone":
+                return getTileTexture("iridium_stone");
+            case "jewel_stone":
+                return getTileTexture("jewel_stone");
+            case "gold_stone":
+                return getTileTexture("gold_stone");
             case "plowed":
                 return getTileTexture("plowed");
             case "path":
