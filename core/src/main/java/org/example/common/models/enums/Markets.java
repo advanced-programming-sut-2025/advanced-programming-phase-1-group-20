@@ -55,18 +55,9 @@ public enum Markets {
         gold.setPrice(400);
         items.add(new Product(gold, Double.POSITIVE_INFINITY));
 
-        //upgrading item;
-        Item cooperTool = new Item("Cooper Tool" , 2_000 , "");
-        items.add(new Product(cooperTool, 1.0));
-
-        Item ironTool = new Item("Iron Tool" , 5_000 , "");
-        items.add(new Product(ironTool, 1.0));
-
-        Item goldTool = new Item("Gold Tool" , 10_000 , "");
-        items.add(new Product(goldTool, 1.0));
-
-        Item iridiumTool = new Item("Irididium Tool" , 25_000 , "");
-        items.add(new Product(iridiumTool, 1.0));
+        // Tool upgrade service (no physical items, handled by dialog)
+        Item toolUpgradeService = new Item("Tool Upgrade Service", 0, "Upgrade your tools to better materials");
+        items.add(new Product(toolUpgradeService, Double.POSITIVE_INFINITY));
 
         // Trash cans with proper Tool functionality
         Item cooperTrashCan = new Tool("Copper Trash Can", 1000, "content/Tools/Trash_Can_Copper.png", 

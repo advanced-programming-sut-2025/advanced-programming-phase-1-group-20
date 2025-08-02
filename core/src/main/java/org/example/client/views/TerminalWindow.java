@@ -317,6 +317,8 @@ public class TerminalWindow {
                 return gameMenuController.showCurrentTool();
             case ToolShowAvailable:
                 return gameMenuController.showAvailableTools();
+            case ToolUpgrade:
+                return gameMenuController.upgradeTool(args);
 
             // Default case for unhandled commands
             default:
@@ -390,6 +392,7 @@ public class TerminalWindow {
         addOutput("tools use -d <direction> - Use the equipped tool in a direction", TEXT_COLOR);
         addOutput("show current tool - Show the currently equipped tool", TEXT_COLOR);
         addOutput("show available tools - Show all tools in your backpack", TEXT_COLOR);
+        addOutput("upgrade tool <tool> - Upgrade a tool (requires blacksmith)", TEXT_COLOR);
     }
 
 

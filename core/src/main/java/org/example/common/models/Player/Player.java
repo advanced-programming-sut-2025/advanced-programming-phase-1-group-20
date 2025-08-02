@@ -505,7 +505,7 @@ public class Player {
         return tools;
     }
 
-    public boolean upgradeTool(String toolName, Market market) {
+    public boolean upgradeTool(String toolName) {
         // Check if the tool is in the backpack
         Item item = backpack.getItem(toolName);
         if (item == null || !(item instanceof Tool)) {

@@ -128,7 +128,7 @@ public class MarketController implements Controller {
 
         if (market.getName().equalsIgnoreCase("Black Smith")) {
             String toolName = args[0];
-            boolean success = player.upgradeTool(toolName, market);
+            boolean success = player.upgradeTool(toolName);
 
             if (success) {
                 return Result.success("Tool " + toolName + " upgraded successfully");

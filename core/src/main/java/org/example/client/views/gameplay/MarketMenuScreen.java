@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
+import org.example.client.views.ToolUpgradeDialog;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
@@ -246,6 +247,12 @@ public class MarketMenuScreen implements Screen, Disposable {
     }
 
     private void showBuyConfirmation(final Item item) {
+        // Special handling for Blacksmith tool upgrades
+        if (market.getName().equals("Black Smith") && isToolUpgradeItem(item)) {
+            showToolUpgradeDialog();
+            return;
+        }
+
         buyConfirmationDialog = new Dialog("Buy Item", skin, "dialog") {
             protected void result(Object object) {
                 // This is where the button's return value is handled
@@ -323,6 +330,23 @@ public class MarketMenuScreen implements Screen, Disposable {
         errorDialog.setPosition(
             Math.round((stage.getWidth() - errorDialog.getWidth()) / 2),
             Math.round((stage.getHeight() - errorDialog.getHeight()) / 2)
+        );
+    }
+
+    private boolean isToolUpgradeItem(Item item) {
+        String itemName = item.getName().toLowerCase();
+        return itemName.contains("tool upgrade service") || itemName.contains("tool") || 
+               itemName.contains("cooper") || itemName.contains("iron") || 
+               itemName.contains("gold") || itemName.contains("iridium");
+    }
+
+    private void showToolUpgradeDialog() {
+        ToolUpgradeDialog upgradeDialog = new ToolUpgradeDialog(player, skin);
+        upgradeDialog.show(stage);
+        upgradeDialog.pack();
+        upgradeDialog.setPosition(
+            Math.round((stage.getWidth() - upgradeDialog.getWidth()) / 2),
+            Math.round((stage.getHeight() - upgradeDialog.getHeight()) / 2)
         );
     }
 

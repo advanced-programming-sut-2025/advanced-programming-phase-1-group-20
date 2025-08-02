@@ -43,16 +43,16 @@ public class GameMenuController implements Controller {
 
     public void setView(GameView view){
         this.view = view;
-        
+
         // Debug: Check if player and farm are valid
         System.out.println("DEBUG: GameMenuController.setView - Player: " + (player != null ? player.getUser().getUsername() : "null"));
         System.out.println("DEBUG: GameMenuController.setView - Player's farm: " + (player != null && player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
-        
+
         if (player == null || player.getCurrentFarm() == null) {
             System.err.println("DEBUG: Player or farm is null in GameMenuController.setView");
             return;
         }
-        
+
         playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera() , view.getSkin() , this);
     }
@@ -613,6 +613,22 @@ public class GameMenuController implements Controller {
         }
     }
 
+    public Result upgradeTool(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+
+        if (args == null || args.length < 1) {
+            return Result.error("Tool name not specified");
+        }
+
+        String toolName = args[0];
+        boolean success = player.upgradeTool(toolName);
+
+        if (success) {
+            return Result.success("Tool " + toolName + " upgraded successfully");
+        } else {
+            return Result.error("Failed to upgrade tool " + toolName + ". Make sure you have enough money and materials.");
+        }
+    }
 
     public Result useTool(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
@@ -726,13 +742,13 @@ public class GameMenuController implements Controller {
         if (lake == null) {
             return Result.error("you are not nearby a lake");
         }
-        
+
         // Check if player has a fishing rod equipped
         Tool equippedTool = player.getCurrentTool();
         if (equippedTool == null || equippedTool.getType() != Tool.ToolType.FISHING_ROD) {
             return Result.error("You need to equip a fishing rod to fish. Use 'equip tool <rod name>' to equip a fishing rod.");
         }
-        
+
         String poleName = equippedTool.getName();
         Tool currentTool = equippedTool;
         double poleMultiplier = switch (poleName.toLowerCase()) {
@@ -2284,7 +2300,7 @@ public class GameMenuController implements Controller {
         info.append("Backpack Type: ").append(backpack.getType()).append("\n");
         info.append("Capacity: ").append(backpack.getCapacity()).append(" items\n");
         info.append("Current Items: ").append(backpack.countItems()).append("\n");
-        
+
         if (backpack.getType() == Backpack.Type.Initial) {
             info.append("Next upgrade: Big Backpack (24 items)");
         } else if (backpack.getType() == Backpack.Type.Big) {
@@ -2292,7 +2308,7 @@ public class GameMenuController implements Controller {
         } else {
             info.append("Backpack is at maximum level");
         }
-        
+
         return Result.success(info.toString());
     }
 
@@ -2300,7 +2316,7 @@ public class GameMenuController implements Controller {
         if (args.length < 2) {
             return Result.error("Usage: trash item <item_name> <amount>");
         }
-        
+
         String itemName = args[0];
         int amount;
         try {
@@ -2308,15 +2324,15 @@ public class GameMenuController implements Controller {
         } catch (NumberFormatException e) {
             return Result.error("Invalid amount format");
         }
-        
+
         Player player = App.getGame().getCurrentPlayer();
-        
+
         // Check if player has a trash can equipped
         Tool currentTool = player.getCurrentTool();
         if (currentTool == null || currentTool.getType() != Tool.ToolType.TRASH_CAN) {
             return Result.error("You need to equip a trash can to dispose of items");
         }
-        
+
         if (player.trashItem(itemName, amount)) {
             return Result.success("Successfully disposed of " + amount + " " + itemName);
         } else {
@@ -2328,13 +2344,13 @@ public class GameMenuController implements Controller {
         Player player = App.getGame().getCurrentPlayer();
         StringBuilder skillsInfo = new StringBuilder();
         skillsInfo.append("Skills Information:\n");
-        
+
         for (Skill skill : player.getSkills()) {
             skillsInfo.append(skill.getName()).append(": Level ").append(skill.getLevel())
                     .append(" (").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel())
                     .append(" units)\n");
         }
-        
+
         return Result.success(skillsInfo.toString());
     }
 
@@ -2342,27 +2358,27 @@ public class GameMenuController implements Controller {
         if (args.length < 1) {
             return Result.error("Usage: skill info <skill_name>");
         }
-        
+
         String skillName = args[0].toLowerCase();
         Player player = App.getGame().getCurrentPlayer();
         Skill skill = player.getSkillByName(skillName);
-        
+
         if (skill == null) {
             return Result.error("Skill not found: " + skillName);
         }
-        
+
         StringBuilder info = new StringBuilder();
         info.append("Skill: ").append(skill.getName()).append("\n");
         info.append("Level: ").append(skill.getLevel()).append("/").append(skill.getMaxLevel()).append("\n");
         info.append("Experience: ").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel()).append(" units\n");
         info.append("Progress: ").append(String.format("%.1f", skill.getProgressToNextLevel() * 100)).append("%\n");
-        
+
         if (skill.getLevel() >= skill.getMaxLevel()) {
             info.append("Status: Maximum level reached!");
         } else {
             info.append("Status: ").append(skill.getUnitsNeededForNextLevel() - skill.getUnits()).append(" more units needed for next level");
         }
-        
+
         return Result.success(info.toString());
     }
 }
