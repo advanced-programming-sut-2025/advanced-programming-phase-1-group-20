@@ -92,6 +92,7 @@ public class WelcomeMenuController {
         GameMap map = new GameMap();
         Farm farm1 = new Farm("guest farm" , player1 , true , 0);
         player1.setCurrentFarm(farm1);
+        player1.setEnergyUnlimited();
         map.addFarm(farm1);
         Farm farm2 = new Farm("guest farm" , player2 , false , 1);
         player2.setCurrentFarm(farm2);

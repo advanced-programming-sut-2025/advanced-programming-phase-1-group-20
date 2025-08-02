@@ -725,16 +725,15 @@ public class GameMenuController implements Controller {
         if (lake == null) {
             return Result.error("you are not nearby a lake");
         }
-        String poleName = args[0];
-        Tool currentTool = null;
-        for (Tool tool : player.getAvailableTools()) {
-            if (tool.getName().equalsIgnoreCase(poleName)) {
-                currentTool = tool;
-            }
+        
+        // Check if player has a fishing rod equipped
+        Tool equippedTool = player.getCurrentTool();
+        if (equippedTool == null || equippedTool.getType() != Tool.ToolType.FISHING_ROD) {
+            return Result.error("You need to equip a fishing rod to fish. Use 'equip tool <rod name>' to equip a fishing rod.");
         }
-        if (currentTool == null) {
-            return Result.error("You don't have the following tool: " + poleName);
-        }
+        
+        String poleName = equippedTool.getName();
+        Tool currentTool = equippedTool;
         double poleMultiplier = switch (poleName.toLowerCase()) {
             case "training rod" -> 0.1;
             case "bamboo pole" -> 0.5;

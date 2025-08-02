@@ -694,6 +694,32 @@ public class GameView implements Screen, InputProcessor {
             Player currentPlayer = App.getGame().getCurrentPlayer();
             if (currentPlayer == null) return false;
 
+            // Check if player has a watering can equipped and is clicking on a lake
+            Tool currentTool = currentPlayer.getCurrentTool();
+            if (currentTool != null && currentTool.getType() == Tool.ToolType.WATERING_CAN) {
+                if (currentPlayer.getCurrentFarm() != null && currentPlayer.getCurrentFarm().isInWater(tileX, tileY)) {
+                    // Calculate distance between player and clicked tile
+                    int playerTileX = (int) (currentPlayer.getPosX() / 60);
+                    int playerTileY = (int) (currentPlayer.getPosY() / 60);
+                    double distance = Math.sqrt(Math.pow(tileX - playerTileX, 2) + Math.pow(tileY - playerTileY, 2));
+
+                    if (distance <= 2.0) {
+                        // Fill the watering can
+                        boolean filled = currentTool.fill();
+                        if (filled) {
+                            showWateringCanFilledNotification();
+                        } else {
+                            showWateringCanAlreadyFullNotification();
+                        }
+                        return true;
+                    } else {
+                        showWateringCanTooFarNotification();
+                        return true;
+                    }
+                }
+            }
+
+            // Original fishing logic
             if (currentPlayer.getCurrentFarm() != null && currentPlayer.getCurrentFarm().isInWater(tileX, tileY)) {
                 startFishingMiniGame();
                 return true;
@@ -1050,7 +1076,7 @@ public class GameView implements Screen, InputProcessor {
         // Calculate the player's local position within their farm
         float playerGlobalX = player.getPosX() / 60; // Convert to tile coordinates
         float playerGlobalY = player.getPosY() / 60;
-        
+
         // Calculate local position within the farm
         float playerLocalX = playerGlobalX - globalFarmStartX;
         float playerLocalY = playerGlobalY - globalFarmStartY;
@@ -1433,20 +1459,80 @@ public class GameView implements Screen, InputProcessor {
         Player currentPlayer = App.getGame().getCurrentPlayer();
         if (currentPlayer == null) return;
 
-        String poleName = "training rod"; // Default pole name
-
-        for (Item item : currentPlayer.getBackpack().getInventory().keySet()) {
-            if (item instanceof Tool tool) {
-                if (tool.getType() == Tool.ToolType.FISHING_ROD) {
-                    poleName = tool.getName(); // Use the actual tool name
-                    break;
-                }
-            }
+        // Check if player has a fishing rod equipped
+        Tool currentTool = currentPlayer.getCurrentTool();
+        if (currentTool == null || currentTool.getType() != Tool.ToolType.FISHING_ROD) {
+            // Show a notification that fishing rod is required
+            showFishingRodRequiredNotification();
+            return;
         }
+
+        String poleName = currentTool.getName(); // Use the equipped fishing rod
 
         FishingMiniGame fishingMiniGame = new FishingMiniGame(this, poleName);
 
         Main.getGame().setScreen(fishingMiniGame);
+    }
+
+    private void showFishingRodRequiredNotification() {
+        Label notificationLabel = new Label("You need a fishing rod equipped to fish!", skin);
+        notificationLabel.setColor(Color.RED);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() - 100);
+        notificationLabel.setFontScale(1.5f);
+
+        // Add the notification to the stage
+        stage.addActor(notificationLabel);
+
+        // Schedule removal after 3 seconds using a timer
+        scheduleNotificationRemoval(notificationLabel, 3.0f);
+    }
+
+    private void showWateringCanFilledNotification() {
+        Label notificationLabel = new Label("Watering can filled!", skin);
+        notificationLabel.setColor(Color.GREEN);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() - 100);
+        notificationLabel.setFontScale(1.5f);
+
+        stage.addActor(notificationLabel);
+
+        scheduleNotificationRemoval(notificationLabel, 2.0f);
+    }
+
+    private void showWateringCanAlreadyFullNotification() {
+        Label notificationLabel = new Label("Watering can is already full!", skin);
+        notificationLabel.setColor(Color.YELLOW);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 120, Gdx.graphics.getHeight() - 100);
+        notificationLabel.setFontScale(1.5f);
+
+        stage.addActor(notificationLabel);
+
+        scheduleNotificationRemoval(notificationLabel, 2.0f);
+    }
+
+    private void showWateringCanTooFarNotification() {
+        Label notificationLabel = new Label("Too far from lake! Move closer.", skin);
+        notificationLabel.setColor(Color.ORANGE);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2 - 120, Gdx.graphics.getHeight() - 100);
+        notificationLabel.setFontScale(1.5f);
+
+        // Add the notification to the stage
+        stage.addActor(notificationLabel);
+
+        // Schedule removal after 2 seconds using a timer
+        scheduleNotificationRemoval(notificationLabel, 2.0f);
+    }
+
+    private void scheduleNotificationRemoval(Label notificationLabel, float delaySeconds) {
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, delaySeconds);
     }
 
     private void createLightingOverlayTexture() {

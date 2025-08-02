@@ -57,6 +57,7 @@ public class LoginMenuScreen implements Screen {
 
         stayLoggedInCheckbox = new CheckBox(" Stay Logged In", skin);
         mainTable.add(stayLoggedInCheckbox).colspan(2).padBottom(30).row();
+        stayLoggedInCheckbox.setChecked(false); // TODO: until debug dont changed
 
         errorLabel = new Label("", skin);
         errorLabel.setColor(Color.RED);

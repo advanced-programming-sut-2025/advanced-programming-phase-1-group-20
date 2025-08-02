@@ -259,7 +259,7 @@ public class InventoryScreen implements Screen {
                 Tool wateringCan = (Tool) item;
                 float waterPercentage = wateringCan.getWaterPercentage();
 
-                if (wateringCan.getCapacity() > 0) {
+                if (wateringCan.getCapacity() > 0 && wateringCan.getCurrentWater() > 0) {
                     // Create water level bar
                     Table waterBar = new Table();
                     waterBar.setBackground(skin.newDrawable("white", new Color(0.2f, 0.6f, 1f, 0.8f)));
@@ -272,6 +272,10 @@ public class InventoryScreen implements Screen {
                     waterLabel.setColor(new Color(0.2f, 0.6f, 1f, 1f));
                     waterLabel.setFontScale(0.5f);
                     slot.add(waterLabel).padTop(1);
+                } else {
+                    // Add empty space to maintain consistent layout when no water bar is shown
+                    slot.add().size(75, 5).padTop(2);
+                    slot.add().size(0, 0).padTop(1);
                 }
             }
 

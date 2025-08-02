@@ -1,7 +1,6 @@
 package org.example.common.models.Player;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import org.example.common.models.enums.Npcs;
 import org.example.common.models.App;
 import org.example.common.models.CollisionRect;
@@ -59,8 +58,6 @@ public class Player {
     private float posY = 69 * 60;
     private float speed;
     private CollisionRect rect;
-    private String spriteFileLocation = "content/PlayerSprites/Abigail.png";
-    private Sprite playerSprite;
 
     public Player() {
     }
@@ -122,8 +119,8 @@ public class Player {
             // Server environment - create collision rect with default dimensions
             rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
         } else {
-            // Client environment - create collision rect using actual sprite dimensions
-            rect = new CollisionRect(25 * 120, 25 * 120, getPlayerSprite().getWidth(), getPlayerSprite().getHeight());
+            // Client environment - create collision rect using default dimensions
+            rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
         }
 
 
@@ -870,9 +867,7 @@ public class Player {
         }
     }
 
-    /**
-     * Walk to farm from village
-     */
+
     public boolean walkToFarm(int farmIndex) {
         if (!canWalkToFarm(farmIndex)) {
             System.out.println("You need to be near the village exit to walk to the farm.");
@@ -915,13 +910,7 @@ public class Player {
         return true;
     }
 
-    public String getSpriteFileLocation() {
-        return spriteFileLocation;
-    }
 
-    public void setSpriteFileLocation(String spriteFileLocation) {
-        this.spriteFileLocation = spriteFileLocation;
-    }
 
     public float getSpeed() {
         return speed;
@@ -932,37 +921,10 @@ public class Player {
     }
 
     public void updatePosition() {
-        Sprite sprite = getPlayerSprite();
-        if (sprite != null) {
-            sprite.setPosition(posX, posY);
-        }
         rect.move(posX, posY);
     }
 
-    public Sprite getPlayerSprite() {
-        if(playerSprite == null) {
-            // Check if we're in a server environment (Gdx.files is null on server)
-            boolean isServerEnvironment = false;
-            try {
-                // Try to access Gdx.files - if it's null, we're on the server
-                if (com.badlogic.gdx.Gdx.files == null) {
-                    isServerEnvironment = true;
-                }
-            } catch (Exception e) {
-                isServerEnvironment = true;
-            }
 
-            if (isServerEnvironment) {
-                // Server environment - return null or create a dummy sprite
-                // For now, we'll return null since sprites aren't needed on the server
-                return null;
-            } else {
-                // Client environment - create actual sprite
-                playerSprite = new Sprite(new Texture(spriteFileLocation));
-            }
-        }
-        return playerSprite;
-    }
 
     public void addPlacedCraftingItem(CraftingItem item) {
         this.placedCraftingItems.add(item);

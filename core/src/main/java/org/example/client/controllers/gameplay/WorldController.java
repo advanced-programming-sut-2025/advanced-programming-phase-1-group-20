@@ -1302,14 +1302,14 @@ public class WorldController {
         }
 
         for (Player player : game.getPlayers()) {
-            if (player != null && player.getPlayerSprite() != null) {
+            if (player != null) {
                 if (isFullMapVisible) {
                     // When full map is visible, render players at their correct positions
                     // relative to the full map view
                     renderPlayerOnFullMap(player);
                 } else {
                     // Normal rendering when full map is not visible
-                    player.getPlayerSprite().draw(Main.getBatch());
+                    // TODO: Implement alternative player rendering without sprites
                 }
             }
         }
@@ -1381,12 +1381,11 @@ public class WorldController {
         float playerMapX = farmStartX + playerLocalX * TILE_SIZE;
         float playerMapY = farmStartY + playerLocalY * TILE_SIZE;
 
-        // Update the player sprite position for full map rendering
-        Sprite playerSprite = player.getPlayerSprite();
-        if (playerSprite != null) {
-            playerSprite.setPosition(playerMapX, playerMapY);
-            playerSprite.draw(Main.getBatch());
-        }
+        // Update the player position for full map rendering
+        // TODO: Implement alternative player rendering without sprites
+        // For now, we'll just update the player's position
+        player.setPosX(playerMapX);
+        player.setPosY(playerMapY);
     }
 
 
