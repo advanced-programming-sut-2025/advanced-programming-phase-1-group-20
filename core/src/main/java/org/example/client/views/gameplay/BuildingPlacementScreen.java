@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class BuildingPlacementScreen implements Screen, Disposable {
-
     private Stage stage;
     private Skin skin;
     private Player player;
@@ -50,19 +49,19 @@ public class BuildingPlacementScreen implements Screen, Disposable {
     private Viewport viewport;
     private SpriteBatch batch;
     private Map<String, Texture> textureCache;
-    
+
     // Building anchor collections (like WorldController)
     private List<Location> greenhouseAnchors;
     private List<Location> houseAnchors;
     private List<Location> barnAnchors;
     private List<Location> coopAnchors;
-    
+
     // UI
     private Table uiTable;
     private Label instructionLabel;
     private TextButton cancelButton;
     private TextButton confirmButton;
-    
+
     // Building placement state
     private boolean isPlacing = false;
     private int previewX = -1;
@@ -103,32 +102,32 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         loadTexture("grass_summer", "content/grass/summer.png");
         loadTexture("grass_fall", "content/grass/fall.png");
         loadTexture("grass_winter", "content/grass/winter.png");
-        
+
         // Load building textures
         loadTexture("barn", "content/Buildings/Barn.png");
         loadTexture("coop", "content/Buildings/Coop.png");
         loadTexture("house", "content/Buildings/House.png");
         loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
         loadTexture("constructed_greenhouse", "content/Buildings/GreenHouse/Constructed.png");
-        
+
         // Load tree textures
         loadTexture("tree_spring", "content/Trees/Apple_Stage_1.png");
         loadTexture("tree_summer", "content/Trees/Apple_Stage_1.png");
         loadTexture("tree_fall", "content/Trees/Apple_Stage_1.png");
         loadTexture("tree_winter", "content/Trees/Apple_Stage_1.png");
-        
+
         // Load crop textures
         loadTexture("crop_spring", "content/Crops/Wheat_Stage_1.png");
         loadTexture("crop_summer", "content/Crops/Wheat_Stage_1.png");
         loadTexture("crop_fall", "content/Crops/Wheat_Stage_1.png");
         loadTexture("crop_winter", "content/Crops/Wheat_Stage_1.png");
-        
+
         // Load mineral textures
         loadTexture("stone", "content/Rock/mainStone.png");
         loadTexture("iron_ore", "content/Minerals/Iron_Ore.png");
         loadTexture("gold_ore", "content/Minerals/Gold_Ore.png");
         loadTexture("diamond_ore", "content/Minerals/Diamond_Ore.png");
-        
+
         // Load building preview texture
         if (buildingItem.getImageFilepath() != null) {
             loadTexture("building_preview", buildingItem.getImageFilepath());
@@ -176,17 +175,17 @@ public class BuildingPlacementScreen implements Screen, Disposable {
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
                 // Convert screen coordinates to world coordinates
                 Vector3 worldCoords = viewport.unproject(new Vector3(screenX, screenY, 0));
-                
+
                 // Convert to tile coordinates
                 int tileX = (int) (worldCoords.x / TILE_SIZE);
                 int tileY = (int) (worldCoords.y / TILE_SIZE);
-                
+
                 // Check if click is within farm bounds
                 if (tileX >= 0 && tileX < Farm.width && tileY >= 0 && tileY < Farm.height) {
                     previewX = tileX;
                     previewY = tileY;
                     isPlacing = true;
-                    
+
                     // Check if placement is valid based on building type
                     String buildingName = buildingItem.getName().toLowerCase();
                     int buildingWidth = 2;
@@ -200,12 +199,12 @@ public class BuildingPlacementScreen implements Screen, Disposable {
                     }
                     canPlace = farm.canBuild(tileX, tileY, buildingWidth, buildingHeight);
                     confirmButton.setDisabled(!canPlace);
-                    
+
                     updateInstructionLabel();
-                    
+
                     return true;
                 }
-                
+
                 return stage.touchDown(screenX, screenY, pointer, button);
             }
 
@@ -248,7 +247,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
 
         // Bottom buttons
         Table buttonTable = new Table(skin);
-        
+
         cancelButton = new TextButton("Cancel", skin);
         cancelButton.addListener(new ClickListener() {
             @Override
@@ -282,7 +281,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         try {
             String buildingName = buildingItem.getName();
             Location location = farm.getItem(previewX, previewY);
-            
+
             if (location == null) {
                 showErrorDialog("Invalid Location", "Selected location is invalid.");
                 return;
@@ -304,9 +303,9 @@ public class BuildingPlacementScreen implements Screen, Disposable {
                     return;
                 }
             }
-            
+
             showErrorDialog("Placement Failed", "Cannot place building at this location.");
-            
+
         } catch (Exception e) {
             showErrorDialog("Error", "An error occurred while placing the building: " + e.getMessage());
         }
@@ -578,7 +577,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
     private void renderMineralItem(float worldX, float worldY, Mineral mineral) {
         String mineralType = mineral.getName().toLowerCase();
         Texture mineralTexture = null;
-        
+
         if (mineralType.contains("iron")) {
             mineralTexture = getTexture("iron_ore");
         } else if (mineralType.contains("gold")) {
@@ -588,7 +587,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         } else {
             mineralTexture = getTexture("stone");
         }
-        
+
         if (mineralTexture != null) {
             batch.draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
@@ -683,7 +682,7 @@ public class BuildingPlacementScreen implements Screen, Disposable {
         // Render farm
         batch.begin();
         renderFarmTiles();
-        
+
         // Render building preview if placing
         if (isPlacing && previewX != -1 && previewY != -1) {
             Texture previewTexture = getTexture("building_preview");
