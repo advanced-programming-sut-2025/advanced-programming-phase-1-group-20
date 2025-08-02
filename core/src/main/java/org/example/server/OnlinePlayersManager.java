@@ -26,10 +26,6 @@ public class OnlinePlayersManager {
         return instance;
     }
 
-    // =====================
-    // PLAYER MANAGEMENT
-    // =====================
-
     public void playerConnected(String username, PlayerConnection connection) {
         OnlinePlayerInfo playerInfo = new OnlinePlayerInfo(username);
         playerInfo.setConnectionTime(LocalDateTime.now().toString());

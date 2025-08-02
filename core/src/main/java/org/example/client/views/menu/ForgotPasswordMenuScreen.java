@@ -41,7 +41,7 @@ public class ForgotPasswordMenuScreen implements Screen {
         mainTable.setFillParent(true);
         mainTable.center().padTop(100);
 
-        Label titleLabel = new Label("FORGOT PASSWORD", skin, "title");
+        Label titleLabel = new Label("FORGOT PASSWORD", skin);
         titleLabel.setFontScale(1.8f);
         titleLabel.setColor(Color.ROYAL);
         mainTable.add(titleLabel).colspan(2).padBottom(40).row();

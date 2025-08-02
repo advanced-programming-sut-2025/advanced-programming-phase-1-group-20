@@ -107,16 +107,10 @@ public class MovementController {
         }
     }
 
-    /**
-     * Update the last movement time for a player
-     */
     private void updateLastMovementTime(String username) {
         lastMovementTime.put(username, System.currentTimeMillis());
     }
 
-    /**
-     * Get the last movement time for a player
-     */
     public Long getLastMovementTime(String username) {
         return lastMovementTime.get(username);
     }

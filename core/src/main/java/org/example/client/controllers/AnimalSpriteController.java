@@ -13,7 +13,6 @@ public class AnimalSpriteController {
     private final int FRAME_H;
     private static final float FRAME_DURATION = 0.2f;
 
-
     // Animations
     private final Animation<TextureRegion> moveUp;
     private final Animation<TextureRegion> moveDown;

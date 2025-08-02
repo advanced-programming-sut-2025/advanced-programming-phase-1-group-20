@@ -1,6 +1,7 @@
 package org.example.client.views;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -39,23 +40,29 @@ public class ToolUpgradeDialog extends Dialog {
         contentTable.pad(20);
 
         // Title
-        contentTable.add(new Label("Select a tool to upgrade:", skin, "title")).colspan(2).padBottom(20).row();
+        Label titleLabel = new Label("Select a tool to upgrade:", skin);
+        titleLabel.setFontScale(1.2f);
+        titleLabel.setColor(Color.GOLD);
+        contentTable.add(titleLabel).colspan(2).padBottom(20).row();
 
         // Tool list
         toolListTable = new Table();
-        toolListTable.setBackground(skin.getDrawable("button"));
+        toolListTable.setBackground(skin.getDrawable("rect"));
         toolListTable.pad(10);
 
         // Info panel
         Table infoTable = new Table();
-        infoTable.setBackground(skin.getDrawable("button"));
+        infoTable.setBackground(skin.getDrawable("rect"));
         infoTable.pad(10);
 
         infoLabel = new Label("Select a tool to see upgrade information", skin);
         costLabel = new Label("", skin);
         materialLabel = new Label("", skin);
 
-        infoTable.add(new Label("Tool Information:", skin, "title")).colspan(2).padBottom(10).row();
+        Label infoTitleLabel = new Label("Tool Information:", skin);
+        infoTitleLabel.setFontScale(1.1f);
+        infoTitleLabel.setColor(Color.YELLOW);
+        infoTable.add(infoTitleLabel).colspan(2).padBottom(10).row();
         infoTable.add(infoLabel).colspan(2).padBottom(5).row();
         infoTable.add(costLabel).colspan(2).padBottom(5).row();
         infoTable.add(materialLabel).colspan(2).padBottom(5).row();
@@ -85,7 +92,10 @@ public class ToolUpgradeDialog extends Dialog {
 
     private void loadAvailableTools() {
         toolListTable.clear();
-        toolListTable.add(new Label("Available Tools:", skin, "title")).colspan(2).padBottom(10).row();
+        Label toolsTitleLabel = new Label("Available Tools:", skin);
+        toolsTitleLabel.setFontScale(1.1f);
+        toolsTitleLabel.setColor(Color.YELLOW);
+        toolListTable.add(toolsTitleLabel).colspan(2).padBottom(10).row();
 
         List<Tool> tools = player.getAvailableTools();
 
