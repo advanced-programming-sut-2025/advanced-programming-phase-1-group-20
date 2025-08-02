@@ -65,7 +65,8 @@ public class LoginMenuController {
         if (stayLoggedIn) {
             // Save username for auto-login
             AutoLoginUtil.saveAutoLogin(username);
-        } else {
+        }
+        else {
             // Clear any existing auto-login data
             AutoLoginUtil.clearAutoLogin();
         }
