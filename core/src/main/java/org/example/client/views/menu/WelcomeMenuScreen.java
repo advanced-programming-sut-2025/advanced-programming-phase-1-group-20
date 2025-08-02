@@ -294,15 +294,17 @@ public class WelcomeMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        controller.update(delta);
-
-        // Clear screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Update and draw stage
+        controller.update(delta);
+
         stage.act(delta);
         stage.draw();
+
+        if(background.getDrawable() == null) {
+            Gdx.app.error("Render", "Background drawable is null!");
+        }
     }
 
     @Override
