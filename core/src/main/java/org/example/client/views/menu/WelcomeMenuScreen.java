@@ -58,6 +58,8 @@ public class WelcomeMenuScreen implements Screen {
         this.stage = new Stage(new ScreenViewport());
 
         initializeUI();
+        updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+
         controller.setScreen(this);
         checkAutoLogin();
     }
