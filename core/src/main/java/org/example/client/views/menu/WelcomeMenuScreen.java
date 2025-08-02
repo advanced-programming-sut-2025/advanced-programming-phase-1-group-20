@@ -61,7 +61,6 @@ public class WelcomeMenuScreen implements Screen {
         updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
 
         controller.setScreen(this);
-        checkAutoLogin();
     }
 
     // =================
@@ -239,24 +238,24 @@ public class WelcomeMenuScreen implements Screen {
         });
     }
 
-    // =================
-    // AUTO-LOGIN HANDLING
-    // =================
-
-    private void checkAutoLogin() {
-        isAutoLoginChecking = true;
-
-        // Perform auto-login check TODO: debug
-//        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
-//            isAutoLoginChecking = false;
-////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
-//        } else {
-//            // No auto-login, show main menu
-//            isAutoLoginChecking = false;
-//            showMainMenu();
-//        }
-        showMainMenu();
-    }
+//    // =================
+//    // AUTO-LOGIN HANDLING
+//    // =================
+//
+//    private void checkAutoLogin() {
+//        isAutoLoginChecking = true;
+//
+//        // Perform auto-login check TODO: debug
+////        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
+////            isAutoLoginChecking = false;
+//////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
+////        } else {
+////            // No auto-login, show main menu
+////            isAutoLoginChecking = false;
+////            showMainMenu();
+////        }
+//        showMainMenu();
+//    }
 
     // =================
     // SCREEN STATE MANAGEMENT
