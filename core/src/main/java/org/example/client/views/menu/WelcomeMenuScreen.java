@@ -39,7 +39,7 @@ public class WelcomeMenuScreen implements Screen {
     private ImageButton signUpButton;
     private ImageButton loginButton;
     private ImageButton exitButton;
-    private TextButton tryGameButton; // TODO: Testing button for map and game - "mostafa"
+    private TextButton tryGameButton; // TODO: Testing button for map and game "mostafa"
     private Label titleLabel;
     private Label loadingLabel;
     private Image background;
@@ -59,6 +59,7 @@ public class WelcomeMenuScreen implements Screen {
 
         initializeUI();
         updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+        checkAutoLogin();
 
         controller.setScreen(this);
     }
@@ -239,24 +240,24 @@ public class WelcomeMenuScreen implements Screen {
         });
     }
 
-//    // =================
-//    // AUTO-LOGIN HANDLING
-//    // =================
-//
-//    private void checkAutoLogin() {
-//        isAutoLoginChecking = true;
-//
-//        // Perform auto-login check TODO: debug
-////        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
-////            isAutoLoginChecking = false;
-//////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
-////        } else {
-////            // No auto-login, show main menu
-////            isAutoLoginChecking = false;
-////            showMainMenu();
-////        }
-//        showMainMenu();
-//    }
+    // =================
+    // AUTO-LOGIN HANDLING
+    // =================
+
+    private void checkAutoLogin() {
+        isAutoLoginChecking = true;
+
+        // Perform auto-login check TODO: debug
+//        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
+//            isAutoLoginChecking = false;
+////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
+//        } else {
+//            // No auto-login, show main menu
+//            isAutoLoginChecking = false;
+//            showMainMenu();
+//        }
+        showMainMenu();
+    }
 
     // =================
     // SCREEN STATE MANAGEMENT
