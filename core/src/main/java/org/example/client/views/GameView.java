@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -34,6 +35,7 @@ import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.common.Location;
 import org.example.common.models.Player.Player;
+import org.example.common.models.enums.PlayerEnums.Tools;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
@@ -47,6 +49,7 @@ import org.example.client.views.effects.LightningSystem; // NEW IMPORT
 import org.example.client.controllers.NPCSpriteController;
 
 import org.example.client.views.fishing.FishingMiniGame;
+import org.example.client.network.NetworkClient;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -157,13 +160,6 @@ public class GameView implements Screen, InputProcessor {
     // private FishCatchDisplay fishCatchDisplay;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
-        System.out.println("DEBUG: GameView constructor called");
-        System.out.println("DEBUG: Controller: " + (controller != null ? "not null" : "null"));
-        System.out.println("DEBUG: Player: " + (player != null ? player.getUser().getUsername() : "null"));
-        System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
-        System.out.println("DEBUG: Skin: " + (skin != null ? "not null" : "null"));
-        System.out.println("DEBUG: User: " + (user != null ? user.getUsername() : "null"));
-
         this.controller = controller;
         this.player = player;
         this.game = game;
@@ -175,50 +171,50 @@ public class GameView implements Screen, InputProcessor {
         // Initialize camera first
         camera = new OrthographicCamera(120, 120);
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        System.out.println("DEBUG: Camera initialized");
 
         // Initialize lighting system
         initializeLighting();
-        System.out.println("DEBUG: Lighting initialized");
 
         // Initialize rain system - NEW
         climateSystem = new ClimateSystem(camera); // Use the camera for rain coverage
-        System.out.println("DEBUG: Climate system initialized");
 
         // Initialize lightning system - NEW
         lightningSystem = new LightningSystem(camera);
-        System.out.println("DEBUG: Lightning system initialized");
 
         // Initialize lighting overlay texture
         createLightingOverlayTexture();
-        System.out.println("DEBUG: Lighting overlay texture created");
 
         // Initialize terminal window for cheat commands
         terminalWindow = new TerminalWindow(controller);
-        System.out.println("DEBUG: Terminal window initialized");
 
         // Initialize friends system
         initializeFriendsButton();
-        System.out.println("DEBUG: Friends button initialized");
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
-        System.out.println("DEBUG: NPC sprite controller initialized");
 
         loadCustomFont();
-        System.out.println("DEBUG: Custom font loaded");
         initializeLabels();
-        System.out.println("DEBUG: Labels initialized");
         initializeClock();
-        System.out.println("DEBUG: Clock initialized");
         updateWeatherAndSeasonDisplays();
-        System.out.println("DEBUG: Weather and season displays updated");
 
         initializeTables();
-        System.out.println("DEBUG: Tables initialized");
         controller.setView(this);
-        System.out.println("DEBUG: Controller view set");
-        System.out.println("DEBUG: GameView constructor completed successfully");
+
+        // Set the current game instance in the ClientMessageHandler for multiplayer mode
+        if (game != null && game.isMultiplayer) {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null && networkClient.getMessageHandler() != null) {
+                networkClient.getMessageHandler().setCurrentGame(game);
+                System.out.println("DEBUG: GameView - Set current game in ClientMessageHandler for multiplayer mode");
+                System.out.println("DEBUG: GameView - Game instance: " + (game != null ? "present" : "null") +
+                    ", isMultiplayer: " + (game != null ? game.isMultiplayer : "N/A"));
+            } else {
+                System.out.println("DEBUG: GameView - NetworkClient or MessageHandler is null");
+            }
+        } else {
+            System.out.println("DEBUG: GameView - Not in multiplayer mode or game is null");
+        }
     }
 
     private void initializeLighting() {
@@ -512,7 +508,13 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private Date getCurrentGameDate() {
-        return game != null ? game.getDate() : App.getGame().getDate();
+        // In multiplayer mode, use the game instance from the game session
+        if (game != null && game.isMultiplayer) {
+            return game.getDate();
+        } else {
+            // In single player mode, use App.getGame()
+            return App.getGame() != null ? App.getGame().getDate() : null;
+        }
     }
 
     private void initializeTables() {
@@ -1004,92 +1006,62 @@ public class GameView implements Screen, InputProcessor {
         // Render tiles
         renderMinimapTiles(game.getGameMap(), scale);
 
-        // Render players
-        renderMinimapPlayers(scale);
-
         // Render labels
         renderMinimapLabels();
     }
 
-    private void renderMinimapPlayers(float scale) {
+
+    private void renderOtherPlayers() {
+        Game game = App.getGame();
         if (game == null || game.getPlayers() == null) {
             return;
         }
 
-        for (Player player : game.getPlayers()) {
-            if (player != null && player.getCurrentFarm() != null) {
-                renderPlayerOnMinimap(player, scale);
+        for (Player otherPlayer : game.getPlayers()) {
+            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && player.getIsInVillage()) {
+                renderPlayerSprite(otherPlayer);
             }
         }
     }
 
-    private void renderPlayerOnMinimap(Player player, float scale) {
-        Farm farm = player.getCurrentFarm();
-        int farmIndex = farm.getFarmIndex();
+    private void renderPlayerSprite(Player player) {
+        // PlayerController constants for sprite rendering
+        final int FRAME_W = 16;
+        final int FRAME_H = 32;
+        final int RENDER_W = 48;
+        final int RENDER_H = 96;
 
-        // Calculate the farm's position on minimap
-        float farmX, farmY;
-        switch (farmIndex) {
-            case 0: // Top-Left
-                farmX = 120;
-                farmY = 120;
-                break;
-            case 1: // Bottom-Left
-                farmX = 120;
-                farmY = 120 + 234 * scale;
-                break;
-            case 2: // Top-Right
-                farmX = 120 + 78 * scale;
-                farmY = 120;
-                break;
-            case 3: // Bottom-Right
-                farmX = 120 + 78 * scale;
-                farmY = 120 + 234 * scale;
-                break;
-            default:
-                return;
+        // Get player's texture sheet
+        Texture textureSheet = player.getTextureSheet();
+        if (textureSheet == null) {
+            // Fallback to colored dot
+            boolean isCurrentPlayer = (player == this.player);
+            Main.getBatch().setColor(isCurrentPlayer ? Color.RED : Color.BLUE);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            float dotSize = 30;
+            Main.getBatch().draw(whiteTexture, player.getPosX() - dotSize/2, player.getPosY() - dotSize/2, dotSize, dotSize);
+            whiteTexture.dispose();
+            return;
         }
 
-        // Calculate global farm boundaries based on farm index
-        int globalFarmStartX, globalFarmStartY;
-        switch (farmIndex) {
-            case 0: // Top-Left
-                globalFarmStartX = 0;
-                globalFarmStartY = 0;
-                break;
-            case 1: // Bottom-Left
-                globalFarmStartX = 0;
-                globalFarmStartY = 78;
-                break;
-            case 2: // Top-Right
-                globalFarmStartX = 156;
-                globalFarmStartY = 0;
-                break;
-            case 3: // Bottom-Right
-                globalFarmStartX = 156;
-                globalFarmStartY = 78;
-                break;
-            default:
-                return;
+        // Split the texture sheet into a grid (like PlayerController does)
+        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
+
+        TextureRegion playerFrame = grid[0][0];
+        // Determine if this is the current player
+        boolean isCurrentPlayer = (player == this.player);
+
+        // Set color based on whether it's the current player or not
+        if (isCurrentPlayer) {
+            Main.getBatch().setColor(Color.WHITE); // Current player gets normal colors
+        } else {
+            Main.getBatch().setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
         }
 
-        // Calculate the player's local position within their farm
-        float playerGlobalX = player.getPosX() / 60; // Convert to tile coordinates
-        float playerGlobalY = player.getPosY() / 60;
+        // Draw the player sprite
+        Main.getBatch().draw(playerFrame, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
 
-        // Calculate local position within the farm
-        float playerLocalX = playerGlobalX - globalFarmStartX;
-        float playerLocalY = playerGlobalY - globalFarmStartY;
-
-        // Calculate the player's position on the minimap
-        float playerMapX = farmX + playerLocalX * scale;
-        float playerMapY = farmY + playerLocalY * scale;
-
-        // Render a simple colored circle for the player
-        Main.getBatch().setColor(Color.RED);
-        Texture whiteTexture = new Texture("content/grass/spring.png"); // Use any texture as a base
-        Main.getBatch().draw(whiteTexture, playerMapX, playerMapY, scale * 2, scale * 2);
-        whiteTexture.dispose();
+        // Reset batch color to white after drawing player sprite
         Main.getBatch().setColor(Color.WHITE);
     }
 
@@ -1135,7 +1107,6 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void render(float deltaTime) {
-        System.out.println("DEBUG: GameView.render() called with deltaTime: " + deltaTime);
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background
@@ -1182,6 +1153,10 @@ public class GameView implements Screen, InputProcessor {
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
                 }
             }
+        }
+
+        if (game.isMultiplayer) {
+            renderOtherPlayers();
         }
 
         if (getCurrentGameDate() != null) {
@@ -1274,7 +1249,16 @@ public class GameView implements Screen, InputProcessor {
 
     private void updateClockDisplay() {
         Date gameDate = getCurrentGameDate();
-        if (gameDate == null) return;
+        if (gameDate == null) {
+            System.out.println("DEBUG: Clock display - gameDate is null");
+            return;
+        }
+
+        // Debug: Log the current time being displayed
+        if (gameTime % 5.0f < 0.1f) { // Log every 5 seconds to avoid spam
+            System.out.println("DEBUG: Clock display - Current time: " + gameDate.getCurrentTimeString() +
+                " (Hour: " + gameDate.getHour() + ", Minute: " + gameDate.getMinutes() + ")");
+        }
 
         updateDateLabel(gameDate);
         updateTimeLabel(gameDate);
@@ -1298,10 +1282,16 @@ public class GameView implements Screen, InputProcessor {
 
     private void updateTimeLabel(Date gameDate) {
         int hour = gameDate.getHour();
+        int minute = gameDate.getMinutes();
         int displayHour = (hour == 0) ? 12 : (hour > 12 ? hour - 12 : hour);
         String amPm = (hour >= 12) ? "pm" : "am";
-        String timeText = String.format("%d:%02d %s", displayHour, gameDate.getMinutes(), amPm);
+        String timeText = String.format("%d:%02d %s", displayHour, minute, amPm);
         timeDisplayLabel.setText(timeText);
+
+        // Debug: Log the time being displayed in the UI
+        if (gameTime % 5.0f < 0.1f) { // Log every 5 seconds to avoid spam
+            System.out.println("DEBUG: Time label - Displaying: " + timeText + " (Raw hour: " + hour + ", minute: " + minute + ")");
+        }
     }
 
     private void updateClockNeedle(Date gameDate) {

@@ -106,7 +106,6 @@ public class WelcomeMenuController {
 
         game.setGameMap(map);
 
-        // Position players in their farms using global coordinates (like in multiplayer mode)
         for (Player player : players) {
             if (player != null && player.getCurrentFarm() != null) {
                 Farm farm = player.getCurrentFarm();

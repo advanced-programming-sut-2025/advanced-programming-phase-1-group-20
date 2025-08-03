@@ -31,6 +31,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ArrayList;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class WorldController {
     private PlayerController playerController;
@@ -1316,7 +1318,10 @@ public class WorldController {
                     renderPlayerOnFullMap(player);
                 } else {
                     // Normal rendering when full map is not visible
-                    // TODO: Implement alternative player rendering without sprites
+                    // Only render other players (not the current player, as they're rendered separately)
+                    if (player != playerController.getPlayer()) {
+                        renderPlayerSprite(player);
+                    }
                 }
             }
         }
@@ -1388,11 +1393,58 @@ public class WorldController {
         float playerMapX = farmStartX + playerLocalX * TILE_SIZE;
         float playerMapY = farmStartY + playerLocalY * TILE_SIZE;
 
-        // Update the player position for full map rendering
-        // TODO: Implement alternative player rendering without sprites
-        // For now, we'll just update the player's position
+        // Store the original position to restore later
+        float originalX = player.getPosX();
+        float originalY = player.getPosY();
+
+        // Temporarily update the player position for full map rendering
         player.setPosX(playerMapX);
         player.setPosY(playerMapY);
+
+        // Render the player sprite at the calculated position
+        renderPlayerSprite(player);
+
+        // Restore the original position
+        player.setPosX(originalX);
+        player.setPosY(originalY);
+    }
+
+    private void renderPlayerSprite(Player player) {
+        // PlayerController constants for sprite rendering
+        final int FRAME_W = 16;
+        final int FRAME_H = 32;
+        final int RENDER_W = 48;
+        final int RENDER_H = 96;
+
+        // Get player's texture sheet
+        Texture textureSheet = player.getTextureSheet();
+        if (textureSheet == null) {
+            // Fallback to colored dot
+            boolean isCurrentPlayer = (player == playerController.getPlayer());
+            Main.getBatch().setColor(isCurrentPlayer ? Color.RED : Color.BLUE);
+            Texture whiteTexture = new Texture("content/grass/spring.png");
+            float dotSize = 30;
+            Main.getBatch().draw(whiteTexture, player.getPosX() - dotSize/2, player.getPosY() - dotSize/2, dotSize, dotSize);
+            whiteTexture.dispose();
+            return;
+        }
+
+        // Split the texture sheet into a grid (like PlayerController does)
+        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
+
+        TextureRegion playerFrame = grid[0][0];
+        // Determine if this is the current player
+        boolean isCurrentPlayer = (player == playerController.getPlayer());
+
+        // Set color based on whether it's the current player or not
+        if (isCurrentPlayer) {
+            Main.getBatch().setColor(Color.WHITE); // Current player gets normal colors
+        } else {
+            Main.getBatch().setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
+        }
+
+        // Draw the player sprite
+        Main.getBatch().draw(playerFrame, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
     }
 
 
@@ -1404,7 +1456,6 @@ public class WorldController {
             Vector3 touchPoint = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 
             // 3. Convert the screen coordinates to your game's world coordinates.
-            // This is a crucial step!
             camera.unproject(touchPoint);
 
             // Check if click was on another player

@@ -154,7 +154,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private void goBackToLobby() {
         // Navigate back to lobby menu
-        // This would need to be implemented based on your navigation system
+        // TODO
         statusLabel.setText("Returning to lobby...");
     }
 
@@ -475,13 +475,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     private void navigateToMultiplayerGame(String gameSessionId, Object playersData, Object gameData, String currentPlayerUsername, Object allPlayersInfoObj) {
         try {
-            System.out.println("DEBUG: FarmSelectionScreen - navigateToMultiplayerGame method called");
-            System.out.println("DEBUG: FarmSelectionScreen - Navigating to multiplayer game with session ID: " + gameSessionId);
-            System.out.println("DEBUG: FarmSelectionScreen - playersData: " + (playersData != null ? "present" : "null"));
-            System.out.println("DEBUG: FarmSelectionScreen - gameData: " + (gameData != null ? "present" : "null"));
-            System.out.println("DEBUG: FarmSelectionScreen - currentPlayerUsername: " + currentPlayerUsername);
-            System.out.println("DEBUG: FarmSelectionScreen - allPlayersInfoObj: " + (allPlayersInfoObj != null ? "present" : "null"));
-
             // Get current user from network client
             NetworkClient networkClient = NetworkClient.getInstance();
             User currentUser = networkClient.getAuthenticatedUser();
@@ -625,8 +618,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 game.syncFarmSelectionsFromServer(playerSelections);
             }
 
-            // In multiplayer mode, set the current player to this client's player
-            // instead of using the turn-based system
             game.setCurrentPlayer(currentPlayer);
 
             // Find the index of the current player in the players list
@@ -637,14 +628,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Set the game in App
             App.setGame(game);
-
-            // Debug: Verify game state
-            System.out.println("DEBUG: Game created with " + game.getPlayers().size() + " players");
-            System.out.println("DEBUG: Current player: " + (game.getCurrentPlayer() != null ? game.getCurrentPlayer().getUser().getUsername() : "null"));
-            System.out.println("DEBUG: Current player's farm: " + (game.getCurrentPlayer() != null && game.getCurrentPlayer().getCurrentFarm() != null ?
-                game.getCurrentPlayer().getCurrentFarm().getName() : "null"));
-            System.out.println("DEBUG: Game map farms: " + (game.getGameMap() != null ? game.getGameMap().getFarms().size() : "null"));
-            System.out.println("DEBUG: Farm selections: " + game.getPlayerFarmSelections());
 
             // Initialize the game map
             System.out.println("FarmSelectionScreen: About to initialize NPCs...");
@@ -659,10 +642,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             System.out.println("DEBUG: FarmSelectionScreen - Initialized game with " + allPlayers.size() + " players");
 
             // Create and set the game view
-            System.out.println("DEBUG: Creating GameView...");
-            System.out.println("DEBUG: Current player: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
-            System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
-            System.out.println("DEBUG: Current user: " + (currentUser != null ? currentUser.getUsername() : "null"));
+//            System.out.println("DEBUG: Creating GameView...");
+//            System.out.println("DEBUG: Current player: " + (currentPlayer != null ? currentPlayer.getUser().getUsername() : "null"));
+//            System.out.println("DEBUG: Game: " + (game != null ? "not null" : "null"));
+//            System.out.println("DEBUG: Current user: " + (currentUser != null ? currentUser.getUsername() : "null"));
 
             // Ensure the game is properly set in App before creating the GameMenuController
             if (App.getGame() != game) {
@@ -678,9 +661,9 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 return;
             }
 
-            System.out.println("DEBUG: Creating GameMenuController with player: " + currentPlayer.getUser().getUsername());
-            System.out.println("DEBUG: Player's farm: " + currentPlayer.getCurrentFarm().getName());
-            System.out.println("DEBUG: Game in App: " + (App.getGame() != null ? "set" : "null"));
+//            System.out.println("DEBUG: Creating GameMenuController with player: " + currentPlayer.getUser().getUsername());
+//            System.out.println("DEBUG: Player's farm: " + currentPlayer.getCurrentFarm().getName());
+//            System.out.println("DEBUG: Game in App: " + (App.getGame() != null ? "set" : "null"));
 
             // Create GameView with exception handling
             GameView gameView = new GameView(new GameMenuController(currentPlayer),
@@ -693,16 +676,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                     System.out.println("DEBUG: Getting Main game instance on main thread...");
                     Main mainGame = Main.getGame();
                     if (mainGame != null) {
-                        System.out.println("DEBUG: Main game instance found, disposing current screen...");
                         if (mainGame.getScreen() != null) {
-                            System.out.println("DEBUG: Current screen: " + mainGame.getScreen().getClass().getSimpleName());
                             mainGame.getScreen().dispose();
                         }
-                        System.out.println("DEBUG: Setting new screen to GameView...");
                         mainGame.setScreen(gameView);
-                        System.out.println("DEBUG: Successfully navigated to multiplayer game with session ID: " + gameSessionId);
-                        System.out.println("DEBUG: Each player now has their own Player object and the same game state");
-                        System.out.println("DEBUG: Screen transition completed successfully");
                     } else {
                         System.err.println("DEBUG: Main game instance is null on main thread!");
                         statusLabel.setText("Error: Failed to get main game instance");

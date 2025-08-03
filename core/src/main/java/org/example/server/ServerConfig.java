@@ -66,6 +66,20 @@ public class ServerConfig {
         return Integer.parseInt(dotenv.get("MOVEMENT_UPDATE_THROTTLE", "16")); // Minimum 16ms between movement updates (60 FPS)
     }
 
+    // Time advancement configuration
+    public int getTimeAdvancementRate() {
+        return Integer.parseInt(dotenv.get("TIME_ADVANCEMENT_RATE", "5")); // Minutes to advance per game tick (increased from 1 to 5 for testing)
+    }
+
+    public int getTimeSyncInterval() {
+        return Integer.parseInt(dotenv.get("TIME_SYNC_INTERVAL", "1")); // Broadcast time updates every N game ticks (reduced from 3 to 1 for more frequent updates)
+    }
+
+    // Weather synchronization configuration
+    public int getWeatherSyncInterval() {
+        return Integer.parseInt(dotenv.get("WEATHER_SYNC_INTERVAL", "1")); // Check for weather changes every N game ticks
+    }
+
     // Development Configuration
     public boolean isDebugMode() {
         return Boolean.parseBoolean(dotenv.get("DEBUG_MODE", "false"));

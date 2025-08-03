@@ -6,6 +6,8 @@ import org.example.common.models.Player.Player;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
 import org.example.server.GameServers.PlayerConnection;
+import org.example.common.models.enums.Weather;
+import org.example.common.models.MapDetails.GameMap;
 import com.google.gson.Gson;
 
 import java.util.Map;
@@ -27,6 +29,8 @@ public class GameSession {
     private final ServerConfig config;
     private boolean isActive;
     private final Map<String, Long> lastMovementTime; // Track last movement time per player
+    private int gameTickCounter; // Track game ticks for time synchronization
+    private Weather lastBroadcastedWeather; // Track last broadcasted weather to avoid duplicate broadcasts
 
     public GameSession(User creator) {
         System.out.println("DEBUG: GameSession constructor called for creator: " + (creator != null ? creator.getUsername() : "null"));
@@ -39,6 +43,10 @@ public class GameSession {
             this.config = ServerConfig.getInstance();
             this.isActive = false;
             this.lastMovementTime = new ConcurrentHashMap<>();
+            this.gameTickCounter = 0;
+            this.lastBroadcastedWeather = null; // Initialize lastBroadcastedWeather
+
+            System.out.println("DEBUG: GameSession initialized with sessionId: " + sessionId);
 
             // Create game instance with the creator as the first player
             System.out.println("DEBUG: Creating game instance...");
@@ -47,9 +55,11 @@ public class GameSession {
             players.add(creatorPlayer);
 
             this.gameInstance = new Game(players, creatorPlayer);
+            this.gameInstance.isMultiplayer = true; // Mark as multiplayer game on server
             System.out.println("DEBUG: Game instance created successfully");
-            // Don't set the game in App on server side - this is client-side only
-            // App.setGame(this.gameInstance);
+            // Set the game in App for server-side access
+            App.setGame(this.gameInstance);
+            App.getGame().isMultiplayer = true; // Mark as multiplayer game on server
 
             System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
         } catch (Exception e) {
@@ -90,7 +100,7 @@ public class GameSession {
         // Add player to game instance
         // System.out.println("DEBUG: Adding player to game instance...");
         Player newPlayer = new Player(user);
-        boolean addedToGame = gameInstance.addPlayer(newPlayer);
+        boolean addedToGame = App.getGame().addPlayer(newPlayer);
         // System.out.println("DEBUG: Player added to game instance: " + addedToGame);
 
         // Add connection to session
@@ -111,11 +121,11 @@ public class GameSession {
     public void removePlayer(String username) {
         PlayerConnection connection = playerConnections.remove(username);
         if (connection != null) {
-            // Remove player from game instance
-            Player player = gameInstance.getPlayerByUsername(username);
-            if (player != null) {
-                gameInstance.removePlayer(player);
-            }
+                    // Remove player from game instance
+        Player player = App.getGame().getPlayerByUsername(username);
+        if (player != null) {
+            App.getGame().removePlayer(player);
+        }
 
             // Clean up movement tracking
             lastMovementTime.remove(username);
@@ -142,12 +152,15 @@ public class GameSession {
         }
 
         this.isActive = true;
+        System.out.println("DEBUG: Game session started - isActive: " + isActive);
 
         // Don't initialize farms yet - wait for farm selection
         // gameInstance.initializeMultiplayerGame();
 
         int tickRate = config.getGameTickRate();
+        System.out.println("DEBUG: Starting game loop with tick rate: " + tickRate + " ticks per second");
         gameLoop.scheduleAtFixedRate(this::gameLoop, 0, 1000 / tickRate, TimeUnit.MILLISECONDS);
+        System.out.println("DEBUG: Game loop scheduled successfully");
 
         // Send farm selection phase start message
         Message farmSelectionStart = new Message();
@@ -155,13 +168,13 @@ public class GameSession {
         farmSelectionStart.putInBody("gameSessionId", sessionId);
         farmSelectionStart.putInBody("message", "Game started! Please select your farm.");
         farmSelectionStart.putInBody("inFarmSelectionPhase", true);
-        farmSelectionStart.putInBody("availableFarms", gameInstance.getAvailableFarmIndices());
-        farmSelectionStart.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
-        farmSelectionStart.putInBody("playersData", gameInstance.getPlayersData());
-        farmSelectionStart.putInBody("gameData", gameInstance.getGameState());
+        farmSelectionStart.putInBody("availableFarms", App.getGame().getAvailableFarmIndices());
+        farmSelectionStart.putInBody("playerSelections", App.getGame().getPlayerFarmSelections());
+        farmSelectionStart.putInBody("playersData", App.getGame().getPlayersData());
+        farmSelectionStart.putInBody("gameData", App.getGame().getGameState());
         // Don't send a specific current player username - each client will set their own
         farmSelectionStart.putInBody("currentPlayerUsername", null);
-        farmSelectionStart.putInBody("playerCount", gameInstance.getPlayerCount());
+        farmSelectionStart.putInBody("playerCount", App.getGame().getPlayerCount());
         farmSelectionStart.putInBody("isActive", false); // Not fully active until farm selection is complete
 
         broadcastToAll(farmSelectionStart);
@@ -211,11 +224,59 @@ public class GameSession {
 
     private void gameLoop() {
         try {
-            // Update game time and state
-            gameInstance.updateGameState();
+            gameTickCounter++;
 
-            // No periodic state updates - updates happen immediately when events occur
-            // This prevents unnecessary network traffic and ensures real-time responsiveness
+            // Debug: Log game loop execution
+            if (gameTickCounter % 10 == 0) { // Log every 10 ticks to avoid spam
+                System.out.println("DEBUG: Game loop tick " + gameTickCounter +
+                    " - isActive: " + isActive +
+                    " - Date: " + (App.getGame().getCurrentDate() != null ? App.getGame().getCurrentDate().getCurrentTimeString() : "null") +
+                    " - GameMap: " + (App.getGame().getGameMap() != null ? "initialized" : "null"));
+            }
+
+            // Advance time on server (this is the single source of truth for time)
+            if (App.getGame().getCurrentDate() != null) {
+                int timeAdvancementRate = config.getTimeAdvancementRate();
+                // Advance time by configured minutes per game tick
+                // Pass null for GameMap if it's not initialized yet
+                GameMap gameMap = App.getGame().getGameMap();
+                App.getGame().getCurrentDate().advanceMinutes(timeAdvancementRate, gameMap);
+
+                if (gameTickCounter % 10 == 0) { // Log every 10 ticks
+                    System.out.println("DEBUG: Server advanced time by " + timeAdvancementRate + " minutes - " +
+                        App.getGame().getCurrentDate().getCurrentTimeString());
+                }
+            } else {
+                System.out.println("DEBUG: Server game loop - current date is null");
+            }
+
+            // Update game time and state
+            App.getGame().updateGameState();
+
+            // Broadcast time updates to all clients periodically
+            // This ensures all clients stay synchronized with server time
+            int timeSyncInterval = config.getTimeSyncInterval();
+            if (gameTickCounter % timeSyncInterval == 0) {
+                broadcastGameStateUpdate();
+                System.out.println("DEBUG: Broadcasted time update to all clients - " +
+                    App.getGame().getCurrentDate().getCurrentTimeString() +
+                    " (Weather: " + App.getGame().getCurrentDate().getWeatherToday() + ")");
+            }
+
+            // Also broadcast weather updates immediately when weather changes
+            // This ensures all clients see weather changes at the same time
+            if (App.getGame().getCurrentDate() != null) {
+                Weather currentWeather = App.getGame().getCurrentDate().getWeatherToday();
+                if (currentWeather != null) {
+                    // Store the last broadcasted weather to detect changes
+                    if (lastBroadcastedWeather == null || !lastBroadcastedWeather.equals(currentWeather)) {
+                        broadcastWeatherUpdate();
+                        lastBroadcastedWeather = currentWeather;
+                        System.out.println("DEBUG: Weather changed to " + currentWeather + " - broadcasting to all clients");
+                    }
+                }
+            }
+
         } catch (Exception e) {
             System.err.println("Error in game loop for session " + sessionId + ": " + e.getMessage());
             e.printStackTrace();
@@ -226,7 +287,7 @@ public class GameSession {
         float x = message.getFromBody("x");
         float y = message.getFromBody("y");
 
-        Player player = gameInstance.getPlayerByUsername(username);
+        Player player = App.getGame().getPlayerByUsername(username);
         if (player != null) {
             // Check movement throttling to prevent excessive updates
             long currentTime = System.currentTimeMillis();
@@ -249,11 +310,61 @@ public class GameSession {
             // Broadcast movement to other players immediately
             broadcastToOthers(username, message);
 
+            // Also broadcast comprehensive player data for real-time synchronization
+            broadcastPlayerDataUpdate();
+
             // Update last movement time
             lastMovementTime.put(username, currentTime);
 
-            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ")");
+            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ") - Broadcasting to " +
+                (playerConnections.size() - 1) + " other players");
+        } else {
+            System.err.println("DEBUG: Player " + username + " not found in game instance");
         }
+    }
+
+    private void broadcastPlayerDataUpdate() {
+        Message playerDataMessage = new Message();
+        playerDataMessage.setType(Message.Type.PLAYER_DATA_UPDATE);
+
+        // Create comprehensive player data from server state
+        Map<String, Object> allPlayersData = new HashMap<>();
+        for (Player p : App.getGame().getPlayers()) {
+            Map<String, Object> playerInfo = new HashMap<>();
+            playerInfo.put("username", p.getUser().getUsername());
+            playerInfo.put("nickname", p.getUser().getNickname());
+            playerInfo.put("posX", p.getPosX());
+            playerInfo.put("posY", p.getPosY());
+            playerInfo.put("energy", p.getEnergy());
+            playerInfo.put("money", p.getMoney());
+            playerInfo.put("isInVillage", p.getIsInVillage());
+
+            // Add farm information
+            if (p.getCurrentFarm() != null) {
+                playerInfo.put("farmIndex", p.getCurrentFarm().getFarmIndex());
+                playerInfo.put("farmName", p.getCurrentFarm().getName());
+            } else {
+                playerInfo.put("farmIndex", -1);
+                playerInfo.put("farmName", "No Farm");
+            }
+
+            // Add location information
+            if (p.getLocation() != null) {
+                playerInfo.put("locationX", p.getLocation().getX());
+                playerInfo.put("locationY", p.getLocation().getY());
+                playerInfo.put("tileType", p.getLocation().getTile().toString());
+            }
+
+            allPlayersData.put(p.getUser().getUsername(), playerInfo);
+        }
+
+        playerDataMessage.putInBody("players", allPlayersData);
+        playerDataMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        // Broadcast to all players
+        broadcastToAll(playerDataMessage);
+
+        System.out.println("DEBUG: Broadcasted real-time player data update for " + allPlayersData.size() + " players");
     }
 
     private void handleUseTool(String username, Message message) {
@@ -262,16 +373,19 @@ public class GameSession {
         int targetY = message.getIntFromBody("targetY");
         String direction = message.getFromBody("direction");
 
-        Player player = gameInstance.getPlayerByUsername(username);
+        Player player = App.getGame().getPlayerByUsername(username);
         if (player != null) {
             // Execute tool use on server
-            player.useTool(direction, gameInstance.getGameMap());
+            player.useTool(direction, App.getGame().getGameMap());
 
             // Broadcast action to all players immediately
             broadcastToAll(message);
 
             // Send immediate game state update for tool effects
             broadcastGameStateUpdate();
+
+            // Send player data update to sync any energy/money changes
+            broadcastPlayerDataUpdate();
         }
     }
 
@@ -318,7 +432,7 @@ public class GameSession {
         int farmIndex = message.getIntFromBody("farmIndex");
         System.out.println("DEBUG: Farm index requested: " + farmIndex);
 
-        Player player = gameInstance.getPlayerByUsername(username);
+        Player player = App.getGame().getPlayerByUsername(username);
 
         if (player == null) {
             System.err.println("DEBUG: Player not found: " + username);
@@ -334,7 +448,7 @@ public class GameSession {
         }
 
         // Check if farm index is available (allow players to change their own selection)
-        if (!gameInstance.isFarmIndexAvailable(farmIndex, player)) {
+        if (!App.getGame().isFarmIndexAvailable(farmIndex, player)) {
             System.err.println("DEBUG: Farm index " + farmIndex + " is already taken by another player");
             sendErrorMessage(username, "Farm index " + farmIndex + " is already taken by another player.");
             return;
@@ -342,21 +456,21 @@ public class GameSession {
         System.out.println("DEBUG: Farm index " + farmIndex + " is available");
 
         // Select the farm for the player
-        gameInstance.selectFarm(player, farmIndex);
+        App.getGame().selectFarm(player, farmIndex);
         System.out.println("DEBUG: Farm " + farmIndex + " selected for player " + username);
 
         // Debug: Check current state
-        System.out.println("DEBUG: Current players: " + gameInstance.getPlayers().size());
-        System.out.println("DEBUG: Current farm selections: " + gameInstance.getPlayerFarmSelections());
-        System.out.println("DEBUG: All players selected farm: " + gameInstance.allPlayersSelectedFarm());
+        System.out.println("DEBUG: Current players: " + App.getGame().getPlayers().size());
+        System.out.println("DEBUG: Current farm selections: " + App.getGame().getPlayerFarmSelections());
+        System.out.println("DEBUG: All players selected farm: " + App.getGame().allPlayersSelectedFarm());
 
         // Create response message
         Message response = new Message();
         response.setType(Message.Type.FARM_SELECTION_UPDATE);
         response.putInBody("username", username);
         response.putInBody("farmIndex", farmIndex);
-        response.putInBody("availableFarms", gameInstance.getAvailableFarmIndices());
-        response.putInBody("playerSelections", gameInstance.getPlayerFarmSelections());
+        response.putInBody("availableFarms", App.getGame().getAvailableFarmIndices());
+        response.putInBody("playerSelections", App.getGame().getPlayerFarmSelections());
 
         System.out.println("DEBUG: Broadcasting FARM_SELECTION_UPDATE to all players");
         // Broadcast to all players
@@ -366,12 +480,12 @@ public class GameSession {
         broadcastGameStateUpdate();
 
         // Check if all players have selected farms
-        if (gameInstance.allPlayersSelectedFarm()) {
+        if (App.getGame().allPlayersSelectedFarm()) {
             System.out.println("DEBUG: All players have selected farms, initializing game");
-            System.out.println("DEBUG: Final farm selections: " + gameInstance.getPlayerFarmSelections());
+            System.out.println("DEBUG: Final farm selections: " + App.getGame().getPlayerFarmSelections());
 
             // Initialize the game with selected farms
-            gameInstance.initializeMultiplayerGame();
+            App.getGame().initializeMultiplayerGame();
 
             // Set the game session as fully active
             this.isActive = true;
@@ -384,31 +498,31 @@ public class GameSession {
             completeGameState.put("gameSessionId", sessionId);
             completeGameState.put("isActive", true);
             completeGameState.put("inFarmSelectionPhase", false); // Explicitly mark as not in farm selection
-            completeGameState.put("playerSelections", gameInstance.getPlayerFarmSelections());
-            completeGameState.put("playersData", gameInstance.getPlayersData());
-            completeGameState.put("gameData", gameInstance.getGameState());
-            completeGameState.put("dateState", gameInstance.getCurrentDate().getDateState());
+            completeGameState.put("playerSelections", App.getGame().getPlayerFarmSelections());
+            completeGameState.put("playersData", App.getGame().getPlayersData());
+            completeGameState.put("gameData", App.getGame().getGameState());
+            completeGameState.put("dateState", App.getGame().getCurrentDate().getDateState());
             // Don't send a specific current player username - each client will set their own
             completeGameState.put("currentPlayerUsername", null);
-            completeGameState.put("playerCount", gameInstance.getPlayerCount());
+            completeGameState.put("playerCount", App.getGame().getPlayerCount());
 
             // Add all players with their farm assignments and current state
             Map<String, Object> allPlayersInfo = new HashMap<>();
-            for (Player p : gameInstance.getPlayers()) {
+            for (Player p : App.getGame().getPlayers()) {
                 Map<String, Object> playerInfo = new HashMap<>();
                 playerInfo.put("username", p.getUser().getUsername());
-                playerInfo.put("farmIndex", gameInstance.getFarmSelection(p));
+                playerInfo.put("farmIndex", App.getGame().getFarmSelection(p));
                 playerInfo.put("farmName", p.getCurrentFarm() != null ? p.getCurrentFarm().getName() : "Unknown");
                 playerInfo.put("posX", p.getPosX());
                 playerInfo.put("posY", p.getPosY());
                 playerInfo.put("energy", p.getEnergy());
                 playerInfo.put("money", p.getMoney());
-                // Don't mark any specific player as current - each client will determine their own
+
                 playerInfo.put("isCurrentPlayer", false);
                 allPlayersInfo.put(p.getUser().getUsername(), playerInfo);
 
                 System.out.println("DEBUG: Player " + p.getUser().getUsername() + " - Farm: " +
-                    gameInstance.getFarmSelection(p) + ", Position: (" + p.getPosX() + ", " + p.getPosY() +
+                    App.getGame().getFarmSelection(p) + ", Position: (" + p.getPosX() + ", " + p.getPosY() +
                     "), Energy: " + p.getEnergy() + ", Money: " + p.getMoney());
             }
             completeGameState.put("allPlayersInfo", allPlayersInfo);
@@ -441,8 +555,8 @@ public class GameSession {
         } else {
             System.out.println("DEBUG: Not all players have selected farms yet");
             System.out.println("DEBUG: Players who haven't selected: ");
-            for (Player p : gameInstance.getPlayers()) {
-                Integer selection = gameInstance.getFarmSelection(p);
+            for (Player p : App.getGame().getPlayers()) {
+                Integer selection = App.getGame().getFarmSelection(p);
                 if (selection == -1) {
                     System.out.println("DEBUG: - " + p.getUser().getUsername() + " (no selection)");
                 } else {
@@ -498,17 +612,24 @@ public class GameSession {
     private void broadcastFullGameState() {
         Message message = new Message();
         message.setType(Message.Type.GAME_STATE_FULL);
-        message.putInBody("gameState", gameInstance.getGameState());
-        message.putInBody("players", gameInstance.getPlayersData());
-        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
+        message.putInBody("gameState", App.getGame().getGameState());
+        message.putInBody("players", App.getGame().getPlayersData());
+        message.putInBody("dateState", App.getGame().getCurrentDate().getDateState());
         broadcastToAll(message);
     }
 
     private void broadcastGameStateUpdate() {
         Message message = new Message();
         message.setType(Message.Type.GAME_STATE_UPDATE);
-        message.putInBody("dateState", gameInstance.getCurrentDate().getDateState());
-        message.putInBody("weather", gameInstance.getCurrentDate().getWeatherToday().toString());
+        message.putInBody("dateState", App.getGame().getCurrentDate().getDateState());
+        message.putInBody("weather", App.getGame().getCurrentDate().getWeatherToday().toString());
+        broadcastToAll(message);
+    }
+
+    private void broadcastWeatherUpdate() {
+        Message message = new Message();
+        message.setType(Message.Type.WEATHER_UPDATE);
+        message.putInBody("weather", App.getGame().getCurrentDate().getWeatherToday().toString());
         broadcastToAll(message);
     }
 

@@ -1,5 +1,6 @@
 package org.example.server.controllers;
 
+import org.example.common.models.App;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
@@ -28,7 +29,7 @@ public class MovementController {
         float x = message.getFromBody("x");
         float y = message.getFromBody("y");
 
-        Player player = gameInstance.getPlayerByUsername(username);
+        Player player = App.getGame().getPlayerByUsername(username);
         if (player == null) {
             System.err.println("DEBUG: Player " + username + " not found for movement");
             return false;

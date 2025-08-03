@@ -83,12 +83,6 @@ public class GameSaveLoadController {
         return sb.toString();
     }
 
-    /**
-     * Deletes a saved game from MongoDB.
-     *
-     * @param saveName Name of the save to delete
-     * @return A message indicating success or failure
-     */
     public static String deleteSavedGame(String saveName) {
         if (saveName == null || saveName.trim().isEmpty()) {
             return "Error: Invalid save name. Please provide a name to delete.";

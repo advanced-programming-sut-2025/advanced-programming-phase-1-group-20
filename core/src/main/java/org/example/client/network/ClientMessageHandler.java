@@ -18,6 +18,7 @@ public class ClientMessageHandler {
     private ConnectionStatusListener connectionListener;
     private OnlinePlayersListener onlinePlayersListener;
     private LobbyMessageListener lobbyListener;
+    private Game currentGame; // Add reference to current game instance
 
     public interface GameStateUpdateListener {
         void onGameStateUpdate(Object gameState);
@@ -53,6 +54,28 @@ public class ClientMessageHandler {
 
     public ClientMessageHandler(NetworkClient networkClient) {
         this.networkClient = networkClient;
+        this.currentGame = null;
+    }
+
+    /**
+     * Set the current game instance for multiplayer mode
+     */
+    public void setCurrentGame(Game game) {
+        this.currentGame = game;
+        System.out.println("DEBUG: ClientMessageHandler - Set current game: " + (game != null ? "present" : "null"));
+    }
+
+    /**
+     * Get the current game instance, preferring the set game over App.getGame()
+     */
+    private Game getCurrentGame() {
+        if (currentGame != null) {
+            System.out.println("DEBUG: ClientMessageHandler - Using set game instance");
+            return currentGame;
+        } else {
+            System.out.println("DEBUG: ClientMessageHandler - Using App.getGame()");
+            return App.getGame();
+        }
     }
 
     public void handleMessage(Message message) {
@@ -81,6 +104,9 @@ public class ClientMessageHandler {
                     break;
                 case GAME_STATE_FULL:
                     handleFullGameState(message);
+                    break;
+                case WEATHER_UPDATE:
+                    handleWeatherUpdate(message);
                     break;
                 case TRADE_REQUEST:
                     handleTradeRequest(message);
@@ -267,10 +293,6 @@ public class ClientMessageHandler {
                 enhancedMessage.putInBody("playerCount", completeGameState.get("playerCount"));
                 enhancedMessage.putInBody("allPlayersInfo", completeGameState.get("allPlayersInfo"));
 
-                System.out.println("DEBUG: Forwarding enhanced FARM_SELECTION_COMPLETE to lobby listener");
-                System.out.println("DEBUG: Game session ID: " + completeGameState.get("gameSessionId"));
-                System.out.println("DEBUG: All players info: " + (completeGameState.get("allPlayersInfo") != null ? "present" : "null"));
-                System.out.println("DEBUG: About to call lobbyListener.onLobbyMessage");
                 lobbyListener.onLobbyMessage(enhancedMessage);
                 System.out.println("DEBUG: lobbyListener.onLobbyMessage called");
             } else {
@@ -388,7 +410,7 @@ public class ClientMessageHandler {
             System.out.println("DEBUG: Received player move - " + username + " moved to (" + x + ", " + y + ")");
 
             // Update the player's position in the game state
-            Game currentGame = App.getGame();
+            Game currentGame = getCurrentGame();
             if (currentGame != null) {
                 Player targetPlayer = currentGame.getPlayerByUsername(username);
                 if (targetPlayer != null) {
@@ -415,15 +437,18 @@ public class ClientMessageHandler {
         Object gameState = message.getFromBody("gameState");
         Object dateState = message.getFromBody("dateState");
 
-        // Sync date from server
         if (dateState != null) {
             try {
-                Game currentGame = App.getGame();
+                Game currentGame = getCurrentGame();
+                System.out.println("DEBUG: ClientMessageHandler - Syncing date with game: " + (currentGame != null ? "present" : "null"));
                 if (currentGame != null) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> serverDateState = (Map<String, Object>) dateState;
                     currentGame.syncDateFromServer(serverDateState);
-                    System.out.println("DEBUG: Date synced from server in game state update");
+                    System.out.println("DEBUG: Date synced from server in game state update - " +
+                        (currentGame.getCurrentDate() != null ? currentGame.getCurrentDate().getCurrentTimeString() : "null"));
+                } else {
+                    System.out.println("DEBUG: ClientMessageHandler - No game instance available for date sync");
                 }
             } catch (Exception e) {
                 System.err.println("DEBUG: Error syncing date from game state update: " + e.getMessage());
@@ -441,19 +466,16 @@ public class ClientMessageHandler {
         Object playersData = message.getFromBody("players");
         Object dateState = message.getFromBody("dateState");
 
-        System.out.println("DEBUG: handleFullGameState called - gameState: " + (gameState != null ? "present" : "null") +
-            ", playersData: " + (playersData != null ? "present" : "null") +
-            ", dateState: " + (dateState != null ? "present" : "null"));
-
         // Sync date from server
         if (dateState != null) {
             try {
-                Game currentGame = App.getGame();
+                Game currentGame = getCurrentGame();
                 if (currentGame != null) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> serverDateState = (Map<String, Object>) dateState;
                     currentGame.syncDateFromServer(serverDateState);
-                    System.out.println("DEBUG: Date synced from server in full game state");
+                    System.out.println("DEBUG: Date synced from server in full game state - " +
+                        (currentGame.getCurrentDate() != null ? currentGame.getCurrentDate().getCurrentTimeString() : "null"));
                 }
             } catch (Exception e) {
                 System.err.println("DEBUG: Error syncing date from full game state: " + e.getMessage());
@@ -465,7 +487,7 @@ public class ClientMessageHandler {
         if (gameState != null) {
             try {
                 // Update the current game in App with server state
-                Game currentGame = App.getGame();
+                Game currentGame = getCurrentGame();
                 if (currentGame != null) {
                     // Update game state from server data
                     @SuppressWarnings("unchecked")
@@ -529,6 +551,25 @@ public class ClientMessageHandler {
         if (timestamp != null) {
             long latency = System.currentTimeMillis() - timestamp;
             System.out.println("Server latency: " + latency + "ms");
+        }
+    }
+
+    private void handleWeatherUpdate(Message message) {
+        String weatherStr = message.getFromBody("weather");
+        if (weatherStr != null) {
+            try {
+                Game currentGame = getCurrentGame();
+                if (currentGame != null && currentGame.getCurrentDate() != null) {
+                    // Update the weather directly from server
+                    org.example.common.models.enums.Weather weather =
+                        org.example.common.models.enums.Weather.valueOf(weatherStr);
+                    currentGame.getCurrentDate().setWeatherToday(weather);
+                    System.out.println("DEBUG: Weather updated from server: " + weather);
+                }
+            } catch (Exception e) {
+                System.err.println("DEBUG: Error updating weather from server: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 

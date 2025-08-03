@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.Random;
 
 public class Date implements Runnable {
     private final Map<Seasons, List<Weather>> weatherMap;
@@ -22,6 +23,7 @@ public class Date implements Runnable {
     private Weather weatherToday;
     private Weather weatherTomorrow;
     private boolean running = true;
+    private final Random weatherRandom; // Deterministic random for weather generation
 
     public Date() {
         this.day = 1;
@@ -30,6 +32,8 @@ public class Date implements Runnable {
         this.hour = 9;
         this.minute = 0; // NEW
         this.weatherMap = new HashMap<>();
+
+        this.weatherRandom = new Random();
         initialWeatherMap();
         updateWeatherToday();
         updateWeatherTomorrow();
@@ -45,11 +49,33 @@ public class Date implements Runnable {
             isServerEnvironment = true;
         }
 
-        if (!isServerEnvironment) {
-            // Only start the time thread on client side
+        // Check if we're in multiplayer mode
+        boolean isMultiplayerMode = false;
+        try {
+            if (App.getGame() != null) {
+                isMultiplayerMode = App.getGame().isMultiplayer;
+            }
+        } catch (Exception e) {
+            // If we can't check, assume single player
+            isMultiplayerMode = false;
+        }
+
+        // Only start the time thread if:
+        // 1. We're not on the server (client-side only)
+        // 2. We're in single player mode (not multiplayer)
+        if (!isServerEnvironment && !isMultiplayerMode) {
+            // Only start the time thread on client side in single player mode
             Thread timeThread = new Thread(this);
             timeThread.setDaemon(true);
             timeThread.start();
+            System.out.println("DEBUG: Started time thread for single player mode");
+        } else if (isServerEnvironment) {
+            System.out.println("DEBUG: Server environment - time thread not started (server controls time via game loop)");
+            // Don't stop the running flag on server - it needs to be able to advance time
+        } else if (isMultiplayerMode) {
+            System.out.println("DEBUG: Multiplayer mode - time thread not started (server controls time)");
+            // In multiplayer mode, ensure the time thread is stopped for clients
+            this.running = false;
         }
 
         displayTime();
@@ -62,6 +88,13 @@ public class Date implements Runnable {
         weatherMap.put(Seasons.WINTER, Arrays.asList(Weather.SUNNY, Weather.SNOWY));
     }
 
+    private void updateWeatherSeed() {
+        // Create a deterministic seed based on year, season, and day
+        // This ensures all clients generate the same weather for the same date
+        long seed = (year * 1000L) + (season * 100L) + day;
+        weatherRandom.setSeed(seed);
+    }
+
     public void advanceTime(int hours, GameMap gameMap) {
         advanceMinutes(hours * 60, gameMap);
     }
@@ -72,22 +105,44 @@ public class Date implements Runnable {
             return;
         }
 
+        // Check if we're in multiplayer mode
+        boolean isMultiplayerMode = false;
+        try {
+            if (App.getGame() != null) {
+                isMultiplayerMode = App.getGame().isMultiplayer;
+            }
+        } catch (Exception e) {
+            // If we can't check, assume single player
+            isMultiplayerMode = false;
+        }
+
+        // Check if we're in a server environment
+        boolean isServerEnvironment = false;
+        try {
+            if (com.badlogic.gdx.Gdx.files == null) {
+                isServerEnvironment = true;
+            }
+        } catch (Exception e) {
+            isServerEnvironment = true;
+        }
+
+        // In multiplayer mode, only the server should advance time
+        // Clients should only advance time when syncing from server
+        if (isMultiplayerMode && !isServerEnvironment) {
+            System.out.println("DEBUG: Client attempting to advance time in multiplayer mode - ignoring");
+            return;
+        }
+
+        // Allow time advancement on server or in single player mode
+        System.out.println("DEBUG: Advancing time by " + minutes + " minutes (Server: " + isServerEnvironment + ", Multiplayer: " + isMultiplayerMode + ")");
+
         for (int i = 0; i < minutes; i++) {
             this.minute++;
             if (this.minute >= 60) {
                 this.minute = 0;
                 this.hour++;
 
-                // Check if we're in a server environment
-                boolean isServerEnvironment = false;
-                try {
-                    if (com.badlogic.gdx.Gdx.files == null) {
-                        isServerEnvironment = true;
-                    }
-                } catch (Exception e) {
-                    isServerEnvironment = true;
-                }
-
+                // Only update turns on client side
                 if (!isServerEnvironment && App.getGame() != null) {
                     App.getGame().updateTurns();
                 }
@@ -124,7 +179,16 @@ public class Date implements Runnable {
             return;
         }
 
-        this.day += days;
+        // Check if we're in multiplayer mode
+        boolean isMultiplayerMode = false;
+        try {
+            if (App.getGame() != null) {
+                isMultiplayerMode = App.getGame().isMultiplayer;
+            }
+        } catch (Exception e) {
+            // If we can't check, assume single player
+            isMultiplayerMode = false;
+        }
 
         // Check if we're in a server environment
         boolean isServerEnvironment = false;
@@ -136,6 +200,18 @@ public class Date implements Runnable {
             isServerEnvironment = true;
         }
 
+        // In multiplayer mode, only the server should advance days
+        // Clients should only advance days when syncing from server
+        if (isMultiplayerMode && !isServerEnvironment) {
+            System.out.println("DEBUG: Client attempting to advance days in multiplayer mode - ignoring");
+            return;
+        }
+
+        System.out.println("DEBUG: Advancing days by " + days + " (Server: " + isServerEnvironment + ", Multiplayer: " + isMultiplayerMode + ")");
+
+        this.day += days;
+
+        // Only update daily game on client side
         if (!isServerEnvironment && App.getGame() != null) {
             for (int i = 0; i < days; i++) {
                 App.getGame().updateDailyGame();
@@ -174,8 +250,21 @@ public class Date implements Runnable {
                     isServerEnvironment = true;
                 }
 
-                if (!isServerEnvironment && App.getGame() != null && App.getGame().getGameMap() != null) {
+                // Check if we're in multiplayer mode
+                boolean isMultiplayerMode = false;
+                try {
+                    if (App.getGame() != null) {
+                        isMultiplayerMode = App.getGame().isMultiplayer;
+                    }
+                } catch (Exception e) {
+                    // If we can't check, assume single player
+                    isMultiplayerMode = false;
+                }
+
+                if (!isServerEnvironment && !isMultiplayerMode && App.getGame() != null && App.getGame().getGameMap() != null) {
                     advanceMinutes(10, App.getGame().getGameMap()); // simulate 10 in-game minutes
+                } else if (isMultiplayerMode) {
+                    System.out.println("DEBUG: Multiplayer mode - skipping local time advancement (server controls time)");
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -193,17 +282,29 @@ public class Date implements Runnable {
             System.out.println("Weather map is not initialized.");
             return;
         }
+
+        updateWeatherSeed();
+
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
-        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
+        int randomIndex = weatherRandom.nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
+
+        System.out.println("DEBUG: Generated weather for " + getCurrentTimeString() + ": " + this.weatherToday);
     }
 
     private void updateWeatherTomorrow() {
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
-        int randomIndex = ThreadLocalRandom.current().nextInt(possibleWeather.size());
+
+        // Use a different seed for tomorrow's weather (add 1 to the day)
+        long tomorrowSeed = (year * 1000L) + (season * 100L) + (day + 1);
+        Random tomorrowRandom = new Random(tomorrowSeed);
+
+        int randomIndex = tomorrowRandom.nextInt(possibleWeather.size());
         this.weatherTomorrow = possibleWeather.get(randomIndex);
+
+        System.out.println("DEBUG: Generated tomorrow's weather for " + getCurrentTimeString() + ": " + this.weatherTomorrow);
     }
 
     public void goTomorrow(GameMap gameMap) {
@@ -239,6 +340,10 @@ public class Date implements Runnable {
 
     public Weather getWeatherToday() {
         return this.weatherToday;
+    }
+
+    public void setWeatherToday(Weather weather) {
+        this.weatherToday = weather;
     }
 
     public void displayClock() {
@@ -290,7 +395,10 @@ public class Date implements Runnable {
         return currentTotalDays - rejectTotalDays;
     }
 
-    private String getCurrentTimeString() {
+    /**
+     * Get a formatted string representation of the current time
+     */
+    public String getCurrentTimeString() {
         return String.format("Year %d, %s %02d, %02d:%02d", year, getSeason(), day, hour, minute);
     }
 
@@ -328,6 +436,9 @@ public class Date implements Runnable {
         }
 
         try {
+            System.out.println("DEBUG: Syncing date from server - Before sync: " + getCurrentTimeString());
+            System.out.println("DEBUG: Server date state: " + serverDateState);
+
             // Temporarily stop the time thread to prevent conflicts during sync
             boolean wasRunning = this.running;
             if (wasRunning) {
@@ -337,31 +448,38 @@ public class Date implements Runnable {
             // Update date fields
             if (serverDateState.containsKey("day")) {
                 this.day = (Integer) serverDateState.get("day");
+                System.out.println("DEBUG: Synced day: " + this.day);
             }
             if (serverDateState.containsKey("season")) {
                 this.season = (Integer) serverDateState.get("season");
+                System.out.println("DEBUG: Synced season: " + this.season);
             }
             if (serverDateState.containsKey("year")) {
                 this.year = (Integer) serverDateState.get("year");
+                System.out.println("DEBUG: Synced year: " + this.year);
             }
             if (serverDateState.containsKey("hour")) {
                 this.hour = (Integer) serverDateState.get("hour");
+                System.out.println("DEBUG: Synced hour: " + this.hour);
             }
             if (serverDateState.containsKey("minute")) {
                 this.minute = (Integer) serverDateState.get("minute");
+                System.out.println("DEBUG: Synced minute: " + this.minute);
             }
 
-            // Update weather
+            // Update weather from server (this is the authoritative source)
             if (serverDateState.containsKey("weatherToday")) {
                 String weatherTodayStr = (String) serverDateState.get("weatherToday");
                 if (weatherTodayStr != null) {
                     this.weatherToday = Weather.valueOf(weatherTodayStr);
+                    System.out.println("DEBUG: Synced weather today from server: " + this.weatherToday);
                 }
             }
             if (serverDateState.containsKey("weatherTomorrow")) {
                 String weatherTomorrowStr = (String) serverDateState.get("weatherTomorrow");
                 if (weatherTomorrowStr != null) {
                     this.weatherTomorrow = Weather.valueOf(weatherTomorrowStr);
+                    System.out.println("DEBUG: Synced weather tomorrow from server: " + this.weatherTomorrow);
                 }
             }
 
@@ -370,7 +488,7 @@ public class Date implements Runnable {
                 this.running = true;
             }
 
-            System.out.println("DEBUG: Date synced from server - " + getCurrentTimeString());
+            System.out.println("DEBUG: Date synced from server - After sync: " + getCurrentTimeString());
         } catch (Exception e) {
             System.err.println("DEBUG: Error syncing date from server: " + e.getMessage());
             e.printStackTrace();

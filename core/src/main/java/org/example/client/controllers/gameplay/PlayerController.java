@@ -775,13 +775,17 @@ public class PlayerController {
                 float y = player.getPosY();
                 int tileX = Math.round(x / 60);
                 int tileY = Math.round(y / 60);
-                
+
                 networkClient.sendPlayerMove(x, y);
-                
+
                 // Update player's location to match the movement
                 player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
-                
+
                 System.out.println("DEBUG: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
+            } else {
+                System.out.println("DEBUG: Not sending movement to server - NetworkClient: " + (networkClient != null) +
+                    ", Authenticated: " + (networkClient != null && networkClient.isAuthenticated()) +
+                    ", Multiplayer: " + (App.getGame() != null && App.getGame().isMultiplayer));
             }
         } catch (Exception e) {
             System.err.println("Error sending movement to server: " + e.getMessage());

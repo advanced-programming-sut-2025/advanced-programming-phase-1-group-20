@@ -215,7 +215,6 @@ public class MarketController implements Controller {
             int money = player.getMoney();
             int woodCount = player.getBackpack().getNumberOfItem("Wood");
             int stone = player.getBackpack().getNumberOfItem("Stone");
-            //todo : important note this is not manteghi... backpack doesn't have this much space change this if you want in tahvil.
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
             if(money > 6000 && woodCount > 350 && stone > 150) {

@@ -773,12 +773,17 @@ public class Game implements Serializable {
      * Sync date from server data
      */
     public void syncDateFromServer(Map<String, Object> serverDateState) {
+        System.out.println("DEBUG: Game.syncDateFromServer called with: " + serverDateState);
         if (serverDateState != null) {
             // Ensure date is initialized
             if (this.date == null) {
+                System.out.println("DEBUG: Creating new Date object for synchronization");
                 this.date = new Date();
             }
             this.date.syncFromServer(serverDateState);
+            System.out.println("DEBUG: Date synchronized - Current time: " + this.date.getCurrentTimeString());
+        } else {
+            System.out.println("DEBUG: syncDateFromServer called with null serverDateState");
         }
     }
 
