@@ -468,28 +468,28 @@ public class Game implements Serializable {
     public boolean addPlayer(Player newPlayer) {
         System.out.println("DEBUG: Game.addPlayer called for player: " + (newPlayer != null ? newPlayer.getUser().getUsername() : "null"));
         System.out.println("DEBUG: Current players list: " + (players != null ? players.size() : "null"));
-        
+
         try {
             if (players == null) {
                 System.err.println("DEBUG: Players list is null, initializing...");
                 players = new ArrayList<>();
             }
-            
+
             if (newPlayer == null) {
                 System.err.println("DEBUG: New player is null");
                 return false;
             }
-            
+
             if (newPlayer.getUser() == null) {
                 System.err.println("DEBUG: New player's user is null");
                 return false;
             }
-            
+
             if (players.contains(newPlayer)) {
                 System.err.println("DEBUG: Player already exists in game");
                 return false;
             }
-            
+
             System.out.println("DEBUG: Adding player to game instance...");
             players.add(newPlayer);
 
@@ -606,11 +606,11 @@ public class Game implements Serializable {
                             globalStartX = 0;
                             globalStartY = 78;
                             break;
-                        case 2: // Top-Right
+                        case 3: // Top-Right
                             globalStartX = 156;
                             globalStartY = 0;
                             break;
-                        case 3: // Bottom-Right
+                        case 2: // Bottom-Right
                             globalStartX = 156;
                             globalStartY = 78;
                             break;

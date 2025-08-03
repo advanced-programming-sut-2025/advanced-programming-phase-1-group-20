@@ -82,11 +82,11 @@ public class GameMap {
                 startX = 0;
                 startY = 78;
                 break;
-            case 2: // Top-Right
+            case 3: // Top-Right
                 startX = 156;
                 startY = 0;
                 break;
-            case 3: // Bottom-Right
+            case 2: // Bottom-Right
                 startX = 156;
                 startY = 78;
                 break;

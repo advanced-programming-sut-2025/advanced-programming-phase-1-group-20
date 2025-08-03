@@ -42,6 +42,8 @@ import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
 import org.example.common.models.enums.Seasons;
 import org.example.utils.AssetManager;
+import org.example.client.controllers.NPCSpriteController;
+import org.example.common.models.entities.NPC;
 import java.util.List;
 
 public class MapScreen implements Screen, InputProcessor {
@@ -69,6 +71,9 @@ public class MapScreen implements Screen, InputProcessor {
     private static final float NICKNAME_OFFSET_Y = 120f;
     private static final Color NICKNAME_TEXT_COLOR = Color.BLACK;
 
+    // NPC rendering
+    private NPCSpriteController npcSpriteController;
+
     public MapScreen(Player player, Skin skin, Screen previousScreen) {
         this.player = player;
         this.skin = skin;
@@ -88,6 +93,9 @@ public class MapScreen implements Screen, InputProcessor {
 
         // Initialize nickname font
         initializeNicknameFont();
+
+        // Initialize NPC sprite controller
+        npcSpriteController = new NPCSpriteController();
 
         setupUI();
     }
@@ -347,6 +355,7 @@ public class MapScreen implements Screen, InputProcessor {
         Village village = gameMap.getVillage();
         if (village != null) {
             renderVillageBuildings(village, TILE_SIZE);
+            renderNPCsInVillage(village, TILE_SIZE);
         }
     }
 
@@ -361,7 +370,7 @@ public class MapScreen implements Screen, InputProcessor {
             }
         }
 
-        // Render other village buildings
+        // Render other village buildings including NPC houses
         List<Building> buildings = village.getBuildings();
         if (buildings != null) {
             for (Building building : buildings) {
@@ -380,7 +389,8 @@ public class MapScreen implements Screen, InputProcessor {
         if (marketTexture != null) {
             float worldX = (GameMap.VILLAGE_X + market.getX()) * tileSize;
             float worldY = (GameMap.VILLAGE_Y + market.getY()) * tileSize;
-            batch.draw(marketTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+            // Use the Market's actual width and height (inherited from Building)
+            batch.draw(marketTexture, worldX, worldY, tileSize * Market.getWidth(), tileSize * market.getHeight());
         }
     }
 
@@ -393,15 +403,20 @@ public class MapScreen implements Screen, InputProcessor {
         if (buildingTexture != null) {
             float worldX = (GameMap.VILLAGE_X + building.getX()) * tileSize;
             float worldY = (GameMap.VILLAGE_Y + building.getY()) * tileSize;
-            batch.draw(buildingTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+            // Use the Building's actual width and height
+            batch.draw(buildingTexture, worldX, worldY, tileSize * Building.getWidth(), tileSize * building.getHeight());
         }
     }
 
     private String getMarketTextureKey(String marketName) {
         return switch (marketName.toLowerCase()) {
-            case "pierre's general store" -> "pierre_general_store";
-            case "blacksmith" -> "blacksmith";
-            case "carpenter's shop" -> "carpenters_shop";
+            case "pierre general store" -> "pierre_store";
+            case "black smith" -> "blacksmith";
+            case "carpenters shop" -> "carpenters_shop";
+            case "joja market" -> "joja_mart";
+            case "fish shop" -> "fish_shop";
+            case "marnie shop" -> "marnie_shop";
+            case "star drop saloon" -> "stardrop_saloon";
             default -> "market";
         };
     }
@@ -411,8 +426,76 @@ public class MapScreen implements Screen, InputProcessor {
             case "house" -> "house";
             case "shop" -> "shop";
             case "public" -> "public_building";
-            default -> "building";
+            case "npc_house" -> "npc_house";
+            case "town_hall" -> "town_hall";
+            case "gold_clock" -> "gold_clock";
+            default -> "house"; // Use house texture as fallback for unknown building types
         };
+    }
+
+    private void renderNPCsInVillage(Village village, int tileSize) {
+        if (village == null || npcSpriteController == null) return;
+
+        List<NPC> residents = village.getResidents();
+        if (residents == null || residents.isEmpty()) return;
+
+        for (NPC npc : residents) {
+            if (npc == null) continue;
+
+            // Get NPC's position in village coordinates
+            float npcX = npc.getPosX();
+            float npcY = npc.getPosY();
+
+            // NPCs are already positioned in world coordinates (with village offset already added)
+            // So we can use their positions directly
+            float worldX = npcX;
+            float worldY = npcY;
+
+            renderNPCSprite(npc, worldX, worldY);
+        }
+    }
+
+    private void renderNPCSprite(NPC npc, float worldX, float worldY) {
+        if (npc == null || npcSpriteController == null) return;
+
+        // Get the current frame for the NPC
+        com.badlogic.gdx.graphics.g2d.TextureRegion currentFrame = npcSpriteController.getCurrentFrame(npc, 0.016f);
+        if (currentFrame == null) {
+            System.out.println("🗺️ MAP: Failed to get frame for NPC " + npc.getName());
+            return;
+        }
+
+        // Scale the sprite to match the map's tile size
+        float scale = 3.75f; // Same scale as used in NPCSpriteController
+        float width = currentFrame.getRegionWidth() * scale;
+        float height = currentFrame.getRegionHeight() * scale;
+
+        // Draw the NPC sprite
+        batch.draw(currentFrame, worldX - width/2, worldY - height/2, width, height);
+
+        // Render NPC nickname
+        renderNPCNickname(npc, worldX, worldY);
+    }
+
+    private void renderNPCNickname(NPC npc, float worldX, float worldY) {
+        if (npc == null || nicknameFont == null) return;
+
+        String nickname = npc.getName();
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return;
+        }
+
+        float nicknameWidth = nicknameFont.draw(batch, nickname, 0, 0).width;
+        float nicknameX = worldX - (nicknameWidth / 2f); // Center above NPC
+        float nicknameY = worldY + NICKNAME_OFFSET_Y;
+
+        // Draw nickname text
+        Color originalColor = batch.getColor().cpy();
+        batch.setColor(NICKNAME_TEXT_COLOR);
+        nicknameFont.draw(batch, nickname, nicknameX, nicknameY);
+
+        // Reset batch color
+        batch.setColor(originalColor);
     }
 
     private void renderBuilding(Building building, Farm farm, int tileSize) {
@@ -424,7 +507,7 @@ public class MapScreen implements Screen, InputProcessor {
             int farmIndex = getFarmIndex(farm);
             float worldX = (getFarmStartX(farmIndex) + building.getX()) * tileSize;
             float worldY = (getFarmStartY(farmIndex) + building.getY()) * tileSize;
-            batch.draw(buildingTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+            batch.draw(buildingTexture, worldX, worldY, tileSize * Building.getWidth(), tileSize * Building.getWidth());
         }
     }
 
@@ -453,14 +536,14 @@ public class MapScreen implements Screen, InputProcessor {
     }
 
     private void renderGreenhouse(GreenHouse greenhouse, Farm farm, int tileSize) {
-        String textureKey = greenhouse.getIsConstructed() ? "greenhouse_constructed" : "greenhouse_unconstructed";
+        String textureKey = greenhouse.getIsConstructed() ? "constructed_greenhouse" : "greenhouse";
         Texture greenhouseTexture = AssetManager.getAssetManager().getTileTexture(textureKey);
 
         if (greenhouseTexture != null) {
             int farmIndex = getFarmIndex(farm);
             float worldX = (getFarmStartX(farmIndex) + greenhouse.getX()) * tileSize;
             float worldY = (getFarmStartY(farmIndex) + greenhouse.getY()) * tileSize;
-            batch.draw(greenhouseTexture, worldX, worldY, tileSize * 2, tileSize * 2);
+            batch.draw(greenhouseTexture, worldX, worldY, tileSize * GreenHouse.getWidth(), tileSize * GreenHouse.getHeight());
         }
     }
 
@@ -545,13 +628,6 @@ public class MapScreen implements Screen, InputProcessor {
             // Get player's location and farm index
             Location playerLocation = player.getLocation();
             int farmIndex = getFarmIndex(playerFarm);
-            
-            System.out.println("🗺️ MAP: Processing player " + player.getUser().getUsername() + 
-                " - Pixel pos: (" + playerX + ", " + playerY + ")" +
-                " - Location: (" + playerLocation.getX() + ", " + playerLocation.getY() + ")" +
-                " - Farm: " + (playerFarm != null ? playerFarm.getName() : "null") +
-                " - Farm index: " + farmIndex +
-                " - Is in village: " + player.getIsInVillage());
 
             float worldX, worldY;
 
@@ -567,7 +643,7 @@ public class MapScreen implements Screen, InputProcessor {
                 int tileY = (int) (playerY / TILE_SIZE);
                 worldX = tileX * TILE_SIZE + getFarmStartX(farmIndex) * TILE_SIZE;
                 worldY = tileY * TILE_SIZE + getFarmStartY(farmIndex) * TILE_SIZE;
-                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() + 
+                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() +
                     " on farm " + farmIndex + " - Pixel pos: (" + playerX + ", " + playerY + ")" +
                     " - Tile pos: (" + tileX + ", " + tileY + ")" +
                     " - World pos: (" + worldX + ", " + worldY + ")");
@@ -783,12 +859,15 @@ public class MapScreen implements Screen, InputProcessor {
         if (nicknameFont != null) {
             nicknameFont.dispose();
         }
+        if (npcSpriteController != null) {
+            npcSpriteController.dispose();
+        }
     }
 
     // used for real-time map!
     public void serverUpdate() {
         System.out.println("🗺️ MAP: serverUpdate called");
-        
+
         // Update the tiles array to ensure it's current
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap != null) {
@@ -801,7 +880,7 @@ public class MapScreen implements Screen, InputProcessor {
             System.out.println("🗺️ MAP: Found " + currentGame.getPlayers().size() + " players");
             for (Player player : currentGame.getPlayers()) {
                 if (player != null) {
-                    System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() + 
+                    System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() +
                         " - Pos: (" + player.getPosX() + ", " + player.getPosY() + ")" +
                         " - Location: (" + player.getLocation().getX() + ", " + player.getLocation().getY() + ")" +
                         " - Farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
