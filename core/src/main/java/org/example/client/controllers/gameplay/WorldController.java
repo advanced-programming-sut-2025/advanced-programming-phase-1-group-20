@@ -12,6 +12,7 @@ import org.example.client.controllers.GameMenuController;
 import org.example.client.views.GreenhouseRepairDialog;
 import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
+import org.example.client.views.gameplay.RefrigeratorScreen;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
@@ -1415,54 +1416,44 @@ public class WorldController {
 
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
-            if(playerController.getPlayer().getIsInVillage()){
+            if (playerController.getPlayer().getIsInVillage()) {
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
-                if(checkVillageClicked(blacksmith , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[0] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
+                if (checkVillageClicked(blacksmith, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[0], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(jojaMart, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[1], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(pierreGeneralStore, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[2], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(carpentersShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[3], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(fishShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[4], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(marnieShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[5], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                } else if (checkVillageClicked(starDropSaloon, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                    Main.getGame().setScreen(new MarketMenuScreen(markets[6], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 }
-                else if(checkVillageClicked(jojaMart , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[1] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                }
-                else if(checkVillageClicked(pierreGeneralStore , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[2] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                }
-                else if(checkVillageClicked(carpentersShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[3] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkVillageClicked(fishShop , HOUSE_TILES_W, HOUSE_TILES_H , touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[4] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkVillageClicked(marnieShop , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[5] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                } else if (checkVillageClicked(starDropSaloon , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[6] , playerController.getPlayer() , skin , controller.getView() , App.getGame().getDate().getSeason()));
-                }
-            }else {
-                if(checkClicked(houseAnchors , HOUSE_TILES_W , HOUSE_TILES_H , touchPoint)){
+            } else {
+                if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     System.out.println("house clicked");
-                } else if (checkClicked(coopAnchors , COOP_TILES_W , COOP_TILES_H , touchPoint)) {
+                    Main.getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
+                } else if (checkClicked(coopAnchors, COOP_TILES_W, COOP_TILES_H, touchPoint)) {
 
-                } else if (checkClicked(barnAnchors , BARN_TILES_W , BARN_TILES_H , touchPoint)) {
+                } else if (checkClicked(barnAnchors, BARN_TILES_W, BARN_TILES_H, touchPoint)) {
 
                 } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPoint)) {
-                    boolean isConstructed = farm.getGreenHouse().getIsConstructed(); // Assuming you have a getter
+                    boolean isConstructed = farm.getGreenHouse().getIsConstructed();
 
                     if (isConstructed) {
                         Gdx.app.log("WorldController", "Entering constructed greenhouse.");
                         Main.getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
                     } else {
-                        // Show repair dialog if not constructed
                         GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
                             playerController.getPlayer(), controller, skin);
                         repairDialog.show(controller.getView().getStage());
                     }
                 }
             }
-
-            // You can add more loops here to check for other buildings like barns, coops, etc.
-        /*
-        for (Location anchor : barnAnchors) {
-            // ... similar logic for barn ...
-        }
-        */
         }
     }
 
