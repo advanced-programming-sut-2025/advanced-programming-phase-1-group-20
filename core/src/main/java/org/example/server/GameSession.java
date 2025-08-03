@@ -3,6 +3,7 @@ package org.example.server;
 import org.example.common.models.App;
 import org.example.common.models.Message;
 import org.example.common.models.Player.Player;
+import org.example.common.models.Player.Skill;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
 import org.example.server.GameServers.PlayerConnection;
@@ -284,8 +285,8 @@ public class GameSession {
     }
 
     private void handlePlayerMove(String username, Message message) {
-        float x = message.getFromBody("x");
-        float y = message.getFromBody("y");
+        float x = message.getFloatFromBody("x");
+        float y = message.getFloatFromBody("y");
 
         Player player = App.getGame().getPlayerByUsername(username);
         if (player != null) {
@@ -296,12 +297,45 @@ public class GameSession {
 
             if (lastTime != null && (currentTime - lastTime) < throttleMs) {
                 // Skip update if too soon since last movement
+                System.out.println("🚀 SERVER: Skipping movement update for " + username + " due to throttling");
                 return;
             }
+
+            System.out.println("🚀 SERVER: Processing movement for " + username + " to (" + x + ", " + y + ")");
+            System.out.println("🚀 SERVER: Player energy before movement: " + player.getEnergy());
+            System.out.println("🚀 SERVER: Player energy unlimited: " + player.isEnergyUnlimited());
 
             // Update player position on server
             player.setPosX(x);
             player.setPosY(y);
+            player.getLocation().setxAxis((int) x);
+            player.getLocation().setyAxis((int) y);
+
+            // Consume energy on server side to stay synchronized with client
+            if (!player.isEnergyUnlimited()) {
+                // Calculate energy cost (same logic as client)
+                int currentEnergy = player.getEnergy();
+                int energyCost = Math.max(1, currentEnergy * 5 / 10000); // 0.05% of current energy
+                
+                // Ensure we don't consume more than 1 energy for very low energy levels
+                if (currentEnergy < 2000 && energyCost > 1) {
+                    energyCost = 1;
+                }
+                
+                // Always consume at least 1 energy for movement
+                energyCost = Math.max(1, energyCost);
+                
+                System.out.println("🚀 SERVER: Energy calculation - Current: " + currentEnergy + ", Cost: " + energyCost);
+                
+                if (player.getEnergy() >= energyCost) {
+                    player.decreaseEnergy(energyCost);
+                    System.out.println("🚀 SERVER: Player " + username + " energy consumed: " + energyCost + ", Remaining: " + player.getEnergy());
+                } else {
+                    System.out.println("🚀 SERVER: Player " + username + " not enough energy for movement");
+                }
+            } else {
+                System.out.println("🚀 SERVER: Player " + username + " has unlimited energy - no consumption");
+            }
 
             // Add username to message for client identification
             message.putInBody("username", username);
@@ -310,13 +344,17 @@ public class GameSession {
             // Broadcast movement to other players immediately
             broadcastToOthers(username, message);
 
-            // Also broadcast comprehensive player data for real-time synchronization
-            broadcastPlayerDataUpdate();
+            // Only send comprehensive player data updates periodically, not on every movement
+            // This prevents large JSON messages from being sent too frequently
+            if (gameTickCounter % 30 == 0) { // Send comprehensive update every 30 ticks
+                System.out.println("🚀 SERVER: Broadcasting comprehensive player data update");
+                broadcastPlayerDataUpdate();
+            }
 
             // Update last movement time
             lastMovementTime.put(username, currentTime);
 
-            System.out.println("DEBUG: Player " + username + " moved to (" + x + ", " + y + ") - Broadcasting to " +
+            System.out.println("🚀 SERVER: Player " + username + " moved to (" + x + ", " + y + ") - Broadcasting to " +
                 (playerConnections.size() - 1) + " other players");
         } else {
             System.err.println("DEBUG: Player " + username + " not found in game instance");
@@ -327,19 +365,20 @@ public class GameSession {
         Message playerDataMessage = new Message();
         playerDataMessage.setType(Message.Type.PLAYER_DATA_UPDATE);
 
-        // Create comprehensive player data from server state
+        // Create focused player data with only essential information
         Map<String, Object> allPlayersData = new HashMap<>();
         for (Player p : App.getGame().getPlayers()) {
+            System.out.println("🚀 SERVER: Preparing player data for " + p.getUser().getUsername() + " - Energy: " + p.getEnergy());
+            
             Map<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("username", p.getUser().getUsername());
-            playerInfo.put("nickname", p.getUser().getNickname());
             playerInfo.put("posX", p.getPosX());
             playerInfo.put("posY", p.getPosY());
             playerInfo.put("energy", p.getEnergy());
             playerInfo.put("money", p.getMoney());
             playerInfo.put("isInVillage", p.getIsInVillage());
 
-            // Add farm information
+            // Add farm information (essential for game state)
             if (p.getCurrentFarm() != null) {
                 playerInfo.put("farmIndex", p.getCurrentFarm().getFarmIndex());
                 playerInfo.put("farmName", p.getCurrentFarm().getName());
@@ -348,11 +387,19 @@ public class GameSession {
                 playerInfo.put("farmName", "No Farm");
             }
 
-            // Add location information
+            // Add location information (essential for rendering)
             if (p.getLocation() != null) {
                 playerInfo.put("locationX", p.getLocation().getX());
                 playerInfo.put("locationY", p.getLocation().getY());
                 playerInfo.put("tileType", p.getLocation().getTile().toString());
+            }
+
+            // Only include current tool if it's different from default
+            if (p.getCurrentTool() != null && !p.getCurrentTool().getName().equals("Basic Hoe")) {
+                Map<String, Object> toolInfo = new HashMap<>();
+                toolInfo.put("name", p.getCurrentTool().getName());
+                toolInfo.put("type", p.getCurrentTool().getType().toString());
+                playerInfo.put("currentTool", toolInfo);
             }
 
             allPlayersData.put(p.getUser().getUsername(), playerInfo);
@@ -364,7 +411,7 @@ public class GameSession {
         // Broadcast to all players
         broadcastToAll(playerDataMessage);
 
-        System.out.println("DEBUG: Broadcasted real-time player data update for " + allPlayersData.size() + " players");
+        System.out.println("🔄 SERVER: Broadcasted focused player data update for " + allPlayersData.size() + " players");
     }
 
     private void handleUseTool(String username, Message message) {

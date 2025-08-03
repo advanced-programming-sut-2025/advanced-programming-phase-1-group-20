@@ -39,6 +39,17 @@ public class Message {
         return (int) ((double) ((Double) body.get(fieldName)));
     }
 
+    public float getFloatFromBody(String fieldName) {
+        Object value = body.get(fieldName);
+        if (value instanceof Double) {
+            return ((Double) value).floatValue();
+        } else if (value instanceof Float) {
+            return (Float) value;
+        } else {
+            return Float.parseFloat(value.toString());
+        }
+    }
+
     public void putInBody(String key, Object value) {
         body.put(key, value);
     }

@@ -447,23 +447,48 @@ public class Date implements Runnable {
 
             // Update date fields
             if (serverDateState.containsKey("day")) {
-                this.day = (Integer) serverDateState.get("day");
+                Object dayObj = serverDateState.get("day");
+                if (dayObj instanceof Double) {
+                    this.day = ((Double) dayObj).intValue();
+                } else if (dayObj instanceof Integer) {
+                    this.day = (Integer) dayObj;
+                }
                 System.out.println("DEBUG: Synced day: " + this.day);
             }
             if (serverDateState.containsKey("season")) {
-                this.season = (Integer) serverDateState.get("season");
+                Object seasonObj = serverDateState.get("season");
+                if (seasonObj instanceof Double) {
+                    this.season = ((Double) seasonObj).intValue();
+                } else if (seasonObj instanceof Integer) {
+                    this.season = (Integer) seasonObj;
+                }
                 System.out.println("DEBUG: Synced season: " + this.season);
             }
             if (serverDateState.containsKey("year")) {
-                this.year = (Integer) serverDateState.get("year");
+                Object yearObj = serverDateState.get("year");
+                if (yearObj instanceof Double) {
+                    this.year = ((Double) yearObj).intValue();
+                } else if (yearObj instanceof Integer) {
+                    this.year = (Integer) yearObj;
+                }
                 System.out.println("DEBUG: Synced year: " + this.year);
             }
             if (serverDateState.containsKey("hour")) {
-                this.hour = (Integer) serverDateState.get("hour");
+                Object hourObj = serverDateState.get("hour");
+                if (hourObj instanceof Double) {
+                    this.hour = ((Double) hourObj).intValue();
+                } else if (hourObj instanceof Integer) {
+                    this.hour = (Integer) hourObj;
+                }
                 System.out.println("DEBUG: Synced hour: " + this.hour);
             }
             if (serverDateState.containsKey("minute")) {
-                this.minute = (Integer) serverDateState.get("minute");
+                Object minuteObj = serverDateState.get("minute");
+                if (minuteObj instanceof Double) {
+                    this.minute = ((Double) minuteObj).intValue();
+                } else if (minuteObj instanceof Integer) {
+                    this.minute = (Integer) minuteObj;
+                }
                 System.out.println("DEBUG: Synced minute: " + this.minute);
             }
 

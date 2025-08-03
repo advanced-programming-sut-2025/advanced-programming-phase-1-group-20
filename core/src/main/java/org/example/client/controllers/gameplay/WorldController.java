@@ -1313,13 +1313,11 @@ public class WorldController {
         for (Player player : game.getPlayers()) {
             if (player != null) {
                 if (isFullMapVisible) {
-                    // When full map is visible, render players at their correct positions
-                    // relative to the full map view
-                    renderPlayerOnFullMap(player);
+                    renderPlayerOnMinimap(player);
                 } else {
-                    // Normal rendering when full map is not visible
+                    // Normal rendering when minimap is not visible
                     // Only render other players (not the current player, as they're rendered separately)
-                    if (player != playerController.getPlayer()) {
+                    if (player != playerController.getPlayer() && player.getIsInVillage() && playerController.getPlayer().getIsInVillage()) {
                         renderPlayerSprite(player);
                     }
                 }
@@ -1327,7 +1325,7 @@ public class WorldController {
         }
     }
 
-    private void renderPlayerOnFullMap(Player player) {
+    private void renderPlayerOnMinimap(Player player) {
         if (player.getCurrentFarm() == null) {
             return;
         }
@@ -1335,73 +1333,48 @@ public class WorldController {
         Farm farm = player.getCurrentFarm();
         int farmIndex = farm.getFarmIndex();
 
-        // Calculate global farm boundaries based on farm index
-        int globalFarmStartX, globalFarmStartY;
+        // Calculate farm position on minimap (same as in GameView.renderMinimapTiles)
+        float farmX, farmY;
+        float scale = 0.5f; // Scale factor for minimap
+
         switch (farmIndex) {
             case 0: // Top-Left
-                globalFarmStartX = 0;
-                globalFarmStartY = 0;
+                farmX = 120;
+                farmY = 120; // Above village
                 break;
             case 1: // Bottom-Left
-                globalFarmStartX = 0;
-                globalFarmStartY = 78;
+                farmX = 120;
+                farmY = 120 + 234 * scale; // Below village
                 break;
             case 2: // Top-Right
-                globalFarmStartX = 156;
-                globalFarmStartY = 0;
+                farmX = 120 + 78 * scale;
+                farmY = 120; // Above village
                 break;
             case 3: // Bottom-Right
-                globalFarmStartX = 156;
-                globalFarmStartY = 78;
+                farmX = 120 + 78 * scale;
+                farmY = 120 + 234 * scale; // Below village
                 break;
             default:
                 return;
         }
 
-        // Calculate the player's local position within their farm
-        float playerGlobalX = player.getPosX() / TILE_SIZE; // Convert to tile coordinates
-        float playerGlobalY = player.getPosY() / TILE_SIZE;
+        // Calculate player's position within their farm
+        float playerLocalX = player.getPosX() / TILE_SIZE; // Convert to tile coordinates
+        float playerLocalY = player.getPosY() / TILE_SIZE;
 
-        // Calculate local position within the farm
-        float playerLocalX = playerGlobalX - globalFarmStartX;
-        float playerLocalY = playerGlobalY - globalFarmStartY;
-
-        // Calculate the farm's position on the full map
-        float farmStartX, farmStartY;
-        switch (farmIndex) {
-            case 0: // Top-Left
-                farmStartX = 0;
-                farmStartY = 0;
-                break;
-            case 1: // Bottom-Left
-                farmStartX = 0;
-                farmStartY = Farm.height * TILE_SIZE;
-                break;
-            case 2: // Top-Right
-                farmStartX = (Farm.width + Village.width) * TILE_SIZE;
-                farmStartY = 0;
-                break;
-            case 3: // Bottom-Right
-                farmStartX = (Farm.width + Village.width) * TILE_SIZE;
-                farmStartY = Farm.height * TILE_SIZE;
-                break;
-            default:
-                return;
-        }
-
-        // Calculate the player's position on the full map
-        float playerMapX = farmStartX + playerLocalX * TILE_SIZE;
-        float playerMapY = farmStartY + playerLocalY * TILE_SIZE;
+        // Calculate player's position on the minimap
+        float playerMinimapX = farmX + (playerLocalX * TILE_SIZE * scale);
+        float playerMinimapY = farmY + (playerLocalY * TILE_SIZE * scale);
 
         // Store the original position to restore later
         float originalX = player.getPosX();
         float originalY = player.getPosY();
 
-        // Temporarily update the player position for full map rendering
-        player.setPosX(playerMapX);
-        player.setPosY(playerMapY);
+        // Temporarily update the player position for minimap rendering
+        player.setPosX(playerMinimapX);
+        player.setPosY(playerMinimapY);
 
-        // Render the player sprite at the calculated position
+        // Render the player sprite at the calculated minimap position
         renderPlayerSprite(player);
 
         // Restore the original position

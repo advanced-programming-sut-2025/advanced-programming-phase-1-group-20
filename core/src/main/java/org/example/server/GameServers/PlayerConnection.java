@@ -49,6 +49,10 @@ public class PlayerConnection {
         return wsContext;
     }
     
+    public void setWsContext(WsContext wsContext) {
+        this.wsContext = wsContext;
+    }
+    
     public User getUser() {
         return user;
     }
@@ -200,16 +204,9 @@ public class PlayerConnection {
     public void disconnect() {
         this.state = ConnectionState.DISCONNECTED;
         
-        // Remove from game session if in one
-        if (gameSession != null && username != null) {
-            // Use reflection to call removePlayer on GameSession
-            try {
-                java.lang.reflect.Method method = gameSession.getClass().getMethod("removePlayer", String.class);
-                method.invoke(gameSession, username);
-            } catch (Exception e) {
-                System.err.println("Failed to remove player from game session: " + e.getMessage());
-            }
-        }
+        // Don't immediately remove from game session - let the delayed removal handle it
+        // This allows for reconnection without losing game state
+        System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
         
         // Close WebSocket connection
         if (wsContext != null && wsContext.session.isOpen()) {
@@ -219,8 +216,6 @@ public class PlayerConnection {
                 System.err.println("Error closing WebSocket for " + username + ": " + e.getMessage());
             }
         }
-        
-        System.out.println("Player " + username + " disconnected");
     }
     
     // Process any queued outgoing messages

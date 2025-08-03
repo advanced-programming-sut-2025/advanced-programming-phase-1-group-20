@@ -474,7 +474,6 @@ public class Player {
         if (location != null) {
             location.setyAxis((int) (posY/60));
         }
-        // Update sprite position when position changes
         updatePosition();
     }
 

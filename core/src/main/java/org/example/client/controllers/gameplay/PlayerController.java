@@ -291,7 +291,6 @@ public class PlayerController {
             // Send movement update to server for multiplayer synchronization
             sendMovementToServer();
         } else if (!moved) {
-            System.out.println("No movement detected");
         }
 
         switch (facing) {
@@ -767,28 +766,50 @@ public class PlayerController {
     }
 
     private void sendMovementToServer() {
+        System.out.println("🔍 DEBUG: sendMovementToServer() called");
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
-            if (networkClient != null && networkClient.isAuthenticated() && App.getGame().isMultiplayer) {
+            System.out.println("🔍 DEBUG: NetworkClient: " + (networkClient != null));
+            
+            if (networkClient != null) {
+                System.out.println("🔍 DEBUG: NetworkClient state: " + networkClient.getConnectionState());
+                System.out.println("🔍 DEBUG: NetworkClient authenticated: " + networkClient.isAuthenticated());
+            }
+            
+            if (App.getGame() != null) {
+                System.out.println("🔍 DEBUG: Game multiplayer: " + App.getGame().isMultiplayer);
+            } else {
+                System.out.println("🔍 DEBUG: App.getGame() is null");
+            }
+            
+            if (networkClient != null && App.getGame() != null && App.getGame().isMultiplayer) {
+                // Check if we're authenticated and connected
+                if (!networkClient.isAuthenticated()) {
+                    System.out.println("❌ CLIENT: Not authenticated, cannot send movement");
+                    return;
+                }
+
                 // Send both pixel coordinates and tile coordinates for better synchronization
                 float x = player.getPosX();
                 float y = player.getPosY();
                 int tileX = Math.round(x / 60);
                 int tileY = Math.round(y / 60);
 
+                System.out.println("🎮 CLIENT: About to send movement - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
                 networkClient.sendPlayerMove(x, y);
 
                 // Update player's location to match the movement
                 player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
 
-                System.out.println("DEBUG: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
+                System.out.println("🎮 CLIENT: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
             } else {
-                System.out.println("DEBUG: Not sending movement to server - NetworkClient: " + (networkClient != null) +
-                    ", Authenticated: " + (networkClient != null && networkClient.isAuthenticated()) +
+                System.out.println("❌ CLIENT: Not sending movement to server - NetworkClient: " + (networkClient != null) +
+                    ", Game: " + (App.getGame() != null) +
                     ", Multiplayer: " + (App.getGame() != null && App.getGame().isMultiplayer));
             }
         } catch (Exception e) {
-            System.err.println("Error sending movement to server: " + e.getMessage());
+            System.err.println("❌ CLIENT: Error sending movement to server: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

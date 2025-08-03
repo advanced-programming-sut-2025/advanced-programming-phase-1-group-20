@@ -227,7 +227,6 @@ public class NPCSpriteController implements Disposable {
         // Render NPCs from the village's residents list
         int npcCount = village.getResidents().size();
         if (npcCount > 0) {
-            System.out.println("Rendering " + npcCount + " NPCs");
             for (NPC npc : village.getResidents()) {
                 renderNPC(batch, npc);
             }

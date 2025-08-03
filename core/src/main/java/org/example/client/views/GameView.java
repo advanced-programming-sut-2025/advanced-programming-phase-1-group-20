@@ -206,14 +206,7 @@ public class GameView implements Screen, InputProcessor {
             NetworkClient networkClient = NetworkClient.getInstance();
             if (networkClient != null && networkClient.getMessageHandler() != null) {
                 networkClient.getMessageHandler().setCurrentGame(game);
-                System.out.println("DEBUG: GameView - Set current game in ClientMessageHandler for multiplayer mode");
-                System.out.println("DEBUG: GameView - Game instance: " + (game != null ? "present" : "null") +
-                    ", isMultiplayer: " + (game != null ? game.isMultiplayer : "N/A"));
-            } else {
-                System.out.println("DEBUG: GameView - NetworkClient or MessageHandler is null");
             }
-        } else {
-            System.out.println("DEBUG: GameView - Not in multiplayer mode or game is null");
         }
     }
 
@@ -525,26 +518,20 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void initializeFriendsButton() {
-        System.out.println("Initializing friends button...");
         friendsButton = new TextButton("Friends", skin);
         friendsButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                System.out.println("Friends button clicked!");
                 openFriendsWindow();
             }
         });
-        System.out.println("Friends button initialized successfully");
     }
 
     private void openFriendsWindow() {
-        System.out.println("Opening friends window...");
         try {
             if (friendsWindow == null) {
-                System.out.println("Creating new FriendsWindow...");
                 friendsWindow = new FriendsWindow(player, skin, this);
             }
-            System.out.println("Setting screen to friends window...");
             Main.getGame().setScreen(friendsWindow);
         } catch (Exception e) {
             System.err.println("Error opening friends window: " + e.getMessage());
@@ -657,7 +644,6 @@ public class GameView implements Screen, InputProcessor {
         if (keycode == Input.Keys.L) {
             if (lightningSystem != null) {
                 lightningSystem.triggerLightning();
-                System.out.println("⚡ Lightning triggered manually!");
             }
             return true;
         }
@@ -668,7 +654,6 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if (keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P) {
-            System.out.println("Screenshot key pressed (F4/F12/P) - taking screenshot...");
             takeScreenshot();
             return true;
         }
@@ -993,23 +978,6 @@ public class GameView implements Screen, InputProcessor {
         villageLabel.draw(Main.getBatch(), 1f);
     }
 
-    private void renderMinimap() {
-        if (game == null || game.getGameMap() == null) {
-            return;
-        }
-
-        // Calculate scale for minimap
-        float scaleX = 500f / 234f;
-        float scaleY = 500f / 312f;
-        float scale = Math.min(scaleX, scaleY);
-
-        // Render tiles
-        renderMinimapTiles(game.getGameMap(), scale);
-
-        // Render labels
-        renderMinimapLabels();
-    }
-
 
     private void renderOtherPlayers() {
         Game game = App.getGame();
@@ -1018,7 +986,7 @@ public class GameView implements Screen, InputProcessor {
         }
 
         for (Player otherPlayer : game.getPlayers()) {
-            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && player.getIsInVillage()) {
+            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage() && player.getIsInVillage()) {
                 renderPlayerSprite(otherPlayer);
             }
         }
@@ -1067,33 +1035,25 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void show() {
-        System.out.println("DEBUG: GameView.show() called");
         stage = new Stage(new ScreenViewport());
-        System.out.println("DEBUG: Stage created");
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);  // Stage first (UI elements)
         multiplexer.addProcessor(this);   // GameView second (world interactions)
         Gdx.input.setInputProcessor(multiplexer);
-        System.out.println("DEBUG: Input processor set");
 
         mainTable.top().right();
         mainTable.setFillParent(true);
         mainTable.padTop(10).padRight(10);
         mainTable.add(clockStack).size(120, 120).row();
         stage.addActor(mainTable);
-        System.out.println("DEBUG: Main table added to stage");
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
-            System.out.println("🔘 Adding friends button to stage...");
             Table friendsTable = new Table();
             friendsTable.setFillParent(true);
             friendsTable.bottom().left();
             friendsTable.add(friendsButton).width(100).height(40).pad(20);
             stage.addActor(friendsTable);
-            System.out.println("Friends button added to stage successfully");
-        } else {
-            System.err.println("Friends button is null - cannot add to stage!");
         }
 
         pauseTable.setFillParent(true);
@@ -1101,12 +1061,13 @@ public class GameView implements Screen, InputProcessor {
         pauseTable.add(resumeButton).width(200).height(20).pad(10);
         pauseTable.setVisible(false);
         stage.addActor(pauseTable);
-        System.out.println("DEBUG: Pause table added to stage");
-        System.out.println("DEBUG: GameView.show() completed successfully");
     }
 
     @Override
     public void render(float deltaTime) {
+        // Update network client to process incoming messages
+        NetworkClient.getInstance().update();
+
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background
@@ -1128,6 +1089,35 @@ public class GameView implements Screen, InputProcessor {
             }
         }
 
+        // Update NPC sprites
+        if (npcSpriteController != null) {
+            npcSpriteController.update(deltaTime);
+        }
+
+        // Update clock display
+        updateClockDisplay();
+
+        // Update money label
+        updateMoneyLabel();
+
+        // Update date and time labels
+        Date gameDate = getCurrentGameDate();
+        if (gameDate != null) {
+            updateDateLabel(gameDate);
+            updateTimeLabel(gameDate);
+            updateClockNeedle(gameDate);
+        }
+
+        // Update label positions
+        updateLabelPositions();
+
+        // Apply lighting to UI elements
+        applyLightingToUI();
+
+        // Set batch projection matrix
+        Main.getBatch().setProjectionMatrix(camera.combined);
+
+        // Begin batch rendering
         Main.getBatch().begin();
 
         // Set batch color to current lighting for world objects
@@ -1181,11 +1171,6 @@ public class GameView implements Screen, InputProcessor {
         // Render terminal window if visible
         if (terminalWindow != null) {
             terminalWindow.render(deltaTime);
-        }
-
-        // Render minimap if visible
-        if (isMapVisible) {
-            renderMinimap();
         }
     }
 
@@ -1250,14 +1235,7 @@ public class GameView implements Screen, InputProcessor {
     private void updateClockDisplay() {
         Date gameDate = getCurrentGameDate();
         if (gameDate == null) {
-            System.out.println("DEBUG: Clock display - gameDate is null");
             return;
-        }
-
-        // Debug: Log the current time being displayed
-        if (gameTime % 5.0f < 0.1f) { // Log every 5 seconds to avoid spam
-            System.out.println("DEBUG: Clock display - Current time: " + gameDate.getCurrentTimeString() +
-                " (Hour: " + gameDate.getHour() + ", Minute: " + gameDate.getMinutes() + ")");
         }
 
         updateDateLabel(gameDate);
@@ -1287,11 +1265,6 @@ public class GameView implements Screen, InputProcessor {
         String amPm = (hour >= 12) ? "pm" : "am";
         String timeText = String.format("%d:%02d %s", displayHour, minute, amPm);
         timeDisplayLabel.setText(timeText);
-
-        // Debug: Log the time being displayed in the UI
-        if (gameTime % 5.0f < 0.1f) { // Log every 5 seconds to avoid spam
-            System.out.println("DEBUG: Time label - Displaying: " + timeText + " (Raw hour: " + hour + ", minute: " + minute + ")");
-        }
     }
 
     private void updateClockNeedle(Date gameDate) {
@@ -1474,7 +1447,16 @@ public class GameView implements Screen, InputProcessor {
         stage.addActor(notificationLabel);
 
         // Schedule removal after 3 seconds using a timer
-        scheduleNotificationRemoval(notificationLabel, 3.0f);
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 3.0f);
     }
 
     private void showWateringCanFilledNotification() {
@@ -1485,7 +1467,16 @@ public class GameView implements Screen, InputProcessor {
 
         stage.addActor(notificationLabel);
 
-        scheduleNotificationRemoval(notificationLabel, 2.0f);
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 2.0f);
     }
 
     private void showWateringCanAlreadyFullNotification() {
@@ -1496,7 +1487,16 @@ public class GameView implements Screen, InputProcessor {
 
         stage.addActor(notificationLabel);
 
-        scheduleNotificationRemoval(notificationLabel, 2.0f);
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 2.0f);
     }
 
     private void showWateringCanTooFarNotification() {
@@ -1509,7 +1509,16 @@ public class GameView implements Screen, InputProcessor {
         stage.addActor(notificationLabel);
 
         // Schedule removal after 2 seconds using a timer
-        scheduleNotificationRemoval(notificationLabel, 2.0f);
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 2.0f);
     }
 
     private void scheduleNotificationRemoval(Label notificationLabel, float delaySeconds) {
@@ -1581,17 +1590,22 @@ public class GameView implements Screen, InputProcessor {
         stage.addActor(notificationLabel);
 
         // Schedule removal after 2 seconds
-        Gdx.app.postRunnable(() -> {
-            try {
-                Thread.sleep(2000);
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
                 Gdx.app.postRunnable(() -> {
-                    if (notificationLabel.getStage() != null) {
-                        notificationLabel.remove();
+                    try {
+                        Thread.sleep(2000);
+                        Gdx.app.postRunnable(() -> {
+                            if (notificationLabel.getStage() != null) {
+                                notificationLabel.remove();
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                     }
                 });
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
             }
-        });
+        }, 2.0f);
     }
 }

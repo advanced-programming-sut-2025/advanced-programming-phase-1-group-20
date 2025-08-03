@@ -68,6 +68,13 @@ public class MessageHandler {
             return;
         }
 
+        // Log movement messages specifically
+        if (message.getType() == Message.Type.PLAYER_MOVE) {
+            float x = message.getFloatFromBody("x");
+            float y = message.getFloatFromBody("y");
+            System.out.println("🚀 SERVER: Received PLAYER_MOVE from " + username + " - Position: (" + x + ", " + y + ")");
+        }
+
         switch (message.getType()) {
             // Authentication messages
             case AUTH_LOGIN:
@@ -121,8 +128,10 @@ public class MessageHandler {
                 Object gameSessionObj = connection.getGameSession();
                 if (gameSessionObj instanceof GameSession) {
                     GameSession gameSession = (GameSession) gameSessionObj;
+                    System.out.println("DEBUG: Forwarding message to game session: " + message.getType());
                     gameSession.processMessage(username, message);
                 } else {
+                    System.err.println("DEBUG: Player not in a game session, cannot process: " + message.getType());
                     sendErrorMessage(connection, "Player not in a game session");
                 }
                 break;

@@ -5,6 +5,9 @@ import org.example.common.models.Message;
 import org.example.common.models.App;
 import org.example.common.models.entities.Game;
 import org.example.common.models.Player.Player;
+import org.example.common.models.Player.Skill;
+import org.example.common.models.common.Location;
+import org.example.common.models.MapDetails.Farm;
 import org.example.common.Lobby.Lobby;
 
 import java.util.List;
@@ -86,6 +89,12 @@ public class ClientMessageHandler {
     private void processMessage(Message message) {
         try {
             System.out.println("DEBUG: Processing message type: " + message.getType() + " with body: " + message.getBody());
+            
+            // Add specific debug for PLAYER_DATA_UPDATE
+            if (message.getType() == Message.Type.PLAYER_DATA_UPDATE) {
+                System.out.println("🔄 CLIENT: Received PLAYER_DATA_UPDATE message - about to handle it");
+            }
+            
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -98,6 +107,10 @@ public class ClientMessageHandler {
                     break;
                 case PLAYER_MOVE:
                     handlePlayerMove(message);
+                    break;
+                case PLAYER_DATA_UPDATE:
+                    System.out.println("🔄 CLIENT: Routing to handlePlayerDataUpdate");
+                    handlePlayerDataUpdate(message);
                     break;
                 case GAME_STATE_UPDATE:
                     handleGameStateUpdate(message);
@@ -403,11 +416,11 @@ public class ClientMessageHandler {
 
     private void handlePlayerMove(Message message) {
         String username = message.getFromBody("username");
-        Float x = message.getFromBody("x");
-        Float y = message.getFromBody("y");
+        float x = message.getFloatFromBody("x");
+        float y = message.getFloatFromBody("y");
 
-        if (username != null && x != null && y != null) {
-            System.out.println("DEBUG: Received player move - " + username + " moved to (" + x + ", " + y + ")");
+        if (username != null) {
+            System.out.println("📱 CLIENT: Received player move - " + username + " moved to (" + x + ", " + y + ")");
 
             // Update the player's position in the game state
             Game currentGame = getCurrentGame();
@@ -418,9 +431,9 @@ public class ClientMessageHandler {
                     targetPlayer.setPosY(y);
                     // Update the sprite position to reflect the new coordinates
                     targetPlayer.updatePosition();
-                    System.out.println("DEBUG: Updated player " + username + " position in game state and sprite");
+                    System.out.println("✅ CLIENT: Updated player " + username + " position in game state and sprite");
                 } else {
-                    System.out.println("DEBUG: Player " + username + " not found in current game");
+                    System.out.println("❌ CLIENT: Player " + username + " not found in current game");
                 }
             }
 
@@ -429,7 +442,224 @@ public class ClientMessageHandler {
                 gameStateListener.onPlayerMove(username, x, y);
             }
         } else {
-            System.err.println("DEBUG: Invalid player move message - missing data");
+            System.err.println("❌ CLIENT: Invalid player move message - missing data");
+        }
+    }
+
+    private void handlePlayerDataUpdate(Message message) {
+        System.out.println("🔄 CLIENT: handlePlayerDataUpdate method called!");
+        
+        Object playersData = message.getFromBody("players");
+        Object timestampObj = message.getFromBody("timestamp");
+        
+        // Handle timestamp conversion from Double to Long
+        Long timestamp = null;
+        if (timestampObj instanceof Double) {
+            timestamp = ((Double) timestampObj).longValue();
+        } else if (timestampObj instanceof Long) {
+            timestamp = (Long) timestampObj;
+        }
+
+        if (playersData != null) {
+            System.out.println("🔄 CLIENT: Received comprehensive player data update with timestamp: " + timestamp);
+
+            Game currentGame = getCurrentGame();
+            if (currentGame != null) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> playersMap = (Map<String, Object>) playersData;
+                    
+                    System.out.println("🔄 CLIENT: Processing " + playersMap.size() + " players from server update");
+                    
+                    // Get current player username to exclude from server updates
+                    String currentPlayerUsername = null;
+                    if (currentGame.getCurrentPlayer() != null && currentGame.getCurrentPlayer().getUser() != null) {
+                        currentPlayerUsername = currentGame.getCurrentPlayer().getUser().getUsername();
+                        System.out.println("🔄 CLIENT: Current player is " + currentPlayerUsername + " - will exclude from server updates");
+                    }
+                    
+                    for (Map.Entry<String, Object> entry : playersMap.entrySet()) {
+                        String username = entry.getKey();
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> playerData = (Map<String, Object>) entry.getValue();
+                        
+                        System.out.println("🔄 CLIENT: Processing player: " + username + " with data: " + playerData);
+                        
+                        // Skip updating the current player to avoid conflicts with local state
+                        if (username.equals(currentPlayerUsername)) {
+                            System.out.println("🔄 CLIENT: Skipping update for current player: " + username);
+                            continue;
+                        }
+                        
+                        // Find the player in the current game
+                        Player targetPlayer = currentGame.getPlayerByUsername(username);
+                        if (targetPlayer != null) {
+                            // Log current state before update
+                            System.out.println("🔄 CLIENT: Before update - Player " + username + 
+                                " - Energy: " + targetPlayer.getEnergy() + 
+                                ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
+                            
+                            // Force update player with exact server data
+                            forceUpdatePlayerFromServerData(targetPlayer, playerData);
+                            
+                            // Log state after update
+                            System.out.println("✅ CLIENT: After update - Player " + username + 
+                                " - Energy: " + targetPlayer.getEnergy() + 
+                                ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
+                        } else {
+                            System.out.println("❌ CLIENT: Player " + username + " not found in current game");
+                            System.out.println("❌ CLIENT: Available players in game: " + 
+                                (currentGame.getPlayers() != null ? 
+                                    currentGame.getPlayers().stream()
+                                        .map(p -> p.getUser().getUsername())
+                                        .collect(java.util.stream.Collectors.joining(", ")) : "null"));
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("❌ CLIENT: Error processing player data update: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            } else {
+                System.out.println("❌ CLIENT: No current game available for player data update");
+            }
+        } else {
+            System.err.println("❌ CLIENT: Invalid player data update message - missing players data");
+        }
+    }
+
+    private void forceUpdatePlayerFromServerData(Player player, Map<String, Object> playerData) {
+        try {
+            System.out.println("🔄 CLIENT: Force updating player " + player.getUser().getUsername() + " with server data");
+            
+            // Always update basic player properties with exact server values
+            if (playerData.containsKey("posX")) {
+                Object posXObj = playerData.get("posX");
+                Float posX = null;
+                if (posXObj instanceof Double) {
+                    posX = ((Double) posXObj).floatValue();
+                } else if (posXObj instanceof Float) {
+                    posX = (Float) posXObj;
+                }
+                if (posX != null) {
+                    System.out.println("🔄 CLIENT: Force updating posX to " + posX);
+                    player.setPosX(posX);
+                }
+            }
+            
+            if (playerData.containsKey("posY")) {
+                Object posYObj = playerData.get("posY");
+                Float posY = null;
+                if (posYObj instanceof Double) {
+                    posY = ((Double) posYObj).floatValue();
+                } else if (posYObj instanceof Float) {
+                    posY = (Float) posYObj;
+                }
+                if (posY != null) {
+                    System.out.println("🔄 CLIENT: Force updating posY to " + posY);
+                    player.setPosY(posY);
+                }
+            }
+            
+            if (playerData.containsKey("energy")) {
+                Object energyObj = playerData.get("energy");
+                Integer energy = null;
+                if (energyObj instanceof Double) {
+                    energy = ((Double) energyObj).intValue();
+                } else if (energyObj instanceof Integer) {
+                    energy = (Integer) energyObj;
+                }
+                if (energy != null) {
+                    System.out.println("🔄 CLIENT: Force updating energy to " + energy);
+                    player.setEnergy(energy);
+                }
+            }
+            
+            if (playerData.containsKey("money")) {
+                Object moneyObj = playerData.get("money");
+                Integer money = null;
+                if (moneyObj instanceof Double) {
+                    money = ((Double) moneyObj).intValue();
+                } else if (moneyObj instanceof Integer) {
+                    money = (Integer) moneyObj;
+                }
+                if (money != null) {
+                    System.out.println("🔄 CLIENT: Force updating money to " + money);
+                    // Calculate the difference and adjust money accordingly
+                    int currentMoney = player.getMoney();
+                    int difference = money - currentMoney;
+                    if (difference > 0) {
+                        player.increaseMoney(difference);
+                    } else if (difference < 0) {
+                        player.decreaseMoney(-difference);
+                    }
+                }
+            }
+            
+            if (playerData.containsKey("isInVillage")) {
+                Boolean isInVillage = (Boolean) playerData.get("isInVillage");
+                if (isInVillage != null) {
+                    System.out.println("🔄 CLIENT: Force updating isInVillage to " + isInVillage);
+                    player.setIsInVillage(isInVillage);
+                }
+            }
+            
+            // Update location if available
+            if (playerData.containsKey("locationX") && playerData.containsKey("locationY")) {
+                Object locationXObj = playerData.get("locationX");
+                Object locationYObj = playerData.get("locationY");
+                Integer locationX = null;
+                Integer locationY = null;
+                
+                if (locationXObj instanceof Double) {
+                    locationX = ((Double) locationXObj).intValue();
+                } else if (locationXObj instanceof Integer) {
+                    locationX = (Integer) locationXObj;
+                }
+                
+                if (locationYObj instanceof Double) {
+                    locationY = ((Double) locationYObj).intValue();
+                } else if (locationYObj instanceof Integer) {
+                    locationY = (Integer) locationYObj;
+                }
+                
+                if (locationX != null && locationY != null) {
+                    System.out.println("🔄 CLIENT: Force updating location to (" + locationX + ", " + locationY + ")");
+                    // Create new location object and set it
+                    Location newLocation = new Location(locationX, locationY, org.example.common.models.enums.Types.TileType.Dirt);
+                    player.setLocation(newLocation);
+                }
+            }
+            
+            // Update farm information if available
+            if (playerData.containsKey("farmIndex")) {
+                Object farmIndexObj = playerData.get("farmIndex");
+                Integer farmIndex = null;
+                if (farmIndexObj instanceof Double) {
+                    farmIndex = ((Double) farmIndexObj).intValue();
+                } else if (farmIndexObj instanceof Integer) {
+                    farmIndex = (Integer) farmIndexObj;
+                }
+                if (farmIndex != null && farmIndex >= 0) {
+                    System.out.println("🔄 CLIENT: Force updating farm index to " + farmIndex);
+                    // Find the farm by index and set it
+                    Game currentGame = getCurrentGame();
+                    if (currentGame != null && currentGame.getGameMap() != null) {
+                        List<Farm> farms = currentGame.getGameMap().getFarms();
+                        if (farmIndex < farms.size()) {
+                            player.setCurrentFarm(farms.get(farmIndex));
+                        }
+                    }
+                }
+            }
+            
+            // Update sprite position to reflect new coordinates
+            player.updatePosition();
+            
+            System.out.println("✅ CLIENT: Finished force updating player " + player.getUser().getUsername());
+            
+        } catch (Exception e) {
+            System.err.println("DEBUG: Error force updating player from server data: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

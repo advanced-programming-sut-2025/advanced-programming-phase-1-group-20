@@ -215,6 +215,9 @@ public class MapScreen implements Screen, InputProcessor {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        // Call serverUpdate to ensure we have the latest state
+        serverUpdate();
+
         // Ensure tiles are up-to-date before rendering
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap != null) {
@@ -535,32 +538,41 @@ public class MapScreen implements Screen, InputProcessor {
             // Get player's farm
             Farm playerFarm = player.getCurrentFarm();
             if (playerFarm == null) {
+                System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() + " has no farm, skipping");
                 continue;
             }
 
             // Get player's location and farm index
             Location playerLocation = player.getLocation();
             int farmIndex = getFarmIndex(playerFarm);
+            
+            System.out.println("🗺️ MAP: Processing player " + player.getUser().getUsername() + 
+                " - Pixel pos: (" + playerX + ", " + playerY + ")" +
+                " - Location: (" + playerLocation.getX() + ", " + playerLocation.getY() + ")" +
+                " - Farm: " + (playerFarm != null ? playerFarm.getName() : "null") +
+                " - Farm index: " + farmIndex +
+                " - Is in village: " + player.getIsInVillage());
 
             float worldX, worldY;
 
             if (player.getIsInVillage()) {
-                // Player is in village area
-                worldX = (GameMap.VILLAGE_X + playerLocation.getX()) * TILE_SIZE;
-                worldY = (GameMap.VILLAGE_Y + playerLocation.getY()) * TILE_SIZE;
+                // For village, use pixel coordinates directly since village coordinates are different
+                // The village is positioned at (VILLAGE_X * TILE_SIZE, 0) in pixel coordinates
+                worldX = playerX;
+                worldY = playerY;
+                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() + " in village at (" + worldX + ", " + worldY + ")");
             } else {
-                // Player is in farm area - use the global coordinates directly
-                // The player's location already contains the global coordinates from Game.java
-                worldX = playerLocation.getX() * TILE_SIZE;
-                worldY = playerLocation.getY() * TILE_SIZE;
-                
-                // Debug logging
-                System.out.println("DEBUG: MapScreen - Rendering player " + player.getUser().getUsername() + 
-                    " at farm coordinates (" + playerLocation.getX() + ", " + playerLocation.getY() + 
-                    ") -> world coordinates (" + worldX + ", " + worldY + ") in farm " + farmIndex);
+                // Convert pixel coordinates to tile coordinates for map rendering
+                int tileX = (int) (playerX / TILE_SIZE);
+                int tileY = (int) (playerY / TILE_SIZE);
+                worldX = tileX * TILE_SIZE + getFarmStartX(farmIndex) * TILE_SIZE;
+                worldY = tileY * TILE_SIZE + getFarmStartY(farmIndex) * TILE_SIZE;
+                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() + 
+                    " on farm " + farmIndex + " - Pixel pos: (" + playerX + ", " + playerY + ")" +
+                    " - Tile pos: (" + tileX + ", " + tileY + ")" +
+                    " - World pos: (" + worldX + ", " + worldY + ")");
             }
 
-            // Render player sprite using the calculated world coordinates
             renderPlayerSprite(player, worldX, worldY);
         }
 
@@ -569,7 +581,6 @@ public class MapScreen implements Screen, InputProcessor {
     }
 
     private void renderPlayerSprite(Player player, float worldX, float worldY) {
-        // PlayerController constants for sprite rendering
         final int FRAME_W = 16;
         final int FRAME_H = 32;
         final int RENDER_W = 96;  // Doubled from 48
@@ -776,28 +787,26 @@ public class MapScreen implements Screen, InputProcessor {
 
     // used for real-time map!
     public void serverUpdate() {
+        System.out.println("🗺️ MAP: serverUpdate called");
+        
         // Update the tiles array to ensure it's current
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap != null) {
             gameMap.updateTilesFromRegions();
-            System.out.println("DEBUG: MapScreen.serverUpdate() - Updated tiles from regions");
         }
 
         // Ensure player positions are properly synchronized for map display
         Game currentGame = App.getGame();
         if (currentGame != null) {
+            System.out.println("🗺️ MAP: Found " + currentGame.getPlayers().size() + " players");
             for (Player player : currentGame.getPlayers()) {
                 if (player != null) {
-                    // Log current player positions for debugging
-                    System.out.println("DEBUG: MapScreen.serverUpdate() - Player " +
-                        player.getUser().getUsername() + " position: (" +
-                        player.getPosX() + ", " + player.getPosY() + ") at tile (" +
-                        player.getLocation().getX() + ", " + player.getLocation().getY() + ")");
+                    System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() + 
+                        " - Pos: (" + player.getPosX() + ", " + player.getPosY() + ")" +
+                        " - Location: (" + player.getLocation().getX() + ", " + player.getLocation().getY() + ")" +
+                        " - Farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
                 }
             }
         }
-
-        // Force a render update to show the latest state
-        System.out.println("DEBUG: MapScreen.serverUpdate() - Map updated from server");
     }
 }

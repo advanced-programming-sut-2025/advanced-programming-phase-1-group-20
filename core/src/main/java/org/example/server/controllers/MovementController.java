@@ -26,8 +26,8 @@ public class MovementController {
     public boolean handlePlayerMove(String username, Message message) {
         System.out.println("DEBUG: MovementController.handlePlayerMove() - Processing movement for player: " + username);
 
-        float x = message.getFromBody("x");
-        float y = message.getFromBody("y");
+        float x = message.getFloatFromBody("x");
+        float y = message.getFloatFromBody("y");
 
         Player player = App.getGame().getPlayerByUsername(username);
         if (player == null) {

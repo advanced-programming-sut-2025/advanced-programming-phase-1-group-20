@@ -70,9 +70,26 @@ public class AppWebSocket {
         String sessionId = ctx.sessionId();
         System.out.println("New WebSocket connection: " + sessionId);
 
-        // Create player connection
-        PlayerConnection connection = new PlayerConnection(ctx);
-        connectedPlayers.put(sessionId, connection);
+        // Check if this is a reconnection for an existing player
+        PlayerConnection existingConnection = null;
+        for (PlayerConnection conn : connectedPlayers.values()) {
+            if (conn.getState() == PlayerConnection.ConnectionState.DISCONNECTED) {
+                existingConnection = conn;
+                break;
+            }
+        }
+
+        if (existingConnection != null) {
+            // This is a reconnection
+            System.out.println("Player " + existingConnection.getUsername() + " reconnected");
+            existingConnection.setState(PlayerConnection.ConnectionState.CONNECTING);
+            existingConnection.setWsContext(ctx);
+            connectedPlayers.put(sessionId, existingConnection);
+        } else {
+            // Create new player connection
+            PlayerConnection connection = new PlayerConnection(ctx);
+            connectedPlayers.put(sessionId, connection);
+        }
 
         // Send welcome message
         Message welcomeMessage = new Message();
@@ -115,6 +132,12 @@ public class AppWebSocket {
         PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection == null) {
             System.err.println("No connection found for session: " + sessionId);
+            return;
+        }
+
+        // Handle non-JSON messages like "ACK"
+        if (!messageJson.trim().startsWith("{")) {
+            System.out.println("DEBUG: Received non-JSON message: " + messageJson + " - ignoring");
             return;
         }
 
@@ -222,13 +245,34 @@ public class AppWebSocket {
         String sessionId = ctx.sessionId();
         System.out.println("WebSocket connection closed: " + sessionId);
 
-        PlayerConnection connection = connectedPlayers.remove(sessionId);
+        // Don't immediately remove the connection - give it a chance to reconnect
+        PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection != null) {
             String username = connection.getUsername();
             if (username != null) {
-                messageHandler.removePlayerConnection(username);
+                // Instead of immediately removing, mark as disconnected and give time for reconnection
+                System.out.println("Player " + username + " WebSocket closed, but keeping connection alive for potential reconnection");
+                connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
+                
+                // Schedule removal after a delay to allow for reconnection
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(5000); // Wait 5 seconds for reconnection
+                        PlayerConnection stillConnected = connectedPlayers.get(sessionId);
+                        if (stillConnected != null && stillConnected.getState() == PlayerConnection.ConnectionState.DISCONNECTED) {
+                            // Still disconnected after delay, remove the connection
+                            connectedPlayers.remove(sessionId);
+                            messageHandler.removePlayerConnection(username);
+                            System.out.println("Player " + username + " connection removed after timeout");
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).start();
+            } else {
+                // No username, remove immediately
+                connectedPlayers.remove(sessionId);
             }
-            connection.disconnect();
         }
     }
 
@@ -236,14 +280,33 @@ public class AppWebSocket {
         String sessionId = ctx.sessionId();
         System.err.println("WebSocket error for session " + sessionId + ": " + "Connection error");
 
-        // Clean up connection on error
-        PlayerConnection connection = connectedPlayers.remove(sessionId);
+        // Don't immediately remove on error - it might be a temporary network issue
+        PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection != null) {
             String username = connection.getUsername();
             if (username != null) {
-                messageHandler.removePlayerConnection(username);
+                System.out.println("Player " + username + " WebSocket error, but keeping connection alive");
+                connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
+                
+                // Schedule removal after a delay
+                new Thread(() -> {
+                    try {
+                        Thread.sleep(3000); // Wait 3 seconds for recovery
+                        PlayerConnection stillConnected = connectedPlayers.get(sessionId);
+                        if (stillConnected != null && stillConnected.getState() == PlayerConnection.ConnectionState.DISCONNECTED) {
+                            // Still disconnected after delay, remove the connection
+                            connectedPlayers.remove(sessionId);
+                            messageHandler.removePlayerConnection(username);
+                            System.out.println("Player " + username + " connection removed after error timeout");
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).start();
+            } else {
+                // No username, remove immediately
+                connectedPlayers.remove(sessionId);
             }
-            connection.disconnect();
         }
     }
 
