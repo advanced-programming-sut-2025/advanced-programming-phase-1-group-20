@@ -770,18 +770,18 @@ public class PlayerController {
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
             System.out.println("🔍 DEBUG: NetworkClient: " + (networkClient != null));
-            
+
             if (networkClient != null) {
                 System.out.println("🔍 DEBUG: NetworkClient state: " + networkClient.getConnectionState());
                 System.out.println("🔍 DEBUG: NetworkClient authenticated: " + networkClient.isAuthenticated());
             }
-            
+
             if (App.getGame() != null) {
                 System.out.println("🔍 DEBUG: Game multiplayer: " + App.getGame().isMultiplayer);
             } else {
                 System.out.println("🔍 DEBUG: App.getGame() is null");
             }
-            
+
             if (networkClient != null && App.getGame() != null && App.getGame().isMultiplayer) {
                 // Check if we're authenticated and connected
                 if (!networkClient.isAuthenticated()) {
