@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -22,7 +23,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.InputMultiplexer;
 import org.example.client.Main;
+import org.example.client.controllers.AnimalSpriteController;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.controllers.gameplay.AnimalController;
 import org.example.client.views.gameplay.CookingScreen;
 import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
@@ -35,6 +38,10 @@ import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.common.Location;
 import org.example.common.models.Player.Player;
+import org.example.common.models.common.Result;
+import org.example.common.models.entities.animal.Animal;
+import org.example.common.models.entities.animal.BarnAnimal;
+import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.PlayerEnums.Tools;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
@@ -71,6 +78,7 @@ import org.example.common.models.MapDetails.Quarry;
 import org.example.common.models.MapDetails.Lake;
 import org.example.common.models.Market;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameView implements Screen, InputProcessor {
@@ -99,6 +107,8 @@ public class GameView implements Screen, InputProcessor {
     private Label timeDisplayLabel;
     private BitmapFont customFont;
     private BitmapFont smallFont;
+
+    private AnimalSpriteController animalSpriteController;
 
     // Weather and Season components
     private Texture currentWeatherTexture;
@@ -167,6 +177,8 @@ public class GameView implements Screen, InputProcessor {
         this.user = user;
         this.gameTime = 0;
         this.lightingUpdateTimer = 0;
+
+        this.animalSpriteController = new AnimalSpriteController();
 
         // Initialize camera first
         camera = new OrthographicCamera(120, 120);
@@ -628,6 +640,11 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
 
+        if (keycode == Input.Keys.P) {
+            handlePetClosestAnimal();
+            return true;
+        }
+
         if (keycode == Input.Keys.ESCAPE) {
             // Show InventoryScreen and pass this as previousScreen
             Main.getGame().setScreen(new InventoryScreen(player, skin, this));
@@ -672,6 +689,16 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+        if (button == Input.Buttons.RIGHT) {
+            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+            Animal clickedAnimal = findAnimalAt(worldCoords.x / 60, worldCoords.y / 60);
+            if (clickedAnimal != null) {
+                showAnimalInteractionDialog(clickedAnimal);
+                return true; // Consume the click event
+            }
+        }
+
         if (button == Input.Buttons.LEFT) {
             Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
 
@@ -1156,6 +1183,10 @@ public class GameView implements Screen, InputProcessor {
         // Render lightning effects AFTER rain but BEFORE UI
         lightningSystem.render(Main.getBatch(), currentLightColor);
 
+        if (animalSpriteController != null) {
+            animalSpriteController.render(Main.getBatch(), currentLightColor);
+        }
+
 
         Main.getBatch().end();
 
@@ -1229,6 +1260,10 @@ public class GameView implements Screen, InputProcessor {
         // Dispose NPC sprite controller
         if (npcSpriteController != null) {
             npcSpriteController.dispose();
+        }
+
+        if (animalSpriteController != null) {
+            animalSpriteController.dispose();
         }
     }
 
@@ -1608,4 +1643,97 @@ public class GameView implements Screen, InputProcessor {
             }
         }, 2.0f);
     }
+
+    private Animal findAnimalAt(float worldX, float worldY) {
+        Farm currentFarm = player.getCurrentFarm();
+        if (currentFarm == null) return null;
+
+        float animalWidth = 48; // Approximate render width
+        float animalHeight = 96; // Approximate render height
+
+        // Check Barn Animals
+        for (Barn barn : currentFarm.getBarns()) {
+            for (BarnAnimal animal : barn.getAnimals()) {
+                Rectangle animalBounds = new Rectangle(animal.getPosX(), animal.getPosY(), animalWidth, animalHeight);
+                if (animalBounds.contains(worldX, worldY)) {
+                    return animal;
+                }
+            }
+        }
+
+        // Check Coop Animals
+        for (Coop coop : currentFarm.getCoops()) {
+            for (CoopAnimal animal : coop.getAnimals()) {
+                Rectangle animalBounds = new Rectangle(animal.getPosX(), animal.getPosY(), animalWidth, animalHeight);
+                if (animalBounds.contains(worldX, worldY)) {
+                    return animal;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void showAnimalInteractionDialog(Animal animal) {
+        AnimalController animalController = new AnimalController();
+        AnimalInteractionDialog dialog = new AnimalInteractionDialog(
+            animal.getName(),
+            skin,
+            animal,
+            animalController,
+            this::showResultNotification // Pass a method reference to handle the result
+        );
+        dialog.show(stage);
+    }
+
+    private void handlePetClosestAnimal() {
+        Farm currentFarm = player.getCurrentFarm();
+        if (currentFarm == null) return;
+
+        Animal closestAnimal = null;
+        float minDistance = Float.MAX_VALUE;
+
+        // Combine all animals into one list
+        List<Animal> allAnimals = new ArrayList<>();
+        currentFarm.getBarns().forEach(barn -> allAnimals.addAll(barn.getAnimals()));
+        currentFarm.getCoops().forEach(coop -> allAnimals.addAll(coop.getAnimals()));
+
+        // Find the closest animal
+        for (Animal animal : allAnimals) {
+            float distance = (float) Math.sqrt(Math.pow(player.getPosX() - animal.getPosX(), 2) + Math.pow(player.getPosY() - animal.getPosY(), 2));
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestAnimal = animal;
+            }
+        }
+
+        // If an animal is found within 2 tiles (120 pixels)
+        if (closestAnimal != null && minDistance < 120) {
+            AnimalController animalController = new AnimalController();
+            Result result = animalController.petAnimal(new String[]{closestAnimal.getName()});
+            showResultNotification(result);
+        } else {
+            showResultNotification(Result.error("No animal is close enough to pet."));
+        }
+    }
+
+    private void showResultNotification(Result result) {
+        Color color = result.success() ? Color.GREEN : Color.RED;
+        Label notificationLabel = new Label(result.message(), skin);
+        notificationLabel.setColor(color);
+        notificationLabel.setPosition(Gdx.graphics.getWidth() / 2f - notificationLabel.getWidth() / 2f, Gdx.graphics.getHeight() - 100);
+        stage.addActor(notificationLabel);
+
+        // Schedule removal after 3 seconds
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 3.0f);
+    }
+
 }
