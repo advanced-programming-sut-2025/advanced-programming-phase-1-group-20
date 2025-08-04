@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Payload;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Source;
@@ -167,6 +168,9 @@ public class RefrigeratorScreen implements Screen {
     /**
      * Creates a visual slot for an item and sets it up as a drag source.
      */
+    /**
+     * Creates a visual slot for an item and sets it up as a drag source and click listener.
+     */
     private Container<Stack> createItemSlot(Item item, int quantity, String sourceContainer) {
         // Visual representation: Image + Quantity Label
         Image itemImage = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
@@ -180,8 +184,9 @@ public class RefrigeratorScreen implements Screen {
         Container<Stack> container = new Container<>(itemStack);
         container.setTouchable(Touchable.enabled);
 
-        // --- Drag and Drop Source ---
+        // --- Drag and Drop Source (remains the same) ---
         dnd.addSource(new Source(container) {
+            // ... (This part of the code doesn't change)
             @Override
             public Payload dragStart(InputEvent event, float x, float y, int pointer) {
                 Payload payload = new Payload();
@@ -190,26 +195,59 @@ public class RefrigeratorScreen implements Screen {
                 itemPayload.sourceContainer = sourceContainer;
                 payload.setObject(itemPayload);
 
-                // Actor that follows the cursor
                 Image dragActor = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
                 dragActor.setSize(SLOT_SIZE, SLOT_SIZE);
                 payload.setDragActor(dragActor);
 
-                // Make the original item semi-transparent
                 container.getActor().setColor(1, 1, 1, 0.4f);
                 return payload;
             }
 
             @Override
             public void dragStop(InputEvent event, float x, float y, int pointer, Payload payload, Target target) {
-                // If the item is not dropped on a valid target, it will return.
-                // Reset its appearance regardless.
                 container.getActor().setColor(Color.WHITE);
             }
         });
 
-        // This slot is also a target to allow swapping (optional, more complex)
-        // For now, we only handle dropping on empty slots.
+        // --- NEW: Add ClickListener for Shift + Right Click ---
+        container.addListener(new ClickListener(Input.Buttons.RIGHT) {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                // Check if the Shift key is held down
+                if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+
+                    // Determine source and destination
+                    Map<Item, Integer> sourceMap;
+                    Map<Item, Integer> targetMap;
+                    int targetCapacity;
+
+                    if (sourceContainer.equals("refrigerator")) {
+                        sourceMap = refrigerator.getItems();
+                        targetMap = backpack.getInventory();
+                        targetCapacity = INVENTORY_ROWS * INVENTORY_COLS;
+                    } else { // Source is "backpack"
+                        sourceMap = backpack.getInventory();
+                        targetMap = refrigerator.getItems();
+                        targetCapacity = REFRIGERATOR_ROWS * REFRIGERATOR_COLS;
+                    }
+
+                    // Check if the destination has space
+                    if (targetMap.size() >= targetCapacity) {
+                        System.out.println("Destination is full!"); // Optional: log a message
+                        return; // Do nothing if the destination is full
+                    }
+
+                    // Perform the move
+                    int itemQuantity = sourceMap.get(item);
+                    sourceMap.remove(item);
+                    targetMap.put(item, itemQuantity);
+
+                    // Refresh the UI
+                    populateAllGrids();
+                }
+            }
+        });
+
         return container;
     }
 
@@ -253,6 +291,7 @@ public class RefrigeratorScreen implements Screen {
                 // Refresh the entire UI to reflect the change
                 populateAllGrids();
             }
+
         });
 
         return emptyContainer;

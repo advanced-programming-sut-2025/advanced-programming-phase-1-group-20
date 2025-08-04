@@ -112,6 +112,11 @@ public class Market extends Building {
             .orElse(null);
     }
 
+
+    public Product getProduct(String name) {
+        return totalStock.stream().filter(p->p.getItem().getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
+
     /**
      * **FIXED:** Now correctly checks if the item exists in the current day's stock.
      */

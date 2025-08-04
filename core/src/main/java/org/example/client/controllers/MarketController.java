@@ -1,11 +1,8 @@
 package org.example.client.controllers;
 
-import org.example.common.models.App;
-import org.example.common.models.Barn;
-import org.example.common.models.Coop;
+import org.example.common.models.*;
 import org.example.common.models.Items.Item;
 import org.example.common.models.MapDetails.Farm;
-import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
 import org.example.common.models.common.Result;
@@ -43,6 +40,7 @@ public class MarketController implements Controller {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
         Item item = market.getItem(productName);
+        Product product = market.getProduct(productName);
 
         if (item == null) {
             return Result.error("There is no such item as" + productName);
@@ -76,6 +74,11 @@ public class MarketController implements Controller {
                 }
             }
         }
+        
+        if(!product.checkIngredient(player.getBackpack())){
+            return Result.error("You don't have enough resources for this product");
+        }
+
         market.checkOut(player, item, count);
         player.getBackpack().add(item, (int) count);
 
@@ -217,10 +220,10 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 6000 && woodCount > 350 && stone > 150) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 6000 && woodCount >= 350 && stone >= 150) {
+                player.getBackpack().remove(stoneItem , 150);
+                player.getBackpack().remove(wood , 350);
+                player.decreaseMoney(6000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Big Barn")) {
@@ -229,10 +232,10 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 12_000 && woodCount > 450 && stone > 200) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 12_000 && woodCount >= 450 && stone >= 200) {
+                player.getBackpack().remove(stoneItem , 200);
+                player.getBackpack().remove(wood , 450);
+                player.decreaseMoney(12_000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Deluxe Barn")) {
@@ -241,10 +244,10 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 25_000 && woodCount > 550 && stone > 300) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 25_000 && woodCount >= 550 && stone >= 300) {
+                player.getBackpack().remove(stoneItem , 300);
+                player.getBackpack().remove(wood , 550);
+                player.decreaseMoney(25_000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Coop")) {
@@ -253,10 +256,10 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 4000 && woodCount > 300 && stone > 300) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 4000 && woodCount >= 300 && stone >= 300) {
+                player.getBackpack().remove(stoneItem , 300);
+                player.getBackpack().remove(wood , 300);
+                player.decreaseMoney(4000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Big Coop")) {
@@ -265,10 +268,10 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 10_000 && woodCount > 400 && stone > 150) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 10_000 && woodCount >= 400 && stone >= 150) {
+                player.getBackpack().remove(stoneItem , 150);
+                player.getBackpack().remove(wood , 400);
+                player.decreaseMoney(10_000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Deluxe Coop")) {
@@ -277,28 +280,28 @@ public class MarketController implements Controller {
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item wood = player.getBackpack().getItem("Wood");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 20_000 && woodCount > 500 && stone > 200) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 20_000 && woodCount >= 500 && stone >= 200) {
+                player.getBackpack().remove(stoneItem , 200);
+                player.getBackpack().remove(wood , 500);
+                player.decreaseMoney(20_000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Well")) {
             int money = player.getMoney();
             int stone = player.getBackpack().getNumberOfItem("Stone");
             Item stoneItem = player.getBackpack().getItem("Stone");
-            if(money > 1000 && stone > 70) {
-                player.getBackpack().remove(stoneItem , stone);
-                player.decreaseMoney(money);
+            if(money >= 1000 && stone >= 70) {
+                player.getBackpack().remove(stoneItem , 70);
+                player.decreaseMoney(1000);
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Shipping Bin")) {
             int money = player.getMoney();
             Item wood = player.getBackpack().getItem("Wood");
             int woodCount = player.getBackpack().getNumberOfItem("Wood");
-            if(money > 250 && woodCount > 150){
-                player.getBackpack().remove(wood , woodCount);
-                player.decreaseMoney(money);
+            if(money >= 250 && woodCount >= 150){
+                player.getBackpack().remove(wood , 150);
+                player.decreaseMoney(250);
                 return true;
             }
         }

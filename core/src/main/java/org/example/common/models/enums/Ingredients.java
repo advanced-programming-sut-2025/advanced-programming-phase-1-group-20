@@ -85,7 +85,20 @@ public enum Ingredients {
     DuckMayonnaise(Map.of("Duck Egg", 1)),
     DinosaurMayonnaise(Map.of("Dinosaur Egg", 1)),
     TruffleOil(Map.of("Truffle", 1)),
-    Oil(Map.of("Corn", 1));
+    Oil(Map.of("Corn", 1)),
+
+
+    //Markets
+    NoSpecialItem(Map.of()),
+    Barn(Map.of("Wood", 350 , "Stone" , 150)),
+    BigBarn(Map.of("Wood", 450, "Stone" ,200)),
+    DeluxeBarn(Map.of("Wood" ,  550 , "Stone" ,300)),
+    Coop(Map.of("Wood", 300 , "Stone" ,100)),
+    BigCoop(Map.of("Wood" ,  400 , "Stone" ,150)),
+    DeluxeCoop(Map.of("Wood" ,  500 , "Stone" ,200)),
+    Well(Map.of("Stone" ,75)),
+    ShippingBin(Map.of("Wood", 150)),
+    ;
 
     private final Map<String, Integer> recipe;
 

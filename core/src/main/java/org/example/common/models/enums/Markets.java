@@ -60,22 +60,22 @@ public enum Markets {
         items.add(new Product(toolUpgradeService, Double.POSITIVE_INFINITY));
 
         // Trash cans with proper Tool functionality
-        Item cooperTrashCan = new Tool("Copper Trash Can", 1000, "content/Tools/Trash_Can_Copper.png", 
+        Item cooperTrashCan = new Tool("Copper Trash Can", 1000, "content/Tools/Trash_Can_Copper.png",
             "A copper trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.COPPER, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(cooperTrashCan, 1.0));
 
-        Item ironTrashCan = new Tool("Iron Trash Can", 2500, "content/Tools/Trash_Can_Steel.png", 
+        Item ironTrashCan = new Tool("Iron Trash Can", 2500, "content/Tools/Trash_Can_Steel.png",
             "An iron trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.IRON, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(ironTrashCan, 1.0));
 
-        Item goldTrashCan = new Tool("Gold Trash Can", 5000, "content/Tools/Trash_Can_Gold.png", 
+        Item goldTrashCan = new Tool("Gold Trash Can", 5000, "content/Tools/Trash_Can_Gold.png",
             "A gold trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.GOLD, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(goldTrashCan, 1.0));
 
-        Item iridiumTrashCan = new Tool("Iridium Trash Can", 12500, "content/Tools/Trash_Can_Iridium.png", 
+        Item iridiumTrashCan = new Tool("Iridium Trash Can", 12500, "content/Tools/Trash_Can_Iridium.png",
             "An iridium trash can for disposing of items.",
             Tool.ToolType.TRASH_CAN, Tool.ToolMaterial.IRIDIUM, 0, null, ToolFunctionality.TRASH_CAN);
         items.add(new Product(iridiumTrashCan, 1.0));
@@ -640,24 +640,24 @@ public enum Markets {
         items.add(new Product(stone, Double.POSITIVE_INFINITY));
 
         Item barn = new Item("Barn" , 6_000 , "content/Buildings/Barn.png");
-        items.add(new Product(barn,1.0));
+        items.add(new Product(barn,1.0 , Ingredients.Barn));
         Item bigBarn = new Item("Big Barn" , 12_000 , "content/Buildings/Big Barn.png");
-        items.add(new Product(bigBarn,1.0));
+        items.add(new Product(bigBarn,1.0 , Ingredients.BigBarn));
         Item deluxeBarn = new Item("Deluxe Barn" , 25_000 , "content/Buildings/Deluxe Barn.png");
-        items.add(new Product(deluxeBarn,1.0));
+        items.add(new Product(deluxeBarn,1.0 , Ingredients.DeluxeBarn));
 
 
         Item coop = new Item("Coop" , 4_000 , "content/Buildings/Coop.png");
-        items.add(new Product(coop,1.0));
+        items.add(new Product(coop,1.0 , Ingredients.Coop));
         Item bigCoop = new Item("Big Coop" , 10_000 , "content/Buildings/Big Coop.png");
-        items.add(new Product(bigCoop,1.0));
+        items.add(new Product(bigCoop,1.0 , Ingredients.BigCoop));
         Item deluxeCoop = new Item("Deluxe Coop" , 20_000 , "content/Buildings/Deluxe Coop.png");
-        items.add(new Product(deluxeCoop,1.0));
+        items.add(new Product(deluxeCoop,1.0 , Ingredients.DeluxeCoop));
 
         Item well = new Item("Well" , 1_000 , "content/Buildings/Well.png");
-        items.add(new Product(well,1.0));
+        items.add(new Product(well,1.0 , Ingredients.Well));
         Item shippingBin = new ShippingBin();
-        items.add(new Product(shippingBin,Double.POSITIVE_INFINITY));
+        items.add(new Product(shippingBin,Double.POSITIVE_INFINITY , Ingredients.ShippingBin));
 
         int startHour = 9;
         int endHour = 16;
@@ -675,11 +675,11 @@ public enum Markets {
         List<Product> autumnItems = new ArrayList<>();
         List<Product> winterItems = new ArrayList<>();
 
-        Item shears = new Tool("Shears", 1000, "content/Tools/shears/Shears.png", "Use this to collect wool from sheep", 
+        Item shears = new Tool("Shears", 1000, "content/Tools/shears/Shears.png", "Use this to collect wool from sheep",
             Tool.ToolType.SHEARS, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.SHEARS);
         items.add(new Product(shears, 1.0));
 
-        Item milkPail = new Tool("Milk Pail", 1000, "content/Tools/Milk_Pail.png", "Gather milk from your animals.", 
+        Item milkPail = new Tool("Milk Pail", 1000, "content/Tools/Milk_Pail.png", "Gather milk from your animals.",
             Tool.ToolType.MILK_PAIL, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.MILK_PAIL);
         items.add(new Product(milkPail, 1.0));
 
@@ -819,22 +819,22 @@ public enum Markets {
         items.add(new Product(troutSoup, 1.0));
 
         // Fishing rods with proper Tool functionality
-        Item trainingRod = new Tool("Training Rod", 25, "content/Tools/Fishing_Pole/Training_Rod.png", 
+        Item trainingRod = new Tool("Training Rod", 25, "content/Tools/Fishing_Pole/Training_Rod.png",
             "It's a lot easier to use than other rods, but can only catch basic fish.",
             Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(trainingRod, 1.0));
 
-        Item bambooPole = new Tool("Bamboo Pole", 500, "content/Tools/Fishing_Pole/Bamboo_Pole.png", 
+        Item bambooPole = new Tool("Bamboo Pole", 500, "content/Tools/Fishing_Pole/Bamboo_Pole.png",
             "Use in the water to catch fish.",
             Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(bambooPole, 1.0));
 
-        Item fiberglassRod = new Tool("Fiberglass Rod", 1800, "content/Tools/Fishing_Pole/Fiberglass_Rod.png", 
+        Item fiberglassRod = new Tool("Fiberglass Rod", 1800, "content/Tools/Fishing_Pole/Fiberglass_Rod.png",
             "Use in the water to catch fish.",
             Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.COPPER, 6, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(fiberglassRod, 1.0));
 
-        Item iridiumRod = new Tool("Iridium Rod", 7500, "content/Tools/Fishing_Pole/Advanced_Iridium_Rod.png", 
+        Item iridiumRod = new Tool("Iridium Rod", 7500, "content/Tools/Fishing_Pole/Advanced_Iridium_Rod.png",
             "Use in the water to catch fish.",
             Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.IRIDIUM, 4, Skills.FISHING, ToolFunctionality.FISHING_ROD);
         items.add(new Product(iridiumRod, 1.0));
