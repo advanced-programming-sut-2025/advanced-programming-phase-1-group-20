@@ -754,6 +754,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     public void dispose() {
         stage.dispose();
         batch.dispose();
-        skin.dispose();
+        //i think this line makes the glitch
+        // skin.dispose();
     }
 }
