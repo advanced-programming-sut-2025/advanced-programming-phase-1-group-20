@@ -1,25 +1,23 @@
 package org.example.server;
 
 import org.example.common.models.App;
+import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Message;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
+import org.example.common.models.entities.animal.Animal;
 import org.example.server.GameServers.PlayerConnection;
 import org.example.common.models.enums.Weather;
 import org.example.common.models.MapDetails.GameMap;
 import com.google.gson.Gson;
 
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class GameSession {
     private final String sessionId;
@@ -32,6 +30,7 @@ public class GameSession {
     private final Map<String, Long> lastMovementTime; // Track last movement time per player
     private int gameTickCounter; // Track game ticks for time synchronization
     private Weather lastBroadcastedWeather; // Track last broadcasted weather to avoid duplicate broadcasts
+    private Random animalAiRandom = new Random();
 
     public GameSession(User creator) {
         System.out.println("DEBUG: GameSession constructor called for creator: " + (creator != null ? creator.getUsername() : "null"));
@@ -256,6 +255,7 @@ public class GameSession {
                         App.getGame().getCurrentDate().getCurrentTimeString() + 
                         " (Weather: " + App.getGame().getCurrentDate().getWeatherToday() + ")");
                 }
+                updateAnimalAI(1.0f / config.getGameTickRate());
             } else {
                 System.out.println("DEBUG: Server game loop - current date is null");
             }
@@ -325,17 +325,17 @@ public class GameSession {
                 // Calculate energy cost (same logic as client)
                 int currentEnergy = player.getEnergy();
                 int energyCost = Math.max(1, currentEnergy * 5 / 10000); // 0.05% of current energy
-                
+
                 // Ensure we don't consume more than 1 energy for very low energy levels
                 if (currentEnergy < 2000 && energyCost > 1) {
                     energyCost = 1;
                 }
-                
+
                 // Always consume at least 1 energy for movement
                 energyCost = Math.max(1, energyCost);
-                
+
                 System.out.println("🚀 SERVER: Energy calculation - Current: " + currentEnergy + ", Cost: " + energyCost);
-                
+
                 if (player.getEnergy() >= energyCost) {
                     player.decreaseEnergy(energyCost);
                     System.out.println("🚀 SERVER: Player " + username + " energy consumed: " + energyCost + ", Remaining: " + player.getEnergy());
@@ -378,7 +378,7 @@ public class GameSession {
         Map<String, Object> allPlayersData = new HashMap<>();
         for (Player p : App.getGame().getPlayers()) {
             System.out.println("🚀 SERVER: Preparing player data for " + p.getUser().getUsername() + " - Energy: " + p.getEnergy());
-            
+
             Map<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("username", p.getUser().getUsername());
             playerInfo.put("posX", p.getPosX());
@@ -702,5 +702,40 @@ public class GameSession {
         playerConnections.clear();
 
         System.out.println("Stopped game session: " + sessionId);
+    }
+    private void updateAnimalAI(float deltaTime) {
+        if (gameInstance == null || gameInstance.getGameMap() == null) return;
+
+        List<Animal> allAnimals = new ArrayList<>();
+        for (Farm farm : gameInstance.getGameMap().getFarms()) {
+            farm.getBarns().forEach(barn -> allAnimals.addAll(barn.getAnimals()));
+            farm.getCoops().forEach(coop -> allAnimals.addAll(coop.getAnimals()));
+        }
+
+        for (Animal animal : allAnimals) {
+            // Simple random movement AI
+            if (!animal.isMoving()) {
+                if (animalAiRandom.nextInt(100) < 5) { // 5% chance each tick to start moving
+                    float targetX = animal.getPosX() + (animalAiRandom.nextFloat() - 0.5f) * 300; // Max 5 tiles (5*60=300)
+                    float targetY = animal.getPosY() + (animalAiRandom.nextFloat() - 0.5f) * 300;
+
+                    // Clamp to farm boundaries
+                    targetX = Math.max(0, Math.min(targetX, Farm.width * 60));
+                    targetY = Math.max(0, Math.min(targetY, Farm.height * 60));
+
+                    // This is a simplified movement. A real implementation would use interpolation.
+                    animal.setPosX(targetX);
+                    animal.setPosY(targetY);
+                    animal.setMoving(true);
+                    animal.setCurrentAnimation("walk");
+                }
+            } else {
+                // Simple logic to stop moving after a while
+                if (animalAiRandom.nextInt(100) < 10) {
+                    animal.setMoving(false);
+                    animal.setCurrentAnimation("idle");
+                }
+            }
+        }
     }
 }

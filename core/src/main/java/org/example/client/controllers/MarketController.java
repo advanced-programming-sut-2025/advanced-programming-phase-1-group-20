@@ -74,7 +74,7 @@ public class MarketController implements Controller {
                 }
             }
         }
-        
+
         if(!product.checkIngredient(player.getBackpack())){
             return Result.error("You don't have enough resources for this product");
         }
@@ -151,9 +151,6 @@ public class MarketController implements Controller {
             return Result.error("You are not in Carpenters Shop!");
         }
 
-        if(!buildBarn(buildingName)) {
-            return Result.error("You can't build barn because you don't have enough resources!");
-        }
         Barn barn = getBarnByName(buildingName, location);
         Coop coop = getCoopByName(buildingName, location);
         Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
@@ -170,6 +167,9 @@ public class MarketController implements Controller {
             farm.addCoop(coop);
         }
 
+        if(!buildBarn(buildingName)) {
+            return Result.error("You can't build barn because you don't have enough resources!");
+        }
         return Result.success("build successfully");
     }
 
