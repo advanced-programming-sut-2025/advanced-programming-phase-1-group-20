@@ -40,14 +40,14 @@ get_local_ip() {
 # Create .env file
 create_env_file() {
     echo "📝 Creating .env configuration file..."
-    
+
     cat > .env << EOF
 # Server Configuration
 SERVER_HOST=0.0.0.0
 SERVER_PORT=8080
 WEBSOCKET_PATH=/ws/game
 
-# Database Configuration  
+# Database Configuration
 MONGODB_URI=mongodb://localhost:27017
 DATABASE_NAME=stardew_valley_db
 
@@ -57,13 +57,13 @@ JWT_SECRET=stardew_valley_secret_key_for_jwt_authentication
 # Game Configuration
 MAX_PLAYERS_PER_GAME=4
 GAME_TICK_RATE=20
-HEARTBEAT_INTERVAL=30
+HEARTBEAT_INTERVAL=5
 
 # Development Configuration
 DEBUG_MODE=false
 LOG_LEVEL=INFO
 EOF
-    
+
     echo "✅ .env file created successfully!"
 }
 
@@ -71,11 +71,11 @@ EOF
 main() {
     echo "Setting up multiplayer configuration..."
     echo
-    
+
     # Create .env file
     create_env_file
     echo
-    
+
     # Get and display local IP
     echo "🌐 Network Configuration:"
     local ip=$(get_local_ip)
@@ -87,7 +87,7 @@ main() {
         echo "Run 'ifconfig' (Mac/Linux) or 'ipconfig' (Windows) to find your IP"
     fi
     echo
-    
+
     # Display next steps
     echo "🚀 Next Steps:"
     echo "1. Start the server: ./gradlew lwjgl3:run"
@@ -95,7 +95,7 @@ main() {
     echo "3. Copy JAR file to other devices"
     echo "4. Configure firewall to allow port 8080"
     echo
-    
+
     # Platform-specific firewall instructions
     local os=$(detect_os)
     echo "🔥 Firewall Configuration:"
@@ -113,10 +113,10 @@ main() {
             ;;
     esac
     echo
-    
+
     echo "📖 For detailed instructions, see: NetworkSetupInstructions.md"
     echo "✨ Setup complete! Happy gaming!"
 }
 
 # Run main function
-main 
+main

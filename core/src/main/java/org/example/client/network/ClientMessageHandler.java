@@ -89,12 +89,12 @@ public class ClientMessageHandler {
     private void processMessage(Message message) {
         try {
             System.out.println("DEBUG: Processing message type: " + message.getType() + " with body: " + message.getBody());
-            
+
             // Add specific debug for PLAYER_DATA_UPDATE
             if (message.getType() == Message.Type.PLAYER_DATA_UPDATE) {
                 System.out.println("🔄 CLIENT: Received PLAYER_DATA_UPDATE message - about to handle it");
             }
-            
+
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -448,10 +448,10 @@ public class ClientMessageHandler {
 
     private void handlePlayerDataUpdate(Message message) {
         System.out.println("🔄 CLIENT: handlePlayerDataUpdate method called!");
-        
+
         Object playersData = message.getFromBody("players");
         Object timestampObj = message.getFromBody("timestamp");
-        
+
         // Handle timestamp conversion from Double to Long
         Long timestamp = null;
         if (timestampObj instanceof Double) {
@@ -468,48 +468,48 @@ public class ClientMessageHandler {
                 try {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> playersMap = (Map<String, Object>) playersData;
-                    
+
                     System.out.println("🔄 CLIENT: Processing " + playersMap.size() + " players from server update");
-                    
+
                     // Get current player username to exclude from server updates
                     String currentPlayerUsername = null;
                     if (currentGame.getCurrentPlayer() != null && currentGame.getCurrentPlayer().getUser() != null) {
                         currentPlayerUsername = currentGame.getCurrentPlayer().getUser().getUsername();
                         System.out.println("🔄 CLIENT: Current player is " + currentPlayerUsername + " - will exclude from server updates");
                     }
-                    
+
                     for (Map.Entry<String, Object> entry : playersMap.entrySet()) {
                         String username = entry.getKey();
                         @SuppressWarnings("unchecked")
                         Map<String, Object> playerData = (Map<String, Object>) entry.getValue();
-                        
+
                         System.out.println("🔄 CLIENT: Processing player: " + username + " with data: " + playerData);
-                        
+
                         // Skip updating the current player to avoid conflicts with local state
                         if (username.equals(currentPlayerUsername)) {
                             System.out.println("🔄 CLIENT: Skipping update for current player: " + username);
                             continue;
                         }
-                        
+
                         // Find the player in the current game
                         Player targetPlayer = currentGame.getPlayerByUsername(username);
                         if (targetPlayer != null) {
                             // Log current state before update
-                            System.out.println("🔄 CLIENT: Before update - Player " + username + 
-                                " - Energy: " + targetPlayer.getEnergy() + 
+                            System.out.println("🔄 CLIENT: Before update - Player " + username +
+                                " - Energy: " + targetPlayer.getEnergy() +
                                 ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
-                            
+
                             // Force update player with exact server data
                             forceUpdatePlayerFromServerData(targetPlayer, playerData);
-                            
+
                             // Log state after update
-                            System.out.println("✅ CLIENT: After update - Player " + username + 
-                                " - Energy: " + targetPlayer.getEnergy() + 
+                            System.out.println("✅ CLIENT: After update - Player " + username +
+                                " - Energy: " + targetPlayer.getEnergy() +
                                 ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
                         } else {
                             System.out.println("❌ CLIENT: Player " + username + " not found in current game");
-                            System.out.println("❌ CLIENT: Available players in game: " + 
-                                (currentGame.getPlayers() != null ? 
+                            System.out.println("❌ CLIENT: Available players in game: " +
+                                (currentGame.getPlayers() != null ?
                                     currentGame.getPlayers().stream()
                                         .map(p -> p.getUser().getUsername())
                                         .collect(java.util.stream.Collectors.joining(", ")) : "null"));
@@ -530,7 +530,7 @@ public class ClientMessageHandler {
     private void forceUpdatePlayerFromServerData(Player player, Map<String, Object> playerData) {
         try {
             System.out.println("🔄 CLIENT: Force updating player " + player.getUser().getUsername() + " with server data");
-            
+
             // Always update basic player properties with exact server values
             if (playerData.containsKey("posX")) {
                 Object posXObj = playerData.get("posX");
@@ -545,7 +545,7 @@ public class ClientMessageHandler {
                     player.setPosX(posX);
                 }
             }
-            
+
             if (playerData.containsKey("posY")) {
                 Object posYObj = playerData.get("posY");
                 Float posY = null;
@@ -559,7 +559,7 @@ public class ClientMessageHandler {
                     player.setPosY(posY);
                 }
             }
-            
+
             if (playerData.containsKey("energy")) {
                 Object energyObj = playerData.get("energy");
                 Integer energy = null;
@@ -573,7 +573,7 @@ public class ClientMessageHandler {
                     player.setEnergy(energy);
                 }
             }
-            
+
             if (playerData.containsKey("money")) {
                 Object moneyObj = playerData.get("money");
                 Integer money = null;
@@ -594,7 +594,7 @@ public class ClientMessageHandler {
                     }
                 }
             }
-            
+
             if (playerData.containsKey("isInVillage")) {
                 Boolean isInVillage = (Boolean) playerData.get("isInVillage");
                 if (isInVillage != null) {
@@ -602,26 +602,26 @@ public class ClientMessageHandler {
                     player.setIsInVillage(isInVillage);
                 }
             }
-            
+
             // Update location if available
             if (playerData.containsKey("locationX") && playerData.containsKey("locationY")) {
                 Object locationXObj = playerData.get("locationX");
                 Object locationYObj = playerData.get("locationY");
                 Integer locationX = null;
                 Integer locationY = null;
-                
+
                 if (locationXObj instanceof Double) {
                     locationX = ((Double) locationXObj).intValue();
                 } else if (locationXObj instanceof Integer) {
                     locationX = (Integer) locationXObj;
                 }
-                
+
                 if (locationYObj instanceof Double) {
                     locationY = ((Double) locationYObj).intValue();
                 } else if (locationYObj instanceof Integer) {
                     locationY = (Integer) locationYObj;
                 }
-                
+
                 if (locationX != null && locationY != null) {
                     System.out.println("🔄 CLIENT: Force updating location to (" + locationX + ", " + locationY + ")");
                     // Create new location object and set it
@@ -629,7 +629,7 @@ public class ClientMessageHandler {
                     player.setLocation(newLocation);
                 }
             }
-            
+
             // Update farm information if available
             if (playerData.containsKey("farmIndex")) {
                 Object farmIndexObj = playerData.get("farmIndex");
@@ -651,12 +651,12 @@ public class ClientMessageHandler {
                     }
                 }
             }
-            
+
             // Update sprite position to reflect new coordinates
             player.updatePosition();
-            
+
             System.out.println("✅ CLIENT: Finished force updating player " + player.getUser().getUsername());
-            
+
         } catch (Exception e) {
             System.err.println("DEBUG: Error force updating player from server data: " + e.getMessage());
             e.printStackTrace();

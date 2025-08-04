@@ -62,6 +62,12 @@ public class GameSession {
             App.setGame(this.gameInstance);
             App.getGame().isMultiplayer = true; // Mark as multiplayer game on server
 
+            // Start the game loop immediately - time should advance from the beginning
+            int tickRate = config.getGameTickRate();
+            System.out.println("DEBUG: Starting game loop immediately with tick rate: " + tickRate + " ticks per second");
+            gameLoop.scheduleAtFixedRate(this::gameLoop, 0, 1000 / tickRate, TimeUnit.MILLISECONDS);
+            System.out.println("DEBUG: Game loop started successfully");
+
             System.out.println("DEBUG: Created new game session: " + sessionId + " for user: " + creator.getUsername());
         } catch (Exception e) {
             System.err.println("DEBUG: Exception in GameSession constructor: " + e.getMessage());
@@ -158,11 +164,6 @@ public class GameSession {
         // Don't initialize farms yet - wait for farm selection
         // gameInstance.initializeMultiplayerGame();
 
-        int tickRate = config.getGameTickRate();
-        System.out.println("DEBUG: Starting game loop with tick rate: " + tickRate + " ticks per second");
-        gameLoop.scheduleAtFixedRate(this::gameLoop, 0, 1000 / tickRate, TimeUnit.MILLISECONDS);
-        System.out.println("DEBUG: Game loop scheduled successfully");
-
         // Send farm selection phase start message
         Message farmSelectionStart = new Message();
         farmSelectionStart.setType(Message.Type.START_GAME);
@@ -226,16 +227,23 @@ public class GameSession {
     private void gameLoop() {
         try {
             gameTickCounter++;
+            
+            // Always log the first few ticks to confirm the game loop is running
+            if (gameTickCounter <= 5) {
+                System.out.println("DEBUG: Game loop started - tick " + gameTickCounter + " - isActive: " + isActive);
+            }
 
             // Debug: Log game loop execution
             if (gameTickCounter % 10 == 0) { // Log every 10 ticks to avoid spam
                 System.out.println("DEBUG: Game loop tick " + gameTickCounter +
                     " - isActive: " + isActive +
                     " - Date: " + (App.getGame().getCurrentDate() != null ? App.getGame().getCurrentDate().getCurrentTimeString() : "null") +
-                    " - GameMap: " + (App.getGame().getGameMap() != null ? "initialized" : "null"));
+                    " - GameMap: " + (App.getGame().getGameMap() != null ? "initialized" : "null") +
+                    " - Time advancement rate: " + config.getTimeAdvancementRate() + " minutes per tick");
             }
 
             // Advance time on server (this is the single source of truth for time)
+            // Time advancement should happen regardless of isActive status
             if (App.getGame().getCurrentDate() != null) {
                 int timeAdvancementRate = config.getTimeAdvancementRate();
                 // Advance time by configured minutes per game tick
@@ -245,7 +253,8 @@ public class GameSession {
 
                 if (gameTickCounter % 10 == 0) { // Log every 10 ticks
                     System.out.println("DEBUG: Server advanced time by " + timeAdvancementRate + " minutes - " +
-                        App.getGame().getCurrentDate().getCurrentTimeString());
+                        App.getGame().getCurrentDate().getCurrentTimeString() + 
+                        " (Weather: " + App.getGame().getCurrentDate().getWeatherToday() + ")");
                 }
             } else {
                 System.out.println("DEBUG: Server game loop - current date is null");

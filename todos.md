@@ -29,5 +29,5 @@
 - [x] Add decorative elements along the paths (lampposts, signs, etc.)
 - [ ] Add NPC movement patterns and AI behavior
 - [ ] Add NPC interaction animations and dialogue bubbles
-- [ ] Add thunder sound effects to accompany lightning
+- [x] Add thunder sound effects to accompany lightning
 - [x] Add more complex lightning patterns (forked lightning, multiple strikes) 

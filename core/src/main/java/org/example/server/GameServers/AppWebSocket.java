@@ -245,7 +245,6 @@ public class AppWebSocket {
         String sessionId = ctx.sessionId();
         System.out.println("WebSocket connection closed: " + sessionId);
 
-        // Don't immediately remove the connection - give it a chance to reconnect
         PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection != null) {
             String username = connection.getUsername();
@@ -253,7 +252,7 @@ public class AppWebSocket {
                 // Instead of immediately removing, mark as disconnected and give time for reconnection
                 System.out.println("Player " + username + " WebSocket closed, but keeping connection alive for potential reconnection");
                 connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
-                
+
                 // Schedule removal after a delay to allow for reconnection
                 new Thread(() -> {
                     try {
@@ -287,7 +286,7 @@ public class AppWebSocket {
             if (username != null) {
                 System.out.println("Player " + username + " WebSocket error, but keeping connection alive");
                 connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
-                
+
                 // Schedule removal after a delay
                 new Thread(() -> {
                     try {

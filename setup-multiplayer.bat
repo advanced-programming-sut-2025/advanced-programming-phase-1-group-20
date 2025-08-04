@@ -11,7 +11,7 @@ echo SERVER_HOST=0.0.0.0
 echo SERVER_PORT=8080
 echo WEBSOCKET_PATH=/ws/game
 echo.
-echo # Database Configuration  
+echo # Database Configuration
 echo MONGODB_URI=mongodb://localhost:27017
 echo DATABASE_NAME=stardew_valley_db
 echo.
@@ -21,7 +21,7 @@ echo.
 echo # Game Configuration
 echo MAX_PLAYERS_PER_GAME=4
 echo GAME_TICK_RATE=20
-echo HEARTBEAT_INTERVAL=30
+echo HEARTBEAT_INTERVAL=5
 echo.
 echo # Development Configuration
 echo DEBUG_MODE=false
@@ -45,7 +45,7 @@ echo.
 
 echo 🚀 Next Steps:
 echo 1. Start the server: gradlew.bat lwjgl3:run
-echo 2. Build client JAR: gradlew.bat lwjgl3:jar  
+echo 2. Build client JAR: gradlew.bat lwjgl3:jar
 echo 3. Copy JAR file to other devices
 echo 4. Configure firewall to allow port 8080
 echo.
@@ -65,4 +65,4 @@ echo.
 echo 📖 For detailed instructions, see: NetworkSetupInstructions.md
 echo ✨ Setup complete! Happy gaming!
 
-pause 
+pause

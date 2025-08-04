@@ -58,7 +58,7 @@ public class ServerConfig {
     }
 
     public int getHeartbeatInterval() {
-        return Integer.parseInt(dotenv.get("HEARTBEAT_INTERVAL", "30"));
+        return Integer.parseInt(dotenv.get("HEARTBEAT_INTERVAL", "5"));
     }
 
     // New configuration for movement update throttling

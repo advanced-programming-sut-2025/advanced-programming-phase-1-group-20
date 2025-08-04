@@ -461,7 +461,6 @@ public class MapScreen implements Screen, InputProcessor {
         // Get the current frame for the NPC
         com.badlogic.gdx.graphics.g2d.TextureRegion currentFrame = npcSpriteController.getCurrentFrame(npc, 0.016f);
         if (currentFrame == null) {
-            System.out.println("🗺️ MAP: Failed to get frame for NPC " + npc.getName());
             return;
         }
 
@@ -621,7 +620,7 @@ public class MapScreen implements Screen, InputProcessor {
             // Get player's farm
             Farm playerFarm = player.getCurrentFarm();
             if (playerFarm == null) {
-                System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() + " has no farm, skipping");
+//                System.out.println("MAP: Player " + player.getUser().getUsername() + " has no farm, skipping");
                 continue;
             }
 
@@ -636,17 +635,17 @@ public class MapScreen implements Screen, InputProcessor {
                 // The village is positioned at (VILLAGE_X * TILE_SIZE, 0) in pixel coordinates
                 worldX = playerX;
                 worldY = playerY;
-                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() + " in village at (" + worldX + ", " + worldY + ")");
+//                System.out.println("MAP: Rendering player " + player.getUser().getUsername() + " in village at (" + worldX + ", " + worldY + ")");
             } else {
                 // Convert pixel coordinates to tile coordinates for map rendering
                 int tileX = (int) (playerX / TILE_SIZE);
                 int tileY = (int) (playerY / TILE_SIZE);
                 worldX = tileX * TILE_SIZE + getFarmStartX(farmIndex) * TILE_SIZE;
                 worldY = tileY * TILE_SIZE + getFarmStartY(farmIndex) * TILE_SIZE;
-                System.out.println("🗺️ MAP: Rendering player " + player.getUser().getUsername() +
-                    " on farm " + farmIndex + " - Pixel pos: (" + playerX + ", " + playerY + ")" +
-                    " - Tile pos: (" + tileX + ", " + tileY + ")" +
-                    " - World pos: (" + worldX + ", " + worldY + ")");
+//                System.out.println("MAP: Rendering player " + player.getUser().getUsername() +
+//                    " on farm " + farmIndex + " - Pixel pos: (" + playerX + ", " + playerY + ")" +
+//                    " - Tile pos: (" + tileX + ", " + tileY + ")" +
+//                    " - World pos: (" + worldX + ", " + worldY + ")");
             }
 
             renderPlayerSprite(player, worldX, worldY);
@@ -866,7 +865,7 @@ public class MapScreen implements Screen, InputProcessor {
 
     // used for real-time map!
     public void serverUpdate() {
-        System.out.println("🗺️ MAP: serverUpdate called");
+//        System.out.println("MAP: serverUpdate called");
 
         // Update the tiles array to ensure it's current
         GameMap gameMap = App.getGame().getGameMap();
@@ -877,13 +876,13 @@ public class MapScreen implements Screen, InputProcessor {
         // Ensure player positions are properly synchronized for map display
         Game currentGame = App.getGame();
         if (currentGame != null) {
-            System.out.println("🗺️ MAP: Found " + currentGame.getPlayers().size() + " players");
+//            System.out.println("MAP: Found " + currentGame.getPlayers().size() + " players");
             for (Player player : currentGame.getPlayers()) {
                 if (player != null) {
-                    System.out.println("🗺️ MAP: Player " + player.getUser().getUsername() +
-                        " - Pos: (" + player.getPosX() + ", " + player.getPosY() + ")" +
-                        " - Location: (" + player.getLocation().getX() + ", " + player.getLocation().getY() + ")" +
-                        " - Farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
+//                    System.out.println("MAP: Player " + player.getUser().getUsername() +
+//                        " - Pos: (" + player.getPosX() + ", " + player.getPosY() + ")" +
+//                        " - Location: (" + player.getLocation().getX() + ", " + player.getLocation().getY() + ")" +
+//                        " - Farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getName() : "null"));
                 }
             }
         }
