@@ -5,10 +5,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Payload;
@@ -17,26 +17,40 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.common.models.Player.Player;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Backpack;
+import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Refrigerator;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class RefrigeratorScreen implements Screen {
-    private Stage stage;
-    private Skin skin;
-    private Player player;
-    private Screen previousScreen;
-    private Refrigerator refrigerator;
-    private Backpack backpack;
+    private final Stage stage;
+    private final Skin skin;
+    private final Player player;
+    private final Screen previousScreen;
+    private final Refrigerator refrigerator;
+    private final Backpack backpack;
+    private final DragAndDrop dnd;
 
-    private Table refrigeratorTable;
-    private Table inventoryTable;
-    private DragAndDrop dnd;
+    private Table refrigeratorGrid;
+    private Table inventoryGrid;
+
+    // Constants for inventory layout
+    private static final int REFRIGERATOR_COLS = 9;
+    private static final int REFRIGERATOR_ROWS = 3;
+    private static final int INVENTORY_COLS = 9;
+    private static final int INVENTORY_ROWS = 1; // Like a hotbar
+    private static final float SLOT_SIZE = 64f;
+    private static final float SLOT_PAD = 8f;
+
+    /**
+     * A helper class to store information about the dragged item.
+     */
+    private static class ItemPayload {
+        Item item;
+        String sourceContainer; // "refrigerator" or "backpack"
+    }
 
     public RefrigeratorScreen(Player player, Skin skin, Screen previousScreen) {
         this.player = player;
@@ -47,96 +61,201 @@ public class RefrigeratorScreen implements Screen {
 
         stage = new Stage(new ScreenViewport());
         dnd = new DragAndDrop();
+        dnd.setDragActorPosition(SLOT_SIZE / 2, -SLOT_SIZE / 2); // Center the drag actor on the cursor
 
         setupUI();
     }
 
     private void setupUI() {
-        Table mainContainer = new Table();
-        mainContainer.setFillParent(true);
-        mainContainer.center();
+        // Main container table that holds everything
+        Table rootTable = new Table();
+        rootTable.setFillParent(true);
+        rootTable.pad(20);
 
-        // Background
+        // Add a general background for the whole screen
         try {
-            Texture backgroundTexture = new Texture(Gdx.files.internal("content/crafting_background.png"));
-            Image backgroundImage = new Image(backgroundTexture);
-            backgroundImage.setFillParent(true);
-            stage.addActor(backgroundImage);
+            Texture screenBgTexture = new Texture(Gdx.files.internal("content/crafting_background.png"));
+            Image screenBg = new Image(screenBgTexture);
+            screenBg.setFillParent(true);
+            stage.addActor(screenBg);
         } catch (Exception e) {
-            System.err.println("Failed to load background image: " + e.getMessage());
+            System.err.println("Failed to load screen background: " + e.getMessage());
         }
 
-        // Refrigerator section
-        refrigeratorTable = new Table();
+        // --- Refrigerator Section ---
         Label refrigeratorLabel = new Label("Refrigerator", skin);
-        mainContainer.add(refrigeratorLabel).padBottom(10).row();
-        mainContainer.add(refrigeratorTable).padBottom(20).row();
+        Stack refrigeratorStack = createInventorySection(REFRIGERATOR_ROWS, REFRIGERATOR_COLS, "refrigerator");
+        refrigeratorGrid = (Table) refrigeratorStack.getChild(1); // Get the grid table from the stack
 
-        // Inventory section
-        inventoryTable = new Table();
+        // --- Inventory Section ---
         Label inventoryLabel = new Label("Inventory", skin);
-        mainContainer.add(inventoryLabel).padBottom(10).row();
-        mainContainer.add(inventoryTable).row();
+        Stack inventoryStack = createInventorySection(INVENTORY_ROWS, INVENTORY_COLS, "backpack");
+        inventoryGrid = (Table) inventoryStack.getChild(1); // Get the grid table from the stack
 
-        stage.addActor(mainContainer);
+        // Layout the sections vertically
+        rootTable.add(refrigeratorLabel).padBottom(10).row();
+        rootTable.add(refrigeratorStack).padBottom(20).row();
+        rootTable.add(inventoryLabel).padBottom(10).row();
+        rootTable.add(inventoryStack);
 
-        populateGrids();
+        stage.addActor(rootTable);
+
+        // Initial population of items
+        populateAllGrids();
     }
 
-    private void populateGrids() {
-        populateGrid(refrigeratorTable, refrigerator.getItems(), "refrigerator");
-        populateGrid(inventoryTable, backpack.getInventory(), "inventory");
+    /**
+     * Creates a visual section (background + grid) for an inventory.
+     */
+    private Stack createInventorySection(int rows, int cols, String containerName) {
+        Stack stack = new Stack();
+        try {
+            // Background image for the grid
+            Texture inventoryBgTexture = new Texture(Gdx.files.internal("inventory.png"));
+            Image inventoryBg = new Image(inventoryBgTexture);
+            stack.add(inventoryBg);
+        } catch (Exception e) {
+            System.err.println("Could not load inventory background 'inventory.jpg': " + e.getMessage());
+        }
+
+        // The grid for items
+        Table grid = new Table();
+        grid.pad(20); // Add some padding to align with the background image
+        stack.add(grid);
+
+        return stack;
     }
 
-    private void populateGrid(Table table, Map<Item, Integer> items, String type) {
-        table.clear();
-        int i = 0;
+    /**
+     * Refreshes both the refrigerator and backpack grids.
+     */
+    private void populateAllGrids() {
+        dnd.clear(); // Clear all previous drag/drop sources and targets
+        populateGrid(refrigeratorGrid, refrigerator.getItems(), "refrigerator", REFRIGERATOR_ROWS * REFRIGERATOR_COLS);
+        populateGrid(inventoryGrid, backpack.getInventory(), "backpack", INVENTORY_ROWS * INVENTORY_COLS);
+    }
+
+    /**
+     * Populates a specific grid with items and empty slots.
+     */
+    private void populateGrid(Table grid, Map<Item, Integer> items, String containerName, int totalSlots) {
+        grid.clear();
+        int colCount = (containerName.equals("refrigerator")) ? REFRIGERATOR_COLS : INVENTORY_COLS;
+        int currentSlot = 0;
+
+        // Add slots with items
         for (Map.Entry<Item, Integer> entry : items.entrySet()) {
             Item item = entry.getKey();
             int quantity = entry.getValue();
-
-            Image itemImage = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
-            Label quantityLabel = new Label(String.valueOf(quantity), skin);
-            quantityLabel.setColor(Color.WHITE);
-
-            Stack itemStack = new Stack();
-            itemStack.add(itemImage);
-            itemStack.add(quantityLabel);
-
-            Container<Stack> container = new Container<>(itemStack);
-            container.setTouchable(com.badlogic.gdx.scenes.scene2d.Touchable.enabled);
-            container.setUserObject(item); // Store the item itself in the container
-
-            dnd.addSource(new Source(container) {
-                public Payload dragStart(InputEvent event, float x, float y, int pointer) {
-                    Payload payload = new Payload();
-                    payload.setObject(item);
-
-                    Image dragImage = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
-                    payload.setDragActor(dragImage);
-
-                    return payload;
-                }
-            });
-
-            dnd.addTarget(new Target(container) {
-                public boolean drag(Source source, Payload payload, float x, float y, int pointer) {
-                    return true; // Can drop here
-                }
-
-                public void drop(Source source, Payload payload, float x, float y, int pointer) {
-                    Item droppedItem = (Item) payload.getObject();
-                    Item targetItem = (Item) getActor().getUserObject();
-
-                    // Logic to swap or stack items can be added here
-                }
-            });
-
-            table.add(container).size(64, 64).pad(5);
-            if (++i % 9 == 0) {
-                table.row();
+            Container<Stack> itemSlot = createItemSlot(item, quantity, containerName);
+            grid.add(itemSlot).size(SLOT_SIZE, SLOT_SIZE).pad(SLOT_PAD);
+            if (++currentSlot % colCount == 0) {
+                grid.row();
             }
         }
+
+        // Add empty slots to fill the rest of the grid
+        while (currentSlot < totalSlots) {
+            Container<Actor> emptySlot = createEmptySlot(containerName);
+            grid.add(emptySlot).size(SLOT_SIZE, SLOT_SIZE).pad(SLOT_PAD);
+            if (++currentSlot % colCount == 0) {
+                grid.row();
+            }
+        }
+    }
+
+    /**
+     * Creates a visual slot for an item and sets it up as a drag source.
+     */
+    private Container<Stack> createItemSlot(Item item, int quantity, String sourceContainer) {
+        // Visual representation: Image + Quantity Label
+        Image itemImage = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
+        Label quantityLabel = new Label(String.valueOf(quantity), skin);
+        quantityLabel.setColor(Color.WHITE);
+
+        Stack itemStack = new Stack();
+        itemStack.add(itemImage);
+        itemStack.add(quantityLabel);
+
+        Container<Stack> container = new Container<>(itemStack);
+        container.setTouchable(Touchable.enabled);
+
+        // --- Drag and Drop Source ---
+        dnd.addSource(new Source(container) {
+            @Override
+            public Payload dragStart(InputEvent event, float x, float y, int pointer) {
+                Payload payload = new Payload();
+                ItemPayload itemPayload = new ItemPayload();
+                itemPayload.item = item;
+                itemPayload.sourceContainer = sourceContainer;
+                payload.setObject(itemPayload);
+
+                // Actor that follows the cursor
+                Image dragActor = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
+                dragActor.setSize(SLOT_SIZE, SLOT_SIZE);
+                payload.setDragActor(dragActor);
+
+                // Make the original item semi-transparent
+                container.getActor().setColor(1, 1, 1, 0.4f);
+                return payload;
+            }
+
+            @Override
+            public void dragStop(InputEvent event, float x, float y, int pointer, Payload payload, Target target) {
+                // If the item is not dropped on a valid target, it will return.
+                // Reset its appearance regardless.
+                container.getActor().setColor(Color.WHITE);
+            }
+        });
+
+        // This slot is also a target to allow swapping (optional, more complex)
+        // For now, we only handle dropping on empty slots.
+        return container;
+    }
+
+    /**
+     * Creates an empty, invisible slot that acts as a drop target.
+     */
+    private Container<Actor> createEmptySlot(String targetContainer) {
+        Container<Actor> emptyContainer = new Container<>();
+        emptyContainer.setTouchable(Touchable.enabled);
+
+        // --- Drag and Drop Target ---
+        dnd.addTarget(new Target(emptyContainer) {
+            @Override
+            public boolean drag(Source source, Payload payload, float x, float y, int pointer) {
+                // Highlight the slot to show it's a valid drop location
+                getActor().setColor(Color.YELLOW);
+                return true;
+            }
+
+            @Override
+            public void reset(Source source, Payload payload) {
+                // Remove highlight when the dragged item moves away
+                getActor().setColor(Color.WHITE);
+            }
+
+            @Override
+            public void drop(Source source, Payload payload, float x, float y, int pointer) {
+                ItemPayload itemPayload = (ItemPayload) payload.getObject();
+                Item draggedItem = itemPayload.item;
+                String sourceName = itemPayload.sourceContainer;
+
+                // Determine source and target maps
+                Map<Item, Integer> sourceMap = sourceName.equals("refrigerator") ? refrigerator.getItems() : backpack.getInventory();
+                Map<Item, Integer> targetMap = targetContainer.equals("refrigerator") ? refrigerator.getItems() : backpack.getInventory();
+
+                // Move the item
+                int quantity = sourceMap.get(draggedItem);
+                sourceMap.remove(draggedItem);
+                targetMap.put(draggedItem, quantity);
+
+                // Refresh the entire UI to reflect the change
+                populateAllGrids();
+            }
+        });
+
+        return emptyContainer;
     }
 
     @Override
@@ -150,6 +269,7 @@ public class RefrigeratorScreen implements Screen {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();
 
+        // Press ESC to go back to the previous screen
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Main.getGame().setScreen(previousScreen);
         }
@@ -172,5 +292,6 @@ public class RefrigeratorScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        // Note: Textures loaded directly should be disposed if not managed by an AssetManager
     }
 }
