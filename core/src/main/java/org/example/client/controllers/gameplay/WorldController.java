@@ -1827,7 +1827,7 @@ public class WorldController {
             }
         }
 
-//        if (controller.getView().getBuildingPlacementListener() != null) {
+//        if (controller.getView() != null && controller.getView().getBuildingPlacementListener() != null) {
 //            controller.getView().getBuildingPlacementListener().run();
 //        }
 
