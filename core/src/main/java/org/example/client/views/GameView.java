@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -23,16 +22,15 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.InputMultiplexer;
 import org.example.client.Main;
-import org.example.client.controllers.AnimalSpriteController;
 import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
+import org.example.client.controllers.gameplay.WorldController;
 import org.example.client.views.gameplay.CookingScreen;
 import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.client.views.gameplay.MapScreen;
 import org.example.common.models.App;
-import org.example.common.models.Items.Item;
 import org.example.common.models.Items.Tool;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -65,19 +63,8 @@ import java.lang.reflect.Method;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
-import org.example.common.models.Items.Tree;
-import org.example.common.models.Items.Crop;
-import org.example.common.models.Items.Plant;
-import org.example.common.models.Items.Mineral;
-import org.example.common.models.Items.ShippingBin;
-import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Barn;
 import org.example.common.models.Coop;
-import org.example.common.models.MapDetails.GreenHouse;
-import org.example.common.models.MapDetails.Quarry;
-import org.example.common.models.MapDetails.Lake;
-import org.example.common.models.Market;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +156,8 @@ public class GameView implements Screen, InputProcessor {
 
     // Fish catch display - will be implemented later
     // private FishCatchDisplay fishCatchDisplay;
+
+    private Runnable buildingPlacementListener;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -1052,7 +1041,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
-        
+
         // Dispose the texture to prevent memory leaks
         playerTexture.dispose();
 
@@ -1739,5 +1728,13 @@ public class GameView implements Screen, InputProcessor {
             }
         }, 3.0f);
     }
+
+    public void setBuildingPlacementListener(Runnable listener) {
+        this.buildingPlacementListener = listener;
+    }
+
+//    public WorldController getWorldController() {
+//        return this.worldController;
+//    }
 
 }

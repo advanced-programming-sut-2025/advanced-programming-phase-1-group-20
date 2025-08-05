@@ -2229,9 +2229,9 @@ public class GameMenuController implements Controller {
         return playerController;
     }
 
-    public WorldController getWorldController() {
-        return worldController;
-    }
+//    public WorldController getWorldController() {
+//        return worldController;
+//    }
 
     public void updatePlayer() {
         System.out.println("DEBUG: GameMenuController.updatePlayer called");
@@ -2381,4 +2381,8 @@ public class GameMenuController implements Controller {
 
         return Result.success(info.toString());
     }
+
+//    public WorldController getWorldController() {
+//        return playerController.getWorldController();
+//    }
 }
