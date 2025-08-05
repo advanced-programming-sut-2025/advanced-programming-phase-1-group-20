@@ -120,6 +120,7 @@ public class WorldController {
         preloadTextures();
         placementTexture = new Texture(Gdx.files.internal("content/placement_valid.png"));
         invalidPlacementTexture = new Texture(Gdx.files.internal("content/placement_invalid.png"));
+
     }
 
     private void preloadTextures() {
