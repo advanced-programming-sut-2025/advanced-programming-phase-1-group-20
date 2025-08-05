@@ -19,6 +19,7 @@ import org.example.common.models.MapDetails.Village;
 import org.example.common.models.MapDetails.Building;
 import org.example.common.models.App;
 import org.example.common.models.Market;
+import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
 import org.example.common.models.MapDetails.GameMap;
@@ -219,6 +220,11 @@ public class WorldController {
                 String key = treeType.getImageFilePath() + "_" + i;
                 String treePath = "content/Trees/" + treeType.getImageFilePath() + "_" + "Stage_" + i + ".png";
                 loadTexture(key , treePath);
+            }
+            if(treeType.getSeasons().length == 4){
+                String keySeasons = treeType.getImageFilePath() + "_" + 5;
+                String treePath = "content/Trees/" + treeType.getImageFilePath() + "_" + "Stage_" + 5 + ".png";
+                loadTexture(keySeasons , treePath);
             }
         }
     }
@@ -1233,16 +1239,57 @@ public class WorldController {
         }
     }
 
-    private void renderTreeItem(float worldX, float worldY, String season , Tree tree) {
-        int stage = tree.getStage() + 1;
-        String key = tree.getImageFilepath() + "_" + stage;
-        Texture treeTexture = getTexture(key);
-        if (treeTexture != null) {
-            float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
-            float offsetX = (TILE_SIZE - treeSize) / 2; // Center the larger tree
-            float offsetY = (TILE_SIZE - treeSize) / 2;
 
-            Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+    private void renderTreeItem(float worldX, float worldY, String season, Tree tree) {
+        int stage = tree.getStage() + 1; // Stage number for file name (1-5)
+
+        if (tree.getSeasons().length == 4 && stage == 5) {
+            String key = tree.getImageFilepath() + "_" + stage; // e.g., "Mahogany_5"
+            Texture fullTexture = getTexture(key);
+
+            if (fullTexture != null) {
+
+                final int FRAME_WIDTH = 105;
+                final int FRAME_HEIGHT = 182;
+
+                Seasons currentSeason = App.getGame().getDate().getSeason();
+                int frameX = 0;
+
+                switch (currentSeason) {
+                    case SUMMER:
+                        frameX = FRAME_WIDTH;
+                        break;
+                    case AUTUMN:
+                        frameX = FRAME_WIDTH * 2;
+                        break;
+                    case WINTER:
+                        frameX = FRAME_WIDTH * 3;
+                        break;
+                    case SPRING:
+                    default:
+                        frameX = 0;
+                        break;
+                }
+
+
+                TextureRegion seasonalFrame = new TextureRegion(fullTexture, frameX, 0, FRAME_WIDTH, FRAME_HEIGHT);
+
+
+                float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
+                float offsetX = (TILE_SIZE - treeSize) / 2;
+                float offsetY = (TILE_SIZE - treeSize) / 2;
+                Main.getBatch().draw(seasonalFrame, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+            }
+        } else {
+            // Default rendering for all other trees and stages
+            String key = tree.getImageFilepath() + "_" + stage;
+            Texture treeTexture = getTexture(key);
+            if (treeTexture != null) {
+                float treeSize = TILE_SIZE * TREE_SIZE_MULTIPLIER;
+                float offsetX = (TILE_SIZE - treeSize) / 2;
+                float offsetY = (TILE_SIZE - treeSize) / 2;
+                Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
+            }
         }
     }
 
@@ -1414,7 +1461,7 @@ public class WorldController {
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
-        
+
         // Dispose the texture to prevent memory leaks
         playerTexture.dispose();
     }
