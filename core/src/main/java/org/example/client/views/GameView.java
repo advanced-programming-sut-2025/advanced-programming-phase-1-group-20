@@ -1733,8 +1733,4 @@ public class GameView implements Screen, InputProcessor {
         this.buildingPlacementListener = listener;
     }
 
-    public WorldController getWorldController() {
-        return this.worldController;
-    }
-
 }
