@@ -1,5 +1,6 @@
 package org.example.client.controllers;
 
+import org.example.client.network.NetworkClient;
 import org.example.common.models.*;
 import org.example.common.models.Items.Item;
 import org.example.common.models.MapDetails.Farm;
@@ -39,51 +40,40 @@ public class MarketController implements Controller {
     public Result purchase(String[] args) {
         String productName = args[0];
         double count = Double.parseDouble(args[1]);
+
+        // Preliminary client-side checks for immediate user feedback
         Item item = market.getItem(productName);
-        Product product = market.getProduct(productName);
-
         if (item == null) {
-            return Result.error("There is no such item as" + productName);
+            return Result.error("This item is not sold here.");
         }
-        Animal animal = getAnimalByName(item.getName());
-        Farm farm = App.getGame().getGameMap().getFarmByPlayer(player);
-
-        if (!market.containsItem(item, count)) {
-            return Result.error("Item not in stock");
+        if (player.getMoney() < item.getPrice() * count) {
+            return Result.error("You don't have enough money.");
         }
-
-        if (!market.checkItem(player, item, count)) {
-            return Result.error("You don't have enough resources for this product");
+        Product product = market.getProduct(productName);
+        if (product.getAmount() != Double.POSITIVE_INFINITY && product.getAmount() < count) {
+            return Result.error("Not enough items in stock.");
         }
 
-        if (market.getName().equals("Marnie Shop")) {
-            if (!(item.getName().equals("Shears") || item.getName().equals("Milk Pail"))) {
-                if (animal instanceof BarnAnimal) {
-                    Barn barn = farm.getBarnByAnimal((BarnAnimal) animal);
-                    if (barn == null) {
-                        return Result.error("there is no farm for add animal");
-                    }
-                    barn.addAnimal((BarnAnimal) animal);
-                }
-                else if (animal instanceof CoopAnimal) {
-                    Coop coop = farm.getCoopByAnimal((CoopAnimal) animal);
-                    if (coop == null) {
-                        return Result.error("there is no coop for add animal");
-                    }
-                    coop.addAnimal((CoopAnimal) animal);
-                }
+        // If in multiplayer, send the purchase request to the server
+        if (App.getGame().isMultiplayer) {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            Message purchaseMessage = new Message();
+            purchaseMessage.setType(Message.Type.MARKET_BUY);
+            purchaseMessage.putInBody("marketName", market.getName());
+            purchaseMessage.putInBody("itemName", productName);
+            purchaseMessage.putInBody("quantity", count);
+            networkClient.sendMessage(purchaseMessage);
+
+            return Result.success("Purchase request sent to the server...");
+        } else {
+            // --- SINGLE-PLAYER LOGIC (existing logic) ---
+            if (!market.checkItem(player, item, count)) {
+                return Result.error("You don't have enough resources for this product.");
             }
+            market.checkOut(player, item, count);
+            player.getBackpack().add(item, (int) count);
+            return Result.success("Item purchased successfully.");
         }
-
-        if(!product.checkIngredient(player.getBackpack())){
-            return Result.error("You don't have enough resources for this product");
-        }
-
-        market.checkOut(player, item, count);
-        player.getBackpack().add(item, (int) count);
-
-
-        return Result.success("Item purchased successfully");
     }
 
     private Animal getAnimalByName(String name) {
