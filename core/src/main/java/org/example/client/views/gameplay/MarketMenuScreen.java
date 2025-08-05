@@ -355,7 +355,6 @@ public class MarketMenuScreen implements Screen, Disposable {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 buildDialog.hide();
-                // حذف لیسنر در صورت لغو
                 if (previousScreen instanceof GameView) {
                     ((GameView) previousScreen).setBuildingPlacementListener(null);
                 }
