@@ -19,7 +19,7 @@ public class SignUpMenuScreen implements Screen {
     private final SignUpMenuController controller;
     private final Stage stage;
     private Image background;
-    private TextField usernameField, passwordField, confirmPasswordField, emailField;
+    private TextField usernameField, passwordField, confirmPasswordField, emailField, nicknameField;;
     private TextField securityAnswerField;
     private SelectBox<String> genderSelect, securityQuestionSelect;
     private Label errorLabel;
@@ -56,6 +56,10 @@ public class SignUpMenuScreen implements Screen {
         emailField = createTextField("Email");
         mainTable.add(new Label("Email:", skin, "default")).padRight(20).right();
         mainTable.add(emailField).width(400).height(50).padBottom(15).row();
+
+        nicknameField = createTextField("Nickname");
+        mainTable.add(new Label("Nickname:", skin, "default")).padRight(20).right();
+        mainTable.add(nicknameField).width(400).height(50).padBottom(15).row();
 
         Table passwordTable = new Table();
         passwordField = createPasswordField("Password");
@@ -128,6 +132,7 @@ public class SignUpMenuScreen implements Screen {
                 controller.handleRegister(
                     usernameField.getText(),
                     emailField.getText(),
+                    nicknameField.getText(),
                     passwordField.getText(),
                     confirmPasswordField.getText(),
                     genderSelect.getSelected(),

@@ -79,11 +79,11 @@ public class SignUpMenuController {
         return new String(chars);
     }
 
-    public void handleRegister(String username, String email, String password,
+    public void handleRegister(String username, String email, String nickname, String password,
                                String confirmPassword, String gender,
                                String securityQuestion, String securityAnswer) {
 
-        if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
+        if (username.isEmpty() || nickname.isEmpty() || email.isEmpty() || password.isEmpty() ||
             confirmPassword.isEmpty() || securityAnswer.isEmpty()) {
             screen.showError("All fields are required!");
             return;
@@ -125,7 +125,7 @@ public class SignUpMenuController {
         }
 
         Gender genderEnum = Gender.valueOf(gender);
-        User newUser = new User(username, password, email, "", genderEnum);
+        User newUser = new User(username, password, email, nickname, genderEnum);
         newUser.setSecurityQuestionIndex(getQuestionIndex(securityQuestion));
         newUser.setSecurityAnswer(securityAnswer);
 
