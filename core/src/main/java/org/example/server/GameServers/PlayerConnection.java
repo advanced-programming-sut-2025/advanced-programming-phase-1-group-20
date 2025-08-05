@@ -20,14 +20,14 @@ public class PlayerConnection {
     private final Gson gson;
     private long lastHeartbeat;
     private ConnectionState state;
-    
+
     public enum ConnectionState {
         CONNECTING,
         AUTHENTICATED,
         IN_GAME,
         DISCONNECTED
     }
-    
+
     public PlayerConnection(WsContext wsContext) {
         this.wsContext = wsContext;
         this.outgoingMessages = new ConcurrentLinkedQueue<>();
@@ -35,65 +35,65 @@ public class PlayerConnection {
         this.lastHeartbeat = System.currentTimeMillis();
         this.state = ConnectionState.CONNECTING;
     }
-    
+
     // Getters and Setters
     public String getUsername() {
         return username;
     }
-    
+
     public void setUsername(String username) {
         this.username = username;
     }
-    
+
     public WsContext getWsContext() {
         return wsContext;
     }
-    
+
     public void setWsContext(WsContext wsContext) {
         this.wsContext = wsContext;
     }
-    
+
     public User getUser() {
         return user;
     }
-    
+
     public void setUser(User user) {
         this.user = user;
         this.username = user.getUsername();
     }
-    
+
     public Player getPlayer() {
         return player;
     }
-    
+
     public void setPlayer(Player player) {
         this.player = player;
     }
-    
+
     public Object getGameSession() {
         return gameSession;
     }
-    
+
     public void setGameSession(Object gameSession) {
         this.gameSession = gameSession;
         this.state = ConnectionState.IN_GAME;
     }
-    
+
     public ConnectionState getState() {
         return state;
     }
-    
+
     public void setState(ConnectionState state) {
         this.state = state;
     }
-    
+
     // Message handling methods
     public void sendMessage(String messageJson) {
         if (wsContext == null || !wsContext.session.isOpen()) {
             System.err.println("DEBUG: Cannot send message - WebSocket context is null or closed");
             return;
         }
-        
+
         try {
             System.out.println("DEBUG: Sending WebSocket message to " + username + ": " + messageJson);
             wsContext.send(messageJson);
@@ -105,7 +105,7 @@ public class PlayerConnection {
             outgoingMessages.offer(messageJson);
         }
     }
-    
+
     public void sendMessage(Message message) {
         try {
             String messageJson = gson.toJson(message);
@@ -116,11 +116,11 @@ public class PlayerConnection {
             e.printStackTrace();
         }
     }
-    
+
     public void processIncomingMessage(String messageJson) {
         try {
             Message message = gson.fromJson(messageJson, Message.class);
-            
+
             switch (message.getType()) {
                 case AUTH_LOGIN:
                     handleAuthentication(message);
@@ -149,50 +149,49 @@ public class PlayerConnection {
             sendErrorMessage("Invalid message format");
         }
     }
-    
+
     private void handleAuthentication(Message message) {
         String token = message.getFromBody("token");
         String requestedUsername = message.getFromBody("username");
-        
+
         // TODO: Validate JWT token and get user
-        // For now, simple validation
         if (token != null && requestedUsername != null) {
             // This would normally validate the JWT token
             // For now, we'll create a basic user object
             this.user = new User(requestedUsername, "", "", "", null);
             this.username = requestedUsername;
             this.state = ConnectionState.AUTHENTICATED;
-            
+
             // Send success response
             Message response = new Message();
             response.setType(Message.Type.SUCCESS);
             response.putInBody("message", "Authentication successful");
             response.putInBody("username", username);
             sendMessage(response);
-            
+
             System.out.println("Player " + username + " authenticated successfully");
         } else {
             sendErrorMessage("Authentication failed: Invalid token or username");
         }
     }
-    
+
     private void handlePing(Message message) {
         Message pong = new Message();
         pong.setType(Message.Type.PONG);
         pong.putInBody("timestamp", System.currentTimeMillis());
         sendMessage(pong);
     }
-    
+
     private void updateHeartbeat() {
         this.lastHeartbeat = System.currentTimeMillis();
     }
-    
+
     public boolean isAlive() {
         long currentTime = System.currentTimeMillis();
         long heartbeatTimeout = 60000; // 60 seconds timeout
         return (currentTime - lastHeartbeat) < heartbeatTimeout;
     }
-    
+
     public void sendErrorMessage(String errorMessage) {
         Message error = new Message();
         error.setType(Message.Type.ERROR);
@@ -200,14 +199,14 @@ public class PlayerConnection {
         error.putInBody("timestamp", System.currentTimeMillis());
         sendMessage(error);
     }
-    
+
     public void disconnect() {
         this.state = ConnectionState.DISCONNECTED;
-        
+
         // Don't immediately remove from game session - let the delayed removal handle it
         // This allows for reconnection without losing game state
         System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
-        
+
         // Close WebSocket connection
         if (wsContext != null && wsContext.session.isOpen()) {
             try {
@@ -217,7 +216,7 @@ public class PlayerConnection {
             }
         }
     }
-    
+
     // Process any queued outgoing messages
     public void processOutgoingQueue() {
         while (!outgoingMessages.isEmpty() && wsContext != null && wsContext.session.isOpen()) {

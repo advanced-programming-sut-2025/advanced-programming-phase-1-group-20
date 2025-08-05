@@ -176,8 +176,10 @@ public class PlayerController {
             frame = collapsedAnim.getKeyFrame(stateTime, false);
 
             // Check if we're on the final frame (collapse_2) and swap width/height
-            if (collapsedAnim.isAnimationFinished(stateTime)) {
-                // Swap width and height for the final collapsed frame
+            // Since we have 2 frames and 10 second duration, after 10 seconds we're on frame 1 (index 1)
+            float animationTime = stateTime % 10.0f; // Get time within the animation cycle
+            if (animationTime >= 5.0f) { // After 5 seconds (half of 10), we're on the second frame
+                // Swap width and height for the final collapsed frame - STATIC, NO ANIMATION
                 Main.getBatch().draw(
                     frame,
                     player.getPosX(),

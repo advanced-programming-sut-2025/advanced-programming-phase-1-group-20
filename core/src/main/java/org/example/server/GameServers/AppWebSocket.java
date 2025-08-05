@@ -12,7 +12,6 @@ import org.example.server.MessageHandler;
 import org.example.server.ServerConfig;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import org.example.common.models.entities.User;
 
@@ -69,6 +68,8 @@ public class AppWebSocket {
     private void handleConnect(WsContext ctx) {
         String sessionId = ctx.sessionId();
         System.out.println("New WebSocket connection: " + sessionId);
+
+        ctx.enableAutomaticPings(5, java.util.concurrent.TimeUnit.SECONDS);
 
         // Check if this is a reconnection for an existing player
         PlayerConnection existingConnection = null;
