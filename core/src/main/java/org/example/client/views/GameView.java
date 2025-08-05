@@ -25,6 +25,7 @@ import org.example.client.Main;
 import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
+import org.example.client.controllers.gameplay.WorldController;
 import org.example.client.views.gameplay.CookingScreen;
 import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
@@ -155,6 +156,8 @@ public class GameView implements Screen, InputProcessor {
 
     // Fish catch display - will be implemented later
     // private FishCatchDisplay fishCatchDisplay;
+
+    private Runnable buildingPlacementListener;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -1725,5 +1728,13 @@ public class GameView implements Screen, InputProcessor {
             }
         }, 3.0f);
     }
+
+    public void setBuildingPlacementListener(Runnable listener) {
+        this.buildingPlacementListener = listener;
+    }
+
+//    public WorldController getWorldController() {
+//        return this.worldController;
+//    }
 
 }
