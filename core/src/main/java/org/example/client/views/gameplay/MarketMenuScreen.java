@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
+import org.example.client.controllers.gameplay.WorldController;
+import org.example.client.views.GameView;
 import org.example.client.views.ToolUpgradeDialog;
 // import org.example.client.views.gameplay.BuildingPlacementScreen; // <--- حذف شد، دیگر لازم نیست
 import org.example.common.models.Items.Item;
@@ -321,17 +323,29 @@ public class MarketMenuScreen implements Screen, Disposable {
                 buildDialog.hide();
 
                 String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
-                controller.getView().getWorldController().startBuildingPlacement(buildingType);
 
-                controller.getView().setBuildingPlacementListener(new Runnable() {
+                WorldController worldController = ((GameView) previousScreen).getWorldController();
+
+                worldController.startBuildingPlacement(buildingType);
+
+                ((GameView) previousScreen).setBuildingPlacementListener(new Runnable() {
                     @Override
                     public void run() {
                         buildDialog.hide();
-                        updateMoneyLabel();
-                        displayItems(currentDisplayStock);
-                        showErrorDialog("Success", "Building placed successfully!");
 
-                        controller.getView().setBuildingPlacementListener(null);
+                        String[] args = new String[]{item.getName(), "1"};
+                        Result result = controller.purchase(args);
+
+                        if (result.success()) {
+                            updateMoneyLabel();
+                            displayItems(currentDisplayStock);
+                            showErrorDialog("Success", "Building placed successfully!");
+                        }
+                        else {
+                            showErrorDialog("Error", result.message());
+                        }
+
+                        ((GameView) previousScreen).setBuildingPlacementListener(null);
                     }
                 });
             }
@@ -341,6 +355,10 @@ public class MarketMenuScreen implements Screen, Disposable {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 buildDialog.hide();
+                // حذف لیسنر در صورت لغو
+                if (previousScreen instanceof GameView) {
+                    ((GameView) previousScreen).setBuildingPlacementListener(null);
+                }
             }
         });
 
