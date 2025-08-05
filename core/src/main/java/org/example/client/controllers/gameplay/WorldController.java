@@ -1822,6 +1822,10 @@ public class WorldController {
             }
         }
 
+        if (controller.getView().getBuildingPlacementListener() != null) {
+            controller.getView().getBuildingPlacementListener().run();
+        }
+
         isInPlacementMode = false;
         buildingToPlace = null;
         potentialPlacementTiles.clear();

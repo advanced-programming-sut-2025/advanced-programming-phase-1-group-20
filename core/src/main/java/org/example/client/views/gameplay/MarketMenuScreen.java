@@ -310,43 +310,30 @@ public class MarketMenuScreen implements Screen, Disposable {
         contentTable.pad(20f);
 
         contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
-        contentTable.add(new Label("Enter coordinates for placement:", skin)).colspan(2).padBottom(10).row();
+        contentTable.add(new Label("Click 'Select Location' to choose placement on map", skin)).colspan(2).padBottom(10).row();
 
-        contentTable.add(new Label("X:", skin)).padRight(5);
-        final TextField xField = new TextField("", skin);
-        xField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-        contentTable.add(xField).width(100).row();
-
-        contentTable.add(new Label("Y:", skin)).padRight(5);
-        final TextField yField = new TextField("", skin);
-        yField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-        contentTable.add(yField).width(100).row();
-
-        TextButton buildButton = new TextButton("Build", skin);
+        TextButton selectLocationButton = new TextButton("Select Location", skin);
         TextButton cancelButton = new TextButton("Cancel", skin);
 
-        buildButton.addListener(new ClickListener() {
+        selectLocationButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String xText = xField.getText();
-                String yText = yField.getText();
+                buildDialog.hide();
 
-                if (xText.trim().isEmpty() || yText.trim().isEmpty()) {
-                    showErrorDialog("Invalid Input", "Please enter both X and Y coordinates.");
-                    return; // Don't close the dialog
-                }
+                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
+                controller.getView().getWorldController().startBuildingPlacement(buildingType);
 
-                String[] args = new String[]{item.getName(), xText, yText};
-                Result result = controller.build(args);
+                controller.getView().setBuildingPlacementListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        buildDialog.hide();
+                        updateMoneyLabel();
+                        displayItems(currentDisplayStock);
+                        showErrorDialog("Success", "Building placed successfully!");
 
-                if (result.success()) {
-                    buildDialog.hide(); // Close dialog on success
-                    updateMoneyLabel();
-                    displayItems(currentDisplayStock); // Refresh display
-                    showErrorDialog("Success", result.message());
-                } else {
-                    showErrorDialog("Build Failed", result.message());
-                }
+                        controller.getView().setBuildingPlacementListener(null);
+                    }
+                });
             }
         });
 
@@ -357,7 +344,7 @@ public class MarketMenuScreen implements Screen, Disposable {
             }
         });
 
-        buildDialog.getButtonTable().add(buildButton).pad(10);
+        buildDialog.getButtonTable().add(selectLocationButton).pad(10);
         buildDialog.getButtonTable().add(cancelButton).pad(10);
 
         buildDialog.show(stage);
