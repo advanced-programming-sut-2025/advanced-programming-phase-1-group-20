@@ -44,6 +44,7 @@ public class PlayerController {
     private final Animation<TextureRegion> walkLeft;
     private final Animation<TextureRegion> walkRight;
     private final Animation<TextureRegion> walkUp;
+    private final Animation<TextureRegion> collapsedAnim;
 
     private Animation<TextureRegion> currentAnim;
     private float stateTime = 0f;
@@ -91,6 +92,9 @@ public class PlayerController {
         walkRight = buildAnim(grid[1]);
         walkUp = buildAnim(grid[2]);
 
+        // Load collapsed animation
+        collapsedAnim = buildCollapsedAnim();
+
         currentAnim = walkDown;
     }
 
@@ -112,6 +116,9 @@ public class PlayerController {
         walkRight = buildAnim(grid[1]);
         walkUp = buildAnim(grid[2]);
 
+        // Load collapsed animation
+        collapsedAnim = buildCollapsedAnim();
+
         currentAnim = walkDown;
 
         initializeNicknameFont();
@@ -123,6 +130,25 @@ public class PlayerController {
             frames.add(row[i]);
         }
         return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
+    }
+
+    private Animation<TextureRegion> buildCollapsedAnim() {
+        Array<TextureRegion> frames = new Array<>(2);
+        try {
+            Texture collapse1 = new Texture(Gdx.files.internal("sprites/player/collapse_1.png"));
+            Texture collapse2 = new Texture(Gdx.files.internal("sprites/player/collapse_2.png"));
+            frames.add(new TextureRegion(collapse1));
+            frames.add(new TextureRegion(collapse2));
+        } catch (Exception e) {
+            // Fallback to a single frame if sprites can't be loaded
+            System.out.println("Warning: Could not load collapsed animation sprites: " + e.getMessage());
+            // Create a simple fallback frame
+            Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/Alex.png"));
+            TextureRegion fallbackRegion = new TextureRegion(fallbackTexture, 0, 0, FRAME_W, FRAME_H);
+            frames.add(fallbackRegion);
+        }
+        // Use a 10 second duration and NORMAL mode so it stops on the last frame
+        return new Animation<>(10.0f, frames, Animation.PlayMode.NORMAL);
     }
 
     private void initializeNicknameFont() {
@@ -143,14 +169,42 @@ public class PlayerController {
 
         stateTime += delta;
 
-        TextureRegion frame = currentAnim.getKeyFrame(stateTime, true);
-        Main.getBatch().draw(
-            frame,
-            player.getPosX(),
-            player.getPosY(),
-            RENDER_W,
-            RENDER_H
-        );
+        // Use collapsed animation if player has collapsed
+        TextureRegion frame;
+        if (player.hasCollapsed()) {
+            // For collapsed animation, play once and stay on last frame
+            frame = collapsedAnim.getKeyFrame(stateTime, false);
+
+            // Check if we're on the final frame (collapse_2) and swap width/height
+            if (collapsedAnim.isAnimationFinished(stateTime)) {
+                // Swap width and height for the final collapsed frame
+                Main.getBatch().draw(
+                    frame,
+                    player.getPosX(),
+                    player.getPosY(),
+                    RENDER_H,  // Use height as width
+                    RENDER_W   // Use width as height
+                );
+            } else {
+                // Normal dimensions for the first frame
+                Main.getBatch().draw(
+                    frame,
+                    player.getPosX(),
+                    player.getPosY(),
+                    RENDER_W,
+                    RENDER_H
+                );
+            }
+        } else {
+            frame = currentAnim.getKeyFrame(stateTime, true);
+            Main.getBatch().draw(
+                frame,
+                player.getPosX(),
+                player.getPosY(),
+                RENDER_W,
+                RENDER_H
+            );
+        }
 
         // Draw tool if equipped
         if (player.getCurrentTool() != null) {
@@ -218,6 +272,11 @@ public class PlayerController {
             return;
         }
 
+        // Prevent movement if player has collapsed
+        if (player.hasCollapsed()) {
+            return;
+        }
+
         float newX = player.getPosX();
         float newY = player.getPosY();
         boolean moved = false;
@@ -279,6 +338,12 @@ public class PlayerController {
                 // Revert the movement if not enough energy
                 player.setPosX(player.getPosX());
                 player.setPosY(player.getPosY());
+
+                // Set collapsed state when player runs out of energy
+                if (player.getEnergy() < energyCost) {
+                    player.setCollapsed(true);
+                    System.out.println("Player has collapsed due to insufficient energy!");
+                }
 
                 // Check if player is out of energy and auto-advance turn if needed
                 if (App.getGame() != null) {

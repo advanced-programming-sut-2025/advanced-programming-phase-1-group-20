@@ -370,6 +370,11 @@ public class Player {
 
     public void increaseEnergy(int amount) {
         this.energy += amount;
+        // Reset collapsed state when energy is restored
+        if (hasCollapsed && energy > 0) {
+            hasCollapsed = false;
+            System.out.println("Player has recovered from collapse!");
+        }
     }
 
     public int getEnergy() {
@@ -438,6 +443,14 @@ public class Player {
 
     public boolean isEnergyUnlimited() {
         return energyUnlimited;
+    }
+
+    public boolean hasCollapsed() {
+        return hasCollapsed;
+    }
+
+    public void setCollapsed(boolean collapsed) {
+        this.hasCollapsed = collapsed;
     }
 
     public User getUser() {
@@ -633,6 +646,9 @@ public class Player {
 
         // Check if the player has enough energy
         if (!energyUnlimited && energy < energyConsumption) {
+            // Set collapsed state when player runs out of energy
+            setCollapsed(true);
+            System.out.println("Player has collapsed due to insufficient energy for tool usage!");
             // Check if player is out of energy and auto-advance turn if needed
             checkAndAdvanceTurnIfEnergyDepleted();
             return false;
@@ -640,6 +656,9 @@ public class Player {
 
         // Check if the player has used too much energy this turn
         if (!canUseEnergy(energyConsumption)) {
+            // Set collapsed state when player runs out of energy
+            setCollapsed(true);
+            System.out.println("Player has collapsed due to insufficient energy for tool usage!");
             // Check if player is out of energy and auto-advance turn if needed
             checkAndAdvanceTurnIfEnergyDepleted();
             return false;

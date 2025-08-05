@@ -95,15 +95,6 @@ public class Date implements Runnable {
         weatherRandom.setSeed(seed);
     }
 
-    private void updateWeatherSeedWithRandomness() {
-        // Add some randomness to the initial weather generation to avoid always starting with the same weather
-        // Use current time in milliseconds as additional randomness for the first day
-        long baseSeed = (year * 1000L) + (season * 100L) + day;
-        long randomComponent = System.currentTimeMillis() % 1000; // Use last 3 digits of current time
-        long seed = baseSeed + randomComponent;
-        weatherRandom.setSeed(seed);
-    }
-
     public void advanceTime(int hours, GameMap gameMap) {
         advanceMinutes(hours * 60, gameMap);
     }
@@ -292,21 +283,14 @@ public class Date implements Runnable {
             return;
         }
 
-        // Use randomness for initial weather generation (day 1) to avoid always starting with same weather
-        if (day == 1 && year == 1 && season == 0) {
-            updateWeatherSeedWithRandomness();
-        } else {
-            updateWeatherSeed();
-        }
+        updateWeatherSeed();
 
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
         int randomIndex = weatherRandom.nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
 
-        System.out.println("DEBUG: Generated weather for " + getCurrentTimeString() + ": " + this.weatherToday + 
-            " (Seed: " + (day == 1 && year == 1 && season == 0 ? "random" : (year * 1000L) + (season * 100L) + day) + 
-            ", Random index: " + randomIndex + ", Possible weather: " + possibleWeather + ")");
+        System.out.println("DEBUG: Generated weather for " + getCurrentTimeString() + ": " + this.weatherToday);
     }
 
     private void updateWeatherTomorrow() {
@@ -314,20 +298,13 @@ public class Date implements Runnable {
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
 
         // Use a different seed for tomorrow's weather (add 1 to the day)
-        // Add randomness for the initial day to avoid always starting with same weather
         long tomorrowSeed = (year * 1000L) + (season * 100L) + (day + 1);
-        if (day == 1 && year == 1 && season == 0) {
-            // Add randomness for the first day's tomorrow weather
-            long randomComponent = System.currentTimeMillis() % 1000;
-            tomorrowSeed += randomComponent;
-        }
         Random tomorrowRandom = new Random(tomorrowSeed);
 
         int randomIndex = tomorrowRandom.nextInt(possibleWeather.size());
         this.weatherTomorrow = possibleWeather.get(randomIndex);
 
-        System.out.println("DEBUG: Generated tomorrow's weather for " + getCurrentTimeString() + ": " + this.weatherTomorrow + 
-            " (Seed: " + tomorrowSeed + ", Random index: " + randomIndex + ", Possible weather: " + possibleWeather + ")");
+        System.out.println("DEBUG: Generated tomorrow's weather for " + getCurrentTimeString() + ": " + this.weatherTomorrow);
     }
 
     public void goTomorrow(GameMap gameMap) {

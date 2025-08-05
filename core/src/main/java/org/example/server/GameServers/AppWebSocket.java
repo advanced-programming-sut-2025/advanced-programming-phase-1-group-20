@@ -245,6 +245,7 @@ public class AppWebSocket {
         String sessionId = ctx.sessionId();
         System.out.println("WebSocket connection closed: " + sessionId);
 
+        // Don't immediately remove the connection - give it a chance to reconnect
         PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection != null) {
             String username = connection.getUsername();

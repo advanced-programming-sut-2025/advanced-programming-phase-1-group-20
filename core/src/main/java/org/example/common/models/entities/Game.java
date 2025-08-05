@@ -290,6 +290,8 @@ public class Game implements Serializable {
 
         if (currentPlayer != null) { // Null check
             currentPlayer.resetEnergyUsedInTurn();
+            // Reset collapsed state when turn advances
+            currentPlayer.setCollapsed(false);
             System.out.println("DEBUG: Reset energy used in turn for: " + currentPlayer.getUser().getUsername());
         }
 

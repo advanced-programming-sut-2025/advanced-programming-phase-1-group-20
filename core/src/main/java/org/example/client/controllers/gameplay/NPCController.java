@@ -77,7 +77,7 @@ public class NPCController {
 
         // Add character trait context
         context.append("The NPC is ").append(npc.getCharacter()).append(". ");
-
+        context.append("NPC is " + npc.getName()).append("from the stardew valley game.");
         return context.toString();
     }
 

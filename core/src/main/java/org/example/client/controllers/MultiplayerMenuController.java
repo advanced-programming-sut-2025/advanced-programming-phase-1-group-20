@@ -308,7 +308,7 @@ public class MultiplayerMenuController implements Controller, ClientMessageHandl
 
     private void handleFarmSelectionUpdate(Message message) {
         // This will be handled by the FarmSelectionScreen
-        System.out.println("DEBUG: Farm selection update received");
+        // TODO
     }
 
     private void handleFarmSelectionComplete(Message message) {
