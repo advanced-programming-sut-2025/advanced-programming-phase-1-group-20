@@ -5,6 +5,7 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Message;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
+import org.example.common.models.common.Result;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
 import org.example.common.models.entities.animal.Animal;
@@ -12,6 +13,7 @@ import org.example.server.GameServers.PlayerConnection;
 import org.example.common.models.enums.Weather;
 import org.example.common.models.MapDetails.GameMap;
 import com.google.gson.Gson;
+import org.example.server.controllers.LiveStockController;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +26,7 @@ public class GameSession {
     private final Game gameInstance;
     private final Map<String, PlayerConnection> playerConnections;
     private final ScheduledExecutorService gameLoop;
+    private final LiveStockController liveStockController;
     private final Gson gson;
     private final ServerConfig config;
     private boolean isActive;
@@ -45,6 +48,7 @@ public class GameSession {
             this.lastMovementTime = new ConcurrentHashMap<>();
             this.gameTickCounter = 0;
             this.lastBroadcastedWeather = null; // Initialize lastBroadcastedWeather
+            this.liveStockController = new LiveStockController(this);
 
             System.out.println("DEBUG: GameSession initialized with sessionId: " + sessionId);
 
@@ -196,6 +200,9 @@ public class GameSession {
             case PLAYER_MOVE:
                 handlePlayerMove(username, message);
                 break;
+            case MARKET_BUY:
+                handleMarketBuy(username, message);
+                break;
             case USE_TOOL:
                 handleUseTool(username, message);
                 break;
@@ -221,6 +228,47 @@ public class GameSession {
             default:
                 System.out.println("Unhandled message type: " + message.getType());
         }
+    }
+
+    private void handleMarketBuy(String username, Message message) {
+        String marketName = message.getFromBody("marketName");
+        String itemName = message.getFromBody("itemName");
+        int quantity = (int) (double) message.getFromBody("quantity");
+
+        Result result = liveStockController.handlePurchase(username, marketName, itemName, quantity);
+
+        PlayerConnection connection = playerConnections.get(username);
+        if (connection != null) {
+            Message response = new Message();
+            if (result.success()) {
+                response.setType(Message.Type.SUCCESS);
+                // Include updated player data for immediate feedback on the client
+                Player updatedPlayer = gameInstance.getPlayerByUsername(username);
+                Map<String, Object> playerData = new HashMap<>();
+                playerData.put("money", updatedPlayer.getMoney());
+                response.putInBody("playerData", playerData);
+            } else {
+                response.setType(Message.Type.ERROR);
+            }
+            response.putInBody("message", result.message());
+            response.putInBody("source", "MARKET_BUY"); // Helps client identify the response
+            connection.sendMessage(response);
+        }
+    }
+
+    /**
+     * Broadcasts a market stock update to all players in the session.
+     * This uses a general GAME_STATE_UPDATE message type with specific fields.
+     */
+    public void broadcastMarketUpdate(String marketName, String itemName, double newStock) {
+        Message updateMessage = new Message();
+        updateMessage.setType(Message.Type.GAME_STATE_UPDATE);
+        updateMessage.putInBody("marketUpdate", true); // Flag to identify this as a market update
+        updateMessage.putInBody("marketName", marketName);
+        updateMessage.putInBody("itemName", itemName);
+        updateMessage.putInBody("newStock", newStock);
+
+        broadcastToAll(updateMessage);
     }
 
     private void gameLoop() {
