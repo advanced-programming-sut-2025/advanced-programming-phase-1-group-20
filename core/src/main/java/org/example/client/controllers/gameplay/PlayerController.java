@@ -26,7 +26,7 @@ public class PlayerController {
     private static final int FRAME_W = 16;
     private static final int FRAME_H = 32;
     private static final int RENDER_W = 48;
-    private static final int RENDER_H = 96;
+    private static final int RENDER_H = 72;
     private static final float FRAME_DURATION = 0.2f;
     private static final int VILLAGE_TRANSITION_THRESHOLD = 3;
     private static final int FARM_EDGE_DEBUG_THRESHOLD = 5;
@@ -84,13 +84,11 @@ public class PlayerController {
         this.farm = farm;
         this.gameMap = App.getGame().getGameMap();
 
-        Texture sheet = player.getTextureSheet();
-        TextureRegion[][] grid = TextureRegion.split(sheet, FRAME_W, FRAME_H);
-
-        walkDown = buildAnim(grid[0]);
-        walkLeft = buildAnim(grid[3]);
-        walkRight = buildAnim(grid[1]);
-        walkUp = buildAnim(grid[2]);
+        // Load individual sprite files instead of sprite sheet
+        walkDown = buildWalkAnimation("down");
+        walkLeft = buildWalkAnimation("left");
+        walkRight = buildWalkAnimation("right");
+        walkUp = buildWalkAnimation("up");
 
         // Load collapsed animation
         collapsedAnim = buildCollapsedAnim();
@@ -104,17 +102,11 @@ public class PlayerController {
         this.gameMap = App.getGame().getGameMap();
         this.skin = skin;
 
-        Texture sheet = player.getTextureSheet();
-        if (sheet == null) {
-            sheet = new Texture(Gdx.files.internal("sprites/Alex.png"));
-        }
-
-        TextureRegion[][] grid = TextureRegion.split(sheet, FRAME_W, FRAME_H);
-
-        walkDown = buildAnim(grid[0]);
-        walkLeft = buildAnim(grid[3]);
-        walkRight = buildAnim(grid[1]);
-        walkUp = buildAnim(grid[2]);
+        // Load individual sprite files instead of sprite sheet
+        walkDown = buildWalkAnimation("down");
+        walkLeft = buildWalkAnimation("left");
+        walkRight = buildWalkAnimation("right");
+        walkUp = buildWalkAnimation("up");
 
         // Load collapsed animation
         collapsedAnim = buildCollapsedAnim();
@@ -124,10 +116,20 @@ public class PlayerController {
         initializeNicknameFont();
     }
 
-    private static Animation<TextureRegion> buildAnim(TextureRegion[] row) {
+    private Animation<TextureRegion> buildWalkAnimation(String direction) {
         Array<TextureRegion> frames = new Array<>(3);
-        for (int i = 0; i < 3; i++) {
-            frames.add(row[i]);
+        try {
+            for (int i = 1; i <= 3; i++) {
+                String spritePath = String.format("sprites/player/%s_%d.png", direction, i);
+                Texture frameTexture = new Texture(Gdx.files.internal(spritePath));
+                frames.add(new TextureRegion(frameTexture));
+            }
+        } catch (Exception e) {
+            System.out.println("Warning: Could not load walk animation for direction " + direction + ": " + e.getMessage());
+            // Create a simple fallback frame
+            Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            TextureRegion fallbackRegion = new TextureRegion(fallbackTexture);
+            frames.add(fallbackRegion);
         }
         return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
     }
@@ -143,8 +145,8 @@ public class PlayerController {
             // Fallback to a single frame if sprites can't be loaded
             System.out.println("Warning: Could not load collapsed animation sprites: " + e.getMessage());
             // Create a simple fallback frame
-            Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/Alex.png"));
-            TextureRegion fallbackRegion = new TextureRegion(fallbackTexture, 0, 0, FRAME_W, FRAME_H);
+            Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            TextureRegion fallbackRegion = new TextureRegion(fallbackTexture);
             frames.add(fallbackRegion);
         }
         // Use a 10 second duration and NORMAL mode so it stops on the last frame
@@ -177,9 +179,9 @@ public class PlayerController {
 
             // Check if we're on the final frame (collapse_2) and swap width/height
             // Since we have 2 frames and 10 second duration, after 10 seconds we're on frame 1 (index 1)
-            float animationTime = stateTime % 10.0f; // Get time within the animation cycle
-            if (animationTime >= 5.0f) { // After 5 seconds (half of 10), we're on the second frame
-                // Swap width and height for the final collapsed frame - STATIC, NO ANIMATION
+            float animationTime = stateTime;
+            if (animationTime >= 3.0f) { // After 5 seconds (half of 10), we're on the second frame
+
                 Main.getBatch().draw(
                     frame,
                     player.getPosX(),
@@ -209,7 +211,7 @@ public class PlayerController {
         }
 
         // Draw tool if equipped
-        if (player.getCurrentTool() != null) {
+        if (player.getCurrentTool() != null && !player.hasCollapsed()) {
             Texture toolTexture = new Texture(player.getCurrentTool().getImageFilepath());
             float playerX = player.getPosX();
             float playerY = player.getPosY();

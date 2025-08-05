@@ -656,15 +656,16 @@ public class MapScreen implements Screen, InputProcessor {
     }
 
     private void renderPlayerSprite(Player player, float worldX, float worldY) {
-        final int FRAME_W = 16;
-        final int FRAME_H = 32;
         final int RENDER_W = 96;  // Doubled from 48
-        final int RENDER_H = 192; // Doubled from 96
+        final int RENDER_H = 144; // Doubled from 72
 
-        // Get player's texture sheet
-        Texture textureSheet = player.getTextureSheet();
-        if (textureSheet == null) {
-            // Fallback to colored dot
+        // Load individual sprite file for player
+        Texture playerTexture;
+        try {
+            // Use the first frame of the down animation as the default sprite
+            playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+        } catch (Exception e) {
+            // Fallback to colored dot if sprite can't be loaded
             Player currentPlayer = App.getGame().getCurrentPlayer();
             boolean isCurrentPlayer = (player == currentPlayer);
             batch.setColor(isCurrentPlayer ? Color.RED : Color.BLUE);
@@ -675,10 +676,6 @@ public class MapScreen implements Screen, InputProcessor {
             return;
         }
 
-        // Split the texture sheet into a grid (like PlayerController does)
-        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
-
-        TextureRegion playerFrame = grid[0][0];
         // Determine if this is the current player
         Player currentPlayer = App.getGame().getCurrentPlayer();
         boolean isCurrentPlayer = (player == currentPlayer);
@@ -691,7 +688,10 @@ public class MapScreen implements Screen, InputProcessor {
         }
 
         // Draw the player sprite
-        batch.draw(playerFrame, worldX - RENDER_W/2, worldY - RENDER_H/2, RENDER_W, RENDER_H);
+        batch.draw(playerTexture, worldX - RENDER_W/2, worldY - RENDER_H/2, RENDER_W, RENDER_H);
+        
+        // Dispose the texture to prevent memory leaks
+        playerTexture.dispose();
 
         // Render nickname
         renderPlayerNickname(player, worldX, worldY);

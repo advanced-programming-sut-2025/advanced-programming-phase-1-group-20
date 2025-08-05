@@ -1,6 +1,4 @@
 package org.example.common.models.Player;
-
-import com.badlogic.gdx.graphics.Texture;
 import org.example.common.models.enums.Npcs;
 import org.example.common.models.App;
 import org.example.common.models.CollisionRect;
@@ -51,7 +49,6 @@ public class Player {
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
     private String playerColor;
-    private Texture textureSheet;
 
     //graphic ui
     private float posX = 57 * 60;
@@ -124,15 +121,8 @@ public class Player {
             isServerEnvironment = true;
         }
 
-        if (isServerEnvironment) {
-            // Server environment - create collision rect with default dimensions
-            rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
-            // Don't initialize texture on server
-            this.textureSheet = null;
-        } else {
-            // Client environment - create collision rect using default dimensions
-            rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
-        }
+        // Create collision rect using default dimensions
+        rect = new CollisionRect(25 * 120, 25 * 120, 64, 64); // Default sprite dimensions
 
 
         // TODO: testing!
@@ -166,33 +156,6 @@ public class Player {
 
     public void setCurrentFarm(Farm currentFarm) {
         this.currentFarm = currentFarm;
-
-        // Check if we're in a server environment (Gdx.files is null on server)
-        boolean isServerEnvironment = false;
-        try {
-            // Try to access Gdx.files - if it's null, we're on the server
-            if (com.badlogic.gdx.Gdx.files == null) {
-                isServerEnvironment = true;
-            }
-        } catch (Exception e) {
-            isServerEnvironment = true;
-        }
-
-        if (!isServerEnvironment) {
-            // Only create textures on client side
-            this.textureSheet = switch (currentFarm.getFarmIndex()) {
-                case 0 -> new Texture("sprites/Alex.png");
-                case 1 -> new Texture("sprites/Birdie.png");
-                case 2 -> new Texture("sprites/Gus.png");
-                case 3 -> new Texture("sprites/Leah.png");
-                default -> throw new IllegalArgumentException("Invalid farm index: " + currentFarm.getFarmIndex());
-            };
-        }
-        // On server side, textureSheet remains null
-    }
-
-    public Texture getTextureSheet() {
-        return textureSheet;
     }
 
     public void setCurrentVillage(Village currentVillage) {

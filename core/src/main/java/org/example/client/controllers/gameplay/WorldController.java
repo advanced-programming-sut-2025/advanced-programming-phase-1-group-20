@@ -1383,16 +1383,16 @@ public class WorldController {
     }
 
     private void renderPlayerSprite(Player player) {
-        // PlayerController constants for sprite rendering
-        final int FRAME_W = 16;
-        final int FRAME_H = 32;
         final int RENDER_W = 48;
-        final int RENDER_H = 96;
+        final int RENDER_H = 72;
 
-        // Get player's texture sheet
-        Texture textureSheet = player.getTextureSheet();
-        if (textureSheet == null) {
-            // Fallback to colored dot
+        // Load individual sprite file for player
+        Texture playerTexture;
+        try {
+            // Use the first frame of the down animation as the default sprite
+            playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+        } catch (Exception e) {
+            // Fallback to colored dot if sprite can't be loaded
             boolean isCurrentPlayer = (player == playerController.getPlayer());
             Main.getBatch().setColor(isCurrentPlayer ? Color.RED : Color.BLUE);
             Texture whiteTexture = new Texture("content/grass/spring.png");
@@ -1402,10 +1402,6 @@ public class WorldController {
             return;
         }
 
-        // Split the texture sheet into a grid (like PlayerController does)
-        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
-
-        TextureRegion playerFrame = grid[0][0];
         // Determine if this is the current player
         boolean isCurrentPlayer = (player == playerController.getPlayer());
 
@@ -1417,7 +1413,10 @@ public class WorldController {
         }
 
         // Draw the player sprite
-        Main.getBatch().draw(playerFrame, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
+        Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
+        
+        // Dispose the texture to prevent memory leaks
+        playerTexture.dispose();
     }
 
 
