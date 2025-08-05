@@ -307,6 +307,7 @@ public class MarketMenuScreen implements Screen, Disposable {
     // *** NEW METHOD: Shows a dialog to get X, Y and call controller.build ***
     private void showBuildDialog(final Item item) {
         final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
+        buildDialog.setModal(true);
 
         Table contentTable = buildDialog.getContentTable();
         contentTable.pad(20f);
@@ -324,30 +325,33 @@ public class MarketMenuScreen implements Screen, Disposable {
 
                 String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
 
-                WorldController worldController = ((GameView) previousScreen).getWorldController();
+                if (previousScreen instanceof GameView) {
+                    GameView gameView = (GameView) previousScreen;
+                    WorldController worldController = gameView.getWorldController();
 
-                worldController.startBuildingPlacement(buildingType);
+                    if (worldController != null) {
+                        worldController.startBuildingPlacement(buildingType);
 
-                ((GameView) previousScreen).setBuildingPlacementListener(new Runnable() {
-                    @Override
-                    public void run() {
-                        buildDialog.hide();
+                        gameView.setBuildingPlacementListener(new Runnable() {
+                            @Override
+                            public void run() {
+                                String[] args = new String[]{item.getName(), "1"};
+                                Result result = controller.purchase(args);
 
-                        String[] args = new String[]{item.getName(), "1"};
-                        Result result = controller.purchase(args);
+                                if (result.success()) {
+                                    updateMoneyLabel();
+                                    displayItems(currentDisplayStock);
+                                    showErrorDialog("Success", "Building placed successfully!");
+                                }
+                                else {
+                                    showErrorDialog("Error", result.message());
+                                }
 
-                        if (result.success()) {
-                            updateMoneyLabel();
-                            displayItems(currentDisplayStock);
-                            showErrorDialog("Success", "Building placed successfully!");
-                        }
-                        else {
-                            showErrorDialog("Error", result.message());
-                        }
-
-                        ((GameView) previousScreen).setBuildingPlacementListener(null);
+                                gameView.setBuildingPlacementListener(null);
+                            }
+                        });
                     }
-                });
+                }
             }
         });
 

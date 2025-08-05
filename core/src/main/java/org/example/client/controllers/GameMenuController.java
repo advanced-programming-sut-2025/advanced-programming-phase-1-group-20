@@ -2381,4 +2381,8 @@ public class GameMenuController implements Controller {
 
         return Result.success(info.toString());
     }
+
+    public WorldController getWorldController() {
+        return playerController.getWorldController();
+    }
 }
