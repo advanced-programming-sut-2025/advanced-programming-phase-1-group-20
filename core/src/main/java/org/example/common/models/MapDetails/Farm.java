@@ -409,7 +409,7 @@ public class Farm {
                     TreeType[] types = TreeType.values();
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
-                    tree.setStage(3);
+                    tree.setStage(2);
                     tiles[x][y].setItem(tree);
                 }
                 else if (type.equals("crop")) {
