@@ -917,7 +917,8 @@ public class WorldController {
             for (Location location : starDropSaloon) {
                 renderVillageStarDropSaloonAtAnchor(location);
             }
-        } else {
+        }
+        else {
             // Use local coordinates for farm markets
             for(Location location : blacksmith){
                 renderBlackSmithAtAnchor(location);
@@ -1049,7 +1050,8 @@ public class WorldController {
                 Main.getBatch().draw(texture, drawX, drawY,
                     TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
             }
-        } else {
+        }
+        else {
             // Fallback to a default house texture
             Texture texture = getTexture("house");
             if (texture != null) {
