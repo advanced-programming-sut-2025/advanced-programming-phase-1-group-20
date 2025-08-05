@@ -127,11 +127,11 @@ public class GameSession {
     public void removePlayer(String username) {
         PlayerConnection connection = playerConnections.remove(username);
         if (connection != null) {
-                    // Remove player from game instance
-        Player player = App.getGame().getPlayerByUsername(username);
-        if (player != null) {
-            App.getGame().removePlayer(player);
-        }
+            // Remove player from game instance
+            Player player = App.getGame().getPlayerByUsername(username);
+            if (player != null) {
+                App.getGame().removePlayer(player);
+            }
 
             // Clean up movement tracking
             lastMovementTime.remove(username);
@@ -226,7 +226,7 @@ public class GameSession {
     private void gameLoop() {
         try {
             gameTickCounter++;
-            
+
             // Always log the first few ticks to confirm the game loop is running
             if (gameTickCounter <= 5) {
                 System.out.println("DEBUG: Game loop started - tick " + gameTickCounter + " - isActive: " + isActive);
@@ -252,7 +252,7 @@ public class GameSession {
 
                 if (gameTickCounter % 10 == 0) { // Log every 10 ticks
                     System.out.println("DEBUG: Server advanced time by " + timeAdvancementRate + " minutes - " +
-                        App.getGame().getCurrentDate().getCurrentTimeString() + 
+                        App.getGame().getCurrentDate().getCurrentTimeString() +
                         " (Weather: " + App.getGame().getCurrentDate().getWeatherToday() + ")");
                 }
                 updateAnimalAI(1.0f / config.getGameTickRate());
@@ -703,6 +703,8 @@ public class GameSession {
 
         System.out.println("Stopped game session: " + sessionId);
     }
+
+
     private void updateAnimalAI(float deltaTime) {
         if (gameInstance == null || gameInstance.getGameMap() == null) return;
 
@@ -713,27 +715,61 @@ public class GameSession {
         }
 
         for (Animal animal : allAnimals) {
-            // Simple random movement AI
-            if (!animal.isMoving()) {
-                if (animalAiRandom.nextInt(100) < 5) { // 5% chance each tick to start moving
-                    float targetX = animal.getPosX() + (animalAiRandom.nextFloat() - 0.5f) * 300; // Max 5 tiles (5*60=300)
-                    float targetY = animal.getPosY() + (animalAiRandom.nextFloat() - 0.5f) * 300;
+            // Update the state timer
+            animal.setStateTimer(animal.getStateTimer() - deltaTime);
 
-                    // Clamp to farm boundaries
-                    targetX = Math.max(0, Math.min(targetX, Farm.width * 60));
-                    targetY = Math.max(0, Math.min(targetY, Farm.height * 60));
-
-                    // This is a simplified movement. A real implementation would use interpolation.
-                    animal.setPosX(targetX);
-                    animal.setPosY(targetY);
+            // Time to change state
+            if (animal.getStateTimer() <= 0) {
+                // 50% chance to start moving, 50% to stay idle
+                if (animalAiRandom.nextBoolean()) {
                     animal.setMoving(true);
-                    animal.setCurrentAnimation("walk");
-                }
-            } else {
-                // Simple logic to stop moving after a while
-                if (animalAiRandom.nextInt(100) < 10) {
+
+                    // Pick a new target location within 5 tiles
+                    double angle = animalAiRandom.nextDouble() * 2 * Math.PI;
+                    double distance = animalAiRandom.nextDouble() * 5 * 60; // Max 5 tiles distance
+
+                    float targetX = (float) (animal.getPosX() + Math.cos(angle) * distance);
+                    float targetY = (float) (animal.getPosY() + Math.sin(angle) * distance);
+
+                    // TODO: Add boundary checks to keep animals within a fenced area
+
+                    animal.setTargetX(targetX);
+                    animal.setTargetY(targetY);
+                } else {
                     animal.setMoving(false);
-                    animal.setCurrentAnimation("idle");
+                }
+                // Reset timer for next state change (e.g., 2 to 5 seconds)
+                animal.setStateTimer(2 + animalAiRandom.nextFloat() * 3);
+            }
+
+            // If moving, update position towards target
+            if (animal.isMoving()) {
+                float currentX = animal.getPosX();
+                float currentY = animal.getPosY();
+                float targetX = animal.getTargetX();
+                float targetY = animal.getTargetY();
+
+                float dx = targetX - currentX;
+                float dy = targetY - currentY;
+
+                // Stop if close to the target
+                if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+                    animal.setMoving(false);
+                } else {
+                    // Normalize direction vector
+                    float length = (float) Math.sqrt(dx * dx + dy * dy);
+                    float moveX = (dx / length) * animal.getSpeed() * deltaTime;
+                    float moveY = (dy / length) * animal.getSpeed() * deltaTime;
+
+                    animal.setPosX(currentX + moveX);
+                    animal.setPosY(currentY + moveY);
+
+                    // Update facing direction for animation
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        animal.setFacing(dx > 0 ? Animal.Direction.RIGHT : Animal.Direction.LEFT);
+                    } else {
+                        animal.setFacing(dy > 0 ? Animal.Direction.UP : Animal.Direction.DOWN);
+                    }
                 }
             }
         }

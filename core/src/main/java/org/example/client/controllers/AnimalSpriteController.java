@@ -2,134 +2,90 @@
 package org.example.client.controllers;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Disposable;
-import org.example.common.models.App;
-import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.entities.animal.Animal;
-import org.example.common.models.entities.animal.BarnAnimal;
-import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.Types.CoopAnimalTypes;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-
-public class AnimalSpriteController implements Disposable {
-    private final Map<String, Animation<TextureRegion>> animations;
+public class AnimalSpriteController {
     private final Texture textureSheet;
-    private float stateTime = 0f;
-
+    private final int FRAME_W;
+    private final int FRAME_H;
     private static final float FRAME_DURATION = 0.2f;
 
-    public AnimalSpriteController() {
-        this.animations = new HashMap<>();
-        // textureSheet is loaded dynamically for each animal type in render method
-        this.textureSheet = null;
+    // Animations
+    private final Animation<TextureRegion> moveUp;
+    private final Animation<TextureRegion> moveDown;
+    private final Animation<TextureRegion> moveLeft;
+    private final Animation<TextureRegion> moveRight;
+    private final Animation<TextureRegion> doSomething; // Can be used for idle state
+
+    public AnimalSpriteController(String animalName) {
+        textureSheet = new Texture(Gdx.files.internal("content/Animals/" + animalName + ".png"));
+        CoopAnimalTypes coopAnimalType = CoopAnimalTypes.fromName(animalName);
+        int numOfHeight;
+        if (coopAnimalType != null) {
+            numOfHeight = 7;
+        } else {
+            numOfHeight = 5;
+        }
+
+        FRAME_H = textureSheet.getHeight() / numOfHeight;
+        FRAME_W = textureSheet.getWidth() / 4;
+
+        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
+        moveDown = buildAnim(grid[0]);
+        moveRight = buildAnim(grid[1]);
+        moveUp = buildAnim(grid[2]);
+        moveLeft = buildAnim(grid[3]);
+        doSomething = buildAnim(grid.length > 5 ? grid[5] : grid[0]); // Fallback to moveDown if doSomething doesn't exist
+
     }
 
-    public void update(float deltaTime) {
-        stateTime += deltaTime;
-        // The actual animation logic will be handled in the render method
-        // based on each animal's state.
+    private static Animation<TextureRegion> buildAnim(TextureRegion[] row) {
+        Array<TextureRegion> frames = new Array<>(3);
+        for (int i = 0; i < 3; i++) {
+            frames.add(row[i]);
+        }
+        return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
     }
 
-    public void render(SpriteBatch batch, Color lightingColor) {
-        if (App.getGame() == null || App.getGame().getGameMap() == null) return;
+    /**
+     * Gets the current animation frame for an animal based on its state.
+     * @param animal The animal whose frame is to be determined.
+     * @param stateTime The global animation timer.
+     * @return The TextureRegion to be rendered.
+     */
+    public TextureRegion getCurrentFrame(Animal animal, float stateTime) {
+        Animation<TextureRegion> currentAnimation;
 
-        List<Animal> allAnimals = new ArrayList<>();
-        for (Farm farm : App.getGame().getGameMap().getFarms()) {
-            farm.getBarns().forEach(barn -> allAnimals.addAll(barn.getAnimals()));
-            farm.getCoops().forEach(coop -> allAnimals.addAll(coop.getAnimals()));
+        // Select animation based on facing direction
+        switch (animal.getFacing()) {
+            case UP:
+                currentAnimation = moveUp;
+                break;
+            case DOWN:
+                currentAnimation = moveDown;
+                break;
+            case LEFT:
+                currentAnimation = moveLeft;
+                break;
+            case RIGHT:
+                currentAnimation = moveRight;
+                break;
+            default:
+                currentAnimation = doSomething;
+                break;
         }
 
-        batch.setColor(lightingColor);
-        for (Animal animal : allAnimals) {
-            if (animal.isMoving()) {
-                // Simplified logic: determine direction based on target or velocity
-                // For now, we'll just use a default "walk" animation
-                renderAnimal(batch, animal, "walk");
-            } else {
-                renderAnimal(batch, animal, "idle");
-            }
-        }
-        batch.setColor(Color.WHITE);
-    }
-
-
-    private void renderAnimal(SpriteBatch batch, Animal animal, String animationType) {
-        String animalName = animal.getName();
-        Animation<TextureRegion> animation = getAnimation(animalName, animationType);
-        if (animation == null) {
-            animation = createAndCacheAnimation(animalName, animationType);
+        // If the animal is not moving, show a standing frame (e.g., the second frame)
+        if (!animal.isMoving()) {
+            return currentAnimation.getKeyFrame(stateTime, true);
         }
 
-        if (animation != null) {
-            TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
-            float RENDER_W = 48; // Standard render width
-            float RENDER_H = 48; // Standard render height
-            batch.draw(currentFrame, animal.getPosX(), animal.getPosY(), RENDER_W, RENDER_H);
-        }
-    }
-
-
-    private Animation<TextureRegion> getAnimation(String animalName, String animationType) {
-        return animations.get(animalName + "_" + animationType);
-    }
-
-    private Animation<TextureRegion> createAndCacheAnimation(String animalName, String animationType) {
-        try {
-            Texture sheet = new Texture(Gdx.files.internal("content/Animals/" + animalName + ".png"));
-            int FRAME_W = 16;
-            int FRAME_H = 16;
-            if(animalName.equals("Cow") || animalName.equals("Sheep") || animalName.equals("Pig") || animalName.equals("Goat")){
-                FRAME_W = 32;
-                FRAME_H = 32;
-            }
-
-
-            TextureRegion[][] grid = TextureRegion.split(sheet, FRAME_W, FRAME_H);
-
-            // Define rows for different animations (this is an example, adjust for your sprite sheets)
-            int row_index = 0; // Default to first row
-            if (animationType.equals("walk")) {
-                row_index = 0; // Assuming first row is walk/idle
-            } else if (animationType.equals("idle")) {
-                row_index = 1;
-            }
-
-
-            Array<TextureRegion> frames = new Array<>();
-            for (int i = 0; i < grid[row_index].length; i++) {
-                frames.add(grid[row_index][i]);
-            }
-
-            Animation<TextureRegion> animation = new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP);
-            animations.put(animalName + "_" + animationType, animation);
-            return animation;
-        } catch (Exception e) {
-            System.err.println("Failed to create animation for " + animalName + " (" + animationType + "): " + e.getMessage());
-            return null;
-        }
-    }
-
-
-    @Override
-    public void dispose() {
-        for (Animation<TextureRegion> animation : animations.values()) {
-            for (TextureRegion frame : animation.getKeyFrames()) {
-                frame.getTexture().dispose();
-            }
-        }
-        animations.clear();
-        if (textureSheet != null) {
-            textureSheet.dispose();
-        }
+        // If moving, return the animated frame
+        return currentAnimation.getKeyFrame(stateTime, true);
     }
 }

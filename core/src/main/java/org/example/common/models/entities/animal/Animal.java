@@ -1,5 +1,5 @@
-package org.example.common.models.entities.animal;// main/java/org/example/common/models/entities/animal/Animal.java
-// ... (imports)
+// main/java/org/example/common/models/entities/animal/Animal.java
+package org.example.common.models.entities.animal;
 
 import org.example.common.models.Items.Item;
 
@@ -7,29 +7,88 @@ public class Animal extends Item {
     private String name;
     private int price;
 
-    // NEW FIELDS FOR GRAPHICS
     private float posX = 0;
     private float posY = 0;
-    private float speed = 50f; // 0.8 tiles per second
+    private float speed = 50f;
+
+
     private boolean isMoving = false;
-    private String currentAnimation = "idle"; // idle, walk
+    private float targetX;
+    private float targetY;
+    private float stateTimer = 0f;
+    public enum Direction { DOWN, LEFT, RIGHT, UP }
+    private Direction facing = Direction.DOWN;
 
     public Animal(String name, int price) {
-        //TODO : adding correct file path
-        super(name , price , "");
+        super(name, price, "");
         this.name = name;
         this.price = price;
+        this.stateTimer = (float) (Math.random() * 5);
+        this.targetX = posX;
+        this.targetY = posY;
     }
 
-    // NEW GETTERS AND SETTERS
-    public float getPosX() { return posX; }
-    public void setPosX(float posX) { this.posX = posX; }
-    public float getPosY() { return posY; }
-    public void setPosY(float posY) { this.posY = posY; }
-    public float getSpeed() { return speed; }
-    public void setSpeed(float speed) { this.speed = speed; }
-    public boolean isMoving() { return isMoving; }
-    public void setMoving(boolean moving) { isMoving = moving; }
-    public String getCurrentAnimation() { return currentAnimation; }
-    public void setCurrentAnimation(String currentAnimation) { this.currentAnimation = currentAnimation; }
+    public float getPosX() {
+        return posX;
+    }
+
+    public void setPosX(float posX) {
+        this.posX = posX;
+    }
+
+    public float getPosY() {
+        return posY;
+    }
+
+    public void setPosY(float posY) {
+        this.posY = posY;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    public void setMoving(boolean moving) {
+        isMoving = moving;
+    }
+
+    public float getTargetX() {
+        return targetX;
+    }
+
+    public void setTargetX(float targetX) {
+        this.targetX = targetX;
+    }
+
+    public float getTargetY() {
+        return targetY;
+    }
+
+    public void setTargetY(float targetY) {
+        this.targetY = targetY;
+    }
+
+    public float getStateTimer() {
+        return stateTimer;
+    }
+
+    public void setStateTimer(float stateTimer) {
+        this.stateTimer = stateTimer;
+    }
+
+    public Direction getFacing() {
+        return facing;
+    }
+
+    public void setFacing(Direction facing) {
+        this.facing = facing;
+    }
 }

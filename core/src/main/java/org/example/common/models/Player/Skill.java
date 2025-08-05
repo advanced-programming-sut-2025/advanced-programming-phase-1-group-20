@@ -40,13 +40,13 @@ public class Skill {
         // For level 2: 2 * 100 = 250 units needed
         // For level 3: 3 * 100 = 350 units needed
         // For level 4: 4 * 100 = 450 units needed
-        
+
         int unitsNeededForNextLevel = (level + 1) * 100 + 50;
-        
+
         while (units >= unitsNeededForNextLevel && level < maxLevel) {
             units -= unitsNeededForNextLevel;
             level++;
-            
+
             // Recalculate for next level
             unitsNeededForNextLevel = (level + 1) * 100 + 50;
         }

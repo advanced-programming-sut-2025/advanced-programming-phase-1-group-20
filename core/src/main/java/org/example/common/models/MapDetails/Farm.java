@@ -566,7 +566,7 @@ public class Farm {
         int quarryHeight = q.getHeight();
 
         Random rand = new Random();
-        
+
         for (int y = quarryY; y < quarryY + quarryHeight; y++) {
             for (int x = quarryX; x < quarryX + quarryWidth; x++) {
                 // 70% chance for regular quarry tile, 30% chance for special stones

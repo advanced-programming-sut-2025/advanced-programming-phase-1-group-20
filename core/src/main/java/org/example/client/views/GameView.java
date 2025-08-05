@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.InputMultiplexer;
 import org.example.client.Main;
 import org.example.client.controllers.AnimalSpriteController;
+import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
 import org.example.client.views.gameplay.CookingScreen;
@@ -108,7 +109,7 @@ public class GameView implements Screen, InputProcessor {
     private BitmapFont customFont;
     private BitmapFont smallFont;
 
-    private AnimalSpriteController animalSpriteController;
+    private AnimalsController animalsController;
 
     // Weather and Season components
     private Texture currentWeatherTexture;
@@ -178,7 +179,7 @@ public class GameView implements Screen, InputProcessor {
         this.gameTime = 0;
         this.lightingUpdateTimer = 0;
 
-        this.animalSpriteController = new AnimalSpriteController();
+        this.animalsController = new AnimalsController();
 
         // Initialize camera first
         camera = new OrthographicCamera(120, 120);
@@ -1121,6 +1122,10 @@ public class GameView implements Screen, InputProcessor {
             npcSpriteController.update(deltaTime);
         }
 
+        if(animalsController != null) {
+            animalsController.update(deltaTime);
+        }
+
         // Update clock display
         updateClockDisplay();
 
@@ -1183,8 +1188,8 @@ public class GameView implements Screen, InputProcessor {
         // Render lightning effects AFTER rain but BEFORE UI
         lightningSystem.render(Main.getBatch(), currentLightColor);
 
-        if (animalSpriteController != null) {
-            animalSpriteController.render(Main.getBatch(), currentLightColor);
+        if (animalsController != null) {
+            animalsController.render(Main.getBatch(), currentLightColor);
         }
 
 
@@ -1262,8 +1267,8 @@ public class GameView implements Screen, InputProcessor {
             npcSpriteController.dispose();
         }
 
-        if (animalSpriteController != null) {
-            animalSpriteController.dispose();
+        if (animalsController != null) {
+            animalsController.dispose();
         }
     }
 
