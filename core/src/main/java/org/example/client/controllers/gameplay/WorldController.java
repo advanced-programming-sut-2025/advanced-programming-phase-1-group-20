@@ -2,6 +2,7 @@ package org.example.client.controllers.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
@@ -88,6 +89,8 @@ public class WorldController {
     private List<Location> potentialPlacementTiles = new ArrayList<>();
     private Texture placementTexture;
     private Texture invalidPlacementTexture;
+    private Texture validPlacementTexture;
+    private Texture hoverPlacementTexture;
 
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera , Skin skin , GameMenuController controller) {
         this.playerController = playerController;
@@ -115,12 +118,21 @@ public class WorldController {
         this.marnieShop = new ArrayList<>();
         this.starDropSaloon = new ArrayList<>();
 
+        validPlacementTexture = createColorTexture(Color.GREEN);
+        hoverPlacementTexture = createColorTexture(Color.RED);
 
         // Pre-load all textures
         preloadTextures();
         placementTexture = new Texture(Gdx.files.internal("content/placement_valid.png"));
         invalidPlacementTexture = new Texture(Gdx.files.internal("content/placement_invalid.png"));
 
+    }
+
+    private Texture createColorTexture(Color color) {
+        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        pixmap.setColor(color);
+        pixmap.fill();
+        return new Texture(pixmap);
     }
 
     private void preloadTextures() {
