@@ -238,8 +238,8 @@ public class Farm {
         markQuarry();
         markLakes();
 
+        placeRandomObjects("tree", 400);
         placeRandomObjects("stone", 50);
-        placeRandomObjects("tree", 50);
         placeRandomObjects("crop", 50);
         placeRandomObjects("branch", 50);
     }
@@ -409,6 +409,7 @@ public class Farm {
                     TreeType[] types = TreeType.values();
                     TreeType randomType = types[rand.nextInt(types.length)];
                     Tree tree = new Tree(randomType);
+                    tree.setStage(3);
                     tiles[x][y].setItem(tree);
                 }
                 else if (type.equals("crop")) {

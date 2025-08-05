@@ -28,7 +28,6 @@ public class AnimalsController implements Disposable {
 
     private void updateAnimalAI(float deltaTime) {
         if (App.getGame() == null || App.getGame().getGameMap() == null) return;
-        System.out.println("Debug Animal AI");
 
         List<Animal> allAnimals = new ArrayList<>();
         for (Farm farm : App.getGame().getGameMap().getFarms()) {
