@@ -1564,6 +1564,11 @@ public class WorldController {
                 isInPlacementMode = false;
                 buildingToPlace = null;
                 potentialPlacementTiles.clear();
+
+//                if (controller.getView().getBuildingPlacementListener() != null) {
+//                    controller.getView().setBuildingPlacementListener(null);
+//                }
+                return;
             }
             else {
                 if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
@@ -1822,9 +1827,9 @@ public class WorldController {
             }
         }
 
-        if (controller.getView().getBuildingPlacementListener() != null) {
-            controller.getView().getBuildingPlacementListener().run();
-        }
+//        if (controller.getView().getBuildingPlacementListener() != null) {
+//            controller.getView().getBuildingPlacementListener().run();
+//        }
 
         isInPlacementMode = false;
         buildingToPlace = null;
