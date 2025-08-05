@@ -13,6 +13,8 @@ import org.example.client.views.GreenhouseRepairDialog;
 import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.client.views.gameplay.RefrigeratorScreen;
+import org.example.common.models.Barn;
+import org.example.common.models.Coop;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.Village;
@@ -34,6 +36,8 @@ import java.util.List;
 import java.util.ArrayList;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+import static org.example.common.models.enums.Types.TileType.*;
 
 public class WorldController {
     private PlayerController playerController;
@@ -79,6 +83,12 @@ public class WorldController {
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
 
+    private boolean isInPlacementMode = false;
+    private String buildingToPlace = null;
+    private List<Location> potentialPlacementTiles = new ArrayList<>();
+    private Texture placementTexture;
+    private Texture invalidPlacementTexture;
+
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera , Skin skin , GameMenuController controller) {
         this.playerController = playerController;
         this.farm = farm;
@@ -108,6 +118,8 @@ public class WorldController {
 
         // Pre-load all textures
         preloadTextures();
+        placementTexture = new Texture(Gdx.files.internal("content/placement_valid.png"));
+        invalidPlacementTexture = new Texture(Gdx.files.internal("content/placement_invalid.png"));
     }
 
     private void preloadTextures() {
@@ -401,6 +413,33 @@ public class WorldController {
                     if (!(item instanceof Tree) && item != null) {
                         renderItemOnTile(x, y, item, currentSeason);
                     }
+                }
+            }
+        }
+
+        if (isInPlacementMode) {
+            int width = buildingToPlace.equals("barn") ? BARN_TILES_W : COOP_TILES_W;
+            int height = buildingToPlace.equals("barn") ? BARN_TILES_H : COOP_TILES_H;
+
+            for (Location loc : potentialPlacementTiles) {
+                float worldX = loc.getX() * TILE_SIZE;
+                float worldY = loc.getY() * TILE_SIZE;
+
+                Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+                camera.unproject(mousePos);
+
+                boolean isHovered = mousePos.x >= worldX && mousePos.x <= worldX + width * TILE_SIZE &&
+                    mousePos.y >= worldY && mousePos.y <= worldY + height * TILE_SIZE;
+
+                if (isHovered) {
+                    Main.getBatch().setColor(1, 0, 0, 0.5f);
+                    Main.getBatch().draw(invalidPlacementTexture, worldX, worldY, width * TILE_SIZE, height * TILE_SIZE);
+                    Main.getBatch().setColor(1, 1, 1, 1);
+                }
+                else {
+                    Main.getBatch().setColor(0, 1, 0, 0.5f);
+                    Main.getBatch().draw(placementTexture, worldX, worldY, width * TILE_SIZE, height * TILE_SIZE);
+                    Main.getBatch().setColor(1, 1, 1, 1);
                 }
             }
         }
@@ -1217,8 +1256,8 @@ public class WorldController {
     }
 
     private boolean isLargeBuilding(TileType tileType) {
-        return tileType == TileType.BUILDING || tileType == TileType.BARN ||
-            tileType == TileType.COOP || tileType == TileType.GREENHOUSE ||
+        return tileType == TileType.BUILDING || tileType == BARN ||
+            tileType == COOP || tileType == TileType.GREENHOUSE ||
             tileType == TileType.CONSTRUCTED_GREENHOUSE;
     }
 
@@ -1503,7 +1542,28 @@ public class WorldController {
                 } else if (checkVillageClicked(starDropSaloon, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     Main.getGame().setScreen(new MarketMenuScreen(markets[6], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 }
-            } else {
+            }
+            else if (isInPlacementMode) {
+                int width = buildingToPlace.equals("barn") ? BARN_TILES_W : COOP_TILES_W;
+                int height = buildingToPlace.equals("barn") ? BARN_TILES_H : COOP_TILES_H;
+
+                for (Location loc : potentialPlacementTiles) {
+                    float worldX = loc.getX() * TILE_SIZE;
+                    float worldY = loc.getY() * TILE_SIZE;
+
+                    if (touchPoint.x >= worldX && touchPoint.x <= worldX + width * TILE_SIZE &&
+                        touchPoint.y >= worldY && touchPoint.y <= worldY + height * TILE_SIZE) {
+
+                        placeBuilding(loc.getX(), loc.getY());
+                        return;
+                    }
+                }
+
+                isInPlacementMode = false;
+                buildingToPlace = null;
+                potentialPlacementTiles.clear();
+            }
+            else {
                 if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     System.out.println("house clicked");
                     Main.getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
@@ -1699,5 +1759,69 @@ public class WorldController {
             System.err.println("Error opening friend interaction window: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public void startBuildingPlacement(String buildingType) {
+        this.isInPlacementMode = true;
+        this.buildingToPlace = buildingType;
+        this.potentialPlacementTiles.clear();
+
+        int width = buildingType.equals("barn") ? BARN_TILES_W : COOP_TILES_W;
+        int height = buildingType.equals("barn") ? BARN_TILES_H : COOP_TILES_H;
+
+        for (int x = 0; x < Farm.width - width; x++) {
+            for (int y = 0; y < Farm.height - height; y++) {
+                if (isValidPlacement(x, y, width, height)) {
+                    potentialPlacementTiles.add(new Location(x, y, Dirt));
+                }
+            }
+        }
+    }
+
+    private boolean isValidPlacement(int startX, int startY, int width, int height) {
+        for (int x = startX; x < startX + width; x++) {
+            for (int y = startY; y < startY + height; y++) {
+                Location loc = farm.getItem(x, y);
+                if (loc == null || loc.getTile() != TileType.Dirt || loc.getItem() != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void placeBuilding(int x, int y) {
+        if (buildingToPlace.equals("barn")) {
+            Location anchor = new Location(x, y, BARN);
+            Barn barn = new Barn(BarnTypes.NORMAL_BARN, anchor, "Barn");
+            farm.addBarn(barn);
+
+            for (int i = x; i < x + BARN_TILES_W; i++) {
+                for (int j = y; j < y + BARN_TILES_H; j++) {
+                    Location loc = farm.getItem(i, j);
+                    if (loc != null) {
+                        loc.setTile(BARN);
+                    }
+                }
+            }
+        }
+        else if (buildingToPlace.equals("coop")) {
+            Location anchor = new Location(x, y, COOP);
+            Coop coop = new Coop(Cages.NORMAL_COOP, anchor, "Coop");
+            farm.addCoop(coop);
+
+            for (int i = x; i < x + COOP_TILES_W; i++) {
+                for (int j = y; j < y + COOP_TILES_H; j++) {
+                    Location loc = farm.getItem(i, j);
+                    if (loc != null) {
+                        loc.setTile(COOP);
+                    }
+                }
+            }
+        }
+
+        isInPlacementMode = false;
+        buildingToPlace = null;
+        potentialPlacementTiles.clear();
     }
 }
