@@ -538,6 +538,8 @@ public class WorldController {
             renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
+        } else if(item instanceof CraftingItem craftingItem) {
+            renderCraftingItem(worldX, worldY , craftingItem);
         }
     }
 
@@ -1290,6 +1292,8 @@ public class WorldController {
             renderMineralItem(worldX, worldY , mineral);
         } else if (item instanceof ShippingBin) {
             renderShippingBinItem(worldX, worldY);
+        } else if(item instanceof CraftingItem craftingItem) {
+            renderCraftingItem(worldX, worldY , craftingItem);
         }
     }
 
@@ -1344,6 +1348,15 @@ public class WorldController {
                 float offsetY = (TILE_SIZE - treeSize) / 2;
                 Main.getBatch().draw(treeTexture, worldX + offsetX, worldY + offsetY, treeSize, treeSize);
             }
+        }
+    }
+
+
+    private void renderCraftingItem(float worldX, float worldY, CraftingItem craftingItem) {
+        String key = craftingItem.getType().getImageFilepath();
+        Texture texture = getTexture(key);
+        if (texture != null) {
+            Main.getBatch().draw(texture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
     }
 

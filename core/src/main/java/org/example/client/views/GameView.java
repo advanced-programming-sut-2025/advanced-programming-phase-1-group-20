@@ -31,6 +31,7 @@ import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.client.views.gameplay.MapScreen;
 import org.example.common.models.App;
+import org.example.common.models.Items.Seed;
 import org.example.common.models.Items.Tool;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -687,6 +688,52 @@ public class GameView implements Screen, InputProcessor {
                 showAnimalInteractionDialog(clickedAnimal);
                 return true; // Consume the click event
             }
+
+            Player currentPlayer = App.getGame().getCurrentPlayer();
+
+            if(currentPlayer.getCurrentItem() != null) {
+                if(currentPlayer.getCurrentItem() instanceof Seed seed){
+                    float playerX = currentPlayer.getPosX();
+                    float playerY = currentPlayer.getPosY();
+                    float dx = worldCoords.x - playerX;
+                    float dy = worldCoords.y - playerY;
+
+                    lastToolMouseX = worldCoords.x;
+                    lastToolMouseY = worldCoords.y;
+
+                    double angle = Math.atan2(dy, dx);
+                    String direction;
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        direction = dx > 0 ? "east" : "west";
+                    } else {
+                        direction = dy > 0 ? "north" : "south";
+                    }
+                    String[] args = new String[]{seed.getName() , direction};
+
+                    controller.plant(args);
+                }
+                else{
+                    float playerX = currentPlayer.getPosX();
+                    float playerY = currentPlayer.getPosY();
+                    float dx = worldCoords.x - playerX;
+                    float dy = worldCoords.y - playerY;
+
+                    lastToolMouseX = worldCoords.x;
+                    lastToolMouseY = worldCoords.y;
+
+                    double angle = Math.atan2(dy, dx);
+                    String direction;
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        direction = dx > 0 ? "east" : "west";
+                    } else {
+                        direction = dy > 0 ? "north" : "south";
+                    }
+                    String[] args = new String[]{currentPlayer.getCurrentItem().getName() , direction};
+
+                    controller.placeItem(args);
+                    currentPlayer.setCurrentItem(null);
+                }
+            }
         }
 
         if (button == Input.Buttons.LEFT) {
@@ -751,6 +798,8 @@ public class GameView implements Screen, InputProcessor {
                 }
                 return true;
             }
+
+
         }
         return false;
     }
