@@ -36,7 +36,6 @@ import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.client.views.gameplay.MapScreen;
 import org.example.common.models.App;
-import org.example.common.models.Items.Food;
 import org.example.common.models.Items.Seed;
 import org.example.common.models.Items.Tool;
 import org.example.common.models.MapDetails.Farm;
@@ -166,9 +165,6 @@ public class GameView implements Screen, InputProcessor {
     // private FishCatchDisplay fishCatchDisplay;
 
     private Runnable buildingPlacementListener;
-
-    private Table uiTable;
-    private boolean clockInitialized = false;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -731,9 +727,6 @@ public class GameView implements Screen, InputProcessor {
                         System.out.println(result.message());
                     }
                 }
-                else if(currentPlayer.getCurrentItem() instanceof Food food) {
-                    controller.eatFood(new String[]{food.getName()});
-                }
                 else{
                     float playerX = currentPlayer.getPosX();
                     float playerY = currentPlayer.getPosY();
@@ -1145,35 +1138,17 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void show() {
-//        stage = new Stage(new ScreenViewport());
-//        InputMultiplexer multiplexer = new InputMultiplexer();
-//        multiplexer.addProcessor(stage);  // Stage first (UI elements)
-//        multiplexer.addProcessor(this);   // GameView second (world interactions)
-//        Gdx.input.setInputProcessor(multiplexer);
-//
-//        mainTable.top().right();
-//        mainTable.setFillParent(true);
-//        mainTable.padTop(10).padRight(10);
-//        mainTable.add(clockStack).size(120, 120).row();
-//        stage.addActor(mainTable);
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);
-        multiplexer.addProcessor(this);
+        multiplexer.addProcessor(stage);  // Stage first (UI elements)
+        multiplexer.addProcessor(this);   // GameView second (world interactions)
         Gdx.input.setInputProcessor(multiplexer);
 
-        uiTable = new Table();
-        uiTable.setFillParent(true);
-        uiTable.top().right();
-        uiTable.pad(20);
-
-        if (!clockInitialized) {
-            initializeClock();
-            clockInitialized = true;
-        }
-        uiTable.add(clockStack).size(120, 120);
-
-        stage.addActor(uiTable);
+        mainTable.top().right();
+        mainTable.setFillParent(true);
+        mainTable.padTop(10).padRight(10);
+        mainTable.add(clockStack).size(120, 120).row();
+        stage.addActor(mainTable);
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
@@ -1201,16 +1176,10 @@ public class GameView implements Screen, InputProcessor {
         bgColor.mul(0.3f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
-//        Date testDate = getCurrentGameDate();
-//        if (testDate != null) {
-//            System.out.println("Current Time: " + testDate.getHour() + ":" + testDate.getMinutes());
-//        }
-
         if (!pauseTable.isVisible()) {
             gameTime += deltaTime;
             updateLighting(deltaTime);
             updateClockDisplay();
-//            updateClockPosition();
             updateWeatherAndSeasonDisplays();
 
             // Update rain system
@@ -1249,16 +1218,11 @@ public class GameView implements Screen, InputProcessor {
             currentWeddingRingAnimation.update(deltaTime);
         }
 
-        // Update money label
-        updateMoneyLabel();
-
-        updateUIPosition();
-
         // Update clock display
         updateClockDisplay();
 
-        stage.act(deltaTime);
-        stage.draw();
+        // Update money label
+        updateMoneyLabel();
 
         // Update date and time labels
         Date gameDate = getCurrentGameDate();
@@ -1287,6 +1251,8 @@ public class GameView implements Screen, InputProcessor {
         if (!pauseTable.isVisible()) {
             controller.update(); // This will render world elements while batch is active
         }
+
+
 
         renderNPCs(deltaTime);
 
@@ -1339,7 +1305,6 @@ public class GameView implements Screen, InputProcessor {
 
         Main.getBatch().setColor(Color.WHITE);
 
-//        updateClockPosition();
         // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
@@ -1358,39 +1323,6 @@ public class GameView implements Screen, InputProcessor {
             terminalWindow.render(deltaTime);
         }
     }
-
-    private void updateUIPosition() {
-        if (uiTable == null || camera == null) return;
-
-        Vector3 cameraScreenPos = camera.project(new Vector3(
-            camera.position.x + (camera.viewportWidth * camera.zoom / 2),
-            camera.position.y + (camera.viewportHeight * camera.zoom / 2),
-            0
-        ));
-
-        uiTable.setPosition(
-            cameraScreenPos.x - uiTable.getWidth() - 20,
-            cameraScreenPos.y - uiTable.getHeight() - 20
-        );
-    }
-
-//    private void updateClockPosition() {
-//        if (clockStack == null || camera == null) {
-//            return;
-//        }
-//
-//        float padding = 20f;
-//        float clockWidth = clockStack.getWidth();
-//        float clockHeight = clockStack.getHeight();
-//
-//        float cameraRight = camera.position.x + (camera.viewportWidth * camera.zoom / 2);
-//        float cameraTop = camera.position.y + (camera.viewportHeight * camera.zoom / 2);
-//
-//        float clockX = cameraRight - clockWidth - padding;
-//        float clockY = cameraTop - clockHeight - padding;
-//
-//        clockStack.setPosition(clockX, clockY);
-//    }
 
     @Override
     public void resize(int width, int height) {
@@ -2506,7 +2438,7 @@ public class GameView implements Screen, InputProcessor {
     public void showRelationshipMenu(Player targetPlayer) {
         // Don't open if already open
         if (relationshipStage != null) {
-            System.out.println("⚠️ Relationship menu already open, ignoring request");
+            System.out.println("Relationship menu already open, ignoring request");
             return;
         }
 
