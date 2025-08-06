@@ -54,9 +54,7 @@ public class MovementController {
         return true;
     }
 
-    /**
-     * Check if movement should be throttled for a player
-     */
+
     private boolean isMovementThrottled(String username) {
         long currentTime = System.currentTimeMillis();
         Long lastTime = lastMovementTime.get(username);
@@ -68,9 +66,7 @@ public class MovementController {
         return false;
     }
 
-    /**
-     * Update player position and location
-     */
+
     private void updatePlayerPosition(Player player, float x, float y) {
         // Update pixel coordinates
         player.setPosX(x);
@@ -82,9 +78,6 @@ public class MovementController {
         player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
     }
 
-    /**
-     * Broadcast player movement to other players
-     */
     private void broadcastPlayerMovement(String username, float x, float y) {
         try {
             int tileX = Math.round(x / 60);

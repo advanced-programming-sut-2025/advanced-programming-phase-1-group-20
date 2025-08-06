@@ -274,7 +274,7 @@ public class GameView implements Screen, InputProcessor {
 
         clockNeedleImage.setOrigin(clockNeedleImage.getWidth() / 2, 0);
         clockNeedleImage.setPosition(
-            (clockBackgroundImage.getWidth() - clockNeedleImage.getWidth()),
+            (clockBackgroundImage.getWidth() / 2 - clockNeedleImage.getWidth() - 18),
             (clockBackgroundImage.getHeight() - clockNeedleImage.getHeight()) / 2 + 35f
         );
 
