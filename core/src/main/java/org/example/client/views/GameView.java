@@ -1180,6 +1180,7 @@ public class GameView implements Screen, InputProcessor {
             gameTime += deltaTime;
             updateLighting(deltaTime);
             updateClockDisplay();
+//            updateClockPosition();
             updateWeatherAndSeasonDisplays();
 
             // Update rain system
@@ -1252,8 +1253,6 @@ public class GameView implements Screen, InputProcessor {
             controller.update(); // This will render world elements while batch is active
         }
 
-
-
         renderNPCs(deltaTime);
 
         // Render player nicknames for all players
@@ -1322,6 +1321,24 @@ public class GameView implements Screen, InputProcessor {
         if (terminalWindow != null) {
             terminalWindow.render(deltaTime);
         }
+    }
+
+    private void updateClockPosition() {
+        if (clockStack == null || camera == null) {
+            return;
+        }
+
+        float padding = 20f;
+        float clockWidth = clockStack.getWidth();
+        float clockHeight = clockStack.getHeight();
+
+        float cameraRight = camera.position.x + (camera.viewportWidth * camera.zoom / 2);
+        float cameraTop = camera.position.y + (camera.viewportHeight * camera.zoom / 2);
+
+        float clockX = cameraRight - clockWidth - padding;
+        float clockY = cameraTop - clockHeight - padding;
+
+        clockStack.setPosition(clockX, clockY);
     }
 
     @Override
