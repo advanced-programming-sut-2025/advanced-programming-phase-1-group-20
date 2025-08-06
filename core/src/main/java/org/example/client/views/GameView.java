@@ -1240,13 +1240,13 @@ public class GameView implements Screen, InputProcessor {
             currentWeddingRingAnimation.update(deltaTime);
         }
 
-        // Update clock display
-        updateClockDisplay();
-
         // Update money label
         updateMoneyLabel();
 
         updateUIPosition();
+
+        // Update clock display
+        updateClockDisplay();
 
         stage.act(deltaTime);
         stage.draw();
