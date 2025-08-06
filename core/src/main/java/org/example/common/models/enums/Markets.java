@@ -741,10 +741,6 @@ public enum Markets {
         salad.setPrice(220);
         items.add(new Product(salad, Double.POSITIVE_INFINITY));
 
-        Item bread = new CookingItem(CookingType.Bread).getFood();
-        bread.setPrice(120);
-        items.add(new Product(bread, Double.POSITIVE_INFINITY));
-
         Item spaghetti = new CookingItem(CookingType.Spaghetti).getFood();
         spaghetti.setPrice(240);
         items.add(new Product(spaghetti, Double.POSITIVE_INFINITY));

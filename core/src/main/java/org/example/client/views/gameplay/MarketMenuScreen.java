@@ -65,8 +65,6 @@ public class MarketMenuScreen implements Screen, Disposable {
 
         this.controller = new MarketController(player, market);
 
-        // Initialize stocks for the current season
-        this.market.initializeTotalStock(currentSeason);
         // Default view is the permanent stock
         this.currentDisplayStock = new ArrayList<>(market.getPermanentStock());
 

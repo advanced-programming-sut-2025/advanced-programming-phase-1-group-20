@@ -21,13 +21,13 @@ public class LiveStockController {
     public LiveStockController(GameSession gameSession) {
         this.gameSession = gameSession;
         this.marketStates = new ConcurrentHashMap<>();
-        initializeMarkets();
+        // initializeMarkets(); // This line is removed
     }
 
     /**
      * Initializes the market states from the game map's village markets.
      */
-    private void initializeMarkets() {
+    public void initializeMarkets() { // This method is now public
         if (gameSession.getGameInstance() != null && gameSession.getGameInstance().getGameMap() != null) {
             for (Market market : gameSession.getGameInstance().getGameMap().getVillage().getMarkets()) {
                 if (market != null) {
@@ -55,7 +55,7 @@ public class LiveStockController {
 
         Market market = marketStates.get(marketName);
         if (market == null) {
-            return Result.error("Market not found.");
+            return Result.error("Market not found." + marketName);
         }
 
         Product product = market.getProduct(itemName);

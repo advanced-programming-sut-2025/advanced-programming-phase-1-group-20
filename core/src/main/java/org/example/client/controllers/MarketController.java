@@ -23,7 +23,6 @@ public class MarketController implements Controller {
     public MarketController(Player player, Market market) {
         this.player = player;
         this.market = market;
-        market.initializeTotalStock(App.getGame().getDate().getSeason());
     }
 
     @Override
@@ -54,8 +53,11 @@ public class MarketController implements Controller {
             return Result.error("Not enough items in stock.");
         }
 
+        if (!market.checkItem(player, item, count)) {
+            return Result.error("You don't have enough resources for this product.");
+        }
         // If in multiplayer, send the purchase request to the server
-        if (App.getGame().isMultiplayer) {
+        if (!App.getGame().isMultiplayer) {
             NetworkClient networkClient = NetworkClient.getInstance();
             Message purchaseMessage = new Message();
             purchaseMessage.setType(Message.Type.MARKET_BUY);
@@ -66,12 +68,10 @@ public class MarketController implements Controller {
 
             return Result.success("Purchase request sent to the server...");
         } else {
-            // --- SINGLE-PLAYER LOGIC (existing logic) ---
             if (!market.checkItem(player, item, count)) {
                 return Result.error("You don't have enough resources for this product.");
             }
             market.checkOut(player, item, count);
-            player.getBackpack().add(item, (int) count);
             return Result.success("Item purchased successfully.");
         }
     }

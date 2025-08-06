@@ -45,14 +45,17 @@ public class Market extends Building {
         this.summerStock = summerStock;
         this.autumnStock = autumnStock;
         this.winterStock = winterStock;
-        this.totalStock = new ArrayList<>(); // Will be initialized by initializeTotalStock
+        this.totalStock = new ArrayList<>();
+        totalStock.addAll(permanentStock);
+        totalStock.addAll(springStock);
+        totalStock.addAll(summerStock);
+        totalStock.addAll(autumnStock);
+        totalStock.addAll(winterStock);
         this.startHour = startHour;
         this.endHour = endHour;
         this.menu = menu;
         this.name = name;
         this.tileType = tileType;
-        // initializeCounterStock is kept but its logic is not critical for stock deduction anymore
-        initializeCounterStock();
     }
 
     public Market() {
@@ -99,7 +102,7 @@ public class Market extends Building {
     // Helper method to find a product in a list by Item object
     private Optional<Product> findProductByItem(List<Product> productList, Item item) {
         return productList.stream()
-            .filter(p -> p.getItem().equals(item))
+            .filter(p -> p.getItem().getName().equalsIgnoreCase(item.getName()))
             .findFirst();
     }
 
@@ -172,11 +175,6 @@ public class Market extends Building {
      * **MODIFIED:** Calls the new deductStock method upon a successful purchase.
      */
     public void checkOut(Player player, Item item, double count) {
-        if (!checkItem(player, item, count)) {
-            System.out.println("Checkout failed. Conditions not met.");
-            return;
-        }
-
         player.decreaseMoney((int) (item.getPrice() * count));
 
         // Handle special items that don't go to the backpack or have unique effects
@@ -191,7 +189,6 @@ public class Market extends Building {
             }
         }
 
-        // **This is the fix**: Decrease the stock from the current list
         deductStock(item, count);
     }
 
@@ -231,10 +228,64 @@ public class Market extends Building {
         return false;
     }
 
-    // --- Unmodified Methods for compatibility ---
-    public void showAllProducts() { /* ... unchanged ... */ }
-    public void showAvailableProducts(Seasons season) { /* ... unchanged ... */ }
-    public void showProducts(List<Product> productList) { /* ... unchanged ... */ }
+
+    public void showAllProducts() {
+        System.out.println("Permanent Stock");
+        showProducts(permanentStock);
+
+        System.out.println("Spring Stock");
+        showProducts(springStock);
+
+        System.out.println("Summer Stock");
+        showProducts(summerStock);
+
+        System.out.println("Autumn Stock");
+        showProducts(autumnStock);
+
+        System.out.println("Winter Stock");
+        showProducts(winterStock);
+    }
+    public void showAvailableProducts(Seasons season) {
+        System.out.println("Permanent Stock");
+        showProducts(permanentStock);
+        switch (season) {
+            case SPRING:
+                System.out.println("Spring Stock");
+                showProducts(springStock);
+                break;
+            case SUMMER:
+                System.out.println("Summer Stock");
+                showProducts(summerStock);
+                break;
+            case AUTUMN:
+                System.out.println("Autumn Stock");
+                showProducts(autumnStock);
+                break;
+            case WINTER:
+                System.out.println("Winter Stock");
+                showProducts(winterStock);
+                break;
+        }
+    }
+    public void showProducts(List<Product> productList) {
+        int c = 1;
+        if (!productList.isEmpty()) {
+            for (Product item : productList) {
+                System.out.println("Item Code " + c + " : ");
+                System.out.println("Name        : " + item.getItem().getName());
+                System.out.println("Description : " + item.getItem().getDescription());
+                System.out.println("Price       : " + item.getItem().getPrice());
+                double stock = item.getAmount();
+                System.out.println("Stock       : " + stock);
+                c++;
+                System.out.println("~~~~~~~~~~~~~~~~~~~");
+            }
+        } else {
+            System.out.println("------------------------------");
+            System.out.println();
+            System.out.println("------------------------------");
+        }
+    }
 
     // --- GETTERS ---
     public TileType getTileType() { return tileType; }

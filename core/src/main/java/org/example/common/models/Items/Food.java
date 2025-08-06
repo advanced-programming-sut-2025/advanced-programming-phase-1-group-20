@@ -53,8 +53,4 @@ public class Food extends Item {
         }
     }
 
-    @Override
-    public String getImageFilepath() {
-        return "content/Cookingitems/" + image + ".png";
-    }
 }

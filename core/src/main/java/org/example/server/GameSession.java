@@ -308,7 +308,7 @@ public class GameSession {
                 System.out.println("DEBUG: Server game loop - current date is null");
             }
 
-            // Update game time and state
+            // Update game state
             App.getGame().updateGameState();
 
             // Broadcast time updates to all clients periodically
@@ -590,6 +590,9 @@ public class GameSession {
 
             // Initialize the game with selected farms
             App.getGame().initializeMultiplayerGame();
+
+            System.out.println("DEBUG: market initializing");
+            liveStockController.initializeMarkets();
 
             // Set the game session as fully active
             this.isActive = true;

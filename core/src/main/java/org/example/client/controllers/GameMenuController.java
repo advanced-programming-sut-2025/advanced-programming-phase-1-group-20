@@ -475,7 +475,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    private Result eatFood(String[] args) {
+    public Result eatFood(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
 
         String foodName = args[0];
