@@ -338,6 +338,13 @@ public class InventoryScreen implements Screen {
                         }
                     }
                 });
+                slot.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        player.equipItem(item.getName());
+                        Main.getGame().setScreen(previousScreen);
+                    }
+                });
             }
 
             // Add click listener for tools

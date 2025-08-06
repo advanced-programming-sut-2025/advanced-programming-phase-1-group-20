@@ -13,6 +13,7 @@ import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
 import org.example.client.network.NetworkClient;
 import org.example.common.models.App;
+import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
@@ -251,7 +252,22 @@ public class PlayerController {
                 flip, false
             );
         }
+        if(player.getCurrentItem() != null && !player.hasCollapsed()) {
+            Texture itemTexture = new Texture(player.getCurrentItem().getImageFilepath());
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+            float centerX = playerX + RENDER_W / 2f;
+            float centerY = playerY + RENDER_H / 2f;
+
+
+            Main.getBatch().draw(
+                itemTexture,
+                centerX , centerY,
+                itemTexture.getWidth(), itemTexture.getHeight()
+            );
+        }
     }
+
 
 
     private int calculateMovementEnergyCost() {
