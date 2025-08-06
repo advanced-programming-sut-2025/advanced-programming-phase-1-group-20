@@ -475,7 +475,7 @@ public class Player {
             return;
         }
 
-
+        backpack.remove(item , 1);
         setCurrentItem(item);
     }
 
