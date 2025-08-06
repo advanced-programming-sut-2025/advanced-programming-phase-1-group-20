@@ -1197,6 +1197,11 @@ public class GameView implements Screen, InputProcessor {
         bgColor.mul(0.3f); // Darken for background
         ScreenUtils.clear(bgColor.r, bgColor.g, bgColor.b, 1);
 
+//        Date testDate = getCurrentGameDate();
+//        if (testDate != null) {
+//            System.out.println("Current Time: " + testDate.getHour() + ":" + testDate.getMinutes());
+//        }
+
         if (!pauseTable.isVisible()) {
             gameTime += deltaTime;
             updateLighting(deltaTime);
