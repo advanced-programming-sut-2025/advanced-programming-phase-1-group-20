@@ -1304,6 +1304,7 @@ public class GameView implements Screen, InputProcessor {
 
         Main.getBatch().setColor(Color.WHITE);
 
+//        updateClockPosition();
         // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
