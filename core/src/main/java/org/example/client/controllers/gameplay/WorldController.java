@@ -186,6 +186,7 @@ public class WorldController {
         preloadTrees();
         preloadCrops();
         preloadMinerals();
+        preloadSeeds();
 
         loadTexture("branch", "content/Crafting/Stone.png");
         loadTexture("quarry", "content/Crafting/Stone.png");
@@ -220,7 +221,11 @@ public class WorldController {
     }
 
     public void preloadSeeds(){
-
+        for(SeedType seedType : SeedType.values()) {
+            String key = seedType.getImageFilePath();
+            String path = "content/Seeds/" + key + ".png";
+            loadTexture(key , path);
+        }
     }
 
     public void preloadPlants(){
@@ -1361,7 +1366,7 @@ public class WorldController {
     }
 
     private void renderCropItem(float worldX, float worldY , Crop crop) {
-        String key = crop.getImageFilepath();
+        String key = crop.getType().getImageFilePath();
         Texture cropTexture = getTexture(key);
         if (cropTexture != null) {
             Main.getBatch().draw(cropTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);
@@ -1371,9 +1376,10 @@ public class WorldController {
     private void renderPlantItem(float worldX, float worldY , Plant plant) {
         String key;
         if(plant.getIsGiant()){
-            key = plant.getImageFilepath() + "_Giant";
+            key = plant.getType().getImageFilePath() + "_Giant";
         }else{
-            key = plant.getImageFilepath() + "_" + plant.getStage() + ".png";
+            int stage = plant.getStage() + 1;
+            key = plant.getType().getImageFilePath() + "_" + stage + ".png";
         }
         Texture plantTexture = getTexture(key);
         if (plantTexture != null) {
@@ -1382,7 +1388,7 @@ public class WorldController {
     }
 
     private void renderMineralItem(float worldX, float worldY , Mineral mineral) {
-        String key = mineral.getImageFilepath();
+        String key = mineral.getType().getImageFilepath();
         Texture mineralTexture = getTexture(key);
         if (mineralTexture != null) {
             Main.getBatch().draw(mineralTexture, worldX, worldY, TILE_SIZE, TILE_SIZE);

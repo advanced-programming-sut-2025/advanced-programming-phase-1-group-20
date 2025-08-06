@@ -29,5 +29,8 @@ public class Seed extends Item {
         type.showInfo();
     }
 
-
+    @Override
+    public String getImageFilepath() {
+        return "content/Seeds/" + type.getImageFilePath() + ".png";
+    }
 }

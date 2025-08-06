@@ -710,7 +710,12 @@ public class GameView implements Screen, InputProcessor {
                     }
                     String[] args = new String[]{seed.getName() , direction};
 
-                    controller.plant(args);
+                    Result result = controller.plant(args);
+                    if(result.success()) {
+                        currentPlayer.setCurrentItem(null);
+                    }else{
+                        System.out.println(result.message());
+                    }
                 }
                 else{
                     float playerX = currentPlayer.getPosX();
@@ -730,8 +735,10 @@ public class GameView implements Screen, InputProcessor {
                     }
                     String[] args = new String[]{currentPlayer.getCurrentItem().getName() , direction};
 
-                    controller.placeItem(args);
-                    currentPlayer.setCurrentItem(null);
+                    Result result = controller.plant(args);
+                    if(result.success()) {
+                        currentPlayer.setCurrentItem(null);
+                    }
                 }
             }
         }

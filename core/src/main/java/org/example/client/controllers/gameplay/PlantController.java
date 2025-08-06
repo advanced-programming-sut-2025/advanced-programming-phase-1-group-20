@@ -36,13 +36,10 @@ public class PlantController {
         if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
             return Result.error("Backpack does not contain " + seedName);
         }
-        if (gMap.getFarmByPlayer(player).contains(x, y)) {
-            return Result.error("this is not your farm!!!");
-        }
         if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
             return Result.error("the land is not plowed!");
         }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
+        if (gMap.getFarmByPlayer(player).getItem(x, y).getItem() != null) {
             return Result.error("there is an item on the ground");
         }
         if (!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
@@ -57,26 +54,35 @@ public class PlantController {
                 if (type == null) {
                     return Result.error("Plant type not found");
                 }
-                item = new Plant(type);
-            }
+                Item puttingItem = new Plant(type);
+                gMap.getFarmByPlayer(player).placeItem(x, y, puttingItem);
+            }else{
 
-            Item seedItem = ItemBuilder.build(seedName);
-            Seed seed = (Seed) seedItem;
-            Seasons[] seasons = seed.getSeason();
-            int counter = 0;
+                Item seedItem = ItemBuilder.build(seedName);
+                Seed seed = (Seed) seedItem;
+                Seasons[] seasons = seed.getSeason();
+                int counter = 0;
 
-            for (Seasons season : seasons) {
-                if (App.getGame().getDate().getSeason() == season) {
-                    counter++;
+                for (Seasons season : seasons) {
+                    if (App.getGame().getDate().getSeason() == season) {
+                        counter++;
+                    }
                 }
+
+                if (counter == 0) {
+                    return Result.error("This seed is not for this season.");
+                }
+                PlantType type = PlantType.fromSeed(seedName);
+                if (type == null) {
+                    return Result.error("Plant type not found");
+                }
+
+                Item puttingItem = new Plant(type);
+
+
+                gMap.getFarmByPlayer(player).placeItem(x, y, puttingItem);
             }
 
-            if (counter == 0) {
-                return Result.error("This seed is not for this season.");
-            }
-
-
-            gMap.getFarmByPlayer(player).placeItem(x, y, item);
         } else if (item instanceof Tree tree) {
             Seasons[] seasons = tree.getSeasons();
             int counter = 0;
@@ -126,7 +132,7 @@ public class PlantController {
                 dir[1] = -1;
                 break;
         }
-        return null;
+        return dir;
     }
 
     public Result showPlant(String[] args) {

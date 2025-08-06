@@ -749,8 +749,9 @@ public class Farm {
     public void placeItem(int x, int y, Item item) {
         Location tile = tiles[x][y];
         tile.setItem(item);
-        System.out.println("here placed");
-
+        if(item instanceof  Plant){
+            System.out.println(item.getName() + " placed ");
+        }
         if (item instanceof Plant && item.isGiantable()) {
             // After placing a plant, check if it completes a 2x2 square
             checkForGiantCrop(x, y, (Plant) item);
