@@ -125,7 +125,6 @@ public class WorldController {
         preloadTextures();
         placementTexture = new Texture(Gdx.files.internal("content/placement_valid.png"));
         invalidPlacementTexture = new Texture(Gdx.files.internal("content/placement_invalid.png"));
-
     }
 
     private Texture createColorTexture(Color color) {
@@ -194,7 +193,6 @@ public class WorldController {
         Gdx.app.log("WorldController", "Finished preloading textures. Cache size: " + textureCache.size());
     }
 
-
     public void preloadCrafting(){
         for(CraftingType craftingType : CraftingType.values()) {
             String key = craftingType.getImageFilepath();
@@ -210,7 +208,6 @@ public class WorldController {
             loadTexture(key , path);
         }
     }
-
 
     public void preloadCooking(){
         for(CookingType cookingType : CookingType.values()) {
