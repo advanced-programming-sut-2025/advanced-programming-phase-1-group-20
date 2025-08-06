@@ -125,7 +125,6 @@ public class WorldController {
         preloadTextures();
         placementTexture = new Texture(Gdx.files.internal("content/placement_valid.png"));
         invalidPlacementTexture = new Texture(Gdx.files.internal("content/placement_invalid.png"));
-
     }
 
     private Texture createColorTexture(Color color) {
@@ -194,7 +193,6 @@ public class WorldController {
         Gdx.app.log("WorldController", "Finished preloading textures. Cache size: " + textureCache.size());
     }
 
-
     public void preloadCrafting(){
         for(CraftingType craftingType : CraftingType.values()) {
             String key = craftingType.getImageFilepath();
@@ -210,7 +208,6 @@ public class WorldController {
             loadTexture(key , path);
         }
     }
-
 
     public void preloadCooking(){
         for(CookingType cookingType : CookingType.values()) {
@@ -1784,18 +1781,16 @@ public class WorldController {
     }
 
     private void showFriendInteractionWindow(Player targetPlayer) {
-        System.out.println("🤝 Opening friend interaction window for " + targetPlayer.getUser().getUsername());
+        System.out.println("🤝 Opening relationship menu for " + targetPlayer.getUser().getUsername());
         try {
-            org.example.client.views.FriendInteractionWindow interactionWindow =
-                new org.example.client.views.FriendInteractionWindow(
-                    playerController.getPlayer(),
-                    targetPlayer,
-                    skin,
-                    controller.getView()
-                );
-            Main.getGame().setScreen(interactionWindow);
+            // Call the showRelationshipMenu method from GameView instead of creating a new window
+            if (controller != null && controller.getView() != null) {
+                controller.getView().showRelationshipMenu(targetPlayer);
+            } else {
+                System.err.println("Error: Controller or GameView is null");
+            }
         } catch (Exception e) {
-            System.err.println("Error opening friend interaction window: " + e.getMessage());
+            System.err.println("Error opening relationship menu: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -37,16 +37,7 @@ public class LiveStockController {
         }
     }
 
-    /**
-     * Handles a purchase request from a player. It validates the request,
-     * updates the game state, and broadcasts changes.
-     *
-     * @param username The username of the player making the purchase.
-     * @param marketName The name of the market where the purchase is made.
-     * @param itemName The name of the item being purchased.
-     * @param quantity The quantity of the item to purchase.
-     * @return A Result object indicating success or failure.
-     */
+
     public Result handlePurchase(String username, String marketName, String itemName, int quantity) {
         Player player = gameSession.getGameInstance().getPlayerByUsername(username);
         if (player == null) {

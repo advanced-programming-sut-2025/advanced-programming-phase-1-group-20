@@ -96,7 +96,7 @@ public class WelcomeMenuController {
         GameMap map = new GameMap();
         Farm farm1 = new Farm("guest farm" , player1 , true , 0);
         player1.setCurrentFarm(farm1);
-//        player1.setEnergyUnlimited();
+        player1.setEnergyUnlimited();
         map.addFarm(farm1);
         //TODO : these are for testing and it works!!!!!
         // Add a barn and a coop to the farm

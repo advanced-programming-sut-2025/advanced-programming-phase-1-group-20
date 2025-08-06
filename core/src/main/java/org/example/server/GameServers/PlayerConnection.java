@@ -154,7 +154,6 @@ public class PlayerConnection {
         String token = message.getFromBody("token");
         String requestedUsername = message.getFromBody("username");
 
-        // TODO: Validate JWT token and get user
         if (token != null && requestedUsername != null) {
             // This would normally validate the JWT token
             // For now, we'll create a basic user object
