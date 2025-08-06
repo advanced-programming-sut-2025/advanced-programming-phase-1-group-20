@@ -45,6 +45,7 @@ public class Player {
     private Player spouse;
     private boolean isMarried;
     private Tool currentTool;
+    private Item currentItem;
     private Date rejectDate;
     private boolean energySet = true;
     private int energyUsedInTurn = 0;
@@ -466,6 +467,24 @@ public class Player {
         currentTool = (Tool) item;
         currentTool.equip();
         return true;
+    }
+
+    public void equipItem(String itemName) {
+        Item item = backpack.getItem(itemName);
+        if (item == null || !(item instanceof Item)) {
+            return;
+        }
+
+        backpack.remove(item , 1);
+        setCurrentItem(item);
+    }
+
+    public Item getCurrentItem() {
+        return currentItem;
+    }
+
+    public void setCurrentItem(Item currentItem) {
+        this.currentItem = currentItem;
     }
 
     public Tool getCurrentTool() {

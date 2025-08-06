@@ -122,7 +122,7 @@ public enum GameMenuCommands implements Command {
     CheatSetFriendship(Pattern.compile("^cheat\\s+set\\s+friendship\\s+-n\\s+(?<name>.+)\\s+-c\\s+(?<amount>\\d+)$")),
 
     //cheats
-    CheatAddItem(Pattern.compile("^cheat\\s+add\\s+(?<itemName>\\S+)\\s+(?<amount>\\d+)\\s*$")),
+    CheatAddItem(Pattern.compile("^cheat\\s+add\\s+(?<itemName>.+)\\s+(?<amount>\\d+)\\s*$")),
     CheatAddFavourites(Pattern.compile("^cheat\\s+add\\s+favorites\\s+(?<characterName>\\S+)\\s*$")),
     CheatTeleport(Pattern.compile("^cheat\\s+teleport\\s+(\\d+)\\s+(\\d+)$")),
     CheatSetBackPackFull(Pattern.compile("^cheat\\s+set\\s+backpack\\s+full\\s*$")),

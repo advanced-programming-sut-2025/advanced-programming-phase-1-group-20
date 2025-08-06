@@ -10,7 +10,7 @@ public enum TileType {
     IRON_ORE(false),
     BARN(false),
     COOP(false),
-    PLOWED(false),
+    PLOWED(true),
     CROP(false),
     GOLD_ORE(false),
     DIAMOND_ORE(false),

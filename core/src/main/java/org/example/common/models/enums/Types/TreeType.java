@@ -56,6 +56,15 @@ public enum TreeType {
         return null;
     }
 
+    public static TreeType fromSource(String source) {
+        for (TreeType treeType : TreeType.values()) {
+            if (treeType.getSource().equals(source)) {
+                return treeType;
+            }
+        }
+        return null;
+    }
+
     public static TreeType getType(String name) {
         for (TreeType type : TreeType.values()) {
             if (type.getName().equalsIgnoreCase(name)) return type;

@@ -38,6 +38,10 @@ public class Crop extends Item {
         return "content/Crops/" + getImageFilepath() + ".png";
     }
 
+    public CropType getType() {
+        return type;
+    }
+
     public Texture getTexture() {
         return new Texture(getImage());
     }

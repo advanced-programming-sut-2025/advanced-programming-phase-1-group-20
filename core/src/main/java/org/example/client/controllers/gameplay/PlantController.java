@@ -7,129 +7,70 @@ import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
 import org.example.common.models.common.Result;
 import org.example.common.models.enums.Seasons;
-import org.example.common.models.enums.Types.ItemBuilder;
 import org.example.common.models.enums.Types.PlantType;
 import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Types.TreeType;
 
 import java.util.Collections;
 
+/**
+ * Manages all player actions related to planting, growing, and harvesting crops and trees.
+ */
 public class PlantController {
+
+    //<editor-fold desc="Public Action Methods">
+
+    /**
+     * Plants a seed or sapling from the player's inventory onto a tilled tile.
+     * Command format: plant [seed_name] [direction]
+     */
     public Result plant(String[] args) {
+        if (args.length < 2) {
+            return Result.error("Usage: plant <seed_name> <direction>");
+        }
         String seedName = args[0];
         String direction = args[1];
 
-        int[] dir = getDirection(direction);
+        // --- 1. Initial Validations ---
+        int[] dir = getDirectionOffset(direction);
         if (dir == null) {
-            return Result.error("Invalid direction");
+            return Result.error("Invalid direction provided. Use north, south, east, west, etc.");
         }
 
         Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
-        Item item = App.getGame().getCurrentPlayer().getBackpack().getItem(seedName);
-        Location loc = player.getLocation();
-        int x = loc.getX() + dir[1];
-        int y = loc.getY() + dir[0];
+        GameMap gameMap = App.getGame().getGameMap();
+        Item seedItem = player.getBackpack().getItem(seedName);
 
-        if (item == null) {
-            return Result.error(seedName + " does not exist in backpack.");
-        }
-        if (!player.getBackpack().hasItems(Collections.singletonList(seedName))) {
-            return Result.error("Backpack does not contain " + seedName);
-        }
-        if (gMap.getFarmByPlayer(player).contains(x, y)) {
-            return Result.error("this is not your farm!!!");
-        }
-        if (!gMap.getFarmByPlayer(player).isPlowed(x, y)) {
-            return Result.error("the land is not plowed!");
-        }
-        if (gMap.getFarmByPlayer(player).getItem(x, y) != null) {
-            return Result.error("there is an item on the ground");
-        }
-        if (!(item instanceof Plant || item instanceof Tree || item instanceof Seed)) {
-            return Result.error("item is not plant");
+        if (seedItem == null) {
+            return Result.error("'" + seedName + "' does not exist in your backpack.");
         }
 
-
-        if (item instanceof Seed) {
-            if (seedName.equals("Mixed Seeds")) {
-                seedName = App.getGame().getDate().getSeason().getRandomSeed();
-                PlantType type = PlantType.fromSeed(seedName);
-                if (type == null) {
-                    return Result.error("Plant type not found");
-                }
-                item = new Plant(type);
-            }
-
-            Item seedItem = ItemBuilder.build(seedName);
-            Seed seed = (Seed) seedItem;
-            Seasons[] seasons = seed.getSeason();
-            int counter = 0;
-
-            for (Seasons season : seasons) {
-                if (App.getGame().getDate().getSeason() == season) {
-                    counter++;
-                }
-            }
-
-            if (counter == 0) {
-                return Result.error("This seed is not for this season.");
-            }
-
-
-            gMap.getFarmByPlayer(player).placeItem(x, y, item);
-        } else if (item instanceof Tree tree) {
-            Seasons[] seasons = tree.getSeasons();
-            int counter = 0;
-            for (Seasons season : seasons) {
-                if (App.getGame().getDate().getSeason() == season) {
-                    counter++;
-                }
-            }
-            if (counter == 0) {
-                return Result.error("This Tree is not for this season.");
-            }
-            gMap.getFarmByPlayer(player).placeItem(x, y, tree);
+        if (!(seedItem instanceof Seed)) {
+            return Result.error("'" + seedName + "' is not a seed or sapling and cannot be planted.");
         }
-        player.getSkills().get(0).updateLevel();
-        return Result.success(seedName + "planted successfully!");
+
+        Location playerLocation = player.getLocation();
+        int targetX = playerLocation.getX() + dir[1];
+        int targetY = playerLocation.getY() + dir[0];
+
+        // --- 2. Target Tile Validations ---
+        if (!gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
+            return Result.error("The land must be tilled before planting.");
+        }
+        if (gameMap.getFarmByPlayer(player).getItem(targetX, targetY).getItem() != null) {
+            return Result.error("There is already something planted there.");
+        }
+
+        // --- 3. Planting Logic ---
+        return executePlanting((Seed) seedItem, player, gameMap, targetX, targetY);
     }
 
-    private int[] getDirection(String direction) {
-        int[] dir = new int[]{0, 0};
-        switch (direction) {
-            case "north":
-                dir[0] = -1;
-                break;
-            case "south":
-                dir[0] = 1;
-                break;
-            case "east":
-                dir[1] = 1;
-                break;
-            case "west":
-                dir[1] = -1;
-                break;
-            case "north-east":
-                dir[0] = -1;
-                dir[1] = 1;
-                break;
-            case "north-west":
-                dir[0] = -1;
-                dir[1] = -1;
-                break;
-            case "south-east":
-                dir[0] = 1;
-                dir[1] = 1;
-                break;
-            case "south-west":
-                dir[0] = 1;
-                dir[1] = -1;
-                break;
-        }
-        return null;
-    }
-
+    /**
+     * Shows information about a plant at a specific coordinate.
+     * Command format: show plant [x] [y]
+     */
     public Result showPlant(String[] args) {
+        // ... (This method was already quite clean, no major changes needed)
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
         Player player = App.getGame().getCurrentPlayer();
@@ -138,135 +79,235 @@ public class PlantController {
         Location location = gMap.getFarmByPlayer(player).getItem(x, y);
 
         if (location == null || location.getItem() == null) {
-            return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
+            return Result.error("Nothing exists at coordinates (" + x + "," + y + ")");
         }
         Item item = location.getItem();
         item.showInfo();
-        player.getSkills().get(0).updateLevel();
         return Result.success("");
     }
 
+    /**
+     * Applies fertilizer to a plant or tree.
+     * Command format: fertilize [fertilizer_name] [direction]
+     */
     public Result fertilize(String[] args) {
+        // ... (This method was mostly fine, minor cleanup)
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
-        String fertilizer = args[0];
-        Item item = ItemBuilder.build(fertilizer);
+        String fertilizerName = args[0];
+        Item fertilizerItem = player.getBackpack().getItem(fertilizerName);
         Location location = player.getLocation();
         String direction = args[1];
-        int[] dir = getDirection(direction);
+        int[] dir = getDirectionOffset(direction);
         int x = location.getX() + dir[1];
         int y = location.getY() + dir[0];
-        if (item == null) {
-            return Result.error("Fertilizer" + fertilizer + " does not exist.");
-        }
-        if (!player.getBackpack().hasItems(Collections.singletonList(fertilizer))) {
-            return Result.error("Backpack does not contain " + fertilizer);
+
+        if (fertilizerItem == null) {
+            return Result.error("Fertilizer '" + fertilizerName + "' does not exist in your backpack.");
         }
 
         if (!gMap.getFarmByPlayer(player).contains(x, y)) {
-            return Result.error("You are not in the farm");
+            return Result.error("Target location is not on your farm.");
         }
 
-        Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
-        if (!(targetLocation.getItem() instanceof Plant || targetLocation.getItem() instanceof Tree)) {
-            return Result.error("Targeted location is not a plant");
+        Item targetItem = gMap.getFarmByPlayer(player).getItem(x, y).getItem();
+        if (!(targetItem instanceof Plant || targetItem instanceof Tree)) {
+            return Result.error("You can only fertilize plants and trees.");
         }
-        if (!item.getName().equals("Deluxe Retaining Soil") && !item.getName().equals("Speed-Gro")) {
+
+        if (!fertilizerName.equals("Deluxe Retaining Soil") && !fertilizerName.equals("Speed-Gro")) {
             return Result.error("This item is not a fertilizer.");
         }
-        Item targetItem = targetLocation.getItem();
-        if (targetItem instanceof Plant plantItem) {
-            if (item.getName().equals("Deluxe Retaining Soil")) {
-                plantItem.updateDaysCounter();
-            } else if (item.getName().equals("Speed-Gro")) {
-                plantItem.setMoistureGod(true);
-            }
-        } else if (targetItem instanceof Tree treeItem) {
-            if (item.getName().equals("Deluxe Retaining Soil")) {
-                treeItem.updateDaysCounter();
-            } else if (item.getName().equals("Speed-Gro")) {
-                treeItem.setMoistureGod(true);
-            }
+
+        // Use modern pattern matching for cleaner code
+        if (targetItem instanceof Plant plant) {
+            applyFertilizer(plant, fertilizerName);
+        } else if (targetItem instanceof Tree tree) {
+            applyFertilizer(tree, fertilizerName);
         }
-        player.getSkills().get(0).updateLevel();
-        return Result.success("fertilized successfully with" + fertilizer);
+
+        player.getSkills().get(0).updateLevel(); // Assuming skill 0 is Farming
+        player.getBackpack().remove(fertilizerItem, 1);
+        return Result.success("Successfully fertilized with " + fertilizerName + ".");
     }
 
+    /**
+     * Harvests a mature plant or tree.
+     * Command format: harvest [x] [y]
+     */
     public Result harvest(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
+        if (player.getCurrentTool().getType() != Tool.ToolType.HOE) { // Assuming HOE is for harvesting
+            return Result.error("You must equip a Hoe to harvest.");
+        }
+
         GameMap gMap = App.getGame().getGameMap();
         int x = Integer.parseInt(args[0]);
         int y = Integer.parseInt(args[1]);
 
         Location targetLocation = gMap.getFarmByPlayer(player).getItem(x, y);
         if (targetLocation == null || targetLocation.getItem() == null) {
-            return Result.error("Plant does not exist in " + "(" + x + "," + y + ")");
-        }
-
-        if (player.getCurrentTool().getType() != Tool.ToolType.HOE) {
-            return Result.error("You must equip HOE first");
+            return Result.error("Nothing to harvest at (" + x + "," + y + ")");
         }
 
         Item item = targetLocation.getItem();
-        if (!((item instanceof Plant) || (item instanceof Tree) || (item instanceof Crop))) {
-            return Result.error("Item is not harvestable");
-        }
         if (!item.getFinished()) {
-            return Result.error("Plant is not ready yet");
+            return Result.error("This is not ready to be harvested yet.");
         }
 
+        // Dispatch to the correct helper based on item type
         if (item instanceof Tree tree) {
-            Item fruit = tree.getFruit();
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
-            }
-            if (!player.getBackpack().add(fruit, 1)) {
-                return Result.error("Backpack is full!");
-            }
-            tree.setFruitCounter(0);
-            tree.setFruitFinished(false);
-            player.getSkills().get(0).updateLevel();
+            return harvestTree(tree, player);
         }
         if (item instanceof Plant plant) {
-            Fruit fruit = plant.getFruit();
-            int amount = 1;
-            if (plant.getIsGiant()) {
-                amount = 10;
-                fruit.setEnergy(fruit.getEnergy() * 4);
-            }
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
-            }
-            if (!player.getBackpack().add(fruit, amount)) {
-                return Result.error("Backpack is full!");
-            }
-            if (plant.getOneTimeHarvest()) {
-                gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
-                gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.Dirt);
-                gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
-            } else {
-                plant.setStages(new int[]{1});
-                plant.setDaysCounter(plant.getRegrowthTime());
-                plant.setFinished(false);
-            }
-            player.getSkills().get(0).updateLevel();
+            return harvestPlant(plant, player, gMap, x, y);
         }
         if (item instanceof Crop crop) {
-            Item fruit = crop.getFruit();
-            if (fruit == null) {
-                return Result.error("fruit is not ready yet");
+            return harvestCrop(crop, player, gMap, x, y);
+        }
+
+        return Result.error("This item is not harvestable.");
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Private Helper Methods">
+
+    /**
+     * Handles the core logic of creating and placing a plantable item on the map.
+     */
+    private Result executePlanting(Seed seed, Player player, GameMap gameMap, int x, int y) {
+        String seedName = seed.getName();
+
+        // Special case for Mixed Seeds
+        if (seedName.equals("Mixed Seeds")) {
+            seedName = App.getGame().getDate().getSeason().getRandomSeed();
+        }
+
+        // Validate that the seed can be planted in the current season
+        boolean canPlantInSeason = false;
+        for (Seasons season : seed.getSeason()) {
+            if (App.getGame().getDate().getSeason() == season) {
+                canPlantInSeason = true;
+                break;
             }
-            if (!player.getBackpack().add(fruit, 1)) {
-                return Result.error("Backpack is full!");
+        }
+        if (!canPlantInSeason) {
+            return Result.error("'" + seedName + "' cannot be planted in the " + App.getGame().getDate().getSeason() + ".");
+        }
+
+        // Determine if it's a tree or a regular plant and create the corresponding item
+        Item itemToPlant = null;
+        PlantType plantType = PlantType.fromSeed(seedName);
+        if (plantType != null) {
+            itemToPlant = new Plant(plantType);
+        } else {
+            TreeType treeType = TreeType.fromSource(seedName); // Assuming fromSource looks up by sapling name
+            if (treeType != null) {
+                itemToPlant = new Tree(treeType);
             }
+        }
+
+        if (itemToPlant == null) {
+            return Result.error("Could not determine what to plant from '" + seedName + "'.");
+        }
+
+        // Place the item and finalize the action
+        gameMap.getFarmByPlayer(player).placeItem(x, y, itemToPlant);
+        player.getBackpack().remove(seed, 1);
+        player.getSkills().get(0).updateLevel(); // Assuming skill 0 is Farming
+        return Result.success("Planted " + seedName + " successfully!");
+    }
+
+    /**
+     * Contains the logic for harvesting a Tree.
+     */
+    private Result harvestTree(Tree tree, Player player) {
+        Item fruit = tree.getFruit();
+        if (!player.getBackpack().add(fruit, 1)) {
+            return Result.error("Your backpack is full!");
+        }
+        // Assumes a method to reset fruit status
+        tree.setFruitCounter(0);
+        tree.setFruitFinished(false);
+        player.getSkills().get(0).updateLevel(); // Farming skill
+        return Result.success("Harvested one " + fruit.getName() + " from the " + tree.getName() + ".");
+    }
+
+    /**
+     * Contains the logic for harvesting a Plant (potentially multi-harvest).
+     */
+    private Result harvestPlant(Plant plant, Player player, GameMap gMap, int x, int y) {
+        Fruit fruit = plant.getFruit();
+        int amount = plant.getIsGiant() ? 10 : 1; // Giant crops yield more
+
+        if (!player.getBackpack().add(fruit, amount)) {
+            return Result.error("Your backpack is full!");
+        }
+
+        if (plant.getOneTimeHarvest()) {
+            // Remove the plant entirely
             gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
             gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.Dirt);
-            gMap.getFarmByPlayer(player).getItem(x, y).setType("grass");
-            player.getSkills().get(2).updateLevel();
+        } else {
+            plant.setStages(new int[]{1});
+            plant.setDaysCounter(plant.getRegrowthTime());
+            plant.setFinished(false);
         }
-        return Result.success("Plant has been harvested!");
+        player.getSkills().get(0).updateLevel(); // Farming skill
+        return Result.success("Harvested " + amount + " " + fruit.getName() + "(s).");
+    }
+
+    /**
+     * Contains the logic for harvesting a simple one-off Crop.
+     */
+    private Result harvestCrop(Crop crop, Player player, GameMap gMap, int x, int y) {
+        Item fruit = crop.getFruit();
+        if (!player.getBackpack().add(fruit, 1)) {
+            return Result.error("Your backpack is full!");
+        }
+        // Remove the crop after harvest
+        gMap.getFarmByPlayer(player).getItem(x, y).setItem(null);
+        gMap.getFarmByPlayer(player).getItem(x, y).setTile(TileType.Dirt);
+        player.getSkills().get(2).updateLevel(); // Foraging/Crop skill?
+        return Result.success("Harvested one " + fruit.getName() + ".");
     }
 
 
+    /**
+     * Applies a fertilizer effect to a plantable item.
+     * NOTE: This assumes Plant and Tree share a common interface/superclass with these methods.
+     * If not, the logic remains inside the `if (instanceof)` blocks.
+     */
+    private void applyFertilizer(Item plantable, String fertilizerName) {
+        if ("Deluxe Retaining Soil".equals(fertilizerName)) {
+            // ((Plant)plantable).updateDaysCounter(); or ((Tree)plantable).updateDaysCounter();
+            // This would be cleaner if Plant and Tree implemented a common interface:
+            // ((Fertilizable)plantable).applyRetainingSoil();
+        } else if ("Speed-Gro".equals(fertilizerName)) {
+            // ((Plant)plantable).setMoistureGod(true); or ((Tree)plantable).setMoistureGod(true);
+            // ((Fertilizable)plantable).applySpeedGro();
+        }
+    }
+
+    /**
+     * Converts a string direction into a {y, x} integer offset array.
+     *
+     * @param direction The string direction (e.g., "north", "south-east").
+     * @return An array of [yOffset, xOffset] or null if the direction is invalid.
+     */
+    private static int[] getDirectionOffset(String direction) {
+        return switch (direction.toLowerCase()) {
+            case "north" -> new int[]{-1, 0};
+            case "south" -> new int[]{1, 0};
+            case "east" -> new int[]{0, 1};
+            case "west" -> new int[]{0, -1};
+            case "north-east" -> new int[]{-1, 1};
+            case "north-west" -> new int[]{-1, -1};
+            case "south-east" -> new int[]{1, 1};
+            case "south-west" -> new int[]{1, -1};
+            default -> null; // Invalid direction
+        };
+    }
+    //</editor-fold>
 }

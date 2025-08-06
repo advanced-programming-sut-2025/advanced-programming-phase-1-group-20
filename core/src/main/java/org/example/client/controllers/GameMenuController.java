@@ -279,7 +279,7 @@ public class GameMenuController implements Controller {
     }
 
 
-    private Result plant(String[] args) {
+    public Result plant(String[] args) {
         PlantController plantController = new PlantController();
         return plantController.plant(args);
     }
@@ -321,20 +321,20 @@ public class GameMenuController implements Controller {
     }
 
 
-    private Result showPlant(String[] args) {
+    public Result showPlant(String[] args) {
         PlantController plantController = new PlantController();
         return plantController.showPlant(args);
     }
 
 
     // we dont have fertilize
-    private Result fertilize(String[] args) {
+    public Result fertilize(String[] args) {
         PlantController plantController = new PlantController();
         return plantController.fertilize(args);
     }
 
 
-    private Result giveWater(String[] args) {
+    public Result giveWater(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
         String direction = args[0];
@@ -376,12 +376,12 @@ public class GameMenuController implements Controller {
 
 
     //this method is completed.
-    private Result harvest(String[] args) {
+    public Result harvest(String[] args) {
         PlantController plantController = new PlantController();
         return plantController.harvest(args);
     }
 
-    private Result placeItem(String[] args) {
+    public Result placeItem(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
         String itemName = args[0];
@@ -408,6 +408,7 @@ public class GameMenuController implements Controller {
         }
 
         gMap.getFarmByPlayer(player).placeItem(x, y, item);
+        player.getBackpack().remove(item , 1);
 
 
         if (item instanceof CraftingItem craftingItem) {
