@@ -166,6 +166,9 @@ public class GameView implements Screen, InputProcessor {
 
     private Runnable buildingPlacementListener;
 
+    private Table uiTable;
+    private boolean clockInitialized = false;
+
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
         this.player = player;
@@ -1138,17 +1141,35 @@ public class GameView implements Screen, InputProcessor {
 
     @Override
     public void show() {
+//        stage = new Stage(new ScreenViewport());
+//        InputMultiplexer multiplexer = new InputMultiplexer();
+//        multiplexer.addProcessor(stage);  // Stage first (UI elements)
+//        multiplexer.addProcessor(this);   // GameView second (world interactions)
+//        Gdx.input.setInputProcessor(multiplexer);
+//
+//        mainTable.top().right();
+//        mainTable.setFillParent(true);
+//        mainTable.padTop(10).padRight(10);
+//        mainTable.add(clockStack).size(120, 120).row();
+//        stage.addActor(mainTable);
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
-        multiplexer.addProcessor(stage);  // Stage first (UI elements)
-        multiplexer.addProcessor(this);   // GameView second (world interactions)
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(this);
         Gdx.input.setInputProcessor(multiplexer);
 
-        mainTable.top().right();
-        mainTable.setFillParent(true);
-        mainTable.padTop(10).padRight(10);
-        mainTable.add(clockStack).size(120, 120).row();
-        stage.addActor(mainTable);
+        uiTable = new Table();
+        uiTable.setFillParent(true);
+        uiTable.top().right();
+        uiTable.pad(20);
+
+        if (!clockInitialized) {
+            initializeClock();
+            clockInitialized = true;
+        }
+        uiTable.add(clockStack).size(120, 120);
+
+        stage.addActor(uiTable);
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
@@ -1224,6 +1245,11 @@ public class GameView implements Screen, InputProcessor {
 
         // Update money label
         updateMoneyLabel();
+
+        updateUIPosition();
+
+        stage.act(deltaTime);
+        stage.draw();
 
         // Update date and time labels
         Date gameDate = getCurrentGameDate();
@@ -1324,23 +1350,38 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
-    private void updateClockPosition() {
-        if (clockStack == null || camera == null) {
-            return;
-        }
+    private void updateUIPosition() {
+        if (uiTable == null || camera == null) return;
 
-        float padding = 20f;
-        float clockWidth = clockStack.getWidth();
-        float clockHeight = clockStack.getHeight();
+        Vector3 cameraScreenPos = camera.project(new Vector3(
+            camera.position.x + (camera.viewportWidth * camera.zoom / 2),
+            camera.position.y + (camera.viewportHeight * camera.zoom / 2),
+            0
+        ));
 
-        float cameraRight = camera.position.x + (camera.viewportWidth * camera.zoom / 2);
-        float cameraTop = camera.position.y + (camera.viewportHeight * camera.zoom / 2);
-
-        float clockX = cameraRight - clockWidth - padding;
-        float clockY = cameraTop - clockHeight - padding;
-
-        clockStack.setPosition(clockX, clockY);
+        uiTable.setPosition(
+            cameraScreenPos.x - uiTable.getWidth() - 20,
+            cameraScreenPos.y - uiTable.getHeight() - 20
+        );
     }
+
+//    private void updateClockPosition() {
+//        if (clockStack == null || camera == null) {
+//            return;
+//        }
+//
+//        float padding = 20f;
+//        float clockWidth = clockStack.getWidth();
+//        float clockHeight = clockStack.getHeight();
+//
+//        float cameraRight = camera.position.x + (camera.viewportWidth * camera.zoom / 2);
+//        float cameraTop = camera.position.y + (camera.viewportHeight * camera.zoom / 2);
+//
+//        float clockX = cameraRight - clockWidth - padding;
+//        float clockY = cameraTop - clockHeight - padding;
+//
+//        clockStack.setPosition(clockX, clockY);
+//    }
 
     @Override
     public void resize(int width, int height) {
