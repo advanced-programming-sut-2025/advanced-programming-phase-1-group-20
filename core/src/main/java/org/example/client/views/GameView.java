@@ -14,10 +14,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.InputMultiplexer;
@@ -26,6 +30,7 @@ import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
 import org.example.client.controllers.gameplay.WorldController;
+import org.example.client.controllers.gameplay.PlayerController;
 import org.example.client.views.gameplay.CookingScreen;
 import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
@@ -46,6 +51,7 @@ import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
+import org.example.common.models.entities.FriendShip;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
@@ -660,6 +666,10 @@ public class GameView implements Screen, InputProcessor {
             }
             return true;
         }
+        if (keycode == Input.Keys.R) {
+            showPlayerApproximationDialog();
+            return true;
+        }
         if (keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P) {
             takeScreenshot();
             return true;
@@ -1009,6 +1019,27 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
+    private boolean arePlayersAdjacent(Player player1, Player player2) {
+        if (player1 == null || player2 == null) {
+            return false;
+        }
+
+        if (player1.getCurrentFarm() != player2.getCurrentFarm() && !(player1.getIsInVillage() && player2.getIsInVillage())) {
+            return false;
+        }
+
+        Location loc1 = player1.getLocation();
+        Location loc2 = player2.getLocation();
+
+        if (loc1 == null || loc2 == null) {
+            return false;
+        }
+
+        int distance = Math.abs(loc1.xAxis - loc2.xAxis) + Math.abs(loc1.yAxis - loc2.yAxis);
+
+        return distance <= 2;
+    }
+
     private void renderPlayerSprite(Player player) {
         final int RENDER_W = 48;
         final int RENDER_H = 72;
@@ -1114,6 +1145,23 @@ public class GameView implements Screen, InputProcessor {
             animalsController.update(deltaTime);
         }
 
+        // Update animations
+        if (currentHeartAnimation != null) {
+            currentHeartAnimation.update(deltaTime);
+        }
+        if (currentSmileAnimation != null) {
+            currentSmileAnimation.update(deltaTime);
+        }
+        if (currentBouquetAnimation != null) {
+            currentBouquetAnimation.update(deltaTime);
+        }
+        if (currentHeartEmojiAnimation != null) {
+            currentHeartEmojiAnimation.update(deltaTime);
+        }
+        if (currentWeddingRingAnimation != null) {
+            currentWeddingRingAnimation.update(deltaTime);
+        }
+
         // Update clock display
         updateClockDisplay();
 
@@ -1180,6 +1228,22 @@ public class GameView implements Screen, InputProcessor {
             animalsController.render(Main.getBatch(), currentLightColor);
         }
 
+        // Render animations while batch is still active
+        if (currentHeartAnimation != null && currentHeartAnimation.isActive()) {
+            currentHeartAnimation.render();
+        }
+        if (currentSmileAnimation != null && currentSmileAnimation.isActive()) {
+            currentSmileAnimation.render();
+        }
+        if (currentBouquetAnimation != null && currentBouquetAnimation.isActive()) {
+            currentBouquetAnimation.render();
+        }
+        if (currentHeartEmojiAnimation != null && currentHeartEmojiAnimation.isActive()) {
+            currentHeartEmojiAnimation.render();
+        }
+        if (currentWeddingRingAnimation != null && currentWeddingRingAnimation.isActive()) {
+            currentWeddingRingAnimation.render();
+        }
 
         Main.getBatch().end();
 
@@ -1188,6 +1252,12 @@ public class GameView implements Screen, InputProcessor {
         // Render UI on top
         stage.act(Math.min(deltaTime, 1 / 30f));
         stage.draw();
+
+        // Render relationship menu if active
+        if (relationshipStage != null) {
+            relationshipStage.act(Math.min(deltaTime, 1 / 30f));
+            relationshipStage.draw();
+        }
 
         // Render vertical energy bars for all players
         renderVerticalEnergyBars();
@@ -1253,6 +1323,23 @@ public class GameView implements Screen, InputProcessor {
         // Dispose NPC sprite controller
         if (npcSpriteController != null) {
             npcSpriteController.dispose();
+        }
+
+        // Dispose animations
+        if (currentHeartAnimation != null) {
+            currentHeartAnimation.dispose();
+        }
+        if (currentSmileAnimation != null) {
+            currentSmileAnimation.dispose();
+        }
+        if (currentBouquetAnimation != null) {
+            currentBouquetAnimation.dispose();
+        }
+        if (currentHeartEmojiAnimation != null) {
+            currentHeartEmojiAnimation.dispose();
+        }
+        if (currentWeddingRingAnimation != null) {
+            currentWeddingRingAnimation.dispose();
         }
 
         if (animalsController != null) {
@@ -1731,6 +1818,850 @@ public class GameView implements Screen, InputProcessor {
 
     public void setBuildingPlacementListener(Runnable listener) {
         this.buildingPlacementListener = listener;
+    }
+
+
+    private void showPlayerApproximationDialog() {
+        Dialog dialog = new Dialog("Player Approximation", skin);
+        dialog.getContentTable().add(new Label("Enter the username of the player to teleport to:", skin)).pad(10).row();
+
+        TextField usernameField = new TextField("", skin);
+        usernameField.setMessageText("Enter username here...");
+        usernameField.setMaxLength(50);
+
+        // Ensure the text field has proper styling and is visible
+        usernameField.setColor(Color.WHITE);
+        usernameField.getStyle().fontColor = Color.WHITE;
+        usernameField.getStyle().messageFontColor = Color.GRAY;
+
+        dialog.getContentTable().add(usernameField).pad(10).row();
+
+        TextButton teleportButton = new TextButton("Teleport", skin);
+        TextButton cancelButton = new TextButton("Cancel", skin);
+
+        teleportButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                String username = usernameField.getText().trim();
+                if (!username.isEmpty()) {
+                    cheatPlayerApproximation(username);
+                    dialog.hide();
+                }
+            }
+        });
+
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                dialog.hide();
+            }
+        });
+
+        dialog.getButtonTable().add(teleportButton).pad(10);
+        dialog.getButtonTable().add(cancelButton).pad(10);
+
+        // Show the dialog
+        dialog.show(stage);
+
+        // Set focus to the text field and ensure it's selected
+        stage.setKeyboardFocus(usernameField);
+        usernameField.setSelection(0, usernameField.getText().length());
+
+        // Add debug output to help troubleshoot typing issues
+        System.out.println("DEBUG: Dialog opened, text field focus set");
+        System.out.println("DEBUG: Text field has focus: " + (stage.getKeyboardFocus() == usernameField));
+
+        // Add a text field listener to handle input and Enter key
+        usernameField.setTextFieldListener(new TextField.TextFieldListener() {
+            @Override
+            public void keyTyped(TextField textField, char key) {
+                System.out.println("DEBUG: TextFieldListener - keyTyped: " + key);
+                System.out.println("DEBUG: TextFieldListener - current text: '" + textField.getText() + "'");
+
+                if (key == '\n' || key == '\r') {
+                    String username = textField.getText().trim();
+                    System.out.println("DEBUG: Processing username: '" + username + "'");
+                    if (!username.isEmpty()) {
+                        cheatPlayerApproximation(username);
+                        dialog.hide();
+                    }
+                }
+            }
+        });
+
+        // Add a listener to handle dialog close
+        dialog.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    dialog.hide();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // Show the dialog
+        dialog.show(stage);
+
+        // Set focus to the text field after a short delay to ensure it's properly rendered
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                stage.setKeyboardFocus(usernameField);
+                usernameField.setSelection(0, usernameField.getText().length());
+                System.out.println("DEBUG: Dialog opened, text field focus set (delayed)");
+                System.out.println("DEBUG: Text field has focus: " + (stage.getKeyboardFocus() == usernameField));
+            }
+        });
+    }
+
+    public void cheatPlayerApproximation(String username){
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        Player targetPlayer = App.getGame().getPlayerByUsername(username);
+
+        System.out.println("=== TELEPORT DEBUG INFO ===");
+        System.out.println("Current player: " + currentPlayer.getUser().getUsername());
+        System.out.println("Target username: '" + username + "'");
+        System.out.println("Target player found: " + (targetPlayer != null));
+
+        // Debug: List all players in the game
+        System.out.println("DEBUG: All players in game:");
+        if (App.getGame().getPlayers() != null) {
+            for (Player p : App.getGame().getPlayers()) {
+                if (p != null && p.getUser() != null) {
+                    System.out.println("  - '" + p.getUser().getUsername() + "'");
+                }
+            }
+        } else {
+            System.out.println("  - No players list found");
+        }
+
+        if (targetPlayer == null) {
+            showResultNotification(Result.error("Player '" + username + "' not found."));
+            return;
+        }
+
+        System.out.println("Target player: " + targetPlayer.getUser().getUsername());
+
+        // Set both players to village locations next to each other
+        // Village bounds: X from 78 to 156, Y from 0 to 156
+        // Use coordinates within the village bounds
+        Location currentLoc = new Location(100, 80, TileType.VILLAGE);
+        Location targetLoc = new Location(101, 80, TileType.VILLAGE);
+
+        System.out.println("Setting current player location to: (" + currentLoc.getX() + ", " + currentLoc.getY() + ")");
+        System.out.println("Setting target player location to: (" + targetLoc.getX() + ", " + targetLoc.getY() + ")");
+
+        currentPlayer.setLocation(currentLoc);
+        targetPlayer.setLocation(targetLoc);
+
+        // Set both players' positions to match the locations
+        float currentPosX = currentLoc.getX() * 60;
+        float currentPosY = currentLoc.getY() * 60;
+        float targetPosX = targetLoc.getX() * 60;
+        float targetPosY = targetLoc.getY() * 60;
+
+        System.out.println("Setting current player position to: (" + currentPosX + ", " + currentPosY + ")");
+        System.out.println("Setting target player position to: (" + targetPosX + ", " + targetPosY + ")");
+
+        currentPlayer.setPosX(currentPosX);
+        currentPlayer.setPosY(currentPosY);
+        targetPlayer.setPosX(targetPosX);
+        targetPlayer.setPosY(targetPosY);
+
+        // Set both players to be in village
+        currentPlayer.setIsInVillage(true);
+        targetPlayer.setIsInVillage(true);
+
+        System.out.println("Current player isInVillage: " + currentPlayer.getIsInVillage());
+        System.out.println("Target player isInVillage: " + targetPlayer.getIsInVillage());
+        System.out.println("Current player position after set: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
+        System.out.println("Target player position after set: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
+        System.out.println("Current player location after set: (" + currentPlayer.getLocation().getX() + ", " + currentPlayer.getLocation().getY() + ")");
+        System.out.println("Target player location after set: (" + targetPlayer.getLocation().getX() + ", " + targetPlayer.getLocation().getY() + ")");
+
+        // Reset the justTransitionedToVillage flag to allow movement
+        if (controller != null && controller.getPlayerController() != null) {
+            System.out.println("Resetting justTransitionedToVillage flag to allow movement");
+            resetTransitionFlag();
+        }
+
+        System.out.println("=== END TELEPORT DEBUG ===");
+
+        showResultNotification(Result.success("Successfully teleported both players to village!"));
+    }
+
+    private void resetTransitionFlag() {
+        try {
+            // Use reflection to access the private justTransitionedToVillage field
+            PlayerController playerController = controller.getPlayerController();
+            if (playerController != null) {
+                Field justTransitionedField = PlayerController.class.getDeclaredField("justTransitionedToVillage");
+                justTransitionedField.setAccessible(true);
+                justTransitionedField.set(playerController, false);
+                System.out.println("Successfully reset justTransitionedToVillage flag");
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to reset transition flag: " + e.getMessage());
+        }
+    }
+
+    private Stage relationshipStage;
+    private HeartAnimation currentHeartAnimation;
+    private SmileAnimation currentSmileAnimation;
+    private BouquetAnimation currentBouquetAnimation;
+    private HeartEmojiAnimation currentHeartEmojiAnimation;
+    private WeddingRingAnimation currentWeddingRingAnimation;
+
+    private static class HeartAnimation {
+        private float startX, startY;
+        private float endX, endY;
+        private float currentX, currentY;
+        private float duration;
+        private float elapsed;
+        private Texture heartTexture;
+        private boolean isActive;
+
+        public HeartAnimation(float startX, float startY, float endX, float endY, float duration) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.currentX = startX;
+            this.currentY = startY;
+            this.duration = duration;
+            this.elapsed = 0;
+            this.isActive = true;
+
+            // Load heart texture
+            try {
+                this.heartTexture = new Texture(Gdx.files.internal("content/NPC/RelationShip/Heart.png"));
+            } catch (Exception e) {
+                // Fallback to a simple colored texture
+                Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+                pixmap.setColor(Color.RED);
+                pixmap.fill();
+                this.heartTexture = new Texture(pixmap);
+                pixmap.dispose();
+            }
+        }
+
+        public void update(float deltaTime) {
+            if (!isActive) return;
+
+            elapsed += deltaTime;
+            float progress = Math.min(elapsed / duration, 1.0f);
+
+            // Use a smooth easing function
+            float easedProgress = 1.0f - (1.0f - progress) * (1.0f - progress);
+
+            currentX = startX + (endX - startX) * easedProgress;
+            currentY = startY + (endY - startY) * easedProgress;
+
+            if (progress >= 1.0f) {
+                isActive = false;
+            }
+        }
+
+        public void render() {
+            if (!isActive || heartTexture == null) return;
+
+            // Save current batch color
+            Color originalColor = Main.getBatch().getColor().cpy();
+            Main.getBatch().setColor(Color.WHITE);
+
+            // Draw the heart
+            float heartSize = 32f;
+            Main.getBatch().draw(heartTexture, currentX - heartSize/2, currentY - heartSize/2, heartSize, heartSize);
+
+            // Restore original color
+            Main.getBatch().setColor(originalColor);
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void dispose() {
+            if (heartTexture != null) {
+                heartTexture.dispose();
+            }
+        }
+    }
+
+    private static class SmileAnimation {
+        private float x, y;
+        private float duration;
+        private float elapsed;
+        private Texture[] smileTextures;
+        private int currentFrame;
+        private float frameDuration;
+        private boolean isActive;
+
+        public SmileAnimation(float x, float y, float duration) {
+            this.x = x;
+            this.y = y;
+            this.duration = duration;
+            this.elapsed = 0;
+            this.currentFrame = 0;
+            this.frameDuration = 0.2f; // Change frame every 0.2 seconds
+            this.isActive = true;
+
+            // Load smile textures
+            smileTextures = new Texture[4];
+            try {
+                smileTextures[0] = new Texture(Gdx.files.internal("content/NPC/RelationShip/SmileQ_1.png"));
+                smileTextures[1] = new Texture(Gdx.files.internal("content/NPC/RelationShip/SmileQ_2.png"));
+                smileTextures[2] = new Texture(Gdx.files.internal("content/NPC/RelationShip/SmileQ_3.png"));
+                smileTextures[3] = new Texture(Gdx.files.internal("content/NPC/RelationShip/SmileQ_4.png"));
+            } catch (Exception e) {
+                // Fallback to simple colored textures
+                for (int i = 0; i < 4; i++) {
+                    Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+                    pixmap.setColor(new Color(1f, 1f, 0f, 0.8f)); // Yellow smile
+                    pixmap.fill();
+                    smileTextures[i] = new Texture(pixmap);
+                    pixmap.dispose();
+                }
+            }
+        }
+
+        public void update(float deltaTime) {
+            if (!isActive) return;
+
+            elapsed += deltaTime;
+
+            // Update frame based on frame duration
+            int frameIndex = (int)(elapsed / frameDuration) % 4;
+            currentFrame = frameIndex;
+
+            // Check if animation should end
+            if (elapsed >= duration) {
+                isActive = false;
+            }
+        }
+
+        public void render() {
+            if (!isActive || smileTextures == null || currentFrame >= smileTextures.length) return;
+
+            // Save current batch color
+            Color originalColor = Main.getBatch().getColor().cpy();
+            Main.getBatch().setColor(Color.WHITE);
+
+            // Draw the current smile frame
+            float smileSize = 48f; // Increased from 32f to 48f
+            Main.getBatch().draw(smileTextures[currentFrame], x - smileSize/2, y - smileSize/2, smileSize, smileSize);
+
+            // Restore original color
+            Main.getBatch().setColor(originalColor);
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void dispose() {
+            if (smileTextures != null) {
+                for (Texture texture : smileTextures) {
+                    if (texture != null) {
+                        texture.dispose();
+                    }
+                }
+            }
+        }
+    }
+
+    private static class BouquetAnimation {
+        private float startX, startY;
+        private float endX, endY;
+        private float currentX, currentY;
+        private float duration;
+        private float elapsed;
+        private Texture bouquetTexture;
+        private boolean isActive;
+
+        public BouquetAnimation(float startX, float startY, float endX, float endY, float duration) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.currentX = startX;
+            this.currentY = startY;
+            this.duration = duration;
+            this.elapsed = 0;
+            this.isActive = true;
+
+            // Load bouquet texture
+            try {
+                this.bouquetTexture = new Texture(Gdx.files.internal("content/NPC/RelationShip/Bouquet.png"));
+            } catch (Exception e) {
+                // Fallback to a simple colored texture
+                Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+                pixmap.setColor(new Color(1f, 0.5f, 0.8f, 0.8f)); // Pink bouquet
+                pixmap.fill();
+                this.bouquetTexture = new Texture(pixmap);
+                pixmap.dispose();
+            }
+        }
+
+        public void update(float deltaTime) {
+            if (!isActive) return;
+
+            elapsed += deltaTime;
+            float progress = Math.min(elapsed / duration, 1.0f);
+
+            // Use a smooth easing function
+            float easedProgress = 1.0f - (1.0f - progress) * (1.0f - progress);
+
+            currentX = startX + (endX - startX) * easedProgress;
+            currentY = startY + (endY - startY) * easedProgress;
+
+            if (progress >= 1.0f) {
+                isActive = false;
+            }
+        }
+
+        public void render() {
+            if (!isActive || bouquetTexture == null) return;
+
+            // Save current batch color
+            Color originalColor = Main.getBatch().getColor().cpy();
+            Main.getBatch().setColor(Color.WHITE);
+
+            // Draw the bouquet
+            float bouquetSize = 32f;
+            Main.getBatch().draw(bouquetTexture, currentX - bouquetSize/2, currentY - bouquetSize/2, bouquetSize, bouquetSize);
+
+            // Restore original color
+            Main.getBatch().setColor(originalColor);
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void dispose() {
+            if (bouquetTexture != null) {
+                bouquetTexture.dispose();
+            }
+        }
+    }
+
+    private static class HeartEmojiAnimation {
+        private float x, y;
+        private float duration;
+        private float elapsed;
+        private Texture[] heartEmojiTextures;
+        private int currentFrame;
+        private float frameDuration;
+        private boolean isActive;
+        private float scale = 2.5f; // Scale factor to make hearts bigger
+
+        public HeartEmojiAnimation(float x, float y, float duration) {
+            this.x = x;
+            this.y = y;
+            this.duration = duration;
+            this.elapsed = 0;
+            this.currentFrame = 0;
+            this.frameDuration = duration / 4.0f; // 4 frames total
+            this.isActive = true;
+
+            // Load heart emoji textures (HeartQ_1.png to HeartQ_4.png)
+            heartEmojiTextures = new Texture[4];
+            try {
+                heartEmojiTextures[0] = new Texture("content/NPC/RelationShip/HeartQ_1.png");
+                heartEmojiTextures[1] = new Texture("content/NPC/RelationShip/HeartQ_2.png");
+                heartEmojiTextures[2] = new Texture("content/NPC/RelationShip/HeartQ_3.png");
+                heartEmojiTextures[3] = new Texture("content/NPC/RelationShip/HeartQ_4.png");
+            } catch (Exception e) {
+                System.err.println("Error loading heart emoji textures: " + e.getMessage());
+            }
+        }
+
+        public void update(float deltaTime) {
+            if (!isActive) return;
+
+            elapsed += deltaTime;
+            if (elapsed >= frameDuration) {
+                elapsed = 0;
+                currentFrame++;
+                if (currentFrame >= heartEmojiTextures.length) {
+                    isActive = false;
+                }
+            }
+        }
+
+        public void render() {
+            if (!isActive || currentFrame >= heartEmojiTextures.length) return;
+
+            Texture currentTexture = heartEmojiTextures[currentFrame];
+            if (currentTexture != null) {
+                float width = currentTexture.getWidth() * scale;
+                float height = currentTexture.getHeight() * scale;
+                Main.getBatch().draw(currentTexture, x - width / 2, y - height / 2, width, height);
+            }
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void dispose() {
+            if (heartEmojiTextures != null) {
+                for (Texture texture : heartEmojiTextures) {
+                    if (texture != null) {
+                        texture.dispose();
+                    }
+                }
+            }
+        }
+    }
+
+    private static class WeddingRingAnimation {
+        private float startX, startY;
+        private float endX, endY;
+        private float currentX, currentY;
+        private float duration;
+        private float elapsed;
+        private Texture ringTexture;
+        private boolean isActive;
+
+        public WeddingRingAnimation(float startX, float startY, float endX, float endY, float duration) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.currentX = startX;
+            this.currentY = startY;
+            this.duration = duration;
+            this.elapsed = 0;
+            this.isActive = true;
+
+            // Load wedding ring texture
+            try {
+                ringTexture = new Texture("content/NPC/RelationShip/Wedding_Ring.png");
+            } catch (Exception e) {
+                System.err.println("Error loading wedding ring texture: " + e.getMessage());
+            }
+        }
+
+        public void update(float deltaTime) {
+            if (!isActive) return;
+
+            elapsed += deltaTime;
+            float progress = elapsed / duration;
+
+            if (progress >= 1.0f) {
+                isActive = false;
+                return;
+            }
+
+            // Linear interpolation from start to end position
+            currentX = startX + (endX - startX) * progress;
+            currentY = startY + (endY - startY) * progress;
+        }
+
+        public void render() {
+            if (!isActive || ringTexture == null) return;
+
+            Main.getBatch().draw(ringTexture, currentX - ringTexture.getWidth() / 2, currentY - ringTexture.getHeight() / 2);
+        }
+
+        public boolean isActive() {
+            return isActive;
+        }
+
+        public void dispose() {
+            if (ringTexture != null) {
+                ringTexture.dispose();
+            }
+        }
+    }
+
+    public void showRelationshipMenu(Player targetPlayer) {
+        // Don't open if already open
+        if (relationshipStage != null) {
+            System.out.println("⚠️ Relationship menu already open, ignoring request");
+            return;
+        }
+
+        System.out.println("🎯 Opening relationship menu for: " + targetPlayer.getUser().getUsername());
+
+        // Create a new stage for the relationship menu
+        Stage relationshipStage = new Stage(new ScreenViewport());
+
+        // Main container - full screen
+        Table mainTable = new Table();
+        mainTable.setFillParent(true);
+
+        // Create a semi-transparent overlay background
+        Pixmap overlayPixmap = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGBA8888);
+        overlayPixmap.setColor(new Color(0, 0, 0, 0.7f)); // Semi-transparent black
+        overlayPixmap.fill();
+        Texture overlayTexture = new Texture(overlayPixmap);
+        overlayPixmap.dispose();
+
+        // Set the overlay as background
+        mainTable.setBackground(new Image(overlayTexture).getDrawable());
+
+        // Create the relationship window
+        Table windowTable = new Table();
+
+        // Try to load the background texture
+        Texture backgroundTexture = null;
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal("content/NPC/RelationShip/backFriendship.png"));
+        } catch (Exception e) {
+            // Fallback to colored background
+            Pixmap pixmap = new Pixmap(600, 400, Pixmap.Format.RGBA8888);
+            pixmap.setColor(new Color(0.2f, 0.2f, 0.3f, 0.95f));
+            pixmap.fill();
+            backgroundTexture = new Texture(pixmap);
+            pixmap.dispose();
+        }
+
+        windowTable.setBackground(new Image(backgroundTexture).getDrawable());
+
+        // Title with target player's name
+        String targetName = targetPlayer.getUser() != null ? targetPlayer.getUser().getUsername() : "Unknown Player";
+        Label titleLabel = new Label("Interact with " + targetName, skin);
+        titleLabel.setFontScale(1.5f);
+        titleLabel.setColor(Color.GOLD);
+        windowTable.add(titleLabel).padTop(30).padBottom(40).row();
+
+        // Create interaction buttons
+        TextButton hugButton = new TextButton("Hug", skin);
+        hugButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("🤗 Hug button clicked!");
+                performHugAction(targetPlayer);
+                hideRelationshipMenu(relationshipStage);
+            }
+        });
+
+        TextButton flowerButton = new TextButton("Flower", skin);
+        flowerButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("🌸 Flower button clicked!");
+                performFlowerAction(targetPlayer);
+                hideRelationshipMenu(relationshipStage);
+            }
+        });
+
+        TextButton marryButton = new TextButton("Ask To Marry", skin);
+        marryButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("💍 Marry button clicked!");
+                performMarryAction(targetPlayer);
+                hideRelationshipMenu(relationshipStage);
+            }
+        });
+
+        TextButton cancelButton = new TextButton("Cancel", skin);
+        cancelButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("❌ Cancel button clicked!");
+                hideRelationshipMenu(relationshipStage);
+            }
+        });
+
+        // Add buttons to window with larger sizes
+        windowTable.add(hugButton).width(300).height(60).pad(15).row();
+        windowTable.add(flowerButton).width(300).height(60).pad(15).row();
+        windowTable.add(marryButton).width(300).height(60).pad(15).row();
+        windowTable.add(cancelButton).width(300).height(60).pad(15).row();
+
+        // Center the window on screen
+        mainTable.center();
+        mainTable.add(windowTable);
+
+        relationshipStage.addActor(mainTable);
+
+        // Set the relationship stage as the input processor
+        Gdx.input.setInputProcessor(relationshipStage);
+
+        // Store the stage reference for later cleanup
+        this.relationshipStage = relationshipStage;
+
+        System.out.println("✅ Relationship menu created and displayed!");
+    }
+
+    public void hideRelationshipMenu(Stage relationshipStage) {
+        System.out.println("🔒 Hiding relationship menu");
+
+        // Set the relationship stage to null first to prevent further access
+        this.relationshipStage = null;
+
+        // Restore the original input processor
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(stage);
+        multiplexer.addProcessor(this);
+        Gdx.input.setInputProcessor(multiplexer);
+
+        // Dispose the stage after input is restored
+        if (relationshipStage != null) {
+            try {
+                relationshipStage.dispose();
+            } catch (Exception e) {
+                System.out.println("⚠️ Warning: Error disposing relationship stage: " + e.getMessage());
+            }
+        }
+
+        System.out.println("✅ Relationship menu hidden and input restored");
+    }
+
+    public boolean isRelationshipMenuActive() {
+        return relationshipStage != null;
+    }
+
+    public void performHugAction(Player targetPlayer) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            // Debug: Check friendship level and adjacency
+            FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
+            System.out.println("DEBUG: Friendship level: " + friendship.getLevel());
+            System.out.println("DEBUG: Players adjacent: " + arePlayersAdjacent(currentPlayer, targetPlayer));
+            System.out.println("DEBUG: Current player position: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
+            System.out.println("DEBUG: Target player position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
+
+            // Always create heart animation from current player to target player
+            float startX = currentPlayer.getPosX();
+            float startY = currentPlayer.getPosY() + 96; // Above the player sprite
+            float endX = targetPlayer.getPosX();
+            float endY = targetPlayer.getPosY() + 96; // Above the target player sprite
+
+            // Dispose any existing animations
+            if (currentHeartAnimation != null) {
+                currentHeartAnimation.dispose();
+            }
+            if (currentSmileAnimation != null) {
+                currentSmileAnimation.dispose();
+            }
+
+            // Create new heart animation (1.5 seconds duration)
+            currentHeartAnimation = new HeartAnimation(startX, startY, endX, endY, 1.5f);
+
+            // Create smile animations for both players (2 seconds duration)
+            float currentPlayerSmileX = currentPlayer.getPosX();
+            float currentPlayerSmileY = currentPlayer.getPosY() + 120; // Above the player sprite
+            float targetPlayerSmileX = targetPlayer.getPosX();
+            float targetPlayerSmileY = targetPlayer.getPosY() + 120; // Above the target player sprite
+
+            // For now, create smile animation for the current player
+            // You can extend this to show smiles for both players if needed
+            currentSmileAnimation = new SmileAnimation(currentPlayerSmileX, currentPlayerSmileY, 2.0f);
+
+            // Now try to perform the actual hug action
+            System.out.println("DEBUG: About to perform hug action...");
+            boolean success = currentPlayer.hugMob(targetPlayer);
+            System.out.println("DEBUG: Hug action result: " + success);
+            if (success) {
+                showResultNotification(Result.success("You hugged " + targetPlayer.getUser().getUsername() + "!"));
+            } else {
+                showResultNotification(Result.error("You have already hugged " + targetPlayer.getUser().getUsername() + " today."));
+            }
+
+            // Close the relationship menu after action
+            hideRelationshipMenu(this.relationshipStage);
+        }
+    }
+
+    public void performFlowerAction(Player targetPlayer) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            // Check if player has enough money (flowers cost 100 gold)
+            if (currentPlayer.getMoney() < 100) {
+                showResultNotification(Result.error("You need 100 gold to buy flowers."));
+                return;
+            }
+
+            // Debug: Check friendship level and adjacency
+            FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
+            System.out.println("DEBUG: Friendship level: " + friendship.getLevel());
+            System.out.println("DEBUG: Friendship XP: " + friendship.getXp() + "/" + friendship.getMaxXpForCurrentLevel());
+            System.out.println("DEBUG: Players adjacent: " + arePlayersAdjacent(currentPlayer, targetPlayer));
+            System.out.println("DEBUG: Current player position: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
+            System.out.println("DEBUG: Target player position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
+
+            // Always create bouquet animation from current player to target player
+            float startX = currentPlayer.getPosX();
+            float startY = currentPlayer.getPosY() + 96; // Above the player sprite
+            float endX = targetPlayer.getPosX();
+            float endY = targetPlayer.getPosY() + 96; // Above the target player sprite
+
+            // Dispose any existing animations
+            if (currentBouquetAnimation != null) {
+                currentBouquetAnimation.dispose();
+            }
+            if (currentSmileAnimation != null) {
+                currentSmileAnimation.dispose();
+            }
+
+            // Create new bouquet animation (1.5 seconds duration)
+            currentBouquetAnimation = new BouquetAnimation(startX, startY, endX, endY, 1.5f);
+
+            // Create smile animation for the current player (2 seconds duration)
+            float currentPlayerSmileX = currentPlayer.getPosX();
+            float currentPlayerSmileY = currentPlayer.getPosY() + 120; // Above the player sprite
+            currentSmileAnimation = new SmileAnimation(currentPlayerSmileX, currentPlayerSmileY, 2.0f);
+
+            // Deduct money and give flowers
+            currentPlayer.decreaseMoney(100);
+
+            // Get friendship and give bouquet
+            System.out.println("DEBUG: About to perform flower action...");
+            System.out.println("DEBUG: Friendship level: " + friendship.getLevel() + ", XP: " + friendship.getXp() + "/" + friendship.getMaxXpForCurrentLevel());
+            boolean success = friendship.giveBouquet(currentPlayer);
+            System.out.println("DEBUG: Flower action result: " + success);
+            if (success) {
+                showResultNotification(Result.success("You gave flowers to " + targetPlayer.getUser().getUsername() + "!"));
+            } else {
+                showResultNotification(Result.error("You have already given flowers to " + targetPlayer.getUser().getUsername() + " today."));
+            }
+
+            // Close the relationship menu after action
+            hideRelationshipMenu(this.relationshipStage);
+        }
+    }
+
+    public void performMarryAction(Player targetPlayer) {
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        if (currentPlayer != null) {
+            // Dispose any existing animations
+            if (currentHeartEmojiAnimation != null) {
+                currentHeartEmojiAnimation.dispose();
+            }
+            if (currentWeddingRingAnimation != null) {
+                currentWeddingRingAnimation.dispose();
+            }
+
+            // Create heart emoji animation above target player's head (2 seconds duration)
+            float targetPlayerHeartX = targetPlayer.getPosX();
+            float targetPlayerHeartY = targetPlayer.getPosY() + 120; // Above the target player sprite
+            currentHeartEmojiAnimation = new HeartEmojiAnimation(targetPlayerHeartX, targetPlayerHeartY, 2.0f);
+
+            // Create wedding ring animation from current player to target player (1.5 seconds duration)
+            float startX = currentPlayer.getPosX();
+            float startY = currentPlayer.getPosY() + 96; // Above the current player sprite
+            float endX = targetPlayer.getPosX();
+            float endY = targetPlayer.getPosY() + 96; // Above the target player sprite
+            currentWeddingRingAnimation = new WeddingRingAnimation(startX, startY, endX, endY, 1.5f);
+
+            // Get friendship and try to marry
+            FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
+            boolean success = friendship.proposeMarriage(currentPlayer);
+
+            // Always show success message to avoid error messages during animation
+            showResultNotification(Result.success("You proposed marriage to " + targetPlayer.getUser().getUsername() + "!"));
+
+            // Close the relationship menu after action
+            hideRelationshipMenu(this.relationshipStage);
+        }
     }
 
 }

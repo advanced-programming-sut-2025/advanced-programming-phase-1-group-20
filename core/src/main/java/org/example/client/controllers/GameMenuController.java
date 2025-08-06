@@ -67,9 +67,16 @@ public class GameMenuController implements Controller {
     public void update() {
         if(view != null && !view.getPauseTable().isVisible()) {
             worldController.update();
-            worldController.handleInput();
+            // Only handle world input if relationship menu is not active
+            if (!isRelationshipMenuActive()) {
+                worldController.handleInput();
+            }
             playerController.update();
         }
+    }
+
+    private boolean isRelationshipMenuActive() {
+        return view != null && view.isRelationshipMenuActive();
     }
 
     public void builddd() {
@@ -2347,8 +2354,8 @@ public class GameMenuController implements Controller {
 
         for (Skill skill : player.getSkills()) {
             skillsInfo.append(skill.getName()).append(": Level ").append(skill.getLevel())
-                    .append(" (").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel())
-                    .append(" units)\n");
+                .append(" (").append(skill.getUnits()).append("/").append(skill.getUnitsNeededForNextLevel())
+                .append(" units)\n");
         }
 
         return Result.success(skillsInfo.toString());
