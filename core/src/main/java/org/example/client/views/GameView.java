@@ -1103,7 +1103,6 @@ public class GameView implements Screen, InputProcessor {
         // Load individual sprite file for player
         Texture playerTexture;
         try {
-            // Use the first frame of the down animation as the default sprite
             playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
         } catch (Exception e) {
             // Fallback to colored dot if sprite can't be loaded
@@ -1556,18 +1555,11 @@ public class GameView implements Screen, InputProcessor {
         Main.getBatch().draw(whiteTexture, barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
         Main.getBatch().draw(whiteTexture, barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
 
-        // Draw player name below the bar
-        String playerName = currentPlayer.getUser() != null ? currentPlayer.getUser().getUsername() : "Unknown";
-        if (playerName.length() > 8) {
-            playerName = playerName.substring(0, 8) + "...";
-        }
-
         // Draw player name using smallFont if available
         if (smallFont != null) {
             smallFont.setColor(Color.CYAN); // Current player always cyan
             float nameX = barX - 5; // Center text under bar
             float nameY = barY - 15;
-            smallFont.draw(Main.getBatch(), playerName, nameX, nameY);
         }
 
         // Reset color and end batch
@@ -2442,7 +2434,6 @@ public class GameView implements Screen, InputProcessor {
             return;
         }
 
-        System.out.println("🎯 Opening relationship menu for: " + targetPlayer.getUser().getUsername());
 
         // Create a new stage for the relationship menu
         Stage relationshipStage = new Stage(new ScreenViewport());
@@ -2491,7 +2482,7 @@ public class GameView implements Screen, InputProcessor {
         hugButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                System.out.println("🤗 Hug button clicked!");
+                System.out.println("Hug button clicked!");
                 performHugAction(targetPlayer);
                 hideRelationshipMenu(relationshipStage);
             }
@@ -2580,11 +2571,6 @@ public class GameView implements Screen, InputProcessor {
         if (currentPlayer != null) {
             // Debug: Check friendship level and adjacency
             FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
-            System.out.println("DEBUG: Friendship level: " + friendship.getLevel());
-            System.out.println("DEBUG: Players adjacent: " + arePlayersAdjacent(currentPlayer, targetPlayer));
-            System.out.println("DEBUG: Current player position: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
-            System.out.println("DEBUG: Target player position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
-
             // Always create heart animation from current player to target player
             float startX = currentPlayer.getPosX();
             float startY = currentPlayer.getPosY() + 96; // Above the player sprite
