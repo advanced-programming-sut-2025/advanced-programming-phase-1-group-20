@@ -22,7 +22,8 @@ public class HouseMenuController implements Controller {
     }
 
     @Override
-    public void setupListeners() {}
+    public void setupListeners() {
+    }
 
     private int[] getDirection(String direction) {
         int[] dir = new int[]{0, 0};
@@ -205,35 +206,65 @@ public class HouseMenuController implements Controller {
 
 
     //artisan related
-    public Result artisanUse(String[] args) {
-        String craftingItemName = args[0];
-        String artisanItemName = args[1];
-        Item item = player.getBackpack().getItem(craftingItemName);
-        if (item == null) {
-            return Result.error(craftingItemName + " does not exist");
-        }
-        if (!player.getBackpack().hasItems(Collections.singletonList(craftingItemName))) {
-            return Result.error(craftingItemName + " does not exist in backpack");
-        }
-        if (!(item instanceof CraftingItem)) {
-            return Result.error(craftingItemName + " is not a CraftingItem");
+    public Result artisanUse(CraftingItem station, HashMap<Item, Integer> inputIngredients) {
+        if (station.getProccessingItem() != null) {
+            return Result.error(station.getName() + " is already processing an item.");
         }
 
-        CraftingItem craftingItem = (CraftingItem) item;
-        ArtisanItem artisanItem = (ArtisanItem) ItemBuilder.build(artisanItemName);
-        if(!craftingItem.processItem(player.getBackpack() , artisanItem)){
-            return Result.error("There is item processing on " + craftingItem.getName() + "!");
+        // 1. Get all possible products for this station
+        List<ArtisanItem> possibleProducts = station.getType().getArtisanItems();
+
+        ArtisanItem productToMake = null;
+
+        // 2. Iterate through possible products to find a matching recipe
+        for (ArtisanItem potentialProduct : possibleProducts) {
+            Map<String, Integer> recipe = potentialProduct.getIngredient().getRecipe();
+
+            // 3. Check if the input ingredients match the recipe
+            if (isRecipeMatch(recipe, inputIngredients)) {
+                productToMake = potentialProduct;
+                break;
+            }
         }
 
-        ArtisanItem processingItem = (ArtisanItem) craftingItem.getProccessingItem();
-        if(processingItem == null){
-            return Result.error("You didn't have enough recipe for " + artisanItem.getName() + "!");
+        // 4. If a match is found, start the process
+        if (productToMake != null) {
+            // The processItem method already handles ingredient consumption from the backpack
+            if (station.processItem(player.getBackpack(), productToMake)) {
+                return Result.success(productToMake.getName() + " is now processing in the " + station.getName() + ".");
+            } else {
+                return Result.error("You don't have the required ingredients in your backpack.");
+            }
         }
 
-        return Result.success(artisanItem.getName() + " is now in process estimated turns : " + artisanItem.getProcessingTime());
+        return Result.error("Invalid combination of items for this machine.");
     }
 
+    /**
+     * Helper method to compare a recipe map with the user's input map.
+     */
+    private boolean isRecipeMatch(Map<String, Integer> recipe, HashMap<Item, Integer> input) {
+        if (recipe.size() != input.size()) {
+            return false;
+        }
 
+        for (Map.Entry<String, Integer> recipeEntry : recipe.entrySet()) {
+            String requiredItemName = recipeEntry.getKey();
+            int requiredQuantity = recipeEntry.getValue();
+
+            boolean found = false;
+            for (Map.Entry<Item, Integer> inputEntry : input.entrySet()) {
+                if (inputEntry.getKey().getName().equalsIgnoreCase(requiredItemName) && inputEntry.getValue() >= requiredQuantity) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     public Result artisanGet(String[] args) {
@@ -244,10 +275,35 @@ public class HouseMenuController implements Controller {
         }
         Item item = craftingItem.getFinishedItem();
         if (item == null) {
-            return Result.error(artisanName + " is not in queue!");
+            return Result.error(artisanName + " has nothing to collect!");
         }
         player.getBackpack().add(item, 1);
-        return Result.success("Artisan item " + item.getName() + " arrived");
+        return Result.success("Artisan item " + item.getName() + " collected");
     }
 
+    public Result artisanCancel(String[] args) {
+        String artisanName = args[0];
+        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
+        if (craftingItem == null) {
+            return Result.error(artisanName + " does not exist");
+        }
+        if (craftingItem.getProccessingItem() == null) {
+            return Result.error(artisanName + " is not processing anything.");
+        }
+        craftingItem.cancelArtisan();
+        return Result.success("Process on " + artisanName + " has been cancelled.");
+    }
+
+    public Result artisanFastFinish(String[] args) {
+        String artisanName = args[0];
+        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
+        if (craftingItem == null) {
+            return Result.error(artisanName + " does not exist");
+        }
+        if (craftingItem.getProccessingItem() == null) {
+            return Result.error(artisanName + " is not processing anything.");
+        }
+        craftingItem.fastFinishArtisan();
+        return Result.success("Process on " + artisanName + " has been finished instantly.");
+    }
 }

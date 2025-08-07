@@ -756,6 +756,10 @@ public class Farm {
             // After placing a plant, check if it completes a 2x2 square
             checkForGiantCrop(x, y, (Plant) item);
         }
+        if(item instanceof CraftingItem craftingItem) {
+            craftingItem.setPosX(x);
+            craftingItem.setPosY(y);
+        }
     }
 
     /**

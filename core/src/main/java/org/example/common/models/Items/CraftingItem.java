@@ -19,6 +19,8 @@ public class CraftingItem extends Item {
     private ArtisanItem proccessingItem;
     private ArtisanItem finishedItem;
     private double progressBar;
+    private int posX;
+    private int posY;
 
 
     public CraftingItem(CraftingType type) {
@@ -27,6 +29,8 @@ public class CraftingItem extends Item {
         this.proccessingItem = null;
         this.setPlacable(true);
         progressBar = 0;
+        posX = 0;
+        posY = 0;
     }
 
     public Ingredients getIngredients() {
@@ -74,6 +78,20 @@ public class CraftingItem extends Item {
         }
     }
 
+    public void fastFinishArtisan() {
+        if (proccessingItem != null) {
+            finishedItem = proccessingItem;
+            proccessingItem = null;
+            progressBar = 0;
+        }
+    }
+
+    public void cancelArtisan() {
+        if (proccessingItem != null) {
+            proccessingItem = null;
+        }
+    }
+
     public Item getFinishedItem() {
         if (finishedItem != null) {
             Item clone = finishedItem;
@@ -116,5 +134,21 @@ public class CraftingItem extends Item {
 
     public CraftingType getType() {
         return type;
+    }
+
+    public int getPosX() {
+        return posX;
+    }
+
+    public void setPosX(int posX) {
+        this.posX = posX;
+    }
+
+    public int getPosY() {
+        return posY;
+    }
+
+    public void setPosY(int posY) {
+        this.posY = posY;
     }
 }

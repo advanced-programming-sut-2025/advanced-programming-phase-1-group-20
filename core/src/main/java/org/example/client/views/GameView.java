@@ -32,14 +32,9 @@ import org.example.client.controllers.TradingMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
 import org.example.client.controllers.gameplay.WorldController;
 import org.example.client.controllers.gameplay.PlayerController;
-import org.example.client.views.gameplay.CookingScreen;
-import org.example.client.views.gameplay.CraftingScreen;
-import org.example.client.views.gameplay.InventoryScreen;
-import org.example.client.views.gameplay.MapScreen;
+import org.example.client.views.gameplay.*;
 import org.example.common.models.App;
-import org.example.common.models.Items.Food;
-import org.example.common.models.Items.Seed;
-import org.example.common.models.Items.Tool;
+import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
@@ -727,6 +722,15 @@ public class GameView implements Screen, InputProcessor {
                 return true; // Consume the click event
             }
 
+            CraftingItem clickedCraftingItem = findCraftingItemAt(worldCoords.x / 60, worldCoords.y / 60);
+
+            if (clickedCraftingItem != null) {
+                //opens a new artisanScreen containing an inventory in down and 4x4 table in above
+                Main.getGame().setScreen(new ArtisanCreatScreen(player, skin, this , clickedCraftingItem));
+                return true; // Consume the click event
+            }
+
+
             Player currentPlayer = App.getGame().getCurrentPlayer();
 
             if(currentPlayer.getCurrentItem() != null) {
@@ -773,7 +777,7 @@ public class GameView implements Screen, InputProcessor {
                     }
                     String[] args = new String[]{currentPlayer.getCurrentItem().getName() , direction};
 
-                    Result result = controller.plant(args);
+                    Result result = controller.placeItem(args);
                     if(result.success()) {
                         currentPlayer.setCurrentItem(null);
                     }
@@ -1808,6 +1812,24 @@ public class GameView implements Screen, InputProcessor {
             }
         }, 2.0f);
     }
+
+    private CraftingItem findCraftingItemAt(float worldX, float worldY) {
+        Farm currentFarm = player.getCurrentFarm();
+        if (currentFarm == null) return null;
+
+        float craftingItemWidth = 48; // Approximate render width
+        float craftingItemHeight = 48; // Approximate render height
+
+
+        for(CraftingItem craftingItem : player.getPlacedCraftingItems()) {
+            Rectangle craftingItemBounds = new Rectangle(craftingItem.getPosX(), craftingItem.getPosY(), craftingItemWidth, craftingItemHeight);
+            if (craftingItemBounds.contains(worldX , worldY)) {
+                return craftingItem;
+            }
+        }
+        return null;
+    }
+
 
     private Animal findAnimalAt(float worldX, float worldY) {
         Farm currentFarm = player.getCurrentFarm();

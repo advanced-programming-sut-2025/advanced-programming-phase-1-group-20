@@ -396,10 +396,19 @@ public class GameMenuController implements Controller {
         int x = loc.getX() + dir[1];
         int y = loc.getY() + dir[0];
         System.out.println("x: " + x + ", y: " + y);
-        Item item = player.getBackpack().getItem(itemName);
-        if (item == null) {
-            return Result.error("Item " + itemName + " does not exist in backpack");
+        Item item = null;
+        boolean wasCurrentItem = false;
+        if (player.getCurrentItem() != null && player.getCurrentItem().getName().equalsIgnoreCase(itemName)) {
+            item = player.getCurrentItem();
+            wasCurrentItem = true;
+        } else {
+            // Otherwise, check the backpack
+            item = player.getBackpack().getItem(itemName);
         }
+        if (item == null) {
+            return Result.error("Item does not exist in " + "(" + x + "," + y + ")");
+        }
+
         if (gMap.getFarmByPlayer(player).getItem(x, y).getItem() != null) {
             return Result.error("there is Item already in the ground!");
         }
@@ -408,7 +417,11 @@ public class GameMenuController implements Controller {
         }
 
         gMap.getFarmByPlayer(player).placeItem(x, y, item);
-        player.getBackpack().remove(item , 1);
+        if (wasCurrentItem) {
+            player.setCurrentItem(null);
+        } else {
+            player.getBackpack().remove(item, 1);
+        }
 
 
         if (item instanceof CraftingItem craftingItem) {

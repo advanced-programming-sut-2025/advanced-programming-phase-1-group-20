@@ -93,7 +93,7 @@ public class CraftingScreen implements Screen, Disposable {
             Texture hoverTex = new Texture("content/CraftingItems/" + craftingType.getImageFilepath() + "_hover" + ".png");
             hoverCraftingTextures.put(craftingType, hoverTex);
 
-            HoverImage image = new HoverImage(defaultTex, hoverTex , 240);
+            HoverImage image = new HoverImage(defaultTex, hoverTex, 240);
             image.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
@@ -103,12 +103,12 @@ public class CraftingScreen implements Screen, Disposable {
                         if (!result.success()) {
                             showErrorDialog("Error Crafting", result.message());
                         }
-                    }
-                    else if (event.getButton() == Input.Buttons.RIGHT) {
-                        if (player.craftingExists(craftingType.getName())) {
-                            showArtisanNameDialog(craftingType);
+                    } else if (event.getButton() == Input.Buttons.RIGHT) {
+                        CraftingItem itemInstance = (CraftingItem) player.getBackpack().getItem(craftingType.getName());
+                        if (itemInstance != null) {
+                            showArtisanActionDialog(itemInstance);
                         } else {
-                            showErrorDialog("Locked", "You haven't learned this recipe yet!");
+                            showErrorDialog("Item Not Owned", "You need to craft or own this item first.");
                         }
                     }
                 }
@@ -130,15 +130,15 @@ public class CraftingScreen implements Screen, Disposable {
         }
     }
 
-
     private void updateProgressBars() {
-        List<CraftingItem> craftingItems = player.getCraftingItems();
-
+        // This method now iterates through the player's backpack to find placed crafting items
         for (Map.Entry<CraftingType, ProgressBar> entry : progressBars.entrySet()) {
             CraftingType type = entry.getKey();
             ProgressBar bar = entry.getValue();
 
-            Optional<CraftingItem> matchingItemOpt = craftingItems.stream()
+            Optional<CraftingItem> matchingItemOpt = player.getBackpack().getInventory().keySet().stream()
+                .filter(item -> item instanceof CraftingItem)
+                .map(item -> (CraftingItem) item)
                 .filter(item -> item.getType() == type && item.getProccessingItem() != null)
                 .findFirst();
 
@@ -149,6 +149,7 @@ public class CraftingScreen implements Screen, Disposable {
             }
         }
     }
+
 
     @Override
     public void show() {
@@ -231,6 +232,69 @@ public class CraftingScreen implements Screen, Disposable {
         );
     }
 
+    private void showArtisanActionDialog(CraftingItem item) {
+        Dialog actionDialog = new Dialog("Manage " + item.getName(), skin, "dialog");
+
+        // Collect Button
+        if (item.getFinishedItem() != null) {
+            TextButton collectButton = new TextButton("Collect Product", skin);
+            collectButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Result result = controller.artisanGet(new String[]{item.getName()});
+                    if (!result.success()) {
+                        showErrorDialog("Error", result.message());
+                    } else {
+                        showErrorDialog("Success", result.message()); // Using same dialog for success
+                    }
+                    actionDialog.hide();
+                }
+            });
+            actionDialog.getContentTable().add(collectButton).pad(10).row();
+        }
+
+        // Processing Buttons
+        if (item.getProccessingItem() != null) {
+            TextButton cancelButton = new TextButton("Cancel Process", skin);
+            cancelButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Result result = controller.artisanCancel(new String[]{item.getName()});
+                    showErrorDialog("Info", result.message());
+                    actionDialog.hide();
+                }
+            });
+            actionDialog.getContentTable().add(cancelButton).pad(10).row();
+
+            TextButton fastFinishButton = new TextButton("Finish Quickly (Cheat)", skin);
+            fastFinishButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    Result result = controller.artisanFastFinish(new String[]{item.getName()});
+                    showErrorDialog("Info", result.message());
+                    actionDialog.hide();
+                }
+            });
+            actionDialog.getContentTable().add(fastFinishButton).pad(10).row();
+        }
+
+        // Start New Process Button
+        if (item.getProccessingItem() == null && item.getFinishedItem() == null) {
+            TextButton startButton = new TextButton("Start New Process", skin);
+            startButton.addListener(new ClickListener() {
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    actionDialog.hide();
+                    showArtisanNameDialog(item.getType());
+                }
+            });
+            actionDialog.getContentTable().add(startButton).pad(10).row();
+        }
+
+        actionDialog.button("Close");
+        actionDialog.show(stage);
+    }
+
     private void showArtisanNameDialog(CraftingType craftingType) {
         Dialog nameDialog = new Dialog("Enter Artisan Name", skin, "dialog");
 
@@ -244,20 +308,7 @@ public class CraftingScreen implements Screen, Disposable {
         submitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                String artisanName = nameField.getText();
-                if (artisanName != null && !artisanName.trim().isEmpty()) {
-                    System.out.println("Submitted name for " + craftingType.getName() + ": " + artisanName);
-
-                    String[] args = new String[]{craftingType.getName() , artisanName};
-                    Result result = controller.artisanUse(args);
-                    if (!result.success()) {
-                        showErrorDialog("Error Crafting", result.message());
-                    }
-
-                    nameDialog.hide();
-                } else {
-                    nameField.setText("Name cannot be empty!");
-                }
+                Main.getGame().setScreen(new ArtisanCreatScreen(player, skin, previousScreen, new CraftingItem(craftingType)));
             }
         });
 
