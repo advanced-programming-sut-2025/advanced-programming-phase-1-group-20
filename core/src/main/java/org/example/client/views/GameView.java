@@ -28,6 +28,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import org.example.client.Main;
 import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.controllers.TradingMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
 import org.example.client.controllers.gameplay.WorldController;
 import org.example.client.controllers.gameplay.PlayerController;
@@ -133,6 +134,9 @@ public class GameView implements Screen, InputProcessor {
     private TextButton friendsButton;
     private FriendsWindow friendsWindow;
 
+    // Trading system
+    private TextButton tradingButton;
+
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
     private Seasons lastKnownSeason;
@@ -198,6 +202,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize friends system
         initializeFriendsButton();
+
+        // Initialize trading system
+        initializeTradingButton();
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
@@ -536,6 +543,16 @@ public class GameView implements Screen, InputProcessor {
         });
     }
 
+    private void initializeTradingButton() {
+        tradingButton = new TextButton("Trading", skin);
+        tradingButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openTradingMenu();
+            }
+        });
+    }
+
     private void openFriendsWindow() {
         try {
             if (friendsWindow == null) {
@@ -546,6 +563,12 @@ public class GameView implements Screen, InputProcessor {
             System.err.println("Error opening friends window: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    private void openTradingMenu() {
+        TradingMenuController tradingController = new TradingMenuController(player);
+        TradingMenuView tradingView = new TradingMenuView(tradingController, skin, this);
+        Main.getGame().setScreen(tradingView);
     }
 
     // Getters
@@ -669,6 +692,10 @@ public class GameView implements Screen, InputProcessor {
         }
         if (keycode == Input.Keys.R) {
             showPlayerApproximationDialog();
+            return true;
+        }
+        if (keycode == Input.Keys.T) {
+            openTradingMenu();
             return true;
         }
         if (keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P) {
@@ -1156,6 +1183,15 @@ public class GameView implements Screen, InputProcessor {
             friendsTable.bottom().left();
             friendsTable.add(friendsButton).width(100).height(40).pad(20);
             stage.addActor(friendsTable);
+        }
+
+        // Add trading button to the stage (positioned in bottom-right corner)
+        if (tradingButton != null) {
+            Table tradingTable = new Table();
+            tradingTable.setFillParent(true);
+            tradingTable.bottom().right();
+            tradingTable.add(tradingButton).width(100).height(40).pad(20);
+            stage.addActor(tradingTable);
         }
 
         pauseTable.setFillParent(true);

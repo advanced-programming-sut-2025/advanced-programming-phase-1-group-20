@@ -256,10 +256,6 @@ public class GameSession {
         }
     }
 
-    /**
-     * Broadcasts a market stock update to all players in the session.
-     * This uses a general GAME_STATE_UPDATE message type with specific fields.
-     */
     public void broadcastMarketUpdate(String marketName, String itemName, double newStock) {
         Message updateMessage = new Message();
         updateMessage.setType(Message.Type.GAME_STATE_UPDATE);
@@ -382,16 +378,16 @@ public class GameSession {
                 // Always consume at least 1 energy for movement
                 energyCost = Math.max(1, energyCost);
 
-                System.out.println("🚀 SERVER: Energy calculation - Current: " + currentEnergy + ", Cost: " + energyCost);
+                System.out.println("SERVER: Energy calculation - Current: " + currentEnergy + ", Cost: " + energyCost);
 
                 if (player.getEnergy() >= energyCost) {
                     player.decreaseEnergy(energyCost);
-                    System.out.println("🚀 SERVER: Player " + username + " energy consumed: " + energyCost + ", Remaining: " + player.getEnergy());
+                    System.out.println("SERVER: Player " + username + " energy consumed: " + energyCost + ", Remaining: " + player.getEnergy());
                 } else {
-                    System.out.println("🚀 SERVER: Player " + username + " not enough energy for movement");
+                    System.out.println("SERVER: Player " + username + " not enough energy for movement");
                 }
             } else {
-                System.out.println("🚀 SERVER: Player " + username + " has unlimited energy - no consumption");
+                System.out.println("SERVER: Player " + username + " has unlimited energy - no consumption");
             }
 
             // Add username to message for client identification

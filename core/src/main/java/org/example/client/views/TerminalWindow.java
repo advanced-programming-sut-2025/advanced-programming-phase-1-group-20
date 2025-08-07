@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.controllers.GameMenuController;
+import org.example.common.models.App;
 import org.example.common.models.common.Result;
 import org.example.common.models.enums.commands.GameMenuCommands;
 
@@ -321,6 +322,9 @@ public class TerminalWindow {
                 return gameMenuController.showAvailableTools();
             case ToolUpgrade:
                 return gameMenuController.upgradeTool(args);
+            case CheatBuildGreenHouse:
+                App.getGame().getCurrentPlayer().getCurrentFarm().getGreenHouse().setIsConstructed();
+                return Result.success("Build Green House is displayed.");
 
             // Default case for unhandled commands
             default:

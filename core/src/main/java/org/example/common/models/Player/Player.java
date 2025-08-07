@@ -74,7 +74,7 @@ public class Player {
         craftingItems = new ArrayList<CraftingItem>();
         cookingItems = new ArrayList<CookingItem>();
         backpack = new Backpack();
-        this.energy = 300;
+        this.energy = 2000;
         this.hasCollapsed = false;
         this.friendships = new HashMap<>();
         this.isInVillage = false;
