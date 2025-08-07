@@ -14,6 +14,7 @@ import org.example.client.views.GreenhouseRepairDialog;
 import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.client.views.gameplay.RefrigeratorScreen;
+import org.example.client.views.menu.BuildingPlacementScreen;
 import org.example.common.models.Barn;
 import org.example.common.models.Coop;
 import org.example.common.models.Items.*;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import static org.example.client.Main.getGame;
 import static org.example.common.models.enums.Types.TileType.*;
 
 public class WorldController {
@@ -1559,19 +1561,19 @@ public class WorldController {
             if (playerController.getPlayer().getIsInVillage()) {
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 if (checkVillageClicked(blacksmith, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[0], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[0], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(jojaMart, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[1], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[1], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(pierreGeneralStore, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[2], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[2], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(carpentersShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[3], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[3], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(fishShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[4], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[4], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(marnieShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[5], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[5], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 } else if (checkVillageClicked(starDropSaloon, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    Main.getGame().setScreen(new MarketMenuScreen(markets[6], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    getGame().setScreen(new MarketMenuScreen(markets[6], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
                 }
             }
             else if (isInPlacementMode) {
@@ -1602,7 +1604,7 @@ public class WorldController {
             else {
                 if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     System.out.println("house clicked");
-                    Main.getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
+                    getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
                 } else if (checkClicked(coopAnchors, COOP_TILES_W, COOP_TILES_H, touchPoint)) {
 
                 } else if (checkClicked(barnAnchors, BARN_TILES_W, BARN_TILES_H, touchPoint)) {
@@ -1612,7 +1614,7 @@ public class WorldController {
 
                     if (isConstructed) {
                         Gdx.app.log("WorldController", "Entering constructed greenhouse.");
-                        Main.getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
+                        getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
                     } else {
                         GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
                             playerController.getPlayer(), controller, skin);
@@ -1640,6 +1642,40 @@ public class WorldController {
             }
         }
         return false;
+    }
+
+    public void startBuildingPlacement(String buildingType) {
+        getGame().setScreen(new BuildingPlacementScreen(getGame().getCurrentPlayer(), buildingType, this));
+    }
+
+    public void placeBarn(int x, int y) {
+        Location anchor = new Location(x, y, Dirt);
+        Barn barn = new Barn(BarnTypes.NORMAL_BARN, anchor, "Barn");
+        farm.addBarn(barn);
+
+        for (int i = x; i < x + BARN_TILES_W; i++) {
+            for (int j = y; j < y + BARN_TILES_H; j++) {
+                Location loc = farm.getItem(i, j);
+                if (loc != null) {
+                    loc.setTile(TileType.BARN);
+                }
+            }
+        }
+    }
+
+    public void placeCoop(int x, int y) {
+        Location anchor = new Location(x, y, Dirt);
+        Coop coop = new Coop(Cages.NORMAL_COOP, anchor, "Coop");
+        farm.addCoop(coop);
+
+        for (int i = x; i < x + COOP_TILES_W; i++) {
+            for (int j = y; j < y + COOP_TILES_H; j++) {
+                Location loc = farm.getItem(i, j);
+                if (loc != null) {
+                    loc.setTile(TileType.COOP);
+                }
+            }
+        }
     }
 
     public boolean checkVillageClicked(List<Location> anchors , int tilesW , int tilesH , Vector3 touchPoint) {
@@ -1795,7 +1831,7 @@ public class WorldController {
         }
     }
 
-    public void startBuildingPlacement(String buildingType) {
+    public void startBuildingPlacement1(String buildingType) {
         this.isInPlacementMode = true;
         this.buildingToPlace = buildingType;
         this.potentialPlacementTiles.clear();

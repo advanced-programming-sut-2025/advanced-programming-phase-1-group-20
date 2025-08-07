@@ -1441,7 +1441,8 @@ public class Farm {
                 if (tiles[x][y].getItem() instanceof Tree) {
                     Tree tree = (Tree) tiles[x][y].getItem();
                     tree.setMoisture(true);
-                } else if (tiles[x][y].getItem() instanceof Plant) {
+                }
+                else if (tiles[x][y].getItem() instanceof Plant) {
                     Plant plant = (Plant) tiles[x][y].getItem();
                     plant.setMoisture(true);
                 }

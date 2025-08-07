@@ -367,16 +367,16 @@ public class MarketMenuScreen implements Screen, Disposable {
 
                 if (xText.trim().isEmpty() || yText.trim().isEmpty()) {
                     showErrorDialog("Invalid Input", "Please enter both X and Y coordinates.");
-                    return; // Don't close the dialog
+                    return;
                 }
 
                 String[] args = new String[]{item.getName(), xText, yText};
                 Result result = controller.build(args);
 
                 if (result.success()) {
-                    buildDialog.hide(); // Close dialog on success
+                    buildDialog.hide();
                     updateMoneyLabel();
-                    displayItems(currentDisplayStock); // Refresh display
+                    displayItems(currentDisplayStock);
                     showErrorDialog("Success", result.message());
                 } else {
                     showErrorDialog("Build Failed", result.message());
@@ -401,6 +401,46 @@ public class MarketMenuScreen implements Screen, Disposable {
             Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
         );
     }
+
+//    private void showBuildDialog(final Item item) {
+//        final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
+//
+//        Table contentTable = buildDialog.getContentTable();
+//        contentTable.pad(20f);
+//
+//        contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
+//        contentTable.add(new Label("Click 'Place' to select location on your farm", skin))
+//            .colspan(2).padBottom(10).row();
+//
+//        TextButton placeButton = new TextButton("Place", skin);
+//        TextButton cancelButton = new TextButton("Cancel", skin);
+//
+//        placeButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                buildDialog.hide();
+//                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
+//                controller.getWorldController().startBuildingPlacement(buildingType);
+//            }
+//        });
+//
+//        cancelButton.addListener(new ClickListener() {
+//            @Override
+//            public void clicked(InputEvent event, float x, float y) {
+//                buildDialog.hide();
+//            }
+//        });
+//
+//        buildDialog.getButtonTable().add(placeButton).pad(10);
+//        buildDialog.getButtonTable().add(cancelButton).pad(10);
+//
+//        buildDialog.show(stage);
+//        buildDialog.pack();
+//        buildDialog.setPosition(
+//            Math.round((stage.getWidth() - buildDialog.getWidth()) / 2f),
+//            Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
+//        );
+//    }
 
     private void updateMoneyLabel() {
         moneyLabel.setText("Money: $" + player.getMoney());
