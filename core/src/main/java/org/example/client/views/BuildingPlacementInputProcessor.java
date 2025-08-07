@@ -16,19 +16,19 @@ public class BuildingPlacementInputProcessor extends InputAdapter {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Vector3 mousePos = new Vector3(screenX, screenY, 0);
-        screen.getWorldController().getCamera().unproject(mousePos);
+//        screen.getWorldController().getCamera().unproject(mousePos);
 
         int tileX = (int)(mousePos.x / 60);
         int tileY = (int)(mousePos.y / 60);
 
-        screen.placeBuilding(tileX, tileY);
+//        screen.placeBuilding(tileX, tileY);
         return true;
     }
 
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == com.badlogic.gdx.Input.Keys.ESCAPE) {
-            getGame().setScreen(screen.getWorldController().getPreviousScreen());
+//            getGame().setScreen(screen.getWorldController().getPreviousScreen());
             return true;
         }
         return false;

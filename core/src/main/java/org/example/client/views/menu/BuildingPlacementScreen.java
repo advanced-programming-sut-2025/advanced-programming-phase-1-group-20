@@ -1,28 +1,24 @@
 package org.example.client.views.menu;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
 import org.example.client.Main;
-import org.example.client.controllers.gameplay.WorldController;
-import org.example.client.views.BuildingPlacementInputProcessor;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
 import org.example.common.models.enums.Types.TileType;
 
-import static org.example.client.Main.getGame;
-
 public class BuildingPlacementScreen implements Screen {
-    private final WorldController worldController;
-    private final SpriteBatch batch;
-    private final String buildingType;
     private final Player player;
+    private final String buildingType;
+    private final Screen previousScreen;
+    private final SpriteBatch batch;
+    private final OrthographicCamera camera;
     private final Texture validTexture;
     private final Texture invalidTexture;
     private final Texture backgroundTexture;
@@ -30,25 +26,22 @@ public class BuildingPlacementScreen implements Screen {
     private final int buildingWidth;
     private final int buildingHeight;
 
-    public BuildingPlacementScreen(Player player, String buildingType, WorldController worldController) {
+    public BuildingPlacementScreen(Player player, String buildingType, Screen previousScreen) {
         this.player = player;
         this.buildingType = buildingType;
-        this.worldController = worldController;
+        this.previousScreen = previousScreen;
         this.batch = Main.getBatch();
         this.farm = player.getCurrentFarm();
 
-        if (buildingType.equals("barn")) {
-            buildingWidth = 4;
-            buildingHeight = 3;
-        }
-        else {
-            buildingWidth = 3;
-            buildingHeight = 3;
-        }
+        this.camera = new OrthographicCamera();
+        this.camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        validTexture = createColorTexture(Color.GREEN);
-        invalidTexture = createColorTexture(Color.RED);
-        backgroundTexture = createGridTexture();
+        this.buildingWidth = buildingType.equals("barn") ? 4 : 3;
+        this.buildingHeight = buildingType.equals("barn") ? 3 : 3;
+
+        this.validTexture = createColorTexture(Color.GREEN);
+        this.invalidTexture = createColorTexture(Color.RED);
+        this.backgroundTexture = createGridTexture();
     }
 
     private Texture createColorTexture(Color color) {
@@ -71,7 +64,55 @@ public class BuildingPlacementScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new BuildingPlacementInputProcessor(this));
+        Gdx.input.setInputProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                Vector3 mousePos = new Vector3(screenX, screenY, 0);
+                camera.unproject(mousePos);
+
+                int tileX = (int)(mousePos.x / 60);
+                int tileY = (int)(mousePos.y / 60);
+
+                if (isValidPlacement(tileX, tileY)) {
+                    placeBuilding(tileX, tileY);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    Main.getGame().setScreen(previousScreen);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private boolean isValidPlacement(int startX, int startY) {
+        for (int x = startX; x < startX + buildingWidth; x++) {
+            for (int y = startY; y < startY + buildingHeight; y++) {
+                Location loc = farm.getItem(x, y);
+                if (loc == null || loc.getTile() != TileType.Dirt || loc.getItem() != null) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void placeBuilding(int x, int y) {
+        for (int i = x; i < x + buildingWidth; i++) {
+            for (int j = y; j < y + buildingHeight; j++) {
+                Location loc = farm.getItem(i, j);
+                if (loc != null) {
+                    loc.setTile(buildingType.equals("barn") ? TileType.BARN : TileType.COOP);
+                }
+            }
+        }
+        Main.getGame().setScreen(previousScreen);
     }
 
     @Override
@@ -79,6 +120,8 @@ public class BuildingPlacementScreen implements Screen {
         Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
         for (int x = 0; x < Farm.width; x++) {
@@ -89,33 +132,21 @@ public class BuildingPlacementScreen implements Screen {
 
         for (int x = 0; x < Farm.width - buildingWidth + 1; x++) {
             for (int y = 0; y < Farm.height - buildingHeight + 1; y++) {
-                if (isValidPlacement(x, y)) {
-                    batch.setColor(0, 1, 0, 0.5f);
-                    batch.draw(validTexture, x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
-                } else {
-                    batch.setColor(1, 0, 0, 0.3f);
-                    batch.draw(invalidTexture, x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
-                }
+                batch.setColor(1, 1, 1, 0.5f);
+                batch.draw(isValidPlacement(x, y) ? validTexture : invalidTexture,
+                    x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
             }
         }
 
-        batch.setColor(1, 1, 1, 1);
-
         Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        worldController.getCamera().unproject(mousePos);
+        camera.unproject(mousePos);
         int tileX = (int)(mousePos.x / 60);
         int tileY = (int)(mousePos.y / 60);
 
         if (tileX >= 0 && tileX < Farm.width - buildingWidth + 1 &&
             tileY >= 0 && tileY < Farm.height - buildingHeight + 1) {
 
-            if (isValidPlacement(tileX, tileY)) {
-                batch.setColor(1, 1, 0, 0.7f);
-            }
-            else {
-                batch.setColor(1, 0.5f, 0, 0.7f);
-            }
-
+            batch.setColor(1, 1, 0, 0.7f);
             batch.draw(validTexture, tileX * 60, tileY * 60,
                 buildingWidth * 60, buildingHeight * 60);
         }
@@ -145,30 +176,9 @@ public class BuildingPlacementScreen implements Screen {
 
     @Override
     public void dispose() {
-
-    }
-
-    private boolean isValidPlacement(int startX, int startY) {
-        for (int x = startX; x < startX + buildingWidth; x++) {
-            for (int y = startY; y < startY + buildingHeight; y++) {
-                Location loc = farm.getItem(x, y);
-                if (loc == null || loc.getTile() != TileType.Dirt || loc.getItem() != null) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    public void placeBuilding(int x, int y) {
-        if (isValidPlacement(x, y)) {
-            if (buildingType.equals("barn")) {
-                worldController.placeBarn(x, y);
-            } else {
-                worldController.placeCoop(x, y);
-            }
-            getGame().setScreen(worldController.getPreviousScreen());
-        }
+        validTexture.dispose();
+        invalidTexture.dispose();
+        backgroundTexture.dispose();
     }
 
 }

@@ -420,7 +420,8 @@ public class MarketMenuScreen implements Screen, Disposable {
 //            public void clicked(InputEvent event, float x, float y) {
 //                buildDialog.hide();
 //                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
-//                controller.getWorldController().startBuildingPlacement(buildingType);
+//                Main.getGame().setScreen(new BuildingPlacementScreen(
+//                    player, buildingType, MarketMenuScreen.this));
 //            }
 //        });
 //
@@ -435,11 +436,6 @@ public class MarketMenuScreen implements Screen, Disposable {
 //        buildDialog.getButtonTable().add(cancelButton).pad(10);
 //
 //        buildDialog.show(stage);
-//        buildDialog.pack();
-//        buildDialog.setPosition(
-//            Math.round((stage.getWidth() - buildDialog.getWidth()) / 2f),
-//            Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
-//        );
 //    }
 
     private void updateMoneyLabel() {

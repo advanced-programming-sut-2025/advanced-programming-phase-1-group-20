@@ -1644,10 +1644,6 @@ public class WorldController {
         return false;
     }
 
-    public void startBuildingPlacement(String buildingType) {
-        getGame().setScreen(new BuildingPlacementScreen(getGame().getCurrentPlayer(), buildingType, this));
-    }
-
     public void placeBarn(int x, int y) {
         Location anchor = new Location(x, y, Dirt);
         Barn barn = new Barn(BarnTypes.NORMAL_BARN, anchor, "Barn");
