@@ -20,7 +20,6 @@ import org.example.common.models.enums.Types.CraftingType;
 import org.example.common.models.common.HoverImage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -308,7 +307,7 @@ public class CraftingScreen implements Screen, Disposable {
         submitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Main.getGame().setScreen(new ArtisanCreatScreen(player, skin, previousScreen, new CraftingItem(craftingType)));
+                Main.getGame().setScreen(new ArtisanCreateScreen(player, skin, previousScreen, new CraftingItem(craftingType)));
             }
         });
 

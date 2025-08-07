@@ -16,7 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -30,7 +29,6 @@ import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.controllers.TradingMenuController;
 import org.example.client.controllers.gameplay.AnimalController;
-import org.example.client.controllers.gameplay.WorldController;
 import org.example.client.controllers.gameplay.PlayerController;
 import org.example.client.views.gameplay.*;
 import org.example.common.models.App;
@@ -44,7 +42,6 @@ import org.example.common.models.common.Result;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
-import org.example.common.models.enums.PlayerEnums.Tools;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
@@ -726,7 +723,7 @@ public class GameView implements Screen, InputProcessor {
 
             if (clickedCraftingItem != null) {
                 //opens a new artisanScreen containing an inventory in down and 4x4 table in above
-                Main.getGame().setScreen(new ArtisanCreatScreen(player, skin, this , clickedCraftingItem));
+                Main.getGame().setScreen(new ArtisanCreateScreen(player, skin, this , clickedCraftingItem));
                 return true; // Consume the click event
             }
 
