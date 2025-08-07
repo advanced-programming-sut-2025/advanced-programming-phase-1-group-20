@@ -1207,7 +1207,6 @@ public class GameView implements Screen, InputProcessor {
     public void render(float deltaTime) {
         // Update network client to process incoming messages
         NetworkClient.getInstance().update();
-
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background
