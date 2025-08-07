@@ -54,7 +54,8 @@ public class AnimalsController implements Disposable {
 
                     animal.setTargetX(targetX);
                     animal.setTargetY(targetY);
-                } else {
+                }
+                else {
                     animal.setMoving(false);
                 }
                 // Reset timer for next state change (e.g., 2 to 5 seconds)
@@ -74,7 +75,8 @@ public class AnimalsController implements Disposable {
                 // Stop if close to the target
                 if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
                     animal.setMoving(false);
-                } else {
+                }
+                else {
                     // Normalize direction vector
                     float length = (float) Math.sqrt(dx * dx + dy * dy);
                     float moveX = (dx / length) * animal.getSpeed() * deltaTime;
@@ -86,7 +88,8 @@ public class AnimalsController implements Disposable {
                     // Update facing direction for animation
                     if (Math.abs(dx) > Math.abs(dy)) {
                         animal.setFacing(dx > 0 ? Animal.Direction.RIGHT : Animal.Direction.LEFT);
-                    } else {
+                    }
+                    else {
                         animal.setFacing(dy > 0 ? Animal.Direction.UP : Animal.Direction.DOWN);
                     }
                 }
@@ -116,13 +119,10 @@ public class AnimalsController implements Disposable {
             return;
         }
 
-
         TextureRegion currentFrame = spriteController.getCurrentFrame(animal, stateTime);
-
 
         float renderWidth = 48;
         float renderHeight = 48;
-
 
         batch.draw(currentFrame, animal.getPosX(), animal.getPosY(), renderWidth, renderHeight);
     }
@@ -139,7 +139,8 @@ public class AnimalsController implements Disposable {
             try {
                 // If not, create a new one and add it to the map
                 spriteControllers.put(animalName, new AnimalSpriteController(animalName));
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 System.err.println("Failed to create sprite controller for: " + animalName + " - " + e.getMessage());
                 // Put a null marker to avoid trying again
                 spriteControllers.put(animalName, null);
