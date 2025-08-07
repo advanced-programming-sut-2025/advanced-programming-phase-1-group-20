@@ -37,6 +37,7 @@ import org.example.client.views.gameplay.CraftingScreen;
 import org.example.client.views.gameplay.InventoryScreen;
 import org.example.client.views.gameplay.MapScreen;
 import org.example.common.models.App;
+import org.example.common.models.Items.Food;
 import org.example.common.models.Items.Seed;
 import org.example.common.models.Items.Tool;
 import org.example.common.models.MapDetails.Farm;
@@ -748,11 +749,11 @@ public class GameView implements Screen, InputProcessor {
                     String[] args = new String[]{seed.getName() , direction};
 
                     Result result = controller.plant(args);
-                    if(result.success()) {
-                        currentPlayer.setCurrentItem(null);
-                    }else{
-                        System.out.println(result.message());
-                    }
+                    System.out.println(result.message());
+                }
+                else if(currentPlayer.getCurrentItem() instanceof Food food) {
+                    Result result = controller.eatFood(new String[]{food.getName()});
+                    System.out.println(result.message());
                 }
                 else{
                     float playerX = currentPlayer.getPosX();

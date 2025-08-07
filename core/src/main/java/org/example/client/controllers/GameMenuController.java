@@ -482,34 +482,51 @@ public class GameMenuController implements Controller {
         }
     }
 
+    //this method is completed now
     public Result eatFood(String[] args) {
-        Player player = App.getGame().getCurrentPlayer();
-
         String foodName = args[0];
-        Item item = ItemBuilder.build(foodName);
-        if (item == null) {
-            return Result.error("Item does not exist");
+        Item itemToEat = null;
+        boolean wasCurrentItem = false;
+
+        // Check if the item being eaten is the one the player is holding
+        if (player.getCurrentItem() != null && player.getCurrentItem().getName().equalsIgnoreCase(foodName)) {
+            itemToEat = player.getCurrentItem();
+            wasCurrentItem = true;
+        } else {
+            // Otherwise, check the backpack
+            itemToEat = player.getBackpack().getItem(foodName);
         }
-        if (!player.getBackpack().hasItems(Collections.singletonList(foodName))) {
-            return Result.error(foodName + " does not exist in backpack");
+
+        // If item is not found in either place
+        if (itemToEat == null) {
+            return Result.error("You don't have '" + foodName + "' to eat.");
         }
-        if (!(item instanceof Food || item instanceof ArtisanItem)) {
-            return Result.error("Item is not a Food or ArtisanItem");
-        }
-        if (item instanceof ArtisanItem artisanItem) {
-            if (artisanItem.getEnergy() > 0) {
-                player.increaseEnergy(artisanItem.getEnergy());
-                player.getBackpack().remove(item, 1);
-                return Result.success("Food " + foodName + " eaten");
-            } else {
-                return Result.success("Artisan item is not a food.");
+
+        // Check if the item is edible and get energy value
+        int energyGained = 0;
+        if (itemToEat instanceof Food food) {
+            energyGained = food.getEnergy();
+            food.setBuffer(player); // Apply buffer effect
+        } else if (itemToEat instanceof Fruit fruit) {
+            energyGained = fruit.getEnergy();
+        } else if (itemToEat instanceof ArtisanItem artisanItem) {
+            energyGained = artisanItem.getEnergy();
+            if (energyGained <= 0) {
+                return Result.error("'" + foodName + "' is not edible.");
             }
+        } else {
+            return Result.error("'" + foodName + "' is not edible.");
         }
-        Food food = (Food) item;
-        player.increaseEnergy(food.getEnergy());
-        player.getBackpack().remove(item, 1);
-        food.setBuffer(player);
-        return Result.success("Food " + foodName + " eaten");
+
+        // Consume the item
+        player.increaseEnergy(energyGained);
+        if (wasCurrentItem) {
+            player.setCurrentItem(null); // The held item disappears
+        } else {
+            player.getBackpack().remove(itemToEat, 1); // Remove one from the backpack
+        }
+
+        return Result.success("Food " + foodName + " eaten.");
     }
 
 
@@ -2067,6 +2084,15 @@ public class GameMenuController implements Controller {
         int amount = Integer.parseInt(args[1]);
 
         player.getBackpack().add(item, amount);
+    }
+
+    public void getFood(String[] args){
+        Item item = ItemBuilder.build(args[0]);
+        int amount = Integer.parseInt(args[1]);
+
+        if(item instanceof CookingItem cookingItem){
+            player.getBackpack().add(cookingItem.getFood(), amount);
+        }
     }
 
 

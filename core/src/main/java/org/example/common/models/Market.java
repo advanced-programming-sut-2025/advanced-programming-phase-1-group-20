@@ -46,11 +46,8 @@ public class Market extends Building {
         this.autumnStock = autumnStock;
         this.winterStock = winterStock;
         this.totalStock = new ArrayList<>();
-        totalStock.addAll(permanentStock);
-        totalStock.addAll(springStock);
-        totalStock.addAll(summerStock);
-        totalStock.addAll(autumnStock);
-        totalStock.addAll(winterStock);
+        initializeTotalStock(Seasons.SPRING);
+
         this.startHour = startHour;
         this.endHour = endHour;
         this.menu = menu;
@@ -75,12 +72,12 @@ public class Market extends Building {
      * not the original master lists.
      */
     public void initializeTotalStock(Seasons season) {
-        // Deep copy permanent stock
+        // Deep copy permanent stock by creating new Product objects
         this.totalStock = permanentStock.stream()
-            .map(p -> new Product(p.getItem(), p.getAmount()))
+            .map(p -> new Product(p.getItem(), p.getAmount(), p.getIngredient()))
             .collect(Collectors.toList());
 
-        // Deep copy seasonal stock
+        // Determine which seasonal stock to add
         List<Product> seasonal = new ArrayList<>();
         switch (season) {
             case SPRING: seasonal = springStock; break;
@@ -89,8 +86,9 @@ public class Market extends Building {
             case WINTER: seasonal = winterStock; break;
         }
 
+        // Deep copy seasonal stock and add it to the total stock
         seasonal.stream()
-            .map(p -> new Product(p.getItem(), p.getAmount()))
+            .map(p -> new Product(p.getItem(), p.getAmount(), p.getIngredient()))
             .forEach(this.totalStock::add);
     }
 

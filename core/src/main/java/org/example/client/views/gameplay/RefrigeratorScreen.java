@@ -18,6 +18,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop.Target;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
+import org.example.common.models.Items.Food;
+import org.example.common.models.Items.Fruit;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
@@ -237,6 +239,11 @@ public class RefrigeratorScreen implements Screen {
                         return; // Do nothing if the destination is full
                     }
 
+                    if (targetMap == refrigerator.getItems() && !(item instanceof Food || item instanceof Fruit)) {
+                        System.out.println("Only food and fruit can be placed in the refrigerator.");
+                        return;
+                    }
+
                     // Perform the move
                     int itemQuantity = sourceMap.get(item);
                     sourceMap.remove(item);
@@ -282,6 +289,11 @@ public class RefrigeratorScreen implements Screen {
                 // Determine source and target maps
                 Map<Item, Integer> sourceMap = sourceName.equals("refrigerator") ? refrigerator.getItems() : backpack.getInventory();
                 Map<Item, Integer> targetMap = targetContainer.equals("refrigerator") ? refrigerator.getItems() : backpack.getInventory();
+
+                if (targetMap == refrigerator.getItems() && !(draggedItem instanceof Food || draggedItem instanceof Fruit)) {
+                    System.out.println("Only food and fruit can be placed in the refrigerator.");
+                    return;
+                }
 
                 // Move the item
                 int quantity = sourceMap.get(draggedItem);

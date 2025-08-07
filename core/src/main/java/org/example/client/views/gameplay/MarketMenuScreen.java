@@ -2,6 +2,7 @@ package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -13,10 +14,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
-import org.example.client.controllers.gameplay.WorldController;
-import org.example.client.views.GameView;
 import org.example.client.views.ToolUpgradeDialog;
-// import org.example.client.views.gameplay.BuildingPlacementScreen; // <--- حذف شد، دیگر لازم نیست
 import org.example.common.models.Items.Item;
 import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
@@ -28,6 +26,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MarketMenuScreen implements Screen, Disposable {
     private Stage stage;
@@ -48,7 +49,7 @@ public class MarketMenuScreen implements Screen, Disposable {
     private Dialog buyConfirmationDialog;
     private Dialog errorDialog;
 
-    // This now holds a list of Product objects
+    // This now holds a list of Product objects to be displayed
     private List<Product> currentDisplayStock;
 
     // Texture cache for item images with fallback support
@@ -65,8 +66,9 @@ public class MarketMenuScreen implements Screen, Disposable {
 
         this.controller = new MarketController(player, market);
 
-        // Default view is the permanent stock
-        this.currentDisplayStock = new ArrayList<>(market.getPermanentStock());
+        // Initialize the market's daily stock and set the initial view to all available items.
+        this.currentDisplayStock = new ArrayList<>(market.getTotalStock());
+
 
         this.stage = new Stage(new ScreenViewport());
 
@@ -129,7 +131,19 @@ public class MarketMenuScreen implements Screen, Disposable {
         topBar.add(moneyLabel).expandX().right().padRight(10);
         rootTable.add(topBar).growX().row();
 
+        // **MODIFIED:** More filter buttons for all seasons and all products.
         Table filterButtons = new Table(skin);
+
+        TextButton availableStockBtn = new TextButton("Available This Season", skin);
+        availableStockBtn.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                currentDisplayStock = market.getTotalStock();
+                displayItems(currentDisplayStock);
+            }
+        });
+        filterButtons.add(availableStockBtn).pad(5);
+
         TextButton permanentBtn = new TextButton("Permanent Stock", skin);
         permanentBtn.addListener(new ClickListener() {
             @Override
@@ -140,31 +154,40 @@ public class MarketMenuScreen implements Screen, Disposable {
         });
         filterButtons.add(permanentBtn).pad(5);
 
-        TextButton seasonBtn = new TextButton(currentSeason.name() + " Stock", skin);
-        seasonBtn.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                switch (currentSeason) {
-                    case SPRING: currentDisplayStock = market.getSpringStock(); break;
-                    case SUMMER: currentDisplayStock = market.getSummerStock(); break;
-                    case AUTUMN: currentDisplayStock = market.getAutumnStock(); break;
-                    case WINTER: currentDisplayStock = market.getWinterStock(); break;
-                }
-                displayItems(currentDisplayStock);
-            }
-        });
-        filterButtons.add(seasonBtn).pad(5);
+        TextButton springBtn = new TextButton("Spring", skin);
+        springBtn.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { displayItems(market.getSpringStock()); }});
+        filterButtons.add(springBtn).pad(5);
 
-        TextButton allStockBtn = new TextButton("All Available Stock", skin);
-        allStockBtn.addListener(new ClickListener() {
+        TextButton summerBtn = new TextButton("Summer", skin);
+        summerBtn.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { displayItems(market.getSummerStock()); }});
+        filterButtons.add(summerBtn).pad(5);
+
+        TextButton autumnBtn = new TextButton("Autumn", skin);
+        autumnBtn.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { displayItems(market.getAutumnStock()); }});
+        filterButtons.add(autumnBtn).pad(5);
+
+        TextButton winterBtn = new TextButton("Winter", skin);
+        winterBtn.addListener(new ClickListener() { @Override public void clicked(InputEvent e, float x, float y) { displayItems(market.getWinterStock()); }});
+        filterButtons.add(winterBtn).pad(5);
+
+        TextButton allProductsBtn = new TextButton("Show All Products", skin);
+        allProductsBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                currentDisplayStock = market.getTotalStock();
-                displayItems(currentDisplayStock);
+                List<Product> allProducts = Stream.of(
+                    market.getPermanentStock(),
+                    market.getSpringStock(),
+                    market.getSummerStock(),
+                    market.getAutumnStock(),
+                    market.getWinterStock()
+                ).flatMap(List::stream).collect(Collectors.toList());
+                displayItems(allProducts);
             }
         });
-        filterButtons.add(allStockBtn).pad(5);
+        filterButtons.add(allProductsBtn).pad(5);
+
         rootTable.add(filterButtons).padTop(10).row();
+
 
         itemDisplayTable = new Table(skin);
         scrollPane = new ScrollPane(itemDisplayTable, skin);
@@ -197,10 +220,22 @@ public class MarketMenuScreen implements Screen, Disposable {
         itemDisplayTable.add(new Label("Stock", skin, "default")).width(100).pad(5);
         itemDisplayTable.add(new Label("", skin)).width(100).pad(5).row();
 
+        // Get the list of currently available products for checking
+        List<Product> availableStock = market.getTotalStock();
+
         for (Product product : stockList) {
             Item item = product.getItem();
-            double stock = product.getAmount();
-            boolean isAvailable = stock > 0;
+
+            // **MODIFIED LOGIC:** Check if the product is actually available in the current total stock
+            Optional<Product> availableProductOpt = availableStock.stream()
+                .filter(p -> p.getItem().getName().equalsIgnoreCase(item.getName()))
+                .findFirst();
+
+            boolean isAvailable = availableProductOpt.isPresent() &&
+                (availableProductOpt.get().getAmount() > 0 || availableProductOpt.get().getAmount() == Double.POSITIVE_INFINITY);
+
+            double stock = availableProductOpt.map(Product::getAmount).orElse(0.0);
+
 
             Texture itemTexture = getItemTexture(item);
             Image itemImage = new Image(itemTexture);
@@ -223,8 +258,9 @@ public class MarketMenuScreen implements Screen, Disposable {
             itemDisplayTable.add(stockLabel).width(100).pad(5);
 
             TextButton buyButton = new TextButton("Buy", skin);
+            // **MODIFIED:** Disable button and change text if out of stock or out of season.
             if (!isAvailable) {
-                buyButton.setText("Out of Stock");
+                buyButton.setText("Unavailable");
                 buyButton.setDisabled(true);
             }
             buyButton.addListener(new ClickListener() {
@@ -245,7 +281,6 @@ public class MarketMenuScreen implements Screen, Disposable {
             return;
         }
 
-        // *** CHANGE HERE: Check for building items and show the new build dialog ***
         if (market.getName().equalsIgnoreCase("Carpenters Shop") && isBuildingItem(item)) {
             showBuildDialog(item);
             return;
@@ -301,78 +336,6 @@ public class MarketMenuScreen implements Screen, Disposable {
             Math.round((stage.getHeight() - buyConfirmationDialog.getHeight()) / 2)
         );
     }
-
-    // *** NEW METHOD: Shows a dialog to get X, Y and call controller.build ***
-//    private void showBuildDialog(final Item item) {
-//        final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
-//        buildDialog.setModal(true);
-//
-//        Table contentTable = buildDialog.getContentTable();
-//        contentTable.pad(20f);
-//
-//        contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
-//        contentTable.add(new Label("Click 'Select Location' to choose placement on map", skin)).colspan(2).padBottom(10).row();
-//
-//        TextButton selectLocationButton = new TextButton("Select Location", skin);
-//        TextButton cancelButton = new TextButton("Cancel", skin);
-//
-//        selectLocationButton.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                buildDialog.hide();
-//
-//                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
-//
-//                if (previousScreen instanceof GameView) {
-//                    GameView gameView = (GameView) previousScreen;
-//                    WorldController worldController = gameView.getWorldController();
-//
-//                    if (worldController != null) {
-//                        worldController.startBuildingPlacement(buildingType);
-//
-//                        gameView.setBuildingPlacementListener(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                String[] args = new String[]{item.getName(), "1"};
-//                                Result result = controller.purchase(args);
-//
-//                                if (result.success()) {
-//                                    updateMoneyLabel();
-//                                    displayItems(currentDisplayStock);
-//                                    showErrorDialog("Success", "Building placed successfully!");
-//                                }
-//                                else {
-//                                    showErrorDialog("Error", result.message());
-//                                }
-//
-//                                gameView.setBuildingPlacementListener(null);
-//                            }
-//                        });
-//                    }
-//                }
-//            }
-//        });
-//
-//        cancelButton.addListener(new ClickListener() {
-//            @Override
-//            public void clicked(InputEvent event, float x, float y) {
-//                buildDialog.hide();
-//                if (previousScreen instanceof GameView) {
-//                    ((GameView) previousScreen).setBuildingPlacementListener(null);
-//                }
-//            }
-//        });
-//
-//        buildDialog.getButtonTable().add(selectLocationButton).pad(10);
-//        buildDialog.getButtonTable().add(cancelButton).pad(10);
-//
-//        buildDialog.show(stage);
-//        buildDialog.pack();
-//        buildDialog.setPosition(
-//            Math.round((stage.getWidth() - buildDialog.getWidth()) / 2f),
-//            Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
-//        );
-//    }
 
     private void showBuildDialog(final Item item) {
         final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
@@ -471,18 +434,10 @@ public class MarketMenuScreen implements Screen, Disposable {
             itemName.contains("gold") || itemName.contains("iridium");
     }
 
-    // *** CHANGE HERE: Updated to include shipping bin ***
     private boolean isBuildingItem(Item item) {
         String itemName = item.getName().toLowerCase();
         return itemName.contains("barn") || itemName.contains("coop") || itemName.contains("well") || itemName.contains("shipping bin");
     }
-
-    // *** METHOD REMOVED: handleBuildingPurchase is no longer needed ***
-    /*
-    private void handleBuildingPurchase(Item item) {
-        // ... OLD CODE REMOVED ...
-    }
-    */
 
     private void showToolUpgradeDialog() {
         ToolUpgradeDialog upgradeDialog = new ToolUpgradeDialog(player, skin);

@@ -39,10 +39,19 @@ public class PlantController {
 
         Player player = App.getGame().getCurrentPlayer();
         GameMap gameMap = App.getGame().getGameMap();
-        Item seedItem = player.getBackpack().getItem(seedName);
+
+        Item seedItem = null;
+        boolean wasCurrentItem = false;
+
+        if (player.getCurrentItem() != null && player.getCurrentItem().getName().equalsIgnoreCase(seedName)) {
+            seedItem = player.getCurrentItem();
+            wasCurrentItem = true;
+        } else {
+            seedItem = player.getBackpack().getItem(seedName);
+        }
 
         if (seedItem == null) {
-            return Result.error("'" + seedName + "' does not exist in your backpack.");
+            return Result.error("'" + seedName + "' does not exist in your inventory.");
         }
 
         if (!(seedItem instanceof Seed)) {
@@ -62,7 +71,7 @@ public class PlantController {
         }
 
         // --- 3. Planting Logic ---
-        return executePlanting((Seed) seedItem, player, gameMap, targetX, targetY);
+        return executePlanting((Seed) seedItem, player, gameMap, targetX, targetY, wasCurrentItem);
     }
 
     /**
@@ -176,7 +185,7 @@ public class PlantController {
     /**
      * Handles the core logic of creating and placing a plantable item on the map.
      */
-    private Result executePlanting(Seed seed, Player player, GameMap gameMap, int x, int y) {
+    private Result executePlanting(Seed seed, Player player, GameMap gameMap, int x, int y, boolean wasCurrentItem) {
         String seedName = seed.getName();
 
         // Special case for Mixed Seeds
@@ -214,7 +223,11 @@ public class PlantController {
 
         // Place the item and finalize the action
         gameMap.getFarmByPlayer(player).placeItem(x, y, itemToPlant);
-        player.getBackpack().remove(seed, 1);
+        if (wasCurrentItem) {
+            player.setCurrentItem(null);
+        } else {
+            player.getBackpack().remove(seed, 1);
+        }
         player.getSkills().get(0).updateLevel(); // Assuming skill 0 is Farming
         return Result.success("Planted " + seedName + " successfully!");
     }
@@ -309,5 +322,4 @@ public class PlantController {
             default -> null; // Invalid direction
         };
     }
-    //</editor-fold>
 }

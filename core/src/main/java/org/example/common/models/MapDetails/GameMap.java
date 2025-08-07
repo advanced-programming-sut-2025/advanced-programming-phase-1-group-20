@@ -1,7 +1,9 @@
 package org.example.common.models.MapDetails;
 
+import org.example.common.models.App;
 import org.example.common.models.Barn;
 import org.example.common.models.Coop;
+import org.example.common.models.Market;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Location;
@@ -190,6 +192,14 @@ public class GameMap {
     }
 
     public void updateDailyGameMap(List<Player> players) {
+        if (village != null && village.getMarkets() != null) {
+            for (Market market : village.getMarkets()) {
+                if (market != null) {
+                    market.initializeTotalStock(App.getGame().getDate().getSeason());
+                }
+            }
+        }
+
         for (Player player : players) {
             Farm farm = getFarmByPlayer(player);
 

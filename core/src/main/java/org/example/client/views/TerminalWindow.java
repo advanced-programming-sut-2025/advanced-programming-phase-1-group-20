@@ -263,6 +263,8 @@ public class TerminalWindow {
             // Cheat commands
             case CheatAddItem:
                 gameMenuController.cheatAddItem(args);
+            case CheatGetFood:
+                gameMenuController.getFood(args);
             case energyUnlimited:
                 return gameMenuController.energyUnlimited();
             case CheatAddFavourites:
