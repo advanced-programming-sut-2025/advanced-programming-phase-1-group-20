@@ -46,7 +46,7 @@ public class PlayerController {
     private final Animation<TextureRegion> walkRight;
     private final Animation<TextureRegion> walkUp;
     private final Animation<TextureRegion> collapsedAnim;
-    
+
     // Item animations
     private final Animation<TextureRegion> itemDown;
     private final Animation<TextureRegion> itemLeft;
@@ -161,11 +161,9 @@ public class PlayerController {
         try {
             // For item animations, we'll use a single static frame since we want static sprites
             String spritePath = String.format("sprites/player/item_%s.png", direction);
-            System.out.println("DEBUG: Loading item sprite: " + spritePath);
             Texture frameTexture = new Texture(Gdx.files.internal(spritePath));
             // Add only one frame for static sprite
             frames.add(new TextureRegion(frameTexture));
-            System.out.println("DEBUG: Successfully loaded item sprite for direction: " + direction);
         } catch (Exception e) {
             System.out.println("Warning: Could not load item animation for direction " + direction + ": " + e.getMessage());
             // Create a simple fallback frame
@@ -273,46 +271,13 @@ public class PlayerController {
 
         // Draw tool if equipped (but not when holding an item)
         if (player.getCurrentTool() != null && !player.hasCollapsed() && player.getCurrentItem() == null) {
-            Texture toolTexture = new Texture(player.getCurrentTool().getImageFilepath());
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
-            float centerX = playerX + RENDER_W / 2f;
-            float centerY = playerY + RENDER_H / 2f;
-            float toolW = 32, toolH = 32;
-            // Set origin to handle (bottom-middle)
-            float originX = toolW / 2f;
-            float originY = toolH * 0.85f;
-            // Calculate angle to mouse
-            float dx = lastMouseX - centerX;
-            float dy = lastMouseY - centerY;
-            float angle = (float)Math.toDegrees(Math.atan2(dy, dx));
-            // Swing effect
-            float swingDuration = 0.18f;
-            float swingArc = 60f; // degrees
-            float finalAngle = angle;
-            if (toolSwinging) {
-                float swingProgress = Math.min(toolAnimTime / swingDuration, 1f);
-                // Animate from -swingArc to +swingArc around the mouse direction
-                float swingOffset = (float)Math.sin(Math.PI * swingProgress - Math.PI/2) * swingArc;
-                finalAngle = angle + swingOffset;
-                toolAnimTime += Gdx.graphics.getDeltaTime();
-                if (toolAnimTime > swingDuration) toolSwinging = false;
+            // When standing still, show tool sprite based on direction
+            if (!this.isMoving) {
+                renderToolSprite();
             }
-            // Mirror if mouse is to the left
-            boolean flip = (angle > 90f || angle < -90f);
-            Main.getBatch().draw(
-                toolTexture,
-                centerX - originX, centerY - originY,
-                originX, originY,
-                toolW, toolH,
-                1f, 1f,
-                finalAngle,
-                0, 0,
-                toolTexture.getWidth(), toolTexture.getHeight(),
-                flip, false
-            );
+            // When moving, don't show any tool (just the walking animation)
         }
-        
+
 
     }
 
@@ -428,11 +393,10 @@ public class PlayerController {
 
         // Update the moving state
         this.isMoving = moved;
-        
+
         // Choose animation based on whether player is holding an item and if they're moving
         if (player.getCurrentItem() != null) {
             // Use item animations when holding an item
-            System.out.println("DEBUG: Player is holding item: " + player.getCurrentItem().getName());
             if (this.isMoving) {
                 // Use walking animations when moving with item
                 switch (facing) {
@@ -441,7 +405,6 @@ public class PlayerController {
                     case LEFT -> currentAnim = walkLeft;
                     case RIGHT -> currentAnim = walkRight;
                 }
-                System.out.println("DEBUG: Using walk animation while holding item and moving");
             } else {
                 // Use static item sprite when standing still with item
                 switch (facing) {
@@ -450,7 +413,6 @@ public class PlayerController {
                     case LEFT -> currentAnim = itemLeft;
                     case RIGHT -> currentAnim = itemRight;
                 }
-                System.out.println("DEBUG: Using static item sprite while holding item and standing still");
             }
         } else {
             // Use regular walk animations when not holding an item
@@ -925,6 +887,161 @@ public class PlayerController {
         if (nicknameFont != null) {
             nicknameFont.dispose();
         }
+    }
+
+    private void renderToolSprite() {
+        Tool tool = player.getCurrentTool();
+        if (tool == null) return;
+
+        // Get the appropriate tool sprite based on tool type and direction
+        String spritePath = getToolSpritePath(tool, facing);
+        System.out.println("Loading tool sprite: " + spritePath);
+
+        try {
+            Texture toolTexture = new Texture(Gdx.files.internal(spritePath));
+            System.out.println("Successfully loaded tool texture: " + spritePath + " (size: " + toolTexture.getWidth() + "x" + toolTexture.getHeight() + ")");
+            float playerX = player.getPosX();
+            float playerY = player.getPosY();
+
+            // Position the tool above the player's head
+            float toolX = playerX + RENDER_W / 2 - toolTexture.getWidth() / 2; // Center horizontally
+            float toolY = playerY + RENDER_H + 10; // Position above the player with some offset
+
+            // Scale factor to make tools more visible
+            float scaleX = 3.0f;
+            float scaleY = 3.0f;
+            float scaledWidth = toolTexture.getWidth() * scaleX;
+            float scaledHeight = toolTexture.getHeight() * scaleY;
+            
+            // Adjust position for scaled size
+            toolX = playerX + RENDER_W / 2 - scaledWidth / 2;
+
+            // For left direction, flip the sprite horizontally
+            boolean flipHorizontally = (facing == Dir.LEFT);
+
+            // Draw the tool sprite above the player's head
+            if (flipHorizontally) {
+                // For left direction, draw flipped
+                Main.getBatch().draw(
+                    toolTexture,
+                    toolX + scaledWidth, // Adjust X position for flip
+                    toolY,
+                    -scaledWidth, // Negative width for flip
+                    scaledHeight
+                );
+            } else {
+                // Normal drawing with scaling
+                Main.getBatch().draw(
+                    toolTexture,
+                    toolX,
+                    toolY,
+                    scaledWidth,
+                    scaledHeight
+                );
+            }
+
+            toolTexture.dispose();
+        } catch (Exception e) {
+            System.out.println("Warning: Could not load tool sprite: " + spritePath + " - " + e.getMessage());
+        }
+    }
+
+
+
+    private String getToolSpritePath(Tool tool, Dir direction) {
+        String toolType = tool.getType().toString().toLowerCase();
+        String material = tool.getMaterial().toString().toLowerCase();
+        String directionStr = direction.toString().toLowerCase();
+
+        // Map tool types to sprite names and base paths
+        String toolName;
+        String basePath;
+        switch (tool.getType()) {
+            case AXE:
+                toolName = "Axe";
+                basePath = "content/Tools/Axe";
+                break;
+            case PICKAXE:
+                toolName = "Pickaxe";
+                basePath = "content/Tools/Pickaxe";
+                break;
+            case WATERING_CAN:
+                toolName = "Watering_Can";
+                basePath = "content/Tools/Watering_Can";
+                break;
+            case HOE:
+                toolName = "Hoe";
+                basePath = "content/Tools/Hoe";
+                break;
+            default:
+                toolName = "Axe";
+                basePath = "content/Tools/Axe";
+                break;
+        }
+
+        // Determine material folder name
+        String materialFolder;
+        switch (tool.getMaterial()) {
+            case BASIC:
+                // Basic tools use copper sprites
+                materialFolder = "copper";
+                break;
+            case COPPER:
+                materialFolder = "copper";
+                break;
+            case IRON:
+                materialFolder = "steel";
+                break;
+            case GOLD:
+                materialFolder = "gold";
+                break;
+            case IRIDIUM:
+                materialFolder = "iridium";
+                break;
+            default:
+                materialFolder = "copper";
+                break;
+        }
+
+        // Check if the tool has directional sprites (only Axe and Hoe have them)
+        boolean hasDirectionalSprites = (tool.getType() == Tool.ToolType.AXE || tool.getType() == Tool.ToolType.HOE);
+        
+        String spritePath;
+        if (hasDirectionalSprites) {
+            // Use directional sprites for Axe and Hoe
+            spritePath = String.format("%s/%s/%s.png", basePath, materialFolder, directionStr);
+            
+            // For left direction, we'll use right sprite and flip it
+            if (direction == Dir.LEFT) {
+                spritePath = String.format("%s/%s/right.png", basePath, materialFolder);
+            }
+        } else {
+            // For other tools (Pickaxe, Watering_Can), use the main tool image
+            String materialPrefix = "";
+            switch (tool.getMaterial()) {
+                case BASIC:
+                    materialPrefix = "";
+                    break;
+                case COPPER:
+                    materialPrefix = "Copper_";
+                    break;
+                case IRON:
+                    materialPrefix = "Steel_";
+                    break;
+                case GOLD:
+                    materialPrefix = "Gold_";
+                    break;
+                case IRIDIUM:
+                    materialPrefix = "Iridium_";
+                    break;
+                default:
+                    materialPrefix = "";
+                    break;
+            }
+            spritePath = String.format("%s/%s%s.png", basePath, materialPrefix, toolName);
+        }
+        
+        return spritePath;
     }
 
     private void sendMovementToServer() {
