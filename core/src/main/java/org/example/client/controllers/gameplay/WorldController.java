@@ -18,15 +18,12 @@ import org.example.client.views.menu.BuildingPlacementScreen;
 import org.example.common.models.Barn;
 import org.example.common.models.Coop;
 import org.example.common.models.Items.*;
-import org.example.common.models.MapDetails.Farm;
-import org.example.common.models.MapDetails.Village;
-import org.example.common.models.MapDetails.Building;
+import org.example.common.models.MapDetails.*;
 import org.example.common.models.App;
 import org.example.common.models.Market;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
-import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.entities.Game;
 import org.example.common.models.Player.Player;
 
@@ -72,8 +69,8 @@ public class WorldController {
     private static final int TILE_SIZE = 60;
 
     // Building dimensions in tiles
-    private static final int GREENHOUSE_TILES_W = 7;
-    private static final int GREENHOUSE_TILES_H = 6;
+    private static final int GREENHOUSE_TILES_W = GreenHouse.getWidth();
+    private static final int GREENHOUSE_TILES_H = GreenHouse.getHeight();
     private static final int HOUSE_TILES_W = 5;
     private static final int HOUSE_TILES_H = 6;
     private static final int BARN_TILES_W = 4;
@@ -982,7 +979,7 @@ public class WorldController {
 
         if (texture != null) {
             Main.getBatch().draw(texture, drawX, drawY,
-                TILE_SIZE * GREENHOUSE_TILES_W, TILE_SIZE * GREENHOUSE_TILES_H);
+                TILE_SIZE * GreenHouse.getWidth(), TILE_SIZE * GreenHouse.getHeight());
         }
     }
 
@@ -1501,15 +1498,19 @@ public class WorldController {
         player.setPosY(originalY);
     }
 
-    private void renderPlayerSprite(Player player) {
+        private void renderPlayerSprite(Player player) {
         final int RENDER_W = 48;
         final int RENDER_H = 72;
 
         // Load individual sprite file for player
         Texture playerTexture;
         try {
-            // Use the first frame of the down animation as the default sprite
-            playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            // Use item sprite if player is holding an item, otherwise use regular sprite
+            if (player.getCurrentItem() != null) {
+                playerTexture = new Texture(Gdx.files.internal("sprites/player/item_down.png"));
+            } else {
+                playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            }
         } catch (Exception e) {
             // Fallback to colored dot if sprite can't be loaded
             boolean isCurrentPlayer = (player == playerController.getPlayer());
@@ -1639,8 +1640,6 @@ public class WorldController {
             Rectangle houseRectangle = new Rectangle(houseX, houseY, houseW, houseH);
 
             if (houseRectangle.contains(touchPoint.x, touchPoint.y)) {
-
-                Gdx.app.log("CLICKED", "You clicked the house at tile: " + anchor.getX() + ", " + anchor.getY());
                 return true;
             }
         }
@@ -1785,10 +1784,7 @@ public class WorldController {
                 camera.position.set(cameraX, cameraY, 0);
                 camera.update();
 
-                System.out.println("Camera updated to follow player at: " + playerX + ", " + playerY);
-                System.out.println("DEBUG: Camera position set to: (" + cameraX + ", " + cameraY + ")");
-                System.out.println("DEBUG: Map bounds - width: " + mapWidth + ", height: " + mapHeight + ", offset: (" + mapOffsetX + ", " + mapOffsetY + ")");
-            }
+               }
         }
     }
 

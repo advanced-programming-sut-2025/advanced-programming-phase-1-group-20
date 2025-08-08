@@ -1136,7 +1136,12 @@ public class GameView implements Screen, InputProcessor {
         // Load individual sprite file for player
         Texture playerTexture;
         try {
-            playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            // Use item sprite if player is holding an item, otherwise use regular sprite
+            if (player.getCurrentItem() != null) {
+                playerTexture = new Texture(Gdx.files.internal("sprites/player/item_down.png"));
+            } else {
+                playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            }
         } catch (Exception e) {
             // Fallback to colored dot if sprite can't be loaded
             boolean isCurrentPlayer = (player == this.player);

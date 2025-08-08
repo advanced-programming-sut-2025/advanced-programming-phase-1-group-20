@@ -46,6 +46,12 @@ public class PlayerController {
     private final Animation<TextureRegion> walkRight;
     private final Animation<TextureRegion> walkUp;
     private final Animation<TextureRegion> collapsedAnim;
+    
+    // Item animations
+    private final Animation<TextureRegion> itemDown;
+    private final Animation<TextureRegion> itemLeft;
+    private final Animation<TextureRegion> itemRight;
+    private final Animation<TextureRegion> itemUp;
 
     private Animation<TextureRegion> currentAnim;
     private float stateTime = 0f;
@@ -72,6 +78,7 @@ public class PlayerController {
     private boolean justTransitionedToVillage = false;
     private boolean showTransitionDialog = false;
     private String transitionMessage = "";
+    private boolean isMoving = false;
 
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
@@ -95,6 +102,12 @@ public class PlayerController {
         // Load collapsed animation
         collapsedAnim = buildCollapsedAnim();
 
+        // Load item animations
+        itemDown = buildItemAnimation("down");
+        itemLeft = buildItemAnimation("left");
+        itemRight = buildItemAnimation("right");
+        itemUp = buildItemAnimation("up");
+
         currentAnim = walkDown;
     }
 
@@ -113,6 +126,12 @@ public class PlayerController {
 
         // Load collapsed animation
         collapsedAnim = buildCollapsedAnim();
+
+        // Load item animations
+        itemDown = buildItemAnimation("down");
+        itemLeft = buildItemAnimation("left");
+        itemRight = buildItemAnimation("right");
+        itemUp = buildItemAnimation("up");
 
         currentAnim = walkDown;
 
@@ -135,6 +154,27 @@ public class PlayerController {
             frames.add(fallbackRegion);
         }
         return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
+    }
+
+    private Animation<TextureRegion> buildItemAnimation(String direction) {
+        Array<TextureRegion> frames = new Array<>(1);
+        try {
+            // For item animations, we'll use a single static frame since we want static sprites
+            String spritePath = String.format("sprites/player/item_%s.png", direction);
+            System.out.println("DEBUG: Loading item sprite: " + spritePath);
+            Texture frameTexture = new Texture(Gdx.files.internal(spritePath));
+            // Add only one frame for static sprite
+            frames.add(new TextureRegion(frameTexture));
+            System.out.println("DEBUG: Successfully loaded item sprite for direction: " + direction);
+        } catch (Exception e) {
+            System.out.println("Warning: Could not load item animation for direction " + direction + ": " + e.getMessage());
+            // Create a simple fallback frame
+            Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+            TextureRegion fallbackRegion = new TextureRegion(fallbackTexture);
+            frames.add(fallbackRegion);
+        }
+        // Use a very long duration so the animation doesn't loop (static sprite)
+        return new Animation<>(999.0f, frames, Animation.PlayMode.NORMAL);
     }
 
     private Animation<TextureRegion> buildCollapsedAnim() {
@@ -214,7 +254,14 @@ public class PlayerController {
                 );
             }
         } else {
-            frame = currentAnim.getKeyFrame(stateTime, true);
+            // Check if we're using item animations (static sprites)
+            if (player.getCurrentItem() != null && !this.isMoving) {
+                // For static item sprites, use the first frame without animation
+                frame = currentAnim.getKeyFrame(0, false);
+            } else {
+                // For walking animations, use normal animation
+                frame = currentAnim.getKeyFrame(stateTime, true);
+            }
             Main.getBatch().draw(
                 frame,
                 player.getPosX(),
@@ -224,8 +271,8 @@ public class PlayerController {
             );
         }
 
-        // Draw tool if equipped
-        if (player.getCurrentTool() != null && !player.hasCollapsed()) {
+        // Draw tool if equipped (but not when holding an item)
+        if (player.getCurrentTool() != null && !player.hasCollapsed() && player.getCurrentItem() == null) {
             Texture toolTexture = new Texture(player.getCurrentTool().getImageFilepath());
             float playerX = player.getPosX();
             float playerY = player.getPosY();
@@ -265,20 +312,8 @@ public class PlayerController {
                 flip, false
             );
         }
-        if(player.getCurrentItem() != null && !player.hasCollapsed()) {
-            Texture itemTexture = new Texture(player.getCurrentItem().getImageFilepath());
-            float playerX = player.getPosX();
-            float playerY = player.getPosY();
-            float centerX = playerX + RENDER_W / 2f;
-            float centerY = playerY + RENDER_H / 2f;
+        
 
-
-            Main.getBatch().draw(
-                itemTexture,
-                centerX , centerY,
-                itemTexture.getWidth(), itemTexture.getHeight()
-            );
-        }
     }
 
 
@@ -391,11 +426,40 @@ public class PlayerController {
         } else if (!moved) {
         }
 
-        switch (facing) {
-            case UP -> currentAnim = walkUp;
-            case DOWN -> currentAnim = walkDown;
-            case LEFT -> currentAnim = walkLeft;
-            case RIGHT -> currentAnim = walkRight;
+        // Update the moving state
+        this.isMoving = moved;
+        
+        // Choose animation based on whether player is holding an item and if they're moving
+        if (player.getCurrentItem() != null) {
+            // Use item animations when holding an item
+            System.out.println("DEBUG: Player is holding item: " + player.getCurrentItem().getName());
+            if (this.isMoving) {
+                // Use walking animations when moving with item
+                switch (facing) {
+                    case UP -> currentAnim = walkUp;
+                    case DOWN -> currentAnim = walkDown;
+                    case LEFT -> currentAnim = walkLeft;
+                    case RIGHT -> currentAnim = walkRight;
+                }
+                System.out.println("DEBUG: Using walk animation while holding item and moving");
+            } else {
+                // Use static item sprite when standing still with item
+                switch (facing) {
+                    case UP -> currentAnim = itemUp;
+                    case DOWN -> currentAnim = itemDown;
+                    case LEFT -> currentAnim = itemLeft;
+                    case RIGHT -> currentAnim = itemRight;
+                }
+                System.out.println("DEBUG: Using static item sprite while holding item and standing still");
+            }
+        } else {
+            // Use regular walk animations when not holding an item
+            switch (facing) {
+                case UP -> currentAnim = walkUp;
+                case DOWN -> currentAnim = walkDown;
+                case LEFT -> currentAnim = walkLeft;
+                case RIGHT -> currentAnim = walkRight;
+            }
         }
     }
 
