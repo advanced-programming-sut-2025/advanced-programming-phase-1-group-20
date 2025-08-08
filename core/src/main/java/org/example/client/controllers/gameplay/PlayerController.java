@@ -23,6 +23,8 @@ import org.example.common.models.common.Location;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.App;
 
+import static org.example.common.models.Items.Tool.ToolMaterial.*;
+
 public class PlayerController {
     private static final int FRAME_W = 16;
     private static final int FRAME_H = 32;
@@ -35,6 +37,9 @@ public class PlayerController {
     private static final int MIN_MOVEMENT_ENERGY_COST = 1; // Minimum 1 energy cost per movement
     private long lastTransitionTime = 0;
     private static final long TRANSITION_COOLDOWN_MS = 500;
+    private static final float TOOL_USE_DURATION = 0.5f;
+    private static final float TOOL_USE_OFFSET_X = 20f;
+    private static final float TOOL_USE_OFFSET_Y = 10f;
 
     private final Player player;
     private final Farm farm;
@@ -79,6 +84,11 @@ public class PlayerController {
     private boolean showTransitionDialog = false;
     private String transitionMessage = "";
     private boolean isMoving = false;
+
+    private boolean isUsingTool = false;
+    private float toolUseTime = 0f;
+    private Animation<TextureRegion> currentToolAnim;
+    private Array<TextureRegion> toolUseFrames = new Array<>();
 
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
@@ -146,7 +156,8 @@ public class PlayerController {
                 Texture frameTexture = new Texture(Gdx.files.internal(spritePath));
                 frames.add(new TextureRegion(frameTexture));
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             System.out.println("Warning: Could not load walk animation for direction " + direction + ": " + e.getMessage());
             // Create a simple fallback frame
             Texture fallbackTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
@@ -209,6 +220,18 @@ public class PlayerController {
     public void update() {
         float delta = Gdx.graphics.getDeltaTime();
         handlePlayerInput(delta);
+
+        if (isUsingTool) {
+            toolUseTime += delta;
+            if (toolUseTime >= TOOL_USE_DURATION) {
+                isUsingTool = false;
+            }
+        }
+
+        handlePlayerInput(delta);
+        stateTime += delta;
+
+        updateCurrentAnimation();
 
         // Continuously update mouse position in world coordinates for tool direction
         if (camera != null) {
@@ -277,11 +300,7 @@ public class PlayerController {
             }
             // When moving, don't show any tool (just the walking animation)
         }
-
-
     }
-
-
 
     private int calculateMovementEnergyCost() {
         // Calculate 0.05% of player's current energy as movement cost
@@ -388,7 +407,6 @@ public class PlayerController {
 
             // Send movement update to server for multiplayer synchronization
             sendMovementToServer();
-        } else if (!moved) {
         }
 
         // Update the moving state
@@ -668,6 +686,126 @@ public class PlayerController {
         System.out.println("Final location check - x: " + player.getLocation().getX() + ", y: " + player.getLocation().getY());
     }
 
+    public void triggerToolUse() {
+        if (player.getCurrentTool() != null && !player.hasCollapsed() && !isUsingTool) {
+            isUsingTool = true;
+            toolUseTime = 0f;
+            loadToolAnimation();
+        }
+    }
+
+    private void loadToolAnimation() {
+        toolUseFrames.clear();
+
+        String toolType = player.getCurrentTool().getType().toString().toLowerCase();
+        String material = getMaterialFolder(player.getCurrentTool().getMaterial());
+        String direction = facing.toString().toLowerCase();
+
+        String actualDirection = (facing == Dir.LEFT) ? "right" : direction;
+
+        try {
+            for (int i = 0; i < 3; i++) {
+                String path = String.format("content/Tools/%s/%s/%s_%d.png",
+                    toolType, material, actualDirection, i);
+                Texture frameTex = new Texture(Gdx.files.internal(path));
+                TextureRegion frame = new TextureRegion(frameTex);
+
+                if (facing == Dir.LEFT) {
+                    frame.flip(true, false);
+                }
+
+                toolUseFrames.add(frame);
+            }
+
+            currentToolAnim = new Animation<>(TOOL_USE_DURATION / 3f, toolUseFrames);
+        }
+        catch (Exception e) {
+            Gdx.app.error("ToolAnimation", "Error loading tool animation: " + e.getMessage());
+            isUsingTool = false;
+        }
+    }
+
+    private void updateCurrentAnimation() {
+        if (player.hasCollapsed()) {
+            currentAnim = collapsedAnim;
+            return;
+        }
+
+        if (isUsingTool) {
+            switch (facing) {
+                case UP: currentAnim = walkUp; break;
+                case DOWN: currentAnim = walkDown; break;
+                case LEFT: currentAnim = walkLeft; break;
+                case RIGHT: currentAnim = walkRight; break;
+            }
+        }
+        else if (player.getCurrentTool() != null && !isMoving) {
+            switch (facing) {
+                case UP: currentAnim = itemUp; break;
+                case DOWN: currentAnim = itemDown; break;
+                case LEFT: currentAnim = itemLeft; break;
+                case RIGHT: currentAnim = itemRight; break;
+            }
+        }
+        else {
+            switch (facing) {
+                case UP: currentAnim = walkUp; break;
+                case DOWN: currentAnim = walkDown; break;
+                case LEFT: currentAnim = walkLeft; break;
+                case RIGHT: currentAnim = walkRight; break;
+            }
+        }
+    }
+
+    public void render(SpriteBatch batch) {
+        TextureRegion frame = currentAnim.getKeyFrame(stateTime, true);
+        batch.draw(frame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+
+        if (isUsingTool && currentToolAnim != null) {
+            renderToolUse(batch);
+        }
+    }
+
+    private void renderToolUse(SpriteBatch batch) {
+        TextureRegion toolFrame = currentToolAnim.getKeyFrame(toolUseTime, false);
+
+        float x = player.getPosX();
+        float y = player.getPosY();
+        float offsetX = 0, offsetY = 0;
+
+        switch (facing) {
+            case UP:
+                offsetX = RENDER_W/2 - toolFrame.getRegionWidth()/2;
+                offsetY = RENDER_H - TOOL_USE_OFFSET_Y;
+                break;
+            case DOWN:
+                offsetX = RENDER_W/2 - toolFrame.getRegionWidth()/2;
+                offsetY = -toolFrame.getRegionHeight() + TOOL_USE_OFFSET_Y;
+                break;
+            case LEFT:
+                offsetX = -TOOL_USE_OFFSET_X;
+                offsetY = RENDER_H/2 - toolFrame.getRegionHeight()/2;
+                break;
+            case RIGHT:
+                offsetX = RENDER_W - toolFrame.getRegionWidth() + TOOL_USE_OFFSET_X;
+                offsetY = RENDER_H/2 - toolFrame.getRegionHeight()/2;
+                break;
+        }
+
+        batch.draw(toolFrame, x + offsetX, y + offsetY);
+    }
+
+    private String getMaterialFolder(Tool.ToolMaterial material) {
+        switch (material) {
+            case BASIC:
+            case COPPER: return "copper";
+            case IRON: return "steel";
+            case GOLD: return "gold";
+            case IRIDIUM: return "iridium";
+            default: return "copper";
+        }
+    }
+
     public void confirmTransition() {
         if (showTransitionDialog) {
             showTransitionDialog = false;
@@ -912,7 +1050,7 @@ public class PlayerController {
             float scaleY = 3.0f;
             float scaledWidth = toolTexture.getWidth() * scaleX;
             float scaledHeight = toolTexture.getHeight() * scaleY;
-            
+
             // Adjust position for scaled size
             toolX = playerX + RENDER_W / 2 - scaledWidth / 2;
 
@@ -1005,12 +1143,12 @@ public class PlayerController {
 
         // Check if the tool has directional sprites (only Axe and Hoe have them)
         boolean hasDirectionalSprites = (tool.getType() == Tool.ToolType.AXE || tool.getType() == Tool.ToolType.HOE);
-        
+
         String spritePath;
         if (hasDirectionalSprites) {
             // Use directional sprites for Axe and Hoe
             spritePath = String.format("%s/%s/%s.png", basePath, materialFolder, directionStr);
-            
+
             // For left direction, we'll use right sprite and flip it
             if (direction == Dir.LEFT) {
                 spritePath = String.format("%s/%s/right.png", basePath, materialFolder);
@@ -1040,7 +1178,7 @@ public class PlayerController {
             }
             spritePath = String.format("%s/%s%s.png", basePath, materialPrefix, toolName);
         }
-        
+
         return spritePath;
     }
 
