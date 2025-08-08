@@ -201,6 +201,11 @@ public class ClientMessageHandler {
         System.out.println("DEBUG: In farm selection phase: " + isInSelectionPhase + ", Active: " + isActive);
         System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
 
+        // Store game session ID for reconnection
+        if (gameSessionId != null) {
+            setGameSessionId(gameSessionId);
+        }
+
         // In multiplayer mode, currentPlayerUsername will be null since each client sets their own current player
         if (currentPlayerUsername == null) {
             System.out.println("DEBUG: No specific current player from server - each client will set their own");
@@ -869,10 +874,34 @@ public class ClientMessageHandler {
     }
 
     public void sendHeartbeat() {
-        Message heartbeat = new Message();
-        heartbeat.setType(Message.Type.HEARTBEAT);
-        heartbeat.putInBody("timestamp", System.currentTimeMillis());
+        Message heartbeatMessage = new Message();
+        heartbeatMessage.setType(Message.Type.HEARTBEAT);
+        heartbeatMessage.putInBody("timestamp", System.currentTimeMillis());
+        networkClient.sendMessage(heartbeatMessage);
+    }
 
-        networkClient.sendMessage(heartbeat);
+    /**
+     * Handle reconnection timeout
+     */
+    public void onReconnectionTimeout() {
+        System.out.println("⏰ CLIENT: Reconnection timeout - notifying UI");
+        
+        // Notify connection listener about timeout
+        if (connectionListener != null) {
+            connectionListener.onError("Reconnection timeout after 2 minutes. Returning to main menu.");
+        }
+        
+        // Reset game state
+        if (currentGame != null) {
+            currentGame = null;
+        }
+    }
+
+    /**
+     * Store game session ID when game starts for potential reconnection
+     */
+    public void setGameSessionId(String gameSessionId) {
+        networkClient.setGameSessionId(gameSessionId);
+        System.out.println("🎮 CLIENT: Stored game session ID: " + gameSessionId);
     }
 }

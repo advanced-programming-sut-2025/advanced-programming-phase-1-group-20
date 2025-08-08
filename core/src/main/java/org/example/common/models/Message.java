@@ -73,6 +73,7 @@ public class Message {
         JOIN_GAME,
         LEAVE_GAME,
         START_GAME,
+        REJOIN_GAME,
 
         // Farm selection
         SELECT_FARM,

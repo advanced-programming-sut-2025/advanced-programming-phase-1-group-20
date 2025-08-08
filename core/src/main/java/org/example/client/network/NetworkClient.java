@@ -34,12 +34,22 @@ public class NetworkClient {
     private boolean isInJsonObject = false;
     private int braceCount = 0;
 
+    // Enhanced reconnection logic
+    private long disconnectTime = 0;
+    private static final long RECONNECTION_TIMEOUT_MS = 120000; // 2 minutes
+    private static final long RECONNECTION_ATTEMPT_DELAY_MS = 2000; // 2 seconds between attempts
+    private Thread reconnectionThread;
+    private volatile boolean isReconnecting = false;
+    private String lastGameSessionId = null; // Store game session for reconnection
+    private boolean wasInGame = false; // Track if player was in game when disconnected
+
     public enum ConnectionState {
         DISCONNECTED,
         CONNECTING,
         CONNECTED,
         AUTHENTICATED,
         IN_GAME,
+        RECONNECTING,
         ERROR
     }
 
@@ -176,21 +186,11 @@ public class NetworkClient {
                     System.out.println("🔌 NETWORK: WebSocket closed - Status: " + statusCode + ", Reason: " + reason);
 
                     if (statusCode != 1000) { // Not a normal closure
-                        System.out.println("⚠️ NETWORK: Abnormal WebSocket closure, attempting reconnection...");
+                        System.out.println("⚠️ NETWORK: Abnormal WebSocket closure, starting enhanced reconnection process...");
                         connectionState = ConnectionState.DISCONNECTED;
 
-                        // Attempt to reconnect after a short delay
-                        new Thread(() -> {
-                            try {
-                                Thread.sleep(2000); // Wait 2 seconds before reconnecting
-                                if (connectionState == ConnectionState.DISCONNECTED) {
-                                    System.out.println("🔄 NETWORK: Attempting to reconnect...");
-                                    connect();
-                                }
-                            } catch (InterruptedException e) {
-                                Thread.currentThread().interrupt();
-                            }
-                        }).start();
+                        // Start enhanced reconnection process with 2-minute timeout
+                        startReconnectionProcess();
                     } else {
                         connectionState = ConnectionState.DISCONNECTED;
                     }
@@ -237,6 +237,183 @@ public class NetworkClient {
             connectionState = ConnectionState.ERROR;
             return false;
         }
+    }
+
+    /**
+     * Enhanced reconnection logic with 2-minute timeout
+     */
+    private void startReconnectionProcess() {
+        if (isReconnecting) {
+            System.out.println("🔄 NETWORK: Reconnection already in progress");
+            return;
+        }
+
+        disconnectTime = System.currentTimeMillis();
+        isReconnecting = true;
+        
+        // Check if player was in game before disconnection
+        if (connectionState == ConnectionState.IN_GAME) {
+            wasInGame = true;
+            System.out.println("🎮 NETWORK: Player was in game, will attempt to restore game session");
+        }
+        
+        connectionState = ConnectionState.RECONNECTING;
+
+        System.out.println("🔄 NETWORK: Starting reconnection process with 2-minute timeout");
+
+        reconnectionThread = new Thread(() -> {
+            int attemptCount = 0;
+            
+            while (isReconnecting && (System.currentTimeMillis() - disconnectTime) < RECONNECTION_TIMEOUT_MS) {
+                attemptCount++;
+                System.out.println("🔄 NETWORK: Reconnection attempt " + attemptCount + " (time remaining: " + 
+                    ((RECONNECTION_TIMEOUT_MS - (System.currentTimeMillis() - disconnectTime)) / 1000) + "s)");
+
+                try {
+                    // Attempt to reconnect
+                    boolean success = attemptReconnection();
+                    
+                    if (success) {
+                        System.out.println("✅ NETWORK: Reconnection successful!");
+                        isReconnecting = false;
+                        
+                        // Restore game state if needed
+                        if (wasInGame && lastGameSessionId != null) {
+                            System.out.println("🎮 NETWORK: Restoring game session: " + lastGameSessionId);
+                            restoreGameSession();
+                        }
+                        
+                        return;
+                    } else {
+                        System.out.println("❌ NETWORK: Reconnection attempt " + attemptCount + " failed");
+                    }
+                    
+                    // Wait before next attempt
+                    Thread.sleep(RECONNECTION_ATTEMPT_DELAY_MS);
+                    
+                } catch (InterruptedException e) {
+                    System.out.println("🔄 NETWORK: Reconnection thread interrupted");
+                    Thread.currentThread().interrupt();
+                    break;
+                } catch (Exception e) {
+                    System.err.println("❌ NETWORK: Error during reconnection attempt: " + e.getMessage());
+                }
+            }
+
+            // Reconnection timeout or failed
+            if (isReconnecting) {
+                System.out.println("⏰ NETWORK: Reconnection timeout after 2 minutes");
+                handleReconnectionTimeout();
+            }
+        }, "NetworkClient-Reconnection");
+
+        reconnectionThread.setDaemon(true);
+        reconnectionThread.start();
+    }
+
+    /**
+     * Attempt to reconnect to the server
+     */
+    private boolean attemptReconnection() {
+        try {
+            // Set server address and attempt connection
+            setServerAddress(serverHost, serverPort);
+            boolean connected = connect();
+            
+            if (connected && authenticatedUser != null) {
+                // Re-authenticate the user
+                System.out.println("🔐 NETWORK: Re-authenticating user: " + authenticatedUser.getUsername());
+                boolean authenticated = authenticate(authenticatedUser, authenticatedUser.getJwtToken());
+                
+                if (authenticated) {
+                    System.out.println("✅ NETWORK: Re-authentication successful");
+                    return true;
+                } else {
+                    System.out.println("❌ NETWORK: Re-authentication failed");
+                    return false;
+                }
+            }
+            
+            return connected;
+        } catch (Exception e) {
+            System.err.println("❌ NETWORK: Reconnection attempt failed: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Restore game session after successful reconnection
+     */
+    private void restoreGameSession() {
+        if (lastGameSessionId != null) {
+            // Send a rejoin game message to the server
+            Message rejoinMessage = new Message();
+            rejoinMessage.setType(Message.Type.REJOIN_GAME);
+            rejoinMessage.putInBody("gameSessionId", lastGameSessionId);
+            rejoinMessage.putInBody("username", authenticatedUser.getUsername());
+            rejoinMessage.putInBody("timestamp", System.currentTimeMillis());
+            
+            sendMessage(rejoinMessage);
+            System.out.println("🎮 NETWORK: Sent rejoin game message for session: " + lastGameSessionId);
+        }
+    }
+
+    /**
+     * Handle reconnection timeout
+     */
+    private void handleReconnectionTimeout() {
+        isReconnecting = false;
+        connectionState = ConnectionState.ERROR;
+        wasInGame = false;
+        lastGameSessionId = null;
+        
+        System.out.println("⏰ NETWORK: Reconnection timeout - returning to main menu");
+        
+        // Notify the UI about the timeout
+        if (messageHandler != null) {
+            messageHandler.onReconnectionTimeout();
+        }
+    }
+
+    /**
+     * Store game session ID for reconnection
+     */
+    public void setGameSessionId(String gameSessionId) {
+        this.lastGameSessionId = gameSessionId;
+        System.out.println("🎮 NETWORK: Stored game session ID for reconnection: " + gameSessionId);
+    }
+
+    /**
+     * Check if reconnection is in progress
+     */
+    public boolean isReconnecting() {
+        return isReconnecting;
+    }
+
+    /**
+     * Get remaining reconnection time in seconds
+     */
+    public long getRemainingReconnectionTime() {
+        if (!isReconnecting) {
+            return 0;
+        }
+        long remaining = RECONNECTION_TIMEOUT_MS - (System.currentTimeMillis() - disconnectTime);
+        return Math.max(0, remaining / 1000);
+    }
+
+    /**
+     * Cancel reconnection process
+     */
+    public void cancelReconnection() {
+        isReconnecting = false;
+        wasInGame = false;
+        lastGameSessionId = null;
+        
+        if (reconnectionThread != null && reconnectionThread.isAlive()) {
+            reconnectionThread.interrupt();
+        }
+        
+        System.out.println("❌ NETWORK: Reconnection cancelled by user");
     }
 
     private void startNetworkThread() {

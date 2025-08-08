@@ -93,6 +93,9 @@ public class MessageHandler {
             case LEAVE_GAME:
                 handleLeaveGame(connection, message);
                 break;
+            case REJOIN_GAME:
+                handleRejoinGame(connection, message);
+                break;
 
             // Lobby messages
             case CREATE_LOBBY:
@@ -229,6 +232,65 @@ public class MessageHandler {
             }
         } else {
             sendErrorMessage(connection, "Player not in a game session");
+        }
+    }
+
+    private void handleRejoinGame(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String gameSessionId = message.getFromBody("gameSessionId");
+        String username = message.getFromBody("username");
+        
+        if (gameSessionId == null) {
+            sendErrorMessage(connection, "Game session ID required for rejoin");
+            return;
+        }
+
+        System.out.println("🔄 SERVER: Player " + username + " attempting to rejoin game session: " + gameSessionId);
+
+        GameSession gameSession = gameSessions.get(gameSessionId);
+        if (gameSession == null) {
+            sendErrorMessage(connection, "Game session not found");
+            return;
+        }
+
+        // Check if the game session is still active
+        if (!gameSession.isActive()) {
+            sendErrorMessage(connection, "Game session is no longer active");
+            return;
+        }
+
+        // Check if player was previously in this game session
+        if (!gameSession.hasPlayer(username)) {
+            sendErrorMessage(connection, "Player was not in this game session");
+            return;
+        }
+
+        // Re-add player to the game session
+        if (gameSession.addPlayer(connection, user)) {
+            // Send success response with current game state
+            Message response = new Message();
+            response.setType(Message.Type.SUCCESS);
+            response.putInBody("message", "Successfully rejoined game");
+            response.putInBody("gameSessionId", gameSessionId);
+            response.putInBody("playerCount", gameSession.getPlayerCount());
+            
+            // Send current game state
+            response.putInBody("gameData", gameSession.getGameInstance().getGameState());
+            response.putInBody("playersData", gameSession.getGameInstance().getPlayersData());
+            
+            connection.sendMessage(response);
+            
+            System.out.println("✅ SERVER: Player " + username + " successfully rejoined game session: " + gameSessionId);
+            
+            // Notify other players about the rejoin
+            gameSession.broadcastPlayerRejoined(username);
+        } else {
+            sendErrorMessage(connection, "Failed to rejoin game session");
         }
     }
 
