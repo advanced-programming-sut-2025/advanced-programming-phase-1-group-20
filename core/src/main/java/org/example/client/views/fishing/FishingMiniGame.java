@@ -6,8 +6,10 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -31,6 +33,10 @@ public class FishingMiniGame implements Screen, InputProcessor {
     private final float MAX_BOBBER_POS = 325;
     private final float MIN_BOBBER_POS = 0;
 
+    // Progress bar constants
+    private final float VERTICAL_PROGRESS_BAR_WIDTH = 15;
+    private final float VERTICAL_PROGRESS_BAR_HEIGHT = 445;
+
     private boolean isGameOngoing = true;
     private boolean isVictorious;
     private Stage stage;
@@ -53,7 +59,6 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
     private float catchingProgress = 0.01f;
     private boolean isCatchPerfect = true;
-    private ProgressBar catchingProgressBar;
 
     private final GameView gameView;
     private final String poleName;
@@ -66,8 +71,6 @@ public class FishingMiniGame implements Screen, InputProcessor {
     private Quality caughtFishQuality = Quality.Normal;
     private int xpGained = 5;
 
-    private ProgressBar verticalProgressBar;
-
     public FishingMiniGame(GameView gameView, String poleName) {
         this.gameView = gameView;
         this.poleName = poleName;
@@ -75,14 +78,8 @@ public class FishingMiniGame implements Screen, InputProcessor {
         initializeStage();
         FishingController.initializeFishBehavior(caughtFishType.isLegendary());
 
-        // Initialize progress bars with a visible starting value
+        // Initialize progress with a visible starting value
         catchingProgress = 1.0f; // Start with some progress visible
-        if (catchingProgressBar != null) {
-            catchingProgressBar.setValue(catchingProgress);
-        }
-        if (verticalProgressBar != null) {
-            verticalProgressBar.setValue(catchingProgress);
-        }
     }
 
     private void getAnglingResults() {
@@ -165,240 +162,6 @@ public class FishingMiniGame implements Screen, InputProcessor {
         Label label = new Label("Master the waters! Use up/down arrows to guide your lure. Press Q to abandon.", labelStyle);
         stage.addActor(label);
         label.setPosition(stage.getWidth() / 2 - label.getWidth() / 2, stage.getHeight() / 2 + waterLane.getHeight() / 2 + 50);
-
-        // Create a simple, visible progress bar
-        Skin progressSkin = new Skin();
-
-        // Background style for progress bar - make it very visible
-        ProgressBar.ProgressBarStyle progressBarStyle = new ProgressBar.ProgressBarStyle();
-        progressBarStyle.background = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-            @Override
-            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Dark gray background
-                batch.setColor(0.3f, 0.3f, 0.3f, 1f);
-                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
-                    setColor(0.3f, 0.3f, 0.3f, 1f);
-                    fill();
-                }})), x, y, width, height);
-                batch.setColor(1, 1, 1, 1);
-            }
-
-            @Override
-            public float getLeftWidth() { return 0; }
-            @Override
-            public void setLeftWidth(float leftWidth) {}
-            @Override
-            public float getRightWidth() { return 0; }
-            @Override
-            public void setRightWidth(float rightWidth) {}
-            @Override
-            public float getTopHeight() { return 0; }
-            @Override
-            public void setTopHeight(float topHeight) {}
-            @Override
-            public float getBottomHeight() { return 0; }
-            @Override
-            public void setBottomHeight(float bottomHeight) {}
-            @Override
-            public float getMinWidth() { return 0; }
-            @Override
-            public void setMinWidth(float minWidth) {}
-            @Override
-            public float getMinHeight() { return 0; }
-            @Override
-            public void setMinHeight(float minHeight) {}
-        };
-
-        // Knob style for progress bar - make it very visible
-        progressBarStyle.knob = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-            @Override
-            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Bright red knob
-                batch.setColor(1.0f, 0.0f, 0.0f, 1f);
-                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
-                    setColor(1.0f, 0.0f, 0.0f, 1f);
-                    fill();
-                }})), x, y, width, height);
-                batch.setColor(1, 1, 1, 1);
-            }
-
-            @Override
-            public float getLeftWidth() { return 0; }
-            @Override
-            public void setLeftWidth(float leftWidth) {}
-            @Override
-            public float getRightWidth() { return 0; }
-            @Override
-            public void setRightWidth(float rightWidth) {}
-            @Override
-            public float getTopHeight() { return 0; }
-            @Override
-            public void setTopHeight(float topHeight) {}
-            @Override
-            public float getBottomHeight() { return 0; }
-            @Override
-            public void setBottomHeight(float bottomHeight) {}
-            @Override
-            public float getMinWidth() { return 0; }
-            @Override
-            public void setMinWidth(float minWidth) {}
-            @Override
-            public float getMinHeight() { return 0; }
-            @Override
-            public void setMinHeight(float minHeight) {}
-        };
-
-        // Knob before style for progress bar - make it very visible
-        progressBarStyle.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-            @Override
-            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Bright green fill
-                batch.setColor(0.0f, 1.0f, 0.0f, 1f);
-                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
-                    setColor(0.0f, 1.0f, 0.0f, 1f);
-                    fill();
-                }})), x, y, width, height);
-                batch.setColor(1, 1, 1, 1);
-            }
-
-            @Override
-            public float getLeftWidth() { return 0; }
-            @Override
-            public void setLeftWidth(float leftWidth) {}
-            @Override
-            public float getRightWidth() { return 0; }
-            @Override
-            public void setRightWidth(float rightWidth) {}
-            @Override
-            public float getTopHeight() { return 0; }
-            @Override
-            public void setTopHeight(float topHeight) {}
-            @Override
-            public float getBottomHeight() { return 0; }
-            @Override
-            public void setBottomHeight(float bottomHeight) {}
-            @Override
-            public float getMinWidth() { return 0; }
-            @Override
-            public void setMinWidth(float minWidth) {}
-            @Override
-            public float getMinHeight() { return 0; }
-            @Override
-            public void setMinHeight(float minHeight) {}
-        };
-
-        progressSkin.add("default", progressBarStyle);
-        catchingProgressBar = new ProgressBar(MIN_PROGRESS, MAX_PROGRESS, 0.01f, true, progressSkin, "default");
-        catchingProgressBar.setSize(300, 30); // Make it bigger
-        catchingProgressBar.setPosition(stage.getWidth() / 2 - 150, stage.getHeight() - 100); // Position it at the top center
-        stage.addActor(catchingProgressBar);
-
-        // Add a label above the progress bar
-        Label.LabelStyle progressLabelStyle = new Label.LabelStyle();
-        progressLabelStyle.fontColor = Color.WHITE;
-        progressLabelStyle.font = new BitmapFont();
-
-        Label progressLabel = new Label("CATCH PROGRESS", progressLabelStyle);
-        progressLabel.setPosition(stage.getWidth() / 2 - progressLabel.getWidth() / 2, stage.getHeight() - 130);
-        stage.addActor(progressLabel);
-
-        // Create a vertical progress bar
-        Skin verticalProgressSkin = new Skin();
-
-        // Vertical progress bar style
-        ProgressBar.ProgressBarStyle verticalProgressBarStyle = new ProgressBar.ProgressBarStyle();
-        verticalProgressBarStyle.background = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-            @Override
-            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Dark background for vertical bar
-                batch.setColor(0.2f, 0.2f, 0.2f, 1f);
-                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
-                    setColor(0.2f, 0.2f, 0.2f, 1f);
-                    fill();
-                }})), x, y, width, height);
-                batch.setColor(1, 1, 1, 1);
-            }
-
-            @Override
-            public float getLeftWidth() { return 0; }
-            @Override
-            public void setLeftWidth(float leftWidth) {}
-            @Override
-            public float getRightWidth() { return 0; }
-            @Override
-            public void setRightWidth(float rightWidth) {}
-            @Override
-            public float getTopHeight() { return 0; }
-            @Override
-            public void setTopHeight(float topHeight) {}
-            @Override
-            public float getBottomHeight() { return 0; }
-            @Override
-            public void setBottomHeight(float bottomHeight) {}
-            @Override
-            public float getMinWidth() { return 0; }
-            @Override
-            public void setMinWidth(float minWidth) {}
-            @Override
-            public float getMinHeight() { return 0; }
-            @Override
-            public void setMinHeight(float minHeight) {}
-        };
-
-        // Green fill for vertical progress bar
-        verticalProgressBarStyle.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-            @Override
-            public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                // Bright green fill
-                batch.setColor(0.0f, 1.0f, 0.0f, 1f);
-                batch.draw(new com.badlogic.gdx.graphics.g2d.Sprite(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888) {{
-                    setColor(0.0f, 1.0f, 0.0f, 1f);
-                    fill();
-                }})), x, y, width, height);
-                batch.setColor(1, 1, 1, 1);
-            }
-
-            @Override
-            public float getLeftWidth() { return 0; }
-            @Override
-            public void setLeftWidth(float leftWidth) {}
-            @Override
-            public float getRightWidth() { return 0; }
-            @Override
-            public void setRightWidth(float rightWidth) {}
-            @Override
-            public float getTopHeight() { return 0; }
-            @Override
-            public void setTopHeight(float topHeight) {}
-            @Override
-            public float getBottomHeight() { return 0; }
-            @Override
-            public void setBottomHeight(float bottomHeight) {}
-            @Override
-            public float getMinWidth() { return 0; }
-            @Override
-            public void setMinWidth(float minWidth) {}
-            @Override
-            public float getMinHeight() { return 0; }
-            @Override
-            public void setMinHeight(float minHeight) {}
-        };
-
-        verticalProgressSkin.add("vertical", verticalProgressBarStyle);
-
-        // Create vertical progress bar (vertical = true)
-        ProgressBar verticalProgressBar = new ProgressBar(MIN_PROGRESS, MAX_PROGRESS, 0.01f, true, verticalProgressSkin, "vertical");
-        verticalProgressBar.setSize(40, 200); // Width 40, Height 200 for vertical bar
-        verticalProgressBar.setPosition(stage.getWidth() - 80, stage.getHeight() / 2 - 100); // Position on right side
-        stage.addActor(verticalProgressBar);
-
-        // Store reference to vertical progress bar
-        this.verticalProgressBar = verticalProgressBar;
-
-        // Add label for vertical progress bar
-        Label verticalLabel = new Label("PROGRESS", progressLabelStyle);
-        verticalLabel.setPosition(stage.getWidth() - 80, stage.getHeight() / 2 + 120);
-        stage.addActor(verticalLabel);
     }
 
     @Override
@@ -467,6 +230,76 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
         stage.act(delta);
         stage.draw();
+
+        // Draw the vertical progress bar directly using batch
+        if (isGameOngoing) {
+            drawVerticalProgressBar();
+        }
+    }
+
+    private void drawVerticalProgressBar() {
+        // Store original projection matrix
+        Matrix4 originalProjection = Main.getBatch().getProjectionMatrix();
+
+        // Set up orthographic projection for UI rendering
+        Main.getBatch().setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+        Main.getBatch().begin();
+
+        // Create a white texture for rendering
+        Pixmap whitePixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+        whitePixmap.setColor(Color.WHITE);
+        whitePixmap.fill();
+        Texture whiteTexture = new Texture(whitePixmap);
+        whitePixmap.dispose();
+
+        // Position bar near the fishing lane (water lane)
+        float waterLaneX = stage.getWidth() / 2 - waterLane.getWidth() / 2;
+        float waterLaneY = stage.getHeight() / 2 - waterLane.getHeight() / 2;
+        float barX = waterLaneX + waterLane.getWidth() - 43;
+        float barY = waterLaneY + waterLane.getHeight() / 2 - VERTICAL_PROGRESS_BAR_HEIGHT / 2; // Center vertically with water lane
+
+        // Calculate progress percentage
+        float progressPercentage = Math.max(0, Math.min(1, catchingProgress / MAX_PROGRESS));
+        float barHeight = VERTICAL_PROGRESS_BAR_HEIGHT * progressPercentage;
+
+        // Draw background (empty bar)
+        Main.getBatch().setColor(Color.DARK_GRAY);
+        Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_PROGRESS_BAR_WIDTH, VERTICAL_PROGRESS_BAR_HEIGHT);
+
+        // Draw filled portion from bottom up
+        if (barHeight > 0) {
+            // Dynamic color based on progress level
+            Color progressColor;
+            if (progressPercentage > 0.7f) {
+                // Green for high progress
+                progressColor = Color.GREEN;
+            } else if (progressPercentage > 0.3f) {
+                // Yellow for medium progress
+                progressColor = Color.YELLOW;
+            } else {
+                // Red for low progress
+                progressColor = Color.RED;
+            }
+            Main.getBatch().setColor(progressColor);
+            Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_PROGRESS_BAR_WIDTH, barHeight);
+        }
+
+        // Draw border
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_PROGRESS_BAR_WIDTH, 2); // Bottom border
+        Main.getBatch().draw(whiteTexture, barX, barY + VERTICAL_PROGRESS_BAR_HEIGHT - 2, VERTICAL_PROGRESS_BAR_WIDTH, 2); // Top border
+        Main.getBatch().draw(whiteTexture, barX, barY, 2, VERTICAL_PROGRESS_BAR_HEIGHT); // Left border
+        Main.getBatch().draw(whiteTexture, barX + VERTICAL_PROGRESS_BAR_WIDTH - 2, barY, 2, VERTICAL_PROGRESS_BAR_HEIGHT); // Right border
+
+        // Reset color and end batch
+        Main.getBatch().setColor(Color.WHITE);
+        Main.getBatch().end();
+
+        // Restore original projection matrix
+        Main.getBatch().setProjectionMatrix(originalProjection);
+
+        // Dispose of the white texture
+        whiteTexture.dispose();
     }
 
     private void checkForWinOrLoss() {
@@ -666,7 +499,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
         // Add fish to player's inventory
         try {
             org.example.common.models.Player.Player player = org.example.common.models.App.getGame().getCurrentPlayer();
-            
+
             // Convert quality enum to integer for Fish constructor
             int qualityInt = switch (caughtFishQuality) {
                 case Normal -> 0;
@@ -674,30 +507,30 @@ public class FishingMiniGame implements Screen, InputProcessor {
                 case Golden -> 2;
                 case Iridium -> 3;
             };
-            
+
             // Get current season
             org.example.common.models.enums.Seasons currentSeason = org.example.common.models.App.getGame().getDate().getSeason();
-            
+
             // Create fish object and add to inventory
             org.example.common.models.entities.animal.Fish fish = new org.example.common.models.entities.animal.Fish(
                 caughtFishType, qualityInt, currentSeason
             );
-            
+
             // Add the fish to player's inventory
             for (int i = 0; i < caughtFishQuantity; i++) {
                 player.addItem(fish);
             }
-            
+
             // Increase player's fishing skill XP
             // Note: Skills are managed through the updateUnit() method
             for (int i = 0; i < xpGained; i++) {
                 player.getSkills().get(3).updateUnit(); // Fishing skill is at index 3
             }
-            
+
             System.out.println("🎣 Fish added to inventory: " + caughtFishType.getName() + " x" + caughtFishQuantity);
             System.out.println("⭐ Quality: " + caughtFishQuality);
             System.out.println("🎯 XP gained: " + xpGained);
-            
+
         } catch (Exception e) {
             System.err.println("Error adding fish to inventory: " + e.getMessage());
         }
@@ -719,84 +552,6 @@ public class FishingMiniGame implements Screen, InputProcessor {
 
         // Clamp progress between min and max
         catchingProgress = MathUtils.clamp(catchingProgress, MIN_PROGRESS, MAX_PROGRESS);
-
-        // Update both progress bars
-        if (catchingProgressBar != null) {
-            catchingProgressBar.setValue(catchingProgress);
-            // Force the progress bar to redraw
-            catchingProgressBar.invalidate();
-        }
-
-        if (verticalProgressBar != null) {
-            verticalProgressBar.setValue(catchingProgress);
-            // Force the vertical progress bar to redraw
-            verticalProgressBar.invalidate();
-        }
-
-        // Update progress bar color based on progress
-        updateProgressBarColor();
-    }
-
-    private void updateProgressBarColor() {
-        // Change progress bar color based on progress level
-        float progressPercentage = catchingProgress / MAX_PROGRESS;
-
-        if (progressPercentage < 0.3f) {
-            // Red when progress is low
-            updateProgressBarStyle(0.8f, 0.2f, 0.2f, 1f);
-        } else if (progressPercentage < 0.7f) {
-            // Yellow when progress is medium
-            updateProgressBarStyle(0.8f, 0.8f, 0.2f, 1f);
-        } else {
-            // Green when progress is high
-            updateProgressBarStyle(0.2f, 0.8f, 0.2f, 1f);
-        }
-    }
-
-    private void updateProgressBarStyle(float r, float g, float b, float a) {
-        ProgressBar.ProgressBarStyle style = catchingProgressBar.getStyle();
-        if (style.knobBefore != null) {
-            // Update the knobBefore color (the filled part of the progress bar)
-            style.knobBefore = new com.badlogic.gdx.scenes.scene2d.utils.Drawable() {
-                @Override
-                public void draw(com.badlogic.gdx.graphics.g2d.Batch batch, float x, float y, float width, float height) {
-                    batch.setColor(r, g, b, a);
-                    com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-                    pixmap.setColor(r, g, b, a);
-                    pixmap.fill();
-                    com.badlogic.gdx.graphics.Texture texture = new com.badlogic.gdx.graphics.Texture(pixmap);
-                    batch.draw(texture, x, y, width, height);
-                    texture.dispose();
-                    pixmap.dispose();
-                    batch.setColor(1, 1, 1, 1);
-                }
-
-                @Override
-                public float getLeftWidth() { return 0; }
-                @Override
-                public void setLeftWidth(float leftWidth) {}
-                @Override
-                public float getRightWidth() { return 0; }
-                @Override
-                public void setRightWidth(float rightWidth) {}
-                @Override
-                public float getTopHeight() { return 0; }
-                @Override
-                public void setTopHeight(float topHeight) {}
-                @Override
-                public float getBottomHeight() { return 0; }
-                @Override
-                public void setBottomHeight(float bottomHeight) {}
-                @Override
-                public float getMinWidth() { return 0; }
-                @Override
-                public void setMinWidth(float minWidth) {}
-                @Override
-                public float getMinHeight() { return 0; }
-                @Override
-                public void setMinHeight(float minHeight) {}
-            };
-        }
     }
 
     private void handlePlayerInput() {

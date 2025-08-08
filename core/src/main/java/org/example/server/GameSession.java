@@ -99,6 +99,28 @@ public class GameSession {
         return playerConnections.size() >= config.getMaxPlayersPerGame();
     }
 
+    /**
+     * Check if a player is in this game session
+     */
+    public boolean hasPlayer(String username) {
+        return playerConnections.containsKey(username);
+    }
+
+    /**
+     * Broadcast that a player has rejoined the game
+     */
+    public void broadcastPlayerRejoined(String username) {
+        Message rejoinMessage = new Message();
+        rejoinMessage.setType(Message.Type.PLAYER_UPDATE);
+        rejoinMessage.putInBody("username", username);
+        rejoinMessage.putInBody("action", "rejoined");
+        rejoinMessage.putInBody("message", username + " has rejoined the game");
+        rejoinMessage.putInBody("timestamp", System.currentTimeMillis());
+        
+        broadcastToAll(rejoinMessage);
+        System.out.println("🔄 SERVER: Broadcasted player rejoin: " + username);
+    }
+
     public boolean addPlayer(PlayerConnection connection, User user) {
         // System.out.println("DEBUG: addPlayer called for user: " + user.getUsername());
 

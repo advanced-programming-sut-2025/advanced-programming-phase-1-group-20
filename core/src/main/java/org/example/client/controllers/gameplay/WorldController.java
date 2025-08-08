@@ -1529,14 +1529,17 @@ public class WorldController {
         if (isCurrentPlayer) {
             Main.getBatch().setColor(Color.WHITE); // Current player gets normal colors
         } else {
-            Main.getBatch().setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
+            Main.getBatch().setColor(0.9f, 0.9f, 0.9f, 1f); // Other players get slightly dimmed (less dimmed)
         }
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
 
-        // Dispose the texture to prevent memory leaks
-        playerTexture.dispose();
+        // Don't dispose the texture immediately - let it be garbage collected
+        // playerTexture.dispose();
+
+        // Don't reset batch color here - let the nickname rendering handle it
+        // Main.getBatch().setColor(Color.WHITE);
     }
 
 

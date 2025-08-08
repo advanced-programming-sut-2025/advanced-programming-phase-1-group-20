@@ -163,6 +163,9 @@ public class GameView implements Screen, InputProcessor {
 
     private Runnable buildingPlacementListener;
 
+    // Reconnection dialog
+    private ReconnectionDialog reconnectionDialog;
+
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
         this.player = player;
@@ -216,6 +219,12 @@ public class GameView implements Screen, InputProcessor {
             if (networkClient != null && networkClient.getMessageHandler() != null) {
                 networkClient.getMessageHandler().setCurrentGame(game);
             }
+        }
+
+        // Initialize reconnection dialog for multiplayer games
+        if (game != null && game.isMultiplayer) {
+            // Initialize after stage is created in show() method
+            // reconnectionDialog will be initialized in show() method
         }
     }
 
@@ -718,7 +727,7 @@ public class GameView implements Screen, InputProcessor {
             Animal clickedAnimal = findAnimalAt(worldCoords.x / 60, worldCoords.y / 60);
             if (clickedAnimal != null) {
                 showAnimalInteractionDialog(clickedAnimal);
-                return true; // Consume the click event
+                return true;
             }
 
             CraftingItem clickedCraftingItem = findCraftingItemAt(worldCoords.x / 60, worldCoords.y / 60);
@@ -1160,17 +1169,17 @@ public class GameView implements Screen, InputProcessor {
         if (isCurrentPlayer) {
             Main.getBatch().setColor(Color.WHITE); // Current player gets normal colors
         } else {
-            Main.getBatch().setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
+            Main.getBatch().setColor(0.9f, 0.9f, 0.9f, 1f); // Other players get slightly dimmed (less dimmed)
         }
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
 
-        // Dispose the texture to prevent memory leaks
-        playerTexture.dispose();
+        // Don't dispose the texture immediately - let it be garbage collected
+        // playerTexture.dispose();
 
-        // Reset batch color to white after drawing player sprite
-        Main.getBatch().setColor(Color.WHITE);
+        // Don't reset batch color here - let the nickname rendering handle it
+        // Main.getBatch().setColor(Color.WHITE);
     }
 
     @Override
@@ -1210,12 +1219,69 @@ public class GameView implements Screen, InputProcessor {
         pauseTable.add(resumeButton).width(200).height(20).pad(10);
         pauseTable.setVisible(false);
         stage.addActor(pauseTable);
+
+        if (game != null && game.isMultiplayer) {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null) {
+                reconnectionDialog = new ReconnectionDialog(stage, networkClient);
+
+                // Set up connection status listener for reconnection monitoring
+                networkClient.getMessageHandler().setConnectionListener(new org.example.client.network.ClientMessageHandler.ConnectionStatusListener() {
+                    @Override
+                    public void onConnectionEstablished(String sessionId) {
+                        // Connection established
+                    }
+
+                    @Override
+                    public void onAuthenticationSuccess(String username) {
+                        // Authentication successful
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed(String reason) {
+                        // Authentication failed
+                    }
+
+                    @Override
+                    public void onGameJoined(String gameId) {
+                        // Game joined
+                    }
+
+                    @Override
+                    public void onGameLeft() {
+                        // Game left
+                    }
+
+                    @Override
+                    public void onError(String errorMessage) {
+                        // Check if this is a reconnection timeout error
+                        if (errorMessage != null && errorMessage.contains("Reconnection timeout")) {
+                            if (reconnectionDialog != null) {
+                                reconnectionDialog.setFailed();
+                            }
+                        }
+                    }
+                });
+            }
+        }
     }
 
     @Override
     public void render(float deltaTime) {
         // Update network client to process incoming messages
         NetworkClient.getInstance().update();
+
+        if (game != null && game.isMultiplayer && reconnectionDialog != null) {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null) {
+                if (networkClient.isReconnecting() && !reconnectionDialog.isVisible()) {
+                    reconnectionDialog.show();
+                } else if (!networkClient.isReconnecting() && reconnectionDialog.isVisible()) {
+                    reconnectionDialog.hide();
+                }
+            }
+        }
+
         // Clear screen with lighting-tinted background
         Color bgColor = currentLightColor.cpy();
         bgColor.mul(0.3f); // Darken for background
@@ -1301,21 +1367,21 @@ public class GameView implements Screen, InputProcessor {
 
         renderNPCs(deltaTime);
 
-        // Render player nicknames for all players
+        if (game.isMultiplayer) {
+            renderOtherPlayers();
+        }
+
+        // Render player nicknames for all players (AFTER player sprites)
         if (controller != null && controller.getPlayerController() != null) {
             // Render nickname for current player
             controller.getPlayerController().renderNickname(Main.getBatch(), player, currentLightColor);
 
             // Render nicknames for other players
             for (Player otherPlayer : App.getGame().getPlayers()) {
-                if (otherPlayer != player && otherPlayer.getUser() != null) {
+                if (otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage()) {
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
                 }
             }
-        }
-
-        if (game.isMultiplayer) {
-            renderOtherPlayers();
         }
 
         if (getCurrentGameDate() != null) {
@@ -1640,7 +1706,6 @@ public class GameView implements Screen, InputProcessor {
         }
 
         String poleName = currentTool.getName(); // Use the equipped fishing rod
-
         FishingMiniGame fishingMiniGame = new FishingMiniGame(this, poleName);
 
         Main.getGame().setScreen(fishingMiniGame);
