@@ -727,7 +727,7 @@ public class GameView implements Screen, InputProcessor {
             Animal clickedAnimal = findAnimalAt(worldCoords.x / 60, worldCoords.y / 60);
             if (clickedAnimal != null) {
                 showAnimalInteractionDialog(clickedAnimal);
-                return true; // Consume the click event
+                return true;
             }
 
             CraftingItem clickedCraftingItem = findCraftingItemAt(worldCoords.x / 60, worldCoords.y / 60);
