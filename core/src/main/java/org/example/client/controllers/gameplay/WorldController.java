@@ -25,6 +25,7 @@ import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
+import org.example.common.models.entities.NPC;
 import org.example.common.models.Player.Player;
 
 import java.util.HashMap;
@@ -1563,6 +1564,13 @@ public class WorldController {
                 return;
             }
 
+            // Check if click was on an NPC
+            NPC clickedNPC = checkNPCClick(touchPoint);
+            if (clickedNPC != null) {
+                showNPCDialogueWindow(clickedNPC);
+                return;
+            }
+
             // 4. Check if the click was on a house.
             // We loop through the anchors we found during rendering.
             if (playerController.getPlayer().getIsInVillage()) {
@@ -1895,5 +1903,54 @@ public class WorldController {
         isInPlacementMode = false;
         buildingToPlace = null;
         potentialPlacementTiles.clear();
+    }
+
+    private NPC checkNPCClick(Vector3 touchPoint) {
+        Game game = App.getGame();
+        if (game == null || game.getGameMap() == null || game.getGameMap().getVillage() == null) {
+            return null;
+        }
+
+        // Check if player is in village
+        if (!playerController.getPlayer().getIsInVillage()) {
+            return null;
+        }
+
+        // Get village NPCs
+        List<NPC> npcs = game.getGameMap().getVillage().getResidents();
+        if (npcs == null) {
+            return null;
+        }
+
+        for (NPC npc : npcs) {
+            if (npc != null) {
+                // Check if click is within NPC bounds
+                float npcX = npc.getPosX();
+                float npcY = npc.getPosY();
+                float npcWidth = 60; // NPC render width (1 tile)
+                float npcHeight = 120; // NPC render height (2 tiles)
+
+                if (touchPoint.x >= npcX && touchPoint.x <= npcX + npcWidth &&
+                    touchPoint.y >= npcY && touchPoint.y <= npcY + npcHeight) {
+                    return npc;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void showNPCDialogueWindow(NPC npc) {
+        System.out.println("🗣️ Opening dialogue window for " + npc.getName());
+        try {
+            // Create and show the NPC dialogue window
+            if (controller != null && controller.getView() != null) {
+                controller.getView().showNPCDialogueWindow(npc);
+            } else {
+                System.err.println("Error: Controller or GameView is null");
+            }
+        } catch (Exception e) {
+            System.err.println("Error opening NPC dialogue window: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

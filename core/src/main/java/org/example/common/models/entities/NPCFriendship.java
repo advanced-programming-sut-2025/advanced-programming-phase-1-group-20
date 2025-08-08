@@ -55,7 +55,6 @@ public class NPCFriendship {
     }
 
     public String talk(Date currentDate) {
-        // Use the controller to handle talking
         return controller.talk(this, currentDate);
     }
 

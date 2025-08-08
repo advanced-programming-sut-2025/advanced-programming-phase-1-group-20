@@ -68,7 +68,7 @@ public class ServerConfig {
 
     // Time advancement configuration
     public int getTimeAdvancementRate() {
-        return Integer.parseInt(dotenv.get("TIME_ADVANCEMENT_RATE", "5")); // Minutes to advance per game tick (increased from 1 to 5 for testing)
+        return Integer.parseInt(dotenv.get("TIME_ADVANCEMENT_RATE", "1")); // Minutes to advance per game tick (increased from 1 to 5 for testing)
     }
 
     public int getTimeSyncInterval() {

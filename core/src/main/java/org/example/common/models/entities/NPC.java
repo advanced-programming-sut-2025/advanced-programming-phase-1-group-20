@@ -31,7 +31,7 @@ public class NPC extends Mob {
     private Map<String, NPCFriendship> friendships;
     private Location location;
     private String description;
-    private boolean useAiDialogue = false;
+    private boolean useAiDialogue = true; // TODO: we can add a setting for this if we want to
 
     // Sprite-related fields
     private String spriteName; // The name of the NPC for sprite loading (e.g., "Abigail", "Pierre")

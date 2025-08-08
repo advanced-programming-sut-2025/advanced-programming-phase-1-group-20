@@ -30,7 +30,6 @@ public class NPCController {
 
     // Dialogue generation methods
     public String getDialogue(NPC npc, Date currentDate, int friendshipLevel) {
-        // If AI dialogue is enabled, use the Hugging Face API
         if (npc.isUseAiDialogue()) {
             try {
                 // Create context information for the AI
@@ -144,7 +143,6 @@ public class NPCController {
     // Interaction methods
     public String talk(NPCFriendship friendship, Date currentDate) {
         if (friendship.getLastInteractionDate() == null || !friendship.getLastInteractionDate().equals(currentDate)) {
-            // Reset daily flags on a new day
             friendship.resetDailyFlags();
         }
 

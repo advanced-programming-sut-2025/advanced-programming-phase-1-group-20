@@ -45,6 +45,7 @@ import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.common.Date;
 import org.example.common.models.entities.Game;
+import org.example.common.models.entities.NPC;
 import org.example.common.models.entities.User;
 import org.example.common.models.entities.FriendShip;
 import org.example.common.models.enums.Seasons;
@@ -54,6 +55,7 @@ import org.example.client.views.effects.Lighting;
 import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
 import org.example.client.views.effects.LightningSystem; // NEW IMPORT
 import org.example.client.controllers.NPCSpriteController;
+import org.example.client.views.NPCDialogueScreen;
 
 import org.example.client.views.fishing.FishingMiniGame;
 import org.example.client.network.NetworkClient;
@@ -2832,6 +2834,23 @@ public class GameView implements Screen, InputProcessor {
 
             // Close the relationship menu after action
             hideRelationshipMenu(this.relationshipStage);
+        }
+    }
+
+    public void showNPCDialogueWindow(NPC npc) {
+        try {
+            // Create and show the NPC dialogue screen
+            NPCDialogueScreen dialogueScreen = new NPCDialogueScreen(
+                npc, 
+                player, 
+                npcSpriteController, 
+                skin, 
+                this
+            );
+            Main.getGame().setScreen(dialogueScreen);
+        } catch (Exception e) {
+            System.err.println("Error creating NPC dialogue screen: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
