@@ -1553,8 +1553,12 @@ public class WorldController {
             float screenY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y coordinate
             Vector3 touchPoint = new Vector3(screenX, screenY, 0);
 
+            Vector3 touchPointFarm = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+
             // 3. Convert the screen coordinates to your game's world coordinates.
             camera.unproject(touchPoint);
+
+            camera.unproject(touchPointFarm);
 
             // Check if click was on another player
             Player clickedPlayer = checkPlayerClick(touchPoint);
@@ -1609,14 +1613,15 @@ public class WorldController {
                 return;
             }
             else {
-                if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                System.out.println("hereee");
+                if (checkClicked(houseAnchors, HOUSE_TILES_W, HOUSE_TILES_H, touchPointFarm)) {
                     System.out.println("house clicked");
                     getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
-                } else if (checkClicked(coopAnchors, COOP_TILES_W, COOP_TILES_H, touchPoint)) {
+                } else if (checkClicked(coopAnchors, COOP_TILES_W, COOP_TILES_H, touchPointFarm)) {
 
-                } else if (checkClicked(barnAnchors, BARN_TILES_W, BARN_TILES_H, touchPoint)) {
+                } else if (checkClicked(barnAnchors, BARN_TILES_W, BARN_TILES_H, touchPointFarm)) {
 
-                } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPoint)) {
+                } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPointFarm)) {
                     boolean isConstructed = farm.getGreenHouse().getIsConstructed();
 
                     if (isConstructed) {
