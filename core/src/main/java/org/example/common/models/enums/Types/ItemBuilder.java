@@ -46,6 +46,13 @@ public class ItemBuilder {
             return new ArtisanItem(artisanType);
         }
 
+        //animal products
+        AnimalProductType animalProductType = AnimalProductType.fromName(name);
+        if (animalProductType != null) {
+            return animalProductType.toItem();
+        }
+
+
         return null;
     }
 

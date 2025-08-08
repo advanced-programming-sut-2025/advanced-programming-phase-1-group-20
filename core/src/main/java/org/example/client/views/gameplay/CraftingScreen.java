@@ -93,7 +93,9 @@ public class CraftingScreen implements Screen, Disposable {
             hoverCraftingTextures.put(craftingType, hoverTex);
 
             HoverImage image = new HoverImage(defaultTex, hoverTex, 240);
-            image.addListener(new ClickListener() {
+
+            // Create a new ClickListener
+            ClickListener listener = new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     if (event.getButton() == Input.Buttons.LEFT) {
@@ -103,15 +105,25 @@ public class CraftingScreen implements Screen, Disposable {
                             showErrorDialog("Error Crafting", result.message());
                         }
                     } else if (event.getButton() == Input.Buttons.RIGHT) {
-                        CraftingItem itemInstance = (CraftingItem) player.getBackpack().getItem(craftingType.getName());
-                        if (itemInstance != null) {
-                            showArtisanActionDialog(itemInstance);
-                        } else {
-                            showErrorDialog("Item Not Owned", "You need to craft or own this item first.");
+                        // This will now work correctly
+                        CraftingItem craftingItem = null;
+                        for(CraftingItem c :player.getCraftingItems()){
+                            if(c.getName().equals(craftingType.getName())){
+                                craftingItem = c;
+                            }
+                        }
+                        if (craftingItem != null) {
+                            Main.getGame().setScreen(new ArtisanCreateScreen(player, skin, previousScreen, craftingItem));
                         }
                     }
                 }
-            });
+            };
+
+            // Tell the listener to respond to ANY mouse button, not just the left one.
+            listener.setButton(-1);
+            image.addListener(listener);
+
+
 
             ProgressBar progressBar = new ProgressBar(0, 1, 0.01f, false, skin);
             progressBars.put(craftingType, progressBar);

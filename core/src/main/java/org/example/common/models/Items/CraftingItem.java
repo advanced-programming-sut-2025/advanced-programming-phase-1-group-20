@@ -56,9 +56,9 @@ public class CraftingItem extends Item {
     }
 
 
-    public boolean processItem(Backpack backpack , ArtisanItem item) {
+    public boolean processItem(ArtisanItem item) {
         if(proccessingItem == null) {
-            proccessingItem = createArtisanItem(backpack, item);
+            proccessingItem = item;
             return true;
         }
         return false;
@@ -84,6 +84,14 @@ public class CraftingItem extends Item {
             proccessingItem = null;
             progressBar = 0;
         }
+    }
+
+    public void setProccessingItem(ArtisanItem proccessingItem) {
+        this.proccessingItem = proccessingItem;
+    }
+
+    public void setFinishedItem(ArtisanItem finishedItem) {
+        this.finishedItem = finishedItem;
     }
 
     public void cancelArtisan() {

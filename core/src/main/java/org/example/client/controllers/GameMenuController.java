@@ -2097,6 +2097,12 @@ public class GameMenuController implements Controller {
         int amount = Integer.parseInt(args[1]);
 
         player.getBackpack().add(item, amount);
+        if(item instanceof CraftingItem craftingItem){
+            player.getCraftingItems().add(craftingItem);
+        }
+        else if(item instanceof CookingItem cookingItem){
+            player.getCookingItems().add(cookingItem);
+        }
     }
 
     public void getFood(String[] args){

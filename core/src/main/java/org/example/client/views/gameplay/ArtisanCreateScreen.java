@@ -196,8 +196,9 @@ public class ArtisanCreateScreen implements Screen {
     private void updateButtonStates() {
         boolean isProcessing = artisanStation.getProccessingItem() != null;
         boolean isFinished = artisanStation.getFinishedItem() != null;
+        boolean needsIngredients = !artisanStation.getType().getIngredients().getRecipe().isEmpty();
 
-        startProcessButton.setDisabled(isProcessing || isFinished || inputItems.isEmpty());
+        startProcessButton.setDisabled(isProcessing || isFinished || (needsIngredients && inputItems.isEmpty()));
         collectButton.setDisabled(!isFinished);
         cancelButton.setDisabled(!isProcessing);
         fastFinishButton.setDisabled(!isProcessing);
@@ -209,10 +210,15 @@ public class ArtisanCreateScreen implements Screen {
             statusLabel.setText("Processing: " + artisanStation.getProccessingItem().getName());
             progressBar.setValue((float)artisanStation.getProgressBar());
         } else {
-            statusLabel.setText("Ready - Drag items to input slots");
+            if (needsIngredients) {
+                statusLabel.setText("Ready - Drag items to input slots");
+            } else {
+                statusLabel.setText("Ready to start");
+            }
             progressBar.setValue(0);
         }
     }
+
 
     private void populateAllGrids() {
         dnd.clear();

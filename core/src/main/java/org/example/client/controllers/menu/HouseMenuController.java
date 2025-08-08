@@ -85,6 +85,15 @@ public class HouseMenuController implements Controller {
         if (!player.getBackpack().add(craftedItem, 1)) {
             return Result.error("Your backpack is full");
         }
+        boolean crafted = false;
+        for(CraftingItem item : player.getCraftingItems()) {
+            if(item.getName().equalsIgnoreCase(itemName)) {
+                crafted = true;
+            }
+        }
+        if (crafted) {
+            return Result.error("You crafted the item before!");
+        }
 
         player.addCraftingItem(craftedItem);
         player.decreaseEnergy(2);
@@ -230,7 +239,7 @@ public class HouseMenuController implements Controller {
         // 4. If a match is found, start the process
         if (productToMake != null) {
             // The processItem method already handles ingredient consumption from the backpack
-            if (station.processItem(player.getBackpack(), productToMake)) {
+            if (station.processItem(productToMake)) {
                 return Result.success(productToMake.getName() + " is now processing in the " + station.getName() + ".");
             } else {
                 return Result.error("You don't have the required ingredients in your backpack.");
@@ -269,7 +278,12 @@ public class HouseMenuController implements Controller {
 
     public Result artisanGet(String[] args) {
         String artisanName = args[0];
-        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
+        CraftingItem craftingItem = null;
+        for(CraftingItem c : player.getPlacedCraftingItems()){
+            if(c.getName().equalsIgnoreCase(artisanName)){
+                craftingItem = c;
+            }
+        }
         if (craftingItem == null) {
             return Result.error(artisanName + " does not exist");
         }
@@ -296,7 +310,14 @@ public class HouseMenuController implements Controller {
 
     public Result artisanFastFinish(String[] args) {
         String artisanName = args[0];
-        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
+        CraftingItem craftingItem = null;
+
+        for(CraftingItem c : player.getCraftingItems()){
+            if(c.getName().equalsIgnoreCase(artisanName)){
+                craftingItem = c;
+            }
+        }
+
         if (craftingItem == null) {
             return Result.error(artisanName + " does not exist");
         }
@@ -304,6 +325,8 @@ public class HouseMenuController implements Controller {
             return Result.error(artisanName + " is not processing anything.");
         }
         craftingItem.fastFinishArtisan();
+        player.getBackpack().add(craftingItem.getFinishedItem(), 1);
+        craftingItem.setFinishedItem(null);
         return Result.success("Process on " + artisanName + " has been finished instantly.");
     }
 }
