@@ -1636,11 +1636,11 @@ public class GameView implements Screen, InputProcessor {
         if (currentTool == null || currentTool.getType() != Tool.ToolType.FISHING_ROD) {
             // Show a notification that fishing rod is required
             showFishingRodRequiredNotification();
-            return;
+//            return;
         }
 
         String poleName = currentTool.getName(); // Use the equipped fishing rod
-
+        poleName = "training rod";
         FishingMiniGame fishingMiniGame = new FishingMiniGame(this, poleName);
 
         Main.getGame().setScreen(fishingMiniGame);
