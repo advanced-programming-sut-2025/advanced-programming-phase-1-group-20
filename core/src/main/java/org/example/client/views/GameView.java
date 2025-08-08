@@ -1169,17 +1169,17 @@ public class GameView implements Screen, InputProcessor {
         if (isCurrentPlayer) {
             Main.getBatch().setColor(Color.WHITE); // Current player gets normal colors
         } else {
-            Main.getBatch().setColor(0.7f, 0.7f, 0.7f, 1f); // Other players get slightly dimmed
+            Main.getBatch().setColor(0.9f, 0.9f, 0.9f, 1f); // Other players get slightly dimmed (less dimmed)
         }
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
 
-        // Dispose the texture to prevent memory leaks
-        playerTexture.dispose();
+        // Don't dispose the texture immediately - let it be garbage collected
+        // playerTexture.dispose();
 
-        // Reset batch color to white after drawing player sprite
-        Main.getBatch().setColor(Color.WHITE);
+        // Don't reset batch color here - let the nickname rendering handle it
+        // Main.getBatch().setColor(Color.WHITE);
     }
 
     @Override
@@ -1367,21 +1367,21 @@ public class GameView implements Screen, InputProcessor {
 
         renderNPCs(deltaTime);
 
-        // Render player nicknames for all players
+        if (game.isMultiplayer) {
+            renderOtherPlayers();
+        }
+
+        // Render player nicknames for all players (AFTER player sprites)
         if (controller != null && controller.getPlayerController() != null) {
             // Render nickname for current player
             controller.getPlayerController().renderNickname(Main.getBatch(), player, currentLightColor);
 
             // Render nicknames for other players
             for (Player otherPlayer : App.getGame().getPlayers()) {
-                if (otherPlayer != player && otherPlayer.getUser() != null) {
+                if (otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage()) {
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
                 }
             }
-        }
-
-        if (game.isMultiplayer) {
-            renderOtherPlayers();
         }
 
         if (getCurrentGameDate() != null) {
