@@ -37,6 +37,9 @@ dependencies {
   // Jackson for JSON serialization
   implementation "com.fasterxml.jackson.core:jackson-databind:2.16.1"
 
+  // JSON library for API calls
+  implementation "org.json:json:20231013"
+
   // Dotenv for environment variable management
   implementation "io.github.cdimascio:java-dotenv:$dotenvVersion"
 }

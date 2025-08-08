@@ -1,7 +1,7 @@
 package org.example.utils;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.example.common.models.App;
 import org.example.common.models.entities.NPC;
 
@@ -10,8 +10,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-
 
 public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -20,17 +18,14 @@ public class npcAI {
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
             .build();
-    private static final Gson gson = new Gson();
-
 
     public static String generateDialogue(NPC npc, String context) {
         try {
             String prompt = createPrompt(npc, context);
-            String response = callApi(prompt);
-            return processResponse(response, npc);
+            return getNpcDialogue(prompt);
         } catch (Exception e) {
             System.err.println("Error generating dialogue: " + e.getMessage());
-            return "Hello there! [AI generation failed]";
+            return getFallbackDialogue(npc);
         }
     }
 
@@ -49,76 +44,40 @@ public class npcAI {
         return promptBuilder.toString();
     }
 
-    private static String callApi(String prompt) throws Exception {
-        // Prepare the request body
-        String body = "{\"model\": \"deepseek/deepseek-chat-v3-0324:free\",\n" +
-                "  \"messages\": [\n" +
-                "    {\n" +
-                "      \"role\": \"user\",\n" +
-                "      \"content\": \"" + prompt + "\"\n" +
-                "    }\n" +
-                "  ]}";
+    public static String getAIResponse(String userMessage) throws Exception {
+        JSONObject payload = new JSONObject();
+        payload.put("model", "deepseek/deepseek-chat-v3-0324:free");
+        JSONArray arr = new JSONArray();
+        JSONObject msg = new JSONObject();
+        msg.put("role", "user");
+        msg.put("content", userMessage);
+        arr.put(0, msg);
+        payload.put("messages", arr);
 
-        // Build the HTTP request
+        HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_URL))
-                .header("Authorization", "Bearer " + API_KEY)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
-        System.out.println("Sending request: " + request);
-        // Send the request asynchronously
-        CompletableFuture<HttpResponse<String>> responseFuture =
-                client.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+            .uri(URI.create(API_URL))
+            .header("Authorization", "Bearer " + API_KEY)
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+            .build();
 
-        // Wait for the response
-        HttpResponse<String> response = responseFuture.get();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-//        System.out.println(response.body());
-        // Check if the request was successful
-        if (response.statusCode() == 200) {
-            return response.body();
-        } else {
-            throw new RuntimeException("API call failed with status code: " + response.statusCode() +
-                    ", response: " + response.body());
-        }
-
+        JSONObject jsonResponse = new JSONObject(response.body());
+        return jsonResponse.getJSONArray("choices")
+            .getJSONObject(0).getJSONObject("message").getString("content");
     }
 
-    private static boolean isTestEnvironment() {
+    public static String getNpcDialogue(String message) {
         try {
-            return App.getGame() == null;
+            String response = getAIResponse(message);
+            return response;
         } catch (Exception e) {
-            return true;
+            System.out.println(e.getMessage());
+            return "Fuck this life.";
         }
     }
-
-
-    private static String processResponse(String responseJson, NPC npc) {
-        try {
-            // Parse the JSON response
-            JsonObject json = gson.fromJson(responseJson, JsonObject.class);
-            String generatedText = json
-                    .getAsJsonArray("choices")
-                    .get(0).getAsJsonObject()
-                    .getAsJsonObject("message")
-                    .get("content").getAsString();
-
-            generatedText = generatedText.trim();
-
-            // If the response is empty or too short, use a fallback
-            if (generatedText.length() < 5) {
-                return getFallbackDialogue(npc);
-            }
-
-            return generatedText;
-        } catch (Exception e) {
-            System.err.println("Error processing API response: " + e.getMessage());
-            e.printStackTrace();
-            return getFallbackDialogue(npc);
-        }
-    }
-
 
     private static String getFallbackDialogue(NPC npc) {
         return switch (npc.getCharacter()) {
