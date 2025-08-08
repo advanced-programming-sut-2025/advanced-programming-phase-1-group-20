@@ -1544,7 +1544,10 @@ public class WorldController {
         if (Gdx.input.justTouched()) {
 
             // 2. Get the click coordinates in screen space.
-            Vector3 touchPoint = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            // Fix Y-axis inversion for LibGDX coordinate system
+            float screenX = Gdx.input.getX();
+            float screenY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y coordinate
+            Vector3 touchPoint = new Vector3(screenX, screenY, 0);
 
             // 3. Convert the screen coordinates to your game's world coordinates.
             camera.unproject(touchPoint);
@@ -1714,7 +1717,7 @@ public class WorldController {
                 this.farm = currentFarm;
 
                 // Create new PlayerController for the current player
-                playerController = new PlayerController(currentPlayer, currentFarm, skin);
+                playerController = new PlayerController(currentPlayer, currentFarm, skin, camera);
                 System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
                 System.out.println("Farm updated to: " + currentFarm.getName());
 

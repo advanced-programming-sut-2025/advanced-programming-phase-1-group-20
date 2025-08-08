@@ -53,7 +53,7 @@ public class GameMenuController implements Controller {
             return;
         }
 
-        playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin());
+        playerController = new PlayerController(player, player.getCurrentFarm(), view.getSkin(), view.getCamera());
         worldController = new WorldController(playerController , player.getCurrentFarm(),  view.getCamera() , view.getSkin() , this);
     }
 
@@ -2293,7 +2293,7 @@ public class GameMenuController implements Controller {
             if (playerController != null && view != null) {
                 Farm currentFarm = currentPlayer.getCurrentFarm();
                 if (currentFarm != null) {
-                    playerController = new PlayerController(currentPlayer, currentFarm, view.getSkin());
+                    playerController = new PlayerController(currentPlayer, currentFarm, view.getSkin(), view.getCamera());
                     System.out.println("PlayerController updated to follow: " + currentPlayer.getUser().getUsername());
                 }
             }

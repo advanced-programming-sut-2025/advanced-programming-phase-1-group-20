@@ -30,10 +30,7 @@ public class Game implements Serializable {
     private String saveName;
     public boolean isMultiplayer = false;
 
-
-    public Game() {
-
-    }
+    public Game() {}
 
     public Game(List<Player> players, Player creator) {
         this.players = players;
@@ -358,12 +355,6 @@ public class Game implements Serializable {
             System.out.println("Multiplayer game detected - not auto-advancing turn when energy depleted");
             return false;
         }
-
-        System.out.println("DEBUG: Checking if player is out of energy for turn...");
-        System.out.println("DEBUG: Player energy: " + currentPlayer.getEnergy());
-        System.out.println("DEBUG: Player energy used this turn: " + currentPlayer.getEnergyUsedInTurn());
-        System.out.println("DEBUG: Player can use 1 energy: " + currentPlayer.canUseEnergy(1));
-        System.out.println("DEBUG: Player is out of energy for turn: " + currentPlayer.isOutOfEnergyForTurn());
 
         if (currentPlayer.isOutOfEnergyForTurn()) {
             System.out.println("Player " + currentPlayer.getUser().getUsername() + " is out of energy for the turn. Advancing to next player.");

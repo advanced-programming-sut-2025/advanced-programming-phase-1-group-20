@@ -9,10 +9,7 @@ import org.example.server.GameSession;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Manages the live stock and transactions for all markets within a game session.
- * This controller ensures that all market activities are synchronized across all players.
- */
+
 public class LiveStockController {
     private final GameSession gameSession;
     // Map<MarketName, Market>
@@ -24,9 +21,6 @@ public class LiveStockController {
         // initializeMarkets(); // This line is removed
     }
 
-    /**
-     * Initializes the market states from the game map's village markets.
-     */
     public void initializeMarkets() { // This method is now public
         if (gameSession.getGameInstance() != null && gameSession.getGameInstance().getGameMap() != null) {
             for (Market market : gameSession.getGameInstance().getGameMap().getVillage().getMarkets()) {

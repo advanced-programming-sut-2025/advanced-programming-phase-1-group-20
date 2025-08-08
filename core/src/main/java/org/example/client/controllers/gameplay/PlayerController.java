@@ -8,18 +8,18 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
 import org.example.client.network.NetworkClient;
-import org.example.common.models.App;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
-import org.example.common.models.entities.Game;
 import org.example.common.models.enums.Types.TileType;
 import org.example.common.models.App;
 
@@ -59,6 +59,7 @@ public class PlayerController {
     private String lastToolDirection = "down";
     private float lastMouseX = 0f;
     private float lastMouseY = 0f;
+    private OrthographicCamera camera;
 
     // Nickname rendering
     private BitmapFont nicknameFont;
@@ -97,11 +98,12 @@ public class PlayerController {
         currentAnim = walkDown;
     }
 
-    public PlayerController(Player player, Farm farm, Skin skin) {
+    public PlayerController(Player player, Farm farm, Skin skin, OrthographicCamera camera) {
         this.player = player;
         this.farm = farm;
         this.gameMap = App.getGame().getGameMap();
         this.skin = skin;
+        this.camera = camera;
 
         // Load individual sprite files instead of sprite sheet
         walkDown = buildWalkAnimation("down");
@@ -169,6 +171,17 @@ public class PlayerController {
     public void update() {
         float delta = Gdx.graphics.getDeltaTime();
         handlePlayerInput(delta);
+
+        // Continuously update mouse position in world coordinates for tool direction
+        if (camera != null) {
+            // Get screen coordinates - Gdx.input.getY() returns Y from top-left, but we need bottom-left
+            float screenX = Gdx.input.getX();
+            float screenY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y coordinate
+            Vector3 mouseScreenPos = new Vector3(screenX, screenY, 0);
+            Vector3 mouseWorldPos = camera.unproject(mouseScreenPos);
+            lastMouseX = mouseWorldPos.x;
+            lastMouseY = mouseWorldPos.y;
+        }
 
         stateTime += delta;
 

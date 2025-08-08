@@ -712,7 +712,9 @@ public class GameView implements Screen, InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
         if (button == Input.Buttons.RIGHT) {
-            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+            // Fix Y-axis inversion for LibGDX coordinate system
+            float correctedScreenY = Gdx.graphics.getHeight() - screenY;
+            Vector3 worldCoords = camera.unproject(new Vector3(screenX, correctedScreenY, 0));
             Animal clickedAnimal = findAnimalAt(worldCoords.x / 60, worldCoords.y / 60);
             if (clickedAnimal != null) {
                 showAnimalInteractionDialog(clickedAnimal);
@@ -783,7 +785,9 @@ public class GameView implements Screen, InputProcessor {
         }
 
         if (button == Input.Buttons.LEFT) {
-            Vector3 worldCoords = camera.unproject(new Vector3(screenX, screenY, 0));
+            // Fix Y-axis inversion for LibGDX coordinate system
+            float correctedScreenY = Gdx.graphics.getHeight() - screenY;
+            Vector3 worldCoords = camera.unproject(new Vector3(screenX, correctedScreenY, 0));
 
             int tileX = (int) (worldCoords.x / 60);
             int tileY = (int) (worldCoords.y / 60);

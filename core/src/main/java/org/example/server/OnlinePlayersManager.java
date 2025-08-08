@@ -105,9 +105,6 @@ public class OnlinePlayersManager {
         return onlinePlayers.get(username);
     }
 
-    // =====================
-    // BROADCASTING
-    // =====================
 
     public void broadcastPlayerStatusUpdate() {
         List<OnlinePlayerInfo> playersList = getOnlinePlayers();

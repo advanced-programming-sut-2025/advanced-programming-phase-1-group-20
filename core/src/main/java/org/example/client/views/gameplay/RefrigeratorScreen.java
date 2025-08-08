@@ -47,9 +47,6 @@ public class RefrigeratorScreen implements Screen {
     private static final float SLOT_SIZE = 64f;
     private static final float SLOT_PAD = 8f;
 
-    /**
-     * A helper class to store information about the dragged item.
-     */
     private static class ItemPayload {
         Item item;
         String sourceContainer; // "refrigerator" or "backpack"
@@ -129,18 +126,14 @@ public class RefrigeratorScreen implements Screen {
         return stack;
     }
 
-    /**
-     * Refreshes both the refrigerator and backpack grids.
-     */
+
     private void populateAllGrids() {
         dnd.clear(); // Clear all previous drag/drop sources and targets
         populateGrid(refrigeratorGrid, refrigerator.getItems(), "refrigerator", REFRIGERATOR_ROWS * REFRIGERATOR_COLS);
         populateGrid(inventoryGrid, backpack.getInventory(), "backpack", INVENTORY_ROWS * INVENTORY_COLS);
     }
 
-    /**
-     * Populates a specific grid with items and empty slots.
-     */
+
     private void populateGrid(Table grid, Map<Item, Integer> items, String containerName, int totalSlots) {
         grid.clear();
         int colCount = (containerName.equals("refrigerator")) ? REFRIGERATOR_COLS : INVENTORY_COLS;
@@ -167,12 +160,6 @@ public class RefrigeratorScreen implements Screen {
         }
     }
 
-    /**
-     * Creates a visual slot for an item and sets it up as a drag source.
-     */
-    /**
-     * Creates a visual slot for an item and sets it up as a drag source and click listener.
-     */
     private Container<Stack> createItemSlot(Item item, int quantity, String sourceContainer) {
         // Visual representation: Image + Quantity Label
         Image itemImage = new Image(new Texture(Gdx.files.internal(item.getImageFilepath())));
@@ -188,7 +175,6 @@ public class RefrigeratorScreen implements Screen {
 
         // --- Drag and Drop Source (remains the same) ---
         dnd.addSource(new Source(container) {
-            // ... (This part of the code doesn't change)
             @Override
             public Payload dragStart(InputEvent event, float x, float y, int pointer) {
                 Payload payload = new Payload();
@@ -343,6 +329,5 @@ public class RefrigeratorScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
-        // Note: Textures loaded directly should be disposed if not managed by an AssetManager
     }
 }

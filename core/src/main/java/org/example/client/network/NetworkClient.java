@@ -7,14 +7,16 @@ import org.example.common.models.entities.User;
 
 import java.io.*;
 import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.WebSocket;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 
 public class NetworkClient {
     private static NetworkClient instance;
-    private java.net.http.WebSocket webSocket;
-    private java.net.http.WebSocket.Builder webSocketBuilder;
+    private WebSocket webSocket;
+    private WebSocket.Builder webSocketBuilder;
     private final Queue<Message> incomingMessages;
     private final Queue<Message> outgoingMessages;
     private final Gson gson;
@@ -26,7 +28,7 @@ public class NetworkClient {
     private String sessionId;
     private Thread networkThread;
     private volatile boolean isRunning = false;
-    
+
     // Add message buffer for handling fragmented WebSocket messages
     private StringBuilder messageBuffer = new StringBuilder();
     private boolean isInJsonObject = false;
@@ -91,7 +93,7 @@ public class NetworkClient {
             System.out.println("Attempting WebSocket connection to: " + wsUri);
 
             System.out.println("Creating HTTP client...");
-            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+            HttpClient httpClient = HttpClient.newHttpClient();
             webSocketBuilder = httpClient.newWebSocketBuilder();
             System.out.println("WebSocket builder created successfully");
 
@@ -100,55 +102,55 @@ public class NetworkClient {
             System.out.println("WebSocket headers configured");
 
             // Create WebSocket listener
-            java.net.http.WebSocket.Listener listener = new java.net.http.WebSocket.Listener() {
+            WebSocket.Listener listener = new WebSocket.Listener() {
                 @Override
-                public void onOpen(java.net.http.WebSocket webSocket) {
+                public void onOpen(WebSocket webSocket) {
                     System.out.println("WebSocket connected successfully!");
                     connectionState = ConnectionState.CONNECTED;
-                    java.net.http.WebSocket.Listener.super.onOpen(webSocket);
+                    WebSocket.Listener.super.onOpen(webSocket);
                 }
 
                 @Override
                 public java.util.concurrent.CompletionStage<?> onText(java.net.http.WebSocket webSocket, CharSequence data, boolean last) {
                     String messageFragment = data.toString();
-                    System.out.println("📥 NETWORK: Received message fragment: " + messageFragment);
+                    System.out.println("NETWORK: Received message fragment: " + messageFragment);
 
                     // Add fragment to buffer
                     messageBuffer.append(messageFragment);
-                    
+
                     // Check if we have a complete JSON message
                     String completeMessage = messageBuffer.toString();
                     if (isCompleteJsonMessage(completeMessage)) {
-                        System.out.println("📥 NETWORK: Complete message received: " + completeMessage);
-                        
+                        System.out.println("NETWORK: Complete message received: " + completeMessage);
+
                         try {
                             Message receivedMessage = gson.fromJson(completeMessage, Message.class);
-                            System.out.println("🔄 NETWORK: Successfully parsed message of type: " + receivedMessage.getType());
-                            
+                            System.out.println("NETWORK: Successfully parsed message of type: " + receivedMessage.getType());
+
                             // Add specific debug for PLAYER_DATA_UPDATE
                             if (receivedMessage.getType() == Message.Type.PLAYER_DATA_UPDATE) {
-                                System.out.println("🎯 NETWORK: PLAYER_DATA_UPDATE message detected!");
+                                System.out.println("NETWORK: PLAYER_DATA_UPDATE message detected!");
                                 Object playersData = receivedMessage.getFromBody("players");
                                 if (playersData != null) {
-                                    System.out.println("🎯 NETWORK: PLAYER_DATA_UPDATE contains players data: " + playersData);
+                                    System.out.println("NETWORK: PLAYER_DATA_UPDATE contains players data: " + playersData);
                                 }
                             }
-                            
+
                             if (receivedMessage.getType() == Message.Type.SUCCESS) {
                                 String messageText = receivedMessage.getFromBody("message");
                                 if (messageText != null && messageText.contains("Authentication successful")) {
                                     connectionState = ConnectionState.AUTHENTICATED;
-                                    System.out.println("✅ NETWORK: Authentication successful, state set to: " + connectionState);
+                                    System.out.println("NETWORK: Authentication successful, state set to: " + connectionState);
                                 }
                             }
-                            
+
                             incomingMessages.offer(receivedMessage);
                             System.out.println("🔄 NETWORK: Added message to incoming queue, queue size: " + incomingMessages.size());
                         } catch (Exception e) {
                             System.err.println("Error processing incoming message: " + e.getMessage());
                             e.printStackTrace();
                         }
-                        
+
                         // Reset buffer after processing complete message
                         messageBuffer.setLength(0);
                         isInJsonObject = false;
@@ -156,7 +158,7 @@ public class NetworkClient {
                     } else {
                         System.out.println("📥 NETWORK: Message fragment buffered, waiting for complete message...");
                     }
-                    
+
                     return java.net.http.WebSocket.Listener.super.onText(webSocket, data, last);
                 }
 
@@ -172,11 +174,11 @@ public class NetworkClient {
                 @Override
                 public java.util.concurrent.CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
                     System.out.println("🔌 NETWORK: WebSocket closed - Status: " + statusCode + ", Reason: " + reason);
-                    
+
                     if (statusCode != 1000) { // Not a normal closure
                         System.out.println("⚠️ NETWORK: Abnormal WebSocket closure, attempting reconnection...");
                         connectionState = ConnectionState.DISCONNECTED;
-                        
+
                         // Attempt to reconnect after a short delay
                         new Thread(() -> {
                             try {
@@ -192,7 +194,7 @@ public class NetworkClient {
                     } else {
                         connectionState = ConnectionState.DISCONNECTED;
                     }
-                    
+
                     return java.net.http.WebSocket.Listener.super.onClose(webSocket, statusCode, reason);
                 }
             };
@@ -323,7 +325,7 @@ public class NetworkClient {
         System.out.println("📤 DEBUG: sendPlayerMove() called with position: (" + x + ", " + y + ")");
         System.out.println("📤 DEBUG: Current connection state: " + connectionState);
         System.out.println("📤 DEBUG: Authenticated user: " + (authenticatedUser != null ? authenticatedUser.getUsername() : "null"));
-        
+
         if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
             System.out.println("❌ NETWORK: Cannot send movement - not authenticated. State: " + connectionState);
             return;
@@ -621,25 +623,25 @@ public class NetworkClient {
         int braceCount = 0;
         boolean inString = false;
         boolean escaped = false;
-        
+
         for (int i = 0; i < json.length(); i++) {
             char c = json.charAt(i);
-            
+
             if (escaped) {
                 escaped = false;
                 continue;
             }
-            
+
             if (c == '\\') {
                 escaped = true;
                 continue;
             }
-            
+
             if (c == '"' && !escaped) {
                 inString = !inString;
                 continue;
             }
-            
+
             if (!inString) {
                 if (c == '{') {
                     braceCount++;
