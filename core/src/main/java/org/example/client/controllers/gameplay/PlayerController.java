@@ -720,7 +720,7 @@ public class PlayerController {
             currentToolAnim = new Animation<>(TOOL_USE_DURATION / 3f, toolUseFrames);
         }
         catch (Exception e) {
-            Gdx.app.error("ToolAnimation", "Error loading tool animation: " + e.getMessage());
+//            Gdx.app.error("ToolAnimation", "Error loading tool animation: " + e.getMessage());
             isUsingTool = false;
         }
     }
@@ -1033,11 +1033,9 @@ public class PlayerController {
 
         // Get the appropriate tool sprite based on tool type and direction
         String spritePath = getToolSpritePath(tool, facing);
-        System.out.println("Loading tool sprite: " + spritePath);
 
         try {
             Texture toolTexture = new Texture(Gdx.files.internal(spritePath));
-            System.out.println("Successfully loaded tool texture: " + spritePath + " (size: " + toolTexture.getWidth() + "x" + toolTexture.getHeight() + ")");
             float playerX = player.getPosX();
             float playerY = player.getPosY();
 
