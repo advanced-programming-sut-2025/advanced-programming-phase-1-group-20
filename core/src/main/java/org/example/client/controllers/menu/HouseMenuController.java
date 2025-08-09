@@ -279,7 +279,7 @@ public class HouseMenuController implements Controller {
     public Result artisanGet(String[] args) {
         String artisanName = args[0];
         CraftingItem craftingItem = null;
-        for(CraftingItem c : player.getPlacedCraftingItems()){
+        for(CraftingItem c : player.getCraftingItems()){
             if(c.getName().equalsIgnoreCase(artisanName)){
                 craftingItem = c;
             }
@@ -292,12 +292,20 @@ public class HouseMenuController implements Controller {
             return Result.error(artisanName + " has nothing to collect!");
         }
         player.getBackpack().add(item, 1);
+        craftingItem.setFinishedItem(null);
         return Result.success("Artisan item " + item.getName() + " collected");
     }
 
     public Result artisanCancel(String[] args) {
         String artisanName = args[0];
-        CraftingItem craftingItem = (CraftingItem) player.getBackpack().getItem(artisanName);
+        CraftingItem craftingItem = null;
+
+        for(CraftingItem c : player.getCraftingItems()){
+            if(c.getName().equalsIgnoreCase(artisanName)){
+                craftingItem = c;
+            }
+        }
+
         if (craftingItem == null) {
             return Result.error(artisanName + " does not exist");
         }
@@ -325,8 +333,6 @@ public class HouseMenuController implements Controller {
             return Result.error(artisanName + " is not processing anything.");
         }
         craftingItem.fastFinishArtisan();
-        player.getBackpack().add(craftingItem.getFinishedItem(), 1);
-        craftingItem.setFinishedItem(null);
         return Result.success("Process on " + artisanName + " has been finished instantly.");
     }
 }
