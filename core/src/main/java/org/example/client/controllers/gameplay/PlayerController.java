@@ -706,6 +706,10 @@ public class PlayerController {
     }
 
     private String getToolSpriteName(Tool tool) {
+        if (tool.getMaterial() == Tool.ToolMaterial.BASIC) {
+            return tool.getType().toString().toLowerCase();
+        }
+
         String material = tool.getMaterial().toString().toLowerCase();
         String type = tool.getType().toString().toLowerCase();
         return String.format("%s_%s", material, type);
