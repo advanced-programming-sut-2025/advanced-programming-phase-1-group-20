@@ -30,10 +30,14 @@ public class NPCController {
 
     // Dialogue generation methods
     public String getDialogue(NPC npc, Date currentDate, int friendshipLevel) {
+        return getDialogue(npc, currentDate, friendshipLevel, null);
+    }
+
+    public String getDialogue(NPC npc, Date currentDate, int friendshipLevel, NPCFriendship friendship) {
         if (npc.isUseAiDialogue()) {
             try {
-                // Create context information for the AI
-                String context = createContextForAi(npc, currentDate, friendshipLevel);
+                // Create context information for the AI including chat history
+                String context = createContextForAi(npc, currentDate, friendshipLevel, friendship);
 
                 return npcAI.generateDialogue(npc, context);
             } catch (Exception e) {
@@ -46,38 +50,123 @@ public class NPCController {
     }
 
     private String createContextForAi(NPC npc, Date currentDate, int friendshipLevel) {
+        return createContextForAi(npc, currentDate, friendshipLevel, null);
+    }
+
+    private String createContextForAi(NPC npc, Date currentDate, int friendshipLevel, NPCFriendship friendship) {
         StringBuilder context = new StringBuilder();
 
-        // Add time context
+        // Date and time information
+        context.append("Date: Day ").append(currentDate.getDay()).append(" of ").append(currentDate.getSeason()).append("\n");
+        
+        // Add detailed time context
         int hour = currentDate.getHour();
+        String timeOfDay;
         if (hour >= 6 && hour < 12) {
-            context.append("Time: Morning. ");
+            timeOfDay = "Morning";
         } else if (hour >= 12 && hour < 18) {
-            context.append("Time: Afternoon. ");
+            timeOfDay = "Afternoon";
         } else {
-            context.append("Time: Evening. ");
+            timeOfDay = "Evening";
         }
+        context.append("Time: ").append(timeOfDay).append(" (").append(hour).append(":00)\n");
+
+        // Add season context with description
+        context.append("Season: ").append(currentDate.getSeason()).append(" - ").append(getSeasonDescription(currentDate.getSeason())).append("\n");
 
         // Add weather context
         try {
             if (App.getGame() != null && App.getGame().getDate() != null) {
                 Weather currentWeather = App.getGame().getDate().getWeatherToday();
-                context.append("Weather: ").append(currentWeather).append(". ");
+                context.append("Weather: ").append(currentWeather).append(" - ").append(getWeatherDescription(currentWeather)).append("\n");
             } else {
-                context.append("Weather: SUNNY. "); // Default weather
+                context.append("Weather: SUNNY - A beautiful clear day\n");
             }
         } catch (Exception e) {
-            // In test environment, App.getGame() might be null
-            context.append("Weather: SUNNY. "); // Default weather
+            context.append("Weather: SUNNY - A beautiful clear day\n");
         }
 
-        // Add friendship level context
-        context.append("Friendship Level: ").append(friendshipLevel).append(" out of 3. ");
+        // Add friendship and relationship context
+        context.append("\nRelationship Status:\n");
+        context.append("Friendship Level: ").append(friendshipLevel).append("/3 - ").append(getFriendshipDescription(friendshipLevel)).append("\n");
 
-        // Add character trait context
-        context.append("The NPC is ").append(npc.getCharacter()).append(". ");
-        context.append("NPC is " + npc.getName()).append("from the stardew valley game.");
+        // Add location context if available
+        if (npc.getLocation() != null) {
+            context.append("Current Location: ").append(getLocationDescription(npc.getLocation())).append("\n");
+        }
+
+        // Add complete conversation history if available
+        if (friendship != null && friendship.getChatHistory() != null && !friendship.getChatHistory().isEmpty()) {
+            context.append("\nComplete Conversation History:\n");
+            List<String> chatHistory = friendship.getChatHistory();
+            
+            // Include ALL conversation history, properly formatted with timestamps
+            context.append("(").append(chatHistory.size()).append(" previous exchanges - ALL past conversations matter!)\n");
+            for (int i = 0; i < chatHistory.size(); i++) {
+                String message = chatHistory.get(i);
+                context.append(message).append("\n");
+            }
+            context.append("\nImportant - Use this COMPLETE history:\n");
+            context.append("- Every past conversation is relevant and shapes your relationship\n");
+            context.append("- Reference ANY previous topics, even from early conversations\n");
+            context.append("- Show how your friendship has developed over time\n");
+            context.append("- Remember stories, preferences, and experiences shared\n");
+            context.append("- Build upon ALL previous discussions, not just recent ones\n\n");
+        }
+
         return context.toString();
+    }
+
+    private String getSeasonDescription(org.example.common.models.enums.Seasons season) {
+        switch (season) {
+            case SPRING:
+                return "Fresh flowers bloom and new crops are being planted";
+            case SUMMER:
+                return "Hot days perfect for swimming and growing summer crops";
+            case AUTUMN:
+                return "Harvest time with beautiful fall colors all around";
+            case WINTER:
+                return "Cold and quiet, time for indoor activities and planning";
+            default:
+                return "A pleasant time of year";
+        }
+    }
+
+    private String getWeatherDescription(Weather weather) {
+        switch (weather) {
+            case SUNNY:
+                return "A beautiful clear day with bright sunshine";
+            case RAINY:
+                return "Gentle rain falling, good for the crops";
+            case STORMY:
+                return "Dark clouds and strong winds, better to stay inside";
+            case SNOWY:
+                return "Soft snow falling, creating a peaceful winter scene";
+            default:
+                return "Pleasant weather";
+        }
+    }
+
+    private String getFriendshipDescription(int level) {
+        switch (level) {
+            case 0:
+                return "Strangers - just getting to know each other";
+            case 1:
+                return "Acquaintances - becoming more comfortable";
+            case 2:
+                return "Friends - trust and familiarity growing";
+            case 3:
+                return "Close friends - deep bond and understanding";
+            default:
+                return "Getting to know each other";
+        }
+    }
+
+    private String getLocationDescription(Location location) {
+        if (location.getTile() != null) {
+            return location.getTile().toString() + " area";
+        }
+        return "the village";
     }
 
     private String getPreDefinedDialogue(NPC npc, Date currentDate, int friendshipLevel) {
@@ -146,8 +235,9 @@ public class NPCController {
             friendship.resetDailyFlags();
         }
 
-        String response = getDialogue(friendship.getNpc(), currentDate, friendship.getLevel());
-        friendship.addToChatHistory(response);
+        // Pass the friendship object to include chat history in context
+        String response = getDialogue(friendship.getNpc(), currentDate, friendship.getLevel(), friendship);
+        friendship.addToChatHistory(response, currentDate);
         friendship.setLastInteractionDate(currentDate);
 
         if (!friendship.hasTalkedToday()) {

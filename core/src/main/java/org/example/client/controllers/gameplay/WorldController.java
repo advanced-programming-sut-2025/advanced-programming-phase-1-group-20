@@ -1945,7 +1945,7 @@ public class WorldController {
     }
 
     private void showNPCDialogueWindow(NPC npc) {
-        System.out.println("🗣️ Opening dialogue window for " + npc.getName());
+        System.out.println("Opening dialogue window for " + npc.getName());
         try {
             // Create and show the NPC dialogue window
             if (controller != null && controller.getView() != null) {
