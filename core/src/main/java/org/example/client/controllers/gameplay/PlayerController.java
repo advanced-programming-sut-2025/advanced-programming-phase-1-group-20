@@ -680,29 +680,44 @@ public class PlayerController {
     private void loadToolAnimation() {
         toolUseFrames.clear();
         Tool tool = player.getCurrentTool();
-        String toolType = tool.getType().toString().toLowerCase();
-        String material = getMaterialFolder(tool.getMaterial());
-        String direction = facing.toString().toLowerCase();
+        if (tool == null) return;
+
+        String toolName = getToolSpriteName(tool);
+        String direction = getDirectionString(facing);
 
         try {
-            for (int i = 0; i < 3; i++) {
-                String path = String.format("content/Tools/%s/%s/%s_%d.png",
-                    toolType, material, direction, i);
-                Texture frameTex = new Texture(Gdx.files.internal(path));
-                TextureRegion frame = new TextureRegion(frameTex);
+            String path = String.format("sprites/player/%s_%s.png", toolName, direction);
+            Gdx.app.log("ToolLoad", "Loading tool sprite: " + path);
 
-                if (facing == Dir.LEFT) {
-                    frame.flip(true, false);
-                }
+            Texture frameTex = new Texture(Gdx.files.internal(path));
+            TextureRegion frame = new TextureRegion(frameTex);
 
-                toolUseFrames.add(frame);
+            if (facing == Dir.LEFT) {
+                frame.flip(true, false);
             }
 
-            currentToolAnim = new Animation<>(TOOL_USE_DURATION / 3f, toolUseFrames);
+            toolUseFrames.add(frame);
+            currentToolAnim = new Animation<>(TOOL_USE_DURATION, toolUseFrames);
         }
         catch (Exception e) {
-            Gdx.app.error("ToolAnimation", "Error loading tool animation", e);
+            Gdx.app.error("ToolAnimation", "Error loading tool sprite", e);
             isUsingTool = false;
+        }
+    }
+
+    private String getToolSpriteName(Tool tool) {
+        String material = tool.getMaterial().toString().toLowerCase();
+        String type = tool.getType().toString().toLowerCase();
+        return String.format("%s_%s", material, type);
+    }
+
+    private String getDirectionString(Dir direction) {
+        switch (direction) {
+            case LEFT: return "right";
+            case RIGHT: return "right";
+            case UP: return "up";
+            case DOWN: return "down";
+            default: return "down";
         }
     }
 
@@ -714,44 +729,26 @@ public class PlayerController {
 
         if (isUsingTool) {
             switch (facing) {
-                case UP -> currentAnim = walkUp;
-                case DOWN -> currentAnim = walkDown;
-                case LEFT -> currentAnim = walkLeft;
-                case RIGHT -> currentAnim = walkRight;
+                case UP: currentAnim = walkUp; break;
+                case DOWN: currentAnim = walkDown; break;
+                case LEFT: currentAnim = walkLeft; break;
+                case RIGHT: currentAnim = walkRight; break;
             }
         }
         else if (player.getCurrentTool() != null && !isMoving) {
             switch (facing) {
-                case UP -> currentAnim = itemUp;
-                case DOWN -> currentAnim = itemDown;
-                case LEFT -> currentAnim = itemLeft;
-                case RIGHT -> currentAnim = itemRight;
-            }
-        }
-        else if (player.getCurrentItem() != null) {
-            if (this.isMoving) {
-                switch (facing) {
-                    case UP -> currentAnim = walkUp;
-                    case DOWN -> currentAnim = walkDown;
-                    case LEFT -> currentAnim = walkLeft;
-                    case RIGHT -> currentAnim = walkRight;
-                }
-            }
-            else {
-                switch (facing) {
-                    case UP -> currentAnim = itemUp;
-                    case DOWN -> currentAnim = itemDown;
-                    case LEFT -> currentAnim = itemLeft;
-                    case RIGHT -> currentAnim = itemRight;
-                }
+                case UP: currentAnim = itemUp; break;
+                case DOWN: currentAnim = itemDown; break;
+                case LEFT: currentAnim = itemLeft; break;
+                case RIGHT: currentAnim = itemRight; break;
             }
         }
         else {
             switch (facing) {
-                case UP -> currentAnim = walkUp;
-                case DOWN -> currentAnim = walkDown;
-                case LEFT -> currentAnim = walkLeft;
-                case RIGHT -> currentAnim = walkRight;
+                case UP: currentAnim = walkUp; break;
+                case DOWN: currentAnim = walkDown; break;
+                case LEFT: currentAnim = walkLeft; break;
+                case RIGHT: currentAnim = walkRight; break;
             }
         }
     }
@@ -766,32 +763,32 @@ public class PlayerController {
     }
 
     private void renderToolUse(SpriteBatch batch) {
-        TextureRegion toolFrame = currentToolAnim.getKeyFrame(toolUseTime, false);
+        if (currentToolAnim == null) return;
 
+        TextureRegion toolFrame = currentToolAnim.getKeyFrame(toolUseTime, false);
         float x = player.getPosX();
         float y = player.getPosY();
-        float offsetX = 0, offsetY = 0;
 
         switch (facing) {
             case UP:
-                offsetX = RENDER_W/2 - toolFrame.getRegionWidth()/2;
-                offsetY = RENDER_H - TOOL_USE_OFFSET_Y;
+                x += RENDER_W/2 - toolFrame.getRegionWidth()/2;
+                y += RENDER_H - 10;
                 break;
             case DOWN:
-                offsetX = RENDER_W/2 - toolFrame.getRegionWidth()/2;
-                offsetY = -toolFrame.getRegionHeight() + TOOL_USE_OFFSET_Y;
+                x += RENDER_W/2 - toolFrame.getRegionWidth()/2;
+                y -= 10;
                 break;
             case LEFT:
-                offsetX = -TOOL_USE_OFFSET_X;
-                offsetY = RENDER_H/2 - toolFrame.getRegionHeight()/2;
+                x -= 15;
+                y += RENDER_H/2 - toolFrame.getRegionHeight()/2;
                 break;
             case RIGHT:
-                offsetX = RENDER_W - toolFrame.getRegionWidth() + TOOL_USE_OFFSET_X;
-                offsetY = RENDER_H/2 - toolFrame.getRegionHeight()/2;
+                x += RENDER_W - 15;
+                y += RENDER_H/2 - toolFrame.getRegionHeight()/2;
                 break;
         }
 
-        batch.draw(toolFrame, x + offsetX, y + offsetY);
+        batch.draw(toolFrame, x, y);
     }
 
     private String getMaterialFolder(Tool.ToolMaterial material) {
