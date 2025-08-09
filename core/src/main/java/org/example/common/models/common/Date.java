@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+
 import java.util.Random;
 
 public class Date implements Runnable {
@@ -23,7 +23,7 @@ public class Date implements Runnable {
     private Weather weatherToday;
     private Weather weatherTomorrow;
     private boolean running = true;
-    private final Random weatherRandom; // Deterministic random for weather generation
+
 
     public Date() {
         this.day = 1;
@@ -33,7 +33,7 @@ public class Date implements Runnable {
         this.minute = 0; // NEW
         this.weatherMap = new HashMap<>();
 
-        this.weatherRandom = new Random();
+
         initialWeatherMap();
         updateWeatherToday();
         updateWeatherTomorrow();
@@ -86,13 +86,6 @@ public class Date implements Runnable {
         weatherMap.put(Seasons.SUMMER, Arrays.asList(Weather.SUNNY, Weather.RAINY, Weather.STORMY));
         weatherMap.put(Seasons.AUTUMN, Arrays.asList(Weather.SUNNY, Weather.RAINY, Weather.STORMY));
         weatherMap.put(Seasons.WINTER, Arrays.asList(Weather.SUNNY, Weather.SNOWY));
-    }
-
-    private void updateWeatherSeed() {
-        // Create a deterministic seed based on year, season, and day
-        // This ensures all clients generate the same weather for the same date
-        long seed = (year * 1000L) + (season * 100L) + day;
-        weatherRandom.setSeed(seed);
     }
 
     public void advanceTime(int hours, GameMap gameMap) {
@@ -283,11 +276,12 @@ public class Date implements Runnable {
             return;
         }
 
-        updateWeatherSeed();
-
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
-        int randomIndex = weatherRandom.nextInt(possibleWeather.size());
+
+        // Use truly random weather generation
+        Random random = new Random();
+        int randomIndex = random.nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
 
         System.out.println("DEBUG: Generated weather for " + getCurrentTimeString() + ": " + this.weatherToday);
@@ -297,10 +291,8 @@ public class Date implements Runnable {
         Seasons currentSeason = Seasons.values()[this.season];
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
 
-        // Use a different seed for tomorrow's weather (add 1 to the day)
-        long tomorrowSeed = (year * 1000L) + (season * 100L) + (day + 1);
-        Random tomorrowRandom = new Random(tomorrowSeed);
-
+        // Use truly random generation for tomorrow's weather
+        Random tomorrowRandom = new Random();
         int randomIndex = tomorrowRandom.nextInt(possibleWeather.size());
         this.weatherTomorrow = possibleWeather.get(randomIndex);
 
@@ -520,9 +512,6 @@ public class Date implements Runnable {
         }
     }
 
-    /**
-     * Get a string representation of the current date for network transmission
-     */
     @Override
     public String toString() {
         return String.format("Year %d, %s %02d, %02d:%02d", year, getSeason(), day, hour, minute);

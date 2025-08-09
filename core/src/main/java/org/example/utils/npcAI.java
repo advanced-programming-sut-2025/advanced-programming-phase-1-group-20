@@ -10,10 +10,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.function.Consumer;
 
 public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
@@ -29,6 +30,16 @@ public class npcAI {
         }
     }
 
+    public static void generateDialogueAsync(NPC npc, String context, Consumer<String> onSuccess, Consumer<String> onError) {
+        try {
+            String prompt = createPrompt(npc, context);
+            getNpcDialogueAsync(prompt, onSuccess, onError);
+        } catch (Exception e) {
+            System.err.println("Error generating dialogue: " + e.getMessage());
+            onError.accept(getFallbackDialogue(npc));
+        }
+    }
+
     private static String createPrompt(NPC npc, String context) {
         StringBuilder promptBuilder = new StringBuilder();
 
@@ -36,12 +47,10 @@ public class npcAI {
         promptBuilder.append("You are ").append(npc.getName()).append(", an NPC in a farming game similar to Stardew Valley.\n");
         promptBuilder.append("Your personality: ").append(npc.getCharacter()).append("\n");
         promptBuilder.append("Your job: ").append(npc.getJobs()).append("\n\n");
-        
-        // Add detailed context
+
         promptBuilder.append("Current Context:\n");
         promptBuilder.append(context).append("\n\n");
-        
-        // Add conversation guidelines
+
         promptBuilder.append("Instructions:\n");
         promptBuilder.append("- Generate ONE short, natural dialogue response (1-2 sentences)\n");
         promptBuilder.append("- Stay in character based on your personality\n");
@@ -54,7 +63,7 @@ public class npcAI {
         promptBuilder.append("- Be friendly but maintain your unique personality\n");
         promptBuilder.append("- Don't repeat the same phrases from previous conversations\n");
         promptBuilder.append("- Make each response feel like part of an ongoing relationship\n\n");
-        
+
         promptBuilder.append("Your response: ");
 
         return promptBuilder.toString();
@@ -80,10 +89,6 @@ public class npcAI {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // Debug: Print the response to see the actual structure
-        System.out.println("API Response: " + response.body());
-        System.out.println("Status Code: " + response.statusCode());
-
         JSONObject jsonResponse = new JSONObject(response.body());
 
         // Check if the response contains choices
@@ -108,6 +113,65 @@ public class npcAI {
             System.err.println("Error getting NPC dialogue: " + e.getMessage());
             e.printStackTrace();
             return "Hello there! Nice to see you.";
+        }
+    }
+
+    public static void getNpcDialogueAsync(String message, Consumer<String> onSuccess, Consumer<String> onError) {
+        getAIResponseAsync(message, onSuccess, onError);
+    }
+
+    public static void getAIResponseAsync(String userMessage, Consumer<String> onSuccess, Consumer<String> onError) {
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("model", "deepseek/deepseek-chat-v3-0324:free");
+            JSONArray arr = new JSONArray();
+            JSONObject msg = new JSONObject();
+            msg.put("role", "user");
+            msg.put("content", userMessage);
+            arr.put(0, msg);
+            payload.put("messages", arr);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Authorization", "Bearer " + API_KEY)
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(30))
+                .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
+                .build();
+
+            // Send async request
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(responseBody -> {
+                    try {
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+
+                        // Check if the response contains choices
+                        if (jsonResponse.has("choices")) {
+                            String content = jsonResponse.getJSONArray("choices")
+                                .getJSONObject(0).getJSONObject("message").getString("content");
+                            onSuccess.accept(content);
+                        } else {
+                            // Handle different response structure or error
+                            if (jsonResponse.has("error")) {
+                                onError.accept("Hello there! Nice to see you.");
+                            } else {
+                                onError.accept("Hello there! Nice to see you.");
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error parsing AI response: " + e.getMessage());
+                        onError.accept("Hello there! Nice to see you.");
+                    }
+                })
+                .exceptionally(throwable -> {
+                    System.err.println("Error in async AI request: " + throwable.getMessage());
+                    onError.accept("Hello there! Nice to see you.");
+                    return null;
+                });
+        } catch (Exception e) {
+            System.err.println("Error creating async AI request: " + e.getMessage());
+            onError.accept("Hello there! Nice to see you.");
         }
     }
 

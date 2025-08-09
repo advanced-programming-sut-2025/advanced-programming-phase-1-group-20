@@ -14,6 +14,7 @@ import org.example.utils.npcAI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class NPCController {
     private static final int POINTS_FOR_TALKING = 20;
@@ -46,6 +47,24 @@ public class NPCController {
             }
         } else {
             return getPreDefinedDialogue(npc, currentDate, friendshipLevel);
+        }
+    }
+
+    public void getDialogueAsync(NPC npc, Date currentDate, int friendshipLevel, NPCFriendship friendship, 
+                                Consumer<String> onSuccess, Consumer<String> onError) {
+        if (npc.isUseAiDialogue()) {
+            try {
+                // Create context information for the AI including chat history
+                String context = createContextForAi(npc, currentDate, friendshipLevel, friendship);
+
+                npcAI.generateDialogueAsync(npc, context, onSuccess, 
+                    (error) -> onError.accept(getPreDefinedDialogue(npc, currentDate, friendshipLevel)));
+            } catch (Exception e) {
+                System.err.println("Error using AI dialogue, falling back to predefined dialogues: " + e.getMessage());
+                onError.accept(getPreDefinedDialogue(npc, currentDate, friendshipLevel));
+            }
+        } else {
+            onSuccess.accept(getPreDefinedDialogue(npc, currentDate, friendshipLevel));
         }
     }
 

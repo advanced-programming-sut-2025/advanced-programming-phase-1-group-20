@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.NPCSpriteController;
+import org.example.client.controllers.gameplay.NPCController;
 import org.example.common.models.App;
 import org.example.common.models.entities.NPC;
 import org.example.common.models.entities.NPCFriendship;
@@ -261,10 +262,16 @@ public class NPCDialogueScreen implements Screen, Disposable {
             friendship.addToChatHistory("Player: " + message, currentDate);
             
             inputField.setText("");
+            
+            // Disable input while waiting for response
+            inputField.setDisabled(true);
+            sendButton.setDisabled(true);
 
-            // Get NPC response
-            String npcResponse = getNPCResponse();
-            addMessage(npc.getName() + ": " + npcResponse, false);
+            // Show typing indicator
+            addMessage(npc.getName() + " is typing...", false);
+
+            // Get NPC response asynchronously
+            getNPCResponseAsync();
         }
     }
 
@@ -278,6 +285,47 @@ public class NPCDialogueScreen implements Screen, Disposable {
         Date currentDate = org.example.common.models.App.getGame().getDate();
         NPCFriendship friendship = npc.getFriendship(player);
         return friendship.talk(currentDate);
+    }
+
+    private void getNPCResponseAsync() {
+        Date currentDate = App.getGame().getDate();
+        NPCFriendship friendship = npc.getFriendship(player);
+        NPCController controller = NPCFriendship.getController();
+        
+        // Use LibGDX thread-safe posting for UI updates
+        controller.getDialogueAsync(npc, currentDate, friendship.getLevel(), friendship,
+            response -> {
+                // Success callback - run on main thread
+                Gdx.app.postRunnable(() -> {
+                    // Remove typing indicator (last message)
+                    removeLastMessage();
+                    
+                    // Add the actual NPC response
+                    addMessage(npc.getName() + ": " + response, false);
+                    friendship.addToChatHistory(response, currentDate);
+                    
+                    // Re-enable input
+                    inputField.setDisabled(false);
+                    sendButton.setDisabled(false);
+                    stage.setKeyboardFocus(inputField);
+                });
+            },
+            error -> {
+                // Error callback - run on main thread
+                Gdx.app.postRunnable(() -> {
+                    // Remove typing indicator (last message)
+                    removeLastMessage();
+                    
+                    // Add the fallback response
+                    addMessage(npc.getName() + ": " + error, false);
+                    friendship.addToChatHistory(error, currentDate);
+                    
+                    // Re-enable input
+                    inputField.setDisabled(false);
+                    sendButton.setDisabled(false);
+                    stage.setKeyboardFocus(inputField);
+                });
+            });
     }
 
     private void addMessage(String message, boolean isPlayer) {
@@ -316,6 +364,17 @@ public class NPCDialogueScreen implements Screen, Disposable {
 
         // Update chat history
         chatHistory.add(message);
+    }
+
+    private void removeLastMessage() {
+        // Remove the last message from chat table (typing indicator)
+        if (chatTable.getChildren().size > 0) {
+            chatTable.removeActorAt(chatTable.getChildren().size - 1, true);
+        }
+        // Also remove from chat history if it exists
+        if (!chatHistory.isEmpty()) {
+            chatHistory.remove(chatHistory.size() - 1);
+        }
     }
 
     public void close() {
