@@ -686,13 +686,19 @@ public class PlayerController {
         String direction = getDirectionString(facing);
 
         try {
-            String path = String.format("sprites/player/%s_%s.png", toolName, direction);
+            String path;
+            if (tool.getMaterial() == BASIC) {
+                path = String.format("sprites/player/%s_%s.png", toolName, direction);
+            } else {
+                path = String.format("sprites/player/%s_%s.png", toolName, direction);
+            }
+
             Gdx.app.log("ToolLoad", "Loading tool sprite: " + path);
 
             Texture frameTex = new Texture(Gdx.files.internal(path));
             TextureRegion frame = new TextureRegion(frameTex);
 
-            if (facing == Dir.LEFT) {
+            if (facing == Dir.LEFT && tool.getMaterial() != BASIC) {
                 frame.flip(true, false);
             }
 
@@ -717,7 +723,7 @@ public class PlayerController {
 
     private String getDirectionString(Dir direction) {
         switch (direction) {
-            case LEFT: return "right";
+            case LEFT: return "left";
             case RIGHT: return "right";
             case UP: return "up";
             case DOWN: return "down";
@@ -739,12 +745,22 @@ public class PlayerController {
                 case RIGHT: currentAnim = walkRight; break;
             }
         }
-        else if (player.getCurrentTool() != null && !isMoving) {
-            switch (facing) {
-                case UP: currentAnim = itemUp; break;
-                case DOWN: currentAnim = itemDown; break;
-                case LEFT: currentAnim = itemLeft; break;
-                case RIGHT: currentAnim = itemRight; break;
+        else if (player.getCurrentItem() != null) {
+            if (this.isMoving) {
+                switch (facing) {
+                    case UP: currentAnim = walkUp; break;
+                    case DOWN: currentAnim = walkDown; break;
+                    case LEFT: currentAnim = walkLeft; break;
+                    case RIGHT: currentAnim = walkRight; break;
+                }
+            }
+            else {
+                switch (facing) {
+                    case UP: currentAnim = itemUp; break;
+                    case DOWN: currentAnim = itemDown; break;
+                    case LEFT: currentAnim = itemLeft; break;
+                    case RIGHT: currentAnim = itemRight; break;
+                }
             }
         }
         else {
@@ -758,11 +774,32 @@ public class PlayerController {
     }
 
     public void render(SpriteBatch batch) {
-        TextureRegion frame = currentAnim.getKeyFrame(stateTime, true);
-        batch.draw(frame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+        TextureRegion playerFrame = currentAnim.getKeyFrame(stateTime, true);
+        batch.draw(playerFrame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
 
         if (isUsingTool && currentToolAnim != null) {
             renderToolUse(batch);
+        }
+
+        else if (player.getCurrentTool() != null && !isMoving && player.getCurrentItem() == null) {
+            renderHeldTool(batch);
+        }
+    }
+
+    private void renderHeldTool(SpriteBatch batch) {
+        switch (facing) {
+            case UP:
+                batch.draw(itemUp.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                break;
+            case DOWN:
+                batch.draw(itemDown.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                break;
+            case LEFT:
+                batch.draw(itemLeft.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                break;
+            case RIGHT:
+                batch.draw(itemRight.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                break;
         }
     }
 
