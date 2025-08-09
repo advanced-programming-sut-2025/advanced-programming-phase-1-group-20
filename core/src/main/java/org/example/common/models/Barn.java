@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Barn implements Serializable {
-    private int height = 7;
-    private int width = 4;
+    private static int height = 4;
+    private static int width = 6;
     private BarnTypes type;
     private Location location;
     private List<BarnAnimal> animals;
@@ -46,11 +46,11 @@ public class Barn implements Serializable {
         this.animalCount = 0;
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return height;
     }
 
@@ -210,4 +210,5 @@ public class Barn implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
 }

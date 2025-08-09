@@ -43,6 +43,11 @@ public class ServerConfig {
         return dotenv.get("JWT_SECRET", "stardew_valley_secret_key_for_jwt_authentication");
     }
 
+    // API Configuration
+    public String getApiKey() {
+        return dotenv.get("API_KEY");
+    }
+
     // WebSocket Configuration
     public String getWebSocketPath() {
         return dotenv.get("WEBSOCKET_PATH", "/ws/game");

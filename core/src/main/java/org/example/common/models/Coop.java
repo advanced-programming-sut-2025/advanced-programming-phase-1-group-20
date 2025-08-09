@@ -18,8 +18,8 @@ public class Coop implements Serializable {
     private String name;
     private int x;
     private int y;
-    private int width = 3;
-    private int height = 6;
+    private static int width = 6;
+    private static int height = 3;
 
     public Coop() {
 
@@ -57,11 +57,11 @@ public class Coop implements Serializable {
         return y;
     }
 
-    public int getWidth() {
+    public static int getWidth() {
         return width;
     }
 
-    public int getHeight() {
+    public static int getHeight() {
         return height;
     }
 
@@ -213,4 +213,6 @@ public class Coop implements Serializable {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }

@@ -280,7 +280,7 @@ public class Date implements Runnable {
         List<Weather> possibleWeather = weatherMap.get(currentSeason);
 
         // Use truly random weather generation
-        Random random = new Random();
+         Random random = new Random();
         int randomIndex = random.nextInt(possibleWeather.size());
         this.weatherToday = possibleWeather.get(randomIndex);
 

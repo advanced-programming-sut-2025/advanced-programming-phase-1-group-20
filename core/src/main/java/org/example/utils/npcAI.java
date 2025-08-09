@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = "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";
+    private static final String API_KEY = System.getenv("API_KEY");
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))

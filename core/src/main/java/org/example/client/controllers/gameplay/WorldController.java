@@ -74,10 +74,10 @@ public class WorldController {
     private static final int GREENHOUSE_TILES_H = GreenHouse.getHeight();
     private static final int HOUSE_TILES_W = 5;
     private static final int HOUSE_TILES_H = 6;
-    private static final int BARN_TILES_W = 4;
-    private static final int BARN_TILES_H = 3;
-    private static final int COOP_TILES_W = 3;
-    private static final int COOP_TILES_H = 3;
+    private static final int BARN_TILES_W = Barn.getWidth();
+    private static final int BARN_TILES_H = Barn.getHeight();
+    private static final int COOP_TILES_W = Coop.getWidth();
+    private static final int COOP_TILES_H = Coop.getHeight();
     private static final int GOLD_CLOCK_TILES_W = 3;
     private static final int GOLD_CLOCK_TILES_H = 5;
 

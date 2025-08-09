@@ -110,7 +110,7 @@ public class Player {
 
 
         //graphic ui
-        this.speed = 6;
+        this.speed = 3;
 
         // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;

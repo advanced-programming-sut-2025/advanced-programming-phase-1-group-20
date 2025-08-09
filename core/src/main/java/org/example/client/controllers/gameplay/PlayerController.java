@@ -30,7 +30,7 @@ public class PlayerController {
     private static final int FRAME_H = 32;
     private static final int RENDER_W = 48;
     private static final int RENDER_H = 72;
-    private static final float FRAME_DURATION = 0.2f;
+    private static final float FRAME_DURATION = 0.3f;
     private static final int VILLAGE_TRANSITION_THRESHOLD = 3;
     private static final int FARM_EDGE_DEBUG_THRESHOLD = 5;
     private static final int MOVEMENT_ENERGY_PERCENTAGE = 5; // 0.05% of current energy per movement (5/10000 = 0.05%)

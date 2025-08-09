@@ -780,23 +780,15 @@ public class Game implements Serializable {
         }
     }
 
-    /**
-     * Check if game is ready to start (has enough players)
-     */
+
     public boolean isReadyToStart() {
         return players != null && players.size() >= 2 && players.size() <= 4;
     }
 
-    /**
-     * Get the number of players in the game
-     */
     public int getPlayerCount() {
         return players != null ? players.size() : 0;
     }
 
-    /**
-     * Sync game state from server data
-     */
     public void syncGameStateFromServer(Map<String, Object> serverGameState) {
         if (serverGameState == null) {
             return;

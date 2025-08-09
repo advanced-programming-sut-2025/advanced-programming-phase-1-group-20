@@ -880,28 +880,23 @@ public class ClientMessageHandler {
         networkClient.sendMessage(heartbeatMessage);
     }
 
-    /**
-     * Handle reconnection timeout
-     */
     public void onReconnectionTimeout() {
-        System.out.println("⏰ CLIENT: Reconnection timeout - notifying UI");
-        
+        System.out.println("CLIENT: Reconnection timeout - notifying UI");
+
         // Notify connection listener about timeout
         if (connectionListener != null) {
             connectionListener.onError("Reconnection timeout after 2 minutes. Returning to main menu.");
         }
-        
+
         // Reset game state
         if (currentGame != null) {
             currentGame = null;
         }
     }
 
-    /**
-     * Store game session ID when game starts for potential reconnection
-     */
+
     public void setGameSessionId(String gameSessionId) {
         networkClient.setGameSessionId(gameSessionId);
-        System.out.println("🎮 CLIENT: Stored game session ID: " + gameSessionId);
+        System.out.println("CLIENT: Stored game session ID: " + gameSessionId);
     }
 }
