@@ -728,25 +728,21 @@ public class PlayerController {
         Tool tool = player.getCurrentTool();
         if (tool == null) return;
 
-        String toolType = tool.getType().toString().toLowerCase();
         String material = tool.getMaterial().toString().toLowerCase();
+        String toolType = tool.getType().toString().toLowerCase();
         String direction = facing.toString().toLowerCase();
 
         try {
             String path;
             if (tool.getMaterial() == BASIC) {
-                path = String.format("content/Tools/%s/%s.png", toolType, direction);
+                path = String.format("sprites/player/%s_%s.png", toolType, direction);
             }
             else {
-                path = String.format("content/Tools/%s/%s/%s.png", toolType, material, direction);
+                path = String.format("sprites/player/%s_%s_%s.png", material, toolType, direction);
             }
 
             Texture toolTexture = new Texture(Gdx.files.internal(path));
             currentToolFrame = new TextureRegion(toolTexture);
-
-            if (facing == Dir.LEFT) {
-                currentToolFrame.flip(true, false);
-            }
 
             toolDisplayTime = TOOL_DISPLAY_DURATION;
         }
@@ -822,13 +818,21 @@ public class PlayerController {
         TextureRegion playerFrame = currentAnim.getKeyFrame(stateTime, true);
         batch.draw(playerFrame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
 
-        if (player.getCurrentTool() != null && !isMoving && currentToolFrame == null) {
+        if (shouldRenderHeldTool()) {
             renderHeldTool(batch);
         }
 
         if (currentToolFrame != null) {
             renderActiveTool(batch);
         }
+    }
+
+    private boolean shouldRenderHeldTool() {
+        return player.getCurrentTool() != null
+            && !isMoving
+            && currentToolFrame == null
+            && !player.hasCollapsed()
+            && player.getCurrentItem() == null;
     }
 
     private void renderHeldTool(SpriteBatch batch) {
@@ -840,36 +844,37 @@ public class PlayerController {
         String direction = facing.toString().toLowerCase();
 
         try {
-            String path = String.format("content/Tools/%s/%s/item_%s.png",
+            String path = String.format("content/Tools/%s/%s/%s.png",
                 toolType, material, direction);
             Texture toolTexture = new Texture(Gdx.files.internal(path));
             TextureRegion toolFrame = new TextureRegion(toolTexture);
 
             float x = player.getPosX();
             float y = player.getPosY();
+            float offsetX = 0, offsetY = 0;
 
             switch (facing) {
                 case UP:
-                    x += 10;
-                    y += 50;
+                    offsetX = 15;
+                    offsetY = 50;
                     break;
                 case DOWN:
-                    x += 20;
-                    y += 10;
+                    offsetX = 20;
+                    offsetY = 10;
                     break;
                 case LEFT:
-                    x += 5;
-                    y += 30;
+                    offsetX = 5;
+                    offsetY = 30;
+                    toolFrame.flip(true, false);
                     break;
                 case RIGHT:
-                    x += 35;
-                    y += 30;
+                    offsetX = 35;
+                    offsetY = 30;
                     break;
             }
 
-            batch.draw(toolFrame, x, y, 32, 32);
-        }
-        catch (Exception e) {
+            batch.draw(toolFrame, x + offsetX, y + offsetY, 32, 32);
+        } catch (Exception e) {
             Gdx.app.error("ToolError", "Failed to load held tool sprite: " + e.getMessage());
         }
     }
