@@ -89,6 +89,9 @@ public class PlayerController {
     private float toolUseTime = 0f;
     private Animation<TextureRegion> currentToolAnim;
     private Array<TextureRegion> toolUseFrames = new Array<>();
+    private TextureRegion currentToolFrame;
+    private float toolDisplayTime = 0f;
+    private static final float TOOL_DISPLAY_DURATION = 0.1f;
 
     public void triggerToolSwing(String direction, float mouseX, float mouseY) {
         toolAnimTime = 0f;
@@ -217,6 +220,15 @@ public class PlayerController {
         }
     }
 
+    private void updateToolDisplay(float delta) {
+        if (toolDisplayTime > 0) {
+            toolDisplayTime -= delta;
+            if (toolDisplayTime <= 0) {
+                currentToolFrame = null;
+            }
+        }
+    }
+
     public void update() {
         float delta = Gdx.graphics.getDeltaTime();
         handlePlayerInput(delta);
@@ -228,6 +240,7 @@ public class PlayerController {
             }
         }
 
+        updateToolDisplay(delta);
         handlePlayerInput(delta);
         stateTime += delta;
 
@@ -368,8 +381,8 @@ public class PlayerController {
         }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if (player.getCurrentTool() != null && !isUsingTool && !player.hasCollapsed()) {
-                triggerToolUse();
+            if (player.getCurrentTool() != null && !player.hasCollapsed()) {
+                loadToolSprite();
             }
         }
 
@@ -711,6 +724,38 @@ public class PlayerController {
         }
     }
 
+    private void loadToolSprite() {
+        Tool tool = player.getCurrentTool();
+        if (tool == null) return;
+
+        String toolType = tool.getType().toString().toLowerCase();
+        String material = tool.getMaterial().toString().toLowerCase();
+        String direction = facing.toString().toLowerCase();
+
+        try {
+            String path;
+            if (tool.getMaterial() == BASIC) {
+                path = String.format("content/Tools/%s/%s.png", toolType, direction);
+            }
+            else {
+                path = String.format("content/Tools/%s/%s/%s.png", toolType, material, direction);
+            }
+
+            Texture toolTexture = new Texture(Gdx.files.internal(path));
+            currentToolFrame = new TextureRegion(toolTexture);
+
+            if (facing == Dir.LEFT) {
+                currentToolFrame.flip(true, false);
+            }
+
+            toolDisplayTime = TOOL_DISPLAY_DURATION;
+        }
+        catch (Exception e) {
+            Gdx.app.error("ToolError", "Failed to load tool sprite: " + e.getMessage());
+            currentToolFrame = null;
+        }
+    }
+
     private String getToolSpriteName(Tool tool) {
         if (tool.getMaterial() == Tool.ToolMaterial.BASIC) {
             return tool.getType().toString().toLowerCase();
@@ -777,30 +822,84 @@ public class PlayerController {
         TextureRegion playerFrame = currentAnim.getKeyFrame(stateTime, true);
         batch.draw(playerFrame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
 
-        if (isUsingTool && currentToolAnim != null) {
-            renderToolUse(batch);
+        if (player.getCurrentTool() != null && !isMoving && currentToolFrame == null) {
+            renderHeldTool(batch);
         }
 
-        else if (player.getCurrentTool() != null && !isMoving && player.getCurrentItem() == null) {
-            renderHeldTool(batch);
+        if (currentToolFrame != null) {
+            renderActiveTool(batch);
         }
     }
 
     private void renderHeldTool(SpriteBatch batch) {
+        Tool tool = player.getCurrentTool();
+        if (tool == null) return;
+
+        String toolType = tool.getType().toString().toLowerCase();
+        String material = tool.getMaterial().toString().toLowerCase();
+        String direction = facing.toString().toLowerCase();
+
+        try {
+            String path = String.format("content/Tools/%s/%s/item_%s.png",
+                toolType, material, direction);
+            Texture toolTexture = new Texture(Gdx.files.internal(path));
+            TextureRegion toolFrame = new TextureRegion(toolTexture);
+
+            float x = player.getPosX();
+            float y = player.getPosY();
+
+            switch (facing) {
+                case UP:
+                    x += 10;
+                    y += 50;
+                    break;
+                case DOWN:
+                    x += 20;
+                    y += 10;
+                    break;
+                case LEFT:
+                    x += 5;
+                    y += 30;
+                    break;
+                case RIGHT:
+                    x += 35;
+                    y += 30;
+                    break;
+            }
+
+            batch.draw(toolFrame, x, y, 32, 32);
+        }
+        catch (Exception e) {
+            Gdx.app.error("ToolError", "Failed to load held tool sprite: " + e.getMessage());
+        }
+    }
+
+    private void renderActiveTool(SpriteBatch batch) {
+        if (currentToolFrame == null) return;
+
+        float x = player.getPosX();
+        float y = player.getPosY();
+
         switch (facing) {
             case UP:
-                batch.draw(itemUp.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                x += 5;
+                y += 60;
                 break;
             case DOWN:
-                batch.draw(itemDown.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                x += 15;
+                y += 5;
                 break;
             case LEFT:
-                batch.draw(itemLeft.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                x -= 10;
+                y += 30;
                 break;
             case RIGHT:
-                batch.draw(itemRight.getKeyFrame(0), player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+                x += 50;
+                y += 30;
                 break;
         }
+
+        batch.draw(currentToolFrame, x, y, 40, 40);
     }
 
     private void renderToolUse(SpriteBatch batch) {
