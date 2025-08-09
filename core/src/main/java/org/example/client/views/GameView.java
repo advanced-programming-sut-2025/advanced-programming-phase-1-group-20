@@ -726,7 +726,7 @@ public class GameView implements Screen, InputProcessor {
             // Fix Y-axis inversion for LibGDX coordinate system
             float correctedScreenY = Gdx.graphics.getHeight() - screenY;
             Vector3 worldCoords = camera.unproject(new Vector3(screenX, correctedScreenY, 0));
-            Animal clickedAnimal = findAnimalAt(worldCoords.x / 60, worldCoords.y / 60);
+            Animal clickedAnimal = findAnimalAt(worldCoords.x, worldCoords.y);
             if (clickedAnimal != null) {
                 showAnimalInteractionDialog(clickedAnimal);
                 return true;
@@ -2841,10 +2841,10 @@ public class GameView implements Screen, InputProcessor {
         try {
             // Create and show the NPC dialogue screen
             NPCDialogueScreen dialogueScreen = new NPCDialogueScreen(
-                npc, 
-                player, 
-                npcSpriteController, 
-                skin, 
+                npc,
+                player,
+                npcSpriteController,
+                skin,
                 this
             );
             Main.getGame().setScreen(dialogueScreen);

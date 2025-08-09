@@ -73,7 +73,7 @@ public class CraftingItem extends Item {
             } else {
                 finishedItem = proccessingItem;
                 proccessingItem = null;
-                progressBar = 0;
+                progressBar = 1;
             }
         }
     }
@@ -82,7 +82,7 @@ public class CraftingItem extends Item {
         if (proccessingItem != null) {
             finishedItem = proccessingItem;
             proccessingItem = null;
-            progressBar = 0;
+            progressBar = 1;
         }
     }
 
@@ -101,12 +101,7 @@ public class CraftingItem extends Item {
     }
 
     public Item getFinishedItem() {
-        if (finishedItem != null) {
-            Item clone = finishedItem;
-            finishedItem = null;
-            return clone;
-        }
-        return null;
+        return finishedItem;
     }
 
     public Item getProccessingItem() {
