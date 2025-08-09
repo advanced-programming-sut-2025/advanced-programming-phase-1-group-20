@@ -319,12 +319,10 @@ public class PlayerController {
     private void handlePlayerInput(float delta) {
         if (justTransitionedToVillage) {
             System.out.println("Skipping input processing due to justTransitionedToVillage flag");
-            // Keep the flag for one more frame to ensure no movement
             justTransitionedToVillage = false;
             return;
         }
 
-        // Prevent movement if player has collapsed
         if (player.hasCollapsed()) {
             return;
         }
@@ -353,7 +351,7 @@ public class PlayerController {
 
         if (Gdx.input.isKeyPressed(Input.Keys.W)) {
             newY += player.getSpeed();
-            if (isWalkable(newX /60, newY / 60)) {
+            if (isWalkable(newX / 60, newY / 60)) {
                 player.setPosY(newY);
                 facing = Dir.UP;
                 moved = true;
@@ -369,7 +367,12 @@ public class PlayerController {
             }
         }
 
-        // Consume energy when player moves
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (player.getCurrentTool() != null && !isUsingTool && !player.hasCollapsed()) {
+                triggerToolUse();
+            }
+        }
+
         if (moved && !player.isEnergyUnlimited()) {
             int energyCost = calculateMovementEnergyCost();
             System.out.println("Movement detected - Energy cost: " + energyCost + ", Current energy: " + player.getEnergy());
@@ -377,70 +380,35 @@ public class PlayerController {
             if (player.getEnergy() >= energyCost) {
                 player.decreaseEnergy(energyCost);
                 System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
-
-                // Send movement update to server for multiplayer synchronization
                 sendMovementToServer();
 
-                // Check if player is out of energy and auto-advance turn if needed
                 if (App.getGame() != null) {
                     App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
                 }
-            } else {
+            }
+            else {
                 System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
-                // Revert the movement if not enough energy
                 player.setPosX(player.getPosX());
                 player.setPosY(player.getPosY());
 
-                // Set collapsed state when player runs out of energy
                 if (player.getEnergy() < energyCost) {
                     player.setCollapsed(true);
                     System.out.println("Player has collapsed due to insufficient energy!");
                 }
 
-                // Check if player is out of energy and auto-advance turn if needed
                 if (App.getGame() != null) {
                     App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
                 }
             }
-        } else if (moved && player.isEnergyUnlimited()) {
+        }
+        else if (moved && player.isEnergyUnlimited()) {
             System.out.println("Player moved - Energy unlimited mode");
-
-            // Send movement update to server for multiplayer synchronization
             sendMovementToServer();
         }
 
-        // Update the moving state
         this.isMoving = moved;
 
-        // Choose animation based on whether player is holding an item and if they're moving
-        if (player.getCurrentItem() != null) {
-            // Use item animations when holding an item
-            if (this.isMoving) {
-                // Use walking animations when moving with item
-                switch (facing) {
-                    case UP -> currentAnim = walkUp;
-                    case DOWN -> currentAnim = walkDown;
-                    case LEFT -> currentAnim = walkLeft;
-                    case RIGHT -> currentAnim = walkRight;
-                }
-            } else {
-                // Use static item sprite when standing still with item
-                switch (facing) {
-                    case UP -> currentAnim = itemUp;
-                    case DOWN -> currentAnim = itemDown;
-                    case LEFT -> currentAnim = itemLeft;
-                    case RIGHT -> currentAnim = itemRight;
-                }
-            }
-        } else {
-            // Use regular walk animations when not holding an item
-            switch (facing) {
-                case UP -> currentAnim = walkUp;
-                case DOWN -> currentAnim = walkDown;
-                case LEFT -> currentAnim = walkLeft;
-                case RIGHT -> currentAnim = walkRight;
-            }
-        }
+        updateCurrentAnimation();
     }
 
     private boolean isWalkable(float x, float y) {
@@ -694,19 +662,32 @@ public class PlayerController {
         }
     }
 
+//    private void triggerToolUse() {
+//        isUsingTool = true;
+//        toolUseTime = 0f;
+//        loadToolAnimation();
+//
+//        int energyCost = player.getCurrentTool().getEnergyCost();
+//        if (!player.isEnergyUnlimited()) {
+//            player.decreaseEnergy(energyCost);
+//        }
+//
+//        if (App.getGame() != null && App.getGame().isMultiplayer) {
+//            NetworkClient.getInstance().sendToolUse(facing.toString());
+//        }
+//    }
+
     private void loadToolAnimation() {
         toolUseFrames.clear();
-
-        String toolType = player.getCurrentTool().getType().toString().toLowerCase();
-        String material = getMaterialFolder(player.getCurrentTool().getMaterial());
+        Tool tool = player.getCurrentTool();
+        String toolType = tool.getType().toString().toLowerCase();
+        String material = getMaterialFolder(tool.getMaterial());
         String direction = facing.toString().toLowerCase();
-
-        String actualDirection = (facing == Dir.LEFT) ? "right" : direction;
 
         try {
             for (int i = 0; i < 3; i++) {
                 String path = String.format("content/Tools/%s/%s/%s_%d.png",
-                    toolType, material, actualDirection, i);
+                    toolType, material, direction, i);
                 Texture frameTex = new Texture(Gdx.files.internal(path));
                 TextureRegion frame = new TextureRegion(frameTex);
 
@@ -720,7 +701,7 @@ public class PlayerController {
             currentToolAnim = new Animation<>(TOOL_USE_DURATION / 3f, toolUseFrames);
         }
         catch (Exception e) {
-//            Gdx.app.error("ToolAnimation", "Error loading tool animation: " + e.getMessage());
+            Gdx.app.error("ToolAnimation", "Error loading tool animation", e);
             isUsingTool = false;
         }
     }
@@ -733,26 +714,44 @@ public class PlayerController {
 
         if (isUsingTool) {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP -> currentAnim = walkUp;
+                case DOWN -> currentAnim = walkDown;
+                case LEFT -> currentAnim = walkLeft;
+                case RIGHT -> currentAnim = walkRight;
             }
         }
         else if (player.getCurrentTool() != null && !isMoving) {
             switch (facing) {
-                case UP: currentAnim = itemUp; break;
-                case DOWN: currentAnim = itemDown; break;
-                case LEFT: currentAnim = itemLeft; break;
-                case RIGHT: currentAnim = itemRight; break;
+                case UP -> currentAnim = itemUp;
+                case DOWN -> currentAnim = itemDown;
+                case LEFT -> currentAnim = itemLeft;
+                case RIGHT -> currentAnim = itemRight;
+            }
+        }
+        else if (player.getCurrentItem() != null) {
+            if (this.isMoving) {
+                switch (facing) {
+                    case UP -> currentAnim = walkUp;
+                    case DOWN -> currentAnim = walkDown;
+                    case LEFT -> currentAnim = walkLeft;
+                    case RIGHT -> currentAnim = walkRight;
+                }
+            }
+            else {
+                switch (facing) {
+                    case UP -> currentAnim = itemUp;
+                    case DOWN -> currentAnim = itemDown;
+                    case LEFT -> currentAnim = itemLeft;
+                    case RIGHT -> currentAnim = itemRight;
+                }
             }
         }
         else {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP -> currentAnim = walkUp;
+                case DOWN -> currentAnim = walkDown;
+                case LEFT -> currentAnim = walkLeft;
+                case RIGHT -> currentAnim = walkRight;
             }
         }
     }
