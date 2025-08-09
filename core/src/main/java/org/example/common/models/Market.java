@@ -305,4 +305,52 @@ public class Market extends Building {
     public List<Product> getCounterStock() {
         return counterStock;
     }
+
+    /**
+     * Check if the market is currently open based on the current time
+     * @param currentHour Current hour in 24-hour format
+     * @return true if the market is open, false otherwise
+     */
+    public boolean isOpen(int currentHour) {
+        if (endHour > startHour) {
+            // Normal hours (e.g., 9 AM to 5 PM)
+            return currentHour >= startHour && currentHour < endHour;
+        } else {
+            // Crosses midnight (e.g., 12 PM to 12 AM - Stardrop Saloon)
+            return currentHour >= startHour || currentHour < endHour;
+        }
+    }
+
+    /**
+     * Get the opening hours as a formatted string
+     * @return formatted opening hours string
+     */
+    public String getOpeningHours() {
+        if (name.equals("The Stardrop Saloon")) {
+            return startHour + ":00 PM - " + "12:00 AM";
+        } else {
+            String openTime = formatHour(startHour);
+            String closeTime = formatHour(endHour);
+            return openTime + " - " + closeTime;
+        }
+    }
+
+    private String formatHour(int hour) {
+        if (hour == 0) return "12:00 AM";
+        if (hour < 12) return hour + ":00 AM";
+        if (hour == 12) return "12:00 PM";
+        return (hour - 12) + ":00 PM";
+    }
+
+    public int getStartHour() {
+        return startHour;
+    }
+
+    public int getEndHour() {
+        return endHour;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

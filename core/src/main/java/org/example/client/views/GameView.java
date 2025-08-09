@@ -2854,4 +2854,20 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
+    /**
+     * Show a dialog when a market is closed
+     * @param message The message to display including shop name and opening hours
+     */
+    public void showMarketClosedDialog(String message) {
+        try {
+            Dialog closedDialog = new Dialog("Shop Closed", skin);
+            closedDialog.text(message);
+            closedDialog.button("OK");
+            closedDialog.show(stage);
+        } catch (Exception e) {
+            System.err.println("Error showing market closed dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

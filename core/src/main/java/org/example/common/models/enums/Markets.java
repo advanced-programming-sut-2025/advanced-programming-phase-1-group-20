@@ -278,7 +278,7 @@ public enum Markets {
         winterItems.add(new Product(powdermelonSeeds, 5.0));
 
         int startHour = 9;
-        int endHour = 16;
+        int endHour = 23; // 11 PM
         String[] menu = new String[]{};
         return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Joja Market" , tileType);
     }
@@ -617,7 +617,7 @@ public enum Markets {
         winterItems.add(new Product(artichokeSeed, 5.0));
 
         int startHour = 9;
-        int endHour = 16;
+        int endHour = 17; // 5 PM
         String[] menu = new String[]{};
         return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu, "Pierre General Store" , tileType);
     }
@@ -660,7 +660,7 @@ public enum Markets {
         items.add(new Product(shippingBin,Double.POSITIVE_INFINITY , Ingredients.ShippingBin));
 
         int startHour = 9;
-        int endHour = 16;
+        int endHour = 20; // 8 PM
         String[] menu = new String[]{};
         return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Carpenters Shop" , tileType);
     }
@@ -791,8 +791,8 @@ public enum Markets {
         cookieRecipe.setPrice(300);
         items.add(new Product(cookieRecipe, 1.0));
 
-        int startHour = 9;
-        int endHour = 16;
+        int startHour = 12; // 12 PM
+        int endHour = 23;
         String[] menu = new String[]{};
         return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Star Drop Saloon" , tileType);
     }
@@ -836,7 +836,7 @@ public enum Markets {
         items.add(new Product(iridiumRod, 1.0));
 
         int startHour = 9;
-        int endHour = 16;
+        int endHour = 17; // 5 PM
         String[] menu = new String[]{};
         return new Market(x,y,items, springItems, summerItems, autumnItems, winterItems, startHour, endHour, menu , "Fish Shop" , tileType);
     }

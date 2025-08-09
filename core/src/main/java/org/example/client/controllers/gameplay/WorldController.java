@@ -1579,20 +1579,22 @@ public class WorldController {
             // We loop through the anchors we found during rendering.
             if (playerController.getPlayer().getIsInVillage()) {
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
+                int currentHour = App.getGame().getDate().getHour();
+                
                 if (checkVillageClicked(blacksmith, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[0], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[0], currentHour);
                 } else if (checkVillageClicked(jojaMart, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[1], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[1], currentHour);
                 } else if (checkVillageClicked(pierreGeneralStore, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[2], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[2], currentHour);
                 } else if (checkVillageClicked(carpentersShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[3], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[3], currentHour);
                 } else if (checkVillageClicked(fishShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[4], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[4], currentHour);
                 } else if (checkVillageClicked(marnieShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[5], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[5], currentHour);
                 } else if (checkVillageClicked(starDropSaloon, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
-                    getGame().setScreen(new MarketMenuScreen(markets[6], playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+                    openMarketOrShowClosedMessage(markets[6], currentHour);
                 }
             }
             else if (isInPlacementMode) {
@@ -1955,6 +1957,34 @@ public class WorldController {
             }
         } catch (Exception e) {
             System.err.println("Error opening NPC dialogue window: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Check if market is open and either open it or show closed message
+     */
+    private void openMarketOrShowClosedMessage(Market market, int currentHour) {
+        if (market.isOpen(currentHour)) {
+            // Market is open, proceed to open the market menu
+            getGame().setScreen(new MarketMenuScreen(market, playerController.getPlayer(), skin, controller.getView(), App.getGame().getDate().getSeason()));
+        } else {
+            // Market is closed, show notification
+            showMarketClosedNotification(market);
+        }
+    }
+
+    /**
+     * Show a notification that the market is closed
+     */
+    private void showMarketClosedNotification(Market market) {
+        try {
+            if (controller != null && controller.getView() != null) {
+                String message = market.getName() + " is closed.\nOpening hours: " + market.getOpeningHours();
+                controller.getView().showMarketClosedDialog(message);
+            }
+        } catch (Exception e) {
+            System.err.println("Error showing market closed notification: " + e.getMessage());
             e.printStackTrace();
         }
     }
