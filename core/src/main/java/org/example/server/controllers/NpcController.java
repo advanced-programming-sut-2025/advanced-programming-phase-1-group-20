@@ -61,37 +61,35 @@ public class NpcController {
     };
 
         private Random random = new Random();
-    
+
     // NPC movement state tracking for village center wandering
     private Map<String, Float> npcStateTimers = new HashMap<>();
     private Map<String, Float> npcTargetX = new HashMap<>();
     private Map<String, Float> npcTargetY = new HashMap<>();
     private static final float STATE_CHANGE_INTERVAL = 3.0f; // 3 seconds between state changes
     private static final float WANDER_RADIUS = 3.0f * 60f; // 3 tiles radius for wandering
-    
-        /**
-     * Update all NPC routines based on current time
-     */
+
+
     public void updateNPCRoutines() {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null || gameMap.getVillage() == null) {
             System.out.println("DEBUG: NPC Controller - GameMap or Village is null");
             return;
         }
-        
+
         Village village = gameMap.getVillage();
         List<NPC> residents = village.getResidents();
         Date currentDate = App.getGame().getDate();
-        
+
         if (residents == null || currentDate == null) {
             System.out.println("DEBUG: NPC Controller - Residents or Date is null");
             return;
         }
-        
+
         int currentHour = currentDate.getHour();
         System.out.println("DEBUG: NPC Controller - Current hour: " + currentHour + " (" + getTimePeriodDescription(currentHour) + ")");
         System.out.println("DEBUG: NPC Controller - Updating " + residents.size() + " NPCs");
-        
+
         for (int i = 0; i < residents.size(); i++) {
             NPC npc = residents.get(i);
             System.out.println("DEBUG: NPC Controller - Updating " + npc.getName() + " at position (" + npc.getPosX() + ", " + npc.getPosY() + ")");
@@ -99,15 +97,13 @@ public class NpcController {
         }
     }
 
-        /**
-     * Update individual NPC routine based on time of day
-     */
+
     private void updateNPCRoutine(NPC npc, int currentHour, int npcIndex) {
         Location targetLocation = getTargetLocationForTime(npc, currentHour, npcIndex);
-        
+
         if (targetLocation != null) {
             System.out.println("DEBUG: NPC " + npc.getName() + " - Target location: (" + targetLocation.xAxis + ", " + targetLocation.yAxis + ")");
-            
+
             // Check if NPC is in a public area (evening time)
             if (currentHour >= EVENING_START && currentHour <= EVENING_END) {
                 System.out.println("DEBUG: NPC " + npc.getName() + " - Using wandering behavior (evening)");
@@ -123,9 +119,7 @@ public class NpcController {
         }
     }
 
-    /**
-     * Get target location for NPC based on time of day
-     */
+
     private Location getTargetLocationForTime(NPC npc, int currentHour, int npcIndex) {
         if (currentHour >= MORNING_START && currentHour <= MORNING_END) {
             // Morning: Stay at home
@@ -142,9 +136,7 @@ public class NpcController {
         }
     }
 
-    /**
-     * Get NPC's home location
-     */
+
     private Location getHomeLocation(int npcIndex) {
         if (npcIndex >= 0 && npcIndex < NPC_HOUSE_POSITIONS.length) {
             int[] housePos = NPC_HOUSE_POSITIONS[npcIndex];
@@ -155,9 +147,7 @@ public class NpcController {
         return new Location(12, 3, org.example.common.models.enums.Types.TileType.VILLAGE);
     }
 
-    /**
-     * Get work location based on NPC's job
-     */
+
     private Location getWorkLocation(NPC npc) {
         Jobs job = npc.getJobs();
         String npcName = npc.getName();
@@ -202,21 +192,17 @@ public class NpcController {
         }
     }
 
-    /**
-     * Get random public area for evening socializing
-     */
+
     private Location getPublicAreaLocation() {
         int[] publicArea = PUBLIC_AREAS[random.nextInt(PUBLIC_AREAS.length)];
         return new Location(publicArea[0], publicArea[1],
             org.example.common.models.enums.Types.TileType.VILLAGE);
     }
 
-        /**
-     * Move NPC to target location with smooth movement
-     */
+
     private void moveNPCToLocation(NPC npc, Location targetLocation) {
         Location currentLocation = npc.getLocation();
-        
+
         if (currentLocation == null) {
             // Set initial location if none exists
             System.out.println("DEBUG: NPC " + npc.getName() + " - Setting initial location");
@@ -224,13 +210,13 @@ public class NpcController {
             updateNPCPosition(npc, targetLocation);
             return;
         }
-        
+
         // Calculate distance to target
         int distanceX = targetLocation.xAxis - currentLocation.xAxis;
         int distanceY = targetLocation.yAxis - currentLocation.yAxis;
-        
+
         System.out.println("DEBUG: NPC " + npc.getName() + " - Distance to target: (" + distanceX + ", " + distanceY + ")");
-        
+
         // If NPC is already at target location, don't move
         if (distanceX == 0 && distanceY == 0) {
             System.out.println("DEBUG: NPC " + npc.getName() + " - Already at target location");
@@ -266,9 +252,7 @@ public class NpcController {
         updateNPCPosition(npc, newLocation);
     }
 
-    /**
-     * Set appropriate movement animation based on direction
-     */
+
     private void setMovementAnimation(NPC npc, int distanceX, int distanceY) {
         if (Math.abs(distanceX) > Math.abs(distanceY)) {
             // Horizontal movement
@@ -287,9 +271,7 @@ public class NpcController {
         }
     }
 
-    /**
-     * Update NPC's pixel position based on tile location
-     */
+
     private void updateNPCPosition(NPC npc, Location location) {
         // Convert tile coordinates to pixel coordinates
         float pixelX = location.xAxis * 60f; // 60 pixels per tile
@@ -303,61 +285,58 @@ public class NpcController {
         npc.setPosY(worldY);
     }
 
-    /**
-     * Update NPC wandering behavior in public areas (similar to animal AI)
-     */
     private void updateNPCWandering(NPC npc, Location publicAreaLocation) {
         String npcName = npc.getName();
-        
+
         // Initialize state timer if not exists
         if (!npcStateTimers.containsKey(npcName)) {
             npcStateTimers.put(npcName, STATE_CHANGE_INTERVAL);
         }
-        
+
         // Update state timer
         float currentTimer = npcStateTimers.get(npcName) - 0.016f; // Assuming 60 FPS
         npcStateTimers.put(npcName, currentTimer);
-        
+
         // Time to change state
         if (currentTimer <= 0) {
             // 60% chance to start moving, 40% to stay idle (NPCs are more social than animals)
             if (random.nextFloat() < 0.6f) {
                 npc.setMoving(true);
-                
+
                 // Pick a new target location within the public area
                 float centerX = publicAreaLocation.xAxis * 60f + (GameMap.VILLAGE_X * 60f);
                 float centerY = publicAreaLocation.yAxis * 60f + (GameMap.VILLAGE_Y * 60f);
-                
+
                 double angle = random.nextDouble() * 2 * Math.PI;
                 double distance = random.nextDouble() * WANDER_RADIUS;
-                
+
                 float targetX = (float) (centerX + Math.cos(angle) * distance);
                 float targetY = (float) (centerY + Math.sin(angle) * distance);
-                
+
                 npcTargetX.put(npcName, targetX);
                 npcTargetY.put(npcName, targetY);
-                
+
                 System.out.println("DEBUG: NPC " + npcName + " started wandering to (" + targetX + ", " + targetY + ")");
             } else {
                 npc.setMoving(false);
                 npc.setCurrentAnimation("down");
                 System.out.println("DEBUG: NPC " + npcName + " stopped to socialize");
             }
-            
+
             // Reset timer for next state change (2 to 5 seconds)
             npcStateTimers.put(npcName, 2.0f + random.nextFloat() * 3.0f);
         }
-        
+
         // If moving, update position towards target
         if (npc.isMoving() && npcTargetX.containsKey(npcName) && npcTargetY.containsKey(npcName)) {
             float currentX = npc.getPosX();
             float currentY = npc.getPosY();
             float targetX = npcTargetX.get(npcName);
             float targetY = npcTargetY.get(npcName);
-            
+
             float dx = targetX - currentX;
             float dy = targetY - currentY;
-            
+
             // Stop if close to the target
             if (Math.abs(dx) < 30 && Math.abs(dy) < 30) { // Half a tile
                 npc.setMoving(false);
@@ -368,11 +347,11 @@ public class NpcController {
                 float length = (float) Math.sqrt(dx * dx + dy * dy);
                 float moveX = (dx / length) * npc.getSpeed() * 0.016f; // 60 FPS
                 float moveY = (dy / length) * npc.getSpeed() * 0.016f;
-                
+
                 // Update position
                 npc.setPosX(currentX + moveX);
                 npc.setPosY(currentY + moveY);
-                
+
                 // Set animation based on movement direction
                 if (Math.abs(dx) > Math.abs(dy)) {
                     npc.setCurrentAnimation("walk"); // Horizontal movement
@@ -386,19 +365,13 @@ public class NpcController {
             }
         }
     }
-    
-    /**
-     * Force NPC to idle state (used when NPC reaches destination)
-     */
+
     public void forceNPCIdle(NPC npc) {
         npc.setCurrentAnimation("down");
         npc.setMoving(false);
         npc.setAnimationTimer(0f);
     }
 
-    /**
-     * Get current time period description
-     */
     public String getTimePeriodDescription(int hour) {
         if (hour >= MORNING_START && hour <= MORNING_END) {
             return "Morning";

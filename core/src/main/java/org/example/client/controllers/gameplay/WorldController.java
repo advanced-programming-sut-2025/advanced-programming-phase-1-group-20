@@ -80,6 +80,10 @@ public class WorldController {
     private static final int COOP_TILES_H = Coop.getHeight();
     private static final int GOLD_CLOCK_TILES_W = 3;
     private static final int GOLD_CLOCK_TILES_H = 5;
+    
+    // Market building dimensions (wider than regular houses)
+    private static final int MARKET_TILES_W = 7;  // Wider than HOUSE_TILES_W (5)
+    private static final int MARKET_TILES_H = 6;  // Same height as HOUSE_TILES_H
 
     // Tree rendering size multiplier
     private static final float TREE_SIZE_MULTIPLIER = 2f;
@@ -1087,7 +1091,7 @@ public class WorldController {
         Texture texture = getTexture("blacksmith");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1101,7 +1105,7 @@ public class WorldController {
         Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1115,7 +1119,7 @@ public class WorldController {
         Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1186,7 +1190,7 @@ public class WorldController {
         Texture texture = getTexture("blacksmith");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1200,7 +1204,7 @@ public class WorldController {
         Texture texture = getTexture("joja_mart");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1214,7 +1218,7 @@ public class WorldController {
         Texture texture = getTexture("pierre_store");
         if (texture != null) {
             Main.getBatch().draw(texture , drawX , drawY
-                , TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+                , TILE_SIZE * MARKET_TILES_W, TILE_SIZE * MARKET_TILES_H);
         }
     }
 
@@ -1561,6 +1565,10 @@ public class WorldController {
 
             camera.unproject(touchPointFarm);
 
+            // 4. Clamp touch point coordinates to valid world bounds
+            clampTouchPointToWorldBounds(touchPoint);
+            clampTouchPointToWorldBounds(touchPointFarm);
+
             // Check if click was on another player
             Player clickedPlayer = checkPlayerClick(touchPoint);
             if (clickedPlayer != null && !clickedPlayer.equals(playerController.getPlayer())) {
@@ -1581,11 +1589,11 @@ public class WorldController {
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 int currentHour = App.getGame().getDate().getHour();
 
-                if (checkVillageClicked(blacksmith, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                if (checkVillageClicked(blacksmith, MARKET_TILES_W, MARKET_TILES_H, touchPoint)) {
                     openMarketOrShowClosedMessage(markets[0], currentHour);
-                } else if (checkVillageClicked(jojaMart, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                } else if (checkVillageClicked(jojaMart, MARKET_TILES_W, MARKET_TILES_H, touchPoint)) {
                     openMarketOrShowClosedMessage(markets[1], currentHour);
-                } else if (checkVillageClicked(pierreGeneralStore, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
+                } else if (checkVillageClicked(pierreGeneralStore, MARKET_TILES_W, MARKET_TILES_H, touchPoint)) {
                     openMarketOrShowClosedMessage(markets[2], currentHour);
                 } else if (checkVillageClicked(carpentersShop, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     openMarketOrShowClosedMessage(markets[3], currentHour);
@@ -1987,5 +1995,37 @@ public class WorldController {
             System.err.println("Error showing market closed notification: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Clamp touch point coordinates to valid world bounds to prevent issues with click detection
+     */
+    private void clampTouchPointToWorldBounds(Vector3 touchPoint) {
+        float mapWidth, mapHeight;
+        float mapOffsetX, mapOffsetY;
+
+        if (playerController.getPlayer().getIsInVillage()) {
+            // For village, use global village bounds
+            mapWidth = Village.width * TILE_SIZE;
+            mapHeight = Village.height * TILE_SIZE;
+            mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
+            mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
+        } else {
+            // For farm, use farm bounds
+            mapWidth = Farm.width * TILE_SIZE;
+            mapHeight = Farm.height * TILE_SIZE;
+            mapOffsetX = 0;
+            mapOffsetY = 0;
+        }
+
+        // Clamp X coordinate
+        float minX = mapOffsetX;
+        float maxX = mapOffsetX + mapWidth;
+        touchPoint.x = Math.max(minX, Math.min(touchPoint.x, maxX));
+
+        // Clamp Y coordinate
+        float minY = mapOffsetY;
+        float maxY = mapOffsetY + mapHeight;
+        touchPoint.y = Math.max(minY, Math.min(touchPoint.y, maxY));
     }
 }

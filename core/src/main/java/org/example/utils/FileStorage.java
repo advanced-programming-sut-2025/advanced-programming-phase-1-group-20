@@ -164,6 +164,11 @@ public class FileStorage {
             items.add(item);
         }
 
+        //adding special items
+        for (SpecialItemType type : SpecialItemType.values()) {
+            Item item = new SpecialItem(type);
+            items.add(item);
+        }
 
         return items;
     }

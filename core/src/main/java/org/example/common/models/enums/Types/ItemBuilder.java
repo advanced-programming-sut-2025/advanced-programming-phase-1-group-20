@@ -45,6 +45,12 @@ public class ItemBuilder {
             return new ArtisanItem(artisanType);
         }
 
+        // Special items
+        SpecialItemType specialItemType = SpecialItemType.fromName(name);
+        if (specialItemType != null) {
+            return new SpecialItem(specialItemType);
+        }
+
         //animal products
         AnimalProductType animalProductType = AnimalProductType.fromName(name);
         if (animalProductType != null) {
