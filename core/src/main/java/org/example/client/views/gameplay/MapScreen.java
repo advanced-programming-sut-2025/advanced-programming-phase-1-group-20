@@ -422,6 +422,20 @@ public class MapScreen implements Screen, InputProcessor {
     }
 
     private String getVillageBuildingTextureKey(String buildingName, String buildingType) {
+        // Handle specific building names first
+        if (buildingName != null) {
+            return switch (buildingName.toLowerCase()) {
+                case "mayor house" -> "mayor_house";
+                case "fish pond" -> "fish_pond";
+                case "museum" -> "museum";
+                case "town hall" -> "town_hall";
+                default -> getBuildingTypeTextureKey(buildingType);
+            };
+        }
+        return getBuildingTypeTextureKey(buildingType);
+    }
+
+    private String getBuildingTypeTextureKey(String buildingType) {
         return switch (buildingType.toLowerCase()) {
             case "house" -> "house";
             case "shop" -> "shop";
