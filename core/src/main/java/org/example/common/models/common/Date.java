@@ -507,6 +507,30 @@ public class Date implements Runnable {
         }
     }
 
+    public Weather getWeatherTomorrow() {
+        return weatherTomorrow;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+
+    public void setMinute(int minute) {
+        this.minute = minute;
+    }
+
     @Override
     public String toString() {
         return String.format("Year %d, %s %02d, %02d:%02d", year, getSeason(), day, hour, minute);

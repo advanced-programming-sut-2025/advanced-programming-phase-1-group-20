@@ -2,9 +2,9 @@ package org.example.client.controllers;
 
 import org.example.common.models.App;
 import org.example.utils.GameSaveLoadManager;
-import org.example.common.models.entities.Game; // اضافه شده برای استفاده از شیء Game
+import org.example.common.models.entities.Game;
 
-import java.util.List; // اضافه شده برای listSavedGames
+import java.util.List;
 
 /**
  * Controller class for handling game save and load operations.
@@ -18,12 +18,8 @@ public class GameSaveLoadController {
 
         boolean success;
         if (saveName != null && !saveName.trim().isEmpty()) {
-            // اگر نام سفارشی داده شده، بازی را با آن نام ذخیره کن.
-            // GameSaveLoadManager.saveGameWithName() اکنون saveName را در شیء Game هم تنظیم می‌کند.
             success = GameSaveLoadManager.saveGameWithName(gameToSave, saveName.trim());
         } else {
-            // اگر نامی داده نشده، "current_game" را به‌روزرسانی کن.
-            // GameSaveLoadManager.saveCurrentGame() نام "current_game" را در شیء Game تنظیم می‌کند.
             success = GameSaveLoadManager.saveCurrentGame();
         }
 
@@ -35,7 +31,7 @@ public class GameSaveLoadController {
     }
 
     /**
-     * Loads a game from MongoDB.
+     * Loads a game from a file.
      *
      * @param saveName Name of the save to load. If null or empty, attempts to load "current_game".
      * @return A message indicating success or failure
@@ -43,19 +39,15 @@ public class GameSaveLoadController {
     public static String loadGame(String saveName) {
         Game loadedGame;
         if (saveName != null && !saveName.trim().isEmpty()) {
-            // بارگذاری بازی با نام سفارشی
             loadedGame = GameSaveLoadManager.loadGame(saveName.trim());
             if (loadedGame != null) {
-                // App.setGame() و App.allGames() در GameSaveLoadManager.loadGame() مدیریت می‌شوند.
                 return "Game '" + saveName.trim() + "' loaded successfully.";
             } else {
                 return "Error: Failed to load game '" + saveName.trim() + "'. Save not found or corrupted.";
             }
         } else {
-            // بارگذاری "current_game"
             loadedGame = GameSaveLoadManager.loadCurrentGame();
             if (loadedGame != null) {
-                // App.setGame() و App.allGames() در GameSaveLoadManager.loadCurrentGame() مدیریت می‌شوند.
                 return "Current game loaded successfully.";
             } else {
                 return "Error: No current game found to load.";
@@ -88,7 +80,6 @@ public class GameSaveLoadController {
             return "Error: Invalid save name. Please provide a name to delete.";
         }
 
-        // GameSaveLoadManager.deleteSavedGame اکنون فقط نام ذخیره را می‌پذیرد.
         boolean success = GameSaveLoadManager.deleteSavedGame(saveName.trim());
 
         if (success) {

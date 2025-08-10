@@ -1,72 +1,52 @@
 package org.example.utils;
 
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.ReplaceOptions;
-import org.bson.Document;
 import org.example.common.models.App;
+import org.example.common.models.MapDetails.Farm;
+import org.example.common.models.Player.Player;
 import org.example.common.models.entities.Game;
 
-import java.text.SimpleDateFormat;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class GameSaveLoadManager {
-    private static MongoCollection<Document> gamesCollection;
-    private static final String GAME_DATA_FIELD = "gameDataJson";
-    private static final String SAVE_NAME_FIELD = "saveName";
-    private static final String TIMESTAMP_FIELD = "timestamp";
-
-    private static final Gson gson = new GsonBuilder().create();
+    private static final String SAVE_DIRECTORY = "saves/";
+    private static final int SAVE_FORMAT_VERSION = 1;
 
     private static void initializeCollection() {
-        if (gamesCollection == null) {
-            gamesCollection = MongoDBConnection.getDatabase().getCollection("games");
+        File dir = new File(SAVE_DIRECTORY);
+        if (!dir.exists()) {
+            dir.mkdirs();
         }
     }
 
     public static void initialize() {
-        try {
-            initializeCollection();
-            System.out.println("GameSaveLoadManager initialized for MongoDB.");
-        } catch (Exception e) {
-            System.err.println("Failed to initialize GameSaveLoadManager: " + e.getMessage());
-            System.err.println("MongoDB is not running. Game saves will not be persisted.");
-            System.err.println("To fix this, please install and start MongoDB:");
-            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
-            System.err.println("2. Start MongoDB: brew services start mongodb-community");
-            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
-            e.printStackTrace();
-        }
+        initializeCollection();
+        System.out.println("GameSaveLoadManager initialized for file-based saves.");
     }
 
     public static boolean saveCurrentGame() {
         if (App.getGame() != null) {
             Game game = App.getGame();
             game.setSaved(true);
-            return saveGameInternal(game, "current_game", true);
+            return saveGameInternal(game, "current_game.sav");
         }
         return false;
     }
 
     public static boolean autosave() {
         if (App.getGame() != null) {
-            return saveGameInternal(App.getGame(), "autosave", true);
+            return saveGameInternal(App.getGame(), "autosave.sav");
         }
         return false;
     }
 
     public static boolean saveGameWithName(Game game, String customSaveName) {
         String cleanSaveName = customSaveName.replaceAll("[^a-zA-Z0-9-_]", "_");
-        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()); // **** تغییر در اینجا: استفاده از Date ****
-        String uniqueSaveName = cleanSaveName + "_" + timestamp;
-
-        boolean saved = saveGameInternal(game, uniqueSaveName, false);
+        String fileName = cleanSaveName + ".sav";
+        boolean saved = saveGameInternal(game, fileName);
         if (saved) {
+            game.setSaveName(cleanSaveName);
             if (App.getAllGames() != null && !App.getAllGames().contains(game)) {
                 App.getAllGames().add(game);
             }
@@ -74,29 +54,16 @@ public class GameSaveLoadManager {
         return saved;
     }
 
-    private static boolean saveGameInternal(Game game, String identifier, boolean replaceExisting) {
-        try {
-            initializeCollection();
-            String gameJson = gson.toJson(game);
-
-            Document gameDoc = new Document(SAVE_NAME_FIELD, identifier)
-                .append(GAME_DATA_FIELD, gameJson)
-                .append(TIMESTAMP_FIELD, new Date()); // **** تغییر در اینجا: استفاده از Date ****
-            if (replaceExisting) {
-                gamesCollection.replaceOne(Filters.eq(SAVE_NAME_FIELD, identifier), gameDoc, new ReplaceOptions().upsert(true));
-            } else {
-                gamesCollection.insertOne(gameDoc);
-            }
-
-            System.out.println("Game saved successfully to MongoDB with identifier: " + identifier);
+    private static boolean saveGameInternal(Game game, String fileName) {
+        initializeCollection();
+        String filePath = SAVE_DIRECTORY + fileName;
+        try (FileOutputStream fos = new FileOutputStream(filePath);
+             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(fos))) {
+            CustomSaveManager.saveGame(game, filePath);
+            System.out.println("Game saved successfully to: " + filePath);
             return true;
-        } catch (Exception e) {
-            System.err.println("Failed to save game to MongoDB: " + e.getMessage());
-            System.err.println("MongoDB is not running. Game will not be saved.");
-            System.err.println("To fix this, please install and start MongoDB:");
-            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
-            System.err.println("2. Start MongoDB: brew services start mongodb-community");
-            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
+        } catch (IOException e) {
+            System.err.println("Failed to save game to file: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -110,90 +77,94 @@ public class GameSaveLoadManager {
         return loadGame("autosave");
     }
 
-    public static Game loadGame(String identifier) {
-        try {
-            initializeCollection();
-            Document gameDoc = gamesCollection.find(Filters.eq(SAVE_NAME_FIELD, identifier)).first();
-            if (gameDoc != null) {
-                String gameJson = gameDoc.getString(GAME_DATA_FIELD);
-                Game game = gson.fromJson(gameJson, Game.class);
-                App.setGame(game);
-                System.out.println("Game loaded successfully from MongoDB: " + identifier);
-                return game;
+    public static Game loadGame(String saveName) {
+        initializeCollection();
+        String filePath = SAVE_DIRECTORY + saveName + ".sav";
+        File file = new File(filePath);
+        if (!file.exists()) {
+            filePath = SAVE_DIRECTORY + saveName;
+            file = new File(filePath);
+            if(!file.exists()){
+                System.err.println("Save file not found: " + filePath);
+                return null;
             }
-        } catch (Exception e) {
-            System.err.println("Failed to load game from MongoDB: " + e.getMessage());
-            System.err.println("MongoDB is not running. Cannot load saved games.");
-            System.err.println("To fix this, please install and start MongoDB:");
-            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
-            System.err.println("2. Start MongoDB: brew services start mongodb-community");
-            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
-            e.printStackTrace();
         }
-        return null;
+
+        try {
+            Game game = CustomSaveManager.loadGame(filePath); // Delegate to your custom logic
+            if (game != null) {
+                // After loading, re-link players to their farms.
+                if (game.getGameMap() != null && game.getPlayers() != null) {
+                    for (Player p : game.getPlayers()) {
+                        Farm farm = game.getGameMap().getFarmByPlayer(p);
+                        if (farm != null) {
+                            p.setCurrentFarm(farm);
+                        }
+                    }
+                }
+                App.setGame(game);
+                System.out.println("Game loaded successfully from: " + filePath);
+            }
+            return game;
+        } catch (IOException e) {
+            System.err.println("Failed to load game from file: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static List<String> listSavedGames() {
         initializeCollection();
         List<String> saveNames = new ArrayList<>();
-        try {
-            for (Document doc : gamesCollection.find(
-                Filters.and(
-                    Filters.ne(SAVE_NAME_FIELD, "current_game"),
-                    Filters.ne(SAVE_NAME_FIELD, "autosave")
-                )
-            ).sort(new Document(TIMESTAMP_FIELD, -1))) {
-                saveNames.add(doc.getString(SAVE_NAME_FIELD));
+        File dir = new File(SAVE_DIRECTORY);
+        File[] files = dir.listFiles((d, name) -> name.endsWith(".sav"));
+
+        if (files != null) {
+            for (File file : files) {
+                String name = file.getName();
+                if (!name.equals("current_game.sav") && !name.equals("autosave.sav")) {
+                    saveNames.add(name.substring(0, name.length() - 4)); // Remove .sav extension
+                }
             }
-            System.out.println("Listed saved games from MongoDB: " + saveNames.size());
-        } catch (Exception e) {
-            System.err.println("Failed to list saved games from MongoDB: " + e.getMessage());
-            e.printStackTrace();
         }
         return saveNames;
     }
 
     public static void loadAllGames() {
-        initializeCollection();
+        List<String> savedGameNames = listSavedGames();
         if (App.getAllGames() != null) {
             App.getAllGames().clear();
         } else {
             App.setAllGames(new ArrayList<>());
         }
-        try {
-            for (Document doc : gamesCollection.find()) {
-                if (!doc.getString(SAVE_NAME_FIELD).equals("current_game") &&
-                    !doc.getString(SAVE_NAME_FIELD).equals("autosave")) {
-                    Game game = loadGame(doc.getString(SAVE_NAME_FIELD));
-                    if (game != null && !App.getAllGames().contains(game)) {
-                        App.getAllGames().add(game);
-                    }
-                }
+
+        for (String saveName : savedGameNames) {
+            Game game = loadGame(saveName);
+            if (game != null && !App.getAllGames().contains(game)) {
+                App.getAllGames().add(game);
             }
-            System.out.println("Loaded all unique games into App from MongoDB.");
-        } catch (Exception e) {
-            System.err.println("Failed to load all games into App from MongoDB: " + e.getMessage());
-            e.printStackTrace();
         }
+        System.out.println("Loaded all unique games into App from save files.");
     }
 
-    public static boolean deleteSavedGame(String identifier) {
+    public static boolean deleteSavedGame(String saveName) {
         initializeCollection();
-        try {
-            long deletedCount = gamesCollection.deleteOne(Filters.eq(SAVE_NAME_FIELD, identifier)).getDeletedCount();
-            if (deletedCount > 0) {
-                System.out.println("Saved game '" + identifier + "' deleted successfully from MongoDB.");
+        String filePath = SAVE_DIRECTORY + saveName + ".sav";
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("Saved game '" + saveName + "' deleted successfully.");
                 if (App.getAllGames() != null) {
-                    App.getAllGames().removeIf(game -> game.getSaveName() != null && game.getSaveName().equals(identifier));
+                    App.getAllGames().removeIf(game -> game.getSaveName() != null && game.getSaveName().equals(saveName));
                 }
                 return true;
             } else {
-                System.out.println("No game found to delete with identifier: " + identifier);
+                System.err.println("Failed to delete saved game file: " + filePath);
                 return false;
             }
-        } catch (Exception e) {
-            System.err.println("Failed to delete saved game from MongoDB: " + e.getMessage());
-            e.printStackTrace();
+        } else {
+            System.out.println("No game found to delete with name: " + saveName);
             return false;
         }
     }

@@ -1473,4 +1473,11 @@ public class Farm {
         return null;
     }
 
+    public boolean getFarmType() {
+        return farmType;
+    }
+
+    public Location[][] getTiles() {
+        return tiles;
+    }
 }
