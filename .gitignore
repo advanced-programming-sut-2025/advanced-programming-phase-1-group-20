@@ -154,7 +154,7 @@ Thumbs.db
 *#*#
 /.kotlin/
 /assets/assets.txt
-env/.env
+.env
 
 ## Special cases:
 

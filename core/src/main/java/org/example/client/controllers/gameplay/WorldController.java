@@ -1580,7 +1580,7 @@ public class WorldController {
             if (playerController.getPlayer().getIsInVillage()) {
                 Market[] markets = App.getGame().getGameMap().getVillage().getMarkets();
                 int currentHour = App.getGame().getDate().getHour();
-                
+
                 if (checkVillageClicked(blacksmith, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
                     openMarketOrShowClosedMessage(markets[0], currentHour);
                 } else if (checkVillageClicked(jojaMart, HOUSE_TILES_W, HOUSE_TILES_H, touchPoint)) {
@@ -1935,7 +1935,7 @@ public class WorldController {
                 float npcX = npc.getPosX();
                 float npcY = npc.getPosY();
                 float npcWidth = 60; // NPC render width (1 tile)
-                float npcHeight = 120; // NPC render height (2 tiles)
+                float npcHeight = 60; // NPC render height (2 tiles)
 
                 if (touchPoint.x >= npcX && touchPoint.x <= npcX + npcWidth &&
                     touchPoint.y >= npcY && touchPoint.y <= npcY + npcHeight) {

@@ -8,7 +8,7 @@ public class ServerConfig {
 
     private ServerConfig() {
         this.dotenv = Dotenv.configure()
-                .directory(".")
+                .directory("../") // :)
                 .ignoreIfMissing()
                 .load();
     }
@@ -45,7 +45,7 @@ public class ServerConfig {
 
     // API Configuration
     public String getApiKey() {
-        return dotenv.get("API_KEY");
+        return dotenv.get("API_KEY", "default_api_key");
     }
 
     // WebSocket Configuration
