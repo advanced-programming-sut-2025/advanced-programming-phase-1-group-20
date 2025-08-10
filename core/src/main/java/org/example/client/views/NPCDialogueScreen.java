@@ -70,12 +70,18 @@ public class NPCDialogueScreen implements Screen, Disposable {
     }
 
     private void createBackgroundTexture() {
-        // Create a simple background texture using Pixmap
-        com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-        pixmap.setColor(0.94f, 0.94f, 0.94f, 1f);
-        pixmap.fill();
-        backgroundTexture = new Texture(pixmap);
-        pixmap.dispose();
+        // Load the crafting background image
+        try {
+            backgroundTexture = new Texture(Gdx.files.internal("content/crafting_background.png"));
+        } catch (Exception e) {
+            System.err.println("Failed to load crafting background image: " + e.getMessage());
+            // Fallback to simple background texture using Pixmap
+            com.badlogic.gdx.graphics.Pixmap pixmap = new com.badlogic.gdx.graphics.Pixmap(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+            pixmap.setColor(0.94f, 0.94f, 0.94f, 1f);
+            pixmap.fill();
+            backgroundTexture = new Texture(pixmap);
+            pixmap.dispose();
+        }
     }
 
     private void createUI() {
@@ -130,7 +136,7 @@ public class NPCDialogueScreen implements Screen, Disposable {
         if (npc.getDescription() != null && !npc.getDescription().isEmpty()) {
             descriptionLabel = new Label(npc.getDescription(), skin);
             descriptionLabel.setWrap(true);
-            descriptionLabel.setColor(Color.GRAY);
+            descriptionLabel.setColor(Color.DARK_GRAY);
             descriptionLabel.setFontScale(1.1f);
         }
 
@@ -340,7 +346,7 @@ public class NPCDialogueScreen implements Screen, Disposable {
 
         // Color coding for messages
         if (isPlayer) {
-            messageLabel.setColor(Color.BLUE);
+            messageLabel.setColor(Color.DARK_GRAY);
             messageContainer.setBackground(skin.getDrawable("white"));
             messageContainer.pad(12, 16, 12, 16);
         } else {
@@ -394,11 +400,11 @@ public class NPCDialogueScreen implements Screen, Disposable {
 
     @Override
     public void render(float delta) {
-        // Clear screen with background color
-        Gdx.gl.glClearColor(0.94f, 0.94f, 0.94f, 1);
+        // Clear screen
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        // Draw background
+        // Draw background image
         stage.getBatch().begin();
         stage.getBatch().draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.getBatch().end();

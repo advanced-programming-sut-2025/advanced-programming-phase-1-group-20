@@ -12,6 +12,7 @@ import java.net.http.WebSocket;
 import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
+import java.util.Map;
 
 public class NetworkClient {
     private static NetworkClient instance;
@@ -534,6 +535,80 @@ public class NetworkClient {
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(tradeMessage);
+    }
+
+    public void sendTradeRequest(String targetPlayer, String item, int quantity, int price) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message tradeMessage = new Message();
+        tradeMessage.setType(Message.Type.TRADE_REQUEST);
+        tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
+        tradeMessage.putInBody("toPlayer", targetPlayer);
+        tradeMessage.putInBody("item", item);
+        tradeMessage.putInBody("quantity", quantity);
+        tradeMessage.putInBody("price", price);
+        tradeMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(tradeMessage);
+    }
+
+    public void sendTradeAccept(String targetPlayer, Map<String, Object> tradeItems) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message tradeMessage = new Message();
+        tradeMessage.setType(Message.Type.TRADE_ACCEPT);
+        tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
+        tradeMessage.putInBody("toPlayer", targetPlayer);
+        tradeMessage.putInBody("tradeItems", tradeItems);
+        tradeMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(tradeMessage);
+    }
+
+    public void sendTradeDecline(String targetPlayer) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message tradeMessage = new Message();
+        tradeMessage.setType(Message.Type.TRADE_DECLINE);
+        tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
+        tradeMessage.putInBody("toPlayer", targetPlayer);
+        tradeMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(tradeMessage);
+    }
+
+    public void requestTradeHistory() {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message historyMessage = new Message();
+        historyMessage.setType(Message.Type.TRADE_REQUEST);
+        historyMessage.putInBody("action", "getHistory");
+        historyMessage.putInBody("player", authenticatedUser.getUsername());
+        historyMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(historyMessage);
+    }
+
+    public void requestPendingTradeRequests() {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message pendingMessage = new Message();
+        pendingMessage.setType(Message.Type.TRADE_REQUEST);
+        pendingMessage.putInBody("action", "getPending");
+        pendingMessage.putInBody("player", authenticatedUser.getUsername());
+        pendingMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(pendingMessage);
     }
 
     public void createGame() {

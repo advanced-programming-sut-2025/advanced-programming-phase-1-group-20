@@ -570,8 +570,8 @@ public class GameView implements Screen, InputProcessor {
     }
 
     private void openTradingMenu() {
-        TradingMenuController tradingController = new TradingMenuController(player);
-        TradingMenuView tradingView = new TradingMenuView(tradingController, skin, this);
+        // Use the new network-based trading screen
+        NetworkTradingScreen tradingView = new NetworkTradingScreen(skin, this);
         Main.getGame().setScreen(tradingView);
     }
 
