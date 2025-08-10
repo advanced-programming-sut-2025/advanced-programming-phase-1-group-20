@@ -11,10 +11,16 @@ import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
 import org.example.common.models.entities.User;
+import org.example.common.models.entities.animal.Animal;
+import org.example.common.models.entities.animal.BarnAnimal;
+import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.enums.Weather;
+import org.example.common.models.MapDetails.Building;
+import org.example.common.models.Player.Refrigerator;
+
 
 import java.io.*;
 import java.util.ArrayList;
@@ -287,7 +293,29 @@ public class CustomSaveManager {
                 saveLocation(dos, farm.getItem(i, j));
             }
         }
+
+        //Animals
+        dos.writeInt(farm.getAnimals().size());
+        for (Animal animal : farm.getAnimals()) {
+            saveAnimal(dos, animal);
+        }
+        //Building
+        dos.writeBoolean(farm.getBuilding() != null);
+        if (farm.getBuilding() != null) {
+            saveBuilding(dos, farm.getBuilding());
+        }
+
     }
+
+    private static void saveBuilding(DataOutputStream dos, Building building) throws IOException {
+        Refrigerator fridge = building.getRefrigerator();
+        dos.writeInt(fridge.getItems().size());
+        for (Map.Entry<Item, Integer> entry : fridge.getItems().entrySet()) {
+            saveItem(dos, entry.getKey());
+            dos.writeInt(entry.getValue());
+        }
+    }
+
 
     private static Farm loadFarm(DataInputStream dis, List<Player> players) throws IOException {
         String name = dis.readUTF();
@@ -306,8 +334,46 @@ public class CustomSaveManager {
             }
         }
 
+        //Animals here
+        int animalCount = dis.readInt();
+        for (int i = 0; i < animalCount; i++) {
+            farm.addAnimal(loadAnimal(dis));
+        }
+
+
+        //Building here
+        if (dis.readBoolean()) {
+            Refrigerator fridge = farm.getBuilding().getRefrigerator();
+            int fridgeItemCount = dis.readInt();
+            for (int i = 0; i < fridgeItemCount; i++) {
+                Item item = loadItem(dis);
+                int quantity = dis.readInt();
+                fridge.putItem(item, quantity);
+            }
+        }
+
+
+
+        //List<Lake> lakes here
+
+
+        //GreenHouse here
+
+
+        //Quarry here
+
+
+        //List<Barn> barns here
+
+
+        //List<Coop> here
+
+
+        //List<ShippingBin> shippingBins here
+
         return farm;
     }
+
 
     private static void saveVillage(DataOutputStream dos, Village village) throws IOException {
         dos.writeUTF(village.getName());
@@ -566,5 +632,89 @@ public class CustomSaveManager {
         item.setMoistureCounter(dis.readInt());
         item.setMoistureGod(dis.readBoolean());
         return item;
+    }
+
+    private static void saveAnimal(DataOutputStream dos, Animal animal) throws IOException {
+        dos.writeUTF(animal.getName());
+        dos.writeInt(animal.getPrice());
+        dos.writeFloat(animal.getPosX());
+        dos.writeFloat(animal.getPosY());
+        dos.writeFloat(animal.getSpeed());
+        dos.writeBoolean(animal.isMoving());
+        dos.writeFloat(animal.getTargetX());
+        dos.writeFloat(animal.getTargetY());
+        dos.writeFloat(animal.getStateTimer());
+        dos.writeInt(animal.getFacing().ordinal());
+
+        if (animal instanceof BarnAnimal) {
+            dos.writeBoolean(true); // It's a BarnAnimal
+            BarnAnimal barnAnimal = (BarnAnimal) animal;
+            dos.writeInt(barnAnimal.getType().ordinal());
+            dos.writeInt(barnAnimal.getHappinessLevel());
+            dos.writeInt(barnAnimal.getDaysSinceLastProduction());
+            dos.writeBoolean(barnAnimal.isHasBeenFed());
+            dos.writeBoolean(barnAnimal.isHasBeenPetToday());
+            dos.writeBoolean(barnAnimal.isOutside());
+        } else if (animal instanceof CoopAnimal) {
+            dos.writeBoolean(false); // It's a CoopAnimal
+            CoopAnimal coopAnimal = (CoopAnimal) animal;
+            dos.writeInt(coopAnimal.getCoopType().ordinal());
+            dos.writeInt(coopAnimal.getHappinessLevel());
+            dos.writeInt(coopAnimal.getDaysSinceLastProduction());
+            dos.writeBoolean(coopAnimal.isPetToday());
+            dos.writeBoolean(coopAnimal.isHasBeenFed());
+            dos.writeBoolean(coopAnimal.isOutside());
+        }
+    }
+
+    private static Animal loadAnimal(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        int price = dis.readInt();
+        float posX = dis.readFloat();
+        float posY = dis.readFloat();
+        float speed = dis.readFloat();
+        boolean isMoving = dis.readBoolean();
+        float targetX = dis.readFloat();
+        float targetY = dis.readFloat();
+        float stateTimer = dis.readFloat();
+        Animal.Direction facing = Animal.Direction.values()[dis.readInt()];
+
+        boolean isBarnAnimal = dis.readBoolean();
+
+        if (isBarnAnimal) {
+            BarnAnimalTypes type = BarnAnimalTypes.values()[dis.readInt()];
+            BarnAnimal barnAnimal = new BarnAnimal(type, name);
+            barnAnimal.setPosX(posX);
+            barnAnimal.setPosY(posY);
+            barnAnimal.setSpeed(speed);
+            barnAnimal.setMoving(isMoving);
+            barnAnimal.setTargetX(targetX);
+            barnAnimal.setTargetY(targetY);
+            barnAnimal.setStateTimer(stateTimer);
+            barnAnimal.setFacing(facing);
+            barnAnimal.increaseHappiness(dis.readInt() - 50); // initial happiness is 50
+            // barnAnimal.setDaysSinceLastProduction(dis.readInt()); // No setter
+            barnAnimal.setHasBeenFed(dis.readBoolean());
+            barnAnimal.setHasBeenPetToday(dis.readBoolean());
+            barnAnimal.setOutside(dis.readBoolean());
+            return barnAnimal;
+        } else {
+            CoopAnimalTypes type = CoopAnimalTypes.values()[dis.readInt()];
+            CoopAnimal coopAnimal = new CoopAnimal(type, name);
+            coopAnimal.setPosX(posX);
+            coopAnimal.setPosY(posY);
+            coopAnimal.setSpeed(speed);
+            coopAnimal.setMoving(isMoving);
+            coopAnimal.setTargetX(targetX);
+            coopAnimal.setTargetY(targetY);
+            coopAnimal.setStateTimer(stateTimer);
+            coopAnimal.setFacing(facing);
+            coopAnimal.increaseHappiness(dis.readInt() - 50);
+            // coopAnimal.setDaysSinceLastProduction(dis.readInt());
+            coopAnimal.setPetToday(dis.readBoolean());
+            coopAnimal.setHasBeenFed(dis.readBoolean());
+            coopAnimal.setOutside(dis.readBoolean());
+            return coopAnimal;
+        }
     }
 }

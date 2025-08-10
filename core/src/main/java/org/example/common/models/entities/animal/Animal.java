@@ -91,4 +91,6 @@ public class Animal extends Item {
     public void setFacing(Direction facing) {
         this.facing = facing;
     }
+
+
 }
