@@ -4,6 +4,7 @@ import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
+import org.example.common.models.MapDetails.Lake;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
@@ -293,7 +294,6 @@ public class CustomSaveManager {
                 saveLocation(dos, farm.getItem(i, j));
             }
         }
-
         //Animals
         dos.writeInt(farm.getAnimals().size());
         for (Animal animal : farm.getAnimals()) {
@@ -305,7 +305,34 @@ public class CustomSaveManager {
             saveBuilding(dos, farm.getBuilding());
         }
 
+        // Lakes
+        dos.writeInt(farm.getLakes().size());
+        for(Lake lake : farm.getLakes()){
+            saveLake(dos, lake);
+        }
+
     }
+
+    private static void saveLake(DataOutputStream dos, Lake lake) throws IOException {
+        dos.writeInt(lake.getX());
+        dos.writeInt(lake.getY());
+        dos.writeInt(lake.getWidth());
+        dos.writeInt(lake.getHeight());
+        dos.writeUTF(lake.getName());
+        dos.writeInt(lake.getType().ordinal());
+
+        boolean hasMask = lake.getMask() != null;
+        dos.writeBoolean(hasMask);
+        if (hasMask) {
+            boolean[][] mask = lake.getMask();
+            for (int i = 0; i < lake.getHeight(); i++) {
+                for (int j = 0; j < lake.getWidth(); j++) {
+                    dos.writeBoolean(mask[i][j]);
+                }
+            }
+        }
+    }
+
 
     private static void saveBuilding(DataOutputStream dos, Building building) throws IOException {
         Refrigerator fridge = building.getRefrigerator();
@@ -355,6 +382,10 @@ public class CustomSaveManager {
 
 
         //List<Lake> lakes here
+        int lakeCount = dis.readInt();
+        for(int i = 0; i < lakeCount; i++){
+            farm.getLakes().add(loadLake(dis));
+        }
 
 
         //GreenHouse here
@@ -373,6 +404,28 @@ public class CustomSaveManager {
 
         return farm;
     }
+
+    private static Lake loadLake(DataInputStream dis) throws IOException {
+        int x = dis.readInt();
+        int y = dis.readInt();
+        int width = dis.readInt();
+        int height = dis.readInt();
+        String name = dis.readUTF();
+        Lake.LakeType type = Lake.LakeType.values()[dis.readInt()];
+
+        boolean hasMask = dis.readBoolean();
+        boolean[][] mask = null;
+        if (hasMask) {
+            mask = new boolean[height][width];
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    mask[i][j] = dis.readBoolean();
+                }
+            }
+        }
+        return new Lake(x, y, width, height, name, type, mask);
+    }
+
 
 
     private static void saveVillage(DataOutputStream dos, Village village) throws IOException {
