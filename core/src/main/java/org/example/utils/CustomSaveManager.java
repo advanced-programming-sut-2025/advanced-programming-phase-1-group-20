@@ -144,7 +144,7 @@ public class CustomSaveManager {
         Backpack backpack = player.getBackpack();
         dos.writeInt(backpack.getInventory().size());
         for (Map.Entry<Item, Integer> entry : backpack.getInventory().entrySet()) {
-            dos.writeUTF(entry.getKey().getName());
+            saveItem(dos, entry.getKey());
             dos.writeInt(entry.getValue());
         }
         dos.writeInt(backpack.getType().ordinal());
@@ -169,7 +169,7 @@ public class CustomSaveManager {
         // Current Item
         if (player.getCurrentItem() != null) {
             dos.writeBoolean(true);
-            dos.writeUTF(player.getCurrentItem().getName());
+            saveItem(dos, player.getCurrentItem());
         } else {
             dos.writeBoolean(false);
         }
@@ -212,9 +212,9 @@ public class CustomSaveManager {
         // Backpack
         int inventorySize = dis.readInt();
         for (int i = 0; i < inventorySize; i++) {
-            String itemName = dis.readUTF();
+            Item item = loadItem(dis);
             int quantity = dis.readInt();
-            player.getBackpack().add(ItemBuilder.build(itemName), quantity);
+            player.getBackpack().add(item, quantity);
         }
         player.getBackpack().setType(Backpack.Type.values()[dis.readInt()]);
 
@@ -239,10 +239,9 @@ public class CustomSaveManager {
 
         // Current Item
         if (dis.readBoolean()) {
-            String itemName = dis.readUTF();
-            Item item = ItemBuilder.build(itemName);
+            Item item = loadItem(dis);
             if(item != null) {
-                player.equipItem(itemName);
+                player.setCurrentItem(item);
             }
         }
 
@@ -343,7 +342,7 @@ public class CustomSaveManager {
 
         if (location.getItem() != null) {
             dos.writeBoolean(true);
-            dos.writeUTF(location.getItem().getName());
+            saveItem(dos, location.getItem());
         } else {
             dos.writeBoolean(false);
         }
@@ -361,10 +360,211 @@ public class CustomSaveManager {
         location.setScarecrowThere(isScarecrowThere);
 
         if (dis.readBoolean()) {
-            String itemName = dis.readUTF();
-            location.setItem(ItemBuilder.build(itemName));
+            location.setItem(loadItem(dis));
         }
 
         return location;
+    }
+    private static void saveItem(DataOutputStream dos, Item item) throws IOException {
+        dos.writeUTF(item.getName());
+        if (item instanceof ArtisanItem) {
+            saveArtisanItem(dos, (ArtisanItem) item);
+        } else if (item instanceof CookingItem) {
+            saveCookingItem(dos, (CookingItem) item);
+        } else if (item instanceof CraftingItem) {
+            saveCraftingItem(dos, (CraftingItem) item);
+        } else if (item instanceof Food) {
+            saveFood(dos, (Food) item);
+        } else if (item instanceof Fruit) {
+            saveFruit(dos, (Fruit) item);
+        } else if (item instanceof Mineral) {
+            saveMineral(dos, (Mineral) item);
+        } else if (item instanceof Plant) {
+            savePlant(dos, (Plant) item);
+        } else if (item instanceof Seed) {
+            saveSeed(dos, (Seed) item);
+        } else if (item instanceof Tree) {
+            saveTree(dos, (Tree) item);
+        }
+    }
+
+    private static Item loadItem(DataInputStream dis) throws IOException {
+        String itemName = dis.readUTF();
+        Item item = ItemBuilder.build(itemName);
+        if (item instanceof ArtisanItem) {
+            return loadArtisanItem(dis, item);
+        } else if (item instanceof CookingItem) {
+            return loadCookingItem(dis, item);
+        } else if (item instanceof CraftingItem) {
+            return loadCraftingItem(dis, item);
+        } else if (item instanceof Food) {
+            return loadFood(dis, item);
+        } else if (item instanceof Fruit) {
+            return loadFruit(dis, item);
+        } else if (item instanceof Mineral) {
+            return loadMineral(dis, item);
+        } else if (item instanceof Plant) {
+            return loadPlant(dis, item);
+        } else if (item instanceof Seed) {
+            return loadSeed(dis, item);
+        } else if (item instanceof Tree) {
+            return loadTree(dis, item);
+        }
+        return item;
+    }
+    private static void saveArtisanItem(DataOutputStream dos, ArtisanItem item) throws IOException {
+        dos.writeInt(item.getProccessingTimeFinal());
+    }
+
+    private static ArtisanItem loadArtisanItem(DataInputStream dis, Item baseItem) throws IOException {
+        ArtisanItem item = (ArtisanItem) baseItem;
+        item.setProccessingTimeFinal(dis.readInt());
+        return item;
+    }
+
+    private static void saveCookingItem(DataOutputStream dos, CookingItem item) throws IOException {
+        dos.writeUTF(item.getType().name());
+    }
+
+    private static CookingItem loadCookingItem(DataInputStream dis, Item baseItem) throws IOException {
+        CookingItem item = (CookingItem) baseItem;
+        // The type is already set by the ItemBuilder, no need to load it again
+        return item;
+    }
+
+    private static void saveCraftingItem(DataOutputStream dos, CraftingItem item) throws IOException {
+        dos.writeDouble(item.getProgressBar());
+        dos.writeInt(item.getPosX());
+        dos.writeInt(item.getPosY());
+
+        if (item.getProccessingItem() != null) {
+            dos.writeBoolean(true);
+            saveArtisanItem(dos, (ArtisanItem) item.getProccessingItem());
+        } else {
+            dos.writeBoolean(false);
+        }
+
+        if (item.getFinishedItem() != null) {
+            dos.writeBoolean(true);
+            saveArtisanItem(dos, (ArtisanItem) item.getFinishedItem());
+        } else {
+            dos.writeBoolean(false);
+        }
+    }
+
+    private static CraftingItem loadCraftingItem(DataInputStream dis, Item baseItem) throws IOException {
+        CraftingItem item = (CraftingItem) baseItem;
+        item.setProgressBar(dis.readDouble());
+        item.setPosX(dis.readInt());
+        item.setPosY(dis.readInt());
+
+        if (dis.readBoolean()) {
+            item.setProccessingItem((ArtisanItem) loadItem(dis));
+        }
+
+        if (dis.readBoolean()) {
+            item.setFinishedItem((ArtisanItem) loadItem(dis));
+        }
+
+        return item;
+    }
+
+    private static void saveFood(DataOutputStream dos, Food item) throws IOException {
+        dos.writeInt(item.getEnergy());
+        dos.writeUTF(item.getBuffer());
+    }
+
+    private static Food loadFood(DataInputStream dis, Item baseItem) throws IOException {
+        Food item = (Food) baseItem;
+        item.setEnergy(dis.readInt());
+        // item.setBuffer(dis.readUTF()); // The buffer is applied on consumption, no need to save it
+        return item;
+    }
+
+    private static void saveFruit(DataOutputStream dos, Fruit item) throws IOException {
+        dos.writeInt(item.getEnergy());
+    }
+
+    private static Fruit loadFruit(DataInputStream dis, Item baseItem) throws IOException {
+        Fruit item = (Fruit) baseItem;
+        item.setEnergy(dis.readInt());
+        return item;
+    }
+
+    private static void saveMineral(DataOutputStream dos, Mineral item) throws IOException {
+        dos.writeBoolean(item.isMined());
+    }
+
+    private static Mineral loadMineral(DataInputStream dis, Item baseItem) throws IOException {
+        Mineral item = (Mineral) baseItem;
+        item.setMined(dis.readBoolean());
+        return item;
+    }
+
+    private static void savePlant(DataOutputStream dos, Plant item) throws IOException {
+        dos.writeInt(item.getStage());
+        dos.writeInt(item.getDaysCounter());
+        dos.writeBoolean(item.getFinished());
+        dos.writeBoolean(item.getMoisture());
+        dos.writeInt(item.getMoistureCounter());
+        dos.writeBoolean(item.getIsGiant());
+        dos.writeBoolean(item.isMoistureGod());
+    }
+
+    private static Plant loadPlant(DataInputStream dis, Item baseItem) throws IOException {
+        Plant item = (Plant) baseItem;
+        item.setStage(dis.readInt());
+        item.setDaysCounter(dis.readInt());
+        item.setFinished(dis.readBoolean());
+        item.setMoisture(dis.readBoolean());
+        item.setMoistureCounter(dis.readInt());
+        if (dis.readBoolean()) {
+            item.isGiant(item.getStage());
+        }
+        item.setMoistureGod(dis.readBoolean());
+        return item;
+    }
+
+    private static void saveSeed(DataOutputStream dos, Seed item) throws IOException {
+        // The type is already saved in the item name, no need to save it again
+    }
+
+    private static Seed loadSeed(DataInputStream dis, Item baseItem) throws IOException {
+        return (Seed) baseItem;
+    }
+
+    private static void saveTree(DataOutputStream dos, Tree item) throws IOException {
+        dos.writeInt(item.getStages().length);
+        for (int stage : item.getStages()) {
+            dos.writeInt(stage);
+        }
+        dos.writeInt(item.getFruitCounter());
+        dos.writeInt(item.getFruitCycle());
+        dos.writeBoolean(item.isFruitFinished());
+        dos.writeInt(item.getStage());
+        dos.writeInt(item.getDaysCounter());
+        dos.writeBoolean(item.getFinished());
+        dos.writeBoolean(item.getMoisture());
+        dos.writeInt(item.getMoistureCounter());
+        dos.writeBoolean(item.isMoistureGod());
+    }
+
+    private static Tree loadTree(DataInputStream dis, Item baseItem) throws IOException {
+        Tree item = (Tree) baseItem;
+        int[] stages = new int[dis.readInt()];
+        for (int i = 0; i < stages.length; i++) {
+            stages[i] = dis.readInt();
+        }
+        item.setStages(stages);
+        item.setFruitCounter(dis.readInt());
+        item.setFruitCycle(dis.readInt());
+        item.setFruitFinished(dis.readBoolean());
+        item.setStage(dis.readInt());
+        item.setDaysCounter(dis.readInt());
+        item.setFinished(dis.readBoolean());
+        item.setMoisture(dis.readBoolean());
+        item.setMoistureCounter(dis.readInt());
+        item.setMoistureGod(dis.readBoolean());
+        return item;
     }
 }

@@ -17,6 +17,13 @@ public class ArtisanItem extends Item {
         super.setDescription(type.getDescription());
     }
 
+    public ArtisanType getType() {
+        return type;
+    }
+
+    public void setType(ArtisanType type) {
+        this.type = type;
+    }
 
     public String getName() {
         return type.getName();

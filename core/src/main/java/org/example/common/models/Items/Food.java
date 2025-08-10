@@ -21,6 +21,10 @@ public class Food extends Item {
         return energy;
     }
 
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
 
     public String getBuffer() {
         return buffer;

@@ -170,6 +170,34 @@ public class Tree extends Item {
         return null;
     }
 
+    public TreeType getType() {
+        return type;
+    }
+
+    public void setType(TreeType type) {
+        this.type = type;
+    }
+
+    public int getDaysCounter() {
+        return daysCounter;
+    }
+
+    public void setStages(int[] stages) {
+        this.stages = stages;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    public boolean isMoisture() {
+        return moisture;
+    }
+
     public boolean isMoistureGod() {
         return moistureGod;
     }
