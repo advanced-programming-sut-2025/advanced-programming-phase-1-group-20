@@ -1147,27 +1147,27 @@ public class WorldController {
         }
     }
 
-    public void renderFarmOnly() {
-        Main.getBatch().begin();
-
-        String season = getCurrentSeason();
-        for (int x = 0; x < Farm.width; x++) {
-            for (int y = 0; y < Farm.height; y++) {
-                Location loc = farm.getItem(x, y);
-                if (loc != null) {
-                    Texture baseTex = getTileTexture(loc.getTile(), season);
-                    Main.getBatch().draw(baseTex, x * 60, y * 60, 60, 60);
-
-                    if (loc.getItem() != null) {
-                        Texture itemTex = getItemTexture(loc.getItem());
-                        Main.getBatch().draw(itemTex, x * 60, y * 60, 60, 60);
-                    }
-                }
-            }
-        }
-
-        Main.getBatch().end();
-    }
+//    public void renderFarmOnly() {
+//        Main.getBatch().begin();
+//
+//        String season = getCurrentSeason();
+//        for (int x = 0; x < Farm.width; x++) {
+//            for (int y = 0; y < Farm.height; y++) {
+//                Location loc = farm.getItem(x, y);
+//                if (loc != null) {
+//                    Texture baseTex = getTileTexture(loc.getTile(), season);
+//                    Main.getBatch().draw(baseTex, x * 60, y * 60, 60, 60);
+//
+//                    if (loc.getItem() != null) {
+//                        Texture itemTex = getItemTexture(loc.getItem());
+//                        Main.getBatch().draw(itemTex, x * 60, y * 60, 60, 60);
+//                    }
+//                }
+//            }
+//        }
+//
+//        Main.getBatch().end();
+//    }
 
     private void renderMarnieShopAtAnchor(Location anchor) {
         int x = anchor.getX();

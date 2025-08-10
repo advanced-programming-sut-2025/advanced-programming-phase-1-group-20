@@ -28,8 +28,8 @@ public class BuildingPlacementScreen implements Screen {
     private final Farm farm;
     private final int buildingWidth;
     private final int buildingHeight;
-    private final WorldController worldController;
-    private final Texture farmTexture;
+//    private final WorldController worldController;
+//    private final Texture farmTexture;
 
     public BuildingPlacementScreen(Player player, String buildingType, Screen previousScreen) {
         this.player = player;
@@ -48,8 +48,8 @@ public class BuildingPlacementScreen implements Screen {
         this.invalidTexture = createColorTexture(Color.RED);
         this.backgroundTexture = createGridTexture();
 
-        this.worldController = ((GameView)previousScreen).getController().getWorldController();
-        this.farmTexture = captureFarmTexture();
+//        this.worldController = ((GameView)previousScreen).getController().getWorldController();
+//        this.farmTexture = captureFarmTexture();
     }
 
     private Texture createColorTexture(Color color) {
@@ -70,18 +70,18 @@ public class BuildingPlacementScreen implements Screen {
         return new Texture(pixmap);
     }
 
-    private Texture captureFarmTexture() {
-        FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888,
-            Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
-
-        fbo.begin();
-        worldController.renderFarmOnly();
-        fbo.end();
-
-        Texture texture = fbo.getColorBufferTexture();
-        fbo.dispose();
-        return texture;
-    }
+//    private Texture captureFarmTexture() {
+//        FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888,
+//            Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), false);
+//
+//        fbo.begin();
+//        worldController.renderFarmOnly();
+//        fbo.end();
+//
+//        Texture texture = fbo.getColorBufferTexture();
+//        fbo.dispose();
+//        return texture;
+//    }
 
     @Override
     public void show() {
@@ -138,16 +138,24 @@ public class BuildingPlacementScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(farmTexture, 0, 0);
 
-        batch.setColor(1, 1, 1, 0.5f); // 50% شفافیت
+        for (int x = 0; x < Farm.width; x++) {
+            for (int y = 0; y < Farm.height; y++) {
+                batch.draw(backgroundTexture, x * 60, y * 60, 60, 60);
+            }
+        }
+
         for (int x = 0; x < Farm.width - buildingWidth + 1; x++) {
             for (int y = 0; y < Farm.height - buildingHeight + 1; y++) {
-                Texture tex = isValidPlacement(x, y) ? validTexture : invalidTexture;
-                batch.draw(tex, x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
+                batch.setColor(1, 1, 1, 0.5f);
+                batch.draw(isValidPlacement(x, y) ? validTexture : invalidTexture,
+                    x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
             }
         }
 
@@ -156,8 +164,8 @@ public class BuildingPlacementScreen implements Screen {
         int tileX = (int)(mousePos.x / 60);
         int tileY = (int)(mousePos.y / 60);
 
-        if (tileX >= 0 && tileX <= Farm.width - buildingWidth &&
-            tileY >= 0 && tileY <= Farm.height - buildingHeight) {
+        if (tileX >= 0 && tileX < Farm.width - buildingWidth + 1 &&
+            tileY >= 0 && tileY < Farm.height - buildingHeight + 1) {
 
             batch.setColor(1, 1, 0, 0.7f);
             batch.draw(validTexture, tileX * 60, tileY * 60,
@@ -166,6 +174,35 @@ public class BuildingPlacementScreen implements Screen {
 
         batch.end();
     }
+//    public void render(float delta) {
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//
+//        batch.begin();
+//        batch.draw(farmTexture, 0, 0);
+//
+//        batch.setColor(1, 1, 1, 0.5f); // 50% شفافیت
+//        for (int x = 0; x < Farm.width - buildingWidth + 1; x++) {
+//            for (int y = 0; y < Farm.height - buildingHeight + 1; y++) {
+//                Texture tex = isValidPlacement(x, y) ? validTexture : invalidTexture;
+//                batch.draw(tex, x * 60, y * 60, buildingWidth * 60, buildingHeight * 60);
+//            }
+//        }
+//
+//        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+//        camera.unproject(mousePos);
+//        int tileX = (int)(mousePos.x / 60);
+//        int tileY = (int)(mousePos.y / 60);
+//
+//        if (tileX >= 0 && tileX <= Farm.width - buildingWidth &&
+//            tileY >= 0 && tileY <= Farm.height - buildingHeight) {
+//
+//            batch.setColor(1, 1, 0, 0.7f);
+//            batch.draw(validTexture, tileX * 60, tileY * 60,
+//                buildingWidth * 60, buildingHeight * 60);
+//        }
+//
+//        batch.end();
+//    }
 
     @Override
     public void resize(int i, int i1) {
