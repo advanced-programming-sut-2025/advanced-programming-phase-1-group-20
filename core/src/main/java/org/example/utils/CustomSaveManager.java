@@ -6,6 +6,7 @@ import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.MapDetails.Lake;
 import org.example.common.models.MapDetails.GreenHouse;
+import org.example.common.models.MapDetails.Quarry;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
@@ -317,6 +318,20 @@ public class CustomSaveManager {
         if(farm.getGreenHouse() != null){
             saveGreenHouse(dos, farm.getGreenHouse() , farm);
         }
+
+        //Quarry
+        dos.writeBoolean(farm.getQuarry() != null);
+        if(farm.getQuarry() != null){
+            saveQuarry(dos, farm.getQuarry() , farm);
+        }
+    }
+
+    private static void saveQuarry(DataOutputStream dos, Quarry quarry , Farm farm) throws IOException {
+        for (int i = 0; i < quarry.getHeight(); i++) {
+            for (int j = 0; j < quarry.getWidth(); j++) {
+                saveLocation(dos, farm.getTiles()[i][j]);
+            }
+        }
     }
 
     private static void saveGreenHouse(DataOutputStream dos, GreenHouse greenHouse , Farm farm) throws IOException {
@@ -417,6 +432,14 @@ public class CustomSaveManager {
 
 
         //Quarry here
+        if(dis.readBoolean()){
+            Quarry quarry = farm.getQuarry();
+            for(int i = 0; i < quarry.getHeight(); i++){
+                for(int j = 0; j < quarry.getWidth(); j++){
+                    farm.getTiles()[i][j] = loadLocation(dis);
+                }
+            }
+        }
 
 
         //List<Barn> barns here
