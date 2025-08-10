@@ -479,6 +479,10 @@ public class Player {
         setCurrentItem(item);
     }
 
+    public void setMoney(int money) {
+        this.money = money;
+    }
+
     public Item getCurrentItem() {
         return currentItem;
     }

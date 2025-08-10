@@ -127,6 +127,12 @@ public class ClientMessageHandler {
                 case TRADE_RESPONSE:
                     handleTradeResponse(message);
                     break;
+                case TRADE_ACCEPT:
+                    handleTradeAccept(message);
+                    break;
+                case TRADE_DECLINE:
+                    handleTradeDecline(message);
+                    break;
                 case PING:
                     handlePing(message);
                     break;
@@ -770,6 +776,27 @@ public class ClientMessageHandler {
 
         if (fromPlayer != null && toPlayer != null && accepted != null && tradeListener != null) {
             tradeListener.onTradeResponse(fromPlayer, toPlayer, accepted);
+        }
+    }
+
+    private void handleTradeAccept(Message message) {
+        String fromPlayer = message.getFromBody("fromPlayer");
+        String toPlayer = message.getFromBody("toPlayer");
+        Object tradeItems = message.getFromBody("tradeItems");
+
+        if (fromPlayer != null && toPlayer != null && tradeListener != null) {
+            // Handle trade acceptance with items
+            System.out.println("Trade accepted by " + fromPlayer + " with items: " + tradeItems);
+        }
+    }
+
+    private void handleTradeDecline(Message message) {
+        String fromPlayer = message.getFromBody("fromPlayer");
+        String toPlayer = message.getFromBody("toPlayer");
+
+        if (fromPlayer != null && toPlayer != null && tradeListener != null) {
+            // Handle trade decline
+            System.out.println("Trade declined by " + fromPlayer);
         }
     }
 

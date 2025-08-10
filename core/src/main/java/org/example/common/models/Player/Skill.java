@@ -120,4 +120,36 @@ public class Skill {
         int unitsNeeded = getUnitsNeededForNextLevel();
         return (float) units / unitsNeeded;
     }
+
+    public void setMaxLevel(int maxLevel) {
+        this.maxLevel = maxLevel;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAdderUnit(int adderUnit) {
+        this.adderUnit = adderUnit;
+    }
+
+    public void setUnits(int units) {
+        this.units = units;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setBuff(boolean buff) {
+        this.buff = buff;
+    }
+
+    public void setHours(int hours) {
+        this.hours = hours;
+    }
+
+    public void setCurrentLevel(int currentLevel) {
+        this.currentLevel = currentLevel;
+    }
 }

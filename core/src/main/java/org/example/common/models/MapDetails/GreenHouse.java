@@ -76,4 +76,20 @@ public class GreenHouse {
     public List<Plant> getGreenHousePlants() {
         return greenHousePlants;
     }
+
+    public boolean isConstructed() {
+        return isConstructed;
+    }
+
+    public void setConstructed(boolean constructed) {
+        isConstructed = constructed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

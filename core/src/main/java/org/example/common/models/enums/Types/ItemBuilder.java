@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemBuilder {
-
     public static Item build(String name) {
         MineralType mineralType = MineralType.fromName(name);
         if (mineralType != null) {

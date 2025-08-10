@@ -38,10 +38,8 @@ public class Date implements Runnable {
         updateWeatherToday();
         updateWeatherTomorrow();
 
-        // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;
         try {
-            // Try to access Gdx.files - if it's null, we're on the server
             if (com.badlogic.gdx.Gdx.files == null) {
                 isServerEnvironment = true;
             }
@@ -60,9 +58,6 @@ public class Date implements Runnable {
             isMultiplayerMode = false;
         }
 
-        // Only start the time thread if:
-        // 1. We're not on the server (client-side only)
-        // 2. We're in single player mode (not multiplayer)
         if (!isServerEnvironment && !isMultiplayerMode) {
             // Only start the time thread on client side in single player mode
             Thread timeThread = new Thread(this);
@@ -510,6 +505,30 @@ public class Date implements Runnable {
             System.err.println("DEBUG: Error syncing date from server: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public Weather getWeatherTomorrow() {
+        return weatherTomorrow;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public void setSeason(int season) {
+        this.season = season;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public void setHour(int hour) {
+        this.hour = hour;
+    }
+
+    public void setMinute(int minute) {
+        this.minute = minute;
     }
 
     @Override

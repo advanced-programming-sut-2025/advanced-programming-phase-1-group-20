@@ -17,6 +17,10 @@ public class CookingItem extends Item {
         this.type = type;
     }
 
+    public CookingType getType() {
+        return type;
+    }
+
     public Ingredients getIngredients() {
         return type.getIngredient();
     }

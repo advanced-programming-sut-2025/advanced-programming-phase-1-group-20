@@ -552,7 +552,7 @@ public class GameView implements Screen, InputProcessor {
         tradingButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                openTradingMenu();
+//                openTradingMenu();
             }
         });
     }
@@ -569,11 +569,11 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
-    private void openTradingMenu() {
-        TradingMenuController tradingController = new TradingMenuController(player);
-        TradingMenuView tradingView = new TradingMenuView(tradingController, skin, this);
-        Main.getGame().setScreen(tradingView);
-    }
+//    private void openTradingMenu() {
+//        // Use the new network-based trading screen
+//        NetworkTradingScreen tradingView = new NetworkTradingScreen(skin, this);
+//        Main.getGame().setScreen(tradingView);
+//    }
 
     // Getters
     public Player getPlayer() {
@@ -699,7 +699,7 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if (keycode == Input.Keys.T) {
-            openTradingMenu();
+//            openTradingMenu();
             return true;
         }
         if (keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P) {

@@ -240,6 +240,12 @@ public class GameSession {
             case TRADE_REQUEST:
                 handleTradeRequest(username, message);
                 break;
+            case TRADE_ACCEPT:
+                handleTradeAccept(username, message);
+                break;
+            case TRADE_DECLINE:
+                handleTradeDecline(username, message);
+                break;
             case SELECT_FARM:
                 System.out.println("DEBUG: Routing SELECT_FARM message to handleFarmSelection");
                 handleFarmSelection(username, message);
@@ -542,6 +548,29 @@ public class GameSession {
         String targetPlayer = message.getFromBody("targetPlayer");
 
         // Send trade request to specific player
+        PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+        if (targetConnection != null) {
+            message.putInBody("fromPlayer", username);
+            targetConnection.sendMessage(message);
+        }
+    }
+
+    private void handleTradeAccept(String username, Message message) {
+        String targetPlayer = message.getFromBody("toPlayer");
+        Object tradeItems = message.getFromBody("tradeItems");
+
+        // Send trade acceptance to target player
+        PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+        if (targetConnection != null) {
+            message.putInBody("fromPlayer", username);
+            targetConnection.sendMessage(message);
+        }
+    }
+
+    private void handleTradeDecline(String username, Message message) {
+        String targetPlayer = message.getFromBody("toPlayer");
+
+        // Send trade decline to target player
         PlayerConnection targetConnection = playerConnections.get(targetPlayer);
         if (targetConnection != null) {
             message.putInBody("fromPlayer", username);

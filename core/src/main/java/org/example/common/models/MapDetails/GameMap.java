@@ -329,4 +329,11 @@ public class GameMap {
         }
     }
 
+    public void setVillage(Village village) {
+        this.village = village;
+    }
+
+    public void setTiles(Location[][] tiles) {
+        this.tiles = tiles;
+    }
 }

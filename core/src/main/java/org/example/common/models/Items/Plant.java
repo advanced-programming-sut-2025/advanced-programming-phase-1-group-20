@@ -186,6 +186,10 @@ public class Plant extends Item {
         return "content/Plants/" + getImageFilepath() + ".png";
     }
 
+    public int getDaysCounter() {
+        return daysCounter;
+    }
+
     @Override
     public String getImageFilepath() {
         if(isGiant){
