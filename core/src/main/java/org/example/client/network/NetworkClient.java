@@ -76,7 +76,7 @@ public class NetworkClient {
 
         // Default server settings
         this.serverHost = "localhost";
-        this.serverPort = 8080;
+        this.serverPort = 8008;
     }
 
     public static NetworkClient getInstance() {

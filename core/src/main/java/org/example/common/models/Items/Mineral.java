@@ -9,6 +9,7 @@ public class Mineral extends Item {
 
     public Mineral(MineralType type) {
         super(type.getName(), type.getBaseSellPrice() , type.getImageFilepath());
+        super.setDescription(type.getDescription());
         this.type = type;
     }
 

@@ -297,14 +297,13 @@ public enum Markets {
         Item rice = new Item("Rice", 200, "content/Crops/Rice.png" , "A basic grain often served under vegetables.");
         items.add(new Product(rice, Double.POSITIVE_INFINITY));
 
-        Item bouquet = new Item("Bouquet" , 100 , "content/Bouquet.png" , "is a carefully arranged and often tied bundle of flowers");
+        Item bouquet = new SpecialItem(SpecialItemType.Bouquet);
         items.add(new Product(bouquet, 2.0));
 
         Item wheatFlour = new Item("Wheat Flour", 100, "content/Farming/Wheat_Flour.png" , "A common cooking ingredient made from crushed wheat seeds.");
         items.add(new Product(wheatFlour, Double.POSITIVE_INFINITY));
 
-        Item weddingRing = new Item("Wedding Ring" , 10_000 , "content/Crafting/Wedding_Ring.png" , "It's used to ask for another farmer's hand in marriage. " +
-            "(Unlocked after reaching level 3 friendship with a player)");
+        Item weddingRing = new SpecialItem(SpecialItemType.WeddingRing);
         items.add(new Product(weddingRing, 2.0));
 
         Item dehydrator = new CraftingItem(CraftingType.Dehydrator);

@@ -2238,7 +2238,7 @@ public class GameMenuController implements Controller {
     public void cheatGiveItems() {
         Player player = App.getGame().getCurrentPlayer();
 
-        Item weddingRing = new Item("Wedding Ring", 2000, "content/Crafting/Wedding_Ring.png" , "A special ring for proposing marriage.");
+        Item weddingRing = new SpecialItem(SpecialItemType.WeddingRing);
         player.getBackpack().add(weddingRing, 1);
 
         Mineral diamond = new Mineral(MineralType.Diamond);

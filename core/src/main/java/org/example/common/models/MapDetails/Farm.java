@@ -56,7 +56,7 @@ public class Farm {
     private final int farmIndex;
     private final Location[][] tiles;
     private final List<Animal> animals;
-    private final Building building = createBuilding();
+    private Building building = createBuilding();
     private final List<Lake> lakes = createLakes();
     private final GreenHouse greenHouse = createGreenHouse();
     private final Quarry quarry = createQuarry();
@@ -435,6 +435,10 @@ public class Farm {
                 placed++;
             }
         }
+    }
+
+    public void setBuilding(Building building) {
+        this.building = building;
     }
 
     public Building createBuilding() {

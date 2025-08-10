@@ -24,6 +24,7 @@ public class Fish extends Item implements Serializable {
 
     public Fish(FishType type, Seasons season) {
         this(type, 0, season);
+        super.setDescription(type.getDescription());
     }
 
     private static int calculatePrice(int basePrice, int quality) {

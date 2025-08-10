@@ -32,7 +32,7 @@ public class NPCSpriteController implements Disposable {
     private void loadNPCSprites() {
         System.out.println("NPCSpriteController: Loading NPC sprites...");
         String[] npcNames = {"Abigail", "Pierre", "Sebastian", "Leah", "Willy", "Jojo"};
-        String[] animationTypes = {"idle", "walk", "back", "face", "fly"};
+        String[] animationTypes = {"down", "walk", "back", "face", "fly"};
 
         for (String npcName : npcNames) {
             System.out.println("NPCSpriteController: Loading sprites for " + npcName);
@@ -66,10 +66,10 @@ public class NPCSpriteController implements Disposable {
             // Handle Willy's special naming convention
             String basePath;
             if (npcName.equals("Willy")) {
-                // Willy uses different naming: WillyIdle_0.png, Walk_1.png, etc.
+                // Willy uses different naming: Walk_1.png, WillyFace_0.png, etc.
                 switch (animationType) {
-                    case "idle":
-                        basePath = "content/NPC/Willy/WillyIdle_%d.png";
+                    case "down":
+                        basePath = "content/NPC/Willy/down_%d.png";
                         break;
                     case "walk":
                         basePath = "content/NPC/Willy/Walk_%d.png";
@@ -84,7 +84,7 @@ public class NPCSpriteController implements Disposable {
                         basePath = "content/NPC/Willy/tool_%d.png"; // Willy uses tool_ for fly animation
                         break;
                     default:
-                        basePath = "content/NPC/Willy/WillyIdle_%d.png"; // Default to idle
+                        basePath = "content/NPC/Willy/down_%d.png"; // Default to down
                         break;
                 }
             } else {
@@ -111,8 +111,8 @@ public class NPCSpriteController implements Disposable {
                 if (npcName.equals("Willy")) {
                     // Handle Willy's special naming for fallback
                     switch (animationType) {
-                        case "idle":
-                            framePath = "content/NPC/Willy/WillyIdle_0.png";
+                        case "down":
+                            framePath = "content/NPC/Willy/down_0.png";
                             break;
                         case "walk":
                             framePath = "content/NPC/Willy/Walk_0.png";
@@ -127,7 +127,7 @@ public class NPCSpriteController implements Disposable {
                             framePath = "content/NPC/Willy/tool_0.png";
                             break;
                         default:
-                            framePath = "content/NPC/Willy/WillyIdle_0.png";
+                            framePath = "content/NPC/Willy/down_0.png";
                             break;
                     }
                 } else {
@@ -170,29 +170,29 @@ public class NPCSpriteController implements Disposable {
 
         Animation<TextureRegion> animation = getNPCAnimation(npcName, animationType);
         if (animation == null) {
-            // Fallback to idle animation
-            animation = getNPCAnimation(npcName, "idle");
+            // Fallback to down animation (first frame only for idle)
+            animation = getNPCAnimation(npcName, "down");
             if (animation == null) {
                 return null;
             }
-            // Force animation type to idle if we're using fallback
-            animationType = "idle";
+            // Force animation type to down if we're using fallback
+            animationType = "down";
         }
 
-        // For idle animation or stationary NPCs, always return the first frame (idle_0)
-        if ("idle".equals(animationType) && !npc.isMoving()) {
+        // For down animation when not moving, always return the first frame (down_0) for idle
+        if ("down".equals(animationType) && !npc.isMoving()) {
             // Reset animation timer to ensure we stay on frame 0
             npc.setAnimationTimer(0f);
-            return animation.getKeyFrame(0, false); // Return first frame (idle_0) without animation
+            return animation.getKeyFrame(0, false); // Return first frame (down_0) without animation
         }
 
-        // Only update animation timer if NPC is moving or not on idle animation
-        if (npc.isMoving() || !"idle".equals(animationType)) {
+        // Only update animation timer if NPC is moving or not on down animation
+        if (npc.isMoving() || !"down".equals(animationType)) {
             float currentTimer = npc.getAnimationTimer() + deltaTime;
             npc.setAnimationTimer(currentTimer);
             return animation.getKeyFrame(currentTimer, true);
         } else {
-            // Fallback: For idle and not moving, return static frame (idle_0)
+            // Fallback: For down and not moving, return static frame (down_0)
             npc.setAnimationTimer(0f);
             return animation.getKeyFrame(0, false);
         }
@@ -243,7 +243,6 @@ public class NPCSpriteController implements Disposable {
             float x = npc.getPosX();
             float y = npc.getPosY();
 
-            // Scale the sprite to match the game's tile size (60 pixels)
             float scale = 3.75f; // 60 pixels / 16 pixels = 3.75
             float width = currentFrame.getRegionWidth() * scale;
             float height = currentFrame.getRegionHeight() * scale;

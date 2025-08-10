@@ -15,6 +15,7 @@ public class ArtisanItem extends Item {
         proccessingTimeFinal = this.getProcessingTime();
         this.setPlacable(true);
         super.setDescription(type.getDescription());
+        super.setDescription(type.getDescription());
     }
 
     public ArtisanType getType() {
