@@ -319,7 +319,8 @@ public class WorldController {
                 mapHeight = Village.height * TILE_SIZE;
                 mapOffsetX = GameMap.VILLAGE_X * TILE_SIZE;
                 mapOffsetY = GameMap.VILLAGE_Y * TILE_SIZE;
-            } else {
+            }
+            else {
                 // For farm, use farm bounds
                 mapWidth = Farm.width * TILE_SIZE;
                 mapHeight = Farm.height * TILE_SIZE;
