@@ -366,6 +366,12 @@ public class CustomSaveManager {
 
 
     private static void saveBuilding(DataOutputStream dos, Building building) throws IOException {
+        dos.writeInt(building.getX());
+        dos.writeInt(building.getY());
+        dos.writeUTF(building.getName());
+        dos.writeUTF(building.getType());
+
+        // Now save the refrigerator contents
         Refrigerator fridge = building.getRefrigerator();
         dos.writeInt(fridge.getItems().size());
         for (Map.Entry<Item, Integer> entry : fridge.getItems().entrySet()) {
@@ -383,6 +389,7 @@ public class CustomSaveManager {
 
         Player owner = players.stream().filter(p -> p.getUser().getUsername().equals(ownerUsername)).findFirst().orElse(null);
 
+        // This creates the farm with a DEFAULT building at a default location. We will replace it.
         Farm farm = new Farm(name, owner, farmType, farmIndex);
 
         // Tiles
@@ -398,26 +405,38 @@ public class CustomSaveManager {
             farm.addAnimal(loadAnimal(dis));
         }
 
+        // MODIFIED: This section now reads building properties and REPLACES the default building.
+        if (dis.readBoolean()) { // if a building was saved
+            // 1. Read building properties from the save file
+            int buildingX = dis.readInt();
+            int buildingY = dis.readInt();
+            String buildingName = dis.readUTF();
+            String buildingType = dis.readUTF();
 
-        //Building here
-        if (dis.readBoolean()) {
-            Refrigerator fridge = farm.getBuilding().getRefrigerator();
+            // 2. Create a NEW Building instance with the loaded data
+            Building loadedBuilding = new Building(buildingX, buildingY, buildingName, buildingType, farm.getOwner());
+
+            // 3. Load the refrigerator contents INTO our new loaded building
+            Refrigerator fridge = loadedBuilding.getRefrigerator();
             int fridgeItemCount = dis.readInt();
             for (int i = 0; i < fridgeItemCount; i++) {
                 Item item = loadItem(dis);
                 int quantity = dis.readInt();
                 fridge.putItem(item, quantity);
             }
+
+            // 4. IMPORTANT: Replace the farm's default building with our loaded one
+            farm.setBuilding(loadedBuilding);
+
+            // 5. IMPORTANT: Re-mark the building's area on the farm's tile map
+            farm.markBuildingArea();
         }
-
-
 
         //List<Lake> lakes here
         int lakeCount = dis.readInt();
         for(int i = 0; i < lakeCount; i++){
             farm.getLakes().add(loadLake(dis));
         }
-
 
         //GreenHouse here
         if (dis.readBoolean()) {
@@ -430,7 +449,6 @@ public class CustomSaveManager {
             }
         }
 
-
         //Quarry here
         if(dis.readBoolean()){
             Quarry quarry = farm.getQuarry();
@@ -441,14 +459,7 @@ public class CustomSaveManager {
             }
         }
 
-
-        //List<Barn> barns here
-
-
-        //List<Coop> here
-
-
-        //List<ShippingBin> shippingBins here
+        // TODO: Barns and Coops logic will go here later.
 
         return farm;
     }
