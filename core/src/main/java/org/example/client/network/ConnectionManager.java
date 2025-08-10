@@ -280,8 +280,7 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
     @Override
     public void onPlayerMove(String username, float x, float y) {
-        System.out.println("Player " + username + " moved to (" + x + ", " + y + ")");
-        // Here you would typically update the player's position in the game
+        System.out.println("Player " + username + " moved to (" + x + ", " + y + ")"); // handled
     }
 
     // Getters

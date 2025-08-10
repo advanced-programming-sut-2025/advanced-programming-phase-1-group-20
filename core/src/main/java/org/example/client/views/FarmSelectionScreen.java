@@ -31,7 +31,6 @@ import org.example.common.models.enums.PlayerEnums.Gender;
 
 import java.util.HashMap;
 
-// TODO: remove debug prints
 public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMessageListener {
     private Stage stage;
     private SpriteBatch batch;

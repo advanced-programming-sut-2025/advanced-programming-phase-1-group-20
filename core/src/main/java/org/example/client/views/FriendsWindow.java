@@ -35,7 +35,7 @@ public class FriendsWindow implements Screen {
     private boolean isSelectingGiftItem;
 
     public FriendsWindow(Player currentPlayer, Skin skin, Screen previousScreen) {
-        System.out.println("🏠 Creating FriendsWindow...");
+        System.out.println("Creating FriendsWindow...");
         this.currentPlayer = currentPlayer;
         this.skin = skin;
         this.previousScreen = previousScreen;

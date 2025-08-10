@@ -186,7 +186,7 @@ public class NetworkClient {
                     System.out.println("🔌 NETWORK: WebSocket closed - Status: " + statusCode + ", Reason: " + reason);
 
                     if (statusCode != 1000) { // Not a normal closure
-                        System.out.println("⚠️ NETWORK: Abnormal WebSocket closure, starting enhanced reconnection process...");
+                        System.out.println("NETWORK: Abnormal WebSocket closure, starting enhanced reconnection process...");
                         connectionState = ConnectionState.DISCONNECTED;
 
                         // Start enhanced reconnection process with 2-minute timeout
@@ -239,70 +239,67 @@ public class NetworkClient {
         }
     }
 
-    /**
-     * Enhanced reconnection logic with 2-minute timeout
-     */
     private void startReconnectionProcess() {
         if (isReconnecting) {
-            System.out.println("🔄 NETWORK: Reconnection already in progress");
+            System.out.println("NETWORK: Reconnection already in progress");
             return;
         }
 
         disconnectTime = System.currentTimeMillis();
         isReconnecting = true;
-        
+
         // Check if player was in game before disconnection
         if (connectionState == ConnectionState.IN_GAME) {
             wasInGame = true;
             System.out.println("🎮 NETWORK: Player was in game, will attempt to restore game session");
         }
-        
+
         connectionState = ConnectionState.RECONNECTING;
 
-        System.out.println("🔄 NETWORK: Starting reconnection process with 2-minute timeout");
+        System.out.println("NETWORK: Starting reconnection process with 2-minute timeout");
 
         reconnectionThread = new Thread(() -> {
             int attemptCount = 0;
-            
+
             while (isReconnecting && (System.currentTimeMillis() - disconnectTime) < RECONNECTION_TIMEOUT_MS) {
                 attemptCount++;
-                System.out.println("🔄 NETWORK: Reconnection attempt " + attemptCount + " (time remaining: " + 
+                System.out.println("NETWORK: Reconnection attempt " + attemptCount + " (time remaining: " +
                     ((RECONNECTION_TIMEOUT_MS - (System.currentTimeMillis() - disconnectTime)) / 1000) + "s)");
 
                 try {
                     // Attempt to reconnect
                     boolean success = attemptReconnection();
-                    
+
                     if (success) {
-                        System.out.println("✅ NETWORK: Reconnection successful!");
+                        System.out.println("NETWORK: Reconnection successful!");
                         isReconnecting = false;
-                        
+
                         // Restore game state if needed
                         if (wasInGame && lastGameSessionId != null) {
-                            System.out.println("🎮 NETWORK: Restoring game session: " + lastGameSessionId);
+                            System.out.println("NETWORK: Restoring game session: " + lastGameSessionId);
                             restoreGameSession();
                         }
-                        
+
                         return;
                     } else {
-                        System.out.println("❌ NETWORK: Reconnection attempt " + attemptCount + " failed");
+                        System.out.println("NETWORK: Reconnection attempt " + attemptCount + " failed");
                     }
-                    
+
                     // Wait before next attempt
                     Thread.sleep(RECONNECTION_ATTEMPT_DELAY_MS);
-                    
+
                 } catch (InterruptedException e) {
-                    System.out.println("🔄 NETWORK: Reconnection thread interrupted");
+                    System.out.println("NETWORK: Reconnection thread interrupted");
                     Thread.currentThread().interrupt();
                     break;
                 } catch (Exception e) {
-                    System.err.println("❌ NETWORK: Error during reconnection attempt: " + e.getMessage());
+                    System.err.println("NETWORK: Error during reconnection attempt: " + e.getMessage());
                 }
             }
 
             // Reconnection timeout or failed
             if (isReconnecting) {
-                System.out.println("⏰ NETWORK: Reconnection timeout after 2 minutes");
+                System.out.println("NETWORK: Reconnection timeout after 2 minutes");
                 handleReconnectionTimeout();
             }
         }, "NetworkClient-Reconnection");
@@ -319,24 +316,24 @@ public class NetworkClient {
             // Set server address and attempt connection
             setServerAddress(serverHost, serverPort);
             boolean connected = connect();
-            
+
             if (connected && authenticatedUser != null) {
                 // Re-authenticate the user
-                System.out.println("🔐 NETWORK: Re-authenticating user: " + authenticatedUser.getUsername());
+                System.out.println("NETWORK: Re-authenticating user: " + authenticatedUser.getUsername());
                 boolean authenticated = authenticate(authenticatedUser, authenticatedUser.getJwtToken());
-                
+
                 if (authenticated) {
-                    System.out.println("✅ NETWORK: Re-authentication successful");
+                    System.out.println("NETWORK: Re-authentication successful");
                     return true;
                 } else {
-                    System.out.println("❌ NETWORK: Re-authentication failed");
+                    System.out.println("NETWORK: Re-authentication failed");
                     return false;
                 }
             }
-            
+
             return connected;
         } catch (Exception e) {
-            System.err.println("❌ NETWORK: Reconnection attempt failed: " + e.getMessage());
+            System.err.println("NETWORK: Reconnection attempt failed: " + e.getMessage());
             return false;
         }
     }
@@ -352,47 +349,37 @@ public class NetworkClient {
             rejoinMessage.putInBody("gameSessionId", lastGameSessionId);
             rejoinMessage.putInBody("username", authenticatedUser.getUsername());
             rejoinMessage.putInBody("timestamp", System.currentTimeMillis());
-            
+
             sendMessage(rejoinMessage);
-            System.out.println("🎮 NETWORK: Sent rejoin game message for session: " + lastGameSessionId);
+            System.out.println("NETWORK: Sent rejoin game message for session: " + lastGameSessionId);
         }
     }
 
-    /**
-     * Handle reconnection timeout
-     */
     private void handleReconnectionTimeout() {
         isReconnecting = false;
         connectionState = ConnectionState.ERROR;
         wasInGame = false;
         lastGameSessionId = null;
-        
-        System.out.println("⏰ NETWORK: Reconnection timeout - returning to main menu");
-        
+
+        System.out.println("NETWORK: Reconnection timeout - returning to main menu");
+
         // Notify the UI about the timeout
         if (messageHandler != null) {
             messageHandler.onReconnectionTimeout();
         }
     }
 
-    /**
-     * Store game session ID for reconnection
-     */
+
     public void setGameSessionId(String gameSessionId) {
         this.lastGameSessionId = gameSessionId;
         System.out.println("🎮 NETWORK: Stored game session ID for reconnection: " + gameSessionId);
     }
 
-    /**
-     * Check if reconnection is in progress
-     */
     public boolean isReconnecting() {
         return isReconnecting;
     }
 
-    /**
-     * Get remaining reconnection time in seconds
-     */
+
     public long getRemainingReconnectionTime() {
         if (!isReconnecting) {
             return 0;
@@ -401,19 +388,17 @@ public class NetworkClient {
         return Math.max(0, remaining / 1000);
     }
 
-    /**
-     * Cancel reconnection process
-     */
+
     public void cancelReconnection() {
         isReconnecting = false;
         wasInGame = false;
         lastGameSessionId = null;
-        
+
         if (reconnectionThread != null && reconnectionThread.isAlive()) {
             reconnectionThread.interrupt();
         }
-        
-        System.out.println("❌ NETWORK: Reconnection cancelled by user");
+
+        System.out.println("NETWORK: Reconnection cancelled by user");
     }
 
     private void startNetworkThread() {
@@ -465,15 +450,15 @@ public class NetworkClient {
         if (!webSocket.isOutputClosed()) {
             try {
                 String messageJson = gson.toJson(message);
-                System.out.println("📤 DEBUG: Sending message JSON: " + messageJson);
+                System.out.println("DEBUG: Sending message JSON: " + messageJson);
                 outgoingMessages.offer(message);
-                System.out.println("📤 DEBUG: Message added to outgoing queue");
+                System.out.println("DEBUG: Message added to outgoing queue");
             } catch (Exception e) {
-                System.err.println("❌ NETWORK: Failed to serialize message: " + e.getMessage());
+                System.err.println("NETWORK: Failed to serialize message: " + e.getMessage());
                 e.printStackTrace();
             }
         } else {
-            System.err.println("❌ NETWORK: Cannot send message - WebSocket output is closed");
+            System.err.println("NETWORK: Cannot send message - WebSocket output is closed");
         }
     }
 
@@ -499,17 +484,13 @@ public class NetworkClient {
     }
 
     public void sendPlayerMove(float x, float y) {
-        System.out.println("📤 DEBUG: sendPlayerMove() called with position: (" + x + ", " + y + ")");
-        System.out.println("📤 DEBUG: Current connection state: " + connectionState);
-        System.out.println("📤 DEBUG: Authenticated user: " + (authenticatedUser != null ? authenticatedUser.getUsername() : "null"));
-
         if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
-            System.out.println("❌ NETWORK: Cannot send movement - not authenticated. State: " + connectionState);
+            System.out.println("NETWORK: Cannot send movement - not authenticated. State: " + connectionState);
             return;
         }
 
         if (authenticatedUser == null) {
-            System.out.println("❌ NETWORK: Cannot send movement - no authenticated user");
+            System.out.println("NETWORK: Cannot send movement - no authenticated user");
             return;
         }
 
@@ -520,9 +501,9 @@ public class NetworkClient {
         moveMessage.putInBody("username", authenticatedUser.getUsername());
         moveMessage.putInBody("timestamp", System.currentTimeMillis());
 
-        System.out.println("📤 DEBUG: About to send PLAYER_MOVE message");
+        System.out.println("DEBUG: About to send PLAYER_MOVE message");
         sendMessage(moveMessage);
-        System.out.println("📤 NETWORK: Sent PLAYER_MOVE message to server - Position: (" + x + ", " + y + ") for user: " + authenticatedUser.getUsername());
+        System.out.println("NETWORK: Sent PLAYER_MOVE message to server - Position: (" + x + ", " + y + ") for user: " + authenticatedUser.getUsername());
     }
 
     public void sendChatMessage(String messageText) {
@@ -712,16 +693,16 @@ public class NetworkClient {
             Message message = incomingMessages.poll();
             if (message != null) {
                 messageCount++;
-                System.out.println("🔄 NETWORK: Processing message " + messageCount + " of type: " + message.getType());
+                System.out.println("NETWORK: Processing message " + messageCount + " of type: " + message.getType());
                 if (messageHandler != null) {
                     messageHandler.handleMessage(message);
                 } else {
-                    System.err.println("❌ NETWORK: No message handler set!");
+                    System.err.println("NETWORK: No message handler set!");
                 }
             }
         }
         if (messageCount > 0) {
-            System.out.println("🔄 NETWORK: Processed " + messageCount + " messages");
+            System.out.println("NETWORK: Processed " + messageCount + " messages");
         }
     }
 
