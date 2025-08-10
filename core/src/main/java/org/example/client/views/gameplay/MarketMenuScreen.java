@@ -421,7 +421,7 @@ public class MarketMenuScreen implements Screen, Disposable {
 //                buildDialog.hide();
 //                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
 //                Main.getGame().setScreen(new BuildingPlacementScreen(
-//                    player, buildingType, MarketMenuScreen.this));
+//                    player, buildingType, MarketMenuScreen.this), skin);
 //            }
 //        });
 //
