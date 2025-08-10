@@ -38,7 +38,7 @@ public class NPC extends Mob {
     private float posX = 0;
     private float posY = 0;
     private float speed = 60f; // 1 tile per second
-    private String currentAnimation = "idle"; // idle, walk, back, face, fly
+    private String currentAnimation = "down"; // down, walk, back, face, fly
     private int currentFrame = 0;
     private float animationTimer = 0f;
     private static final float FRAME_DURATION = 0.2f; // Time per frame
@@ -491,7 +491,7 @@ public class NPC extends Mob {
 
     // Method to force NPC into proper idle state
     public void forceIdleState() {
-        this.currentAnimation = "idle";
+        this.currentAnimation = "down";
         this.isMoving = false;
         this.animationTimer = 0f;
     }

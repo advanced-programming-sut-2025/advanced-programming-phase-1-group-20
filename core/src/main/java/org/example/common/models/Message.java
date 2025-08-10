@@ -96,6 +96,7 @@ public class Message {
         PLAYER_DATA_UPDATE,
         WORLD_UPDATE,
         WEATHER_UPDATE,
+        NPC_UPDATE,
 
         // Trading and market
         TRADE_REQUEST,

@@ -460,9 +460,6 @@ public class Game implements Serializable {
         return null;
     }
 
-    /**
-     * Add a new player to the game
-     */
     public boolean addPlayer(Player newPlayer) {
         System.out.println("DEBUG: Game.addPlayer called for player: " + (newPlayer != null ? newPlayer.getUser().getUsername() : "null"));
         System.out.println("DEBUG: Current players list: " + (players != null ? players.size() : "null"));

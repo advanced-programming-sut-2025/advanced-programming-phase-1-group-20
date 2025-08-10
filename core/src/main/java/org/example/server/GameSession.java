@@ -14,6 +14,7 @@ import org.example.common.models.enums.Weather;
 import org.example.common.models.MapDetails.GameMap;
 import com.google.gson.Gson;
 import org.example.server.controllers.LiveStockController;
+import org.example.server.controllers.NpcController;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +28,7 @@ public class GameSession {
     private final Map<String, PlayerConnection> playerConnections;
     private final ScheduledExecutorService gameLoop;
     private final LiveStockController liveStockController;
+    private final NpcController npcController;
     private final Gson gson;
     private final ServerConfig config;
     private boolean isActive;
@@ -49,6 +51,7 @@ public class GameSession {
             this.gameTickCounter = 0;
             this.lastBroadcastedWeather = null; // Initialize lastBroadcastedWeather
             this.liveStockController = new LiveStockController(this);
+            this.npcController = new NpcController();
 
             System.out.println("DEBUG: GameSession initialized with sessionId: " + sessionId);
 
@@ -116,7 +119,7 @@ public class GameSession {
         rejoinMessage.putInBody("action", "rejoined");
         rejoinMessage.putInBody("message", username + " has rejoined the game");
         rejoinMessage.putInBody("timestamp", System.currentTimeMillis());
-        
+
         broadcastToAll(rejoinMessage);
         System.out.println("🔄 SERVER: Broadcasted player rejoin: " + username);
     }
@@ -327,7 +330,11 @@ public class GameSession {
                         App.getGame().getCurrentDate().getCurrentTimeString() +
                         " (Weather: " + App.getGame().getCurrentDate().getWeatherToday() + ")");
                 }
+                System.out.println("Animal moves");
                 updateAnimalAI(1.0f / config.getGameTickRate());
+
+                // Update NPC routines based on current time
+                npcController.updateNPCRoutines();
             } else {
                 System.out.println("DEBUG: Server game loop - current date is null");
             }
@@ -357,6 +364,11 @@ public class GameSession {
                         System.out.println("DEBUG: Weather changed to " + currentWeather + " - broadcasting to all clients");
                     }
                 }
+            }
+
+            // Broadcast NPC updates periodically
+            if (gameTickCounter % 30 == 0) { // Every 30 ticks (about every 30 seconds)
+                broadcastNPCUpdates();
             }
 
         } catch (Exception e) {
@@ -785,6 +797,37 @@ public class GameSession {
         message.setType(Message.Type.WEATHER_UPDATE);
         message.putInBody("weather", App.getGame().getCurrentDate().getWeatherToday().toString());
         broadcastToAll(message);
+    }
+
+    private void broadcastNPCUpdates() {
+        Message npcMessage = new Message();
+        npcMessage.setType(Message.Type.NPC_UPDATE);
+
+        // Get NPC data from village
+        if (App.getGame().getGameMap() != null && App.getGame().getGameMap().getVillage() != null) {
+            List<org.example.common.models.entities.NPC> residents = App.getGame().getGameMap().getVillage().getResidents();
+            if (residents != null && !residents.isEmpty()) {
+                List<Map<String, Object>> npcData = new ArrayList<>();
+
+                for (org.example.common.models.entities.NPC npc : residents) {
+                    Map<String, Object> npcInfo = new HashMap<>();
+                    npcInfo.put("name", npc.getName());
+                    npcInfo.put("posX", npc.getPosX());
+                    npcInfo.put("posY", npc.getPosY());
+                    npcInfo.put("currentAnimation", npc.getCurrentAnimation());
+                    npcInfo.put("isMoving", npc.isMoving());
+                    npcInfo.put("spriteName", npc.getSpriteName());
+
+                    npcData.add(npcInfo);
+                }
+
+                npcMessage.putInBody("npcs", npcData);
+                npcMessage.putInBody("timestamp", System.currentTimeMillis());
+                broadcastToAll(npcMessage);
+
+                System.out.println("DEBUG: Broadcasted NPC updates for " + npcData.size() + " NPCs");
+            }
+        }
     }
 
     public void stopSession() {

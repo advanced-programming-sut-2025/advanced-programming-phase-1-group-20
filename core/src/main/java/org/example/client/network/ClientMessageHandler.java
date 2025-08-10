@@ -12,6 +12,7 @@ import org.example.common.Lobby.Lobby;
 
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 public class ClientMessageHandler {
     private final NetworkClient networkClient;
@@ -120,6 +121,9 @@ public class ClientMessageHandler {
                     break;
                 case WEATHER_UPDATE:
                     handleWeatherUpdate(message);
+                    break;
+                case NPC_UPDATE:
+                    handleNPCUpdate(message);
                     break;
                 case TRADE_REQUEST:
                     handleTradeRequest(message);
@@ -831,6 +835,53 @@ public class ClientMessageHandler {
             } catch (Exception e) {
                 System.err.println("DEBUG: Error updating weather from server: " + e.getMessage());
                 e.printStackTrace();
+            }
+        }
+    }
+    
+    private void handleNPCUpdate(Message message) {
+        Object npcsData = message.getFromBody("npcs");
+        if (npcsData != null) {
+            System.out.println("DEBUG: NPC update received");
+            
+            Game currentGame = getCurrentGame();
+            if (currentGame != null && currentGame.getGameMap() != null && 
+                currentGame.getGameMap().getVillage() != null) {
+                
+                try {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> npcList = (List<Map<String, Object>>) npcsData;
+                    
+                    for (Map<String, Object> npcData : npcList) {
+                        String npcName = (String) npcData.get("name");
+                        Float posX = ((Double) npcData.get("posX")).floatValue();
+                        Float posY = ((Double) npcData.get("posY")).floatValue();
+                        String currentAnimation = (String) npcData.get("currentAnimation");
+                        Boolean isMoving = (Boolean) npcData.get("isMoving");
+                        String spriteName = (String) npcData.get("spriteName");
+                        
+                        // Find and update the NPC in the village
+                        List<org.example.common.models.entities.NPC> residents = 
+                            currentGame.getGameMap().getVillage().getResidents();
+                        
+                        for (org.example.common.models.entities.NPC npc : residents) {
+                            if (npc.getName().equals(npcName)) {
+                                npc.setPosX(posX);
+                                npc.setPosY(posY);
+                                npc.setCurrentAnimation(currentAnimation);
+                                npc.setMoving(isMoving);
+                                npc.setSpriteName(spriteName);
+                                
+                                System.out.println("DEBUG: Updated NPC " + npcName + 
+                                    " to position (" + posX + ", " + posY + ") with animation " + currentAnimation);
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("DEBUG: Error processing NPC update: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         }
     }
