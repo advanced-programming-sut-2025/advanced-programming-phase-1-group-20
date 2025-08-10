@@ -1147,6 +1147,28 @@ public class WorldController {
         }
     }
 
+    public void renderFarmOnly() {
+        Main.getBatch().begin();
+
+        String season = getCurrentSeason();
+        for (int x = 0; x < Farm.width; x++) {
+            for (int y = 0; y < Farm.height; y++) {
+                Location loc = farm.getItem(x, y);
+                if (loc != null) {
+                    Texture baseTex = getTileTexture(loc.getTile(), season);
+                    Main.getBatch().draw(baseTex, x * 60, y * 60, 60, 60);
+
+                    if (loc.getItem() != null) {
+                        Texture itemTex = getItemTexture(loc.getItem());
+                        Main.getBatch().draw(itemTex, x * 60, y * 60, 60, 60);
+                    }
+                }
+            }
+        }
+
+        Main.getBatch().end();
+    }
+
     private void renderMarnieShopAtAnchor(Location anchor) {
         int x = anchor.getX();
         int y = anchor.getY();
@@ -1861,16 +1883,37 @@ public class WorldController {
         }
     }
 
-    private boolean isValidPlacement(int startX, int startY, int width, int height) {
-        for (int x = startX; x < startX + width; x++) {
-            for (int y = startY; y < startY + height; y++) {
+    private boolean isValidPlacement(int startX, int startY, int buildingWidth, int buildingHeight) {
+        for (Barn barn : farm.getBarns()) {
+            if (rectanglesOverlap(startX, startY, buildingWidth, buildingHeight,
+                barn.getX(), barn.getY(), barn.getWidth(), barn.getHeight())) {
+                return false;
+            }
+        }
+
+        for (Coop coop : farm.getCoops()) {
+            if (rectanglesOverlap(startX, startY, buildingWidth, buildingHeight,
+                coop.getX(), coop.getY(), coop.getWidth(), coop.getHeight())) {
+                return false;
+            }
+        }
+
+        for (int x = startX; x < startX + buildingWidth; x++) {
+            for (int y = startY; y < startY + buildingHeight; y++) {
                 Location loc = farm.getItem(x, y);
                 if (loc == null || loc.getTile() != TileType.Dirt || loc.getItem() != null) {
                     return false;
                 }
             }
         }
+
         return true;
+    }
+
+    private boolean rectanglesOverlap(int x1, int y1, int w1, int h1,
+                                      int x2, int y2, int w2, int h2) {
+        return x1 < x2 + w2 && x1 + w1 > x2 &&
+            y1 < y2 + h2 && y1 + h1 > y2;
     }
 
     private void placeBuilding(int x, int y) {
