@@ -5,6 +5,7 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.MapDetails.Lake;
+import org.example.common.models.MapDetails.GreenHouse;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
@@ -311,6 +312,21 @@ public class CustomSaveManager {
             saveLake(dos, lake);
         }
 
+        //GreenHouse
+        dos.writeBoolean(farm.getGreenHouse() != null);
+        if(farm.getGreenHouse() != null){
+            saveGreenHouse(dos, farm.getGreenHouse() , farm);
+        }
+    }
+
+    private static void saveGreenHouse(DataOutputStream dos, GreenHouse greenHouse , Farm farm) throws IOException {
+        dos.writeBoolean(greenHouse.getIsConstructed());
+        // Save the tiles, which contain the plants
+        for (int i = 0; i < GreenHouse.getHeight(); i++) {
+            for (int j = 0; j < GreenHouse.getWidth(); j++) {
+                saveLocation(dos, farm.getTiles()[i][j]);
+            }
+        }
     }
 
     private static void saveLake(DataOutputStream dos, Lake lake) throws IOException {
@@ -389,6 +405,15 @@ public class CustomSaveManager {
 
 
         //GreenHouse here
+        if (dis.readBoolean()) {
+            GreenHouse greenHouse = farm.getGreenHouse();
+            greenHouse.setConstructed(dis.readBoolean());
+            for (int i = 0; i < GreenHouse.getHeight(); i++) {
+                for (int j = 0; j < GreenHouse.getWidth(); j++) {
+                    farm.getTiles()[i][j] = loadLocation(dis);
+                }
+            }
+        }
 
 
         //Quarry here
