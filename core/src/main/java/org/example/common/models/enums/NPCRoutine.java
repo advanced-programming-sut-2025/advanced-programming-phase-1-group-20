@@ -38,7 +38,7 @@ public enum NPCRoutine {
         "Pierre",
         Arrays.asList(
             new RoutinePoint(6, 9, new Location(35, 15, TileType.VILLAGE), "At home"),
-            new RoutinePoint(9, 17, new Location(20, 125, TileType.VILLAGE), "At Pierre's General Store"),
+            new RoutinePoint(9, 17, new Location(20, 20, TileType.VILLAGE), "At Pierre's General Store"),
             new RoutinePoint(17, 19, new Location(35, 15, TileType.VILLAGE), "Walking home"),
             new RoutinePoint(19, 22, new Location(35, 15, TileType.VILLAGE), "At home"),
             new RoutinePoint(22, 6, new Location(35, 15, TileType.VILLAGE), "Sleeping")
@@ -64,7 +64,7 @@ public enum NPCRoutine {
         "Willy",
         Arrays.asList(
             new RoutinePoint(6, 9, new Location(5, 35, TileType.VILLAGE), "At home"),
-            new RoutinePoint(9, 17, new Location(37, 140, TileType.VILLAGE), "At the Fish Shop"),
+            new RoutinePoint(9, 17, new Location(37, 35, TileType.VILLAGE), "At the Fish Shop"),
             new RoutinePoint(17, 19, new Location(5, 35, TileType.VILLAGE), "Walking home"),
             new RoutinePoint(19, 22, new Location(5, 35, TileType.VILLAGE), "At home"),
             new RoutinePoint(22, 6, new Location(5, 35, TileType.VILLAGE), "Sleeping")
@@ -75,8 +75,30 @@ public enum NPCRoutine {
         "Jojo",
         Arrays.asList(
             new RoutinePoint(6, 9, new Location(40, 20, TileType.VILLAGE), "At home"),
-            new RoutinePoint(9, 23, new Location(50, 130, TileType.VILLAGE), "At Joja Mart"),
+            new RoutinePoint(9, 23, new Location(50, 20, TileType.VILLAGE), "At Joja Mart"),
             new RoutinePoint(23, 6, new Location(40, 20, TileType.VILLAGE), "At home")
+        )
+    ),
+    
+    HARVEY_ROUTINE(
+        "Harvey",
+        Arrays.asList(
+            new RoutinePoint(6, 8, new Location(20, 20, TileType.VILLAGE), "At home"),
+            new RoutinePoint(8, 17, new Location(25, 20, TileType.VILLAGE), "At the Clinic"),
+            new RoutinePoint(17, 19, new Location(20, 20, TileType.VILLAGE), "Walking home"),
+            new RoutinePoint(19, 22, new Location(20, 20, TileType.VILLAGE), "At home"),
+            new RoutinePoint(22, 6, new Location(20, 20, TileType.VILLAGE), "Sleeping")
+        )
+    ),
+    
+    ROBIN_ROUTINE(
+        "Robin",
+        Arrays.asList(
+            new RoutinePoint(6, 8, new Location(30, 30, TileType.VILLAGE), "At home"),
+            new RoutinePoint(8, 17, new Location(35, 30, TileType.VILLAGE), "At the Carpenter's Shop"),
+            new RoutinePoint(17, 19, new Location(30, 30, TileType.VILLAGE), "Walking home"),
+            new RoutinePoint(19, 22, new Location(30, 30, TileType.VILLAGE), "At home"),
+            new RoutinePoint(22, 6, new Location(30, 30, TileType.VILLAGE), "Sleeping")
         )
     );
 

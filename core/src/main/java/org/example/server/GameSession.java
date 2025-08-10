@@ -53,7 +53,6 @@ public class GameSession {
             this.liveStockController = new LiveStockController(this);
             this.npcController = new NpcController();
 
-            System.out.println("DEBUG: GameSession initialized with sessionId: " + sessionId);
 
             // Create game instance with the creator as the first player
             System.out.println("DEBUG: Creating game instance...");

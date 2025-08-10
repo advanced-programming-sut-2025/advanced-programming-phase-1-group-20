@@ -187,12 +187,20 @@ public class Market extends Building {
             }
         }
 
+        try {
+            if (App.getGame() != null && App.getGame().getDailyEvents() != null) {
+                if (item instanceof org.example.common.models.entities.animal.Animal) {
+                    App.getGame().getDailyEvents().addAnimalPurchase(player, item.getName());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error tracking animal purchase event: " + e.getMessage());
+        }
+
         deductStock(item, count);
     }
 
-    /**
-     * **NEW (private):** This method contains the logic to actually reduce the stock.
-     */
+
     private void deductStock(Item item, double count) {
         findProductByItem(totalStock, item).ifPresent(product -> {
             if (product.getAmount() != Double.POSITIVE_INFINITY) {
@@ -201,9 +209,6 @@ public class Market extends Building {
         });
     }
 
-    /**
-     * Handles items with special purchase logic. Returns true if the item was special.
-     */
     private boolean handleSpecialCheckout(Player player, Item item, double count) {
         switch (item.getName()) {
             case "Large Pack":
@@ -293,10 +298,7 @@ public class Market extends Building {
     public List<Product> getAutumnStock() { return autumnStock; }
     public List<Product> getWinterStock() { return winterStock; }
 
-    /**
-     * **IMPORTANT:** This getter now returns the *modifiable* list for the current day.
-     * Your UI should use this list to display the current, up-to-date stock.
-     */
+
     public List<Product> getTotalStock() {
         return totalStock;
     }
@@ -306,11 +308,6 @@ public class Market extends Building {
         return counterStock;
     }
 
-    /**
-     * Check if the market is currently open based on the current time
-     * @param currentHour Current hour in 24-hour format
-     * @return true if the market is open, false otherwise
-     */
     public boolean isOpen(int currentHour) {
         if (endHour > startHour) {
             // Normal hours (e.g., 9 AM to 5 PM)
@@ -321,10 +318,7 @@ public class Market extends Building {
         }
     }
 
-    /**
-     * Get the opening hours as a formatted string
-     * @return formatted opening hours string
-     */
+
     public String getOpeningHours() {
         if (name.equals("The Stardrop Saloon")) {
             return startHour + ":00 PM - " + "12:00 AM";

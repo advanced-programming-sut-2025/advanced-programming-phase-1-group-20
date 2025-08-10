@@ -131,6 +131,7 @@ public class GameView implements Screen, InputProcessor {
 
     // Trading system
     private TextButton tradingButton;
+    private TextButton questButton;
 
     // Previous state tracking for dynamic updates
     private Weather lastKnownWeather;
@@ -203,6 +204,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize trading system
         initializeTradingButton();
+
+        // Initialize quest system
+        initializeQuestButton();
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
@@ -557,6 +561,16 @@ public class GameView implements Screen, InputProcessor {
         });
     }
 
+    private void initializeQuestButton() {
+        questButton = new TextButton("Quests", skin);
+        questButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openQuestMenu();
+            }
+        });
+    }
+
     private void openFriendsWindow() {
         try {
             if (friendsWindow == null) {
@@ -565,6 +579,16 @@ public class GameView implements Screen, InputProcessor {
             Main.getGame().setScreen(friendsWindow);
         } catch (Exception e) {
             System.err.println("Error opening friends window: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openQuestMenu() {
+        try {
+            QuestMenuScreen questMenuScreen = new QuestMenuScreen(skin, this);
+            Main.getGame().setScreen(questMenuScreen);
+        } catch (Exception e) {
+            System.err.println("Error opening quest menu: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -648,6 +672,10 @@ public class GameView implements Screen, InputProcessor {
         return lightningSystem;
     }
 
+    public NPCSpriteController getNPCSpriteController() {
+        return npcSpriteController;
+    }
+
     public Stage getStage() {
         return stage;
     }
@@ -700,6 +728,14 @@ public class GameView implements Screen, InputProcessor {
         }
         if (keycode == Input.Keys.T) {
 //            openTradingMenu();
+            return true;
+        }
+        if (keycode == Input.Keys.N) {
+            // Test NPC movement system
+            if (npcSpriteController != null) {
+                npcSpriteController.forceAllNPCsToRoutineLocations();
+                System.out.println("GameView: Forced all NPCs to their routine locations");
+            }
             return true;
         }
         if (keycode == Input.Keys.F4 || keycode == Input.Keys.F12 || keycode == Input.Keys.P) {
@@ -1197,6 +1233,15 @@ public class GameView implements Screen, InputProcessor {
         mainTable.padTop(10).padRight(10);
         mainTable.add(clockStack).size(120, 120).row();
         stage.addActor(mainTable);
+
+        // Add quest button to the stage (positioned in top-left corner)
+        if (questButton != null) {
+            Table questTable = new Table();
+            questTable.setFillParent(true);
+            questTable.top().left();
+            questTable.add(questButton).width(100).height(40).pad(20);
+            stage.addActor(questTable);
+        }
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {

@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Disposable;
 import org.example.common.models.entities.NPC;
 import org.example.common.models.MapDetails.Village;
 import org.example.common.models.entities.Game;
+import org.example.client.controllers.gameplay.NPCMovementController;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,18 +21,20 @@ public class NPCSpriteController implements Disposable {
 
     private Map<String, Map<String, Animation<TextureRegion>>> npcAnimations;
     private Map<String, Texture> npcTextures;
+    private NPCMovementController movementController;
 
     public NPCSpriteController() {
         System.out.println("NPCSpriteController: Initializing...");
         this.npcAnimations = new HashMap<>();
         this.npcTextures = new HashMap<>();
+        this.movementController = new NPCMovementController();
         loadNPCSprites();
         System.out.println("NPCSpriteController: Initialization complete");
     }
 
     private void loadNPCSprites() {
         System.out.println("NPCSpriteController: Loading NPC sprites...");
-        String[] npcNames = {"Abigail", "Pierre", "Sebastian", "Leah", "Willy", "Jojo"};
+        String[] npcNames = {"Abigail", "Pierre", "Sebastian", "Leah", "Willy", "Jojo", "Harvey", "Robin"};
         String[] animationTypes = {"down", "walk", "back", "face", "fly"};
 
         for (String npcName : npcNames) {
@@ -204,8 +207,17 @@ public class NPCSpriteController implements Disposable {
     }
 
     public void update(float deltaTime) {
-        // Update NPC animations and positions
-        // This could include movement logic, animation state changes, etc.
+        // Update NPC movements based on routines
+        if (movementController != null) {
+            movementController.update(deltaTime);
+        }
+    }
+
+    // Method to force all NPCs to their routine locations (for testing)
+    public void forceAllNPCsToRoutineLocations() {
+        if (movementController != null) {
+            movementController.forceAllNPCsToRoutineLocations();
+        }
     }
 
     public void render(com.badlogic.gdx.graphics.g2d.SpriteBatch batch, com.badlogic.gdx.graphics.Color lightingColor) {
@@ -247,7 +259,14 @@ public class NPCSpriteController implements Disposable {
             float width = currentFrame.getRegionWidth() * scale;
             float height = currentFrame.getRegionHeight() * scale;
 
-            batch.draw(currentFrame, x, y, width, height);
+            // Handle sprite flipping for left movement
+            if (npc.isFacingLeft()) {
+                // Flip the sprite horizontally by drawing it with negative width
+                batch.draw(currentFrame, x + width, y, -width, height);
+            } else {
+                // Normal drawing
+                batch.draw(currentFrame, x, y, width, height);
+            }
         } else {
             System.out.println("Failed to get frame for NPC " + npc.getName() + " with sprite " + npc.getSpriteName());
             System.out.println("  Animation: " + npc.getCurrentAnimation() + ", Timer: " + npc.getAnimationTimer());

@@ -11,25 +11,16 @@ import java.util.List;
 import java.util.Random;
 
 public class NPCMovementController {
-    private static final float MOVEMENT_SPEED = 30f; // pixels per second
+    private static final float MOVEMENT_SPEED = 60f; // pixels per second (increased for smoother movement)
     private static final float ARRIVAL_THRESHOLD = 5f; // pixels
-    private static final float MOVEMENT_UPDATE_INTERVAL = 2.0f; // seconds
     private static final Random random = new Random();
-    
-    private float movementTimer = 0f;
-    private float lastUpdateTime = 0f;
 
     public void update(float deltaTime) {
-        movementTimer += deltaTime;
-        
-        // Only update NPC movement every few seconds to avoid constant movement
-        if (movementTimer >= MOVEMENT_UPDATE_INTERVAL) {
-            movementTimer = 0f;
-            updateAllNPCMovements();
-        }
+        // Update NPC movement every frame for smooth movement
+        updateAllNPCMovements(deltaTime);
     }
 
-    private void updateAllNPCMovements() {
+    private void updateAllNPCMovements(float deltaTime) {
         try {
             Village village = App.getGame().getGameMap().getVillage();
             if (village == null || village.getResidents() == null) {
@@ -42,11 +33,9 @@ public class NPCMovementController {
             }
 
             int currentHour = currentDate.getHour();
-            
-            System.out.println("NPCMovementController: Updating NPCs for hour " + currentHour + ", found " + village.getResidents().size() + " NPCs");
 
             for (NPC npc : village.getResidents()) {
-                updateNPCMovement(npc, currentHour);
+                updateNPCMovement(npc, currentHour, deltaTime);
             }
         } catch (Exception e) {
             System.err.println("Error updating NPC movements: " + e.getMessage());
@@ -54,27 +43,22 @@ public class NPCMovementController {
         }
     }
 
-    private void updateNPCMovement(NPC npc, int currentHour) {
+    private void updateNPCMovement(NPC npc, int currentHour, float deltaTime) {
         NPCRoutine routine = NPCRoutine.fromNpcName(npc.getName());
         if (routine == null) {
-            System.out.println("NPCMovementController: No routine found for NPC " + npc.getName());
             return;
         }
 
         // Find the current routine point for this hour
         NPCRoutine.RoutinePoint currentRoutinePoint = getCurrentRoutinePoint(routine, currentHour);
         if (currentRoutinePoint == null) {
-            System.out.println("NPCMovementController: No routine point found for " + npc.getName() + " at hour " + currentHour);
             return;
         }
 
         Location targetLocation = currentRoutinePoint.getLocation();
         if (targetLocation == null) {
-            System.out.println("NPCMovementController: No target location for " + npc.getName());
             return;
         }
-        
-        System.out.println("NPCMovementController: " + npc.getName() + " should be at " + currentRoutinePoint.getActivity() + " (local: " + targetLocation.getX() + ", " + targetLocation.getY() + ")");
 
         // Convert target location to world pixel coordinates (add village offset)
         float targetX = (org.example.common.models.MapDetails.GameMap.VILLAGE_X * 60f) + (targetLocation.getX() * 60f);
@@ -98,10 +82,10 @@ public class NPCMovementController {
         }
 
         // Move NPC towards target
-        moveNPCTowardsTarget(npc, targetX, targetY);
+        moveNPCTowardsTarget(npc, targetX, targetY, deltaTime);
     }
 
-    private void moveNPCTowardsTarget(NPC npc, float targetX, float targetY) {
+    private void moveNPCTowardsTarget(NPC npc, float targetX, float targetY, float deltaTime) {
         float currentX = npc.getPosX();
         float currentY = npc.getPosY();
         
@@ -116,9 +100,9 @@ public class NPCMovementController {
             deltaY /= distance;
         }
 
-        // Calculate new position
-        float newX = currentX + deltaX * MOVEMENT_SPEED * MOVEMENT_UPDATE_INTERVAL;
-        float newY = currentY + deltaY * MOVEMENT_SPEED * MOVEMENT_UPDATE_INTERVAL;
+        // Calculate new position using deltaTime for smooth movement
+        float newX = currentX + deltaX * MOVEMENT_SPEED * deltaTime;
+        float newY = currentY + deltaY * MOVEMENT_SPEED * deltaTime;
 
         // Update NPC position
         npc.setPosX(newX);
@@ -135,15 +119,19 @@ public class NPCMovementController {
             // Vertical movement is primary
             if (deltaY > 0) {
                 npc.setCurrentAnimation("back"); // Moving up
+                npc.setFacingLeft(false); // Reset facing direction for vertical movement
             } else {
                 npc.setCurrentAnimation("down"); // Moving down
+                npc.setFacingLeft(false); // Reset facing direction for vertical movement
             }
         } else {
             // Horizontal movement is primary
             if (deltaX > 0) {
                 npc.setCurrentAnimation("walk"); // Moving right
+                npc.setFacingLeft(false);
             } else {
-                npc.setCurrentAnimation("face"); // Moving left
+                npc.setCurrentAnimation("walk"); // Moving left - use walk but will be flipped
+                npc.setFacingLeft(true);
             }
         }
     }
@@ -193,6 +181,7 @@ public class NPCMovementController {
             npc.setPosY(targetY);
             npc.setMoving(false);
             npc.setCurrentAnimation("down");
+            npc.setFacingLeft(false); // Reset facing direction
             
         } catch (Exception e) {
             System.err.println("Error forcing NPC to routine location: " + e.getMessage());
@@ -222,6 +211,30 @@ public class NPCMovementController {
             
         } catch (Exception e) {
             return "Error getting activity";
+        }
+    }
+
+    // Method to force all NPCs to their current routine locations (for testing)
+    public void forceAllNPCsToRoutineLocations() {
+        try {
+            Village village = App.getGame().getGameMap().getVillage();
+            if (village == null || village.getResidents() == null) {
+                return;
+            }
+
+            Date currentDate = App.getGame().getDate();
+            if (currentDate == null) {
+                return;
+            }
+
+            int currentHour = currentDate.getHour();
+
+            for (NPC npc : village.getResidents()) {
+                forceNPCToRoutineLocation(npc);
+            }
+        } catch (Exception e) {
+            System.err.println("Error forcing NPCs to routine locations: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -47,6 +47,7 @@ public class NPC extends Mob {
     private float lastPosX = 0;
     private float lastPosY = 0;
     private boolean isMoving = false;
+    private boolean facingLeft = false; // Track if NPC is facing left for sprite flipping
 
     public NPC(Charactristic character, String name, Jobs jobs, HashMap<Integer, HashMap<Item, Integer>> missions) {
         super();
@@ -494,5 +495,14 @@ public class NPC extends Mob {
         this.currentAnimation = "down";
         this.isMoving = false;
         this.animationTimer = 0f;
+    }
+
+    // Facing direction methods
+    public boolean isFacingLeft() {
+        return facingLeft;
+    }
+
+    public void setFacingLeft(boolean facingLeft) {
+        this.facingLeft = facingLeft;
     }
 }

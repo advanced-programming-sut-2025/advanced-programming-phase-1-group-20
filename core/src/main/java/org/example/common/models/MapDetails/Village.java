@@ -712,7 +712,7 @@ public class Village {
         System.out.println("Village.initializeNPCs(): Game and current player are valid");
 
         // Create NPCs using the enum data for NPCs that have sprites available
-        // Available sprites: Abigail, Pierre, Sebastian, Leah, Willy, Jojo
+        // Available sprites: Abigail, Pierre, Sebastian, Leah, Willy, Jojo, Harvey, Robin
         System.out.println("Village.initializeNPCs(): Creating NPCs...");
         createNPCFromEnum("Sebastian");
         createNPCFromEnum("Abigail");
@@ -720,6 +720,8 @@ public class Village {
         createNPCFromEnum("Leah");
         createNPCFromEnum("Willy");
         createNPCFromEnum("Jojo");
+        createNPCFromEnum("Harvey");
+        createNPCFromEnum("Robin");
         System.out.println("Village.initializeNPCs(): NPCs initialized. Total residents: " + residents.size());
 
         // Print details of each NPC
@@ -823,6 +825,14 @@ public class Village {
                 npcX = 40; // Default home position
                 npcY = 20;
                 break;
+            case "Harvey":
+                npcX = 20; // Default home position
+                npcY = 20;
+                break;
+            case "Robin":
+                npcX = 30; // Default home position
+                npcY = 30;
+                break;
             default:
                 npcX = 15;
                 npcY = 15;
@@ -885,6 +895,12 @@ public class Village {
                 break;
             case "Jojo":
                 npc.setDescription("A hardworking merchant who runs a shop in the village. He's always looking for good deals.");
+                break;
+            case "Harvey":
+                npc.setDescription("The town's doctor who runs the local clinic. He's caring and concerned about everyone's health.");
+                break;
+            case "Robin":
+                npc.setDescription("The local carpenter who runs the carpentry shop. She's skilled at building and loves working with wood.");
                 break;
             default:
                 npc.setDescription("A friendly villager who lives in the town.");

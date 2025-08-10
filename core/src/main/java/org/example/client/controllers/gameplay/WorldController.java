@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.GreenhouseRepairDialog;
+import org.example.client.views.NPCInteractionScreen;
 import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.client.views.gameplay.RefrigeratorScreen;
@@ -1955,16 +1956,23 @@ public class WorldController {
     }
 
     private void showNPCDialogueWindow(NPC npc) {
-        System.out.println("Opening dialogue window for " + npc.getName());
+        System.out.println("Opening interaction window for " + npc.getName());
         try {
-            // Create and show the NPC dialogue window
+            // Create and show the NPC interaction window
             if (controller != null && controller.getView() != null) {
-                controller.getView().showNPCDialogueWindow(npc);
+                NPCInteractionScreen interactionScreen = new NPCInteractionScreen(
+                    npc, 
+                    playerController.getPlayer(), 
+                    controller.getView().getNPCSpriteController(), 
+                    skin, 
+                    controller.getView()
+                );
+                Main.getGame().setScreen(interactionScreen);
             } else {
                 System.err.println("Error: Controller or GameView is null");
             }
         } catch (Exception e) {
-            System.err.println("Error opening NPC dialogue window: " + e.getMessage());
+            System.err.println("Error opening NPC interaction window: " + e.getMessage());
             e.printStackTrace();
         }
     }

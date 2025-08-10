@@ -100,7 +100,6 @@ public class NpcController {
 
     private void updateNPCRoutine(NPC npc, int currentHour, int npcIndex) {
         Location targetLocation = getTargetLocationForTime(npc, currentHour, npcIndex);
-
         if (targetLocation != null) {
             System.out.println("DEBUG: NPC " + npc.getName() + " - Target location: (" + targetLocation.xAxis + ", " + targetLocation.yAxis + ")");
 

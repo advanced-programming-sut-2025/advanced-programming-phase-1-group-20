@@ -10,6 +10,7 @@ import org.example.common.models.entities.NPCFriendship;
 import org.example.common.models.enums.Charactristic;
 import org.example.common.models.enums.Weather;
 import org.example.utils.npcAI;
+import org.example.common.models.entities.DailyEvents;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +132,45 @@ public class NPCController {
             context.append("- Show how your friendship has developed over time\n");
             context.append("- Remember stories, preferences, and experiences shared\n");
             context.append("- Build upon ALL previous discussions, not just recent ones\n\n");
+        }
+
+        // Add daily events context
+        try {
+            if (App.getGame() != null && App.getGame().getDailyEvents() != null) {
+                List<DailyEvents.GameEvent> todayEvents = App.getGame().getDailyEvents().getTodayEvents();
+                List<DailyEvents.GameEvent> recentEvents = App.getGame().getDailyEvents().getRecentEvents();
+                
+                if (!todayEvents.isEmpty() || !recentEvents.isEmpty()) {
+                    context.append("\nRecent Village Events:\n");
+                    context.append("(These are things that happened recently that you might want to mention or react to)\n");
+                    
+                    // Add today's events
+                    if (!todayEvents.isEmpty()) {
+                        context.append("\nToday's Events:\n");
+                        for (DailyEvents.GameEvent event : todayEvents) {
+                            context.append("- ").append(event.getDescription()).append("\n");
+                        }
+                    }
+                    
+                    // Add recent events (last few days)
+                    if (!recentEvents.isEmpty()) {
+                        context.append("\nRecent Events:\n");
+                        for (DailyEvents.GameEvent event : recentEvents) {
+                            context.append("- ").append(event.getDescription()).append("\n");
+                        }
+                    }
+                    
+                    context.append("\nInstructions for using events:\n");
+                    context.append("- Feel free to mention these events in your dialogue if they seem relevant\n");
+                    context.append("- Show interest in what's happening around the village\n");
+                    context.append("- React appropriately to marriages, building purchases, etc.\n");
+                    context.append("- Don't force mentions if they don't fit naturally in the conversation\n");
+                    context.append("- Use events to show you're aware of village life and care about the community\n\n");
+                }
+            }
+        } catch (Exception e) {
+            // If there's any error accessing events, just continue without them
+            System.err.println("Error accessing daily events: " + e.getMessage());
         }
 
         return context.toString();
