@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.example.common.models.App;
 import org.example.common.models.entities.NPC;
+import org.example.server.ServerConfig;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -14,7 +15,6 @@ import java.util.function.Consumer;
 
 public class npcAI {
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
-    private static final String API_KEY = System.getenv("API_KEY");
     private static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .connectTimeout(Duration.ofSeconds(10))
@@ -82,7 +82,7 @@ public class npcAI {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(API_URL))
-            .header("Authorization", "Bearer " + API_KEY)
+            .header("Authorization", "Bearer " + ServerConfig.getInstance().getApiKey())
             .header("Content-Type", "application/json")
             .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
             .build();
@@ -133,7 +133,7 @@ public class npcAI {
 
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_URL))
-                .header("Authorization", "Bearer " + API_KEY)
+                .header("Authorization", "Bearer " + ServerConfig.getInstance().getApiKey())
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(30))
                 .POST(HttpRequest.BodyPublishers.ofString(payload.toString()))
