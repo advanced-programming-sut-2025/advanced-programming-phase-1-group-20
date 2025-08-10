@@ -325,6 +325,9 @@ public class Village {
         // Create secondary paths for better access to different parts of the village
         // These follow the same branching pattern as farm paths
         createSecondaryPaths(centerX, centerY);
+        
+        // Create paths to markets and NPC houses
+        createPathsToBuildings(centerX, centerY);
     }
 
     private void createSecondaryPaths(int centerX, int centerY) {
@@ -414,6 +417,76 @@ public class Village {
         for (int y = upperY; y <= lowerY; y++) {
             if (contains(edgeX, y) && tiles[edgeX][y].getTile() == TileType.Dirt) {
                 tiles[edgeX][y] = new Location(edgeX, y, TileType.PATH);
+            }
+        }
+    }
+
+    private void createPathsToBuildings(int centerX, int centerY) {
+        // Create paths to all markets
+        createPathToMarket(centerX, centerY, 25, 130); // Blacksmith
+        createPathToMarket(centerX, centerY, 50, 130); // Joja Mart
+        createPathToMarket(centerX, centerY, 20, 125); // Pierre General Store
+        createPathToMarket(centerX, centerY, 55, 125); // Carpenter's Shop
+        createPathToMarket(centerX, centerY, 15, 135); // Marnie Shop
+        createPathToMarket(centerX, centerY, 60, 135); // Star Drop Saloon
+        createPathToMarket(centerX, centerY, 37, 140); // Fish Shop
+        
+        // Create paths to NPC houses at the bottom
+        createPathsToNPCHouses(centerX, centerY);
+    }
+    
+    private void createPathToMarket(int centerX, int centerY, int marketX, int marketY) {
+        // Create a path from the market to the middle path in the village
+        // Markets are 3x3, so we target the center of the market
+        
+        // Connect directly to the middle path (centerX, centerY)
+        // First create horizontal path from market to center X
+        createPathFromCenterToEntrance(marketX, marketY, centerX, marketY);
+        
+        // Then create vertical path from that point to center Y
+        createPathFromCenterToEntrance(centerX, marketY, centerX, centerY);
+    }
+    
+    private void createPathsToNPCHouses(int centerX, int centerY) {
+        // NPC houses are positioned at the bottom in a row
+        int houseWidth = 5;
+        int houseHeight = 5;
+        int bottomY = 5; // 5 tiles from bottom edge
+        int startX = 10; // Start 10 tiles from left edge
+        int spacing = 8; // Space between houses
+        
+        for (int i = 0; i < 5; i++) {
+            int houseX = startX + (i * (houseWidth + spacing)) + houseWidth / 2; // Center of house
+            int houseY = bottomY + houseHeight / 2; // Center of house
+            
+            // Create path from house to the middle path
+            // First create horizontal path from house to center X
+            createPathFromCenterToEntrance(houseX, houseY, centerX, houseY);
+            
+            // Then create vertical path from that point to center Y
+            createPathFromCenterToEntrance(centerX, houseY, centerX, centerY);
+        }
+    }
+    
+    private int findNearestPathPoint(int targetX, int targetY, boolean isX) {
+        // Find the nearest point on existing paths
+        // This is a simplified approach - we'll use the center of the village as reference
+        int centerX = width / 2;
+        int centerY = height / 2;
+        
+        if (isX) {
+            // For X coordinate, use the center X or the target X if it's closer to an edge
+            if (targetX < centerX) {
+                return Math.max(0, targetX - 5); // Path from left side
+            } else {
+                return Math.min(width - 1, targetX + 5); // Path from right side
+            }
+        } else {
+            // For Y coordinate, use the center Y or the target Y if it's closer to an edge
+            if (targetY < centerY) {
+                return Math.max(0, targetY - 5); // Path from bottom
+            } else {
+                return Math.min(height - 1, targetY + 5); // Path from top
             }
         }
     }
@@ -699,40 +772,60 @@ public class Village {
         // Set sprite name for rendering
         npc.setSpriteName(npcEnum.getName());
 
-        // Position NPC under their house based on their name
-        // Houses are positioned at: 10, 23, 36, 49, 62 (X coordinates)
-        // Each house is 5 tiles wide, so center of each house is at: 12, 25, 38, 51, 64
-        // NPCs positioned just below their houses
-        int npcX, npcY;
+        // Position NPC at their current routine location based on time
+        int npcX = 15, npcY = 15; // Default values
+        try {
+            // Get current time and routine
+            org.example.common.models.common.Date currentDate = org.example.common.models.App.getGame().getDate();
+            if (currentDate != null) {
+                int currentHour = currentDate.getHour();
+                org.example.common.models.enums.NPCRoutine routine = org.example.common.models.enums.NPCRoutine.fromNpcName(npcName);
+                
+                if (routine != null) {
+                    // Find current routine point
+                    for (org.example.common.models.enums.NPCRoutine.RoutinePoint point : routine.getRoutinePoints()) {
+                        if (point.isActiveAt(currentHour)) {
+                            npcX = point.getLocation().getX();
+                            npcY = point.getLocation().getY();
+                            System.out.println("NPC " + npcName + " positioned at routine location (" + npcX + ", " + npcY + ") for hour " + currentHour);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error getting routine position for " + npcName + ", using default: " + e.getMessage());
+        }
+        
+        // Fallback to default positions if routine system fails
         switch (npcName) {
             case "Abigail":
-                npcX = 12; // Under first house (10 + 2)
-                npcY = 3;  // Just below the houses (houses are at Y=5, so NPCs at Y=3)
+                npcX = 15; // Default home position
+                npcY = 15;
                 break;
             case "Pierre":
-                npcX = 25; // Under second house (23 + 2)
-                npcY = 3;
+                npcX = 35; // Default home position
+                npcY = 15;
                 break;
             case "Sebastian":
-                npcX = 38; // Under third house (36 + 2)
-                npcY = 3;
+                npcX = 10; // Default home position
+                npcY = 10;
                 break;
             case "Leah":
-                npcX = 51; // Under fourth house (49 + 2)
-                npcY = 3;
+                npcX = 25; // Default home position
+                npcY = 25;
                 break;
             case "Willy":
-                npcX = 64; // Under fifth house (62 + 2)
-                npcY = 3;
+                npcX = 5; // Default home position
+                npcY = 35;
                 break;
             case "Jojo":
-                npcX = 15; // Near first house but offset
-                npcY = 3;
+                npcX = 40; // Default home position
+                npcY = 20;
                 break;
             default:
-                // Default position if NPC not in switch
-                npcX = 12;
-                npcY = 3;
+                npcX = 15;
+                npcY = 15;
                 break;
         }
 
@@ -747,6 +840,8 @@ public class Village {
         // Add village offset to get global world coordinates
         float worldX = (GameMap.VILLAGE_X * 60f) + pixelX; // 4680 + pixelX
         float worldY = (GameMap.VILLAGE_Y * 60f) + pixelY; // 0 + pixelY
+
+        System.out.println("Village.createNPCFromEnum(): Setting " + npcName + " to world coordinates (" + worldX + ", " + worldY + ") from local (" + npcX + ", " + npcY + ")");
 
         npc.setPosX(worldX);
         npc.setPosY(worldY);

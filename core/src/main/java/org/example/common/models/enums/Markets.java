@@ -30,7 +30,7 @@ public enum Markets {
     }
 
     private static Market creatBlackSmith() {
-        int x = 35;  // Center-left of village (78/2 - 4)
+        int x = 25;  // Left side of village with more spacing
         int y = 130;  // Upper area of village
         TileType tileType = TileType.BlackSmith;
         List<Product> items = new ArrayList<>();
@@ -88,7 +88,7 @@ public enum Markets {
     }
 
     private static Market createJojaMarket() {
-        int x = 40;  // Center-right of village (78/2 + 1)
+        int x = 50;  // Right side of village with more spacing
         int y = 130;  // Upper area of village
         TileType tileType = TileType.JojaMart;
         List<Product> items = new ArrayList<>();
@@ -284,7 +284,7 @@ public enum Markets {
     }
 
     private static Market createPierreGeneralStore() {
-        int x = 30;  // Left side of village center
+        int x = 20;  // Left side of village with more spacing
         int y = 125;  // Upper area of village
         TileType tileType = TileType.PIERRE_GENERAL_STORE;
         List<Product> items = new ArrayList<>();
@@ -622,7 +622,7 @@ public enum Markets {
     }
 
     private static Market createCarpentersShop() {
-        int x = 45;  // Right side of village center
+        int x = 55;  // Right side of village with more spacing
         int y = 125;  // Upper area of village
         TileType tileType = TileType.CARPENTERS_SHOP;
         List<Product> items = new ArrayList<>();
@@ -665,7 +665,7 @@ public enum Markets {
     }
 
     private static Market createMarnieShop() {
-        int x = 25;  // Left side of village center
+        int x = 15;  // Left side of village with more spacing
         int y = 135; // Upper area of village
         TileType tileType = TileType.MARNIE_SHOP;
         List<Product> items = new ArrayList<>();
@@ -722,7 +722,7 @@ public enum Markets {
     }
 
     private static Market createStarDropSaloon() {
-        int x = 50;  // Right side of village center
+        int x = 60;  // Right side of village with more spacing
         int y = 135; // Upper area of village
         TileType tileType = TileType.STARDROP_SALOON;
         List<Product> items = new ArrayList<>();
@@ -797,7 +797,7 @@ public enum Markets {
     }
 
     private static Market createFishShop() {
-        int x = 37;  // Center of village
+        int x = 37;  // Center of village (keep this one centered)
         int y = 140; // Upper area of village
         TileType tileType = TileType.FISH_SHOP;
         List<Product> items = new ArrayList<>();
