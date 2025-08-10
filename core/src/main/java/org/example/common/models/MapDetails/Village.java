@@ -73,10 +73,12 @@ public class Village {
         initializeGoldClock();
         initializeMarkets();
         initializeNPCHouses();
+        initializeVillageBuildings();
         markMarketAreas();
         markTownHall();
         markGoldClock();
         markNPCHouses();
+        markVillageBuildings();
     }
 
     public Village() {
@@ -102,6 +104,7 @@ public class Village {
         symbolMap.put("town_hall", 'T');
         symbolMap.put("gold_clock", 'C');
         symbolMap.put("npc_house", 'N');
+        symbolMap.put("village_building", 'B');
         symbolMap.put("empty", ' ');
     }
 
@@ -209,6 +212,32 @@ public class Village {
         }
     }
 
+    private void initializeVillageBuildings() {
+        // Add the new village buildings: mayor house, fish pond, museum, and town hall
+        // Position them strategically around the village
+        
+        // Mayor House - positioned near the top of the village
+        Building mayorHouse = new Building(15, 120, "Mayor House", "public");
+        mayorHouse.setSpritePath("content/Buildings/mayor_house.png");
+        buildings.add(mayorHouse);
+        
+        // Fish Pond - positioned near the center but to the right
+        Building fishPond = new Building(55, 80, "Fish Pond", "public");
+        fishPond.setSpritePath("content/Buildings/fish_pond.png");
+        buildings.add(fishPond);
+        
+        // Museum - positioned near the center but to the left
+        Building museum = new Building(10, 80, "Museum", "public");
+        museum.setSpritePath("content/Buildings/museum.png");
+        buildings.add(museum);
+        
+        // Note: Town Hall is already initialized in initializeTownHall() method
+        // We just need to set its sprite path here
+        if (townHall != null) {
+            townHall.setSpritePath("content/Buildings/town_hall.png");
+        }
+    }
+
     private void markTownHall() {
         if (townHall != null) {
             int buildingX = townHall.getX();
@@ -258,6 +287,31 @@ public class Village {
                         if (contains(x, y)) {
                             tiles[x][y] = new Location(x, y, TileType.BUILDING);
                             tiles[x][y].setType("npc_house");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void markVillageBuildings() {
+        // Mark all village buildings (mayor house, fish pond, museum) on the map
+        for (Building building : buildings) {
+            if (building.getType().equals("public") && 
+                (building.getName().equals("Mayor House") || 
+                 building.getName().equals("Fish Pond") || 
+                 building.getName().equals("Museum"))) {
+                
+                int buildingX = building.getX();
+                int buildingY = building.getY();
+                int buildingWidth = building.getWidth();
+                int buildingHeight = building.getHeight();
+
+                for (int y = buildingY; y < buildingY + buildingHeight; y++) {
+                    for (int x = buildingX; x < buildingX + buildingWidth; x++) {
+                        if (contains(x, y)) {
+                            tiles[x][y] = new Location(x, y, TileType.BUILDING);
+                            tiles[x][y].setType("village_building");
                         }
                     }
                 }
