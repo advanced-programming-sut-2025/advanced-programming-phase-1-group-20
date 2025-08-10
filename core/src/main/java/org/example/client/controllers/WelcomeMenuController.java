@@ -24,6 +24,7 @@ import org.example.common.models.enums.Types.TileType;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.menu.WelcomeMenuScreen;
+import org.example.utils.GameSaveLoadManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -197,8 +198,20 @@ public class WelcomeMenuController {
 
         map.updateTilesFromRegions();
         game.isMultiplayer = true;
-
+        GameSaveLoadManager.autosave();
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
         getGame().setScreen(gameMenuScreen);
+    }
+    public void handleLoadGameButton() {
+        Game loadedGame = GameSaveLoadManager.loadAutosave();
+        if (loadedGame != null) {
+            App.setGame(loadedGame);
+            getGame().getScreen().dispose();
+            GameView gameMenuScreen = new GameView(new GameMenuController(loadedGame.getCurrentPlayer()), loadedGame.getCurrentPlayer(), loadedGame, assetManager.getSkin(), loadedGame.getCurrentPlayer().getUser());
+            getGame().setScreen(gameMenuScreen);
+        } else {
+            // Handle case where autosave doesn't exist or fails to load
+            screen.showLoadingScreen(); // Or some other feedback
+        }
     }
 }

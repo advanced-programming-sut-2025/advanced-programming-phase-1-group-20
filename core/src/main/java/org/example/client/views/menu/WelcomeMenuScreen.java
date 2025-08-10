@@ -40,6 +40,7 @@ public class WelcomeMenuScreen implements Screen {
     private ImageButton loginButton;
     private ImageButton exitButton;
     private TextButton tryGameButton; // TODO: Testing button for map and game "mostafa"
+    private TextButton loadGameButton;
     private Label titleLabel;
     private Label loadingLabel;
     private Image background;
@@ -138,6 +139,7 @@ public class WelcomeMenuScreen implements Screen {
 
         // Create text button for testing
         tryGameButton = new TextButton("TRY GAME", skin);
+        loadGameButton = new TextButton("LOAD GAME", skin);
     }
 
     private void styleButtons() {
@@ -145,6 +147,7 @@ public class WelcomeMenuScreen implements Screen {
         styleImageButton(loginButton, Color.BLUE);
         styleImageButton(exitButton, Color.RED);
         styleTextButton(tryGameButton, Color.CYAN);
+        styleTextButton(loadGameButton, Color.MAGENTA);
     }
 
     private void layoutButtons() {
@@ -166,6 +169,9 @@ public class WelcomeMenuScreen implements Screen {
 
         // Row 3: Testing button (centered, spans both columns)
         buttonTable.add(tryGameButton).colspan(2).uniform().padTop(30);
+        buttonTable.row();
+
+        buttonTable.add(loadGameButton).colspan(2).uniform().padTop(30);
         buttonTable.row();
 
         mainTable.add(buttonTable);
@@ -238,6 +244,15 @@ public class WelcomeMenuScreen implements Screen {
                 controller.handleTryGameButton();
             }
         });
+
+        loadGameButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                controller.handleLoadGameButton();
+            }
+        });
+
+
     }
 
     // =================

@@ -274,12 +274,10 @@ public class App {
     }
 
     public static Game loadGameByName(String saveName) {
-        // دیگر نیازی به filePath و ".bin" نیست.
         Game game = GameSaveLoadManager.loadGame(saveName);
         if (game != null) {
             currentGame = game;
-            game.setSaveName(saveName); // نام ذخیره را پس از بارگذاری تنظیم کنید
-            // مطمئن شوید که بازی بارگذاری شده به allGames اضافه می‌شود اگر هنوز نبود
+            game.setSaveName(saveName);
             if (!allGames.contains(game)) {
                 allGames.add(game);
             }

@@ -65,6 +65,11 @@ public class Game implements Serializable {
 
     // Getters and Setters for all fields (بسیار مهم برای Gson)
 
+
+    public boolean isMultiplayer() {
+        return isMultiplayer;
+    }
+
     public List<Player> getPlayers() {
         return players;
     }
