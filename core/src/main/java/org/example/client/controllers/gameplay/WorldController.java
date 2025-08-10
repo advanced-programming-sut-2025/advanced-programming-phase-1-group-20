@@ -1917,42 +1917,82 @@ public class WorldController {
     }
 
     private void placeBuilding(int x, int y) {
-        if (buildingToPlace.equals("barn")) {
-            Location anchor = new Location(x, y, BARN);
-            Barn barn = new Barn(BarnTypes.NORMAL_BARN, anchor, "Barn");
-            farm.addBarn(barn);
+        if (!isValidPlacement(x, y, 3, 4)) {
+            Gdx.app.log("Building", "Invalid placement location");
+            return;
+        }
 
-            for (int i = x; i < x + BARN_TILES_W; i++) {
-                for (int j = y; j < y + BARN_TILES_H; j++) {
-                    Location loc = farm.getItem(i, j);
-                    if (loc != null) {
-                        loc.setTile(BARN);
-                    }
+        try {
+            if (buildingToPlace.equals("barn")) {
+                Location anchor = new Location(x, y, Dirt);
+                anchor.setType("barn_anchor");
+
+                Barn barn = new Barn(BarnTypes.NORMAL_BARN, anchor, generateBuildingName("Barn"));
+
+                markTilesForBuilding(x, y, BARN_TILES_W, BARN_TILES_H, TileType.BARN);
+
+                farm.addBarn(barn);
+
+                Gdx.app.log("Building", "Barn placed at (" + x + "," + y + ")");
+
+            }
+            else if (buildingToPlace.equals("coop")) {
+                Location anchor = new Location(x, y, Dirt);
+                anchor.setType("coop_anchor");
+
+                Coop coop = new Coop(Cages.NORMAL_COOP, anchor, generateBuildingName("Coop"));
+
+                markTilesForBuilding(x, y, COOP_TILES_W, COOP_TILES_H, TileType.COOP);
+
+                farm.addCoop(coop);
+
+                Gdx.app.log("Building", "Coop placed at (" + x + "," + y + ")");
+            }
+
+            playPlacementSound();
+
+        } catch (Exception e) {
+            Gdx.app.error("Building", "Failed to place building: " + e.getMessage());
+        } finally {
+            resetPlacementMode();
+        }
+    }
+
+    private void playPlacementSound() {
+        try {
+            //
+        }
+        catch (Exception e) {
+            Gdx.app.error("Sound", "Could not play placement sound");
+        }
+    }
+
+
+    private String generateBuildingName(String prefix) {
+        int barnCount = farm.getBarns().size();
+        int coopCount = farm.getCoops().size();
+        return prefix + " " + (prefix.equals("Barn") ? barnCount + 1 : coopCount + 1);
+    }
+
+    private void markTilesForBuilding(int startX, int startY, int width, int height, TileType tileType) {
+        for (int i = startX; i < startX + width; i++) {
+            for (int j = startY; j < startY + height; j++) {
+                Location loc = farm.getItem(i, j);
+                if (loc != null) {
+                    loc.setTile(tileType);
                 }
             }
         }
-        else if (buildingToPlace.equals("coop")) {
-            Location anchor = new Location(x, y, COOP);
-            Coop coop = new Coop(Cages.NORMAL_COOP, anchor, "Coop");
-            farm.addCoop(coop);
+    }
 
-            for (int i = x; i < x + COOP_TILES_W; i++) {
-                for (int j = y; j < y + COOP_TILES_H; j++) {
-                    Location loc = farm.getItem(i, j);
-                    if (loc != null) {
-                        loc.setTile(COOP);
-                    }
-                }
-            }
-        }
-
-//        if (controller.getView() != null && controller.getView().getBuildingPlacementListener() != null) {
-//            controller.getView().getBuildingPlacementListener().run();
-//        }
-
+    private void resetPlacementMode() {
         isInPlacementMode = false;
         buildingToPlace = null;
         potentialPlacementTiles.clear();
+
+         if (controller != null && controller.getView() != null) {
+//             controller.getView().returnToPreviousView();
+         }
     }
 
     private NPC checkNPCClick(Vector3 touchPoint) {
