@@ -2,7 +2,6 @@ package org.example.client.views.gameplay;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -14,6 +13,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
+import org.example.client.views.BuildingPlacementScreen;
 import org.example.client.views.ToolUpgradeDialog;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Market;
@@ -337,71 +337,6 @@ public class MarketMenuScreen implements Screen, Disposable {
         );
     }
 
-    private void showBuildDialog(final Item item) {
-        final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
-
-        Table contentTable = buildDialog.getContentTable();
-        contentTable.pad(20f);
-
-        contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
-        contentTable.add(new Label("Enter coordinates for placement:", skin)).colspan(2).padBottom(10).row();
-
-        contentTable.add(new Label("X:", skin)).padRight(5);
-        final TextField xField = new TextField("", skin);
-        xField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-        contentTable.add(xField).width(100).row();
-
-        contentTable.add(new Label("Y:", skin)).padRight(5);
-        final TextField yField = new TextField("", skin);
-        yField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
-        contentTable.add(yField).width(100).row();
-
-        TextButton buildButton = new TextButton("Build", skin);
-        TextButton cancelButton = new TextButton("Cancel", skin);
-
-        buildButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                String xText = xField.getText();
-                String yText = yField.getText();
-
-                if (xText.trim().isEmpty() || yText.trim().isEmpty()) {
-                    showErrorDialog("Invalid Input", "Please enter both X and Y coordinates.");
-                    return;
-                }
-
-                String[] args = new String[]{item.getName(), xText, yText};
-                Result result = controller.build(args);
-
-                if (result.success()) {
-                    buildDialog.hide();
-                    updateMoneyLabel();
-                    displayItems(currentDisplayStock);
-                    showErrorDialog("Success", result.message());
-                } else {
-                    showErrorDialog("Build Failed", result.message());
-                }
-            }
-        });
-
-        cancelButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                buildDialog.hide();
-            }
-        });
-
-        buildDialog.getButtonTable().add(buildButton).pad(10);
-        buildDialog.getButtonTable().add(cancelButton).pad(10);
-
-        buildDialog.show(stage);
-        buildDialog.pack();
-        buildDialog.setPosition(
-            Math.round((stage.getWidth() - buildDialog.getWidth()) / 2f),
-            Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
-        );
-    }
-
 //    private void showBuildDialog(final Item item) {
 //        final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
 //
@@ -409,19 +344,43 @@ public class MarketMenuScreen implements Screen, Disposable {
 //        contentTable.pad(20f);
 //
 //        contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
-//        contentTable.add(new Label("Click 'Place' to select location on your farm", skin))
-//            .colspan(2).padBottom(10).row();
+//        contentTable.add(new Label("Enter coordinates for placement:", skin)).colspan(2).padBottom(10).row();
 //
-//        TextButton placeButton = new TextButton("Place", skin);
+//        contentTable.add(new Label("X:", skin)).padRight(5);
+//        final TextField xField = new TextField("", skin);
+//        xField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+//        contentTable.add(xField).width(100).row();
+//
+//        contentTable.add(new Label("Y:", skin)).padRight(5);
+//        final TextField yField = new TextField("", skin);
+//        yField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+//        contentTable.add(yField).width(100).row();
+//
+//        TextButton buildButton = new TextButton("Build", skin);
 //        TextButton cancelButton = new TextButton("Cancel", skin);
 //
-//        placeButton.addListener(new ClickListener() {
+//        buildButton.addListener(new ClickListener() {
 //            @Override
 //            public void clicked(InputEvent event, float x, float y) {
-//                buildDialog.hide();
-//                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
-//                Main.getGame().setScreen(new BuildingPlacementScreen(
-//                    player, buildingType, MarketMenuScreen.this), skin);
+//                String xText = xField.getText();
+//                String yText = yField.getText();
+//
+//                if (xText.trim().isEmpty() || yText.trim().isEmpty()) {
+//                    showErrorDialog("Invalid Input", "Please enter both X and Y coordinates.");
+//                    return;
+//                }
+//
+//                String[] args = new String[]{item.getName(), xText, yText};
+//                Result result = controller.build(args);
+//
+//                if (result.success()) {
+//                    buildDialog.hide();
+//                    updateMoneyLabel();
+//                    displayItems(currentDisplayStock);
+//                    showErrorDialog("Success", result.message());
+//                } else {
+//                    showErrorDialog("Build Failed", result.message());
+//                }
 //            }
 //        });
 //
@@ -432,11 +391,52 @@ public class MarketMenuScreen implements Screen, Disposable {
 //            }
 //        });
 //
-//        buildDialog.getButtonTable().add(placeButton).pad(10);
+//        buildDialog.getButtonTable().add(buildButton).pad(10);
 //        buildDialog.getButtonTable().add(cancelButton).pad(10);
 //
 //        buildDialog.show(stage);
+//        buildDialog.pack();
+//        buildDialog.setPosition(
+//            Math.round((stage.getWidth() - buildDialog.getWidth()) / 2f),
+//            Math.round((stage.getHeight() - buildDialog.getHeight()) / 2f)
+//        );
 //    }
+
+    private void showBuildDialog(final Item item) {
+        final Dialog buildDialog = new Dialog("Place Building", skin, "dialog");
+
+        Table contentTable = buildDialog.getContentTable();
+        contentTable.pad(20f);
+
+        contentTable.add(new Label("Building: " + item.getName(), skin)).colspan(2).row();
+        contentTable.add(new Label("Click 'Place' to select location on your farm", skin))
+            .colspan(2).padBottom(10).row();
+
+        TextButton placeButton = new TextButton("Place", skin);
+        TextButton cancelButton = new TextButton("Cancel", skin);
+
+        placeButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                buildDialog.hide();
+                String buildingType = item.getName().toLowerCase().contains("barn") ? "barn" : "coop";
+                Main.getGame().setScreen(new BuildingPlacementScreen(
+                    player, buildingType, MarketMenuScreen.this));
+            }
+        });
+
+        cancelButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                buildDialog.hide();
+            }
+        });
+
+        buildDialog.getButtonTable().add(placeButton).pad(10);
+        buildDialog.getButtonTable().add(cancelButton).pad(10);
+
+        buildDialog.show(stage);
+    }
 
     private void updateMoneyLabel() {
         moneyLabel.setText("Money: $" + player.getMoney());
