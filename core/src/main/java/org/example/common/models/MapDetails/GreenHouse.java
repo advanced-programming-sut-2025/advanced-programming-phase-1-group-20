@@ -11,8 +11,8 @@ import java.util.List;
 public class GreenHouse {
     private static final int height = 6;
     private static final int width = 5;
-    private final int x;
-    private final int y;
+    private int x;
+    private int y;
     private final List<Plant> greenHousePlants;
     private final Weather weather;
     private boolean isConstructed;
@@ -43,6 +43,14 @@ public class GreenHouse {
 
     public int getY() {
         return y;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void addPlant(Plant plant) {
@@ -92,4 +100,6 @@ public class GreenHouse {
     public void setName(String name) {
         this.name = name;
     }
+
+
 }
