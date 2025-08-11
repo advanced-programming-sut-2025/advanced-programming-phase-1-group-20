@@ -677,10 +677,14 @@ public class InventoryScreen implements Screen {
         // Render equipped tool overlay
         renderEquippedToolOverlay();
 
-        if (!Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            canClose = true;
-        }
-        if (canClose && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+//        if (!Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+//            canClose = true;
+//        }
+//        if (canClose && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+//            Main.getGame().setScreen(previousScreen);
+//        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Main.getGame().setScreen(previousScreen);
         }
 
