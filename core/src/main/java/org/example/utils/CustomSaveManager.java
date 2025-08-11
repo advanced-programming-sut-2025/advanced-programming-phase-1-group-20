@@ -1,7 +1,6 @@
 package org.example.utils;
 
-import org.example.common.models.Barn;
-import org.example.common.models.Coop;
+import org.example.common.models.*;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -9,11 +8,9 @@ import org.example.common.models.MapDetails.Village;
 import org.example.common.models.MapDetails.Lake;
 import org.example.common.models.MapDetails.GreenHouse;
 import org.example.common.models.MapDetails.Quarry;
-import org.example.common.models.Market;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
-import org.example.common.models.Product;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
@@ -90,6 +87,7 @@ public class CustomSaveManager {
 
             // 2.reading game
             Game game = new Game();
+            App.setGame(game);
             game.setSaveName(dis.readUTF());
             game.isMultiplayer = dis.readBoolean();
             game.setCurrentPlayerIndex(dis.readInt());
