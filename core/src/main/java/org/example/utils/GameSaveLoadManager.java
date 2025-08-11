@@ -104,6 +104,8 @@ public class GameSaveLoadManager {
                 }
                 App.setGame(game);
                 System.out.println("Game loaded successfully from: " + filePath);
+            }else{
+                App.setGame(null);
             }
             return game;
         } catch (IOException e) {

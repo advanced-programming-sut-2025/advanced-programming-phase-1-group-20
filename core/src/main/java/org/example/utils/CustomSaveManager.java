@@ -682,12 +682,6 @@ public class CustomSaveManager {
         Village village = new Village(name);
 
 
-        // Tiles
-        for (int i = 0; i < Village.width; i++) {
-            for (int j = 0; j < Village.height; j++) {
-                village.getTiles()[i][j] = loadLocation(dis);
-            }
-        }
 
         return village;
     }
