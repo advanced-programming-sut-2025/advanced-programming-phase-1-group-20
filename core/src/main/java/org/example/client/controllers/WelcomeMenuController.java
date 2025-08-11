@@ -197,7 +197,7 @@ public class WelcomeMenuController {
         }
 
         map.updateTilesFromRegions();
-        game.isMultiplayer = true;
+        game.isMultiplayer = false;
         GameSaveLoadManager.autosave();
         GameView gameMenuScreen = new GameView(new GameMenuController(player1) , player1 , game , assetManager.getSkin() ,user1);
         getGame().setScreen(gameMenuScreen);

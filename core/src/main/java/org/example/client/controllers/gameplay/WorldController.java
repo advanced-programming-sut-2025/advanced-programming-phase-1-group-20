@@ -82,7 +82,7 @@ public class WorldController {
     private static final int COOP_TILES_H = Coop.getHeight();
     private static final int GOLD_CLOCK_TILES_W = 3;
     private static final int GOLD_CLOCK_TILES_H = 5;
-    
+
     // Market building dimensions (wider than regular houses)
     private static final int MARKET_TILES_W = 7;  // Wider than HOUSE_TILES_W (5)
     private static final int MARKET_TILES_H = 6;  // Same height as HOUSE_TILES_H
@@ -1142,9 +1142,9 @@ public class WorldController {
         Village village = App.getGame().getGameMap().getVillage();
         Building building = null;
         for (Building b : village.getBuildings()) {
-            if (b.getType().equals("public") && 
-                (b.getName().equals("Mayor House") || 
-                 b.getName().equals("Fish Pond") || 
+            if (b.getType().equals("public") &&
+                (b.getName().equals("Mayor House") ||
+                 b.getName().equals("Fish Pond") ||
                  b.getName().equals("Museum") ||
                  b.getName().equals("Town Hall")) &&
                 b.contains(x, y)) {
@@ -2133,10 +2133,10 @@ public class WorldController {
             // Create and show the NPC interaction window
             if (controller != null && controller.getView() != null) {
                 NPCInteractionScreen interactionScreen = new NPCInteractionScreen(
-                    npc, 
-                    playerController.getPlayer(), 
-                    controller.getView().getNPCSpriteController(), 
-                    skin, 
+                    npc,
+                    playerController.getPlayer(),
+                    controller.getView().getNPCSpriteController(),
+                    skin,
                     controller.getView()
                 );
                 Main.getGame().setScreen(interactionScreen);
