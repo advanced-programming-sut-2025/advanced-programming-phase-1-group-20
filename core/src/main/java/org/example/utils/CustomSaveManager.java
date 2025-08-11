@@ -9,9 +9,11 @@ import org.example.common.models.MapDetails.Village;
 import org.example.common.models.MapDetails.Lake;
 import org.example.common.models.MapDetails.GreenHouse;
 import org.example.common.models.MapDetails.Quarry;
+import org.example.common.models.Market;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
+import org.example.common.models.Product;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
@@ -19,6 +21,7 @@ import org.example.common.models.entities.User;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
+import org.example.common.models.enums.Ingredients;
 import org.example.common.models.enums.PlayerEnums.Gender;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
@@ -547,7 +550,7 @@ public class CustomSaveManager {
         int coopCount = dis.readInt();
         List<Coop> coops = new ArrayList<>();
         for (int i = 0; i < coopCount; i++) {
-            loadCoop(dis);
+            coops.add(loadCoop(dis));
         }
 
 
@@ -640,6 +643,7 @@ public class CustomSaveManager {
     private static void saveVillage(DataOutputStream dos, Village village) throws IOException {
         dos.writeUTF(village.getName());
 
+
         // Tiles
         for (int i = 0; i < Village.width; i++) {
             for (int j = 0; j < Village.height; j++) {
@@ -648,9 +652,37 @@ public class CustomSaveManager {
         }
     }
 
+    private static void saveMarket(DataOutputStream dos, Market markets) throws IOException {
+        saveProducts(dos , markets.getPermanentStock());
+        saveProducts(dos , markets.getSpringStock());
+        saveProducts(dos , markets.getSummerStock());
+        saveProducts(dos , markets.getAutumnStock());
+        saveProducts(dos , markets.getWinterStock());
+        saveProducts(dos , markets.getTotalStock());
+        dos.writeInt(markets.getTileType().ordinal());
+        dos.writeInt(markets.getStartHour());
+        dos.writeInt(markets.getEndHour());
+        dos.writeUTF(markets.getName());
+        dos.writeInt(markets.getX());
+        dos.writeInt(markets.getY());
+    }
+
+    private static void saveProducts(DataOutputStream dos, List<Product> products) throws IOException {
+        dos.writeInt(products.size());
+        for(int i = 0; i < products.size(); i++){
+            saveProduct(dos, products.get(i));
+        }
+    }
+
+    private static void saveProduct(DataOutputStream dos, Product product) throws IOException {
+        saveItem(dos, product.getItem());
+        dos.writeInt(product.getIngredient().ordinal());
+    }
+
     private static Village loadVillage(DataInputStream dis) throws IOException {
         String name = dis.readUTF();
         Village village = new Village(name);
+
 
         // Tiles
         for (int i = 0; i < Village.width; i++) {
@@ -660,6 +692,40 @@ public class CustomSaveManager {
         }
 
         return village;
+    }
+
+    private static Market loadMarket(DataInputStream dis) throws IOException {
+        List<Product> permanentStock = loadProducts(dis);
+        List<Product> springStock = loadProducts(dis) ;
+        List<Product> summerStock = loadProducts(dis);
+        List<Product> autumnStock = loadProducts(dis);
+        List<Product> winterStock = loadProducts(dis);
+        List<Product> totalStock = loadProducts(dis);
+        TileType tileType = TileType.values()[dis.readInt()];
+        int startHour = dis.readInt();
+        int endHour = dis.readInt();
+        String name = dis.readUTF();
+        int x = dis.readInt();
+        int y = dis.readInt();
+        Market market = new Market(x , y , permanentStock , springStock , summerStock , autumnStock , winterStock , startHour , endHour , new String[]{} , name , tileType);
+        market.setTotalStock(totalStock);
+        return market;
+    }
+
+    private static List<Product> loadProducts(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            products.add(loadProduct(dis));
+        }
+        return products;
+    }
+
+
+    private static Product loadProduct(DataInputStream dis) throws IOException {
+        Item item = loadItem(dis);
+        Ingredients ingredients = Ingredients.values()[dis.readInt()];
+        return new Product(item, 0, ingredients);
     }
 
     private static void saveLocation(DataOutputStream dos, Location location) throws IOException {
@@ -751,13 +817,14 @@ public class CustomSaveManager {
     }
 
     private static void saveCookingItem(DataOutputStream dos, CookingItem item) throws IOException {
-        dos.writeUTF(item.getType().name());
     }
 
     private static CookingItem loadCookingItem(DataInputStream dis, Item baseItem) throws IOException {
         CookingItem item = (CookingItem) baseItem;
         return item;
     }
+
+    // In CustomSaveManager.java
 
     private static void saveCraftingItem(DataOutputStream dos, CraftingItem item) throws IOException {
         dos.writeDouble(item.getProgressBar());
@@ -766,14 +833,14 @@ public class CustomSaveManager {
 
         if (item.getProccessingItem() != null) {
             dos.writeBoolean(true);
-            saveArtisanItem(dos, (ArtisanItem) item.getProccessingItem());
+            saveItem(dos, item.getProccessingItem());
         } else {
             dos.writeBoolean(false);
         }
 
         if (item.getFinishedItem() != null) {
             dos.writeBoolean(true);
-            saveArtisanItem(dos, (ArtisanItem) item.getFinishedItem());
+            saveItem(dos, item.getFinishedItem());
         } else {
             dos.writeBoolean(false);
         }
@@ -845,9 +912,7 @@ public class CustomSaveManager {
         item.setFinished(dis.readBoolean());
         item.setMoisture(dis.readBoolean());
         item.setMoistureCounter(dis.readInt());
-        if (dis.readBoolean()) {
-            item.isGiant(item.getStage());
-        }
+        item.setGiant(dis.readBoolean());
         item.setMoistureGod(dis.readBoolean());
         return item;
     }

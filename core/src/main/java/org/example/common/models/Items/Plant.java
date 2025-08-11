@@ -153,6 +153,10 @@ public class Plant extends Item {
         return isGiant;
     }
 
+    public void setGiant(boolean giant) {
+        isGiant = giant;
+    }
+
     public void isGiant(int stage) {
         setStage(stage);
 

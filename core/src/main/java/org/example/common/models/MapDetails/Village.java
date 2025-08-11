@@ -50,13 +50,12 @@ public class Village {
     private static final String BG_PINK = "\u001B[48;5;200m";
     private static final String BG_LIGHT_BLUE = "\u001B[48;5;39m";
     private static final String BG_LIGHT_GREEN = "\u001B[48;5;120m";
-    private final Market[] markets = new Market[7];
+    private Market[] markets = new Market[7];
     private Location[][] tiles;
     private List<Building> buildings;
     private Building townHall;
     private Building goldClock;
     private String name;
-    //private List<Shop> shops;
     private Map<String, Character> symbolMap;
     private List<NPC> residents;
 
@@ -66,7 +65,6 @@ public class Village {
         this.buildings = new ArrayList<>();
         this.symbolMap = new HashMap<>();
         this.residents = new ArrayList<>();
-        //this.shops = new ArrayList<>();
         initializeVillage();
         initializeSymbols();
         initializeTownHall();
@@ -167,7 +165,7 @@ public class Village {
             y >= marketY && y < marketY + marketHeight;
     }
 
-    private void initializeMarkets() {
+    public void initializeMarkets() {
         markets[0] = Markets.BLACKS_SMITH.createMarket();
         markets[1] = Markets.JOJA_MART.createMarket();
         markets[2] = Markets.PIERRE_GENERAL_STORE.createMarket();
@@ -215,22 +213,22 @@ public class Village {
     private void initializeVillageBuildings() {
         // Add the new village buildings: mayor house, fish pond, museum, and town hall
         // Position them strategically around the village
-        
+
         // Mayor House - positioned near the top of the village
         Building mayorHouse = new Building(15, 120, "Mayor House", "public");
         mayorHouse.setSpritePath("content/Buildings/mayor_house.png");
         buildings.add(mayorHouse);
-        
+
         // Fish Pond - positioned near the center but to the right
         Building fishPond = new Building(55, 80, "Fish Pond", "public");
         fishPond.setSpritePath("content/Buildings/fish_pond.png");
         buildings.add(fishPond);
-        
+
         // Museum - positioned near the center but to the left
         Building museum = new Building(10, 80, "Museum", "public");
         museum.setSpritePath("content/Buildings/museum.png");
         buildings.add(museum);
-        
+
         // Note: Town Hall is already initialized in initializeTownHall() method
         // We just need to set its sprite path here
         if (townHall != null) {
@@ -297,11 +295,11 @@ public class Village {
     private void markVillageBuildings() {
         // Mark all village buildings (mayor house, fish pond, museum) on the map
         for (Building building : buildings) {
-            if (building.getType().equals("public") && 
-                (building.getName().equals("Mayor House") || 
-                 building.getName().equals("Fish Pond") || 
+            if (building.getType().equals("public") &&
+                (building.getName().equals("Mayor House") ||
+                 building.getName().equals("Fish Pond") ||
                  building.getName().equals("Museum"))) {
-                
+
                 int buildingX = building.getX();
                 int buildingY = building.getY();
                 int buildingWidth = building.getWidth();
@@ -321,6 +319,10 @@ public class Village {
 
     public Market[] getMarkets() {
         return markets;
+    }
+
+    public void setMarkets(Market[] markets) {
+        this.markets = markets;
     }
 
     public Building getTownHall() {
@@ -379,7 +381,7 @@ public class Village {
         // Create secondary paths for better access to different parts of the village
         // These follow the same branching pattern as farm paths
         createSecondaryPaths(centerX, centerY);
-        
+
         // Create paths to markets and NPC houses
         createPathsToBuildings(centerX, centerY);
     }
@@ -484,23 +486,23 @@ public class Village {
         createPathToMarket(centerX, centerY, 15, 135); // Marnie Shop
         createPathToMarket(centerX, centerY, 60, 135); // Star Drop Saloon
         createPathToMarket(centerX, centerY, 37, 140); // Fish Shop
-        
+
         // Create paths to NPC houses at the bottom
         createPathsToNPCHouses(centerX, centerY);
     }
-    
+
     private void createPathToMarket(int centerX, int centerY, int marketX, int marketY) {
         // Create a path from the market to the middle path in the village
         // Markets are 3x3, so we target the center of the market
-        
+
         // Connect directly to the middle path (centerX, centerY)
         // First create horizontal path from market to center X
         createPathFromCenterToEntrance(marketX, marketY, centerX, marketY);
-        
+
         // Then create vertical path from that point to center Y
         createPathFromCenterToEntrance(centerX, marketY, centerX, centerY);
     }
-    
+
     private void createPathsToNPCHouses(int centerX, int centerY) {
         // NPC houses are positioned at the bottom in a row
         int houseWidth = 5;
@@ -508,26 +510,26 @@ public class Village {
         int bottomY = 5; // 5 tiles from bottom edge
         int startX = 10; // Start 10 tiles from left edge
         int spacing = 8; // Space between houses
-        
+
         for (int i = 0; i < 5; i++) {
             int houseX = startX + (i * (houseWidth + spacing)) + houseWidth / 2; // Center of house
             int houseY = bottomY + houseHeight / 2; // Center of house
-            
+
             // Create path from house to the middle path
             // First create horizontal path from house to center X
             createPathFromCenterToEntrance(houseX, houseY, centerX, houseY);
-            
+
             // Then create vertical path from that point to center Y
             createPathFromCenterToEntrance(centerX, houseY, centerX, centerY);
         }
     }
-    
+
     private int findNearestPathPoint(int targetX, int targetY, boolean isX) {
         // Find the nearest point on existing paths
         // This is a simplified approach - we'll use the center of the village as reference
         int centerX = width / 2;
         int centerY = height / 2;
-        
+
         if (isX) {
             // For X coordinate, use the center X or the target X if it's closer to an edge
             if (targetX < centerX) {
@@ -836,7 +838,7 @@ public class Village {
             if (currentDate != null) {
                 int currentHour = currentDate.getHour();
                 org.example.common.models.enums.NPCRoutine routine = org.example.common.models.enums.NPCRoutine.fromNpcName(npcName);
-                
+
                 if (routine != null) {
                     // Find current routine point
                     for (org.example.common.models.enums.NPCRoutine.RoutinePoint point : routine.getRoutinePoints()) {
@@ -852,7 +854,7 @@ public class Village {
         } catch (Exception e) {
             System.err.println("Error getting routine position for " + npcName + ", using default: " + e.getMessage());
         }
-        
+
         // Fallback to default positions if routine system fails
         switch (npcName) {
             case "Abigail":

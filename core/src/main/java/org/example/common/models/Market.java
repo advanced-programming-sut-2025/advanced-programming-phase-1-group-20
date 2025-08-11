@@ -24,10 +24,9 @@ public class Market extends Building {
     private final List<Product> winterStock;
 
     // This list represents the *current*, modifiable stock for the day.
-    private transient List<Product> totalStock;
+    private List<Product> totalStock;
 
     // counterStock is not used for stock management anymore, but kept for compatibility.
-    private transient List<Product> counterStock;
 
     private TileType tileType;
     private int startHour;
@@ -63,7 +62,6 @@ public class Market extends Building {
         this.autumnStock = new ArrayList<>();
         this.winterStock = new ArrayList<>();
         this.totalStock = new ArrayList<>();
-        this.counterStock = new ArrayList<>();
     }
 
     /**
@@ -92,10 +90,6 @@ public class Market extends Building {
             .forEach(this.totalStock::add);
     }
 
-    // This method is now mostly for compatibility, the core logic relies on totalStock
-    public void initializeCounterStock() {
-        counterStock = new ArrayList<>();
-    }
 
     // Helper method to find a product in a list by Item object
     private Optional<Product> findProductByItem(List<Product> productList, Item item) {
@@ -303,10 +297,6 @@ public class Market extends Building {
         return totalStock;
     }
 
-    // This getter is kept for compatibility but is not used in the new stock logic.
-    public List<Product> getCounterStock() {
-        return counterStock;
-    }
 
     public boolean isOpen(int currentHour) {
         if (endHour > startHour) {
@@ -346,5 +336,20 @@ public class Market extends Building {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public int getY() {
+        return super.getY();
+    }
+
+    @Override
+    public int getX() {
+        return super.getX();
+    }
+
+
+    public void setTotalStock(List<Product> totalStock) {
+        this.totalStock = totalStock;
     }
 }

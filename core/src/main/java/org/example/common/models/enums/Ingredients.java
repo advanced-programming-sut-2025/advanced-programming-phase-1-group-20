@@ -59,7 +59,6 @@ public enum Ingredients {
     // Artisan Good Recipes
     // Note: For items with multiple options (e.g., "Any Fruit"), the complex checking
     // logic remains in your CraftingItem class. This enum stores the basic recipe.
-    Honey(Map.of()), // Honey is a special case, often without direct ingredients
     Cheese(Map.of("Milk", 1)),
     GoatCheese(Map.of("Goat Milk", 1)),
     Beer(Map.of("Wheat", 1)),
