@@ -58,7 +58,7 @@ public class Farm {
     private final List<Animal> animals;
     private Building building = createBuilding();
     private final List<Lake> lakes = createLakes();
-    private final GreenHouse greenHouse = createGreenHouse();
+    private GreenHouse greenHouse = createGreenHouse();
     private final Quarry quarry = createQuarry();
     private final List<Barn> barns;
     private final List<Coop> coops;
@@ -686,6 +686,10 @@ public class Farm {
 
     public GreenHouse getGreenHouse() {
         return greenHouse;
+    }
+
+    public void setGreenHouse(GreenHouse greenHouse) {
+        this.greenHouse = greenHouse;
     }
 
     public Quarry getQuarry() {
