@@ -41,18 +41,14 @@ public class Main extends Game {
 
     @Override
     public void setScreen(com.badlogic.gdx.Screen screen) {
-        System.out.println("DEBUG: Main.setScreen() called with screen: " + (screen != null ? screen.getClass().getSimpleName() : "null"));
         if (screen != null) {
-            System.out.println("DEBUG: Screen class: " + screen.getClass().getName());
         }
         super.setScreen(screen);
-        System.out.println("DEBUG: Main.setScreen() completed");
     }
 
     @Override
     public com.badlogic.gdx.Screen getScreen() {
         com.badlogic.gdx.Screen currentScreen = super.getScreen();
-        System.out.println("DEBUG: Main.getScreen() called, returning: " + (currentScreen != null ? currentScreen.getClass().getSimpleName() : "null"));
         return currentScreen;
     }
 

@@ -6,9 +6,7 @@ import org.example.common.models.entities.Game;
 
 import java.util.List;
 
-/**
- * Controller class for handling game save and load operations.
- */
+
 public class GameSaveLoadController {
     public static String saveGame(String saveName) {
         Game gameToSave = App.getGame();
@@ -30,12 +28,6 @@ public class GameSaveLoadController {
         }
     }
 
-    /**
-     * Loads a game from a file.
-     *
-     * @param saveName Name of the save to load. If null or empty, attempts to load "current_game".
-     * @return A message indicating success or failure
-     */
     public static String loadGame(String saveName) {
         Game loadedGame;
         if (saveName != null && !saveName.trim().isEmpty()) {
@@ -55,11 +47,6 @@ public class GameSaveLoadController {
         }
     }
 
-    /**
-     * Lists all available saved games (excluding "current_game" and "autosave").
-     *
-     * @return A formatted string listing all saved games
-     */
     public static String listSavedGames() {
         List<String> savedGameNames = GameSaveLoadManager.listSavedGames();
 

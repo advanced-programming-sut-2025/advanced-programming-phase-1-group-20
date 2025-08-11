@@ -195,7 +195,12 @@ public class ClimateSystem {
 
         // Set drop properties for visibility
         drop.alpha = MathUtils.random(0.6f, 1.0f);
-        drop.scale = MathUtils.random(1.0f, 2.5f);
+        // Special case for rain2Texture (index 1): make it smaller
+        if (randomTextureIndex == 1) {
+            drop.scale = MathUtils.random(0.1f, 0.4f);
+        } else {
+            drop.scale = MathUtils.random(1.0f, 2.5f);
+        }
         drop.rotation = MathUtils.random(-15f, 15f);
 
         // Wind effects
