@@ -22,8 +22,8 @@ public class SkillsScreen implements Screen {
 
     private static final float BUTTON_PADDING = 20f;
     private static final float SKILL_ITEM_PADDING = 15f;
-    private static final float LEVEL_BAR_WIDTH = 80f;
-    private static final float LEVEL_BAR_HEIGHT = 10f;
+    private static final float LEVEL_BAR_WIDTH = 160f;
+    private static final float LEVEL_BAR_HEIGHT = 40f;
     private static final float ICON_SIZE = 64f;
     private static final float TEXT_IMAGE_WIDTH = 160f;
     private static final float SCALE_NORMAL = 1.0f;
