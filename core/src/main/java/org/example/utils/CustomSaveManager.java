@@ -14,15 +14,14 @@ import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
+import org.example.common.models.entities.NPC;
 import org.example.common.models.entities.User;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
-import org.example.common.models.enums.Ingredients;
+import org.example.common.models.enums.*;
 import org.example.common.models.enums.PlayerEnums.Gender;
-import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
-import org.example.common.models.enums.Weather;
 import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Player.Refrigerator;
 
@@ -641,12 +640,85 @@ public class CustomSaveManager {
     private static void saveVillage(DataOutputStream dos, Village village) throws IOException {
         dos.writeUTF(village.getName());
 
+        // npc
+        dos.writeInt(village.getResidents().size());
+        for(int i = 0 ; i < village.getResidents().size() ; i++){
+            saveResidents(dos, village.getResidents().get(i));
+        }
 
         // Tiles
         for (int i = 0; i < Village.width; i++) {
             for (int j = 0; j < Village.height; j++) {
                 saveLocation(dos, village.getItem(i, j));
             }
+        }
+    }
+
+    private static void saveResidents(DataOutputStream dos , NPC npc) throws IOException {
+        dos.writeUTF(npc.getName());
+        dos.writeUTF(npc.getSpriteName());
+        dos.writeInt(npc.getCharacter().ordinal());
+        dos.writeInt(npc.getJobs().ordinal());
+        dos.writeFloat(npc.getPosX());
+        dos.writeFloat(npc.getPosY());
+        dos.writeBoolean(npc.isMoving());
+        dos.writeBoolean(npc.isFacingLeft());
+        dos.writeUTF(npc.getCurrentAnimation());
+        saveLocation(dos, npc.getLocation());
+        dos.writeInt(npc.getMissions().size());
+        for(Map.Entry<Integer, HashMap<Item, Integer>> entry : npc.getMissions().entrySet()) {
+            dos.writeInt(entry.getKey());
+            saveHashMap(dos, entry.getValue());
+        }
+
+    }
+
+    private static NPC loadResidents(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        String spriteName = dis.readUTF();
+        Charactristic charactristic = Charactristic.values()[dis.readInt()];
+        Jobs jobs = Jobs.values()[dis.readInt()];
+        float x = dis.readFloat();
+        float y = dis.readFloat();
+        boolean isMoving = dis.readBoolean();
+        boolean facingLeft = dis.readBoolean();
+        String currentAnimation = dis.readUTF();
+        Location location = loadLocation(dis);
+        int size = dis.readInt();
+        HashMap<Integer , HashMap<Item , Integer>> missions = new HashMap<>();
+        for(int i = 0 ; i < size; i++){
+            int integer = dis.readInt();
+            HashMap<Item,Integer> items = new HashMap<>();
+            items = loadHashMap(dis);
+            missions.put(integer, items);
+        }
+        NPC npc = new NPC(charactristic , name , jobs , missions);
+        npc.setLocation(location);
+        npc.setFacingLeft(facingLeft);
+        npc.setMoving(isMoving);
+        npc.setCurrentAnimation(currentAnimation);
+        npc.setPosX(x);
+        npc.setPosY(y);
+        npc.setSpriteName(spriteName);
+        return npc;
+    }
+
+    private static HashMap<Item , Integer> loadHashMap(DataInputStream dis) throws IOException {
+        int mapSize = dis.readInt();
+        HashMap<Item , Integer> map = new HashMap<>();
+        for(int i = 0 ; i < mapSize; i++){
+            Item item = loadItem(dis);
+            int integer = dis.readInt();
+            map.put(item, integer);
+        }
+        return map;
+    }
+
+    private static void saveHashMap(DataOutputStream dos, HashMap<Item, Integer> map) throws IOException {
+        dos.writeInt(map.size());
+        for(Map.Entry<Item, Integer> entry : map.entrySet()) {
+            saveItem(dos, entry.getKey());
+            dos.writeInt(entry.getValue());
         }
     }
 
@@ -680,7 +752,14 @@ public class CustomSaveManager {
     private static Village loadVillage(DataInputStream dis) throws IOException {
         String name = dis.readUTF();
         Village village = new Village(name);
+        // npc
+        int size = dis.readInt();
+        List<NPC> npcs = new ArrayList<>();
+        for(int i = 0 ; i < size ; i++){
+            npcs.add(loadResidents(dis));
+        }
 
+        village.setResidents(npcs);
 
 
         return village;

@@ -1034,7 +1034,12 @@ public class Village {
     public List<NPC> getResidents() {
         return residents;
     }
-//
+
+    public void setResidents(List<NPC> residents) {
+        this.residents = residents;
+    }
+
+    //
 //    public List<Shop> getShops() {
 //        //...
 //    }
