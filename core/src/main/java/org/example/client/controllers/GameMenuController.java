@@ -2462,6 +2462,6 @@ public class GameMenuController implements Controller {
     }
 
     public WorldController getWorldController() {
-        return this.getWorldController();
+        return worldController; // ...
     }
 }
