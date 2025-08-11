@@ -523,6 +523,10 @@ public class Date implements Runnable {
         this.year = year;
     }
 
+    public int getYear() {
+        return this.year;
+    }
+
     public void setHour(int hour) {
         this.hour = hour;
     }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.GreenhouseRepairDialog;
+import org.example.client.views.NPCInteractionScreen;
 import org.example.client.views.gameplay.GreenhouseScreen;
 import org.example.client.views.gameplay.MarketMenuScreen;
 import org.example.client.views.gameplay.RefrigeratorScreen;
@@ -57,6 +58,7 @@ public class WorldController {
     private List<Location> coopAnchors;
     private List<Location> goldClockAnchors;
     private List<Location> npcHouseAnchors;
+    private List<Location> villageBuildingAnchors;
 
     //Markets
     private List<Location> blacksmith;
@@ -112,6 +114,7 @@ public class WorldController {
         this.coopAnchors = new ArrayList<>();
         this.goldClockAnchors = new ArrayList<>();
         this.npcHouseAnchors = new ArrayList<>();
+        this.villageBuildingAnchors = new ArrayList<>();
 
         // Initialize markets anchor collections
         this.blacksmith = new ArrayList<>();
@@ -180,6 +183,12 @@ public class WorldController {
 
         // Clock texture
         loadTexture("gold_clock", "content/Buildings/Gold_Clock.png");
+
+        // Village building textures
+        loadTexture("mayor_house", "content/Buildings/mayor_house.png");
+        loadTexture("fish_pond", "content/Buildings/fish_pond.png");
+        loadTexture("museum", "content/Buildings/museum.png");
+        loadTexture("town_hall", "content/Buildings/town_hall.png");
 
         loadTexture("fence", "content/Fence/Iron_Fence.png");
         preloadArtisans();
@@ -358,6 +367,7 @@ public class WorldController {
         coopAnchors.clear();
         goldClockAnchors.clear();
         npcHouseAnchors.clear();
+        villageBuildingAnchors.clear();
 
         blacksmith.clear();
         jojaMart.clear();
@@ -484,11 +494,13 @@ public class WorldController {
         Set<String> starDropSaloonTiles = new HashSet<>();
         Set<String> goldClockTiles = new HashSet<>();
         Set<String> npcHouseTiles = new HashSet<>();
+        Set<String> villageBuildingTiles = new HashSet<>();
 
 
         collectMarketTiles(blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
         collectClockTiles(goldClockTiles);
         collectNPCHouseTiles(npcHouseTiles);
+        collectVillageBuildingTiles(villageBuildingTiles);
 
 
 
@@ -520,6 +532,7 @@ public class WorldController {
                 detectMarketAnchors(location , x , y ,tileType ,  blackSmithTiles , jojaMartTiles , pierreGeneralStoreTiles ,carpentersTiles , fishShopTiles , marnieShopTiles , starDropSaloonTiles);
                 detectClockAnchors(location, x, y, goldClockTiles);
                 detectNPCHouseAnchors(location, x, y, npcHouseTiles);
+                detectVillageBuildingAnchors(location, x, y, villageBuildingTiles);
 
                 // Render items if present
                 Item item = location.getItem();
@@ -651,6 +664,19 @@ public class WorldController {
         }
     }
 
+    private void collectVillageBuildingTiles(Set<String> villageBuildingTiles) {
+        Village village = App.getGame().getGameMap().getVillage();
+        for (int x = 0; x < Village.width; x++) {
+            for (int y = 0; y < Village.height; y++) {
+                Location location = village.getItem(x, y);
+                if (location != null && location.getType() != null && location.getType().equals("village_building")) {
+                    String tileKey = x + "," + y;
+                    villageBuildingTiles.add(tileKey);
+                }
+            }
+        }
+    }
+
     private void detectBuildingAnchors(Location location, int x, int y, TileType tileType,
                                        Set<String> greenhouseTiles, Set<String> houseTiles,
                                        Set<String> barnTiles, Set<String> coopTiles) {
@@ -708,6 +734,13 @@ public class WorldController {
         String tileKey = x + "," + y;
         if (npcHouseTiles.contains(tileKey)) {
             detectNPCHouseAnchor(location, x, y, npcHouseTiles);
+        }
+    }
+
+    private void detectVillageBuildingAnchors(Location location, int x, int y, Set<String> villageBuildingTiles) {
+        String tileKey = x + "," + y;
+        if (villageBuildingTiles.contains(tileKey)) {
+            detectVillageBuildingAnchor(location, x, y, villageBuildingTiles);
         }
     }
 
@@ -883,6 +916,16 @@ public class WorldController {
         }
     }
 
+    private void detectVillageBuildingAnchor(Location location, int x, int y, Set<String> villageBuildingTiles) {
+        // For 5x5 village buildings, detect the top-left corner
+        boolean hasLeft = villageBuildingTiles.contains((x - 1) + "," + y);
+        boolean hasBelow = villageBuildingTiles.contains(x + "," + (y - 1));
+
+        if (!hasLeft && !hasBelow) {
+            villageBuildingAnchors.add(location);
+        }
+    }
+
     private void renderBuildings() {
         for (Location anchor : greenhouseAnchors) {
             renderGreenhouseAtAnchor(anchor);
@@ -906,6 +949,10 @@ public class WorldController {
 
         for (Location anchor : npcHouseAnchors) {
             renderNPCHouseAtAnchor(anchor);
+        }
+
+        for (Location anchor : villageBuildingAnchors) {
+            renderVillageBuildingAtAnchor(anchor);
         }
     }
 
@@ -1082,6 +1129,48 @@ public class WorldController {
             }
         }
     }
+
+    private void renderVillageBuildingAtAnchor(Location anchor) {
+        int x = anchor.getX();
+        int y = anchor.getY();
+
+        // Use global coordinates for village buildings
+        float drawX = (GameMap.VILLAGE_X + x) * TILE_SIZE;
+        float drawY = (GameMap.VILLAGE_Y + y) * TILE_SIZE;
+
+        // Find the building at this location to get the sprite path
+        Village village = App.getGame().getGameMap().getVillage();
+        Building building = null;
+        for (Building b : village.getBuildings()) {
+            if (b.getType().equals("public") && 
+                (b.getName().equals("Mayor House") || 
+                 b.getName().equals("Fish Pond") || 
+                 b.getName().equals("Museum") ||
+                 b.getName().equals("Town Hall")) &&
+                b.contains(x, y)) {
+                building = b;
+                break;
+            }
+        }
+
+        if (building != null && building.getSpritePath() != null) {
+            // Load texture from the sprite path
+            Texture texture = new Texture(building.getSpritePath());
+            if (texture != null) {
+                Main.getBatch().draw(texture, drawX, drawY,
+                    TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+            }
+        }
+        else {
+            // Fallback to a default house texture
+            Texture texture = getTexture("house");
+            if (texture != null) {
+                Main.getBatch().draw(texture, drawX, drawY,
+                    TILE_SIZE * HOUSE_TILES_W, TILE_SIZE * HOUSE_TILES_H);
+            }
+        }
+    }
+
     private void renderBlackSmithAtAnchor(Location anchor) {
         int x = anchor.getX();
         int y = anchor.getY();
@@ -2039,16 +2128,23 @@ public class WorldController {
     }
 
     private void showNPCDialogueWindow(NPC npc) {
-        System.out.println("Opening dialogue window for " + npc.getName());
+        System.out.println("Opening interaction window for " + npc.getName());
         try {
-            // Create and show the NPC dialogue window
+            // Create and show the NPC interaction window
             if (controller != null && controller.getView() != null) {
-                controller.getView().showNPCDialogueWindow(npc);
+                NPCInteractionScreen interactionScreen = new NPCInteractionScreen(
+                    npc, 
+                    playerController.getPlayer(), 
+                    controller.getView().getNPCSpriteController(), 
+                    skin, 
+                    controller.getView()
+                );
+                Main.getGame().setScreen(interactionScreen);
             } else {
                 System.err.println("Error: Controller or GameView is null");
             }
         } catch (Exception e) {
-            System.err.println("Error opening NPC dialogue window: " + e.getMessage());
+            System.err.println("Error opening NPC interaction window: " + e.getMessage());
             e.printStackTrace();
         }
     }

@@ -1444,6 +1444,15 @@ public class GameMenuController implements Controller {
             return Result.error("Failed to propose marriage to " + username + ".");
         }
 
+        // Add event tracking
+        try {
+            if (App.getGame() != null && App.getGame().getDailyEvents() != null) {
+                App.getGame().getDailyEvents().addMarriageProposal(currentPlayer, targetPlayer);
+            }
+        } catch (Exception e) {
+            System.err.println("Error tracking marriage proposal event: " + e.getMessage());
+        }
+
         // Remove the ring from the player's inventory
         currentPlayer.getBackpack().remove(App.getItem(ringName), 1);
 
@@ -1488,6 +1497,15 @@ public class GameMenuController implements Controller {
             proposer.marry(currentPlayer);
             currentPlayer.marry(proposer);
 
+            // Add event tracking
+            try {
+                if (App.getGame() != null && App.getGame().getDailyEvents() != null) {
+                    App.getGame().getDailyEvents().addMarriageAccepted(proposer, currentPlayer);
+                }
+            } catch (Exception e) {
+                System.err.println("Error tracking marriage acceptance event: " + e.getMessage());
+            }
+
             // Combine money
             int totalMoney = proposer.getMoney() + currentPlayer.getMoney();
             proposer.decreaseMoney(proposer.getMoney());
@@ -1497,6 +1515,15 @@ public class GameMenuController implements Controller {
 
             return Result.success("You accepted " + username + "'s marriage proposal. You are now married!");
         } else {
+            // Add event tracking for rejection
+            try {
+                if (App.getGame() != null && App.getGame().getDailyEvents() != null) {
+                    App.getGame().getDailyEvents().addMarriageRejected(proposer, currentPlayer);
+                }
+            } catch (Exception e) {
+                System.err.println("Error tracking marriage rejection event: " + e.getMessage());
+            }
+
             friendship.decreaseXp(friendship.getXp()); // Reset friendship to level 0
 
             proposer.setEnergy(proposer.getEnergy() / 2);

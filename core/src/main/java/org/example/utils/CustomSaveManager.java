@@ -336,10 +336,13 @@ public class CustomSaveManager {
 
     private static void saveGreenHouse(DataOutputStream dos, GreenHouse greenHouse , Farm farm) throws IOException {
         dos.writeBoolean(greenHouse.getIsConstructed());
-        // Save the tiles, which contain the plants
+        dos.writeInt(greenHouse.getX());
+        dos.writeInt(greenHouse.getY());
+
+        // Save the tiles, which contain the plants, from the GreenHouse itself
         for (int i = 0; i < GreenHouse.getHeight(); i++) {
             for (int j = 0; j < GreenHouse.getWidth(); j++) {
-                saveLocation(dos, farm.getTiles()[i][j]);
+                saveLocation(dos, farm.getTiles()[greenHouse.getY() + i][greenHouse.getX() + j]);
             }
         }
     }
@@ -440,11 +443,15 @@ public class CustomSaveManager {
 
         //GreenHouse here
         if (dis.readBoolean()) {
-            GreenHouse greenHouse = farm.getGreenHouse();
+            GreenHouse greenHouse = farm.getGreenHouse(); // Get the default greenhouse
             greenHouse.setConstructed(dis.readBoolean());
+            greenHouse.setX(dis.readInt()); // Load and set position
+            greenHouse.setY(dis.readInt());
+
+            // Load the tiles into the greenhouse
             for (int i = 0; i < GreenHouse.getHeight(); i++) {
                 for (int j = 0; j < GreenHouse.getWidth(); j++) {
-                    farm.getTiles()[i][j] = loadLocation(dis);
+                    farm.getTiles()[greenHouse.getY() + i][greenHouse.getX() + j] = loadLocation(dis);
                 }
             }
         }

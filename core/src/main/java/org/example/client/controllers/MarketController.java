@@ -214,6 +214,16 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 150);
                 player.getBackpack().remove(wood , 350);
                 player.decreaseMoney(6000);
+                
+                // Add event tracking
+                try {
+                    if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
+                        org.example.common.models.App.getGame().getDailyEvents().addBuildingPurchase(player, "Barn");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error tracking building purchase event: " + e.getMessage());
+                }
+                
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Big Barn")) {
@@ -226,6 +236,16 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 200);
                 player.getBackpack().remove(wood , 450);
                 player.decreaseMoney(12_000);
+                
+                // Add event tracking
+                try {
+                    if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
+                        org.example.common.models.App.getGame().getDailyEvents().addBuildingPurchase(player, "Big Barn");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error tracking building purchase event: " + e.getMessage());
+                }
+                
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Deluxe Barn")) {
@@ -238,6 +258,16 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 300);
                 player.getBackpack().remove(wood , 550);
                 player.decreaseMoney(25_000);
+                
+                // Add event tracking
+                try {
+                    if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
+                        org.example.common.models.App.getGame().getDailyEvents().addBuildingPurchase(player, "Deluxe Barn");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error tracking building purchase event: " + e.getMessage());
+                }
+                
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Coop")) {

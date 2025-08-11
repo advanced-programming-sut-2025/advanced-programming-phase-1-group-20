@@ -29,6 +29,7 @@ public class Game implements Serializable {
     private GameMap gameMap;
     private String saveName;
     public boolean isMultiplayer = false;
+    private DailyEvents dailyEvents;
 
     public Game() {}
 
@@ -37,6 +38,7 @@ public class Game implements Serializable {
         this.gameCreator = creator;
         this.currentPlayerIndex = 0;
         this.date = new Date();
+        this.dailyEvents = new DailyEvents();
         if (players != null && !players.isEmpty()) {
             this.currentPlayer = players.get(currentPlayerIndex);
         }
@@ -157,6 +159,14 @@ public class Game implements Serializable {
 
     public void setSaveName(String saveName) {
         this.saveName = saveName;
+    }
+
+    public DailyEvents getDailyEvents() {
+        return dailyEvents;
+    }
+
+    public void setDailyEvents(DailyEvents dailyEvents) {
+        this.dailyEvents = dailyEvents;
     }
 
 

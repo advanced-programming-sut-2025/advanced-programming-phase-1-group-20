@@ -50,7 +50,7 @@ public class QuestManager {
 
     private void initializeQuestsForSebastian() {
         List<Quest> sebastianQuests = new ArrayList<>();
-        
+
         // Quest 1: Deliver 50 Iron
         Item iron = App.getItem("Iron");
         if (iron != null) {
@@ -104,8 +104,8 @@ public class QuestManager {
                     5000, // 5,000 gold reward
                     App.getItem("Quartz"),
                     50,   // 50 quartz reward
-                    0,    // No friendship level requirement
-                    0     // No days passed requirement
+                    2,    // No friendship level requirement
+                    7     // No days passed requirement
             );
             sebastianQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -170,8 +170,8 @@ public class QuestManager {
                     500, // 500 gold reward
                     App.getItem("Iridium Sprinkler"),
                     1,   // 1 iridium sprinkler reward
-                    0,   // No friendship level requirement
-                    0    // No days passed requirement
+                    2,   // No friendship level requirement
+                    5    // No days passed requirement
             );
             abigailQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -216,8 +216,8 @@ public class QuestManager {
                     750, // 750 gold reward
                     App.getItem("Friendship Level"),
                     1,   // 1 friendship level reward
-                    0,   // No friendship level requirement
-                    0    // No days passed requirement
+                    1,   // No friendship level requirement
+                    2    // No days passed requirement
             );
             harveyQuests.add(quest);
             allQuests.put(quest.getId(), quest);
@@ -236,13 +236,12 @@ public class QuestManager {
                     750, // 750 gold reward
                     App.getItem("Salad"),
                     5,   // 5 salads reward
-                    0,   // No friendship level requirement
-                    0    // No days passed requirement
+                    2,
+                    3    // No days passed requirement
             );
             harveyQuests.add(quest);
             allQuests.put(quest.getId(), quest);
         }
-
         npcQuests.put(Npcs.HARVEY, harveyQuests);
     }
 
@@ -349,6 +348,46 @@ public class QuestManager {
                     0,    // No item quantity
                     0,    // No friendship level requirement
                     0     // No days passed requirement
+            );
+            robinQuests.add(quest);
+            allQuests.put(quest.getId(), quest);
+        }
+
+        // Quest 4: Advanced Carpentry (requires friendship level 1 and 10 days passed)
+        Item spaghetti = ItemBuilder.build("Spaghetti");
+        if (spaghetti != null) {
+            Map<Item, Integer> requirements = Quest.createRequirement(spaghetti, 15);
+            Quest quest = new Quest(
+                    nextQuestId++,
+                    "Carpenter's Apprentice",
+                    "Robin needs 15 Spaghetti for a special project. She's starting to trust you with more important work.",
+                    Npcs.ROBIN,
+                    requirements,
+                    2000, // 2,000 gold reward
+                    App.getItem("Friendship Level"),
+                    2,   // 2 friendship levels reward
+                    1,   // Requires friendship level 1
+                    10   // Requires 10 days passed
+            );
+            robinQuests.add(quest);
+            allQuests.put(quest.getId(), quest);
+        }
+
+        // Quest 5: Master Carpenter's Challenge (requires friendship level 2 and 21 days passed)
+        Item iron = ItemBuilder.build("Iron");
+        if (iron != null) {
+            Map<Item, Integer> requirements = Quest.createRequirement(iron, 50);
+            Quest quest = new Quest(
+                    nextQuestId++,
+                    "Master Carpenter's Challenge",
+                    "Robin needs 50 Iron for a master-level project. This is a challenge for her most trusted friends.",
+                    Npcs.ROBIN,
+                    requirements,
+                    5000, // 5,000 gold reward
+                    App.getItem("Iridium Bar"),
+                    1,   // 1 iridium bar reward
+                    2,   // Requires friendship level 2
+                    21   // Requires 21 days passed
             );
             robinQuests.add(quest);
             allQuests.put(quest.getId(), quest);
