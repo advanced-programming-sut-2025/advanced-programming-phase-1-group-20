@@ -67,6 +67,7 @@ public class Farm {
 
     private String background = "content/maps/1.png";
     private Sprite backgroundSprite;
+    private boolean isCrowTriggered = false;
 
     public Farm(String name, Player owner, boolean farmType, int farmIndex) {
         this.farmType = farmType;
@@ -1425,9 +1426,20 @@ public class Farm {
 
     public void attackOfTheCrows() {
         int numberOfCrows = numberOfPlants() / 16;
+        if(numberOfCrows > 1) {
+            setCrowTriggered(true);
+        }
         for (int i = 0; i < numberOfCrows; i++) {
             attackOfSingleCrow();
         }
+    }
+
+    public boolean isCrowTriggered() {
+        return isCrowTriggered;
+    }
+
+    public void setCrowTriggered(boolean crowTriggered) {
+        isCrowTriggered = crowTriggered;
     }
 
     public ArrayList<Location> allItemsForCrows() {

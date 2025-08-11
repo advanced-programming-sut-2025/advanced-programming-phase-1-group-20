@@ -1,13 +1,18 @@
 package org.example.client.controllers.gameplay;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
 import org.example.client.controllers.GameMenuController;
 import org.example.client.views.GreenhouseRepairDialog;
@@ -98,6 +103,16 @@ public class WorldController {
     private Texture validPlacementTexture;
     private Texture hoverPlacementTexture;
 
+    // Crow Attack Animation Fields
+    private float crowAttackTimer = 0f;
+    private float stateTime = 0f;
+    private static final float CROW_ATTACK_DURATION = 3.0f;
+    private static final int NUM_CROWS = 20;
+    private final Animation<TextureRegion> crowAnimation;
+    private final Array<Vector2> crowPositions = new Array<>(NUM_CROWS);
+    private final Array<Vector2> crowVelocities = new Array<>(NUM_CROWS);
+    private final Array<Texture> crowTextures = new Array<>();
+
     public WorldController(PlayerController playerController, Farm farm, OrthographicCamera camera , Skin skin , GameMenuController controller) {
         this.playerController = playerController;
         this.farm = farm;
@@ -127,6 +142,15 @@ public class WorldController {
 
         validPlacementTexture = createColorTexture(Color.GREEN);
         hoverPlacementTexture = createColorTexture(Color.RED);
+
+        // Initialize crow animation
+        Array<TextureRegion> crowFrames = new Array<>();
+        for (int i = 1; i <= 5; i++) {
+            Texture texture = new Texture(Gdx.files.internal("content/Animals/Crow/fly" + i + ".png"));
+            crowTextures.add(texture);
+            crowFrames.add(new TextureRegion(texture));
+        }
+        crowAnimation = new Animation<>(0.1f, crowFrames, Animation.PlayMode.LOOP);
 
         // Pre-load all textures
         preloadTextures();
@@ -301,9 +325,62 @@ public class WorldController {
         return textureCache.get(key);
     }
 
-    public void update() {
+    public void triggerCrowAttack() {
+        if (farm.isCrowTriggered()) {
+            return; // Attack already in progress
+        }
+
+        crowAttackTimer = 0f;
+        stateTime = 0f;
+        crowPositions.clear();
+        crowVelocities.clear();
+
+        for (int i = 0; i < NUM_CROWS; i++) {
+            float startX, startY, velX, velY;
+
+            // Randomly start from left or right side of the screen
+            if (MathUtils.randomBoolean()) { // Start from left
+                startX = camera.position.x - camera.viewportWidth / 2 - MathUtils.random(50, 200);
+                velX = MathUtils.random(250f, 400f); // Move right
+            } else { // Start from right
+                startX = camera.position.x + camera.viewportWidth / 2 + MathUtils.random(50, 200);
+                velX = -MathUtils.random(250f, 400f); // Move left
+            }
+
+            // Random start height within the camera's view
+            startY = camera.position.y - camera.viewportHeight / 2 + MathUtils.random(camera.viewportHeight);
+            crowPositions.add(new Vector2(startX, startY));
+
+            // Slight vertical velocity for variation
+            velY = MathUtils.random(-40f, 40f);
+            crowVelocities.add(new Vector2(velX, velY));
+        }
+    }
+
+    public void update(float delta) {
         // Check if full map is visible - if so, don't update camera position
         // The camera position is managed by the full map view
+        if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+            triggerCrowAttack();
+        }
+
+        if (farm.isCrowTriggered()) {
+            crowAttackTimer += delta;
+            stateTime += delta; // Accumulate time for animation
+
+            if (crowAttackTimer >= CROW_ATTACK_DURATION) {
+                farm.setCrowTriggered(false);
+                crowAttackTimer = 0f;
+            } else {
+                // Update position of each crow
+                for (int i = 0; i < crowPositions.size; i++) {
+                    Vector2 pos = crowPositions.get(i);
+                    Vector2 vel = crowVelocities.get(i);
+                    pos.mulAdd(vel, delta); // pos += vel * delta
+                }
+            }
+        }
+
         boolean isFullMapVisible = false;
         try {
             // Try to get the full map visibility state from GameView
@@ -382,6 +459,13 @@ public class WorldController {
             renderVillageTiles();
         } else {
             renderFarmTiles();
+        }
+
+        if (farm.isCrowTriggered()) {
+            TextureRegion currentFrame = crowAnimation.getKeyFrame(stateTime, true);
+            for (Vector2 pos : crowPositions) {
+                Main.getBatch().draw(currentFrame, pos.x, pos.y);
+            }
         }
         renderMarkets();
         renderBuildings();

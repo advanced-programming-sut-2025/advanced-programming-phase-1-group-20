@@ -63,9 +63,9 @@ public class GameMenuController implements Controller {
     public void setupListeners() {}
 
 
-    public void update() {
+    public void update(float delta) {
         if(view != null && !view.getPauseTable().isVisible()) {
-            worldController.update();
+            worldController.update(delta);
             // Only handle world input if relationship menu is not active
             if (!isRelationshipMenuActive()) {
                 worldController.handleInput();

@@ -1407,7 +1407,7 @@ public class GameView implements Screen, InputProcessor {
 
         // Update and render world elements (controller handles world rendering)
         if (!pauseTable.isVisible()) {
-            controller.update(); // This will render world elements while batch is active
+            controller.update(deltaTime); // This will render world elements while batch is active
         }
 
 
