@@ -122,10 +122,6 @@ public class MainMenuScreen implements Screen {
         ScreenUtils.clear(Color.DARK_GRAY);
         stage.act(delta);
         stage.draw();
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            Main.getGame().setScreen(previousScreen);
-        }
     }
 
     @Override
