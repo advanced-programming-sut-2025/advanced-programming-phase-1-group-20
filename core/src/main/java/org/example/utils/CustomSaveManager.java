@@ -1,5 +1,6 @@
 package org.example.utils;
 
+import org.example.common.models.Barn;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -324,6 +325,23 @@ public class CustomSaveManager {
         if(farm.getQuarry() != null){
             saveQuarry(dos, farm.getQuarry() , farm);
         }
+
+        //barn
+        dos.writeInt(farm.getBarns().size());
+        for(Barn barn : farm.getBarns()){
+            saveBarn(dos , barn , farm);
+        }
+    }
+
+    private static void saveBarn(DataOutputStream dos, Barn barn , Farm farm) throws IOException {
+        dos.writeUTF(barn.getName());
+        saveLocation(dos, barn.getLocation());
+        dos.writeInt(barn.getType().ordinal());
+        dos.writeInt(barn.getAnimals().size());
+        for (Animal animal : barn.getAnimals()) {
+            saveAnimal(dos, animal);
+        }
+        dos.writeInt(barn.getCapacity());
     }
 
     private static void saveQuarry(DataOutputStream dos, Quarry quarry , Farm farm) throws IOException {
@@ -476,9 +494,35 @@ public class CustomSaveManager {
             farm.markQuarry();
         }
 
-        // TODO: Barns and Coops logic will go here later.
+        int barnsCount = dis.readInt();
+        List<Barn> barns = new ArrayList<>();
+        for (int i = 0; i < barnsCount; i++) {
+            barns.add(loadBarn(dis));
+        }
+        farm.setBarns(barns);
+        if(!barns.isEmpty()){
+            for(Barn barn : barns){
+                farm.markBarnArea(barn);
+            }
+        }
 
         return farm;
+    }
+
+    private static Barn loadBarn(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        Location location = loadLocation(dis);
+        BarnTypes type = BarnTypes.values()[dis.readInt()];
+        int size = dis.readInt();
+        List<BarnAnimal> animals = new ArrayList<>();
+        for(int i = 0 ; i < size; i++){
+            animals.add((BarnAnimal) loadAnimal(dis));
+        }
+        int capacity = dis.readInt();
+        Barn barn = new Barn(type , location , name);
+        barn.setCapacity(capacity);
+        barn.setAnimals(animals);
+        return barn;
     }
 
     private static Lake loadLake(DataInputStream dis) throws IOException {
@@ -623,7 +667,6 @@ public class CustomSaveManager {
 
     private static CookingItem loadCookingItem(DataInputStream dis, Item baseItem) throws IOException {
         CookingItem item = (CookingItem) baseItem;
-        // The type is already set by the ItemBuilder, no need to load it again
         return item;
     }
 
@@ -672,7 +715,7 @@ public class CustomSaveManager {
     private static Food loadFood(DataInputStream dis, Item baseItem) throws IOException {
         Food item = (Food) baseItem;
         item.setEnergy(dis.readInt());
-        // item.setBuffer(dis.readUTF()); // The buffer is applied on consumption, no need to save it
+        dis.readUTF();
         return item;
     }
 
@@ -822,7 +865,9 @@ public class CustomSaveManager {
             barnAnimal.setStateTimer(stateTimer);
             barnAnimal.setFacing(facing);
             barnAnimal.increaseHappiness(dis.readInt() - 50); // initial happiness is 50
-            // barnAnimal.setDaysSinceLastProduction(dis.readInt()); // No setter
+
+            dis.readInt(); // FIX: Read and discard daysSinceLastProduction to maintain stream alignment
+
             barnAnimal.setHasBeenFed(dis.readBoolean());
             barnAnimal.setHasBeenPetToday(dis.readBoolean());
             barnAnimal.setOutside(dis.readBoolean());
@@ -839,7 +884,9 @@ public class CustomSaveManager {
             coopAnimal.setStateTimer(stateTimer);
             coopAnimal.setFacing(facing);
             coopAnimal.increaseHappiness(dis.readInt() - 50);
-            // coopAnimal.setDaysSinceLastProduction(dis.readInt());
+
+            dis.readInt(); // FIX: Read and discard daysSinceLastProduction to maintain stream alignment
+
             coopAnimal.setPetToday(dis.readBoolean());
             coopAnimal.setHasBeenFed(dis.readBoolean());
             coopAnimal.setOutside(dis.readBoolean());
