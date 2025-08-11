@@ -20,7 +20,6 @@ import org.example.common.models.Player.Skill;
 
 public class SkillsScreen implements Screen {
 
-    // Constants
     private static final float BUTTON_PADDING = 20f;
     private static final float SKILL_ITEM_PADDING = 30f;
     private static final float LEVEL_BAR_WIDTH = 100f;
@@ -46,7 +45,6 @@ public class SkillsScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Load background
         backgroundTexture = new Texture(Gdx.files.internal("assets/content/skill_icons/background.png"));
         background = new Image(backgroundTexture);
         background.setFillParent(true);
