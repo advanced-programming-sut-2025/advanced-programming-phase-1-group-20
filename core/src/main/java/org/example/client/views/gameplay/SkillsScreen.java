@@ -21,16 +21,16 @@ import org.example.common.models.Player.Skill;
 public class SkillsScreen implements Screen {
 
     private static final float BUTTON_PADDING = 20f;
-    private static final float SKILL_ITEM_PADDING = 15f;
-    private static final float LEVEL_BAR_WIDTH = 160f;
-    private static final float LEVEL_BAR_HEIGHT = 40f;
-    private static final float ICON_SIZE = 64f;
-    private static final float TEXT_IMAGE_WIDTH = 160f;
+    private static final float SKILL_ITEM_PADDING = 30f;
+    private static final float LEVEL_BAR_WIDTH = 2803f;
+    private static final float LEVEL_BAR_HEIGHT = 80f;
+    private static final float ICON_SIZE = 150f;
+    private static final float TEXT_IMAGE_WIDTH = 200f;
     private static final float SCALE_NORMAL = 1.0f;
     private static final float SCALE_HOVER = 1.05f;
     private static final float ANIMATION_DURATION = 0.1f;
     private static final float FADE_DURATION = 0.5f;
-    private static final float RIGHT_PADDING = 100f;
+    private static final float RIGHT_PADDING = 60f;
 
     private Stage stage;
     private Skin skin;
