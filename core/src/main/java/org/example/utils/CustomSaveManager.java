@@ -327,6 +327,8 @@ public class CustomSaveManager {
     }
 
     private static void saveQuarry(DataOutputStream dos, Quarry quarry , Farm farm) throws IOException {
+        dos.writeInt(quarry.getX());
+        dos.writeInt(quarry.getY());
         for (int i = 0; i < quarry.getHeight(); i++) {
             for (int j = 0; j < quarry.getWidth(); j++) {
                 saveLocation(dos, farm.getTiles()[i][j]);
@@ -443,27 +445,35 @@ public class CustomSaveManager {
 
         //GreenHouse here
         if (dis.readBoolean()) {
-            GreenHouse greenHouse = farm.getGreenHouse(); // Get the default greenhouse
-            greenHouse.setConstructed(dis.readBoolean());
-            greenHouse.setX(dis.readInt()); // Load and set position
-            greenHouse.setY(dis.readInt());
-
+            boolean isConstructed = dis.readBoolean();
+            int x =  dis.readInt(); // Load and set position
+            int y = dis.readInt();
+            GreenHouse greenHouse = new GreenHouse(x , y);
+            greenHouse.setConstructed(isConstructed);
+            farm.setGreenHouse(greenHouse);
             // Load the tiles into the greenhouse
             for (int i = 0; i < GreenHouse.getHeight(); i++) {
                 for (int j = 0; j < GreenHouse.getWidth(); j++) {
                     farm.getTiles()[greenHouse.getY() + i][greenHouse.getX() + j] = loadLocation(dis);
                 }
             }
+
+            farm.markGreenHouseArea();
         }
 
         //Quarry here
         if(dis.readBoolean()){
-            Quarry quarry = farm.getQuarry();
+            int x = dis.readInt();
+            int y = dis.readInt();
+            Quarry quarry = new Quarry(x, y);
+            farm.setQuarry(quarry);
             for(int i = 0; i < quarry.getHeight(); i++){
                 for(int j = 0; j < quarry.getWidth(); j++){
                     farm.getTiles()[i][j] = loadLocation(dis);
                 }
             }
+
+            farm.markQuarry();
         }
 
         // TODO: Barns and Coops logic will go here later.

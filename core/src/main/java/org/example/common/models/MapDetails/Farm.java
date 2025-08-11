@@ -58,8 +58,8 @@ public class Farm {
     private final List<Animal> animals;
     private Building building = createBuilding();
     private final List<Lake> lakes = createLakes();
-    private final GreenHouse greenHouse = createGreenHouse();
-    private final Quarry quarry = createQuarry();
+    private GreenHouse greenHouse = createGreenHouse();
+    private Quarry quarry = createQuarry();
     private final List<Barn> barns;
     private final List<Coop> coops;
     private final Map<String, Character> symbolMap;
@@ -688,8 +688,16 @@ public class Farm {
         return greenHouse;
     }
 
+    public void setGreenHouse(GreenHouse greenHouse) {
+        this.greenHouse = greenHouse;
+    }
+
     public Quarry getQuarry() {
         return quarry;
+    }
+
+    public void setQuarry(Quarry quarry) {
+        this.quarry = quarry;
     }
 
     public List<Lake> getLakes() {
