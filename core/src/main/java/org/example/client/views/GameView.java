@@ -699,7 +699,7 @@ public class GameView implements Screen, InputProcessor {
 
         if (keycode == Input.Keys.ESCAPE) {
             // Show InventoryScreen and pass this as previousScreen
-            Main.getGame().setScreen(new InventoryScreen(player, skin, this));
+            Main.getGame().setScreen(new MainMenuScreen(player, skin, this));
             return true;
         }
         if (keycode == Input.Keys.B) {

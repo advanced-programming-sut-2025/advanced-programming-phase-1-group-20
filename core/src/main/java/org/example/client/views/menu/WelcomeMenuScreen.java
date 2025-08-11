@@ -186,7 +186,8 @@ public class WelcomeMenuScreen implements Screen {
             Texture buttonTexture = new Texture(Gdx.files.internal(imagePath));
             TextureRegionDrawable buttonDrawable = new TextureRegionDrawable(new TextureRegion(buttonTexture));
             return new ImageButton(buttonDrawable);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Gdx.app.error("WelcomeMenuScreen", "Failed to load button texture: " + imagePath, e);
             // Fallback to a basic button if texture fails to load
             return new ImageButton(skin);
