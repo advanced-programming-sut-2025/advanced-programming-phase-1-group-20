@@ -21,14 +21,16 @@ import org.example.common.models.Player.Skill;
 public class SkillsScreen implements Screen {
 
     private static final float BUTTON_PADDING = 20f;
-    private static final float SKILL_ITEM_PADDING = 30f;
-    private static final float LEVEL_BAR_WIDTH = 100f;
-    private static final float LEVEL_BAR_HEIGHT = 20f;
-    private static final float ICON_SIZE = 64f;
+    private static final float SKILL_ITEM_PADDING = 15f;
+    private static final float LEVEL_BAR_WIDTH = 80f;
+    private static final float LEVEL_BAR_HEIGHT = 10f;
+    private static final float ICON_SIZE = 48f;
+    private static final float TEXT_IMAGE_WIDTH = 120f;
     private static final float SCALE_NORMAL = 1.0f;
     private static final float SCALE_HOVER = 1.05f;
     private static final float ANIMATION_DURATION = 0.1f;
     private static final float FADE_DURATION = 0.5f;
+    private static final float RIGHT_PADDING = 100f;
 
     private Stage stage;
     private Skin skin;
@@ -52,17 +54,21 @@ public class SkillsScreen implements Screen {
 
         Table mainTable = new Table();
         mainTable.setFillParent(true);
-        mainTable.top().left();
+        mainTable.top().padRight(RIGHT_PADDING);
 
-        Label title = new Label("Skills", skin);
+        Label title = new Label("", skin);
         title.setColor(Color.GOLD);
         title.setFontScale(1.5f);
-        mainTable.add(title).padTop(50).padLeft(50).colspan(3).align(Align.left).row();
+        mainTable.add(title).padTop(50).colspan(4).align(Align.center).row();
 
         String[] skillNames = {"farming", "fishing", "foraging", "mining"};
         for (String skillName : skillNames) {
             addSkillRow(mainTable, skillName);
         }
+
+        Table bottomTable = new Table();
+        bottomTable.setFillParent(true);
+        bottomTable.bottom();
 
         ImageButton backBtn = createImageButton("assets/content/skill_icons/back.png");
         addHoverAnimation(backBtn);
@@ -72,23 +78,24 @@ public class SkillsScreen implements Screen {
             return true;
         });
 
-        mainTable.add(backBtn).padTop(50).colspan(3).center().row();
+        bottomTable.add(backBtn).padBottom(50).center();
 
         mainTable.setColor(1, 1, 1, 0);
         mainTable.addAction(Actions.fadeIn(FADE_DURATION));
 
         stage.addActor(mainTable);
+        stage.addActor(bottomTable);
     }
 
     private void addSkillRow(Table table, String skillName) {
+        Table skillRow = new Table();
+
         ImageButton iconBtn = createImageButton("assets/content/skill_icons/" + skillName + "_skill_icon.png");
         addHoverAnimation(iconBtn);
-        table.add(iconBtn).size(ICON_SIZE).pad(SKILL_ITEM_PADDING).padLeft(50);
+        skillRow.add(iconBtn).size(ICON_SIZE).pad(SKILL_ITEM_PADDING);
 
-        Label nameLabel = new Label(capitalizeFirstLetter(skillName), skin);
-        nameLabel.setColor(Color.WHITE);
-        nameLabel.setFontScale(1.2f);
-        table.add(nameLabel).width(150).pad(SKILL_ITEM_PADDING).left();
+        Image nameImage = new Image(new Texture(Gdx.files.internal("assets/content/skill_icons/" + skillName + ".png")));
+        skillRow.add(nameImage).width(TEXT_IMAGE_WIDTH).pad(SKILL_ITEM_PADDING);
 
         Skill skill = player.getSkillByName(skillName);
         int level = (skill != null) ? skill.getLevel() : 0;
@@ -97,10 +104,12 @@ public class SkillsScreen implements Screen {
         for (int i = 1; i <= 4; i++) {
             String barTexture = (i <= level) ? "green" : "red";
             Image bar = new Image(new Texture(Gdx.files.internal("assets/content/skill_icons/" + barTexture + ".png")));
-            levelBars.add(bar).size(LEVEL_BAR_WIDTH/4, LEVEL_BAR_HEIGHT).padRight(5);
+            levelBars.add(bar).size(LEVEL_BAR_WIDTH/4, LEVEL_BAR_HEIGHT).padRight(2);
         }
 
-        table.add(levelBars).width(LEVEL_BAR_WIDTH).pad(SKILL_ITEM_PADDING).right().row();
+        skillRow.add(levelBars).width(LEVEL_BAR_WIDTH).pad(SKILL_ITEM_PADDING);
+
+        table.add(skillRow).colspan(4).center().row();
     }
 
     private ImageButton createImageButton(String imagePath) {
@@ -116,10 +125,6 @@ public class SkillsScreen implements Screen {
                 Actions.scaleTo(SCALE_HOVER, SCALE_HOVER, ANIMATION_DURATION)
             )
         ));
-    }
-
-    private String capitalizeFirstLetter(String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
     @Override
