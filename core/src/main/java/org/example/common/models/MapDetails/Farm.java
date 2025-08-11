@@ -60,10 +60,10 @@ public class Farm {
     private final List<Lake> lakes = createLakes();
     private GreenHouse greenHouse = createGreenHouse();
     private Quarry quarry = createQuarry();
-    private final List<Barn> barns;
-    private final List<Coop> coops;
+    private List<Barn> barns;
+    private List<Coop> coops;
     private final Map<String, Character> symbolMap;
-    private final List<ShippingBin> shippingBins;
+    private List<ShippingBin> shippingBins;
 
     private String background = "content/maps/1.png";
     private Sprite backgroundSprite;
@@ -83,10 +83,11 @@ public class Farm {
         // Only set location if App.getGame() is not null (client-side only)
         if (App.getGame() != null) {
             App.getGame().getPlayer(owner.getUser()).setLocation(owner.getLocation());
+        }else{
+            setInitialOwnerLocation();
         }
         initializeFarm();
         initializeSymbols();
-        setInitialOwnerLocation();
         makeFenceAndPaths();
     }
 
@@ -716,8 +717,16 @@ public class Farm {
         return barns;
     }
 
+    public void setBarns(List<Barn> barns) {
+        this.barns = barns;
+    }
+
     public List<Coop> getCoops() {
         return coops;
+    }
+
+    public void setCoops(List<Coop> coops) {
+        this.coops = coops;
     }
 
     public void addBarn(Barn barn) {
@@ -728,6 +737,14 @@ public class Farm {
     public void addCoop(Coop coop) {
         markCoopArea(coop);
         coops.add(coop);
+    }
+
+    public List<ShippingBin> getShippingBins() {
+        return shippingBins;
+    }
+
+    public void setShippingBins(List<ShippingBin> shippingBins) {
+        this.shippingBins = shippingBins;
     }
 
     public TileType getTile(int x, int y) {

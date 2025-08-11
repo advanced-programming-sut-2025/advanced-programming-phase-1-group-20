@@ -27,4 +27,12 @@ public class ShippingBin extends Item {
     public void updateShippingBin(Player player) {
         playerIntegerMap.putIfAbsent(player.getUser().getUsername(), 0);
     }
+
+    public Map<String, Integer> getPlayerIntegerMap() {
+        return playerIntegerMap;
+    }
+
+    public void setPlayerIntegerMap(Map<String, Integer> playerIntegerMap) {
+        this.playerIntegerMap = playerIntegerMap;
+    }
 }

@@ -1,5 +1,7 @@
 package org.example.utils;
 
+import org.example.common.models.Barn;
+import org.example.common.models.Coop;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -324,6 +326,57 @@ public class CustomSaveManager {
         if(farm.getQuarry() != null){
             saveQuarry(dos, farm.getQuarry() , farm);
         }
+
+        //barn
+        dos.writeInt(farm.getBarns().size());
+        for(Barn barn : farm.getBarns()){
+            saveBarn(dos , barn , farm);
+        }
+
+        //coops
+        dos.writeInt(farm.getCoops().size());
+        for(Coop coop : farm.getCoops()){
+            saveCoop(dos , coop);
+        }
+
+        //shipping bins
+        dos.writeInt(farm.getShippingBins().size());
+        for(ShippingBin shippingBin : farm.getShippingBins()){
+            saveShippingBin(dos , shippingBin);
+        }
+
+
+    }
+
+    //implement this
+    private static void saveShippingBin(DataOutputStream dos, ShippingBin shippingBin) throws IOException {
+        dos.writeInt(shippingBin.getPlayerIntegerMap().size());
+        for (Map.Entry<String, Integer> entry : shippingBin.getPlayerIntegerMap().entrySet()) {
+            dos.writeUTF(entry.getKey());
+            dos.writeInt(entry.getValue());
+        }
+    }
+
+    private static void saveCoop(DataOutputStream dos, Coop coops) throws IOException {
+        dos.writeUTF(coops.getName());
+        dos.writeInt(coops.getCapacity());
+        dos.writeInt(coops.getAnimalCount());
+        dos.writeInt(coops.getType().ordinal());
+        saveLocation(dos, coops.getLocation());
+        for (Animal animal : coops.getAnimals()) {
+            saveAnimal(dos, animal);
+        }
+    }
+
+    private static void saveBarn(DataOutputStream dos, Barn barn , Farm farm) throws IOException {
+        dos.writeUTF(barn.getName());
+        saveLocation(dos, barn.getLocation());
+        dos.writeInt(barn.getType().ordinal());
+        dos.writeInt(barn.getAnimals().size());
+        for (Animal animal : barn.getAnimals()) {
+            saveAnimal(dos, animal);
+        }
+        dos.writeInt(barn.getCapacity());
     }
 
     private static void saveQuarry(DataOutputStream dos, Quarry quarry , Farm farm) throws IOException {
@@ -476,9 +529,89 @@ public class CustomSaveManager {
             farm.markQuarry();
         }
 
-        // TODO: Barns and Coops logic will go here later.
+
+        //loading barns
+        int barnsCount = dis.readInt();
+        List<Barn> barns = new ArrayList<>();
+        for (int i = 0; i < barnsCount; i++) {
+            barns.add(loadBarn(dis));
+        }
+        farm.setBarns(barns);
+        if(!barns.isEmpty()){
+            for(Barn barn : barns){
+                farm.markBarnArea(barn);
+            }
+        }
+
+        //coops here
+        int coopCount = dis.readInt();
+        List<Coop> coops = new ArrayList<>();
+        for (int i = 0; i < coopCount; i++) {
+            loadCoop(dis);
+        }
+
+
+        farm.setCoops(coops);
+        if(!coops.isEmpty()){
+            for(Coop coop : coops){
+                farm.markCoopArea(coop);
+            }
+        }
+
+        //shipping bin
+        int shippingBinCount = dis.readInt();
+        List<ShippingBin> shippingBins = new ArrayList<>();
+        for (int i = 0; i < shippingBinCount; i++) {
+            shippingBins.add(loadShippingBin(dis));
+        }
 
         return farm;
+    }
+
+    private static ShippingBin loadShippingBin(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        ShippingBin shippingBin = new ShippingBin();
+        for (int i = 0; i < size; i++) {
+            String name = dis.readUTF();
+            int quantity = dis.readInt();
+            shippingBin.getPlayerIntegerMap().put(name, quantity);
+        }
+        return shippingBin;
+    }
+
+    private static Coop loadCoop(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        int capacity = dis.readInt();
+        int count = dis.readInt();
+        Cages type = Cages.values()[dis.readInt()];
+        Location location = loadLocation(dis);
+        List<CoopAnimal> animals = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            animals.add((CoopAnimal) loadAnimal(dis));
+        }
+        Coop coop = new Coop();
+        coop.setName(name);
+        coop.setCapacity(capacity);
+        coop.setType(type);
+        coop.setLocation(location);
+        coop.setAnimals(animals);
+        return coop;
+    }
+
+    private static Barn loadBarn(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        Location location = loadLocation(dis);
+        BarnTypes type = BarnTypes.values()[dis.readInt()];
+        int size = dis.readInt();
+        List<BarnAnimal> animals = new ArrayList<>();
+        for(int i = 0 ; i < size; i++){
+            animals.add((BarnAnimal) loadAnimal(dis));
+        }
+        int capacity = dis.readInt();
+        Barn barn = new Barn(type , location , name);
+        barn.setCapacity(capacity);
+        barn.setAnimals(animals);
+        return barn;
     }
 
     private static Lake loadLake(DataInputStream dis) throws IOException {
@@ -623,7 +756,6 @@ public class CustomSaveManager {
 
     private static CookingItem loadCookingItem(DataInputStream dis, Item baseItem) throws IOException {
         CookingItem item = (CookingItem) baseItem;
-        // The type is already set by the ItemBuilder, no need to load it again
         return item;
     }
 
@@ -672,7 +804,7 @@ public class CustomSaveManager {
     private static Food loadFood(DataInputStream dis, Item baseItem) throws IOException {
         Food item = (Food) baseItem;
         item.setEnergy(dis.readInt());
-        // item.setBuffer(dis.readUTF()); // The buffer is applied on consumption, no need to save it
+        dis.readUTF();
         return item;
     }
 
@@ -822,7 +954,9 @@ public class CustomSaveManager {
             barnAnimal.setStateTimer(stateTimer);
             barnAnimal.setFacing(facing);
             barnAnimal.increaseHappiness(dis.readInt() - 50); // initial happiness is 50
-            // barnAnimal.setDaysSinceLastProduction(dis.readInt()); // No setter
+
+            dis.readInt(); // FIX: Read and discard daysSinceLastProduction to maintain stream alignment
+
             barnAnimal.setHasBeenFed(dis.readBoolean());
             barnAnimal.setHasBeenPetToday(dis.readBoolean());
             barnAnimal.setOutside(dis.readBoolean());
@@ -839,7 +973,9 @@ public class CustomSaveManager {
             coopAnimal.setStateTimer(stateTimer);
             coopAnimal.setFacing(facing);
             coopAnimal.increaseHappiness(dis.readInt() - 50);
-            // coopAnimal.setDaysSinceLastProduction(dis.readInt());
+
+            dis.readInt(); // FIX: Read and discard daysSinceLastProduction to maintain stream alignment
+
             coopAnimal.setPetToday(dis.readBoolean());
             coopAnimal.setHasBeenFed(dis.readBoolean());
             coopAnimal.setOutside(dis.readBoolean());
