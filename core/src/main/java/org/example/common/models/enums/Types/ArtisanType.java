@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum ArtisanType {
-    Honey("Honey", "It's a sweet syrup produced by bees.", 75, 4 * 24, Ingredients.Honey, 350, "Bee House", "Honey"),
+    Honey("Honey", "It's a sweet syrup produced by bees.", 75, 4 * 24, Ingredients.NoSpecialItem, 350, "Bee House", "Honey"),
     Cheese("Cheese", "It's your basic cheese.", 100, 3, Ingredients.Cheese, 230, "Cheese Press", "Cheese"),
     GoatCheese("Goat Cheese", "Soft cheese made from goat's milk.", 100, 3, Ingredients.GoatCheese, 400, "Cheese Press", "Cheese_Press"),
     Beer("Beer", "Drink in moderation.", 50, 24, Ingredients.Beer, 200, "Keg", "Beer"),

@@ -505,4 +505,6 @@ public class NPC extends Mob {
     public void setFacingLeft(boolean facingLeft) {
         this.facingLeft = facingLeft;
     }
+
+
 }

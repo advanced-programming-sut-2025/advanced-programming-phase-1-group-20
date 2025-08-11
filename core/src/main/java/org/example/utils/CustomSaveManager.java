@@ -1,7 +1,6 @@
 package org.example.utils;
 
-import org.example.common.models.Barn;
-import org.example.common.models.Coop;
+import org.example.common.models.*;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -15,14 +14,14 @@ import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Date;
 import org.example.common.models.common.Location;
 import org.example.common.models.entities.Game;
+import org.example.common.models.entities.NPC;
 import org.example.common.models.entities.User;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
+import org.example.common.models.enums.*;
 import org.example.common.models.enums.PlayerEnums.Gender;
-import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Types.*;
-import org.example.common.models.enums.Weather;
 import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Player.Refrigerator;
 
@@ -87,6 +86,7 @@ public class CustomSaveManager {
 
             // 2.reading game
             Game game = new Game();
+            App.setGame(game);
             game.setSaveName(dis.readUTF());
             game.isMultiplayer = dis.readBoolean();
             game.setCurrentPlayerIndex(dis.readInt());
@@ -547,7 +547,7 @@ public class CustomSaveManager {
         int coopCount = dis.readInt();
         List<Coop> coops = new ArrayList<>();
         for (int i = 0; i < coopCount; i++) {
-            loadCoop(dis);
+            coops.add(loadCoop(dis));
         }
 
 
@@ -640,6 +640,12 @@ public class CustomSaveManager {
     private static void saveVillage(DataOutputStream dos, Village village) throws IOException {
         dos.writeUTF(village.getName());
 
+        // npc
+        dos.writeInt(village.getResidents().size());
+        for(int i = 0 ; i < village.getResidents().size() ; i++){
+            saveResidents(dos, village.getResidents().get(i));
+        }
+
         // Tiles
         for (int i = 0; i < Village.width; i++) {
             for (int j = 0; j < Village.height; j++) {
@@ -648,18 +654,149 @@ public class CustomSaveManager {
         }
     }
 
+    private static void saveResidents(DataOutputStream dos , NPC npc) throws IOException {
+        dos.writeUTF(npc.getName());
+        dos.writeUTF(npc.getSpriteName());
+        dos.writeInt(npc.getCharacter().ordinal());
+        dos.writeInt(npc.getJobs().ordinal());
+        dos.writeFloat(npc.getPosX());
+        dos.writeFloat(npc.getPosY());
+        dos.writeBoolean(npc.isMoving());
+        dos.writeBoolean(npc.isFacingLeft());
+        dos.writeUTF(npc.getCurrentAnimation());
+        saveLocation(dos, npc.getLocation());
+        dos.writeInt(npc.getMissions().size());
+        for(Map.Entry<Integer, HashMap<Item, Integer>> entry : npc.getMissions().entrySet()) {
+            dos.writeInt(entry.getKey());
+            saveHashMap(dos, entry.getValue());
+        }
+
+    }
+
+    private static NPC loadResidents(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        String spriteName = dis.readUTF();
+        Charactristic charactristic = Charactristic.values()[dis.readInt()];
+        Jobs jobs = Jobs.values()[dis.readInt()];
+        float x = dis.readFloat();
+        float y = dis.readFloat();
+        boolean isMoving = dis.readBoolean();
+        boolean facingLeft = dis.readBoolean();
+        String currentAnimation = dis.readUTF();
+        Location location = loadLocation(dis);
+        int size = dis.readInt();
+        HashMap<Integer , HashMap<Item , Integer>> missions = new HashMap<>();
+        for(int i = 0 ; i < size; i++){
+            int integer = dis.readInt();
+            HashMap<Item,Integer> items = new HashMap<>();
+            items = loadHashMap(dis);
+            missions.put(integer, items);
+        }
+        NPC npc = new NPC(charactristic , name , jobs , missions);
+        npc.setLocation(location);
+        npc.setFacingLeft(facingLeft);
+        npc.setMoving(isMoving);
+        npc.setCurrentAnimation(currentAnimation);
+        npc.setPosX(x);
+        npc.setPosY(y);
+        npc.setSpriteName(spriteName);
+        return npc;
+    }
+
+    private static HashMap<Item , Integer> loadHashMap(DataInputStream dis) throws IOException {
+        int mapSize = dis.readInt();
+        HashMap<Item , Integer> map = new HashMap<>();
+        for(int i = 0 ; i < mapSize; i++){
+            Item item = loadItem(dis);
+            int integer = dis.readInt();
+            map.put(item, integer);
+        }
+        return map;
+    }
+
+    private static void saveHashMap(DataOutputStream dos, HashMap<Item, Integer> map) throws IOException {
+        dos.writeInt(map.size());
+        for(Map.Entry<Item, Integer> entry : map.entrySet()) {
+            saveItem(dos, entry.getKey());
+            dos.writeInt(entry.getValue());
+        }
+    }
+
+    private static void saveMarket(DataOutputStream dos, Market markets) throws IOException {
+        saveProducts(dos , markets.getPermanentStock());
+        saveProducts(dos , markets.getSpringStock());
+        saveProducts(dos , markets.getSummerStock());
+        saveProducts(dos , markets.getAutumnStock());
+        saveProducts(dos , markets.getWinterStock());
+        saveProducts(dos , markets.getTotalStock());
+        dos.writeInt(markets.getTileType().ordinal());
+        dos.writeInt(markets.getStartHour());
+        dos.writeInt(markets.getEndHour());
+        dos.writeUTF(markets.getName());
+        dos.writeInt(markets.getX());
+        dos.writeInt(markets.getY());
+    }
+
+    private static void saveProducts(DataOutputStream dos, List<Product> products) throws IOException {
+        dos.writeInt(products.size());
+        for(int i = 0; i < products.size(); i++){
+            saveProduct(dos, products.get(i));
+        }
+    }
+
+    private static void saveProduct(DataOutputStream dos, Product product) throws IOException {
+        saveItem(dos, product.getItem());
+        dos.writeInt(product.getIngredient().ordinal());
+    }
+
     private static Village loadVillage(DataInputStream dis) throws IOException {
         String name = dis.readUTF();
         Village village = new Village(name);
-
-        // Tiles
-        for (int i = 0; i < Village.width; i++) {
-            for (int j = 0; j < Village.height; j++) {
-                village.getTiles()[i][j] = loadLocation(dis);
-            }
+        // npc
+        int size = dis.readInt();
+        List<NPC> npcs = new ArrayList<>();
+        for(int i = 0 ; i < size ; i++){
+            npcs.add(loadResidents(dis));
         }
 
+        village.setResidents(npcs);
+
+
         return village;
+    }
+
+    private static Market loadMarket(DataInputStream dis) throws IOException {
+        List<Product> permanentStock = loadProducts(dis);
+        List<Product> springStock = loadProducts(dis) ;
+        List<Product> summerStock = loadProducts(dis);
+        List<Product> autumnStock = loadProducts(dis);
+        List<Product> winterStock = loadProducts(dis);
+        List<Product> totalStock = loadProducts(dis);
+        TileType tileType = TileType.values()[dis.readInt()];
+        int startHour = dis.readInt();
+        int endHour = dis.readInt();
+        String name = dis.readUTF();
+        int x = dis.readInt();
+        int y = dis.readInt();
+        Market market = new Market(x , y , permanentStock , springStock , summerStock , autumnStock , winterStock , startHour , endHour , new String[]{} , name , tileType);
+        market.setTotalStock(totalStock);
+        return market;
+    }
+
+    private static List<Product> loadProducts(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            products.add(loadProduct(dis));
+        }
+        return products;
+    }
+
+
+    private static Product loadProduct(DataInputStream dis) throws IOException {
+        Item item = loadItem(dis);
+        Ingredients ingredients = Ingredients.values()[dis.readInt()];
+        return new Product(item, 0, ingredients);
     }
 
     private static void saveLocation(DataOutputStream dos, Location location) throws IOException {
@@ -751,13 +888,14 @@ public class CustomSaveManager {
     }
 
     private static void saveCookingItem(DataOutputStream dos, CookingItem item) throws IOException {
-        dos.writeUTF(item.getType().name());
     }
 
     private static CookingItem loadCookingItem(DataInputStream dis, Item baseItem) throws IOException {
         CookingItem item = (CookingItem) baseItem;
         return item;
     }
+
+    // In CustomSaveManager.java
 
     private static void saveCraftingItem(DataOutputStream dos, CraftingItem item) throws IOException {
         dos.writeDouble(item.getProgressBar());
@@ -766,14 +904,14 @@ public class CustomSaveManager {
 
         if (item.getProccessingItem() != null) {
             dos.writeBoolean(true);
-            saveArtisanItem(dos, (ArtisanItem) item.getProccessingItem());
+            saveItem(dos, item.getProccessingItem());
         } else {
             dos.writeBoolean(false);
         }
 
         if (item.getFinishedItem() != null) {
             dos.writeBoolean(true);
-            saveArtisanItem(dos, (ArtisanItem) item.getFinishedItem());
+            saveItem(dos, item.getFinishedItem());
         } else {
             dos.writeBoolean(false);
         }
@@ -845,9 +983,7 @@ public class CustomSaveManager {
         item.setFinished(dis.readBoolean());
         item.setMoisture(dis.readBoolean());
         item.setMoistureCounter(dis.readInt());
-        if (dis.readBoolean()) {
-            item.isGiant(item.getStage());
-        }
+        item.setGiant(dis.readBoolean());
         item.setMoistureGod(dis.readBoolean());
         return item;
     }
