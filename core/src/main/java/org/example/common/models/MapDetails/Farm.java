@@ -63,7 +63,7 @@ public class Farm {
     private List<Barn> barns;
     private List<Coop> coops;
     private final Map<String, Character> symbolMap;
-    private final List<ShippingBin> shippingBins;
+    private List<ShippingBin> shippingBins;
 
     private String background = "content/maps/1.png";
     private Sprite backgroundSprite;
@@ -737,6 +737,14 @@ public class Farm {
     public void addCoop(Coop coop) {
         markCoopArea(coop);
         coops.add(coop);
+    }
+
+    public List<ShippingBin> getShippingBins() {
+        return shippingBins;
+    }
+
+    public void setShippingBins(List<ShippingBin> shippingBins) {
+        this.shippingBins = shippingBins;
     }
 
     public TileType getTile(int x, int y) {

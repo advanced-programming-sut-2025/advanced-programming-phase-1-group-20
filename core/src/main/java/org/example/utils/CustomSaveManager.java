@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import org.example.common.models.Barn;
+import org.example.common.models.Coop;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.MapDetails.GameMap;
@@ -331,6 +332,40 @@ public class CustomSaveManager {
         for(Barn barn : farm.getBarns()){
             saveBarn(dos , barn , farm);
         }
+
+        //coops
+        dos.writeInt(farm.getCoops().size());
+        for(Coop coop : farm.getCoops()){
+            saveCoop(dos , coop);
+        }
+
+        //shipping bins
+        dos.writeInt(farm.getShippingBins().size());
+        for(ShippingBin shippingBin : farm.getShippingBins()){
+            saveShippingBin(dos , shippingBin);
+        }
+
+
+    }
+
+    //implement this
+    private static void saveShippingBin(DataOutputStream dos, ShippingBin shippingBin) throws IOException {
+        dos.writeInt(shippingBin.getPlayerIntegerMap().size());
+        for (Map.Entry<String, Integer> entry : shippingBin.getPlayerIntegerMap().entrySet()) {
+            dos.writeUTF(entry.getKey());
+            dos.writeInt(entry.getValue());
+        }
+    }
+
+    private static void saveCoop(DataOutputStream dos, Coop coops) throws IOException {
+        dos.writeUTF(coops.getName());
+        dos.writeInt(coops.getCapacity());
+        dos.writeInt(coops.getAnimalCount());
+        dos.writeInt(coops.getType().ordinal());
+        saveLocation(dos, coops.getLocation());
+        for (Animal animal : coops.getAnimals()) {
+            saveAnimal(dos, animal);
+        }
     }
 
     private static void saveBarn(DataOutputStream dos, Barn barn , Farm farm) throws IOException {
@@ -494,6 +529,8 @@ public class CustomSaveManager {
             farm.markQuarry();
         }
 
+
+        //loading barns
         int barnsCount = dis.readInt();
         List<Barn> barns = new ArrayList<>();
         for (int i = 0; i < barnsCount; i++) {
@@ -506,7 +543,59 @@ public class CustomSaveManager {
             }
         }
 
+        //coops here
+        int coopCount = dis.readInt();
+        List<Coop> coops = new ArrayList<>();
+        for (int i = 0; i < coopCount; i++) {
+            loadCoop(dis);
+        }
+
+
+        farm.setCoops(coops);
+        if(!coops.isEmpty()){
+            for(Coop coop : coops){
+                farm.markCoopArea(coop);
+            }
+        }
+
+        //shipping bin
+        int shippingBinCount = dis.readInt();
+        List<ShippingBin> shippingBins = new ArrayList<>();
+        for (int i = 0; i < shippingBinCount; i++) {
+            shippingBins.add(loadShippingBin(dis));
+        }
+
         return farm;
+    }
+
+    private static ShippingBin loadShippingBin(DataInputStream dis) throws IOException {
+        int size = dis.readInt();
+        ShippingBin shippingBin = new ShippingBin();
+        for (int i = 0; i < size; i++) {
+            String name = dis.readUTF();
+            int quantity = dis.readInt();
+            shippingBin.getPlayerIntegerMap().put(name, quantity);
+        }
+        return shippingBin;
+    }
+
+    private static Coop loadCoop(DataInputStream dis) throws IOException {
+        String name = dis.readUTF();
+        int capacity = dis.readInt();
+        int count = dis.readInt();
+        Cages type = Cages.values()[dis.readInt()];
+        Location location = loadLocation(dis);
+        List<CoopAnimal> animals = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            animals.add((CoopAnimal) loadAnimal(dis));
+        }
+        Coop coop = new Coop();
+        coop.setName(name);
+        coop.setCapacity(capacity);
+        coop.setType(type);
+        coop.setLocation(location);
+        coop.setAnimals(animals);
+        return coop;
     }
 
     private static Barn loadBarn(DataInputStream dis) throws IOException {

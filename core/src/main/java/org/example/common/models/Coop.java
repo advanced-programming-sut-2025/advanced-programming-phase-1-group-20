@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Coop implements Serializable {
+    private String name;
+    private int capacity;
+    private int animalCount;
+    private int x;
+    private int y;
     private Cages type;
     private Location location;
     private transient List<CoopAnimal> animals;
-    private int capacity;
-    private int animalCount;
-    private String name;
-    private int x;
-    private int y;
     private static int width = 6;
     private static int height = 3;
 
