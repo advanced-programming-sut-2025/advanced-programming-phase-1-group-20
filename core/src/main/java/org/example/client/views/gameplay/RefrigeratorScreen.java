@@ -36,6 +36,8 @@ public class RefrigeratorScreen implements Screen {
     private final Backpack backpack;
     private final DragAndDrop dnd;
 
+    private Dialog errorDialog;
+
     private Table refrigeratorGrid;
     private Table inventoryGrid;
 
@@ -277,7 +279,7 @@ public class RefrigeratorScreen implements Screen {
                 Map<Item, Integer> targetMap = targetContainer.equals("refrigerator") ? refrigerator.getItems() : backpack.getInventory();
 
                 if (targetMap == refrigerator.getItems() && !(draggedItem instanceof Food || draggedItem instanceof Fruit)) {
-                    System.out.println("Only food and fruit can be placed in the refrigerator.");
+                    showErrorDialog("it must be food!" , "Only food and fruit can be placed in the refrigerator.");
                     return;
                 }
 
@@ -293,6 +295,33 @@ public class RefrigeratorScreen implements Screen {
         });
 
         return emptyContainer;
+    }
+
+
+    private void showErrorDialog(String title, String message) {
+        if (errorDialog == null) {
+            errorDialog = new Dialog("", skin, "dialog");
+            errorDialog.setModal(true);
+            errorDialog.setMovable(false);
+        }
+        errorDialog.getTitleLabel().setText(title);
+        errorDialog.getContentTable().clear();
+        errorDialog.getButtonTable().clear();
+
+        Label messageLabel = new Label(message, skin);
+        messageLabel.setWrap(true);
+        errorDialog.getContentTable().add(messageLabel).width(300).pad(20);
+
+        TextButton okButton = new TextButton("OK", skin);
+        errorDialog.button(okButton);
+        errorDialog.key(Input.Keys.ENTER, true);
+
+        errorDialog.show(stage);
+        errorDialog.pack();
+        errorDialog.setPosition(
+            Math.round((stage.getWidth() - errorDialog.getWidth()) / 2f),
+            Math.round((stage.getHeight() - errorDialog.getHeight()) / 2f)
+        );
     }
 
     @Override
