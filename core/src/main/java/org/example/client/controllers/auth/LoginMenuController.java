@@ -17,6 +17,8 @@ import org.example.utils.auth.JWTUtils;
 import org.example.utils.AutoLoginUtil;
 
 import static org.example.client.Main.getGame;
+import org.example.client.views.menu.ForgotPasswordMenuScreen;
+import org.example.client.controllers.auth.ForgotPasswordMenuController;
 
 public class LoginMenuController {
     private LoginMenuScreen screen;
@@ -87,8 +89,8 @@ public class LoginMenuController {
 
     public void handleForgotPassword() {
         getGame().getScreen().dispose();
-//        getGame().setScreen(new ForgotPasswordMenuScreen(new ForgotPasswordMenuController(),
-//            AssetManager.getAssetManager().getSkin()));
+        getGame().setScreen(new ForgotPasswordMenuScreen(new ForgotPasswordMenuController(),
+            AssetManager.getAssetManager().getSkin()));
     }
 
     public void handleBack() {

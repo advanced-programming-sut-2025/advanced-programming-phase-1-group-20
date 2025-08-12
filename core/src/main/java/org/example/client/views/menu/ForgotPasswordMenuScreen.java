@@ -20,9 +20,9 @@ public class ForgotPasswordMenuScreen implements Screen {
     private final Stage stage;
     private final Skin skin;
     private Image background;
-    private TextField usernameField, answerField;
-    private Label questionLabel, passwordLabel, errorLabel;
-    private ImageButton checkButton, getPasswordButton, backButton;
+    private TextField usernameField, answerField, newPasswordField, confirmPasswordField;
+    private Label questionLabel, passwordLabel, errorLabel, newPasswordLabel, confirmPasswordLabel;
+    private ImageButton checkButton, getPasswordButton, resetPasswordButton, backButton;
 
     public ForgotPasswordMenuScreen(ForgotPasswordMenuController controller, Skin skin) {
         this.controller = controller;
@@ -30,17 +30,6 @@ public class ForgotPasswordMenuScreen implements Screen {
         this.stage = new Stage(new ScreenViewport());
         this.controller.setView(this);
         setupUI();
-        // Set background texture to fix black screen - use login menu textures
-        try {
-            updateBackground(AssetManager.getAssetManager().getLoginMenuTexture(0));
-        } catch (Exception e) {
-            // Fallback: try welcome menu texture
-            try {
-                updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
-            } catch (Exception e2) {
-                System.err.println("Failed to load background textures: " + e2.getMessage());
-            }
-        }
     }
 
     private void setupUI() {
@@ -79,6 +68,25 @@ public class ForgotPasswordMenuScreen implements Screen {
         answerRow.add(getPasswordButton);
         mainTable.add(answerRow).center().padBottom(20).row();
 
+        // New password fields (initially hidden)
+        newPasswordField = createPasswordField("New Password");
+        newPasswordField.setVisible(false);
+        newPasswordLabel = new Label("New Password:", skin);
+        newPasswordLabel.setVisible(false);
+        mainTable.add(newPasswordLabel).padRight(20).right();
+        mainTable.add(newPasswordField).width(300).height(50).padBottom(15).row();
+
+        confirmPasswordField = createPasswordField("Confirm New Password");
+        confirmPasswordField.setVisible(false);
+        confirmPasswordLabel = new Label("Confirm Password:", skin);
+        confirmPasswordLabel.setVisible(false);
+        mainTable.add(confirmPasswordLabel).padRight(20).right();
+        mainTable.add(confirmPasswordField).width(300).height(50).padBottom(15).row();
+
+        resetPasswordButton = createImageButton(AssetManager.getAssetManager().getRegisterTitleTexture());
+        resetPasswordButton.setVisible(false);
+        mainTable.add(resetPasswordButton).center().padBottom(20).row();
+
         passwordLabel = new Label("", skin);
         passwordLabel.setFontScale(1.5f);
         mainTable.add(passwordLabel).center().padBottom(20).row();
@@ -107,6 +115,14 @@ public class ForgotPasswordMenuScreen implements Screen {
         return field;
     }
 
+    private TextField createPasswordField(String hint) {
+        TextField field = new TextField("", skin);
+        field.setMessageText(hint);
+        field.setPasswordMode(true);
+        field.setPasswordCharacter('•');
+        return field;
+    }
+
     private void addListeners() {
         checkButton.addListener(new ChangeListener() {
             @Override
@@ -119,6 +135,13 @@ public class ForgotPasswordMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 controller.handleCheckAnswer(usernameField.getText(), answerField.getText());
+            }
+        });
+
+        resetPasswordButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                controller.handleResetPassword(usernameField.getText(), newPasswordField.getText(), confirmPasswordField.getText());
             }
         });
 
@@ -136,6 +159,12 @@ public class ForgotPasswordMenuScreen implements Screen {
 
     public void showError(String message) {
         errorLabel.setText(message);
+        errorLabel.setColor(Color.RED);
+    }
+
+    public void showSuccess(String message) {
+        errorLabel.setText(message);
+        errorLabel.setColor(Color.GREEN);
     }
 
     public void showQuestion(String question) {
@@ -148,6 +177,39 @@ public class ForgotPasswordMenuScreen implements Screen {
         errorLabel.setText("");
     }
 
+    public void showPasswordResetFields() {
+        newPasswordField.setVisible(true);
+        confirmPasswordField.setVisible(true);
+        newPasswordLabel.setVisible(true);
+        confirmPasswordLabel.setVisible(true);
+        resetPasswordButton.setVisible(true);
+        passwordLabel.setText("Please enter your new password:");
+        errorLabel.setText("");
+    }
+
+    public void hidePasswordResetFields() {
+        newPasswordField.setVisible(false);
+        confirmPasswordField.setVisible(false);
+        newPasswordLabel.setVisible(false);
+        confirmPasswordLabel.setVisible(false);
+        resetPasswordButton.setVisible(false);
+        passwordLabel.setText("");
+        // Clear the password fields
+        newPasswordField.setText("");
+        confirmPasswordField.setText("");
+    }
+
+    public void clearAllFields() {
+        usernameField.setText("");
+        answerField.setText("");
+        newPasswordField.setText("");
+        confirmPasswordField.setText("");
+        questionLabel.setText("");
+        passwordLabel.setText("");
+        errorLabel.setText("");
+        hidePasswordResetFields();
+    }
+
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
@@ -157,6 +219,7 @@ public class ForgotPasswordMenuScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        controller.update(delta);
         stage.act(delta);
         stage.draw();
     }
