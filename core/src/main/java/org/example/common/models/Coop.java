@@ -17,7 +17,7 @@ public class Coop implements Serializable {
     private int y;
     private Cages type;
     private Location location;
-    private transient List<CoopAnimal> animals;
+    private List<CoopAnimal> animals;
     private static int width = 6;
     private static int height = 3;
 
@@ -30,6 +30,8 @@ public class Coop implements Serializable {
         this.location = location;
         this.name = name;
         this.animals = new ArrayList<>();
+        this.x = location.getX();
+        this.y = location.getY();
 
         // Set capacity based on coop type
         switch (type) {

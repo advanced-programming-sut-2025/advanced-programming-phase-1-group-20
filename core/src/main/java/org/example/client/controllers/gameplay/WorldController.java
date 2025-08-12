@@ -14,7 +14,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import org.example.client.Main;
+import org.example.client.controllers.AnimalsController;
 import org.example.client.controllers.GameMenuController;
+import org.example.client.views.BarnScreen;
+import org.example.client.views.CoopScreen;
 import org.example.client.views.GreenhouseRepairDialog;
 import org.example.client.views.NPCInteractionScreen;
 import org.example.client.views.gameplay.GreenhouseScreen;
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.ArrayList;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import org.example.utils.AssetManager;
 
 import static org.example.client.Main.getGame;
 import static org.example.common.models.enums.Types.TileType.*;
@@ -127,7 +131,7 @@ public class WorldController {
         this.greenhouseAnchors = new ArrayList<>();
         this.houseAnchors = new ArrayList<>();
         this.barnAnchors = new ArrayList<>();
-        this.coopAnchors = new     ArrayList<>();
+        this.coopAnchors = new ArrayList<>();
         this.goldClockAnchors = new ArrayList<>();
         this.npcHouseAnchors = new ArrayList<>();
         this.villageBuildingAnchors = new ArrayList<>();
@@ -188,9 +192,9 @@ public class WorldController {
         loadTexture("shipping_bin", "content/Buildings/Shipping_Bin.png");
 
         // Building textures (larger sprites)
-        loadTexture("barn", "content/buildings/barn.png");
-        loadTexture("coop", "content/buildings/Coop.png");
-        loadTexture("house", "content/buildings/house.png");
+        loadTexture("barn", "content/Buildings/Barn.png");
+        loadTexture("coop", "content/Buildings/Coop.png");
+        loadTexture("house", "content/Buildings/house.png");
 
         // Greenhouse textures
         loadTexture("greenhouse", "content/Buildings/GreenHouse/UnConstructed.png");
@@ -1834,9 +1838,15 @@ public class WorldController {
                     System.out.println("house clicked");
                     getGame().setScreen(new RefrigeratorScreen(playerController.getPlayer(), skin, controller.getView()));
                 } else if (checkClicked(coopAnchors, COOP_TILES_W, COOP_TILES_H, touchPointFarm)) {
-
+                    Coop coop = getCoopByTouch((int) touchPointFarm.x / 60, (int) touchPointFarm.y / 60);
+                    if(coop != null) {
+                        getGame().setScreen(new CoopScreen(getGame() , controller.getView() , coop , AssetManager.getAssetManager().getSkin() , new AnimalController()));
+                    }
                 } else if (checkClicked(barnAnchors, BARN_TILES_W, BARN_TILES_H, touchPointFarm)) {
-
+                    Barn barn = getBarnByTouch((int) touchPointFarm.x / 60, (int) touchPointFarm.y / 60);
+                    if(barn != null) {
+                        getGame().setScreen(new BarnScreen(getGame() , controller.getView() , barn , AssetManager.getAssetManager().getSkin() , new AnimalController()));
+                    }
                 } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPointFarm)) {
                     boolean isConstructed = farm.getGreenHouse().getIsConstructed();
 
@@ -1851,6 +1861,26 @@ public class WorldController {
                 }
             }
         }
+    }
+
+    public Coop getCoopByTouch(int touchX, int touchY) {
+        for (Coop coop : farm.getCoops()) {
+            if (coop.contains(touchX, touchY)) {
+                return coop;
+            }
+        }
+
+        return null;
+    }
+
+    public Barn getBarnByTouch(int touchX, int touchY) {
+        for (Barn barn : farm.getBarns()) {
+            if (barn.contains(touchX, touchY)) {
+                return barn;
+            }
+        }
+
+        return null;
     }
 
     public boolean checkClicked(List<Location> anchors , int tilesW , int tilesH , Vector3 touchPoint) {

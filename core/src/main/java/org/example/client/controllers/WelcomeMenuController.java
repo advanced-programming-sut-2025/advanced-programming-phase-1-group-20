@@ -20,7 +20,7 @@ import org.example.common.models.entities.User;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.PlayerEnums.Gender;
-import org.example.common.models.enums.Types.TileType;
+import org.example.common.models.enums.Types.*;
 import org.example.utils.AssetManager;
 import org.example.client.views.GameView;
 import org.example.client.views.menu.WelcomeMenuScreen;
@@ -101,26 +101,28 @@ public class WelcomeMenuController {
         map.addFarm(farm1);
         //TODO : these are for testing and it works!!!!!
         // Add a barn and a coop to the farm
-        Barn barn = new Barn(org.example.common.models.enums.Types.BarnTypes.NORMAL_BARN, new Location(10, 10, org.example.common.models.enums.Types.TileType.BARN), "My Barn");
-        farm1.addBarn(barn);
-
-        Coop coop = new Coop(org.example.common.models.enums.Types.Cages.NORMAL_COOP, new Location(20, 10, org.example.common.models.enums.Types.TileType.COOP), "My Coop");
+        Coop coop = new Coop(Cages.NORMAL_COOP, new Location(10, 10, TileType.COOP), "My Coop");
         farm1.addCoop(coop);
 
+
+        Barn barn = new Barn(BarnTypes.NORMAL_BARN, new Location(39, 39, TileType.BARN), "My Barn");
+        farm1.addBarn(barn);
+
+
         // Create and add animals
-        BarnAnimal cow = new BarnAnimal(org.example.common.models.enums.Types.BarnAnimalTypes.COW, "Bessie");
-        cow.setPosX(player1.getPosX() + 60);
-        cow.setPosY(player1.getPosY());
+        BarnAnimal cow = new BarnAnimal(BarnAnimalTypes.COW, "Bessie");
+        cow.setPosX(barn.getX() * 60);
+        cow.setPosY(barn.getY() * 60);
         barn.addAnimal(cow);
 
-        CoopAnimal chicken = new CoopAnimal(org.example.common.models.enums.Types.CoopAnimalTypes.CHICKEN, "Clucky");
-        chicken.setPosX(player1.getPosX() - 60);
-        chicken.setPosY(player1.getPosY());
+        CoopAnimal chicken = new CoopAnimal(CoopAnimalTypes.CHICKEN, "Clucky");
+        chicken.setPosX(coop.getX() * 60);
+        chicken.setPosY(coop.getY() * 60);
         coop.addAnimal(chicken);
 
-        BarnAnimal pig = new BarnAnimal(org.example.common.models.enums.Types.BarnAnimalTypes.PIG, "Porky");
-        pig.setPosX(player1.getPosX());
-        pig.setPosY(player1.getPosY() + 60);
+        BarnAnimal pig = new BarnAnimal(BarnAnimalTypes.PIG, "Porky");
+        pig.setPosX(barn.getX() * 60);
+        pig.setPosY(barn.getY() * 60);
         barn.addAnimal(pig);
 
         //TODO : hmmm

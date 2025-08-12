@@ -20,12 +20,12 @@ import org.example.common.models.common.Result;
 import org.example.common.models.entities.animal.BarnAnimal;
 
 public class BarnScreen implements Screen {
-    private final Game game;
-    private final Screen previousScreen;
-    private final Stage stage;
-    private final Skin skin;
-    private final Barn barn;
-    private final AnimalController controller;
+    private Game game;
+    private Screen previousScreen;
+    private Stage stage;
+    private Skin skin;
+    private Barn barn;
+    private AnimalController controller;
 
     public BarnScreen(Game game, Screen previousScreen, Barn barn, Skin skin, AnimalController controller) {
         this.game = game;
@@ -49,7 +49,7 @@ public class BarnScreen implements Screen {
         stage.addActor(mainTable);
 
         // Title
-        mainTable.add(new Label(barn.getName() + " (Capacity: " + barn.getAnimalCount() + "/" + barn.getCapacity() + ")", skin, "title")).colspan(2).pad(20).row();
+        mainTable.add(new Label(barn.getName() + " (Capacity: " + barn.getAnimalCount() + "/" + barn.getCapacity() + ")", skin)).colspan(2).pad(20).row();
 
         // List of animals
         if (barn.getAnimals().isEmpty()) {

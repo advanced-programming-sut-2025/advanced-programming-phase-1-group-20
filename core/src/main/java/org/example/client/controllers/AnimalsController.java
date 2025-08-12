@@ -39,6 +39,7 @@ public class AnimalsController implements Disposable {
             if (!animal.isOutSide()) {
                 continue; // Skip to the next animal if it's inside
             }
+            System.out.println(animal.getPosX() + " " + animal.getPosY());
 
 
             // Update the state timer

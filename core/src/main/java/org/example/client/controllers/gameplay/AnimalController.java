@@ -47,8 +47,8 @@ public class AnimalController {
                     }
                     animal.setOutSide(false); // Mark as inside
                     // Optionally, reset position to the barn's entrance
-                    animal.setPosX(barn.getLocation().getX());
-                    animal.setPosY(barn.getLocation().getY());
+                    animal.setPosX(barn.getLocation().getX() * 60);
+                    animal.setPosY(barn.getLocation().getY() * 60);
                     return Result.success(animalName + " has returned to the " + barn.getName() + ".");
                 }
             }

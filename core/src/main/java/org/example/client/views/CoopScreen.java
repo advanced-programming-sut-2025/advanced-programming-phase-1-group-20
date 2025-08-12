@@ -49,7 +49,7 @@ public class CoopScreen implements Screen {
         stage.addActor(mainTable);
 
         // Title
-        mainTable.add(new Label(coop.getName() + " (Capacity: " + coop.getAnimalCount() + "/" + coop.getCapacity() + ")", skin, "title")).colspan(2).pad(20).row();
+        mainTable.add(new Label(coop.getName() + " (Capacity: " + coop.getAnimalCount() + "/" + coop.getCapacity() + ")", skin)).colspan(2).pad(20).row();
 
         // List of animals
         if (coop.getAnimals().isEmpty()) {
