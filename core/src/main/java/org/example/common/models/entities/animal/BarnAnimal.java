@@ -191,6 +191,10 @@ public class BarnAnimal extends Animal implements Serializable {
         return getName() + " (" + type.getName() + ") - Happiness: " + happinessLevel;
     }
 
+    public String getName(){
+        return type.getName();
+    }
+
     public boolean isPetToday() {
         return hasBeenPetToday;
     }
