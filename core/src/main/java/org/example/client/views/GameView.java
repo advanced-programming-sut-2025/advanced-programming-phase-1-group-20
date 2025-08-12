@@ -1,3 +1,4 @@
+// main/java/org/example/client/views/GameView.java
 package org.example.client.views;
 
 import com.badlogic.gdx.*;
@@ -21,6 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array; // <<< NEW IMPORT
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.InputMultiplexer;
@@ -52,8 +54,9 @@ import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Weather;
 import org.example.utils.AssetManager;
 import org.example.client.views.effects.Lighting;
-import org.example.client.views.effects.ClimateSystem; // NEW IMPORT
-import org.example.client.views.effects.LightningSystem; // NEW IMPORT
+import org.example.client.views.effects.ClimateSystem;
+import org.example.client.views.effects.LightningSystem;
+import org.example.client.views.effects.VisualEffect; // <<< NEW IMPORT
 import org.example.client.controllers.NPCSpriteController;
 import org.example.client.views.NPCDialogueScreen;
 
@@ -70,6 +73,7 @@ import org.example.common.models.Barn;
 import org.example.common.models.Coop;
 
 import java.util.ArrayList;
+import java.util.Iterator; // <<< NEW IMPORT
 import java.util.List;
 
 public class GameView implements Screen, InputProcessor {
@@ -86,6 +90,12 @@ public class GameView implements Screen, InputProcessor {
     private float gameTime;
     private Label timeLabel;
     private User user;
+
+    // <<< NEW: Fields for visual effects
+    private Texture heartTexture;
+    private Texture energyTexture;
+    private Array<VisualEffect> effects;
+
 
     // Clock components
     private Texture clockBackgroundTexture;
@@ -179,6 +189,8 @@ public class GameView implements Screen, InputProcessor {
         this.lightingUpdateTimer = 0;
 
         this.animalsController = new AnimalsController();
+        this.effects = new Array<>(); // <<< NEW: Initialize effects array
+
 
         // Initialize camera first
         camera = new OrthographicCamera(120, 120);
@@ -1228,6 +1240,24 @@ public class GameView implements Screen, InputProcessor {
         multiplexer.addProcessor(this);   // GameView second (world interactions)
         Gdx.input.setInputProcessor(multiplexer);
 
+        // <<< NEW: Load effect textures
+        try {
+            heartTexture = new Texture(Gdx.files.internal("content/NPC/RelationShip/Heart_1.png"));
+            energyTexture = new Texture(Gdx.files.internal("content/gui/Energy.png"));
+        } catch (Exception e) {
+            System.err.println("ERROR: Could not load Heart_1.png or Energy.png. Make sure they are in the assets folder.");
+            // Create fallback textures
+            Pixmap pixmap = new Pixmap(32, 32, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.RED);
+            pixmap.fillCircle(16, 16, 15);
+            heartTexture = new Texture(pixmap);
+            pixmap.setColor(Color.YELLOW);
+            pixmap.fillCircle(16, 16, 15);
+            energyTexture = new Texture(pixmap);
+            pixmap.dispose();
+        }
+
+
         mainTable.top().right();
         mainTable.setFillParent(true);
         mainTable.padTop(10).padRight(10);
@@ -1441,6 +1471,17 @@ public class GameView implements Screen, InputProcessor {
         if (animalsController != null) {
             animalsController.render(Main.getBatch(), currentLightColor);
         }
+        // <<< NEW: Render visual effects
+        for (Iterator<VisualEffect> iter = effects.iterator(); iter.hasNext(); ) {
+            VisualEffect effect = iter.next();
+            effect.update(deltaTime);
+            if (effect.isFinished()) {
+                iter.remove();
+            } else {
+                effect.draw(Main.getBatch());
+            }
+        }
+
 
         // Render animations while batch is still active
         if (currentHeartAnimation != null && currentHeartAnimation.isActive()) {
@@ -1517,6 +1558,10 @@ public class GameView implements Screen, InputProcessor {
         if (customFont != null) customFont.dispose();
         if (smallFont != null) smallFont.dispose();
         if (lightingOverlayTexture != null) lightingOverlayTexture.dispose();
+
+        // <<< NEW: Dispose of effect textures
+        if (heartTexture != null) heartTexture.dispose();
+        if (energyTexture != null) energyTexture.dispose();
 
         // Dispose rain system - NEW
         if (climateSystem != null) {
@@ -1952,8 +1997,8 @@ public class GameView implements Screen, InputProcessor {
         Farm currentFarm = player.getCurrentFarm();
         if (currentFarm == null) return null;
 
-        float animalWidth = 48; // Approximate render width
-        float animalHeight = 96; // Approximate render height
+        float animalWidth = 48 * 60; // Approximate render width
+        float animalHeight = 96 * 60; // Approximate render height
 
         // Check Barn Animals
         for (Barn barn : currentFarm.getBarns()) {
@@ -1977,17 +2022,41 @@ public class GameView implements Screen, InputProcessor {
         return null;
     }
 
+    // <<< MODIFIED: This method now handles creating visual effects
     private void showAnimalInteractionDialog(Animal animal) {
         AnimalController animalController = new AnimalController();
+
         AnimalInteractionDialog dialog = new AnimalInteractionDialog(
             animal.getName(),
             skin,
             animal,
             animalController,
-            this::showResultNotification // Pass a method reference to handle the result
+            (result, effectType) -> { // Use a lambda to handle both result and effectType
+                // Always show the text notification
+                showResultNotification(result);
+
+                // If the action was successful and an effect type was provided...
+                if (result.success() && effectType != null) {
+                    Texture effectTexture = null;
+                    if (effectType == AnimalInteractionDialog.EffectType.PET) {
+                        effectTexture = heartTexture;
+                    } else if (effectType == AnimalInteractionDialog.EffectType.FEED) {
+                        effectTexture = energyTexture;
+                    }
+
+                    // If we have a texture, create and add the visual effect
+                    if (effectTexture != null) {
+                        // Position the effect centered above the animal
+                        float effectX = animal.getPosX() + (48 / 2f);
+                        float effectY = animal.getPosY() + 48;
+                        effects.add(new VisualEffect(effectTexture, effectX, effectY, 2f)); // 2 sec duration
+                    }
+                }
+            }
         );
         dialog.show(stage);
     }
+
 
     private void handlePetClosestAnimal() {
         Farm currentFarm = player.getCurrentFarm();
@@ -2015,6 +2084,14 @@ public class GameView implements Screen, InputProcessor {
             AnimalController animalController = new AnimalController();
             Result result = animalController.petAnimal(new String[]{closestAnimal.getName()});
             showResultNotification(result);
+
+            // <<< NEW: Add heart effect when petting with 'P' key
+            if (result.success()) {
+                float effectX = closestAnimal.getPosX() + (48 / 2f);
+                float effectY = closestAnimal.getPosY() + 48;
+                effects.add(new VisualEffect(heartTexture, effectX, effectY, 2f));
+            }
+
         } else {
             showResultNotification(Result.error("No animal is close enough to pet."));
         }

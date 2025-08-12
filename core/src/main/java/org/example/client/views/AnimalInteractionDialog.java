@@ -1,5 +1,3 @@
-// main/java/org/example/client/views/AnimalInteractionDialog.java
-
 package org.example.client.views;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -13,15 +11,22 @@ import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
 
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class AnimalInteractionDialog extends Dialog {
 
     private final Animal animal;
     private final AnimalController controller;
-    private final Consumer<Result> resultCallback;
+    private final BiConsumer<Result, EffectType> resultCallback;
 
-    public AnimalInteractionDialog(String title, Skin skin, Animal animal, AnimalController controller, Consumer<Result> resultCallback) {
+    /**
+     * Enum to identify the type of interaction for creating visual effects.
+     */
+    public enum EffectType {
+        PET, FEED
+    }
+
+    public AnimalInteractionDialog(String title, Skin skin, Animal animal, AnimalController controller, BiConsumer<Result, EffectType> resultCallback) {
         super(title, skin);
         this.animal = animal;
         this.controller = controller;
@@ -36,7 +41,7 @@ public class AnimalInteractionDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Result result = controller.petAnimal(new String[]{animal.getName()});
-                resultCallback.accept(result);
+                resultCallback.accept(result, EffectType.PET); // Send PET effect type
                 hide();
             }
         });
@@ -48,7 +53,7 @@ public class AnimalInteractionDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Result result = controller.feedHay(new String[]{animal.getName()});
-                resultCallback.accept(result);
+                resultCallback.accept(result, EffectType.FEED); // Send FEED effect type
                 hide();
             }
         });
@@ -63,7 +68,7 @@ public class AnimalInteractionDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Result result = controller.collectProduce(new String[]{animal.getName()});
-                resultCallback.accept(result);
+                resultCallback.accept(result, null); // No effect
                 hide();
             }
         });
@@ -76,7 +81,7 @@ public class AnimalInteractionDialog extends Dialog {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Result result = controller.sellAnimal(new String[]{animal.getName()});
-                resultCallback.accept(result);
+                resultCallback.accept(result, null); // No effect
                 hide();
             }
         });
