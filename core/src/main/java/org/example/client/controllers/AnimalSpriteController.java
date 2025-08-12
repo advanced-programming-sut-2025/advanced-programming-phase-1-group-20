@@ -6,10 +6,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Disposable;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.enums.Types.CoopAnimalTypes;
 
-public class AnimalSpriteController {
+public class AnimalSpriteController implements Disposable {
     private final Texture textureSheet;
     private final int FRAME_W;
     private final int FRAME_H;
@@ -52,12 +53,6 @@ public class AnimalSpriteController {
         return new Animation<>(FRAME_DURATION, frames, Animation.PlayMode.LOOP_PINGPONG);
     }
 
-    /**
-     * Gets the current animation frame for an animal based on its state.
-     * @param animal The animal whose frame is to be determined.
-     * @param stateTime The global animation timer.
-     * @return The TextureRegion to be rendered.
-     */
     public TextureRegion getCurrentFrame(Animal animal, float stateTime) {
         Animation<TextureRegion> currentAnimation;
 
@@ -87,5 +82,22 @@ public class AnimalSpriteController {
 
         // If moving, return the animated frame
         return currentAnimation.getKeyFrame(stateTime, true);
+    }
+
+    public TextureRegion getRightFrame(int frameIndex) {
+        if (frameIndex >= 0 && frameIndex < 3) {
+            Object[] frames = moveRight.getKeyFrames();
+            if (frames != null && frameIndex < frames.length) {
+                return (TextureRegion) frames[frameIndex];
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void dispose() {
+        if (textureSheet != null) {
+            textureSheet.dispose();
+        }
     }
 }
