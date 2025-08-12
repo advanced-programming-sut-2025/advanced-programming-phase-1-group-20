@@ -479,6 +479,11 @@ public class Player {
         setCurrentItem(item);
     }
 
+    public Map<Player, FriendShip> getFriendships() {
+        return friendships;
+    }
+
+
     public void setMoney(int money) {
         this.money = money;
     }
