@@ -52,6 +52,7 @@ import org.example.common.models.entities.User;
 import org.example.common.models.entities.FriendShip;
 import org.example.common.models.enums.Seasons;
 import org.example.common.models.enums.Weather;
+import org.example.common.models.Message;
 import org.example.utils.AssetManager;
 import org.example.client.views.effects.Lighting;
 import org.example.client.views.effects.ClimateSystem;
@@ -62,11 +63,15 @@ import org.example.client.views.NPCDialogueScreen;
 
 import org.example.client.views.fishing.FishingMiniGame;
 import org.example.client.views.RadioSystemScreen;
+import org.example.client.views.ReactionDisplay;
 import org.example.client.network.NetworkClient;
+import org.example.client.network.ClientMessageHandler;
+import org.example.utils.ReactionPopup;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -170,6 +175,11 @@ public class GameView implements Screen, InputProcessor {
     // Radio system button
     private TextButton radioButton;
 
+    // Reaction system
+    private TextButton reactionButton;
+    private ReactionPopup reactionPopup;
+    private ReactionDisplay reactionDisplay;
+
     // Vertical energy bars for all players
     private static final int VERTICAL_ENERGY_BAR_WIDTH = 25;
     private static final int VERTICAL_ENERGY_BAR_HEIGHT = 120;
@@ -229,6 +239,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize radio system
         initializeRadioButton();
+
+        // Initialize reaction system
+        initializeReactionSystem();
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
@@ -603,6 +616,36 @@ public class GameView implements Screen, InputProcessor {
         });
     }
 
+    private void initializeReactionSystem() {
+        reactionButton = new TextButton("Reactions", skin);
+        reactionButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openReactionPopup();
+            }
+        });
+        
+        // Set up reaction listener for network messages
+        if (game != null && game.isMultiplayer) {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null && networkClient.getMessageHandler() != null) {
+                networkClient.getMessageHandler().setReactionListener(new ClientMessageHandler.ReactionMessageListener() {
+                    @Override
+                    public void onReactionReceived(String fromPlayer, String reaction) {
+                        // Find the player and show their reaction
+                        Player reactingPlayer = game.getPlayerByUsername(fromPlayer);
+                        if (reactingPlayer != null) {
+                            Vector2 playerPos = new Vector2(reactingPlayer.getLocation().getX(), reactingPlayer.getLocation().getY());
+                            if (reactionDisplay != null) {
+                                reactionDisplay.showReaction(fromPlayer, reaction, playerPos);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    }
+
     private void openFriendsWindow() {
         try {
             if (friendsWindow == null) {
@@ -632,6 +675,40 @@ public class GameView implements Screen, InputProcessor {
         } catch (Exception e) {
             System.err.println("Error opening radio system: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void openReactionPopup() {
+        if (reactionPopup != null && stage != null) {
+            System.out.println("🎭 Opening reaction popup...");
+            reactionPopup.showReactionDialog(new ReactionPopup.ReactionSelectedListener() {
+                @Override
+                public void onReactionSelected(String reaction) {
+                    System.out.println("🎭 Reaction selected: " + reaction);
+                    // Send reaction to server
+                    if (game != null && game.isMultiplayer) {
+                        NetworkClient networkClient = NetworkClient.getInstance();
+                        if (networkClient != null) {
+                            Message reactionMessage = new Message();
+                            reactionMessage.setType(Message.Type.REACTION_SEND);
+                            reactionMessage.putInBody("reaction", reaction);
+                            reactionMessage.putInBody("fromPlayer", player.getUser().getUsername());
+                            reactionMessage.putInBody("toPlayer", null); // Broadcast to all
+                            networkClient.sendMessage(reactionMessage);
+                            System.out.println("🎭 Reaction sent to server: " + reaction);
+                        }
+                    } else {
+                        System.out.println("🎭 Single player mode - reaction would be: " + reaction);
+                        // For single player, just show the reaction locally
+                        if (reactionDisplay != null) {
+                            Vector2 playerPos = new Vector2(player.getLocation().getX(), player.getLocation().getY());
+                            reactionDisplay.showReaction(player.getUser().getUsername(), reaction, playerPos);
+                        }
+                    }
+                }
+            });
+        } else {
+            System.err.println("Reaction popup or stage not initialized");
         }
     }
 
@@ -1187,12 +1264,31 @@ public class GameView implements Screen, InputProcessor {
     private void renderOtherPlayers() {
         Game game = App.getGame();
         if (game == null || game.getPlayers() == null) {
+            System.out.println("🔍 DEBUG: Game or players list is null in renderOtherPlayers");
             return;
         }
 
+        System.out.println("🔍 DEBUG: renderOtherPlayers called, total players: " + game.getPlayers().size());
+        
         for (Player otherPlayer : game.getPlayers()) {
-            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage()) {
+            System.out.println("🔍 DEBUG: Checking player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
+            System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
+            System.out.println("🔍 DEBUG: - otherPlayer.getUser() != null: " + (otherPlayer != null && otherPlayer.getUser() != null));
+            System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
+            System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
+            System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
+            
+            // Render other players if they are in the same area as the current player
+            boolean shouldRender = otherPlayer != null && 
+                                 otherPlayer != player && 
+                                 otherPlayer.getUser() != null && 
+                                 arePlayersAdjacent(player, otherPlayer);
+            
+            if (shouldRender) {
+                System.out.println("🔍 DEBUG: Rendering other player: " + otherPlayer.getUser().getUsername());
                 renderPlayerSprite(otherPlayer);
+            } else {
+                System.out.println("🔍 DEBUG: NOT rendering other player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
             }
         }
     }
@@ -1326,6 +1422,19 @@ public class GameView implements Screen, InputProcessor {
             radioTable.add(radioButton).width(100).height(40).padTop(70).padLeft(20); // Positioned under quest button
             stage.addActor(radioTable);
         }
+
+        // Add reaction button under the radio button
+        if (reactionButton != null) {
+            Table reactionTable = new Table();
+            reactionTable.setFillParent(true);
+            reactionTable.top().left();
+            reactionTable.add(reactionButton).width(100).height(40).padTop(120).padLeft(20); // Positioned under radio button
+            stage.addActor(reactionTable);
+        }
+
+        // Initialize reaction popup and display after stage is created
+        reactionPopup = new ReactionPopup(stage, skin);
+        reactionDisplay = new ReactionDisplay(stage, reactionPopup, skin);
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
@@ -1512,8 +1621,23 @@ public class GameView implements Screen, InputProcessor {
 
             // Render nicknames for other players
             for (Player otherPlayer : App.getGame().getPlayers()) {
-                if (otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage()) {
+                System.out.println("🔍 DEBUG: Checking nickname for player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
+                System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
+                System.out.println("🔍 DEBUG: - otherPlayer.getUser() != null: " + (otherPlayer != null && otherPlayer.getUser() != null));
+                System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
+                System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
+                System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
+                
+                // Render nicknames for other players if they are in the same area as the current player
+                boolean shouldRenderNickname = otherPlayer != player && 
+                                             otherPlayer.getUser() != null && 
+                                             arePlayersAdjacent(player, otherPlayer);
+                
+                if (shouldRenderNickname) {
+                    System.out.println("🔍 DEBUG: Rendering nickname for: " + otherPlayer.getUser().getUsername());
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
+                } else {
+                    System.out.println("🔍 DEBUG: NOT rendering nickname for: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
                 }
             }
         }

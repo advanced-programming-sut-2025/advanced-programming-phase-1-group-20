@@ -138,6 +138,10 @@ public class Message {
         RADIO_TRACK_UPLOAD,
         RADIO_CONNECT_REQUEST,
         RADIO_CONNECT_RESPONSE,
-        RADIO_DISCONNECT
+        RADIO_DISCONNECT,
+
+        // Reaction system
+        REACTION_SEND,
+        REACTION_RECEIVE
     }
 }

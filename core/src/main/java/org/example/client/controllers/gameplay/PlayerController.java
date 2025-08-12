@@ -431,7 +431,7 @@ public class PlayerController {
             }
         }
         else if (moved && player.isEnergyUnlimited()) {
-            System.out.println("Player moved - Energy unlimited mode");
+//            System.out.println("Player moved - Energy unlimited mode");
             sendMovementToServer();
         }
 
@@ -799,20 +799,20 @@ public class PlayerController {
 
         if (isUsingTool) {
             switch (facing) {
-                case UP: 
-                    currentAnim = walkUp; 
+                case UP:
+                    currentAnim = walkUp;
                     player.setCurrentAnimation("up");
                     break;
-                case DOWN: 
-                    currentAnim = walkDown; 
+                case DOWN:
+                    currentAnim = walkDown;
                     player.setCurrentAnimation("down");
                     break;
-                case LEFT: 
-                    currentAnim = walkLeft; 
+                case LEFT:
+                    currentAnim = walkLeft;
                     player.setCurrentAnimation("left");
                     break;
-                case RIGHT: 
-                    currentAnim = walkRight; 
+                case RIGHT:
+                    currentAnim = walkRight;
                     player.setCurrentAnimation("right");
                     break;
             }
@@ -821,20 +821,20 @@ public class PlayerController {
         else if (player.getCurrentItem() != null) {
             if (this.isMoving) {
                 switch (facing) {
-                    case UP: 
-                        currentAnim = walkUp; 
+                    case UP:
+                        currentAnim = walkUp;
                         player.setCurrentAnimation("up");
                         break;
-                    case DOWN: 
-                        currentAnim = walkDown; 
+                    case DOWN:
+                        currentAnim = walkDown;
                         player.setCurrentAnimation("down");
                         break;
-                    case LEFT: 
-                        currentAnim = walkLeft; 
+                    case LEFT:
+                        currentAnim = walkLeft;
                         player.setCurrentAnimation("left");
                         break;
-                    case RIGHT: 
-                        currentAnim = walkRight; 
+                    case RIGHT:
+                        currentAnim = walkRight;
                         player.setCurrentAnimation("right");
                         break;
                 }
@@ -842,20 +842,20 @@ public class PlayerController {
             }
             else {
                 switch (facing) {
-                    case UP: 
-                        currentAnim = itemUp; 
+                    case UP:
+                        currentAnim = itemUp;
                         player.setCurrentAnimation("item_up");
                         break;
-                    case DOWN: 
-                        currentAnim = itemDown; 
+                    case DOWN:
+                        currentAnim = itemDown;
                         player.setCurrentAnimation("item_down");
                         break;
-                    case LEFT: 
-                        currentAnim = itemLeft; 
+                    case LEFT:
+                        currentAnim = itemLeft;
                         player.setCurrentAnimation("item_left");
                         break;
-                    case RIGHT: 
-                        currentAnim = itemRight; 
+                    case RIGHT:
+                        currentAnim = itemRight;
                         player.setCurrentAnimation("item_right");
                         break;
                 }
@@ -864,26 +864,26 @@ public class PlayerController {
         }
         else {
             switch (facing) {
-                case UP: 
-                    currentAnim = walkUp; 
+                case UP:
+                    currentAnim = walkUp;
                     player.setCurrentAnimation("up");
                     break;
-                case DOWN: 
-                    currentAnim = walkDown; 
+                case DOWN:
+                    currentAnim = walkDown;
                     player.setCurrentAnimation("down");
                     break;
-                case LEFT: 
-                    currentAnim = walkLeft; 
+                case LEFT:
+                    currentAnim = walkLeft;
                     player.setCurrentAnimation("left");
                     break;
-                case RIGHT: 
-                    currentAnim = walkRight; 
+                case RIGHT:
+                    currentAnim = walkRight;
                     player.setCurrentAnimation("right");
                     break;
             }
             player.setMoving(this.isMoving);
         }
-        
+
         // Sync animation timer
         player.setAnimationTimer(stateTime);
     }
@@ -1396,26 +1396,19 @@ public class PlayerController {
     }
 
     private void sendMovementToServer() {
-        System.out.println("🔍 DEBUG: sendMovementToServer() called");
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
-            System.out.println("🔍 DEBUG: NetworkClient: " + (networkClient != null));
 
             if (networkClient != null) {
-                System.out.println("🔍 DEBUG: NetworkClient state: " + networkClient.getConnectionState());
-                System.out.println("🔍 DEBUG: NetworkClient authenticated: " + networkClient.isAuthenticated());
-            }
+              }
 
             if (App.getGame() != null) {
-                System.out.println("🔍 DEBUG: Game multiplayer: " + App.getGame().isMultiplayer);
             } else {
-                System.out.println("🔍 DEBUG: App.getGame() is null");
             }
 
             if (networkClient != null && App.getGame() != null && App.getGame().isMultiplayer) {
                 // Check if we're authenticated and connected
                 if (!networkClient.isAuthenticated()) {
-                    System.out.println("❌ CLIENT: Not authenticated, cannot send movement");
                     return;
                 }
 
@@ -1429,11 +1422,7 @@ public class PlayerController {
 
                 player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
 
-                System.out.println("🎮 CLIENT: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
             } else {
-                System.out.println("❌ CLIENT: Not sending movement to server - NetworkClient: " + (networkClient != null) +
-                    ", Game: " + (App.getGame() != null) +
-                    ", Multiplayer: " + (App.getGame() != null && App.getGame().isMultiplayer));
             }
         } catch (Exception e) {
             System.err.println("❌ CLIENT: Error sending movement to server: " + e.getMessage());

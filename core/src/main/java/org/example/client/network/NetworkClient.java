@@ -451,9 +451,9 @@ public class NetworkClient {
         if (!webSocket.isOutputClosed()) {
             try {
                 String messageJson = gson.toJson(message);
-                System.out.println("DEBUG: Sending message JSON: " + messageJson);
+//                System.out.println("DEBUG: Sending message JSON: " + messageJson);
                 outgoingMessages.offer(message);
-                System.out.println("DEBUG: Message added to outgoing queue");
+//                System.out.println("DEBUG: Message added to outgoing queue");
             } catch (Exception e) {
                 System.err.println("NETWORK: Failed to serialize message: " + e.getMessage());
                 e.printStackTrace();

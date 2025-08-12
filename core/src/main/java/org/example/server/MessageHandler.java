@@ -126,6 +126,11 @@ public class MessageHandler {
                 handleRequestPlayersList(connection, message);
                 break;
 
+            // Reaction system messages
+            case REACTION_SEND:
+                handleReactionSend(connection, message);
+                break;
+
             default:
                 // Forward to game session if player is in one
                 Object gameSessionObj = connection.getGameSession();
@@ -985,5 +990,40 @@ public class MessageHandler {
         playerConnections.clear();
 
         System.out.println("MessageHandler shutdown completed");
+    }
+
+    private void handleReactionSend(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String reaction = message.getFromBody("reaction");
+        String fromPlayer = message.getFromBody("fromPlayer");
+        String toPlayer = message.getFromBody("toPlayer");
+
+        if (reaction == null || fromPlayer == null) {
+            sendErrorMessage(connection, "Invalid reaction message");
+            return;
+        }
+
+        System.out.println("Reaction: " + fromPlayer + " sent reaction: " + reaction);
+
+        // Create reaction receive message to broadcast
+        Message reactionMessage = new Message();
+        reactionMessage.setType(Message.Type.REACTION_RECEIVE);
+        reactionMessage.putInBody("reaction", reaction);
+        reactionMessage.putInBody("fromPlayer", fromPlayer);
+        reactionMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        // Forward to game session for broadcasting
+        Object gameSessionObj = connection.getGameSession();
+        if (gameSessionObj instanceof GameSession) {
+            GameSession gameSession = (GameSession) gameSessionObj;
+            gameSession.broadcastToOthers(null, reactionMessage);
+        } else {
+            sendErrorMessage(connection, "Player not in a game session");
+        }
     }
 }

@@ -50,7 +50,7 @@ public class SocialScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        backgroundTexture = new Texture(Gdx.files.internal("assets/content/skill_icons/background.png"));
+        backgroundTexture = new Texture(Gdx.files.internal("content/skill_icons/background.png"));
         background = new Image(backgroundTexture);
         background.setFillParent(true);
         stage.addActor(background);
@@ -81,7 +81,7 @@ public class SocialScreen implements Screen {
         bottomTable.setFillParent(true);
         bottomTable.bottom();
 
-        ImageButton backBtn = createImageButton("assets/content/skill_icons/back.png");
+        ImageButton backBtn = createImageButton("content/skill_icons/back.png");
         addHoverAnimation(backBtn);
         backBtn.addListener(event -> {
             if (!backBtn.isPressed()) return false;
@@ -101,7 +101,7 @@ public class SocialScreen implements Screen {
     private void addFriendRow(Table table, Player friend, FriendShip friendship) {
         Table friendRow = new Table();
 
-        ImageButton iconBtn = createImageButton("assets/content/skill_icons/social_icon.png");
+        ImageButton iconBtn = createImageButton("content/skill_icons/social_icon.png");
         addHoverAnimation(iconBtn);
         friendRow.add(iconBtn).size(ICON_SIZE).pad(FRIEND_ITEM_PADDING);
 
@@ -114,7 +114,7 @@ public class SocialScreen implements Screen {
         Table levelBars = new Table();
         for (int i = 1; i <= 10; i++) {
             String barTexture = (i <= level) ? "green" : "red";
-            Image bar = new Image(new Texture(Gdx.files.internal("assets/content/skill_icons/" + barTexture + ".png")));
+            Image bar = new Image(new Texture(Gdx.files.internal("content/skill_icons/" + barTexture + ".png")));
             levelBars.add(bar).size(LEVEL_BAR_WIDTH/10, LEVEL_BAR_HEIGHT).padRight(1);
         }
 

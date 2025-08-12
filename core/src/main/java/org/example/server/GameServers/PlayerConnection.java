@@ -95,9 +95,9 @@ public class PlayerConnection {
         }
 
         try {
-            System.out.println("DEBUG: Sending WebSocket message to " + username + ": " + messageJson);
+//            System.out.println("DEBUG: Sending WebSocket message to " + username + ": " + messageJson);
             wsContext.send(messageJson);
-            System.out.println("DEBUG: WebSocket message sent successfully");
+//            System.out.println("DEBUG: WebSocket message sent successfully");
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to send WebSocket message to " + username + ": " + e.getMessage());
             e.printStackTrace();
@@ -109,7 +109,7 @@ public class PlayerConnection {
     public void sendMessage(Message message) {
         try {
             String messageJson = gson.toJson(message);
-            System.out.println("DEBUG: Sending message JSON: " + messageJson);
+//            System.out.println("DEBUG: Sending message JSON: " + messageJson);
             sendMessage(messageJson);
         } catch (Exception e) {
             System.err.println("DEBUG: Failed to serialize message to JSON: " + e.getMessage());

@@ -23,6 +23,7 @@ public class ClientMessageHandler {
     private OnlinePlayersListener onlinePlayersListener;
     private LobbyMessageListener lobbyListener;
     private RadioMessageListener radioListener;
+    private ReactionMessageListener reactionListener;
     private Game currentGame; // Add reference to current game instance
 
     public interface GameStateUpdateListener {
@@ -63,6 +64,10 @@ public class ClientMessageHandler {
         void onRadioConnectRequest(String requestingPlayer, String targetPlayer);
         void onRadioConnectResponse(String respondingPlayer, String targetPlayer, boolean accepted);
         void onRadioDisconnect(String disconnectingPlayer, String targetPlayer);
+    }
+
+    public interface ReactionMessageListener {
+        void onReactionReceived(String fromPlayer, String reaction);
     }
 
     public ClientMessageHandler(NetworkClient networkClient) {
@@ -172,6 +177,13 @@ public class ClientMessageHandler {
                     break;
                 case RADIO_DISCONNECT:
                     handleRadioDisconnect(message);
+                    break;
+                // Reaction system messages
+                case REACTION_SEND:
+                    handleReactionSend(message);
+                    break;
+                case REACTION_RECEIVE:
+                    handleReactionReceive(message);
                     break;
                 // Lobby-related message types
                 case CREATE_LOBBY:
@@ -442,6 +454,7 @@ public class ClientMessageHandler {
 
         if (playersData != null) {
             System.out.println("🔄 CLIENT: Received comprehensive player data update with timestamp: " + timestamp);
+            System.out.println("🔍 DEBUG: Players data object type: " + playersData.getClass().getSimpleName());
 
             Game currentGame = getCurrentGame();
             if (currentGame != null) {
@@ -460,16 +473,39 @@ public class ClientMessageHandler {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> playerData = (Map<String, Object>) entry.getValue();
 
+                        System.out.println("🔍 DEBUG: Processing player data for username: " + username);
+                        System.out.println("🔍 DEBUG: Player data keys: " + playerData.keySet());
+                        
+                        // Check if isPlayerInVillage field exists in the data
+                        if (playerData.containsKey("isPlayerInVillage")) {
+                            Object isInVillageObj = playerData.get("isPlayerInVillage");
+                            System.out.println("🔍 DEBUG: isPlayerInVillage field found for " + username + ": " + isInVillageObj + " (type: " + (isInVillageObj != null ? isInVillageObj.getClass().getSimpleName() : "null") + ")");
+                        } else {
+                            System.out.println("🔍 DEBUG: isPlayerInVillage field NOT found for " + username);
+                        }
+                        
+                        // Also check for isInVillage field (alternative naming)
+                        if (playerData.containsKey("isInVillage")) {
+                            Object isInVillageObj = playerData.get("isInVillage");
+                            System.out.println("🔍 DEBUG: isInVillage field found for " + username + ": " + isInVillageObj + " (type: " + (isInVillageObj != null ? isInVillageObj.getClass().getSimpleName() : "null") + ")");
+                        } else {
+                            System.out.println("🔍 DEBUG: isInVillage field NOT found for " + username);
+                        }
+
                         // Skip updating the current player to avoid conflicts with local state
                         if (username.equals(currentPlayerUsername)) {
+                            System.out.println("🔍 DEBUG: Skipping current player: " + username);
                             continue;
                         }
 
                         // Find the player in the current game
                         Player targetPlayer = currentGame.getPlayerByUsername(username);
                         if (targetPlayer != null) {
+                            System.out.println("🔍 DEBUG: Found target player: " + username + ", updating with server data");
                             // Force update player with exact server data
                             forceUpdatePlayerFromServerData(targetPlayer, playerData);
+                        } else {
+                            System.out.println("🔍 DEBUG: Target player not found in current game: " + username);
                         }
                     }
                 } catch (Exception e) {
@@ -480,6 +516,8 @@ public class ClientMessageHandler {
     }
 
     private void forceUpdatePlayerFromServerData(Player player, Map<String, Object> playerData) {
+        System.out.println("🔍 DEBUG: forceUpdatePlayerFromServerData called for player: " + player.getUser().getUsername());
+        System.out.println("🔍 DEBUG: Available fields in playerData: " + playerData.keySet());
         try {
 
             // Always update basic player properties with exact server values
@@ -544,10 +582,17 @@ public class ClientMessageHandler {
 
             if (playerData.containsKey("isInVillage")) {
                 Boolean isInVillage = (Boolean) playerData.get("isInVillage");
+                System.out.println("🔍 DEBUG: Processing isInVillage for player " + player.getUser().getUsername() + ": " + isInVillage);
 
                 if (isInVillage != null) {
+                    boolean oldValue = player.getIsInVillage();
                     player.setIsInVillage(isInVillage);
+                    System.out.println("🔍 DEBUG: Updated isInVillage for " + player.getUser().getUsername() + " from " + oldValue + " to " + isInVillage);
+                } else {
+                    System.out.println("🔍 DEBUG: isInVillage value is null for player " + player.getUser().getUsername());
                 }
+            } else {
+                System.out.println("🔍 DEBUG: isInVillage field not found in player data for " + player.getUser().getUsername());
             }
 
             // Update location if available
@@ -974,5 +1019,33 @@ public class ClientMessageHandler {
         if (radioListener != null) {
             radioListener.onRadioDisconnect(disconnectingPlayer, targetPlayer);
         }
+    }
+
+    // Reaction system message handlers
+    private void handleReactionSend(Message message) {
+        String reaction = message.getFromBody("reaction");
+        String fromPlayer = message.getFromBody("fromPlayer");
+        String toPlayer = message.getFromBody("toPlayer");
+
+        System.out.println("Reaction: Sending reaction from " + fromPlayer + " to " + toPlayer + ": " + reaction);
+
+        // Forward to server for broadcasting
+        networkClient.sendMessage(message);
+    }
+
+    private void handleReactionReceive(Message message) {
+        String reaction = message.getFromBody("reaction");
+        String fromPlayer = message.getFromBody("fromPlayer");
+
+        System.out.println("Reaction: Received reaction from " + fromPlayer + ": " + reaction);
+
+        if (reactionListener != null) {
+            reactionListener.onReactionReceived(fromPlayer, reaction);
+        }
+    }
+
+    // Setter for reaction listener
+    public void setReactionListener(ReactionMessageListener listener) {
+        this.reactionListener = listener;
     }
 }

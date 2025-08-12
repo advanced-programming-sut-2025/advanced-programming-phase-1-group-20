@@ -255,6 +255,9 @@ public class GameSession {
             case START_GAME:
                 startGame();
                 break;
+            case REACTION_SEND:
+                handleReactionSend(username, message);
+                break;
             default:
                 System.out.println("Unhandled message type: " + message.getType());
         }
@@ -919,5 +922,28 @@ public class GameSession {
                 }
             }
         }
+    }
+
+    private void handleReactionSend(String username, Message message) {
+        String reaction = message.getFromBody("reaction");
+        String fromPlayer = message.getFromBody("fromPlayer");
+        String toPlayer = message.getFromBody("toPlayer");
+
+        if (reaction == null || fromPlayer == null) {
+            System.err.println("Invalid reaction message from " + username);
+            return;
+        }
+
+        System.out.println("Reaction: " + fromPlayer + " sent reaction: " + reaction);
+
+        // Create reaction receive message to broadcast
+        Message reactionMessage = new Message();
+        reactionMessage.setType(Message.Type.REACTION_RECEIVE);
+        reactionMessage.putInBody("reaction", reaction);
+        reactionMessage.putInBody("fromPlayer", fromPlayer);
+        reactionMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        // Broadcast to all players in the game session
+        broadcastToAll(reactionMessage);
     }
 }
