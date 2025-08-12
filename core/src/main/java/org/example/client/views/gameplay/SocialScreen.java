@@ -33,7 +33,7 @@ public class SocialScreen implements Screen {
     private static final float ANIMATION_DURATION = 0.1f;
     private static final float FADE_DURATION = 0.5f;
     private static final float RIGHT_PADDING = 80f;
-    private static final int MAX_FRIENDSHIP_LEVEL = 10;
+    private static final int MAX_FRIENDSHIP_LEVEL = 4;
 
     private Stage stage;
     private Skin skin;
@@ -119,7 +119,7 @@ public class SocialScreen implements Screen {
         }
 
         Label levelLabel = new Label("Lv. " + level, skin);
-        levelLabel.setColor(Color.LIGHT_GRAY);
+        levelLabel.setColor(Color.WHITE);
 
         friendRow.add(levelBars).width(LEVEL_BAR_WIDTH).pad(FRIEND_ITEM_PADDING);
         friendRow.add(levelLabel).pad(FRIEND_ITEM_PADDING);
