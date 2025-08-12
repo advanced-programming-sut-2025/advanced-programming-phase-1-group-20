@@ -163,9 +163,6 @@ public class Market extends Building {
     }
 
 
-    /**
-     * **MODIFIED:** Calls the new deductStock method upon a successful purchase.
-     */
     public void checkOut(Player player, Item item, double count) {
         player.decreaseMoney((int) (item.getPrice() * count));
 

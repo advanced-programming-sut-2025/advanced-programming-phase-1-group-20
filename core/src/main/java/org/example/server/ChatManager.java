@@ -1,201 +1,222 @@
 package org.example.server;
 
+import com.google.gson.Gson;
 import org.example.common.models.ChatMessage;
 import org.example.common.models.ChatRoom;
-import org.example.common.models.Notification;
+import org.example.common.models.Message;
+import org.example.common.models.entities.User;
 import org.example.server.GameServers.PlayerConnection;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ChatManager {
     private static ChatManager instance;
-    private final Map<String, ChatRoom> chatRooms;
-    private final Map<String, List<ChatMessage>> publicChatHistory;
-    private final Map<String, List<ChatMessage>> privateChatHistory;
     private final MessageHandler messageHandler;
-    private final OnlinePlayersManager onlinePlayersManager;
-    private final Map<String, PlayerConnection> playerConnections;
-    private static final String PUBLIC_CHAT_ID = "public";
-    private static final int MAX_PUBLIC_MESSAGES = 200;
-    private static final int MAX_PRIVATE_MESSAGES = 100;
-
+    private final Gson gson = new Gson();
+    
+    // Chat rooms storage
+    private final Map<String, ChatRoom> chatRooms = new ConcurrentHashMap<>();
+    private final List<ChatMessage> publicChatHistory = new CopyOnWriteArrayList<>();
+    private final Map<String, List<ChatMessage>> privateChatHistory = new ConcurrentHashMap<>();
+    
+    // Player connections storage
+    private final Map<String, PlayerConnection> playerConnections = new ConcurrentHashMap<>();
+    
+    // Default public chat room
+    private static final String PUBLIC_CHAT_ROOM_ID = "public";
+    private static final String PUBLIC_CHAT_ROOM_NAME = "Public Chat";
+    
     private ChatManager(MessageHandler messageHandler) {
-        this.chatRooms = new ConcurrentHashMap<>();
-        this.publicChatHistory = new ConcurrentHashMap<>();
-        this.privateChatHistory = new ConcurrentHashMap<>();
         this.messageHandler = messageHandler;
-        this.onlinePlayersManager = OnlinePlayersManager.getInstance();
-        this.playerConnections = new ConcurrentHashMap<>();
-        
-        // Initialize public chat
-        initializePublicChat();
+        // Create default public chat room
+        createChatRoom(PUBLIC_CHAT_ROOM_ID, PUBLIC_CHAT_ROOM_NAME, "System");
     }
-
+    
     public static ChatManager getInstance(MessageHandler messageHandler) {
         if (instance == null) {
             instance = new ChatManager(messageHandler);
         }
         return instance;
     }
-
-    private void initializePublicChat() {
-        publicChatHistory.put(PUBLIC_CHAT_ID, new ArrayList<>());
-    }
-
-    public void handlePublicChat(String sender, String message) {
-        ChatMessage chatMessage = new ChatMessage(sender, message, ChatMessage.ChatType.PUBLIC);
-        
-        // Add to public chat history
-        List<ChatMessage> history = publicChatHistory.get(PUBLIC_CHAT_ID);
-        history.add(chatMessage);
-        
-        // Keep only last MAX_PUBLIC_MESSAGES
-        if (history.size() > MAX_PUBLIC_MESSAGES) {
-            history.remove(0);
+    
+    public void registerPlayer(String username, PlayerConnection connection) {
+        // Store connection for chat functionality
+        playerConnections.put(username, connection);
+        // Add player to public chat room
+        ChatRoom publicRoom = chatRooms.get(PUBLIC_CHAT_ROOM_ID);
+        if (publicRoom != null) {
+            publicRoom.addParticipant(username);
         }
-
-        // Broadcast to all online players
-        broadcastPublicMessage(chatMessage);
-        
-        // Send notification to all players
-        sendChatNotification(chatMessage);
+        System.out.println("[CHAT] Registered player: " + username);
     }
-
-    public void handlePrivateChat(String sender, String recipient, String message) {
-        ChatMessage chatMessage = new ChatMessage(sender, message, ChatMessage.ChatType.PRIVATE, recipient);
+    
+    public void unregisterPlayer(String username) {
+        playerConnections.remove(username);
+        // Remove player from all chat rooms
+        for (ChatRoom room : chatRooms.values()) {
+            room.removeParticipant(username);
+        }
+        System.out.println("[CHAT] Unregistered player: " + username);
+    }
+    
+    public void handlePublicChat(String sender, String content) {
+        ChatMessage message = new ChatMessage(sender, content, ChatMessage.ChatType.PUBLIC);
+        publicChatHistory.add(message);
+        
+        // Keep only last 100 messages
+        if (publicChatHistory.size() > 100) {
+            publicChatHistory.remove(0);
+        }
+        
+        // Send to all online players
+        broadcastMessage(message);
+        
+        System.out.println("[PUBLIC CHAT] " + sender + ": " + content);
+    }
+    
+    public void handlePrivateChat(String sender, String recipient, String content) {
+        ChatMessage message = new ChatMessage(sender, content, ChatMessage.ChatType.PRIVATE, recipient);
         
         // Store in private chat history
         String chatKey = getPrivateChatKey(sender, recipient);
-        List<ChatMessage> history = privateChatHistory.computeIfAbsent(chatKey, k -> new ArrayList<>());
-        history.add(chatMessage);
+        privateChatHistory.computeIfAbsent(chatKey, k -> new CopyOnWriteArrayList<>()).add(message);
         
-        // Keep only last MAX_PRIVATE_MESSAGES
-        if (history.size() > MAX_PRIVATE_MESSAGES) {
+        // Keep only last 50 messages per private chat
+        List<ChatMessage> history = privateChatHistory.get(chatKey);
+        if (history.size() > 50) {
             history.remove(0);
         }
-
-        // Send to recipient if online
+        
+        // Send to recipient
         PlayerConnection recipientConnection = playerConnections.get(recipient);
         if (recipientConnection != null) {
-            messageHandler.sendPrivateMessage(recipientConnection, chatMessage);
-            
-            // Send notification
-            Notification notification = new Notification(
-                "Private Message",
-                sender + ": " + message,
-                Notification.NotificationType.PRIVATE_MESSAGE,
-                Notification.NotificationPriority.HIGH,
-                recipient
-            );
-            notification.setSender(sender);
-            messageHandler.sendNotification(recipientConnection, notification);
+            messageHandler.sendPrivateMessage(recipientConnection, message);
         }
-
+        
         // Send back to sender for confirmation
         PlayerConnection senderConnection = playerConnections.get(sender);
         if (senderConnection != null) {
-            messageHandler.sendPrivateMessage(senderConnection, chatMessage);
+            messageHandler.sendPrivateMessage(senderConnection, message);
         }
-    }
-
-    public void handleRoomChat(String sender, String roomId, String message) {
-        ChatRoom room = chatRooms.get(roomId);
-        if (room != null && room.hasParticipant(sender)) {
-            ChatMessage chatMessage = new ChatMessage(sender, message, ChatMessage.ChatType.ROOM, null, roomId);
-            room.addMessage(chatMessage);
-            
-            // Broadcast to all participants
-            broadcastRoomMessage(chatMessage, room);
-        }
-    }
-
-    public void createChatRoom(String roomId, String roomName, String owner) {
-        ChatRoom room = new ChatRoom(roomId, roomName, owner);
-        chatRooms.put(roomId, room);
         
-        // Notify owner
-        PlayerConnection ownerConnection = playerConnections.get(owner);
-        if (ownerConnection != null) {
-            messageHandler.sendRoomCreatedNotification(ownerConnection, room);
-        }
+        System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + content);
     }
-
-    public void joinChatRoom(String username, String roomId) {
+    
+    public void handleRoomChat(String sender, String roomId, String content) {
         ChatRoom room = chatRooms.get(roomId);
-        if (room != null) {
-            room.addParticipant(username);
-            
-            // Send room history to new participant
-            PlayerConnection connection = playerConnections.get(username);
-            if (connection != null) {
-                messageHandler.sendRoomHistory(connection, room);
-            }
+        if (room == null) {
+            return;
         }
-    }
-
-    public void leaveChatRoom(String username, String roomId) {
-        ChatRoom room = chatRooms.get(roomId);
-        if (room != null) {
-            room.removeParticipant(username);
+        
+        if (!room.hasParticipant(sender)) {
+            return;
         }
-    }
-
-    public List<ChatMessage> getPublicChatHistory() {
-        return new ArrayList<>(publicChatHistory.get(PUBLIC_CHAT_ID));
-    }
-
-    public List<ChatMessage> getPrivateChatHistory(String user1, String user2) {
-        String chatKey = getPrivateChatKey(user1, user2);
-        List<ChatMessage> history = privateChatHistory.get(chatKey);
-        return history != null ? new ArrayList<>(history) : new ArrayList<>();
-    }
-
-    public List<ChatRoom> getAvailableRooms() {
-        return new ArrayList<>(chatRooms.values());
-    }
-
-    private void broadcastPublicMessage(ChatMessage message) {
-        for (String player : playerConnections.keySet()) {
-            PlayerConnection connection = playerConnections.get(player);
-            if (connection != null) {
-                messageHandler.sendChatMessage(connection, message);
-            }
-        }
-    }
-
-    private void broadcastRoomMessage(ChatMessage message, ChatRoom room) {
+        
+        ChatMessage message = new ChatMessage(sender, content, ChatMessage.ChatType.ROOM, null, roomId);
+        room.addMessage(message);
+        
+        // Send to all participants in the room
         for (String participant : room.getParticipants()) {
             PlayerConnection connection = playerConnections.get(participant);
             if (connection != null) {
                 messageHandler.sendRoomMessage(connection, message);
             }
         }
+        
+        System.out.println("[ROOM CHAT] [" + roomId + "] " + sender + ": " + content);
     }
-
-    private void sendChatNotification(ChatMessage message) {
-        // Send notification to all online players for public chat
-        for (String player : playerConnections.keySet()) {
-            if (!player.equals(message.getSender())) {
-                Notification notification = new Notification(
-                    "New Chat Message",
-                    message.getSender() + ": " + message.getContent(),
-                    Notification.NotificationType.CHAT_MESSAGE,
-                    Notification.NotificationPriority.LOW,
-                    player
-                );
-                notification.setSender(message.getSender());
-                
-                PlayerConnection connection = playerConnections.get(player);
-                if (connection != null) {
-                    messageHandler.sendNotification(connection, notification);
-                }
+    
+    public void createChatRoom(String roomId, String roomName, String owner) {
+        if (chatRooms.containsKey(roomId)) {
+            return;
+        }
+        
+        ChatRoom room = new ChatRoom(roomId, roomName, owner);
+        chatRooms.put(roomId, room);
+        
+        // Notify all players about new room
+        broadcastRoomCreated(room);
+        
+        System.out.println("[CHAT ROOM] Created: " + roomName + " (ID: " + roomId + ") by " + owner);
+    }
+    
+    public void joinChatRoom(String username, String roomId) {
+        ChatRoom room = chatRooms.get(roomId);
+        if (room == null) {
+            return;
+        }
+        
+        room.addParticipant(username);
+        
+        // Send room history to the joining player
+        PlayerConnection connection = playerConnections.get(username);
+        if (connection != null) {
+            messageHandler.sendRoomHistory(connection, room);
+        }
+        
+        System.out.println("[CHAT ROOM] " + username + " joined " + room.getRoomName());
+    }
+    
+    public void leaveChatRoom(String username, String roomId) {
+        ChatRoom room = chatRooms.get(roomId);
+        if (room == null) {
+            return;
+        }
+        
+        room.removeParticipant(username);
+        
+        System.out.println("[CHAT ROOM] " + username + " left " + room.getRoomName());
+    }
+    
+    public List<ChatMessage> getPublicChatHistory() {
+        return new ArrayList<>(publicChatHistory);
+    }
+    
+    public List<ChatMessage> getPrivateChatHistory(String user1, String user2) {
+        String chatKey = getPrivateChatKey(user1, user2);
+        List<ChatMessage> history = privateChatHistory.get(chatKey);
+        return history != null ? new ArrayList<>(history) : new ArrayList<>();
+    }
+    
+    public List<ChatRoom> getAvailableRooms() {
+        return new ArrayList<>(chatRooms.values());
+    }
+    
+    public List<String> getOnlinePlayers() {
+        // Use OnlinePlayersManager to get the actual online players
+        List<String> usernames = new ArrayList<>();
+        for (String username : playerConnections.keySet()) {
+            // Only return players who are actually online
+            if (playerConnections.get(username) != null) {
+                usernames.add(username);
             }
         }
+        return usernames;
     }
-
+    
+    private void broadcastMessage(ChatMessage message) {
+        Message networkMessage = new Message();
+        networkMessage.setType(Message.Type.CHAT);
+        networkMessage.putInBody("sender", message.getSender());
+        networkMessage.putInBody("message", message.getContent());
+        networkMessage.putInBody("timestamp", System.currentTimeMillis());
+        networkMessage.putInBody("type", message.getType().toString());
+        
+        for (PlayerConnection connection : playerConnections.values()) {
+            connection.sendMessage(networkMessage);
+        }
+    }
+    
+    private void broadcastRoomCreated(ChatRoom room) {
+        for (PlayerConnection connection : playerConnections.values()) {
+            messageHandler.sendRoomCreatedNotification(connection, room);
+        }
+    }
+    
     private String getPrivateChatKey(String user1, String user2) {
-        // Create a consistent key for private chat history
+        // Create a consistent key for private chat regardless of sender/recipient order
         return user1.compareTo(user2) < 0 ? user1 + "_" + user2 : user2 + "_" + user1;
     }
 }

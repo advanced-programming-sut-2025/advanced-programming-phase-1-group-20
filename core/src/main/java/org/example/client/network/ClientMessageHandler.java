@@ -9,6 +9,8 @@ import org.example.common.models.Player.Skill;
 import org.example.common.models.common.Location;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.Lobby.Lobby;
+import org.example.common.models.Market;
+import org.example.common.models.Product;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ public class ClientMessageHandler {
     private LobbyMessageListener lobbyListener;
     private RadioMessageListener radioListener;
     private ReactionMessageListener reactionListener;
+    private MarketUpdateListener marketUpdateListener;
     private Game currentGame; // Add reference to current game instance
 
     public interface GameStateUpdateListener {
@@ -70,6 +73,11 @@ public class ClientMessageHandler {
         void onReactionReceived(String fromPlayer, String reaction);
     }
 
+    public interface MarketUpdateListener {
+        void onMarketStockUpdate(String marketName, String itemName, double newStock);
+        void onPlayerDataUpdate(); // For money and inventory updates
+    }
+
     public ClientMessageHandler(NetworkClient networkClient) {
         this.networkClient = networkClient;
         this.currentGame = null;
@@ -110,6 +118,24 @@ public class ClientMessageHandler {
                     break;
                 case CHAT:
                     handleChatMessage(message);
+                    break;
+                case CHAT_PRIVATE:
+                    handlePrivateChatMessage(message);
+                    break;
+                case CHAT_PUBLIC:
+                    handlePublicChatMessage(message);
+                    break;
+                case CHAT_ROOM_CREATE:
+                    handleChatRoomCreated(message);
+                    break;
+                case CHAT_ROOM_JOIN:
+                    handleChatRoomJoined(message);
+                    break;
+                case CHAT_ROOM_LEAVE:
+                    handleChatRoomLeft(message);
+                    break;
+                case CHAT_HISTORY_REQUEST:
+                    handleChatHistoryReceived(message);
                     break;
                 case PLAYER_MOVE:
                     handlePlayerMove(message);
@@ -344,8 +370,13 @@ public class ClientMessageHandler {
         String username = message.getFromBody("username");
         String gameId = message.getFromBody("gameId");
         Object lobby = message.getFromBody("lobby");
+        String source = message.getFromBody("source");
 
-
+        // Handle market purchase success
+        if ("MARKET_BUY".equals(source)) {
+            handleMarketPurchaseSuccess(message);
+            return;
+        }
 
         if (sessionId != null && connectionListener != null) {
             connectionListener.onConnectionEstablished(sessionId);
@@ -385,6 +416,70 @@ public class ClientMessageHandler {
         }
     }
 
+    private void handleMarketPurchaseSuccess(Message message) {
+        Object playerDataObj = message.getFromBody("playerData");
+        if (playerDataObj instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> playerData = (Map<String, Object>) playerDataObj;
+            
+            // Update the current player's data
+            Game currentGame = getCurrentGame();
+            if (currentGame != null) {
+                Player currentPlayer = currentGame.getCurrentPlayer();
+                if (currentPlayer != null) {
+                    // Update money
+                    Object moneyObj = playerData.get("money");
+                    if (moneyObj instanceof Integer) {
+                        int newMoney = (Integer) moneyObj;
+                        int currentMoney = currentPlayer.getMoney();
+                        if (newMoney != currentMoney) {
+                            if (newMoney > currentMoney) {
+                                currentPlayer.increaseMoney(newMoney - currentMoney);
+                            } else {
+                                currentPlayer.decreaseMoney(currentMoney - newMoney);
+                            }
+                        }
+                    }
+                    
+                    // Handle the specific purchased item
+                    String purchasedItemName = (String) playerData.get("purchasedItem");
+                    Object purchasedQuantityObj = playerData.get("purchasedQuantity");
+                    
+                    if (purchasedItemName != null && purchasedQuantityObj instanceof Integer) {
+                        int purchasedQuantity = (Integer) purchasedQuantityObj;
+                        
+                        // Find the item in the market and add it to the player's backpack
+                        // We need to find the item from the market's stock
+                        if (currentGame.getGameMap() != null && currentGame.getGameMap().getVillage() != null) {
+                            for (Market market : currentGame.getGameMap().getVillage().getMarkets()) {
+                                if (market != null) {
+                                    org.example.common.models.Items.Item item = market.getItem(purchasedItemName);
+                                    if (item != null) {
+                                        // Add the item to the player's backpack
+                                        boolean added = currentPlayer.getBackpack().add(item, purchasedQuantity);
+                                        if (added) {
+                                            System.out.println("✅ Added " + purchasedQuantity + "x " + purchasedItemName + " to player's backpack");
+                                        } else {
+                                            System.out.println("⚠️ Failed to add " + purchasedQuantity + "x " + purchasedItemName + " to backpack (inventory full?)");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Notify market update listener about player data changes
+                        if (marketUpdateListener != null) {
+                            marketUpdateListener.onPlayerDataUpdate();
+                        }
+                    }
+                }
+            }
+        }
+        
+        System.out.println("✅ Market purchase successful: " + message.getFromBody("message"));
+    }
+
     private void handleErrorMessage(Message message) {
         String errorMessage = message.getFromBody("message");
         System.err.println("Server error: " + errorMessage);
@@ -411,6 +506,79 @@ public class ClientMessageHandler {
 
         if (chatListener != null && sender != null && messageText != null) {
             chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+        }
+
+        // Show notification for chat messages
+        showChatNotification(sender, messageText);
+    }
+
+    private void showChatNotification(String sender, String message) {
+        // This will be implemented when we integrate with the notification system
+        // For now, just log the notification
+        System.out.println("[NOTIFICATION] New chat message from " + sender + ": " + message);
+    }
+
+    private void handlePrivateChatMessage(Message message) {
+        String sender = message.getFromBody("sender");
+        String messageText = message.getFromBody("message");
+        String recipient = message.getFromBody("recipient");
+        Long timestamp = message.getFromBody("timestamp");
+
+        System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + messageText);
+
+        if (chatListener != null && sender != null && messageText != null) {
+            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+        }
+    }
+
+    private void handlePublicChatMessage(Message message) {
+        String sender = message.getFromBody("sender");
+        String messageText = message.getFromBody("message");
+        Long timestamp = message.getFromBody("timestamp");
+
+        System.out.println("[PUBLIC CHAT] " + sender + ": " + messageText);
+
+        if (chatListener != null && sender != null && messageText != null) {
+            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+        }
+    }
+
+    private void handleChatRoomCreated(Message message) {
+        String roomId = message.getFromBody("roomId");
+        String roomName = message.getFromBody("roomName");
+        String owner = message.getFromBody("owner");
+
+        System.out.println("[CHAT ROOM] Created: " + roomName + " (ID: " + roomId + ") by " + owner);
+        
+        // Notify chat listener about new room
+        if (chatListener != null) {
+            // You might want to add a method to the ChatMessageListener interface for room events
+        }
+    }
+
+    private void handleChatRoomJoined(Message message) {
+        String roomId = message.getFromBody("roomId");
+        String username = message.getFromBody("username");
+
+        System.out.println("[CHAT ROOM] " + username + " joined room: " + roomId);
+    }
+
+    private void handleChatRoomLeft(Message message) {
+        String roomId = message.getFromBody("roomId");
+        String username = message.getFromBody("username");
+
+        System.out.println("[CHAT ROOM] " + username + " left room: " + roomId);
+    }
+
+    private void handleChatHistoryReceived(Message message) {
+        String roomId = message.getFromBody("roomId");
+        Object historyData = message.getFromBody("history");
+
+        System.out.println("[CHAT HISTORY] Received history for room: " + roomId);
+        
+        // Parse and display chat history
+        if (historyData != null && chatListener != null) {
+            // You might want to add a method to handle chat history
         }
     }
 
@@ -679,6 +847,13 @@ public class ClientMessageHandler {
     }
 
     private void handleGameStateUpdate(Message message) {
+        // Check if this is a market update
+        Boolean isMarketUpdate = message.getFromBody("marketUpdate");
+        if (isMarketUpdate != null && isMarketUpdate) {
+            handleMarketUpdate(message);
+            return;
+        }
+
         Object gameState = message.getFromBody("gameState");
         Object dateState = message.getFromBody("dateState");
 
@@ -697,6 +872,42 @@ public class ClientMessageHandler {
 
         if (gameState != null && gameStateListener != null) {
             gameStateListener.onGameStateUpdate(gameState);
+        }
+    }
+
+    private void handleMarketUpdate(Message message) {
+        String marketName = message.getFromBody("marketName");
+        String itemName = message.getFromBody("itemName");
+        Double newStock = message.getFromBody("newStock");
+
+        if (marketName != null && itemName != null && newStock != null) {
+            System.out.println("🛒 MARKET UPDATE: " + marketName + " - " + itemName + " stock updated to: " + newStock);
+            
+            // Update the local market stock
+            Game currentGame = getCurrentGame();
+            if (currentGame != null && currentGame.getGameMap() != null && currentGame.getGameMap().getVillage() != null) {
+                for (Market market : currentGame.getGameMap().getVillage().getMarkets()) {
+                    if (market != null && market.getName().equals(marketName)) {
+                        Product product = market.getProduct(itemName);
+                        if (product != null) {
+                            product.setAmount(newStock);
+                            System.out.println("✅ Updated local stock for " + itemName + " in " + marketName + " to: " + newStock);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Notify market update listener
+            if (marketUpdateListener != null) {
+                marketUpdateListener.onMarketStockUpdate(marketName, itemName, newStock);
+            }
+
+            // Send a chat message to notify all players about the stock update
+            String chatMessage = marketName + " " + itemName + " " + (int) newStock.doubleValue();
+            if (chatListener != null) {
+                chatListener.onChatMessage("SYSTEM", chatMessage, System.currentTimeMillis());
+            }
         }
     }
 
@@ -1047,5 +1258,9 @@ public class ClientMessageHandler {
     // Setter for reaction listener
     public void setReactionListener(ReactionMessageListener listener) {
         this.reactionListener = listener;
+    }
+
+    public void setMarketUpdateListener(MarketUpdateListener listener) {
+        this.marketUpdateListener = listener;
     }
 }

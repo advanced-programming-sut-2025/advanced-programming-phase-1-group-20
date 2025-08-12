@@ -387,19 +387,51 @@ public class Farm {
         markShippingBin(newShippingBin);
     }
 
+    /**
+     * Checks if a position is near the player's house (within a certain radius)
+     * @param x X coordinate to check
+     * @param y Y coordinate to check
+     * @return true if the position is near the house, false otherwise
+     */
+    private boolean isNearHouse(int x, int y) {
+        int houseCenterX = building.getX() + building.getWidth() / 2;
+        int houseCenterY = building.getY() + building.getHeight() / 2;
+        
+        // Define a radius around the house where no trees/crops should be placed
+        int houseRadius = 8; // Adjust this value to control the size of the clear area
+        
+        // Calculate distance from house center
+        int distanceX = Math.abs(x - houseCenterX);
+        int distanceY = Math.abs(y - houseCenterY);
+        
+        // Check if position is within the radius (using Manhattan distance for simplicity)
+        return distanceX <= houseRadius && distanceY <= houseRadius;
+    }
+
     private void placeRandomObjects(String type, int count) {
         Random rand = new Random();
         int placed = 0;
+        int attempts = 0;
+        int maxAttempts = count * 10; // Prevent infinite loops
 
-        while (placed < count) {
+        while (placed < count && attempts < maxAttempts) {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
+            attempts++;
+            
+            // Skip corner positions
             if ((x == 0 && y == 0) ||
                 (x == width - 1 && y == 0) ||
                 (x == 0 && y == height - 1) ||
                 (x == width - 1 && y == height - 1)) {
                 continue;
             }
+            
+            // Skip positions near the house for trees and crops
+            if ((type.equals("tree") || type.equals("crop")) && isNearHouse(x, y)) {
+                continue;
+            }
+            
             TileType currentTile = tiles[x][y].getTile();
 
             if (currentTile == TileType.Dirt) {
@@ -436,6 +468,11 @@ public class Farm {
 
                 placed++;
             }
+        }
+        
+        // Log how many objects were actually placed
+        if (placed < count) {
+            System.out.println("Placed " + placed + " out of " + count + " " + type + " objects (some positions were near house)");
         }
     }
 

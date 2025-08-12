@@ -3,6 +3,7 @@ package org.example.client.controllers;
 import org.example.client.network.NetworkClient;
 import org.example.common.models.*;
 import org.example.common.models.Items.Item;
+import org.example.common.models.Message;
 import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Location;
@@ -56,8 +57,7 @@ public class MarketController implements Controller {
         if (!market.checkItem(player, item, count)) {
             return Result.error("You don't have enough resources for this product.");
         }
-        // If in multiplayer, send the purchase request to the server
-        if (!App.getGame().isMultiplayer) {
+        if (App.getGame().isMultiplayer) {
             NetworkClient networkClient = NetworkClient.getInstance();
             Message purchaseMessage = new Message();
             purchaseMessage.setType(Message.Type.MARKET_BUY);
@@ -65,6 +65,7 @@ public class MarketController implements Controller {
             purchaseMessage.putInBody("itemName", productName);
             purchaseMessage.putInBody("quantity", count);
             networkClient.sendMessage(purchaseMessage);
+            market.checkOut(player, item, count);
 
             return Result.success("Purchase request sent to the server...");
         } else {
@@ -214,7 +215,7 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 150);
                 player.getBackpack().remove(wood , 350);
                 player.decreaseMoney(6000);
-                
+
                 // Add event tracking
                 try {
                     if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
@@ -223,7 +224,7 @@ public class MarketController implements Controller {
                 } catch (Exception e) {
                     System.err.println("Error tracking building purchase event: " + e.getMessage());
                 }
-                
+
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Big Barn")) {
@@ -236,7 +237,7 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 200);
                 player.getBackpack().remove(wood , 450);
                 player.decreaseMoney(12_000);
-                
+
                 // Add event tracking
                 try {
                     if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
@@ -245,7 +246,7 @@ public class MarketController implements Controller {
                 } catch (Exception e) {
                     System.err.println("Error tracking building purchase event: " + e.getMessage());
                 }
-                
+
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Deluxe Barn")) {
@@ -258,7 +259,7 @@ public class MarketController implements Controller {
                 player.getBackpack().remove(stoneItem , 300);
                 player.getBackpack().remove(wood , 550);
                 player.decreaseMoney(25_000);
-                
+
                 // Add event tracking
                 try {
                     if (org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().getDailyEvents() != null) {
@@ -267,7 +268,7 @@ public class MarketController implements Controller {
                 } catch (Exception e) {
                     System.err.println("Error tracking building purchase event: " + e.getMessage());
                 }
-                
+
                 return true;
             }
         }else if(buildingName.equalsIgnoreCase("Coop")) {

@@ -59,16 +59,17 @@ public class LiveStockController {
             return Result.error("Player does not have the required ingredients for this purchase.");
         }
 
-        // Execute the purchase
-        player.decreaseMoney((int) (product.getItem().getPrice() * quantity));
-        player.getBackpack().add(product.getItem(), quantity);
-
-        // Deduct stock if it's not infinite
-        if (product.getAmount() != Double.POSITIVE_INFINITY) {
-            product.setAmount(product.getAmount() - quantity);
+        // Execute the purchase using the market's checkout method to handle special items properly
+        try {
+            // Use the market's checkout method which handles special items correctly
+            market.checkOut(player, product.getItem(), quantity);
+        } catch (Exception e) {
+            System.err.println("Error during purchase: " + e.getMessage());
+            return Result.error("Purchase failed: " + e.getMessage());
         }
 
         // Trigger a broadcast of the stock update to all players in the session
+        System.out.println("🛒 BROADCASTING MARKET UPDATE: " + marketName + " - " + itemName + " stock now: " + product.getAmount());
         gameSession.broadcastMarketUpdate(marketName, itemName, product.getAmount());
 
         return Result.success("Purchase successful.");

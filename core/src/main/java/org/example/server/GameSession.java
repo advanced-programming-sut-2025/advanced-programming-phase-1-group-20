@@ -279,7 +279,12 @@ public class GameSession {
                 Player updatedPlayer = gameInstance.getPlayerByUsername(username);
                 Map<String, Object> playerData = new HashMap<>();
                 playerData.put("money", updatedPlayer.getMoney());
+
+                playerData.put("purchasedItem", itemName);
+                playerData.put("purchasedQuantity", quantity);
+
                 response.putInBody("playerData", playerData);
+                System.out.println("✅ Sending updated player data to " + username + " - Money: " + updatedPlayer.getMoney() + ", Purchased: " + quantity + "x " + itemName);
             } else {
                 response.setType(Message.Type.ERROR);
             }
@@ -297,6 +302,7 @@ public class GameSession {
         updateMessage.putInBody("itemName", itemName);
         updateMessage.putInBody("newStock", newStock);
 
+        System.out.println("📡 BROADCASTING MARKET UPDATE to all players: " + marketName + " - " + itemName + " = " + newStock);
         broadcastToAll(updateMessage);
     }
 

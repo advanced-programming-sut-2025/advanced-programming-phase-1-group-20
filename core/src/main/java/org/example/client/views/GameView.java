@@ -177,6 +177,7 @@ public class GameView implements Screen, InputProcessor {
 
     // Reaction system
     private TextButton reactionButton;
+    private TextButton chatButton;
     private ReactionPopup reactionPopup;
     private ReactionDisplay reactionDisplay;
 
@@ -624,7 +625,16 @@ public class GameView implements Screen, InputProcessor {
                 openReactionPopup();
             }
         });
-        
+
+        // Initialize chat button
+        chatButton = new TextButton("Chat", skin);
+        chatButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openChatSystem();
+            }
+        });
+
         // Set up reaction listener for network messages
         if (game != null && game.isMultiplayer) {
             NetworkClient networkClient = NetworkClient.getInstance();
@@ -664,6 +674,21 @@ public class GameView implements Screen, InputProcessor {
             Main.getGame().setScreen(questMenuScreen);
         } catch (Exception e) {
             System.err.println("Error opening quest menu: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openChatSystem() {
+        try {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null) {
+                ChatScreen chatScreen = new ChatScreen(Main.getGame(), networkClient);
+                Main.getGame().setScreen(chatScreen);
+            } else {
+                System.err.println("Network client not available for chat");
+            }
+        } catch (Exception e) {
+            System.err.println("Error opening chat system: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1269,7 +1294,7 @@ public class GameView implements Screen, InputProcessor {
         }
 
         System.out.println("🔍 DEBUG: renderOtherPlayers called, total players: " + game.getPlayers().size());
-        
+
         for (Player otherPlayer : game.getPlayers()) {
             System.out.println("🔍 DEBUG: Checking player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
             System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
@@ -1277,13 +1302,13 @@ public class GameView implements Screen, InputProcessor {
             System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
             System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
             System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
-            
+
             // Render other players if they are in the same area as the current player
-            boolean shouldRender = otherPlayer != null && 
-                                 otherPlayer != player && 
-                                 otherPlayer.getUser() != null && 
+            boolean shouldRender = otherPlayer != null &&
+                                 otherPlayer != player &&
+                                 otherPlayer.getUser() != null &&
                                  arePlayersAdjacent(player, otherPlayer);
-            
+
             if (shouldRender) {
                 System.out.println("🔍 DEBUG: Rendering other player: " + otherPlayer.getUser().getUsername());
                 renderPlayerSprite(otherPlayer);
@@ -1323,7 +1348,7 @@ public class GameView implements Screen, InputProcessor {
         try {
             String animationType = player.getCurrentAnimation();
             String spritePath;
-            
+
             // Determine sprite path based on animation state
             if (animationType != null && animationType.startsWith("item_")) {
                 // Item animation
@@ -1332,7 +1357,7 @@ public class GameView implements Screen, InputProcessor {
             } else if ("collapsed".equals(animationType)) {
                 // Collapsed animation
                 spritePath = "sprites/player/collapse_2.png"; // Use final collapsed frame
-            } else if (animationType != null && (animationType.equals("up") || animationType.equals("down") || 
+            } else if (animationType != null && (animationType.equals("up") || animationType.equals("down") ||
                        animationType.equals("left") || animationType.equals("right"))) {
                 // Walking animation - use frame 1 for static display
                 spritePath = String.format("sprites/player/%s_1.png", animationType);
@@ -1340,7 +1365,7 @@ public class GameView implements Screen, InputProcessor {
                 // Default to down animation
                 spritePath = "sprites/player/down_1.png";
             }
-            
+
             playerTexture = new Texture(Gdx.files.internal(spritePath));
         } catch (Exception e) {
             // Fallback to colored dot if sprite can't be loaded
@@ -1430,6 +1455,15 @@ public class GameView implements Screen, InputProcessor {
             reactionTable.top().left();
             reactionTable.add(reactionButton).width(100).height(40).padTop(120).padLeft(20); // Positioned under radio button
             stage.addActor(reactionTable);
+        }
+
+        // Add chat button under the reaction button
+        if (chatButton != null) {
+            Table chatTable = new Table();
+            chatTable.setFillParent(true);
+            chatTable.top().left();
+            chatTable.add(chatButton).width(100).height(40).padTop(170).padLeft(20); // Positioned under reaction button
+            stage.addActor(chatTable);
         }
 
         // Initialize reaction popup and display after stage is created
@@ -1621,23 +1655,23 @@ public class GameView implements Screen, InputProcessor {
 
             // Render nicknames for other players
             for (Player otherPlayer : App.getGame().getPlayers()) {
-                System.out.println("🔍 DEBUG: Checking nickname for player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
-                System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
-                System.out.println("🔍 DEBUG: - otherPlayer.getUser() != null: " + (otherPlayer != null && otherPlayer.getUser() != null));
-                System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
-                System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
-                System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
-                
+//                System.out.println("🔍 DEBUG: Checking nickname for player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
+//                System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
+//                System.out.println("🔍 DEBUG: - otherPlayer.getUser() != null: " + (otherPlayer != null && otherPlayer.getUser() != null));
+//                System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
+//                System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
+//                System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
+//
                 // Render nicknames for other players if they are in the same area as the current player
-                boolean shouldRenderNickname = otherPlayer != player && 
-                                             otherPlayer.getUser() != null && 
+                boolean shouldRenderNickname = otherPlayer != player &&
+                                             otherPlayer.getUser() != null &&
                                              arePlayersAdjacent(player, otherPlayer);
-                
+
                 if (shouldRenderNickname) {
                     System.out.println("🔍 DEBUG: Rendering nickname for: " + otherPlayer.getUser().getUsername());
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
                 } else {
-                    System.out.println("🔍 DEBUG: NOT rendering nickname for: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
+//                    System.out.println("🔍 DEBUG: NOT rendering nickname for: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
                 }
             }
         }
@@ -1652,7 +1686,6 @@ public class GameView implements Screen, InputProcessor {
         if (animalsController != null) {
             animalsController.render(Main.getBatch(), currentLightColor);
         }
-        // <<< NEW: Render visual effects
         for (Iterator<VisualEffect> iter = effects.iterator(); iter.hasNext(); ) {
             VisualEffect effect = iter.next();
             effect.update(deltaTime);

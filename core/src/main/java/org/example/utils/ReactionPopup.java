@@ -24,11 +24,11 @@ public class ReactionPopup {
     private List<String> predefinedReactions;
     private Array<Texture> emojiTextures;
     private ReactionSelectedListener listener;
-    
+
     public interface ReactionSelectedListener {
         void onReactionSelected(String reaction);
     }
-    
+
     public ReactionPopup(Stage stage, Skin skin) {
         this.stage = stage;
         this.skin = skin;
@@ -36,7 +36,7 @@ public class ReactionPopup {
         initializePredefinedReactions();
         loadEmojiTextures();
     }
-    
+
     private void initializePredefinedReactions() {
         predefinedReactions = new ArrayList<>();
         predefinedReactions.add("👍");
@@ -55,7 +55,7 @@ public class ReactionPopup {
         predefinedReactions.add("🌟");
         predefinedReactions.add("💪");
     }
-    
+
     private void loadEmojiTextures() {
         // Load emoji textures from Emojis000.png to Emojis195.png
         for (int i = 0; i <= 195; i++) {
@@ -69,10 +69,10 @@ public class ReactionPopup {
             }
         }
     }
-    
+
     public void showReactionDialog(ReactionSelectedListener listener) {
         this.listener = listener;
-        
+
         reactionDialog = new Dialog("Select Reaction", skin) {
             @Override
             protected void result(Object object) {
@@ -81,18 +81,18 @@ public class ReactionPopup {
                 }
             }
         };
-        
+
         reactionDialog.setModal(true);
         reactionDialog.setMovable(true);
         reactionDialog.setResizable(true);
-        
+
         // Create main content table
         Table contentTable = new Table();
         contentTable.pad(10);
-        
+
         // Add predefined reactions
         contentTable.add(new Label("Quick Reactions:", skin)).colspan(3).padBottom(10).row();
-        
+
         Table predefinedTable = new Table();
         int cols = 4;
         for (int i = 0; i < predefinedReactions.size(); i++) {
@@ -112,31 +112,31 @@ public class ReactionPopup {
                 predefinedTable.row();
             }
         }
-        
+
         contentTable.add(predefinedTable).colspan(3).padBottom(10).row();
-        
+
         // Add emoji scroll section
         contentTable.add(new Label("Emoji Gallery:", skin)).colspan(3).padBottom(10).row();
-        
+
         emojiTable = new Table();
         createEmojiGrid();
-        
+
         emojiScrollPane = new ScrollPane(emojiTable, skin);
         emojiScrollPane.setFadeScrollBars(false);
         emojiScrollPane.setScrollingDisabled(false, true);
         emojiScrollPane.setHeight(200);
-        
+
         contentTable.add(emojiScrollPane).colspan(3).width(300).height(200).padBottom(10).row();
-        
+
         // Add custom reaction field
         contentTable.add(new Label("Custom Reaction (max 10 chars):", skin)).colspan(3).padBottom(5).row();
-        
+
         customReactionField = new TextField("", skin);
         customReactionField.setMaxLength(10);
         customReactionField.setMessageText("Enter custom reaction...");
-        
+
         contentTable.add(customReactionField).colspan(2).width(200).padBottom(10);
-        
+
         TextButton customButton = new TextButton("Send", skin);
         customButton.addListener(new ClickListener() {
             @Override
@@ -151,7 +151,7 @@ public class ReactionPopup {
             }
         });
         contentTable.add(customButton).width(80).padBottom(10).row();
-        
+
         // Add close button
         TextButton closeButton = new TextButton("Cancel", skin);
         closeButton.addListener(new ClickListener() {
@@ -161,26 +161,26 @@ public class ReactionPopup {
             }
         });
         contentTable.add(closeButton).colspan(3).width(100).padTop(10);
-        
+
         reactionDialog.getContentTable().add(contentTable);
         reactionDialog.show(stage);
     }
-    
+
     private void createEmojiGrid() {
         emojiTable.clear();
         int cols = 6;
         int emojiSize = 40;
-        
+
         for (int i = 0; i < emojiTextures.size; i++) {
             Texture emojiTexture = emojiTextures.get(i);
             Image emojiImage = new Image(emojiTexture);
             emojiImage.setSize(emojiSize, emojiSize);
-            
+
             // Create clickable button for emoji
             Table emojiButton = new Table();
             emojiButton.setBackground(skin.newDrawable("white", 0.8f, 0.8f, 0.8f, 0.3f));
             emojiButton.add(emojiImage).size(emojiSize, emojiSize);
-            
+
             final int emojiIndex = i;
             emojiButton.addListener(new ClickListener() {
                 @Override
@@ -192,21 +192,21 @@ public class ReactionPopup {
                     }
                 }
             });
-            
+
             emojiTable.add(emojiButton).size(emojiSize + 4, emojiSize + 4).pad(2);
             if ((i + 1) % cols == 0) {
                 emojiTable.row();
             }
         }
     }
-    
+
     public Texture getEmojiTexture(int index) {
         if (index >= 0 && index < emojiTextures.size) {
             return emojiTextures.get(index);
         }
         return null;
     }
-    
+
     public void dispose() {
         for (Texture texture : emojiTextures) {
             texture.dispose();

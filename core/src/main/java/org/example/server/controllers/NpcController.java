@@ -72,7 +72,6 @@ public class NpcController {
     public void updateNPCRoutines() {
         GameMap gameMap = App.getGame().getGameMap();
         if (gameMap == null || gameMap.getVillage() == null) {
-            System.out.println("DEBUG: NPC Controller - GameMap or Village is null");
             return;
         }
 
@@ -81,17 +80,13 @@ public class NpcController {
         Date currentDate = App.getGame().getDate();
 
         if (residents == null || currentDate == null) {
-            System.out.println("DEBUG: NPC Controller - Residents or Date is null");
             return;
         }
 
         int currentHour = currentDate.getHour();
-        System.out.println("DEBUG: NPC Controller - Current hour: " + currentHour + " (" + getTimePeriodDescription(currentHour) + ")");
-        System.out.println("DEBUG: NPC Controller - Updating " + residents.size() + " NPCs");
 
         for (int i = 0; i < residents.size(); i++) {
             NPC npc = residents.get(i);
-            System.out.println("DEBUG: NPC Controller - Updating " + npc.getName() + " at position (" + npc.getPosX() + ", " + npc.getPosY() + ")");
             updateNPCRoutine(npc, currentHour, i);
         }
     }
@@ -100,20 +95,16 @@ public class NpcController {
     private void updateNPCRoutine(NPC npc, int currentHour, int npcIndex) {
         Location targetLocation = getTargetLocationForTime(npc, currentHour, npcIndex);
         if (targetLocation != null) {
-            System.out.println("DEBUG: NPC " + npc.getName() + " - Target location: (" + targetLocation.xAxis + ", " + targetLocation.yAxis + ")");
 
             // Check if NPC is in a public area (evening time)
             if (currentHour >= EVENING_START && currentHour <= EVENING_END) {
-                System.out.println("DEBUG: NPC " + npc.getName() + " - Using wandering behavior (evening)");
                 // Use enhanced wandering behavior in public areas
                 updateNPCWandering(npc, targetLocation);
             } else {
-                System.out.println("DEBUG: NPC " + npc.getName() + " - Using normal movement");
                 // Use normal movement for other times
                 moveNPCToLocation(npc, targetLocation);
             }
         } else {
-            System.out.println("DEBUG: NPC " + npc.getName() + " - No target location found!");
         }
     }
 
@@ -213,11 +204,9 @@ public class NpcController {
         int distanceX = targetLocation.xAxis - currentLocation.xAxis;
         int distanceY = targetLocation.yAxis - currentLocation.yAxis;
 
-        System.out.println("DEBUG: NPC " + npc.getName() + " - Distance to target: (" + distanceX + ", " + distanceY + ")");
 
         // If NPC is already at target location, don't move
         if (distanceX == 0 && distanceY == 0) {
-            System.out.println("DEBUG: NPC " + npc.getName() + " - Already at target location");
             npc.setCurrentAnimation("down");
             npc.setMoving(false);
             return;
@@ -314,11 +303,9 @@ public class NpcController {
                 npcTargetX.put(npcName, targetX);
                 npcTargetY.put(npcName, targetY);
 
-                System.out.println("DEBUG: NPC " + npcName + " started wandering to (" + targetX + ", " + targetY + ")");
             } else {
                 npc.setMoving(false);
                 npc.setCurrentAnimation("down");
-                System.out.println("DEBUG: NPC " + npcName + " stopped to socialize");
             }
 
             // Reset timer for next state change (2 to 5 seconds)
@@ -339,7 +326,6 @@ public class NpcController {
             if (Math.abs(dx) < 30 && Math.abs(dy) < 30) { // Half a tile
                 npc.setMoving(false);
                 npc.setCurrentAnimation("down");
-                System.out.println("DEBUG: NPC " + npcName + " reached wandering target");
             } else {
                 // Normalize direction vector for smooth movement
                 float length = (float) Math.sqrt(dx * dx + dy * dy);
