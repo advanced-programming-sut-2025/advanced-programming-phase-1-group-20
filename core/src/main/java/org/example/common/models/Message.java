@@ -108,6 +108,12 @@ public class Message {
 
         // Communication
         CHAT,
+        CHAT_PRIVATE,
+        CHAT_PUBLIC,
+        CHAT_ROOM_CREATE,
+        CHAT_ROOM_JOIN,
+        CHAT_ROOM_LEAVE,
+        CHAT_HISTORY_REQUEST,
         TALK_TO_NPC,
         TALK_TO_PLAYER,
 
