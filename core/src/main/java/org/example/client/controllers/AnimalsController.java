@@ -36,6 +36,11 @@ public class AnimalsController implements Disposable {
         }
 
         for (Animal animal : allAnimals) {
+            if (!animal.isOutSide()) {
+                continue; // Skip to the next animal if it's inside
+            }
+
+
             // Update the state timer
             animal.setStateTimer(animal.getStateTimer() - deltaTime);
 
@@ -108,7 +113,9 @@ public class AnimalsController implements Disposable {
 
         batch.setColor(lightingColor);
         for (Animal animal : allAnimals) {
-            renderAnimal(batch, animal);
+            if (animal.isOutSide()) {
+                renderAnimal(batch, animal);
+            }
         }
         batch.setColor(Color.WHITE);
     }

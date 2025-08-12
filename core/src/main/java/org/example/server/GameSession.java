@@ -864,6 +864,11 @@ public class GameSession {
         }
 
         for (Animal animal : allAnimals) {
+
+            if (!animal.isOutSide()) {
+                continue; // Skip to the next animal if it's inside
+            }
+
             // Update the state timer
             animal.setStateTimer(animal.getStateTimer() - deltaTime);
 

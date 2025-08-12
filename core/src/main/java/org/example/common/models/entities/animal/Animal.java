@@ -7,6 +7,8 @@ public class Animal extends Item {
     private String name;
     private int price;
 
+    private boolean isOutSide = false;
+
     private float posX = 0;
     private float posY = 0;
     private float speed = 50f;
@@ -30,6 +32,14 @@ public class Animal extends Item {
 
     public float getPosX() {
         return posX;
+    }
+
+    public boolean isOutSide() {
+        return isOutSide;
+    }
+
+    public void setOutSide(boolean outSide) {
+        isOutSide = outSide;
     }
 
     public void setPosX(float posX) {

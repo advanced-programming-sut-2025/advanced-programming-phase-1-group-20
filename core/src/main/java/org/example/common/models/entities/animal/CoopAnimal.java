@@ -28,6 +28,10 @@ public class CoopAnimal extends Animal implements Serializable {
         isOutside = !isOutside;
     }
 
+    public CoopAnimalTypes getType() {
+        return type;
+    }
+
     public boolean isPetToday() {
         return petToday;
     }

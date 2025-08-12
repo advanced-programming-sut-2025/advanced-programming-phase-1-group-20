@@ -8,6 +8,7 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.models.Player.Backpack;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Result;
+import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.entities.animal.BarnAnimal;
 import org.example.common.models.entities.animal.CoopAnimal;
 import org.example.common.models.enums.Types.Quality;
@@ -20,6 +21,57 @@ import java.util.Random;
 
 public class AnimalController {
     private Random random = new Random();
+
+    // ... (متدهای قبلی بدون تغییر باقی می‌مانند)
+    // petAnimal, shepherdAnimals, feedHay, collectProduce, checkProduces, showAnimals, sellAnimal, setFriendship
+
+
+    /**
+     * Returns a specific animal to its home (barn or coop).
+     * This method is called from the AnimalInteractionDialog.
+     *
+     * @param args The name of the animal to be returned.
+     * @return A Result object indicating success or failure.
+     */
+    public Result returnAnimalToHome(String[] args) {
+        String animalName = args[0];
+        Player player = App.getGame().getCurrentPlayer();
+        Farm farm = player.getCurrentFarm();
+
+        // Check for barn animals
+        for (Barn barn : farm.getBarns()) {
+            for (BarnAnimal animal : barn.getAnimals()) {
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    if (!animal.isOutSide()) {
+                        return Result.error(animalName + " is already inside.");
+                    }
+                    animal.setOutSide(false); // Mark as inside
+                    // Optionally, reset position to the barn's entrance
+                    animal.setPosX(barn.getLocation().getX());
+                    animal.setPosY(barn.getLocation().getY());
+                    return Result.success(animalName + " has returned to the " + barn.getName() + ".");
+                }
+            }
+        }
+
+        // Check for coop animals
+        for (Coop coop : farm.getCoops()) {
+            for (CoopAnimal animal : coop.getAnimals()) {
+                if (animal.getName().equalsIgnoreCase(animalName)) {
+                    if (!animal.isOutSide()) {
+                        return Result.error(animalName + " is already inside.");
+                    }
+                    animal.setOutSide(false); // Mark as inside
+                    // Optionally, reset position to the coop's entrance
+                    animal.setPosX(coop.getLocation().getX());
+                    animal.setPosY(coop.getLocation().getY());
+                    return Result.success(animalName + " has returned to the " + coop.getName() + ".");
+                }
+            }
+        }
+
+        return Result.error("No animal found with the name: " + animalName);
+    }
 
     public Result petAnimal(String[] args) {
         String animalName = args[0];
@@ -232,12 +284,12 @@ public class AnimalController {
             // For milk and wool, check if player has required tools
             String animalType = barnAnimal.getType().getName().toLowerCase();
             if ((animalType.contains("cow") || animalType.contains("goat")) &&
-                    player.getCurrentTool() == null || !player.getCurrentTool().getName().equals("Milk Pail")) {
+                player.getCurrentTool() == null || !player.getCurrentTool().getName().equals("Milk Pail")) {
                 return Result.error("You need to equip a Milk Pail to collect milk.");
             }
 
             if (animalType.contains("sheep") &&
-                    player.getCurrentTool() == null || !player.getCurrentTool().getName().equals("Shears")) {
+                player.getCurrentTool() == null || !player.getCurrentTool().getName().equals("Shears")) {
                 return Result.error("You need to equip Shears to collect wool.");
             }
 
@@ -309,7 +361,7 @@ public class AnimalController {
             for (BarnAnimal animal : barn.getAnimals()) {
                 String fedStatus = animal.isHasBeenFed() ? "Fed" : "Not Fed";
                 animalList.add(animal.getName() + " (Barn) - Friendship: " + animal.getHappinessLevel() +
-                        " - " + fedStatus);
+                    " - " + fedStatus);
             }
         }
 

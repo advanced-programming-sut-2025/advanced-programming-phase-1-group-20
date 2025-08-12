@@ -23,7 +23,7 @@ public class AnimalInteractionDialog extends Dialog {
      * Enum to identify the type of interaction for creating visual effects.
      */
     public enum EffectType {
-        PET, FEED
+        PET, FEED, RETURN_HOME
     }
 
     public AnimalInteractionDialog(String title, Skin skin, Animal animal, AnimalController controller, BiConsumer<Result, EffectType> resultCallback) {
@@ -86,6 +86,22 @@ public class AnimalInteractionDialog extends Dialog {
             }
         });
         getContentTable().add(sellButton).width(200).pad(5).row();
+
+        // --- NEW BUTTON ---
+        // Return to Home Button (only if the animal is outside)
+        if (animal.isOutSide()) {
+            TextButton returnHomeButton = new TextButton("Return to Home", skin);
+            returnHomeButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    // Assuming you have a method in your controller to handle this
+                    Result result = controller.returnAnimalToHome(new String[]{animal.getName()});
+                    resultCallback.accept(result, EffectType.RETURN_HOME);
+                    hide();
+                }
+            });
+            getContentTable().add(returnHomeButton).width(200).pad(5).row();
+        }
 
 
         // Cancel Button
