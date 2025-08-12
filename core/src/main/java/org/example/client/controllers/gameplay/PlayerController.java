@@ -791,43 +791,101 @@ public class PlayerController {
     private void updateCurrentAnimation() {
         if (player.hasCollapsed()) {
             currentAnim = collapsedAnim;
+            // Sync animation state with player
+            player.setCurrentAnimation("collapsed");
+            player.setMoving(false);
             return;
         }
 
         if (isUsingTool) {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP: 
+                    currentAnim = walkUp; 
+                    player.setCurrentAnimation("up");
+                    break;
+                case DOWN: 
+                    currentAnim = walkDown; 
+                    player.setCurrentAnimation("down");
+                    break;
+                case LEFT: 
+                    currentAnim = walkLeft; 
+                    player.setCurrentAnimation("left");
+                    break;
+                case RIGHT: 
+                    currentAnim = walkRight; 
+                    player.setCurrentAnimation("right");
+                    break;
             }
+            player.setMoving(true);
         }
         else if (player.getCurrentItem() != null) {
             if (this.isMoving) {
                 switch (facing) {
-                    case UP: currentAnim = walkUp; break;
-                    case DOWN: currentAnim = walkDown; break;
-                    case LEFT: currentAnim = walkLeft; break;
-                    case RIGHT: currentAnim = walkRight; break;
+                    case UP: 
+                        currentAnim = walkUp; 
+                        player.setCurrentAnimation("up");
+                        break;
+                    case DOWN: 
+                        currentAnim = walkDown; 
+                        player.setCurrentAnimation("down");
+                        break;
+                    case LEFT: 
+                        currentAnim = walkLeft; 
+                        player.setCurrentAnimation("left");
+                        break;
+                    case RIGHT: 
+                        currentAnim = walkRight; 
+                        player.setCurrentAnimation("right");
+                        break;
                 }
+                player.setMoving(true);
             }
             else {
                 switch (facing) {
-                    case UP: currentAnim = itemUp; break;
-                    case DOWN: currentAnim = itemDown; break;
-                    case LEFT: currentAnim = itemLeft; break;
-                    case RIGHT: currentAnim = itemRight; break;
+                    case UP: 
+                        currentAnim = itemUp; 
+                        player.setCurrentAnimation("item_up");
+                        break;
+                    case DOWN: 
+                        currentAnim = itemDown; 
+                        player.setCurrentAnimation("item_down");
+                        break;
+                    case LEFT: 
+                        currentAnim = itemLeft; 
+                        player.setCurrentAnimation("item_left");
+                        break;
+                    case RIGHT: 
+                        currentAnim = itemRight; 
+                        player.setCurrentAnimation("item_right");
+                        break;
                 }
+                player.setMoving(false);
             }
         }
         else {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP: 
+                    currentAnim = walkUp; 
+                    player.setCurrentAnimation("up");
+                    break;
+                case DOWN: 
+                    currentAnim = walkDown; 
+                    player.setCurrentAnimation("down");
+                    break;
+                case LEFT: 
+                    currentAnim = walkLeft; 
+                    player.setCurrentAnimation("left");
+                    break;
+                case RIGHT: 
+                    currentAnim = walkRight; 
+                    player.setCurrentAnimation("right");
+                    break;
             }
+            player.setMoving(this.isMoving);
         }
+        
+        // Sync animation timer
+        player.setAnimationTimer(stateTime);
     }
 
     public void render(SpriteBatch batch) {

@@ -370,6 +370,11 @@ public class GameSession {
 //                broadcastNPCUpdates();
             }
 
+            // Broadcast player data updates periodically (including animation state)
+            if (gameTickCounter % 10 == 0) { // Every 10 ticks (about every 10 seconds)
+                broadcastPlayerDataUpdate();
+            }
+
         } catch (Exception e) {
             System.err.println("Error in game loop for session " + sessionId + ": " + e.getMessage());
             e.printStackTrace();
@@ -467,6 +472,9 @@ public class GameSession {
             playerInfo.put("energy", p.getEnergy());
             playerInfo.put("money", p.getMoney());
             playerInfo.put("isInVillage", p.getIsInVillage());
+            playerInfo.put("currentAnimation", p.getCurrentAnimation());
+            playerInfo.put("isMoving", p.isMoving());
+            playerInfo.put("animationTimer", p.getAnimationTimer());
 
             // Add farm information (essential for game state)
             if (p.getCurrentFarm() != null) {

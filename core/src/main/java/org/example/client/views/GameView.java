@@ -1191,7 +1191,7 @@ public class GameView implements Screen, InputProcessor {
         }
 
         for (Player otherPlayer : game.getPlayers()) {
-            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage() && player.getIsInVillage()) {
+            if (otherPlayer != null && otherPlayer != player && otherPlayer.getUser() != null && otherPlayer.getIsInVillage()) {
                 renderPlayerSprite(otherPlayer);
             }
         }
@@ -1222,15 +1222,30 @@ public class GameView implements Screen, InputProcessor {
         final int RENDER_W = 48;
         final int RENDER_H = 72;
 
-        // Load individual sprite file for player
+        // Load individual sprite file for player based on current animation
         Texture playerTexture;
         try {
-            // Use item sprite if player is holding an item, otherwise use regular sprite
-            if (player.getCurrentItem() != null) {
-                playerTexture = new Texture(Gdx.files.internal("sprites/player/item_down.png"));
+            String animationType = player.getCurrentAnimation();
+            String spritePath;
+            
+            // Determine sprite path based on animation state
+            if (animationType != null && animationType.startsWith("item_")) {
+                // Item animation
+                String direction = animationType.substring(5); // Remove "item_" prefix
+                spritePath = String.format("sprites/player/item_%s.png", direction);
+            } else if ("collapsed".equals(animationType)) {
+                // Collapsed animation
+                spritePath = "sprites/player/collapse_2.png"; // Use final collapsed frame
+            } else if (animationType != null && (animationType.equals("up") || animationType.equals("down") || 
+                       animationType.equals("left") || animationType.equals("right"))) {
+                // Walking animation - use frame 1 for static display
+                spritePath = String.format("sprites/player/%s_1.png", animationType);
             } else {
-                playerTexture = new Texture(Gdx.files.internal("sprites/player/down_1.png"));
+                // Default to down animation
+                spritePath = "sprites/player/down_1.png";
             }
+            
+            playerTexture = new Texture(Gdx.files.internal(spritePath));
         } catch (Exception e) {
             // Fallback to colored dot if sprite can't be loaded
             boolean isCurrentPlayer = (player == this.player);

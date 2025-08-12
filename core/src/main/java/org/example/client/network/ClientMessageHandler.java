@@ -75,7 +75,6 @@ public class ClientMessageHandler {
      */
     public void setCurrentGame(Game game) {
         this.currentGame = game;
-        System.out.println("DEBUG: ClientMessageHandler - Set current game: " + (game != null ? "present" : "null"));
     }
 
     /**
@@ -83,10 +82,8 @@ public class ClientMessageHandler {
      */
     private Game getCurrentGame() {
         if (currentGame != null) {
-            System.out.println("DEBUG: ClientMessageHandler - Using set game instance");
             return currentGame;
         } else {
-            System.out.println("DEBUG: ClientMessageHandler - Using App.getGame()");
             return App.getGame();
         }
     }
@@ -98,12 +95,6 @@ public class ClientMessageHandler {
 
     private void processMessage(Message message) {
         try {
-            System.out.println("DEBUG: Processing message type: " + message.getType() + " with body: " + message.getBody());
-
-            // Add specific debug for PLAYER_DATA_UPDATE
-            if (message.getType() == Message.Type.PLAYER_DATA_UPDATE) {
-                System.out.println("🔄 CLIENT: Received PLAYER_DATA_UPDATE message - about to handle it");
-            }
 
             switch (message.getType()) {
                 case SUCCESS:
@@ -119,7 +110,6 @@ public class ClientMessageHandler {
                     handlePlayerMove(message);
                     break;
                 case PLAYER_DATA_UPDATE:
-                    System.out.println("🔄 CLIENT: Routing to handlePlayerDataUpdate");
                     handlePlayerDataUpdate(message);
                     break;
                 case GAME_STATE_UPDATE:
@@ -162,11 +152,9 @@ public class ClientMessageHandler {
                     handleGameStarted(message);
                     break;
                 case FARM_SELECTION_UPDATE:
-                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_UPDATE message");
                     handleFarmSelectionUpdate(message);
                     break;
                 case FARM_SELECTION_COMPLETE:
-                    System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_COMPLETE message");
                     handleFarmSelectionComplete(message);
                     break;
                 // Radio system messages
@@ -193,11 +181,10 @@ public class ClientMessageHandler {
                 case SEARCH_LOBBY:
                 case PLAYER_READY:
                 case START_LOBBY_GAME:
-                    System.out.println("DEBUG: Handling lobby message type: " + message.getType());
                     handleLobbyMessage(message);
                     break;
                 default:
-                    System.out.println("Unhandled message type: " + message.getType());
+                    // Unhandled message type
             }
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
@@ -206,7 +193,6 @@ public class ClientMessageHandler {
     }
 
     private void handleGameStarted(Message message) {
-        System.out.println("DEBUG: handleGameStarted called");
         String gameSessionId = message.getFromBody("gameSessionId");
         String messageText = message.getFromBody("message");
         Object gameData = message.getFromBody("gameData");
@@ -232,10 +218,6 @@ public class ClientMessageHandler {
         Boolean isInSelectionPhase = (inFarmSelection != null && inFarmSelection) ||
             (inMapSelection != null && inMapSelection);
 
-        System.out.println("DEBUG: Game started - Session ID: " + gameSessionId + ", Message: " + messageText);
-        System.out.println("DEBUG: In farm selection phase: " + isInSelectionPhase + ", Active: " + isActive);
-        System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
-
         // Store game session ID for reconnection
         if (gameSessionId != null) {
             setGameSessionId(gameSessionId);
@@ -243,7 +225,7 @@ public class ClientMessageHandler {
 
         // In multiplayer mode, currentPlayerUsername will be null since each client sets their own current player
         if (currentPlayerUsername == null) {
-            System.out.println("DEBUG: No specific current player from server - each client will set their own");
+            // Each client sets their own current player
         }
 
         // Only set to IN_GAME if the game is fully active (not in farm selection phase)
@@ -266,19 +248,13 @@ public class ClientMessageHandler {
     }
 
     private void handleFarmSelectionUpdate(Message message) {
-        System.out.println("DEBUG: handleFarmSelectionUpdate called");
         String username = message.getFromBody("username");
         Integer farmIndex = message.getFromBody("farmIndex");
         Object availableFarms = message.getFromBody("availableFarms");
         Object playerSelections = message.getFromBody("playerSelections");
 
-        System.out.println("DEBUG: Player " + username + " selected farm " + farmIndex);
-        System.out.println("DEBUG: Available farms: " + availableFarms);
-        System.out.println("DEBUG: Player selections: " + playerSelections);
-
         // Forward to lobby listener for UI updates
         if (lobbyListener != null) {
-            System.out.println("DEBUG: Forwarding FARM_SELECTION_UPDATE to lobby listener");
             lobbyListener.onLobbyMessage(message);
         } else {
             System.out.println("DEBUG: No lobby listener set for FARM_SELECTION_UPDATE");
@@ -295,37 +271,27 @@ public class ClientMessageHandler {
         Object gameData = message.getFromBody("gameData");
         String currentPlayerUsername = message.getFromBody("currentPlayerUsername");
 
-        System.out.println("DEBUG: Farm selection complete - " + messageText);
-        System.out.println("DEBUG: Complete game state received: " + (completeGameStateObj != null ? "yes" : "no"));
-        System.out.println("DEBUG: Is active: " + isActive);
-        System.out.println("DEBUG: In farm selection phase: " + inFarmSelectionPhase);
-        System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
-
         // In multiplayer mode, currentPlayerUsername will be null since each client sets their own current player
         if (currentPlayerUsername == null) {
-            System.out.println("DEBUG: No specific current player from server - each client will set their own");
+            // Each client sets their own current player
         }
 
         // Validate essential data
         if (completeGameStateObj == null) {
-            System.err.println("DEBUG: No complete game state received in FARM_SELECTION_COMPLETE");
             return;
         }
 
         if (isActive == null || !isActive) {
-            System.err.println("DEBUG: Game is not active in FARM_SELECTION_COMPLETE");
             return;
         }
 
         // Set connection state to IN_GAME if the game is now fully active
         if (isActive) {
             networkClient.setConnectionState(NetworkClient.ConnectionState.IN_GAME);
-            System.out.println("DEBUG: Connection state set to IN_GAME");
         }
 
         // Forward to lobby listener for UI updates with enhanced data
         if (lobbyListener != null) {
-            System.out.println("DEBUG: ClientMessageHandler - Lobby listener is set, forwarding FARM_SELECTION_COMPLETE");
             // If we have the new complete game state structure, use it
             if (completeGameStateObj instanceof Map) {
                 @SuppressWarnings("unchecked")
@@ -347,25 +313,16 @@ public class ClientMessageHandler {
                 enhancedMessage.putInBody("allPlayersInfo", completeGameState.get("allPlayersInfo"));
 
                 lobbyListener.onLobbyMessage(enhancedMessage);
-                System.out.println("DEBUG: lobbyListener.onLobbyMessage called");
             } else {
                 // Fallback to original message structure for backward compatibility
-                System.out.println("DEBUG: Using fallback message structure for FARM_SELECTION_COMPLETE");
                 lobbyListener.onLobbyMessage(message);
             }
-        } else {
-            System.err.println("DEBUG: No lobby listener set for FARM_SELECTION_COMPLETE");
         }
     }
 
     private void handleLobbyMessage(Message message) {
-        System.out.println("DEBUG: handleLobbyMessage called with type: " + message.getType());
         if (lobbyListener != null) {
-            System.out.println("DEBUG: Forwarding lobby message to listener: " + lobbyListener.getClass().getSimpleName());
             lobbyListener.onLobbyMessage(message);
-            System.out.println("DEBUG: Lobby message forwarded successfully");
-        } else {
-            System.out.println("DEBUG: Lobby message received but no listener registered: " + message.getType());
         }
     }
 
@@ -376,7 +333,7 @@ public class ClientMessageHandler {
         String gameId = message.getFromBody("gameId");
         Object lobby = message.getFromBody("lobby");
 
-        System.out.println("DEBUG: handleSuccessMessage - message: " + messageText + ", lobby: " + (lobby != null ? "present" : "null"));
+
 
         if (sessionId != null && connectionListener != null) {
             connectionListener.onConnectionEstablished(sessionId);
@@ -398,14 +355,9 @@ public class ClientMessageHandler {
 
         // Handle lobby creation success
         if (lobby != null && messageText != null && messageText.contains("Lobby created successfully")) {
-            System.out.println("DEBUG: Lobby creation success received!");
-            System.out.println("DEBUG: Lobby object type: " + lobby.getClass().getSimpleName());
             // Forward to lobby listener if available
             if (lobbyListener != null) {
-                System.out.println("DEBUG: Forwarding lobby creation message to listener");
                 lobbyListener.onLobbyMessage(message);
-            } else {
-                System.out.println("DEBUG: No lobby listener available for lobby creation message");
             }
         }
 
@@ -414,13 +366,9 @@ public class ClientMessageHandler {
             messageText.contains("Joined lobby successfully") ||
             messageText.contains("Left lobby successfully") ||
             messageText.contains("Search completed"))) {
-            System.out.println("DEBUG: Lobby-related success message: " + messageText);
             // Forward to lobby listener if available
             if (lobbyListener != null) {
-                System.out.println("DEBUG: Forwarding lobby success message to listener");
                 lobbyListener.onLobbyMessage(message);
-            } else {
-                System.out.println("DEBUG: No lobby listener available for lobby success message");
             }
         }
     }
@@ -460,8 +408,6 @@ public class ClientMessageHandler {
         float y = message.getFloatFromBody("y");
 
         if (username != null) {
-            System.out.println("📱 CLIENT: Received player move - " + username + " moved to (" + x + ", " + y + ")");
-
             // Update the player's position in the game state
             Game currentGame = getCurrentGame();
             if (currentGame != null) {
@@ -471,9 +417,6 @@ public class ClientMessageHandler {
                     targetPlayer.setPosY(y);
                     // Update the sprite position to reflect the new coordinates
                     targetPlayer.updatePosition();
-                    System.out.println("✅ CLIENT: Updated player " + username + " position in game state and sprite");
-                } else {
-                    System.out.println("❌ CLIENT: Player " + username + " not found in current game");
                 }
             }
 
@@ -481,13 +424,10 @@ public class ClientMessageHandler {
             if (gameStateListener != null) {
                 gameStateListener.onPlayerMove(username, x, y);
             }
-        } else {
-            System.err.println("❌ CLIENT: Invalid player move message - missing data");
         }
     }
 
     private void handlePlayerDataUpdate(Message message) {
-        System.out.println("🔄 CLIENT: handlePlayerDataUpdate method called!");
 
         Object playersData = message.getFromBody("players");
         Object timestampObj = message.getFromBody("timestamp");
@@ -509,13 +449,10 @@ public class ClientMessageHandler {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> playersMap = (Map<String, Object>) playersData;
 
-                    System.out.println("🔄 CLIENT: Processing " + playersMap.size() + " players from server update");
-
                     // Get current player username to exclude from server updates
                     String currentPlayerUsername = null;
                     if (currentGame.getCurrentPlayer() != null && currentGame.getCurrentPlayer().getUser() != null) {
                         currentPlayerUsername = currentGame.getCurrentPlayer().getUser().getUsername();
-                        System.out.println("🔄 CLIENT: Current player is " + currentPlayerUsername + " - will exclude from server updates");
                     }
 
                     for (Map.Entry<String, Object> entry : playersMap.entrySet()) {
@@ -523,53 +460,27 @@ public class ClientMessageHandler {
                         @SuppressWarnings("unchecked")
                         Map<String, Object> playerData = (Map<String, Object>) entry.getValue();
 
-                        System.out.println("🔄 CLIENT: Processing player: " + username + " with data: " + playerData);
-
                         // Skip updating the current player to avoid conflicts with local state
                         if (username.equals(currentPlayerUsername)) {
-                            System.out.println("🔄 CLIENT: Skipping update for current player: " + username);
                             continue;
                         }
 
                         // Find the player in the current game
                         Player targetPlayer = currentGame.getPlayerByUsername(username);
                         if (targetPlayer != null) {
-                            // Log current state before update
-                            System.out.println("🔄 CLIENT: Before update - Player " + username +
-                                " - Energy: " + targetPlayer.getEnergy() +
-                                ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
-
                             // Force update player with exact server data
                             forceUpdatePlayerFromServerData(targetPlayer, playerData);
-
-                            // Log state after update
-                            System.out.println("✅ CLIENT: After update - Player " + username +
-                                " - Energy: " + targetPlayer.getEnergy() +
-                                ", Position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
-                        } else {
-                            System.out.println("❌ CLIENT: Player " + username + " not found in current game");
-                            System.out.println("❌ CLIENT: Available players in game: " +
-                                (currentGame.getPlayers() != null ?
-                                    currentGame.getPlayers().stream()
-                                        .map(p -> p.getUser().getUsername())
-                                        .collect(java.util.stream.Collectors.joining(", ")) : "null"));
                         }
                     }
                 } catch (Exception e) {
-                    System.err.println("❌ CLIENT: Error processing player data update: " + e.getMessage());
                     e.printStackTrace();
                 }
-            } else {
-                System.out.println("❌ CLIENT: No current game available for player data update");
             }
-        } else {
-            System.err.println("❌ CLIENT: Invalid player data update message - missing players data");
         }
     }
 
     private void forceUpdatePlayerFromServerData(Player player, Map<String, Object> playerData) {
         try {
-            System.out.println("🔄 CLIENT: Force updating player " + player.getUser().getUsername() + " with server data");
 
             // Always update basic player properties with exact server values
             if (playerData.containsKey("posX")) {
@@ -581,7 +492,6 @@ public class ClientMessageHandler {
                     posX = (Float) posXObj;
                 }
                 if (posX != null) {
-                    System.out.println("🔄 CLIENT: Force updating posX to " + posX);
                     player.setPosX(posX);
                 }
             }
@@ -595,7 +505,6 @@ public class ClientMessageHandler {
                     posY = (Float) posYObj;
                 }
                 if (posY != null) {
-                    System.out.println("🔄 CLIENT: Force updating posY to " + posY);
                     player.setPosY(posY);
                 }
             }
@@ -609,7 +518,6 @@ public class ClientMessageHandler {
                     energy = (Integer) energyObj;
                 }
                 if (energy != null) {
-                    System.out.println("🔄 CLIENT: Force updating energy to " + energy);
                     player.setEnergy(energy);
                 }
             }
@@ -623,7 +531,6 @@ public class ClientMessageHandler {
                     money = (Integer) moneyObj;
                 }
                 if (money != null) {
-                    System.out.println("🔄 CLIENT: Force updating money to " + money);
                     // Calculate the difference and adjust money accordingly
                     int currentMoney = player.getMoney();
                     int difference = money - currentMoney;
@@ -637,8 +544,8 @@ public class ClientMessageHandler {
 
             if (playerData.containsKey("isInVillage")) {
                 Boolean isInVillage = (Boolean) playerData.get("isInVillage");
+
                 if (isInVillage != null) {
-                    System.out.println("🔄 CLIENT: Force updating isInVillage to " + isInVillage);
                     player.setIsInVillage(isInVillage);
                 }
             }
@@ -663,7 +570,6 @@ public class ClientMessageHandler {
                 }
 
                 if (locationX != null && locationY != null) {
-                    System.out.println("🔄 CLIENT: Force updating location to (" + locationX + ", " + locationY + ")");
                     // Create new location object and set it
                     Location newLocation = new Location(locationX, locationY, org.example.common.models.enums.Types.TileType.Dirt);
                     player.setLocation(newLocation);
@@ -680,7 +586,6 @@ public class ClientMessageHandler {
                     farmIndex = (Integer) farmIndexObj;
                 }
                 if (farmIndex != null && farmIndex >= 0) {
-                    System.out.println("🔄 CLIENT: Force updating farm index to " + farmIndex);
                     // Find the farm by index and set it
                     Game currentGame = getCurrentGame();
                     if (currentGame != null && currentGame.getGameMap() != null) {
@@ -692,13 +597,38 @@ public class ClientMessageHandler {
                 }
             }
 
+            // Update animation state if available
+            if (playerData.containsKey("currentAnimation")) {
+                String currentAnimation = (String) playerData.get("currentAnimation");
+                if (currentAnimation != null) {
+                    player.setCurrentAnimation(currentAnimation);
+                }
+            }
+
+            if (playerData.containsKey("isMoving")) {
+                Boolean isMoving = (Boolean) playerData.get("isMoving");
+                if (isMoving != null) {
+                    player.setMoving(isMoving);
+                }
+            }
+
+            if (playerData.containsKey("animationTimer")) {
+                Object animationTimerObj = playerData.get("animationTimer");
+                Float animationTimer = null;
+                if (animationTimerObj instanceof Double) {
+                    animationTimer = ((Double) animationTimerObj).floatValue();
+                } else if (animationTimerObj instanceof Float) {
+                    animationTimer = (Float) animationTimerObj;
+                }
+                if (animationTimer != null) {
+                    player.setAnimationTimer(animationTimer);
+                }
+            }
+
             // Update sprite position to reflect new coordinates
             player.updatePosition();
 
-            System.out.println("✅ CLIENT: Finished force updating player " + player.getUser().getUsername());
-
         } catch (Exception e) {
-            System.err.println("DEBUG: Error force updating player from server data: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -710,18 +640,12 @@ public class ClientMessageHandler {
         if (dateState != null) {
             try {
                 Game currentGame = getCurrentGame();
-                System.out.println("DEBUG: ClientMessageHandler - Syncing date with game: " + (currentGame != null ? "present" : "null"));
                 if (currentGame != null) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> serverDateState = (Map<String, Object>) dateState;
                     currentGame.syncDateFromServer(serverDateState);
-                    System.out.println("DEBUG: Date synced from server in game state update - " +
-                        (currentGame.getCurrentDate() != null ? currentGame.getCurrentDate().getCurrentTimeString() : "null"));
-                } else {
-                    System.out.println("DEBUG: ClientMessageHandler - No game instance available for date sync");
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: Error syncing date from game state update: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -744,11 +668,8 @@ public class ClientMessageHandler {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> serverDateState = (Map<String, Object>) dateState;
                     currentGame.syncDateFromServer(serverDateState);
-                    System.out.println("DEBUG: Date synced from server in full game state - " +
-                        (currentGame.getCurrentDate() != null ? currentGame.getCurrentDate().getCurrentTimeString() : "null"));
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: Error syncing date from full game state: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -782,7 +703,7 @@ public class ClientMessageHandler {
                 // For now, we'll just notify that an update occurred
                 gameStateListener.onPlayersUpdate(null);
             } catch (Exception e) {
-                System.err.println("Failed to parse players data: " + e.getMessage());
+                e.printStackTrace();
             }
         }
     }
@@ -815,7 +736,6 @@ public class ClientMessageHandler {
 
         if (fromPlayer != null && toPlayer != null && tradeListener != null) {
             // Handle trade acceptance with items
-            System.out.println("Trade accepted by " + fromPlayer + " with items: " + tradeItems);
         }
     }
 
@@ -825,7 +745,6 @@ public class ClientMessageHandler {
 
         if (fromPlayer != null && toPlayer != null && tradeListener != null) {
             // Handle trade decline
-            System.out.println("Trade declined by " + fromPlayer);
         }
     }
 
@@ -841,7 +760,6 @@ public class ClientMessageHandler {
         Long timestamp = message.getFromBody("timestamp");
         if (timestamp != null) {
             long latency = System.currentTimeMillis() - timestamp;
-            System.out.println("Server latency: " + latency + "ms");
         }
     }
 
@@ -855,10 +773,8 @@ public class ClientMessageHandler {
                     org.example.common.models.enums.Weather weather =
                         org.example.common.models.enums.Weather.valueOf(weatherStr);
                     currentGame.getCurrentDate().setWeatherToday(weather);
-                    System.out.println("DEBUG: Weather updated from server: " + weather);
                 }
             } catch (Exception e) {
-                System.err.println("DEBUG: Error updating weather from server: " + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -867,7 +783,6 @@ public class ClientMessageHandler {
     private void handleNPCUpdate(Message message) {
         Object npcsData = message.getFromBody("npcs");
         if (npcsData != null) {
-            System.out.println("DEBUG: NPC update received");
 
             Game currentGame = getCurrentGame();
             if (currentGame != null && currentGame.getGameMap() != null &&
@@ -897,8 +812,7 @@ public class ClientMessageHandler {
                                 npc.setMoving(isMoving);
                                 npc.setSpriteName(spriteName);
 
-                                System.out.println("DEBUG: Updated NPC " + npcName +
-                                    " to position (" + posX + ", " + posY + ") with animation " + currentAnimation);
+
                                 break;
                             }
                         }
@@ -918,16 +832,13 @@ public class ClientMessageHandler {
         if (playersObj instanceof List && onlinePlayersListener != null) {
             List<Object> players = (List<Object>) playersObj;
             onlinePlayersListener.onOnlinePlayersUpdate(players);
-            System.out.println("Received online players list: " + players.size() + " players");
         }
     }
 
     private void handlePlayerUpdate(Message message) {
-        // System.out.println("DEBUG: handlePlayerUpdate called");
         try {
             String action = message.getFromBody("action");
             String username = message.getFromBody("username");
-            // System.out.println("DEBUG: Player update - Action: " + action + ", Username: " + username);
 
             // Forward to appropriate listeners if needed
             if (lobbyListener != null) {
@@ -960,12 +871,10 @@ public class ClientMessageHandler {
     }
 
     public void setLobbyListener(LobbyMessageListener listener) {
-        System.out.println("DEBUG: ClientMessageHandler.setLobbyListener called with listener: " + (listener != null ? listener.getClass().getSimpleName() : "null"));
         this.lobbyListener = listener;
     }
 
     public void setRadioListener(RadioMessageListener listener) {
-        System.out.println("DEBUG: ClientMessageHandler.setRadioListener called with listener: " + (listener != null ? listener.getClass().getSimpleName() : "null"));
         this.radioListener = listener;
     }
 
