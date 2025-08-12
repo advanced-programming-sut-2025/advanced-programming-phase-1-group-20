@@ -30,6 +30,17 @@ public class ForgotPasswordMenuScreen implements Screen {
         this.stage = new Stage(new ScreenViewport());
         this.controller.setView(this);
         setupUI();
+        // Set background texture to fix black screen - use login menu textures
+        try {
+            updateBackground(AssetManager.getAssetManager().getLoginMenuTexture(0));
+        } catch (Exception e) {
+            // Fallback: try welcome menu texture
+            try {
+                updateBackground(AssetManager.getAssetManager().getWelcomeMenuTexture(0));
+            } catch (Exception e2) {
+                System.err.println("Failed to load background textures: " + e2.getMessage());
+            }
+        }
     }
 
     private void setupUI() {

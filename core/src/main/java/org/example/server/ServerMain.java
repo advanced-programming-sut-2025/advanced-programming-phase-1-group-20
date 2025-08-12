@@ -42,33 +42,33 @@ public class ServerMain {
             String host = config.getServerHost();
             app.start(host, port);
 
-            System.out.println("Server started successfully on " + host + ":" + port);
-            System.out.println("WebSocket endpoint: ws://" + host + ":" + port + config.getWebSocketPath());
-            System.out.println("REST API available at: http://" + host + ":" + port);
-            System.out.println("Debug mode: " + config.isDebugMode());
-            System.out.println();
+            // System.out.println("Server started successfully on " + host + ":" + port);
+            // System.out.println("WebSocket endpoint: ws://" + host + ":" + port + config.getWebSocketPath());
+            // System.out.println("REST API available at: http://" + host + ":" + port);
+    
+            // System.out.println();
 
             // Display network information
             NetworkUtils.printNetworkInfo();
-            System.out.println();
+            // System.out.println();
 
             // Display client connection instructions
-            System.out.println(NetworkUtils.generateClientInstructions(port));
+            // System.out.println(NetworkUtils.generateClientInstructions(port));
 
             // Display firewall instructions
-            System.out.println("=== FIREWALL CONFIGURATION ===");
-            System.out.println(NetworkUtils.getFirewallInstructions(port));
-            System.out.println("===============================");
-            System.out.println();
+            // System.out.println("=== FIREWALL CONFIGURATION ===");
+            // System.out.println(NetworkUtils.getFirewallInstructions(port));
+            // System.out.println("===============================");
+            // System.out.println();
 
             // Keep the server running
-            System.out.println("Server is running. Press Ctrl+C to stop.");
+            // System.out.println("Server is running. Press Ctrl+C to stop.");
 
             // Keep main thread alive
             try {
                 Thread.currentThread().join();
             } catch (InterruptedException e) {
-                System.out.println("Server interrupted, shutting down...");
+                // System.out.println("Server interrupted, shutting down...");
                 shutdown();
             }
 
@@ -114,15 +114,15 @@ public class ServerMain {
             ctx.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
         });
 
-        System.out.println("REST endpoints configured:");
-        System.out.println("  GET /health - Health check");
-        System.out.println("  GET /info - Server information");
-        System.out.println("  GET /games - List active games");
-        System.out.println("  GET /lobbies - List lobbies info");
+        // System.out.println("REST endpoints configured:");
+        // System.out.println("  GET /health - Health check");
+        // System.out.println("  GET /info - Server information");
+        // System.out.println("  GET /games - List active games");
+        // System.out.println("  GET /lobbies - List lobbies info");
     }
 
     public static void shutdown() {
-        System.out.println("Shutting down server...");
+        // System.out.println("Shutting down server...");
 
         try {
             // Shutdown message handler (closes all games and connections)
@@ -143,7 +143,7 @@ public class ServerMain {
                 app.stop();
             }
 
-            System.out.println("Server shutdown completed");
+            // System.out.println("Server shutdown completed");
 
         } catch (Exception e) {
             System.err.println("Error during shutdown: " + e.getMessage());

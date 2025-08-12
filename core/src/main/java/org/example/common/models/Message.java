@@ -148,6 +148,9 @@ public class Message {
 
         // Reaction system
         REACTION_SEND,
-        REACTION_RECEIVE
+        REACTION_RECEIVE,
+
+        // Sleep transition
+        SLEEP_TRANSITION
     }
 }

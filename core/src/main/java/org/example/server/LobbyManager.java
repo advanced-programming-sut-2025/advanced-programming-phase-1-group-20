@@ -32,7 +32,7 @@ public class LobbyManager {
         // Start cleanup task
         startCleanupTask();
 
-        System.out.println("LobbyManager initialized");
+        // System.out.println("LobbyManager initialized");
     }
 
     public static LobbyManager getInstance() {
@@ -70,7 +70,7 @@ public class LobbyManager {
 
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) {
-            System.err.println("DEBUG: Lobby not found: " + lobbyId);
+// System.err.println("DEBUG: Lobby not found: " + lobbyId);
             return false;
         }
 
@@ -78,14 +78,14 @@ public class LobbyManager {
 
         // Check if lobby can be joined
         if (!lobby.canJoin()) {
-            System.err.println("DEBUG: Lobby cannot be joined");
+// System.err.println("DEBUG: Lobby cannot be joined");
             return false;
         }
 
         // Check password for private lobbies
         if (lobby.getSettings().requiresPassword()) {
             if (password == null || !lobby.getSettings().getPassword().equals(password)) {
-                System.err.println("DEBUG: Password check failed");
+// System.err.println("DEBUG: Password check failed");
                 return false;
             }
         }
@@ -124,7 +124,7 @@ public class LobbyManager {
         // Handle admin transfer or lobby closure
         handlePlayerLeave(lobby, playerId);
 
-        System.out.println("Player " + playerId + " left lobby " + lobbyId);
+        // System.out.println("Player " + playerId + " left lobby " + lobbyId);
         return true;
     }
 
@@ -145,10 +145,6 @@ public class LobbyManager {
             LobbyPlayer newAdmin = lobby.getPlayers().get(0);
             newAdmin.setAdmin(true);
             lobby.setAdminId(newAdmin.getId());
-            // System.out.println("DEBUG: Transferred admin in lobby " + lobby.getId() + " to " + newAdmin.getId());
-            System.out.println("DEBUG: New admin details - ID: " + newAdmin.getId() + ", Username: " + newAdmin.getUsername() + ", IsAdmin: " + newAdmin.isAdmin());
-        } else {
-            System.out.println("DEBUG: Leaving player was not admin, no transfer needed");
         }
 
         // System.out.println("DEBUG: Players after leave: " + lobby.getPlayers().size());
@@ -164,7 +160,7 @@ public class LobbyManager {
             }
 
             lobby.setStatus(Lobby.LobbyStatus.CLOSED);
-            System.out.println("Closed lobby: " + lobbyId);
+            // System.out.println("Closed lobby: " + lobbyId);
         }
     }
 
@@ -224,26 +220,19 @@ public class LobbyManager {
 
         Lobby lobby = lobbies.get(lobbyId);
         if (lobby == null) {
-            System.err.println("DEBUG: Lobby not found in canStartGame: " + lobbyId);
             return false;
         }
 
-        // System.out.println("DEBUG: Found lobby in canStartGame: " + lobby.getId() + " with " + lobby.getPlayers().size() + " players");
-        // System.out.println("DEBUG: Lobby players in canStartGame: " + lobby.getPlayers().stream().map(p -> p.getId()).toList());
-
         // Only admin can start game
         if (!lobby.isAdmin(requestingPlayerId)) {
-            System.err.println("DEBUG: User is not admin in canStartGame");
             return false;
         }
 
         // Need at least 2 players
         if (lobby.getPlayers().size() < 2) {
-            // System.err.println("DEBUG: Not enough players in canStartGame. Current count: " + lobby.getPlayers().size());
             return false;
         }
 
-        System.out.println("DEBUG: canStartGame returning true");
         return true;
     }
 
@@ -256,7 +245,7 @@ public class LobbyManager {
         lobby.setStatus(Lobby.LobbyStatus.IN_GAME);
         lobby.updateActivity();
 
-        System.out.println("Started game in lobby " + lobbyId);
+        // System.out.println("Started game in lobby " + lobbyId);
         return true;
     }
 
@@ -283,7 +272,7 @@ public class LobbyManager {
         }
 
         for (String lobbyId : lobbieToClose) {
-            System.out.println("Closing inactive lobby: " + lobbyId);
+            // System.out.println("Closing inactive lobby: " + lobbyId);
             closeLobby(lobbyId);
         }
     }
@@ -323,6 +312,6 @@ public class LobbyManager {
         scheduler.shutdown();
         lobbies.clear();
         playerToLobbyMap.clear();
-        System.out.println("LobbyManager shut down");
+        // System.out.println("LobbyManager shut down");
     }
 }

@@ -211,6 +211,9 @@ public class ClientMessageHandler {
                 case REACTION_RECEIVE:
                     handleReactionReceive(message);
                     break;
+                case SLEEP_TRANSITION:
+                    handleSleepTransition(message);
+                    break;
                 // Lobby-related message types
                 case CREATE_LOBBY:
                 case JOIN_LOBBY:
@@ -421,7 +424,7 @@ public class ClientMessageHandler {
         if (playerDataObj instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> playerData = (Map<String, Object>) playerDataObj;
-            
+
             // Update the current player's data
             Game currentGame = getCurrentGame();
             if (currentGame != null) {
@@ -440,14 +443,14 @@ public class ClientMessageHandler {
                             }
                         }
                     }
-                    
+
                     // Handle the specific purchased item
                     String purchasedItemName = (String) playerData.get("purchasedItem");
                     Object purchasedQuantityObj = playerData.get("purchasedQuantity");
-                    
+
                     if (purchasedItemName != null && purchasedQuantityObj instanceof Integer) {
                         int purchasedQuantity = (Integer) purchasedQuantityObj;
-                        
+
                         // Find the item in the market and add it to the player's backpack
                         // We need to find the item from the market's stock
                         if (currentGame.getGameMap() != null && currentGame.getGameMap().getVillage() != null) {
@@ -467,7 +470,7 @@ public class ClientMessageHandler {
                                 }
                             }
                         }
-                        
+
                         // Notify market update listener about player data changes
                         if (marketUpdateListener != null) {
                             marketUpdateListener.onPlayerDataUpdate();
@@ -476,7 +479,7 @@ public class ClientMessageHandler {
                 }
             }
         }
-        
+
         System.out.println("✅ Market purchase successful: " + message.getFromBody("message"));
     }
 
@@ -549,7 +552,7 @@ public class ClientMessageHandler {
         String owner = message.getFromBody("owner");
 
         System.out.println("[CHAT ROOM] Created: " + roomName + " (ID: " + roomId + ") by " + owner);
-        
+
         // Notify chat listener about new room
         if (chatListener != null) {
             // You might want to add a method to the ChatMessageListener interface for room events
@@ -575,7 +578,7 @@ public class ClientMessageHandler {
         Object historyData = message.getFromBody("history");
 
         System.out.println("[CHAT HISTORY] Received history for room: " + roomId);
-        
+
         // Parse and display chat history
         if (historyData != null && chatListener != null) {
             // You might want to add a method to handle chat history
@@ -643,7 +646,7 @@ public class ClientMessageHandler {
 
                         System.out.println("🔍 DEBUG: Processing player data for username: " + username);
                         System.out.println("🔍 DEBUG: Player data keys: " + playerData.keySet());
-                        
+
                         // Check if isPlayerInVillage field exists in the data
                         if (playerData.containsKey("isPlayerInVillage")) {
                             Object isInVillageObj = playerData.get("isPlayerInVillage");
@@ -651,7 +654,7 @@ public class ClientMessageHandler {
                         } else {
                             System.out.println("🔍 DEBUG: isPlayerInVillage field NOT found for " + username);
                         }
-                        
+
                         // Also check for isInVillage field (alternative naming)
                         if (playerData.containsKey("isInVillage")) {
                             Object isInVillageObj = playerData.get("isInVillage");
@@ -882,7 +885,7 @@ public class ClientMessageHandler {
 
         if (marketName != null && itemName != null && newStock != null) {
             System.out.println("🛒 MARKET UPDATE: " + marketName + " - " + itemName + " stock updated to: " + newStock);
-            
+
             // Update the local market stock
             Game currentGame = getCurrentGame();
             if (currentGame != null && currentGame.getGameMap() != null && currentGame.getGameMap().getVillage() != null) {
@@ -1245,13 +1248,40 @@ public class ClientMessageHandler {
     }
 
     private void handleReactionReceive(Message message) {
-        String reaction = message.getFromBody("reaction");
         String fromPlayer = message.getFromBody("fromPlayer");
-
-        System.out.println("Reaction: Received reaction from " + fromPlayer + ": " + reaction);
+        String reaction = message.getFromBody("reaction");
 
         if (reactionListener != null) {
             reactionListener.onReactionReceived(fromPlayer, reaction);
+        }
+    }
+
+    private void handleSleepTransition(Message message) {
+        boolean allPlayersAtHome = message.getFromBody("allPlayersAtHome");
+        List<String> playersNeedingToReturn = message.getFromBody("playersNeedingToReturn");
+        List<String> playersToCollapse = message.getFromBody("playersToCollapse");
+        String currentTime = message.getFromBody("currentTime");
+
+        System.out.println("🌙 SLEEP TRANSITION: Received sleep transition message");
+        System.out.println("🌙 All players at home: " + allPlayersAtHome);
+        System.out.println("🌙 Players needing to return: " + playersNeedingToReturn);
+        System.out.println("🌙 Players to collapse: " + playersToCollapse);
+        System.out.println("🌙 Current time: " + currentTime);
+
+        // Check if current player needs to return home
+        if (getCurrentGame() != null && getCurrentGame().getCurrentPlayer() != null) {
+            Player currentPlayer = getCurrentGame().getCurrentPlayer();
+            String currentPlayerName = currentPlayer.getUser().getUsername();
+
+            if (playersNeedingToReturn != null && playersNeedingToReturn.contains(currentPlayerName)) {
+                System.out.println("🌙 WARNING: You need to return home before the day can end!");
+                // You could show a UI notification here
+            }
+
+            if (playersToCollapse != null && playersToCollapse.contains(currentPlayerName)) {
+                System.out.println("🌙 WARNING: You don't have enough energy to return home - you will collapse!");
+                // You could show a UI notification here
+            }
         }
     }
 

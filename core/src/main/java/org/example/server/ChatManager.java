@@ -49,7 +49,7 @@ public class ChatManager {
         if (publicRoom != null) {
             publicRoom.addParticipant(username);
         }
-        System.out.println("[CHAT] Registered player: " + username);
+        // System.out.println("[CHAT] Registered player: " + username);
     }
     
     public void unregisterPlayer(String username) {
@@ -58,7 +58,7 @@ public class ChatManager {
         for (ChatRoom room : chatRooms.values()) {
             room.removeParticipant(username);
         }
-        System.out.println("[CHAT] Unregistered player: " + username);
+        // System.out.println("[CHAT] Unregistered player: " + username);
     }
     
     public void handlePublicChat(String sender, String content) {
@@ -73,7 +73,7 @@ public class ChatManager {
         // Send to all online players
         broadcastMessage(message);
         
-        System.out.println("[PUBLIC CHAT] " + sender + ": " + content);
+        // System.out.println("[PUBLIC CHAT] " + sender + ": " + content);
     }
     
     public void handlePrivateChat(String sender, String recipient, String content) {
@@ -101,7 +101,7 @@ public class ChatManager {
             messageHandler.sendPrivateMessage(senderConnection, message);
         }
         
-        System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + content);
+        // System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + content);
     }
     
     public void handleRoomChat(String sender, String roomId, String content) {
@@ -125,7 +125,7 @@ public class ChatManager {
             }
         }
         
-        System.out.println("[ROOM CHAT] [" + roomId + "] " + sender + ": " + content);
+        // System.out.println("[ROOM CHAT] [" + roomId + "] " + sender + ": " + content);
     }
     
     public void createChatRoom(String roomId, String roomName, String owner) {
@@ -139,7 +139,7 @@ public class ChatManager {
         // Notify all players about new room
         broadcastRoomCreated(room);
         
-        System.out.println("[CHAT ROOM] Created: " + roomName + " (ID: " + roomId + ") by " + owner);
+        // System.out.println("[CHAT ROOM] Created: " + roomName + " (ID: " + roomId + ") by " + owner);
     }
     
     public void joinChatRoom(String username, String roomId) {
@@ -156,7 +156,7 @@ public class ChatManager {
             messageHandler.sendRoomHistory(connection, room);
         }
         
-        System.out.println("[CHAT ROOM] " + username + " joined " + room.getRoomName());
+        // System.out.println("[CHAT ROOM] " + username + " joined " + room.getRoomName());
     }
     
     public void leaveChatRoom(String username, String roomId) {
@@ -167,7 +167,7 @@ public class ChatManager {
         
         room.removeParticipant(username);
         
-        System.out.println("[CHAT ROOM] " + username + " left " + room.getRoomName());
+        // System.out.println("[CHAT ROOM] " + username + " left " + room.getRoomName());
     }
     
     public List<ChatMessage> getPublicChatHistory() {

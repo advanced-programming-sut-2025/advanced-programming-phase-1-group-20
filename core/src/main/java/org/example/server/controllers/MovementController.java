@@ -24,20 +24,17 @@ public class MovementController {
     }
 
     public boolean handlePlayerMove(String username, Message message) {
-        System.out.println("DEBUG: MovementController.handlePlayerMove() - Processing movement for player: " + username);
-
         float x = message.getFloatFromBody("x");
         float y = message.getFloatFromBody("y");
 
         Player player = App.getGame().getPlayerByUsername(username);
         if (player == null) {
-            System.err.println("DEBUG: Player " + username + " not found for movement");
+            System.err.println("Player " + username + " not found for movement");
             return false;
         }
 
         // Check movement throttling to prevent excessive updates (but allow real-time movement)
         if (isMovementThrottled(username)) {
-            System.out.println("DEBUG: MovementController - Movement throttled for " + username + ", but still processing for real-time updates");
             // Continue processing even if throttled to ensure real-time updates
         }
 
@@ -50,7 +47,6 @@ public class MovementController {
         // Update last movement time
         updateLastMovementTime(username);
 
-        System.out.println("DEBUG: MovementController - Player " + username + " moved to (" + x + ", " + y + ") - REAL-TIME UPDATE");
         return true;
     }
 
@@ -60,7 +56,6 @@ public class MovementController {
         Long lastTime = lastMovementTime.get(username);
 
         if (lastTime != null && (currentTime - lastTime) < movementThrottleMs) {
-            System.out.println("DEBUG: MovementController - Throttled movement for " + username);
             return true;
         }
         return false;
@@ -94,8 +89,6 @@ public class MovementController {
 
             // Broadcast to all other players
             gameSession.broadcastToOthers(username, moveMessage);
-
-            System.out.println("DEBUG: MovementController - Broadcasted movement for " + username + " to (" + x + ", " + y + ")");
         } catch (Exception e) {
             System.err.println("Error broadcasting player movement: " + e.getMessage());
         }

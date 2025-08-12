@@ -62,12 +62,12 @@ public class AppWebSocket {
             ws.onError(this::handleError);
         });
 
-        System.out.println("WebSocket configured on path: " + wsPath);
+        // System.out.println("WebSocket configured on path: " + wsPath);
     }
 
     private void handleConnect(WsContext ctx) {
         String sessionId = ctx.sessionId();
-        System.out.println("New WebSocket connection: " + sessionId);
+        // System.out.println("New WebSocket connection: " + sessionId);
 
         ctx.enableAutomaticPings(5, java.util.concurrent.TimeUnit.SECONDS);
 
@@ -82,7 +82,7 @@ public class AppWebSocket {
 
         if (existingConnection != null) {
             // This is a reconnection
-            System.out.println("Player " + existingConnection.getUsername() + " reconnected");
+            // System.out.println("Player " + existingConnection.getUsername() + " reconnected");
             existingConnection.setState(PlayerConnection.ConnectionState.CONNECTING);
             existingConnection.setWsContext(ctx);
             connectedPlayers.put(sessionId, existingConnection);
@@ -122,13 +122,13 @@ public class AppWebSocket {
         String responseJson = gson.toJson(testMessage);
         ctx.send(responseJson);
 
-        System.out.println("WebSocket message handler called for session: " + sessionId);
+        // System.out.println("WebSocket message handler called for session: " + sessionId);
     }
 
     private void handleMessageWithContent(WsContext ctx, String messageJson) {
         String sessionId = ctx.sessionId();
 
-        System.out.println("Received message from " + sessionId + ": " + messageJson);
+        // System.out.println("Received message from " + sessionId + ": " + messageJson);
 
         PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection == null) {
@@ -138,26 +138,20 @@ public class AppWebSocket {
 
         // Handle non-JSON messages like "ACK"
         if (!messageJson.trim().startsWith("{")) {
-            System.out.println("DEBUG: Received non-JSON message: " + messageJson + " - ignoring");
             return;
         }
 
         try {
-            System.out.println("DEBUG: Parsing message JSON: " + messageJson);
             Message message = gson.fromJson(messageJson, Message.class);
-            System.out.println("DEBUG: Parsed message type: " + message.getType());
 
             // Handle authentication first
             if (message.getType() == Message.Type.AUTH_LOGIN) {
-                System.out.println("DEBUG: Handling AUTH_LOGIN message");
                 handleAuthentication(connection, message);
             } else if (connection.getUser() != null) {
                 // User is authenticated, forward to message handler
-                System.out.println("DEBUG: Forwarding message to MessageHandler: " + message.getType());
                 messageHandler.processMessage(connection.getUsername(), message);
             } else {
                 // User not authenticated
-                System.out.println("DEBUG: User not authenticated");
                 sendErrorMessage(ctx, "Authentication required");
             }
 
@@ -171,7 +165,7 @@ public class AppWebSocket {
     private void handleMessageFixed(WsContext ctx) {
         String sessionId = ctx.sessionId();
 
-        System.out.println("WebSocket message received for session: " + sessionId);
+        // System.out.println("WebSocket message received for session: " + sessionId);
 
         PlayerConnection connection = connectedPlayers.get(sessionId);
         if (connection == null) {
@@ -197,7 +191,7 @@ public class AppWebSocket {
             response.putInBody("username", testUser.getUsername());
             connection.sendMessage(response);
 
-            System.out.println("Auto-authenticated user: " + testUser.getUsername());
+            // System.out.println("Auto-authenticated user: " + testUser.getUsername());
         }
 
         // Send a test response
@@ -211,7 +205,7 @@ public class AppWebSocket {
         String token = message.getFromBody("token");
         String username = message.getFromBody("username");
 
-        System.out.println("Authentication attempt for user: " + username);
+        // System.out.println("Authentication attempt for user: " + username);
 
         if (token == null || username == null) {
             sendErrorMessage(connection.getWsContext(), "Token and username required");
@@ -236,7 +230,7 @@ public class AppWebSocket {
             response.putInBody("username", username);
             connection.sendMessage(response);
 
-            System.out.println("Player " + username + " authenticated successfully");
+            // System.out.println("Player " + username + " authenticated successfully");
         } else {
             sendErrorMessage(connection.getWsContext(), "Invalid token");
         }
@@ -244,7 +238,7 @@ public class AppWebSocket {
 
     private void handleClose(WsContext ctx) {
         String sessionId = ctx.sessionId();
-        System.out.println("WebSocket connection closed: " + sessionId);
+        // System.out.println("WebSocket connection closed: " + sessionId);
 
         // Don't immediately remove the connection - give it a chance to reconnect
         PlayerConnection connection = connectedPlayers.get(sessionId);
@@ -252,7 +246,7 @@ public class AppWebSocket {
             String username = connection.getUsername();
             if (username != null) {
                 // Instead of immediately removing, mark as disconnected and give time for reconnection
-                System.out.println("Player " + username + " WebSocket closed, but keeping connection alive for potential reconnection");
+                // System.out.println("Player " + username + " WebSocket closed, but keeping connection alive for potential reconnection");
                 connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
 
                 // Schedule removal after a delay to allow for reconnection
@@ -264,7 +258,7 @@ public class AppWebSocket {
                             // Still disconnected after delay, remove the connection
                             connectedPlayers.remove(sessionId);
                             messageHandler.removePlayerConnection(username);
-                            System.out.println("Player " + username + " connection removed after timeout");
+                            // System.out.println("Player " + username + " connection removed after timeout");
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -286,7 +280,7 @@ public class AppWebSocket {
         if (connection != null) {
             String username = connection.getUsername();
             if (username != null) {
-                System.out.println("Player " + username + " WebSocket error, but keeping connection alive");
+                // System.out.println("Player " + username + " WebSocket error, but keeping connection alive");
                 connection.setState(PlayerConnection.ConnectionState.DISCONNECTED);
 
                 // Schedule removal after a delay
@@ -298,7 +292,7 @@ public class AppWebSocket {
                             // Still disconnected after delay, remove the connection
                             connectedPlayers.remove(sessionId);
                             messageHandler.removePlayerConnection(username);
-                            System.out.println("Player " + username + " connection removed after error timeout");
+                            // System.out.println("Player " + username + " connection removed after error timeout");
                         }
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
@@ -339,6 +333,6 @@ public class AppWebSocket {
             connection.disconnect();
         }
         connectedPlayers.clear();
-        System.out.println("AppWebSocket shutdown completed");
+        // System.out.println("AppWebSocket shutdown completed");
     }
 }

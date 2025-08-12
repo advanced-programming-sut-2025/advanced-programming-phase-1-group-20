@@ -34,7 +34,7 @@ public class OnlinePlayersManager {
         onlinePlayers.put(username, playerInfo);
         playerConnections.put(username, connection);
 
-        System.out.println("Player " + username + " is now online");
+        // System.out.println("Player " + username + " is now online");
 
         // Notify all other players
         broadcastPlayerStatusUpdate();
@@ -44,7 +44,7 @@ public class OnlinePlayersManager {
         onlinePlayers.remove(username);
         playerConnections.remove(username);
 
-        System.out.println("Player " + username + " went offline");
+        // System.out.println("Player " + username + " went offline");
 
         // Notify all remaining players
         broadcastPlayerStatusUpdate();
@@ -57,7 +57,7 @@ public class OnlinePlayersManager {
             playerInfo.setLobbyName(lobbyName);
             playerInfo.setStatus(OnlinePlayerInfo.PlayerStatus.IN_LOBBY);
 
-            System.out.println("Player " + username + " joined lobby: " + lobbyName);
+            // System.out.println("Player " + username + " joined lobby: " + lobbyName);
             broadcastPlayerStatusUpdate();
         }
     }
@@ -69,7 +69,7 @@ public class OnlinePlayersManager {
             playerInfo.setLobbyName(null);
             playerInfo.setStatus(OnlinePlayerInfo.PlayerStatus.ONLINE);
 
-            System.out.println("Player " + username + " left lobby");
+            // System.out.println("Player " + username + " left lobby");
             broadcastPlayerStatusUpdate();
         }
     }
@@ -80,7 +80,7 @@ public class OnlinePlayersManager {
             playerInfo.setGameSessionId(gameSessionId);
             playerInfo.setStatus(OnlinePlayerInfo.PlayerStatus.IN_GAME);
 
-            System.out.println("Player " + username + " started game");
+            // System.out.println("Player " + username + " started game");
             broadcastPlayerStatusUpdate();
         }
     }
@@ -121,7 +121,7 @@ public class OnlinePlayersManager {
             }
         }
 
-        System.out.println("Broadcasted player list update to " + playerConnections.size() + " players");
+        // System.out.println("Broadcasted player list update to " + playerConnections.size() + " players");
     }
 
     public void sendPlayerListTo(String username) {

@@ -90,7 +90,7 @@ public class PlayerConnection {
     // Message handling methods
     public void sendMessage(String messageJson) {
         if (wsContext == null || !wsContext.session.isOpen()) {
-            System.err.println("DEBUG: Cannot send message - WebSocket context is null or closed");
+// System.err.println("DEBUG: Cannot send message - WebSocket context is null or closed");
             return;
         }
 
@@ -99,7 +99,7 @@ public class PlayerConnection {
             wsContext.send(messageJson);
 //            System.out.println("DEBUG: WebSocket message sent successfully");
         } catch (Exception e) {
-            System.err.println("DEBUG: Failed to send WebSocket message to " + username + ": " + e.getMessage());
+// System.err.println("DEBUG: Failed to send WebSocket message to " + username + ": " + e.getMessage());
             e.printStackTrace();
             // Add to queue for retry
             outgoingMessages.offer(messageJson);
@@ -112,7 +112,7 @@ public class PlayerConnection {
 //            System.out.println("DEBUG: Sending message JSON: " + messageJson);
             sendMessage(messageJson);
         } catch (Exception e) {
-            System.err.println("DEBUG: Failed to serialize message to JSON: " + e.getMessage());
+// System.err.println("DEBUG: Failed to serialize message to JSON: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -168,7 +168,7 @@ public class PlayerConnection {
             response.putInBody("username", username);
             sendMessage(response);
 
-            System.out.println("Player " + username + " authenticated successfully");
+            // System.out.println("Player " + username + " authenticated successfully");
         } else {
             sendErrorMessage("Authentication failed: Invalid token or username");
         }
@@ -204,7 +204,7 @@ public class PlayerConnection {
 
         // Don't immediately remove from game session - let the delayed removal handle it
         // This allows for reconnection without losing game state
-        System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
+        // System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
 
         // Close WebSocket connection
         if (wsContext != null && wsContext.session.isOpen()) {

@@ -428,14 +428,12 @@ public class NetworkClient {
             if (message != null) {
                 try {
                     String messageJson = gson.toJson(message);
-                    System.out.println("DEBUG: processOutgoingMessages - Sending: " + messageJson);
 
                     // Send via WebSocket
                     webSocket.sendText(messageJson, true);
-                    System.out.println("DEBUG: processOutgoingMessages - Message sent via WebSocket");
 
                 } catch (Exception e) {
-                    System.err.println("DEBUG: processOutgoingMessages - Failed to send message: " + e.getMessage());
+                    System.err.println("Failed to send message: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -477,7 +475,6 @@ public class NetworkClient {
         authMessage.putInBody("username", user.getUsername());
         authMessage.putInBody("token", jwtToken);
 
-        System.out.println("DEBUG: Sending authentication message for user: " + user.getUsername() + " with token: " + (jwtToken != null ? jwtToken.substring(0, Math.min(20, jwtToken.length())) + "..." : "null"));
         sendMessage(authMessage);
 
         System.out.println("Authentication request sent for user: " + user.getUsername());
@@ -502,7 +499,6 @@ public class NetworkClient {
         moveMessage.putInBody("username", authenticatedUser.getUsername());
         moveMessage.putInBody("timestamp", System.currentTimeMillis());
 
-        System.out.println("DEBUG: About to send PLAYER_MOVE message");
         sendMessage(moveMessage);
         System.out.println("NETWORK: Sent PLAYER_MOVE message to server - Position: (" + x + ", " + y + ") for user: " + authenticatedUser.getUsername());
     }
@@ -719,14 +715,11 @@ public class NetworkClient {
     }
 
     public void createLobby(String lobbyName, boolean isPrivate, boolean isVisible, String password) {
-        System.out.println("DEBUG: createLobby() called with name: " + lobbyName + ", isPrivate: " + isPrivate + ", isVisible: " + isVisible);
         if (connectionState != ConnectionState.AUTHENTICATED) {
-            System.out.println("DEBUG: Not authenticated, cannot create lobby. ConnectionState: " + connectionState);
             System.err.println("Cannot create lobby: not authenticated (state: " + connectionState + ")");
             return;
         }
 
-        System.out.println("DEBUG: Creating CREATE_LOBBY message");
         Message createLobbyMessage = new Message();
         createLobbyMessage.setType(Message.Type.CREATE_LOBBY);
         createLobbyMessage.putInBody("lobbyName", lobbyName != null ? lobbyName : authenticatedUser.getUsername() + "'s Lobby");
@@ -737,9 +730,7 @@ public class NetworkClient {
         }
         createLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
 
-        System.out.println("DEBUG: About to send CREATE_LOBBY message");
         sendMessage(createLobbyMessage);
-        System.out.println("DEBUG: CREATE_LOBBY message sent: " + lobbyName);
     }
 
     public void joinGame(String gameId) {
@@ -779,12 +770,10 @@ public class NetworkClient {
         listLobbiesMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(listLobbiesMessage);
-        System.out.println("DEBUG: Lobby list request sent");
     }
 
     public void startLobbyGame() {
         if (connectionState != ConnectionState.AUTHENTICATED) {
-            System.out.println("DEBUG: Cannot start lobby game: not authenticated (state: " + connectionState + ")");
             return;
         }
 
@@ -792,13 +781,11 @@ public class NetworkClient {
         startGameMessage.setType(Message.Type.START_LOBBY_GAME);
         startGameMessage.putInBody("timestamp", System.currentTimeMillis());
 
-        System.out.println("DEBUG: Sending START_LOBBY_GAME message");
         sendMessage(startGameMessage);
     }
 
     public void selectFarm(int farmIndex) {
         if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
-            System.out.println("DEBUG: Cannot select farm: not authenticated or in game (state: " + connectionState + ")");
             return;
         }
 
@@ -807,7 +794,6 @@ public class NetworkClient {
         selectFarmMessage.putInBody("farmIndex", farmIndex);
         selectFarmMessage.putInBody("timestamp", System.currentTimeMillis());
 
-        System.out.println("DEBUG: Sending SELECT_FARM message for farm index: " + farmIndex);
         sendMessage(selectFarmMessage);
     }
 
@@ -838,7 +824,6 @@ public class NetworkClient {
         leaveLobbyMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(leaveLobbyMessage);
-        System.out.println("DEBUG: LEAVE_LOBBY message sent");
     }
 
     public void setPlayerReady(boolean ready) {
@@ -852,7 +837,6 @@ public class NetworkClient {
         readyMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(readyMessage);
-        System.out.println("DEBUG: PLAYER_READY message sent: " + ready);
     }
 
     public void update() {

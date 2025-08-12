@@ -1289,20 +1289,10 @@ public class GameView implements Screen, InputProcessor {
     private void renderOtherPlayers() {
         Game game = App.getGame();
         if (game == null || game.getPlayers() == null) {
-            System.out.println("🔍 DEBUG: Game or players list is null in renderOtherPlayers");
             return;
         }
 
-        System.out.println("🔍 DEBUG: renderOtherPlayers called, total players: " + game.getPlayers().size());
-
         for (Player otherPlayer : game.getPlayers()) {
-            System.out.println("🔍 DEBUG: Checking player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
-            System.out.println("🔍 DEBUG: - otherPlayer != player: " + (otherPlayer != player));
-            System.out.println("🔍 DEBUG: - otherPlayer.getUser() != null: " + (otherPlayer != null && otherPlayer.getUser() != null));
-            System.out.println("🔍 DEBUG: - otherPlayer.getIsInVillage(): " + (otherPlayer != null ? otherPlayer.getIsInVillage() : "N/A"));
-            System.out.println("🔍 DEBUG: - current player isInVillage: " + (player != null ? player.getIsInVillage() : "N/A"));
-            System.out.println("🔍 DEBUG: - arePlayersAdjacent: " + (otherPlayer != null ? arePlayersAdjacent(player, otherPlayer) : "N/A"));
-
             // Render other players if they are in the same area as the current player
             boolean shouldRender = otherPlayer != null &&
                                  otherPlayer != player &&
@@ -1310,10 +1300,7 @@ public class GameView implements Screen, InputProcessor {
                                  arePlayersAdjacent(player, otherPlayer);
 
             if (shouldRender) {
-                System.out.println("🔍 DEBUG: Rendering other player: " + otherPlayer.getUser().getUsername());
                 renderPlayerSprite(otherPlayer);
-            } else {
-                System.out.println("🔍 DEBUG: NOT rendering other player: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
             }
         }
     }
@@ -1668,10 +1655,7 @@ public class GameView implements Screen, InputProcessor {
                                              arePlayersAdjacent(player, otherPlayer);
 
                 if (shouldRenderNickname) {
-                    System.out.println("🔍 DEBUG: Rendering nickname for: " + otherPlayer.getUser().getUsername());
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
-                } else {
-//                    System.out.println("🔍 DEBUG: NOT rendering nickname for: " + (otherPlayer != null ? otherPlayer.getUser().getUsername() : "null"));
                 }
             }
         }
@@ -2475,38 +2459,18 @@ public class GameView implements Screen, InputProcessor {
         Player currentPlayer = App.getGame().getCurrentPlayer();
         Player targetPlayer = App.getGame().getPlayerByUsername(username);
 
-        System.out.println("=== TELEPORT DEBUG INFO ===");
-        System.out.println("Current player: " + currentPlayer.getUser().getUsername());
-        System.out.println("Target username: '" + username + "'");
-        System.out.println("Target player found: " + (targetPlayer != null));
 
-        // Debug: List all players in the game
-        System.out.println("DEBUG: All players in game:");
-        if (App.getGame().getPlayers() != null) {
-            for (Player p : App.getGame().getPlayers()) {
-                if (p != null && p.getUser() != null) {
-                    System.out.println("  - '" + p.getUser().getUsername() + "'");
-                }
-            }
-        } else {
-            System.out.println("  - No players list found");
-        }
 
         if (targetPlayer == null) {
             showResultNotification(Result.error("Player '" + username + "' not found."));
             return;
         }
 
-        System.out.println("Target player: " + targetPlayer.getUser().getUsername());
-
         // Set both players to village locations next to each other
         // Village bounds: X from 78 to 156, Y from 0 to 156
         // Use coordinates within the village bounds
         Location currentLoc = new Location(100, 80, TileType.VILLAGE);
         Location targetLoc = new Location(101, 80, TileType.VILLAGE);
-
-        System.out.println("Setting current player location to: (" + currentLoc.getX() + ", " + currentLoc.getY() + ")");
-        System.out.println("Setting target player location to: (" + targetLoc.getX() + ", " + targetLoc.getY() + ")");
 
         currentPlayer.setLocation(currentLoc);
         targetPlayer.setLocation(targetLoc);
@@ -2517,9 +2481,6 @@ public class GameView implements Screen, InputProcessor {
         float targetPosX = targetLoc.getX() * 60;
         float targetPosY = targetLoc.getY() * 60;
 
-        System.out.println("Setting current player position to: (" + currentPosX + ", " + currentPosY + ")");
-        System.out.println("Setting target player position to: (" + targetPosX + ", " + targetPosY + ")");
-
         currentPlayer.setPosX(currentPosX);
         currentPlayer.setPosY(currentPosY);
         targetPlayer.setPosX(targetPosX);
@@ -2529,20 +2490,10 @@ public class GameView implements Screen, InputProcessor {
         currentPlayer.setIsInVillage(true);
         targetPlayer.setIsInVillage(true);
 
-        System.out.println("Current player isInVillage: " + currentPlayer.getIsInVillage());
-        System.out.println("Target player isInVillage: " + targetPlayer.getIsInVillage());
-        System.out.println("Current player position after set: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
-        System.out.println("Target player position after set: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
-        System.out.println("Current player location after set: (" + currentPlayer.getLocation().getX() + ", " + currentPlayer.getLocation().getY() + ")");
-        System.out.println("Target player location after set: (" + targetPlayer.getLocation().getX() + ", " + targetPlayer.getLocation().getY() + ")");
-
         // Reset the justTransitionedToVillage flag to allow movement
         if (controller != null && controller.getPlayerController() != null) {
-            System.out.println("Resetting justTransitionedToVillage flag to allow movement");
             resetTransitionFlag();
         }
-
-        System.out.println("=== END TELEPORT DEBUG ===");
 
         showResultNotification(Result.success("Successfully teleported both players to village!"));
     }
@@ -3106,9 +3057,7 @@ public class GameView implements Screen, InputProcessor {
             currentSmileAnimation = new SmileAnimation(currentPlayerSmileX, currentPlayerSmileY, 2.0f);
 
             // Now try to perform the actual hug action
-            System.out.println("DEBUG: About to perform hug action...");
             boolean success = currentPlayer.hugMob(targetPlayer);
-            System.out.println("DEBUG: Hug action result: " + success);
             if (success) {
                 showResultNotification(Result.success("You hugged " + targetPlayer.getUser().getUsername() + "!"));
             } else {
@@ -3129,13 +3078,8 @@ public class GameView implements Screen, InputProcessor {
                 return;
             }
 
-            // Debug: Check friendship level and adjacency
+            // Check friendship level and adjacency
             FriendShip friendship = currentPlayer.getFriendship(targetPlayer);
-            System.out.println("DEBUG: Friendship level: " + friendship.getLevel());
-            System.out.println("DEBUG: Friendship XP: " + friendship.getXp() + "/" + friendship.getMaxXpForCurrentLevel());
-            System.out.println("DEBUG: Players adjacent: " + arePlayersAdjacent(currentPlayer, targetPlayer));
-            System.out.println("DEBUG: Current player position: (" + currentPlayer.getPosX() + ", " + currentPlayer.getPosY() + ")");
-            System.out.println("DEBUG: Target player position: (" + targetPlayer.getPosX() + ", " + targetPlayer.getPosY() + ")");
 
             // Always create bouquet animation from current player to target player
             float startX = currentPlayer.getPosX();
@@ -3163,10 +3107,7 @@ public class GameView implements Screen, InputProcessor {
             currentPlayer.decreaseMoney(100);
 
             // Get friendship and give bouquet
-            System.out.println("DEBUG: About to perform flower action...");
-            System.out.println("DEBUG: Friendship level: " + friendship.getLevel() + ", XP: " + friendship.getXp() + "/" + friendship.getMaxXpForCurrentLevel());
             boolean success = friendship.giveBouquet(currentPlayer);
-            System.out.println("DEBUG: Flower action result: " + success);
             if (success) {
                 showResultNotification(Result.success("You gave flowers to " + targetPlayer.getUser().getUsername() + "!"));
             } else {
