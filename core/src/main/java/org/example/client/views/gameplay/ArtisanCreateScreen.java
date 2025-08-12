@@ -19,7 +19,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.client.controllers.HouseMenuController;
+import org.example.client.controllers.menu.HouseMenuController;
 import org.example.common.models.Items.CraftingItem;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;

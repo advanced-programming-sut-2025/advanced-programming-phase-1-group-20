@@ -758,6 +758,12 @@ public class Village {
             System.out.println("Village.initializeNPCs(): Residents list already exists with " + residents.size() + " NPCs");
         }
 
+        // Check if NPCs are already initialized to prevent duplicates
+        if (!residents.isEmpty()) {
+            System.out.println("Village.initializeNPCs(): NPCs already exist, skipping initialization to prevent duplicates");
+            return;
+        }
+
         // Get the game instance once to avoid repeated calls
         Game game = App.getGame();
         if (game == null || game.getCurrentPlayer() == null) {
@@ -816,6 +822,14 @@ public class Village {
     }
 
     private void createNPCFromEnum(String npcName) {
+        // Check if NPC already exists to prevent duplicates
+        for (NPC existingNPC : residents) {
+            if (existingNPC.getName().equals(npcName)) {
+                System.out.println("Village.createNPCFromEnum(): NPC " + npcName + " already exists, skipping creation");
+                return;
+            }
+        }
+
         // Get NPC data from enum
         org.example.common.models.enums.Npcs npcEnum = org.example.common.models.enums.Npcs.fromName(npcName);
         if (npcEnum == null) {

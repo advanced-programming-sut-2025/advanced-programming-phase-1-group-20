@@ -22,6 +22,7 @@ public class ClientMessageHandler {
     private ConnectionStatusListener connectionListener;
     private OnlinePlayersListener onlinePlayersListener;
     private LobbyMessageListener lobbyListener;
+    private RadioMessageListener radioListener;
     private Game currentGame; // Add reference to current game instance
 
     public interface GameStateUpdateListener {
@@ -54,6 +55,14 @@ public class ClientMessageHandler {
 
     public interface LobbyMessageListener {
         void onLobbyMessage(Message message);
+    }
+
+    public interface RadioMessageListener {
+        void onRadioTrackUpdate(String trackName, String trackPath, String fromPlayer);
+        void onRadioTrackUpload(String trackName, String trackPath, String fromPlayer);
+        void onRadioConnectRequest(String requestingPlayer, String targetPlayer);
+        void onRadioConnectResponse(String respondingPlayer, String targetPlayer, boolean accepted);
+        void onRadioDisconnect(String disconnectingPlayer, String targetPlayer);
     }
 
     public ClientMessageHandler(NetworkClient networkClient) {
@@ -159,6 +168,22 @@ public class ClientMessageHandler {
                 case FARM_SELECTION_COMPLETE:
                     System.out.println("DEBUG: ClientMessageHandler - Received FARM_SELECTION_COMPLETE message");
                     handleFarmSelectionComplete(message);
+                    break;
+                // Radio system messages
+                case RADIO_TRACK_UPDATE:
+                    handleRadioTrackUpdate(message);
+                    break;
+                case RADIO_TRACK_UPLOAD:
+                    handleRadioTrackUpload(message);
+                    break;
+                case RADIO_CONNECT_REQUEST:
+                    handleRadioConnectRequest(message);
+                    break;
+                case RADIO_CONNECT_RESPONSE:
+                    handleRadioConnectResponse(message);
+                    break;
+                case RADIO_DISCONNECT:
+                    handleRadioDisconnect(message);
                     break;
                 // Lobby-related message types
                 case CREATE_LOBBY:
@@ -838,20 +863,20 @@ public class ClientMessageHandler {
             }
         }
     }
-    
+
     private void handleNPCUpdate(Message message) {
         Object npcsData = message.getFromBody("npcs");
         if (npcsData != null) {
             System.out.println("DEBUG: NPC update received");
-            
+
             Game currentGame = getCurrentGame();
-            if (currentGame != null && currentGame.getGameMap() != null && 
+            if (currentGame != null && currentGame.getGameMap() != null &&
                 currentGame.getGameMap().getVillage() != null) {
-                
+
                 try {
                     @SuppressWarnings("unchecked")
                     List<Map<String, Object>> npcList = (List<Map<String, Object>>) npcsData;
-                    
+
                     for (Map<String, Object> npcData : npcList) {
                         String npcName = (String) npcData.get("name");
                         Float posX = ((Double) npcData.get("posX")).floatValue();
@@ -859,11 +884,11 @@ public class ClientMessageHandler {
                         String currentAnimation = (String) npcData.get("currentAnimation");
                         Boolean isMoving = (Boolean) npcData.get("isMoving");
                         String spriteName = (String) npcData.get("spriteName");
-                        
+
                         // Find and update the NPC in the village
-                        List<org.example.common.models.entities.NPC> residents = 
+                        List<org.example.common.models.entities.NPC> residents =
                             currentGame.getGameMap().getVillage().getResidents();
-                        
+
                         for (org.example.common.models.entities.NPC npc : residents) {
                             if (npc.getName().equals(npcName)) {
                                 npc.setPosX(posX);
@@ -871,8 +896,8 @@ public class ClientMessageHandler {
                                 npc.setCurrentAnimation(currentAnimation);
                                 npc.setMoving(isMoving);
                                 npc.setSpriteName(spriteName);
-                                
-                                System.out.println("DEBUG: Updated NPC " + npcName + 
+
+                                System.out.println("DEBUG: Updated NPC " + npcName +
                                     " to position (" + posX + ", " + posY + ") with animation " + currentAnimation);
                                 break;
                             }
@@ -939,6 +964,11 @@ public class ClientMessageHandler {
         this.lobbyListener = listener;
     }
 
+    public void setRadioListener(RadioMessageListener listener) {
+        System.out.println("DEBUG: ClientMessageHandler.setRadioListener called with listener: " + (listener != null ? listener.getClass().getSimpleName() : "null"));
+        this.radioListener = listener;
+    }
+
     // Convenience methods for sending responses
     public void sendTradeResponse(String fromPlayer, String toPlayer, boolean accepted) {
         Message response = new Message();
@@ -976,5 +1006,64 @@ public class ClientMessageHandler {
     public void setGameSessionId(String gameSessionId) {
         networkClient.setGameSessionId(gameSessionId);
         System.out.println("CLIENT: Stored game session ID: " + gameSessionId);
+    }
+
+    // Radio system message handlers
+    private void handleRadioTrackUpdate(Message message) {
+        String trackName = message.getFromBody("trackName");
+        String trackPath = message.getFromBody("trackPath");
+        String playerName = message.getFromBody("playerName");
+
+        System.out.println("Radio: Received track update from " + playerName + ": " + trackName);
+
+        if (radioListener != null) {
+            radioListener.onRadioTrackUpdate(trackName, trackPath, playerName);
+        }
+    }
+
+    private void handleRadioTrackUpload(Message message) {
+        String trackName = message.getFromBody("trackName");
+        String trackPath = message.getFromBody("trackPath");
+        String playerName = message.getFromBody("playerName");
+
+        System.out.println("Radio: Received track upload from " + playerName + ": " + trackName);
+
+        if (radioListener != null) {
+            radioListener.onRadioTrackUpload(trackName, trackPath, playerName);
+        }
+    }
+
+    private void handleRadioConnectRequest(Message message) {
+        String targetPlayer = message.getFromBody("targetPlayer");
+        String requestingPlayer = message.getFromBody("requestingPlayer");
+
+        System.out.println("Radio: Connection request from " + requestingPlayer + " to " + targetPlayer);
+
+        if (radioListener != null) {
+            radioListener.onRadioConnectRequest(requestingPlayer, targetPlayer);
+        }
+    }
+
+    private void handleRadioConnectResponse(Message message) {
+        String targetPlayer = message.getFromBody("targetPlayer");
+        String respondingPlayer = message.getFromBody("respondingPlayer");
+        Boolean accepted = message.getFromBody("accepted");
+
+        System.out.println("Radio: Connection response from " + respondingPlayer + " to " + targetPlayer + ": " + accepted);
+
+        if (radioListener != null) {
+            radioListener.onRadioConnectResponse(respondingPlayer, targetPlayer, accepted);
+        }
+    }
+
+    private void handleRadioDisconnect(Message message) {
+        String targetPlayer = message.getFromBody("targetPlayer");
+        String disconnectingPlayer = message.getFromBody("disconnectingPlayer");
+
+        System.out.println("Radio: Disconnect from " + disconnectingPlayer + " to " + targetPlayer);
+
+        if (radioListener != null) {
+            radioListener.onRadioDisconnect(disconnectingPlayer, targetPlayer);
+        }
     }
 }

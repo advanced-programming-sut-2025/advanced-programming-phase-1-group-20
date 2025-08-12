@@ -61,6 +61,7 @@ import org.example.client.controllers.NPCSpriteController;
 import org.example.client.views.NPCDialogueScreen;
 
 import org.example.client.views.fishing.FishingMiniGame;
+import org.example.client.views.RadioSystemScreen;
 import org.example.client.network.NetworkClient;
 
 import java.lang.reflect.Field;
@@ -166,10 +167,16 @@ public class GameView implements Screen, InputProcessor {
     private float lastToolMouseX = 0;
     private float lastToolMouseY = 0;
 
+    // Radio system button
+    private TextButton radioButton;
+
     // Vertical energy bars for all players
-    private static final int VERTICAL_ENERGY_BAR_WIDTH = 20;
-    private static final int VERTICAL_ENERGY_BAR_HEIGHT = 100;
+    private static final int VERTICAL_ENERGY_BAR_WIDTH = 25;
+    private static final int VERTICAL_ENERGY_BAR_HEIGHT = 120;
     private static final int ENERGY_BAR_SPACING = 30;
+
+    // Energy bar animation
+    private float energyBarPulseTime = 0f;
 
     // Fish catch display - will be implemented later
     // private FishCatchDisplay fishCatchDisplay;
@@ -219,6 +226,9 @@ public class GameView implements Screen, InputProcessor {
 
         // Initialize quest system
         initializeQuestButton();
+
+        // Initialize radio system
+        initializeRadioButton();
 
         // Initialize NPC sprite controller
         npcSpriteController = new NPCSpriteController();
@@ -583,6 +593,16 @@ public class GameView implements Screen, InputProcessor {
         });
     }
 
+    private void initializeRadioButton() {
+        radioButton = new TextButton("Radio", skin);
+        radioButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openRadioSystem();
+            }
+        });
+    }
+
     private void openFriendsWindow() {
         try {
             if (friendsWindow == null) {
@@ -601,6 +621,16 @@ public class GameView implements Screen, InputProcessor {
             Main.getGame().setScreen(questMenuScreen);
         } catch (Exception e) {
             System.err.println("Error opening quest menu: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openRadioSystem() {
+        try {
+            RadioSystemScreen radioSystemScreen = new RadioSystemScreen(skin, this, player);
+            Main.getGame().setScreen(radioSystemScreen);
+        } catch (Exception e) {
+            System.err.println("Error opening radio system: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -1273,6 +1303,15 @@ public class GameView implements Screen, InputProcessor {
             stage.addActor(questTable);
         }
 
+        // Add radio button under the quest button
+        if (radioButton != null) {
+            Table radioTable = new Table();
+            radioTable.setFillParent(true);
+            radioTable.top().left();
+            radioTable.add(radioButton).width(100).height(40).padTop(70).padLeft(20); // Positioned under quest button
+            stage.addActor(radioTable);
+        }
+
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
             Table friendsTable = new Table();
@@ -1369,6 +1408,9 @@ public class GameView implements Screen, InputProcessor {
             updateLighting(deltaTime);
             updateClockDisplay();
             updateWeatherAndSeasonDisplays();
+
+            // Update energy bar animation
+            energyBarPulseTime += deltaTime;
 
             // Update rain system
             Date currentDate = getCurrentGameDate();
@@ -1735,35 +1777,75 @@ public class GameView implements Screen, InputProcessor {
         float energyPercentage = Math.max(0, Math.min(1, currentEnergy / 200f));
         float barHeight = VERTICAL_ENERGY_BAR_HEIGHT * energyPercentage;
 
-        // Draw background (empty bar)
-        Main.getBatch().setColor(Color.DARK_GRAY);
+        // Draw background with gradient effect
+        Main.getBatch().setColor(new Color(0.2f, 0.2f, 0.2f, 0.8f));
         Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, VERTICAL_ENERGY_BAR_HEIGHT);
 
-        // Draw filled portion from bottom up
+        // Draw filled portion from bottom up with gradient
         if (barHeight > 0) {
-            // Color based on energy level
-            if (energyPercentage > 0.6f) {
-                Main.getBatch().setColor(Color.GREEN);
+            // Enhanced color based on energy level with smoother transitions
+            Color energyColor;
+            if (energyPercentage > 0.7f) {
+                // Green gradient for high energy
+                energyColor = new Color(0.2f, 0.8f, 0.2f, 1f);
+            } else if (energyPercentage > 0.5f) {
+                // Light green for good energy
+                energyColor = new Color(0.4f, 0.7f, 0.2f, 1f);
             } else if (energyPercentage > 0.3f) {
-                Main.getBatch().setColor(Color.YELLOW);
+                // Yellow for medium energy
+                energyColor = new Color(0.8f, 0.8f, 0.2f, 1f);
+            } else if (energyPercentage > 0.15f) {
+                // Orange for low energy
+                energyColor = new Color(0.9f, 0.6f, 0.2f, 1f);
             } else {
-                Main.getBatch().setColor(Color.RED);
+                // Red for very low energy with pulsing effect
+                float pulseIntensity = 0.3f + 0.2f * (float) Math.sin(energyBarPulseTime * 4f);
+                energyColor = new Color(0.9f, 0.3f, 0.2f, 0.8f + pulseIntensity * 0.2f);
             }
+
+            Main.getBatch().setColor(energyColor);
             Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, barHeight);
+
+            // Add a subtle highlight at the top of the filled portion
+            Main.getBatch().setColor(new Color(1f, 1f, 1f, 0.3f));
+            Main.getBatch().draw(whiteTexture, barX, barY + barHeight - 3, VERTICAL_ENERGY_BAR_WIDTH, 3);
         }
 
-        // Draw border
-        Main.getBatch().setColor(Color.WHITE);
+        // Draw border with better visibility
+        Main.getBatch().setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
         Main.getBatch().draw(whiteTexture, barX, barY, VERTICAL_ENERGY_BAR_WIDTH, 2); // Bottom border
         Main.getBatch().draw(whiteTexture, barX, barY + VERTICAL_ENERGY_BAR_HEIGHT - 2, VERTICAL_ENERGY_BAR_WIDTH, 2); // Top border
         Main.getBatch().draw(whiteTexture, barX, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Left border
         Main.getBatch().draw(whiteTexture, barX + VERTICAL_ENERGY_BAR_WIDTH - 2, barY, 2, VERTICAL_ENERGY_BAR_HEIGHT); // Right border
 
-        // Draw player name using smallFont if available
+        // Draw energy text
         if (smallFont != null) {
-            smallFont.setColor(Color.CYAN); // Current player always cyan
-            float nameX = barX - 5; // Center text under bar
-            float nameY = barY - 15;
+            // Energy number at the top
+            smallFont.setColor(Color.WHITE);
+            String energyText = currentEnergy + "/200";
+            float textWidth = smallFont.draw(Main.getBatch(), energyText, 0, 0).width;
+            float textX = barX + (VERTICAL_ENERGY_BAR_WIDTH - textWidth) / 2;
+            float textY = barY + VERTICAL_ENERGY_BAR_HEIGHT + 15;
+            smallFont.draw(Main.getBatch(), energyText, textX, textY);
+
+            // "ENERGY" label at the bottom
+            smallFont.setColor(new Color(0.8f, 0.8f, 0.8f, 1f));
+            String energyLabel = "ENERGY";
+            float labelWidth = smallFont.draw(Main.getBatch(), energyLabel, 0, 0).width;
+            float labelX = barX + (VERTICAL_ENERGY_BAR_WIDTH - labelWidth) / 2;
+            float labelY = barY - 5;
+            smallFont.draw(Main.getBatch(), energyLabel, labelX, labelY);
+
+            // Warning indicator for low energy
+            if (energyPercentage <= 0.15f) {
+                float warningPulse = 0.5f + 0.5f * (float) Math.sin(energyBarPulseTime * 6f);
+                smallFont.setColor(new Color(1f, 0.3f, 0.3f, warningPulse));
+                String warningText = "LOW!";
+                float warningWidth = smallFont.draw(Main.getBatch(), warningText, 0, 0).width;
+                float warningX = barX + (VERTICAL_ENERGY_BAR_WIDTH - warningWidth) / 2;
+                float warningY = barY + VERTICAL_ENERGY_BAR_HEIGHT + 35;
+                smallFont.draw(Main.getBatch(), warningText, warningX, warningY);
+            }
         }
 
         // Reset color and end batch

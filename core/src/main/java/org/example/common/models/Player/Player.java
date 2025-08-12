@@ -35,7 +35,7 @@ public class Player {
     private Map<Player, FriendShip> friendships;
     private User user;
     private int energy;
-    private boolean energyUnlimited;
+    private boolean energyUnlimited = true;
     private boolean hasCollapsed;
     private Location location;
     private Farm currentFarm;
@@ -110,7 +110,7 @@ public class Player {
 
 
         //graphic ui
-        this.speed = 3;
+        this.speed = 8;
 
         // Check if we're in a server environment (Gdx.files is null on server)
         boolean isServerEnvironment = false;
@@ -130,7 +130,7 @@ public class Player {
         this.money = 10000000;
 
         // Initialize location based on default position
-        this.location = new Location((int) (posX / 60), (int) (posY / 60), org.example.common.models.enums.Types.TileType.Dirt);
+        this.location = new Location((int) (posX / 60), (int) (posY / 60), TileType.Dirt);
 
         placedCraftingItems = new ArrayList<>();
     }
@@ -437,6 +437,9 @@ public class Player {
         this.posX = posX;
         if (location != null) {
             location.setxAxis((int) (posX/60));
+        } else{
+            location = new Location();
+            location.setxAxis((int) (posX/60));
         }
         // Update sprite position when position changes
         updatePosition();
@@ -449,6 +452,9 @@ public class Player {
     public void setPosY(float posY) {
         this.posY = posY;
         if (location != null) {
+            location.setyAxis((int) (posY/60));
+        } else {
+            location = new Location();
             location.setyAxis((int) (posY/60));
         }
         updatePosition();
@@ -655,9 +661,9 @@ public class Player {
             return false;
         }
 
-        // Use the tool
         boolean success;
         if (gameMap != null) {
+            System.out.println("================using this=============");
             success = currentTool.use(direction, gameMap, this);
         } else {
             success = currentTool.use(direction);
