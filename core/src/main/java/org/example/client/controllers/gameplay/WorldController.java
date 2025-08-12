@@ -104,9 +104,10 @@ public class WorldController {
     private Texture hoverPlacementTexture;
 
     // Crow Attack Animation Fields
+    private boolean crowAttack = false;
     private float crowAttackTimer = 0f;
     private float stateTime = 0f;
-    private static final float CROW_ATTACK_DURATION = 3.0f;
+    private static final float CROW_ATTACK_DURATION = 30.0f;
     private static final int NUM_CROWS = 20;
     private final Animation<TextureRegion> crowAnimation;
     private final Array<Vector2> crowPositions = new Array<>(NUM_CROWS);
@@ -126,7 +127,7 @@ public class WorldController {
         this.greenhouseAnchors = new ArrayList<>();
         this.houseAnchors = new ArrayList<>();
         this.barnAnchors = new ArrayList<>();
-        this.coopAnchors = new ArrayList<>();
+        this.coopAnchors = new     ArrayList<>();
         this.goldClockAnchors = new ArrayList<>();
         this.npcHouseAnchors = new ArrayList<>();
         this.villageBuildingAnchors = new ArrayList<>();
@@ -326,10 +327,9 @@ public class WorldController {
     }
 
     public void triggerCrowAttack() {
-        if (farm.isCrowTriggered()) {
-            return; // Attack already in progress
+        if(crowAttack){
+            return;
         }
-
         crowAttackTimer = 0f;
         stateTime = 0f;
         crowPositions.clear();
@@ -360,8 +360,9 @@ public class WorldController {
     public void update(float delta) {
         // Check if full map is visible - if so, don't update camera position
         // The camera position is managed by the full map view
-        if (Gdx.input.isKeyJustPressed(Input.Keys.I)) {
+        if (farm.isCrowTriggered()) {
             triggerCrowAttack();
+            crowAttack = true;
         }
 
         if (farm.isCrowTriggered()) {
@@ -370,6 +371,7 @@ public class WorldController {
 
             if (crowAttackTimer >= CROW_ATTACK_DURATION) {
                 farm.setCrowTriggered(false);
+                crowAttack = false;
                 crowAttackTimer = 0f;
             } else {
                 // Update position of each crow
