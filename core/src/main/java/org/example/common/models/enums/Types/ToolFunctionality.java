@@ -87,12 +87,12 @@ public enum ToolFunctionality {
             // Energy consumption function for Axe
             (material) -> {
                 return switch (material) {
-                    case BASIC -> 5;
-                    case COPPER -> 4;
-                    case IRON -> 3;
-                    case GOLD -> 2;
+                    case BASIC -> 3;
+                    case COPPER -> 2;
+                    case IRON -> 2;
+                    case GOLD -> 1;
                     case IRIDIUM -> 1;
-                    default -> 5;
+                    default -> 3;
                 };
             },
             // Base sell price function for Axe
@@ -200,10 +200,10 @@ public enum ToolFunctionality {
             // Energy consumption function for Watering Can
             (material) -> {
                 return switch (material) {
-                    case BASIC -> 5;
-                    case COPPER -> 4;
-                    case IRON -> 3;
-                    case GOLD -> 2;
+                    case BASIC -> 3;
+                    case COPPER -> 2;
+                    case IRON -> 2;
+                    case GOLD -> 1;
                     case IRIDIUM -> 1;
                 };
             },
@@ -295,17 +295,17 @@ public enum ToolFunctionality {
             (material) -> {
                 switch (material) {
                     case BASIC:
-                        return 5;
-                    case COPPER:
-                        return 4;
-                    case IRON:
                         return 3;
-                    case GOLD:
+                    case COPPER:
                         return 2;
+                    case IRON:
+                        return 2;
+                    case GOLD:
+                        return 1;
                     case IRIDIUM:
                         return 1;
                     default:
-                        return 5;
+                        return 3;
                 }
             },
             // Base sell price function for Hoe
@@ -458,17 +458,17 @@ public enum ToolFunctionality {
             (material) -> {
                 switch (material) {
                     case BASIC:
-                        return 5;
-                    case COPPER:
-                        return 4;
-                    case IRON:
                         return 3;
-                    case GOLD:
+                    case COPPER:
                         return 2;
+                    case IRON:
+                        return 2;
+                    case GOLD:
+                        return 1;
                     case IRIDIUM:
                         return 1;
                     default:
-                        return 5;
+                        return 3;
                 }
             },
             // Base sell price function for Pickaxe
@@ -519,17 +519,17 @@ public enum ToolFunctionality {
             (material) -> {
                 switch (material) {
                     case BASIC:
-                        return 8;
-                    case COPPER:
-                        return 6;
-                    case IRON:
                         return 4;
-                    case GOLD:
+                    case COPPER:
+                        return 3;
+                    case IRON:
                         return 2;
+                    case GOLD:
+                        return 1;
                     case IRIDIUM:
                         return 1;
                     default:
-                        return 8;
+                        return 4;
                 }
             },
             // Base sell price function for Fishing Rod

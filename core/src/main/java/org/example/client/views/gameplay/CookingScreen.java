@@ -12,7 +12,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
-import org.example.client.controllers.HouseMenuController;
+import org.example.client.controllers.menu.HouseMenuController;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.HoverImage;
 import org.example.common.models.common.Result;

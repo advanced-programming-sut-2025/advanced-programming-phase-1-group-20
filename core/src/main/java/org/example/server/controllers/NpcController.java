@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class NpcController {
-
     // Time periods for NPC routines
     private static final int MORNING_START = 6;  // 6:00 AM
     private static final int MORNING_END = 11;   // 11:00 AM

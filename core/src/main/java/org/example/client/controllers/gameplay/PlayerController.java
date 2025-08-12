@@ -37,6 +37,8 @@ public class PlayerController {
     private static final int MIN_MOVEMENT_ENERGY_COST = 1; // Minimum 1 energy cost per movement
     private long lastTransitionTime = 0;
     private static final long TRANSITION_COOLDOWN_MS = 500;
+    private float lastTileX = -1;
+    private float lastTileY = -1;
     private static final float TOOL_USE_DURATION = 0.5f;
     private static final float TOOL_USE_OFFSET_X = 20f;
     private static final float TOOL_USE_OFFSET_Y = 10f;
@@ -122,6 +124,10 @@ public class PlayerController {
         itemUp = buildItemAnimation("up");
 
         currentAnim = walkDown;
+
+        // Initialize last tile position
+        lastTileX = player.getPosX() / 60;
+        lastTileY = player.getPosY() / 60;
     }
 
     public PlayerController(Player player, Farm farm, Skin skin, OrthographicCamera camera) {
@@ -241,7 +247,6 @@ public class PlayerController {
         }
 
         updateToolDisplay(delta);
-        handlePlayerInput(delta);
         stateTime += delta;
 
         updateCurrentAnimation();
@@ -318,15 +323,15 @@ public class PlayerController {
     private int calculateMovementEnergyCost() {
         // Calculate 0.05% of player's current energy as movement cost
         int currentEnergy = player.getEnergy();
-        int energyCost = Math.max(MIN_MOVEMENT_ENERGY_COST, currentEnergy * MOVEMENT_ENERGY_PERCENTAGE / 10000);
+        int energyCost = currentEnergy * MOVEMENT_ENERGY_PERCENTAGE / 10000;
 
         // Ensure we don't consume more than 1 energy for very low energy levels
-        if (currentEnergy < 2000 && energyCost > 1) {
+        if (currentEnergy < 100 && energyCost > 1) {
             energyCost = 1;
         }
 
         // Always consume at least 1 energy for movement
-        return Math.max(1, energyCost);
+        return Math.max(MIN_MOVEMENT_ENERGY_COST, energyCost);
     }
 
     private void handlePlayerInput(float delta) {
@@ -387,31 +392,42 @@ public class PlayerController {
         }
 
         if (moved && !player.isEnergyUnlimited()) {
-            int energyCost = calculateMovementEnergyCost();
-            System.out.println("Movement detected - Energy cost: " + energyCost + ", Current energy: " + player.getEnergy());
+            // Check if player has moved to a new tile position
+            float currentTileX = player.getPosX() / 60;
+            float currentTileY = player.getPosY() / 60;
 
-            if (player.getEnergy() >= energyCost) {
-                player.decreaseEnergy(energyCost);
-                System.out.println("Player moved - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
+            if (currentTileX != lastTileX || currentTileY != lastTileY) {
+                int energyCost = calculateMovementEnergyCost();
+                System.out.println("New tile movement detected - Energy cost: " + energyCost + ", Current energy: " + player.getEnergy());
+
+                if (player.getEnergy() >= energyCost) {
+                    player.decreaseEnergy(energyCost);
+                    System.out.println("Player moved to new tile - Energy consumed: " + energyCost + ", Remaining energy: " + player.getEnergy());
+                    lastTileX = currentTileX;
+                    lastTileY = currentTileY;
+                    sendMovementToServer();
+
+                    if (App.getGame() != null) {
+                        App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
+                    }
+                }
+                else {
+                    System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
+                    player.setPosX(player.getPosX());
+                    player.setPosY(player.getPosY());
+
+                    if (player.getEnergy() < energyCost) {
+                        player.setCollapsed(true);
+                        System.out.println("Player has collapsed due to insufficient energy!");
+                    }
+
+                    if (App.getGame() != null) {
+                        App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
+                    }
+                }
+            } else {
+                // Still send movement to server but don't consume energy
                 sendMovementToServer();
-
-                if (App.getGame() != null) {
-                    App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
-                }
-            }
-            else {
-                System.out.println("Not enough energy to move! Energy: " + player.getEnergy() + ", Required: " + energyCost);
-                player.setPosX(player.getPosX());
-                player.setPosY(player.getPosY());
-
-                if (player.getEnergy() < energyCost) {
-                    player.setCollapsed(true);
-                    System.out.println("Player has collapsed due to insufficient energy!");
-                }
-
-                if (App.getGame() != null) {
-                    App.getGame().checkAndAdvanceTurnIfEnergyDepleted();
-                }
             }
         }
         else if (moved && player.isEnergyUnlimited()) {
@@ -775,43 +791,101 @@ public class PlayerController {
     private void updateCurrentAnimation() {
         if (player.hasCollapsed()) {
             currentAnim = collapsedAnim;
+            // Sync animation state with player
+            player.setCurrentAnimation("collapsed");
+            player.setMoving(false);
             return;
         }
 
         if (isUsingTool) {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP: 
+                    currentAnim = walkUp; 
+                    player.setCurrentAnimation("up");
+                    break;
+                case DOWN: 
+                    currentAnim = walkDown; 
+                    player.setCurrentAnimation("down");
+                    break;
+                case LEFT: 
+                    currentAnim = walkLeft; 
+                    player.setCurrentAnimation("left");
+                    break;
+                case RIGHT: 
+                    currentAnim = walkRight; 
+                    player.setCurrentAnimation("right");
+                    break;
             }
+            player.setMoving(true);
         }
         else if (player.getCurrentItem() != null) {
             if (this.isMoving) {
                 switch (facing) {
-                    case UP: currentAnim = walkUp; break;
-                    case DOWN: currentAnim = walkDown; break;
-                    case LEFT: currentAnim = walkLeft; break;
-                    case RIGHT: currentAnim = walkRight; break;
+                    case UP: 
+                        currentAnim = walkUp; 
+                        player.setCurrentAnimation("up");
+                        break;
+                    case DOWN: 
+                        currentAnim = walkDown; 
+                        player.setCurrentAnimation("down");
+                        break;
+                    case LEFT: 
+                        currentAnim = walkLeft; 
+                        player.setCurrentAnimation("left");
+                        break;
+                    case RIGHT: 
+                        currentAnim = walkRight; 
+                        player.setCurrentAnimation("right");
+                        break;
                 }
+                player.setMoving(true);
             }
             else {
                 switch (facing) {
-                    case UP: currentAnim = itemUp; break;
-                    case DOWN: currentAnim = itemDown; break;
-                    case LEFT: currentAnim = itemLeft; break;
-                    case RIGHT: currentAnim = itemRight; break;
+                    case UP: 
+                        currentAnim = itemUp; 
+                        player.setCurrentAnimation("item_up");
+                        break;
+                    case DOWN: 
+                        currentAnim = itemDown; 
+                        player.setCurrentAnimation("item_down");
+                        break;
+                    case LEFT: 
+                        currentAnim = itemLeft; 
+                        player.setCurrentAnimation("item_left");
+                        break;
+                    case RIGHT: 
+                        currentAnim = itemRight; 
+                        player.setCurrentAnimation("item_right");
+                        break;
                 }
+                player.setMoving(false);
             }
         }
         else {
             switch (facing) {
-                case UP: currentAnim = walkUp; break;
-                case DOWN: currentAnim = walkDown; break;
-                case LEFT: currentAnim = walkLeft; break;
-                case RIGHT: currentAnim = walkRight; break;
+                case UP: 
+                    currentAnim = walkUp; 
+                    player.setCurrentAnimation("up");
+                    break;
+                case DOWN: 
+                    currentAnim = walkDown; 
+                    player.setCurrentAnimation("down");
+                    break;
+                case LEFT: 
+                    currentAnim = walkLeft; 
+                    player.setCurrentAnimation("left");
+                    break;
+                case RIGHT: 
+                    currentAnim = walkRight; 
+                    player.setCurrentAnimation("right");
+                    break;
             }
+            player.setMoving(this.isMoving);
         }
+        
+        // Sync animation timer
+        player.setAnimationTimer(stateTime);
     }
 
     public void render(SpriteBatch batch) {
@@ -1351,10 +1425,8 @@ public class PlayerController {
                 int tileX = Math.round(x / 60);
                 int tileY = Math.round(y / 60);
 
-                System.out.println("🎮 CLIENT: About to send movement - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");
                 networkClient.sendPlayerMove(x, y);
 
-                // Update player's location to match the movement
                 player.setLocation(new Location(tileX, tileY, player.getLocation().getTile()));
 
                 System.out.println("🎮 CLIENT: Sent movement update to server - Position: (" + x + ", " + y + ") Tile: (" + tileX + ", " + tileY + ")");

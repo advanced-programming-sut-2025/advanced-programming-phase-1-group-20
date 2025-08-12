@@ -367,7 +367,12 @@ public class GameSession {
 
             // Broadcast NPC updates periodically
             if (gameTickCounter % 30 == 0) { // Every 30 ticks (about every 30 seconds)
-                broadcastNPCUpdates();
+//                broadcastNPCUpdates();
+            }
+
+            // Broadcast player data updates periodically (including animation state)
+            if (gameTickCounter % 10 == 0) { // Every 10 ticks (about every 10 seconds)
+                broadcastPlayerDataUpdate();
             }
 
         } catch (Exception e) {
@@ -393,9 +398,9 @@ public class GameSession {
                 return;
             }
 
-            System.out.println("🚀 SERVER: Processing movement for " + username + " to (" + x + ", " + y + ")");
-            System.out.println("🚀 SERVER: Player energy before movement: " + player.getEnergy());
-            System.out.println("🚀 SERVER: Player energy unlimited: " + player.isEnergyUnlimited());
+            System.out.println("SERVER: Processing movement for " + username + " to (" + x + ", " + y + ")");
+            System.out.println("SERVER: Player energy before movement: " + player.getEnergy());
+            System.out.println("SERVER: Player energy unlimited: " + player.isEnergyUnlimited());
 
             // Update player position on server
             player.setPosX(x);
@@ -407,10 +412,9 @@ public class GameSession {
             if (!player.isEnergyUnlimited()) {
                 // Calculate energy cost (same logic as client)
                 int currentEnergy = player.getEnergy();
-                int energyCost = Math.max(1, currentEnergy * 5 / 10000); // 0.05% of current energy
+                int energyCost = currentEnergy * 5 / 10000; // 0.05% of current energy
 
-                // Ensure we don't consume more than 1 energy for very low energy levels
-                if (currentEnergy < 2000 && energyCost > 1) {
+                if (currentEnergy < 100 && energyCost > 1) {
                     energyCost = 1;
                 }
 
@@ -437,16 +441,15 @@ public class GameSession {
             broadcastToOthers(username, message);
 
             // Only send comprehensive player data updates periodically, not on every movement
-            // This prevents large JSON messages from being sent too frequently
             if (gameTickCounter % 30 == 0) { // Send comprehensive update every 30 ticks
-                System.out.println("🚀 SERVER: Broadcasting comprehensive player data update");
-                broadcastPlayerDataUpdate();
+                System.out.println("SERVER: Broadcasting comprehensive player data update");
+//                broadcastPlayerDataUpdate();
             }
 
             // Update last movement time
             lastMovementTime.put(username, currentTime);
 
-            System.out.println("🚀 SERVER: Player " + username + " moved to (" + x + ", " + y + ") - Broadcasting to " +
+            System.out.println("SERVER: Player " + username + " moved to (" + x + ", " + y + ") - Broadcasting to " +
                 (playerConnections.size() - 1) + " other players");
         } else {
             System.err.println("DEBUG: Player " + username + " not found in game instance");
@@ -460,7 +463,7 @@ public class GameSession {
         // Create focused player data with only essential information
         Map<String, Object> allPlayersData = new HashMap<>();
         for (Player p : App.getGame().getPlayers()) {
-            System.out.println("🚀 SERVER: Preparing player data for " + p.getUser().getUsername() + " - Energy: " + p.getEnergy());
+            System.out.println("SERVER: Preparing player data for " + p.getUser().getUsername() + " - Energy: " + p.getEnergy());
 
             Map<String, Object> playerInfo = new HashMap<>();
             playerInfo.put("username", p.getUser().getUsername());
@@ -469,6 +472,9 @@ public class GameSession {
             playerInfo.put("energy", p.getEnergy());
             playerInfo.put("money", p.getMoney());
             playerInfo.put("isInVillage", p.getIsInVillage());
+            playerInfo.put("currentAnimation", p.getCurrentAnimation());
+            playerInfo.put("isMoving", p.isMoving());
+            playerInfo.put("animationTimer", p.getAnimationTimer());
 
             // Add farm information (essential for game state)
             if (p.getCurrentFarm() != null) {
@@ -503,7 +509,7 @@ public class GameSession {
         // Broadcast to all players
         broadcastToAll(playerDataMessage);
 
-        System.out.println("🔄 SERVER: Broadcasted focused player data update for " + allPlayersData.size() + " players");
+        System.out.println("SERVER: Broadcasted focused player data update for " + allPlayersData.size() + " players");
     }
 
     private void handleUseTool(String username, Message message) {

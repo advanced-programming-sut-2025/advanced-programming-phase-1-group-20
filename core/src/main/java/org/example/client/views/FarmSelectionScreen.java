@@ -141,7 +141,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         // Don't override the existing lobby listener
         // The LobbyMenuController should handle the initial START_GAME message
         // and navigate to this screen. This screen will handle subsequent messages.
-        System.out.println("DEBUG: FarmSelectionScreen - Network listeners setup (not overriding lobby listener)");
     }
 
     private void selectFarm(int farmIndex) {
@@ -158,13 +157,8 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
     }
 
     private void updateFarmSelectionUI() {
-        System.out.println("DEBUG: FarmSelectionScreen.updateFarmSelectionUI called - inFarmSelectionPhase: " + inFarmSelectionPhase);
-        System.out.println("DEBUG: FarmSelectionScreen - availableFarms: " + availableFarms);
-        System.out.println("DEBUG: FarmSelectionScreen - playerSelections: " + playerSelections);
-
         // Always update UI if we have farm selection data, regardless of phase flag
         boolean shouldUpdate = inFarmSelectionPhase || (availableFarms != null || playerSelections != null);
-        System.out.println("DEBUG: FarmSelectionScreen - shouldUpdate: " + shouldUpdate);
 
         if (shouldUpdate) {
             // Update farm button states
@@ -177,51 +171,34 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 } else {
                     farmButtons[i].setColor(Color.GRAY);
                 }
-                System.out.println("DEBUG: FarmSelectionScreen - Farm " + i + " available: " + isAvailable);
             }
 
             // Update player selections display
             updatePlayerSelectionsDisplay();
-            System.out.println("DEBUG: FarmSelectionScreen - Updated player selections display");
-        } else {
-            System.out.println("DEBUG: FarmSelectionScreen - No farm selection data available, skipping UI update");
         }
     }
 
     private boolean isFarmAvailable(int farmIndex) {
-        System.out.println("DEBUG: FarmSelectionScreen.isFarmAvailable called for farm " + farmIndex);
-        System.out.println("DEBUG: FarmSelectionScreen - availableFarms: " + availableFarms);
-
         if (availableFarms == null) {
-            System.out.println("DEBUG: FarmSelectionScreen - availableFarms is null, returning true");
             return true;
         }
 
         // Check if the farm index is in the available farms list
         for (Object farm : availableFarms) {
-            System.out.println("DEBUG: FarmSelectionScreen - Checking farm object: " + farm + " (type: " + (farm != null ? farm.getClass().getSimpleName() : "null") + ")");
-
             if (farm instanceof Integer && (Integer) farm == farmIndex) {
-                System.out.println("DEBUG: FarmSelectionScreen - Farm " + farmIndex + " is available (Integer match)");
                 return true;
             }
             if (farm instanceof String && farm.equals(String.valueOf(farmIndex))) {
-                System.out.println("DEBUG: FarmSelectionScreen - Farm " + farmIndex + " is available (String match)");
                 return true;
             }
             if (farm instanceof Double && ((Double) farm).intValue() == farmIndex) {
-                System.out.println("DEBUG: FarmSelectionScreen - Farm " + farmIndex + " is available (Double match)");
                 return true;
             }
         }
-        System.out.println("DEBUG: FarmSelectionScreen - Farm " + farmIndex + " is NOT available");
         return false;
     }
 
     private void updatePlayerSelectionsDisplay() {
-        System.out.println("DEBUG: FarmSelectionScreen.updatePlayerSelectionsDisplay called");
-        System.out.println("DEBUG: FarmSelectionScreen - playerSelections: " + playerSelections);
-
         playerSelectionsTable.clear();
 
         Label selectionsTitle = new Label("Player Selections:", skin);
@@ -230,11 +207,9 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         playerSelectionsTable.row();
 
         if (playerSelections != null && !playerSelections.isEmpty()) {
-            System.out.println("DEBUG: FarmSelectionScreen - Processing " + playerSelections.size() + " player selections");
             for (Map.Entry<String, Integer> entry : playerSelections.entrySet()) {
                 String username = entry.getKey();
                 Integer farmIndex = entry.getValue();
-                System.out.println("DEBUG: FarmSelectionScreen - Player " + username + " selected farm " + farmIndex);
 
                 Label playerLabel = new Label(username + ": ", skin);
                 playerLabel.setColor(Color.WHITE);
@@ -253,7 +228,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 playerSelectionsTable.row();
             }
         } else {
-            System.out.println("DEBUG: FarmSelectionScreen - No player selections to display");
             Label noSelectionsLabel = new Label("No selections yet", skin);
             noSelectionsLabel.setColor(Color.GRAY);
             playerSelectionsTable.add(noSelectionsLabel).colspan(2);
@@ -262,25 +236,18 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
     @Override
     public void onLobbyMessage(Message message) {
-        System.out.println("DEBUG: FarmSelectionScreen.onLobbyMessage - Received message type: " + message.getType());
-        System.out.println("DEBUG: FarmSelectionScreen - Message body: " + message.getBody());
-        System.out.println("DEBUG: FarmSelectionScreen - Current screen: " + (Main.getGame() != null ? Main.getGame().getScreen().getClass().getSimpleName() : "null"));
         Gdx.app.postRunnable(() -> {
             switch (message.getType()) {
                 case START_GAME:
-                    System.out.println("DEBUG: FarmSelectionScreen - Handling START_GAME message");
                     handleGameStarted(message);
                     break;
                 case FARM_SELECTION_UPDATE:
-                    System.out.println("DEBUG: FarmSelectionScreen - Handling FARM_SELECTION_UPDATE message");
                     handleFarmSelectionUpdate(message);
                     break;
                 case FARM_SELECTION_COMPLETE:
-                    System.out.println("DEBUG: FarmSelectionScreen - Handling FARM_SELECTION_COMPLETE message");
                     handleFarmSelectionComplete(message);
                     break;
                 default:
-                    System.out.println("DEBUG: FarmSelectionScreen - Unhandled message type: " + message.getType());
                     statusLabel.setText("Received message: " + message.getType());
             }
         });
@@ -298,11 +265,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         String sessionId = message.getFromBody("gameSessionId");
         String messageText = message.getFromBody("message");
 
-        System.out.println("DEBUG: FarmSelectionScreen.handleGameStarted - inFarmSelection: " + inFarmSelection +
-                          ", inMapSelection: " + inMapSelection +
-                          ", isInSelectionPhase: " + isInSelectionPhase +
-                          ", sessionId: " + sessionId);
-
         // Always set farm selection phase to true when we receive a START_GAME message
         // This ensures we can handle farm selection updates properly
         inFarmSelectionPhase = true;
@@ -312,69 +274,50 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         Object availableFarmsObj = message.getFromBody("availableFarms");
         if (availableFarmsObj instanceof List) {
             availableFarms = (List<Object>) availableFarmsObj;
-            System.out.println("DEBUG: FarmSelectionScreen - Extracted availableFarms: " + availableFarms);
         } else {
             availableFarms = new ArrayList<>();
-            System.out.println("DEBUG: FarmSelectionScreen - No availableFarms in message, using empty list");
         }
 
         Object playerSelectionsObj = message.getFromBody("playerSelections");
         if (playerSelectionsObj instanceof Map) {
             playerSelections = (Map<String, Integer>) playerSelectionsObj;
-            System.out.println("DEBUG: FarmSelectionScreen - Extracted playerSelections: " + playerSelections);
         } else {
             playerSelections = new HashMap<>();
-            System.out.println("DEBUG: FarmSelectionScreen - No playerSelections in message, using empty map");
         }
 
         statusLabel.setText(messageText != null ? messageText : "Game started! Select your farm.");
         statusLabel.setColor(Color.GREEN);
         updateFarmSelectionUI();
-        System.out.println("DEBUG: FarmSelectionScreen - Entered farm selection phase with data");
     }
 
     private void handleFarmSelectionUpdate(Message message) {
-        System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionUpdate called");
-
         Object availableFarmsObj = message.getFromBody("availableFarms");
         if (availableFarmsObj instanceof List) {
             availableFarms = (List<Object>) availableFarmsObj;
-            System.out.println("DEBUG: FarmSelectionScreen - Updated availableFarms: " + availableFarms);
         }
 
         Object playerSelectionsObj = message.getFromBody("playerSelections");
         if (playerSelectionsObj instanceof Map) {
             playerSelections = (Map<String, Integer>) playerSelectionsObj;
-            System.out.println("DEBUG: FarmSelectionScreen - Updated playerSelections: " + playerSelections);
         }
 
         String username = message.getFromBody("username");
         Integer farmIndex = message.getFromBody("farmIndex");
 
-        System.out.println("DEBUG: FarmSelectionScreen - username: " + username + ", farmIndex: " + farmIndex);
-        System.out.println("DEBUG: FarmSelectionScreen - availableFarms: " + availableFarms);
-        System.out.println("DEBUG: FarmSelectionScreen - playerSelections: " + playerSelections);
-
         if (username != null && farmIndex != null) {
             statusLabel.setText(username + " selected Farm " + farmIndex);
             statusLabel.setColor(Color.CYAN);
-            System.out.println("DEBUG: FarmSelectionScreen - Updated status label");
         }
 
         // Ensure we're in farm selection phase when we receive updates
         if (!inFarmSelectionPhase) {
-            System.out.println("DEBUG: FarmSelectionScreen - Setting inFarmSelectionPhase to true due to farm selection update");
             inFarmSelectionPhase = true;
         }
 
         updateFarmSelectionUI();
-        System.out.println("DEBUG: FarmSelectionScreen - Updated farm selection UI");
     }
 
     private void handleFarmSelectionComplete(Message message) {
-        System.out.println("DEBUG: FarmSelectionScreen.handleFarmSelectionComplete called");
-        System.out.println("DEBUG: FarmSelectionScreen - Message type: " + message.getType());
-        System.out.println("DEBUG: FarmSelectionScreen - Message body: " + message.getBody());
         inFarmSelectionPhase = false;
 
         // Extract data from the new message structure
@@ -383,21 +326,14 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         Boolean isActive = message.getFromBody("isActive");
         Boolean inFarmSelectionPhase = message.getFromBody("inFarmSelectionPhase");
 
-        System.out.println("DEBUG: Complete game state object: " + (completeGameStateObj != null ? "present" : "null"));
-        System.out.println("DEBUG: Message text: " + messageText);
-        System.out.println("DEBUG: Is active: " + isActive);
-        System.out.println("DEBUG: In farm selection phase: " + inFarmSelectionPhase);
-
         // Validate that we have the required data
         if (completeGameStateObj == null) {
-            System.err.println("DEBUG: No complete game state received, cannot proceed to game");
             statusLabel.setText("Error: No game state received from server");
             statusLabel.setColor(Color.RED);
             return;
         }
 
         if (isActive == null || !isActive) {
-            System.err.println("DEBUG: Game is not active, cannot proceed");
             statusLabel.setText("Error: Game is not active");
             statusLabel.setColor(Color.RED);
             return;
@@ -420,9 +356,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             currentPlayerUsername = (String) completeGameState.get("currentPlayerUsername");
             allPlayersInfoObj = completeGameState.get("allPlayersInfo");
 
-            System.out.println("DEBUG: Extracted from complete game state - sessionId: " + gameSessionId);
-            System.out.println("DEBUG: Current player username: " + currentPlayerUsername);
-            System.out.println("DEBUG: All players info: " + (allPlayersInfoObj != null ? "present" : "null"));
         } else {
             // Fallback to old structure
             gameSessionId = message.getFromBody("gameSessionId");
@@ -430,13 +363,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             gameData = message.getFromBody("gameData");
             currentPlayerUsername = message.getFromBody("currentPlayerUsername");
             allPlayersInfoObj = message.getFromBody("allPlayersInfo");
-
-            System.out.println("DEBUG: Using fallback structure - sessionId: " + gameSessionId);
         }
 
         // Validate essential data
         if (gameSessionId == null) {
-            System.err.println("DEBUG: No game session ID received");
             statusLabel.setText("Error: No game session ID");
             statusLabel.setColor(Color.RED);
             return;
@@ -458,17 +388,9 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         infoLabel.setColor(Color.GREEN);
 
         // Navigate to the actual multiplayer game immediately
-        System.out.println("DEBUG: FarmSelectionScreen - Farm selection complete, navigating to multiplayer game immediately");
-        System.out.println("DEBUG: FarmSelectionScreen - gameSessionId: " + gameSessionId);
-        System.out.println("DEBUG: FarmSelectionScreen - currentPlayerUsername: " + currentPlayerUsername);
-        System.out.println("DEBUG: FarmSelectionScreen - allPlayersInfoObj: " + (allPlayersInfoObj != null ? "present" : "null"));
-
         // Navigate immediately instead of waiting
         Gdx.app.postRunnable(() -> {
-            System.out.println("DEBUG: FarmSelectionScreen - Executing navigation on main thread");
-            System.out.println("DEBUG: FarmSelectionScreen - About to call navigateToMultiplayerGame");
             navigateToMultiplayerGame(gameSessionId, playersData, gameData, currentPlayerUsername, allPlayersInfoObj);
-            System.out.println("DEBUG: FarmSelectionScreen - navigateToMultiplayerGame called");
         });
     }
 
@@ -478,13 +400,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             NetworkClient networkClient = NetworkClient.getInstance();
             User currentUser = networkClient.getAuthenticatedUser();
             if (currentUser == null) {
-                System.err.println("DEBUG: No authenticated user found");
                 statusLabel.setText("Error: No authenticated user");
                 statusLabel.setColor(Color.RED);
                 return;
             }
-
-            System.out.println("DEBUG: Current authenticated user: " + currentUser.getUsername());
 
             // Create a complete game structure for multiplayer with all players
             List<Player> allPlayers = new ArrayList<>();
@@ -496,7 +415,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 @SuppressWarnings("unchecked")
                 Map<String, Object> allPlayersInfo = (Map<String, Object>) allPlayersInfoObj;
 
-                System.out.println("DEBUG: Processing " + allPlayersInfo.size() + " players from server");
+
 
                 for (Map.Entry<String, Object> entry : allPlayersInfo.entrySet()) {
                     String username = entry.getKey();
@@ -540,7 +459,7 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                                 Farm farm = new Farm(username + "'s Farm", player, farmIndex == 0, farmIndex);
                                 player.setCurrentFarm(farm);
                                 gameMap.addFarm(farm);
-                                System.out.println("DEBUG: Created farm " + farmIndex + " for player " + username);
+
                             }
                         }
 
@@ -549,12 +468,11 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                         // Identify current player (the one for this client)
                         if (username.equals(currentUser.getUsername())) {
                             currentPlayer = player;
-                            System.out.println("DEBUG: Identified current player: " + username);
                         }
 
                         // Log if this player is the current player in the game
                         if (isCurrentPlayer instanceof Boolean && (Boolean) isCurrentPlayer) {
-                            System.out.println("DEBUG: Player " + username + " is the current player in the game");
+                            // This player is the current player in the game
                         }
                     }
                 }
@@ -562,7 +480,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Fallback: if we don't have all players info, create basic structure
             if (allPlayers.isEmpty()) {
-                System.out.println("DEBUG: No allPlayersInfo available, creating fallback structure");
                 currentPlayer = new Player(currentUser);
                 allPlayers.add(currentPlayer);
 
@@ -593,14 +510,12 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Ensure we have a current player
             if (currentPlayer == null) {
-                System.err.println("DEBUG: Failed to identify current player, creating fallback");
                 currentPlayer = new Player(currentUser);
                 allPlayers.add(currentPlayer);
             }
 
             // Validate that current player has a farm
             if (currentPlayer.getCurrentFarm() == null) {
-                System.err.println("DEBUG: Current player has no farm assigned");
                 statusLabel.setText("Error: No farm assigned to current player");
                 statusLabel.setColor(Color.RED);
                 return;
@@ -629,16 +544,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             App.setGame(game);
 
             // Initialize the game map
-            System.out.println("FarmSelectionScreen: About to initialize NPCs...");
             if (gameMap.getVillage() != null) {
-                System.out.println("FarmSelectionScreen: Village is not null, calling initializeNPCs()");
                 gameMap.getVillage().initializeNPCs();
-            } else {
-                System.out.println("FarmSelectionScreen: Village is null, cannot initialize NPCs");
             }
             gameMap.updateTilesFromRegions();
-
-            System.out.println("DEBUG: FarmSelectionScreen - Initialized game with " + allPlayers.size() + " players");
 
             // Create and set the game view
 //            System.out.println("DEBUG: Creating GameView...");
@@ -648,13 +557,11 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
 
             // Ensure the game is properly set in App before creating the GameMenuController
             if (App.getGame() != game) {
-                System.err.println("DEBUG: Game not properly set in App, setting it now");
                 App.setGame(game);
             }
 
             // Verify that the current player has a valid farm before creating the GameMenuController
             if (currentPlayer.getCurrentFarm() == null) {
-                System.err.println("DEBUG: Current player has no farm assigned, cannot create GameMenuController");
                 statusLabel.setText("Error: No farm assigned to current player");
                 statusLabel.setColor(Color.RED);
                 return;
@@ -669,10 +576,8 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                 currentPlayer, game, AssetManager.getAssetManager().getSkin(), currentUser);
 
 
-            System.out.println("DEBUG: Scheduling screen change on main thread...");
             Gdx.app.postRunnable(() -> {
                 try {
-                    System.out.println("DEBUG: Getting Main game instance on main thread...");
                     Main mainGame = Main.getGame();
                     if (mainGame != null) {
                         if (mainGame.getScreen() != null) {
@@ -680,12 +585,10 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
                         }
                         mainGame.setScreen(gameView);
                     } else {
-                        System.err.println("DEBUG: Main game instance is null on main thread!");
                         statusLabel.setText("Error: Failed to get main game instance");
                         statusLabel.setColor(Color.RED);
                     }
                 } catch (Exception e) {
-                    System.err.println("DEBUG: Error during screen transition: " + e.getMessage());
                     e.printStackTrace();
                     statusLabel.setText("Error: Failed to transition to game");
                     statusLabel.setColor(Color.RED);
@@ -693,7 +596,6 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
             });
 
         } catch (Exception e) {
-            System.err.println("DEBUG: Failed to navigate to multiplayer game: " + e.getMessage());
             e.printStackTrace();
             statusLabel.setText("Error: Failed to start game");
             statusLabel.setColor(Color.RED);
@@ -727,20 +629,17 @@ public class FarmSelectionScreen implements Screen, ClientMessageHandler.LobbyMe
         ClientMessageHandler messageHandler = networkClient.getMessageHandler();
         messageHandler.setLobbyListener(this);
 
-        System.out.println("DEBUG: FarmSelectionScreen - Registered as lobby listener");
+
     }
 
     @Override
     public void hide() {
-        System.out.println("DEBUG: FarmSelectionScreen.hide() called");
         Gdx.input.setInputProcessor(null);
         // Unregister as lobby listener to prevent interference with screen transition
         NetworkClient networkClient = NetworkClient.getInstance();
         if (networkClient != null && networkClient.getMessageHandler() != null) {
             networkClient.getMessageHandler().setLobbyListener(null);
-            System.out.println("DEBUG: FarmSelectionScreen unregistered as lobby listener");
         }
-        System.out.println("DEBUG: FarmSelectionScreen.hide() completed");
     }
 
     @Override

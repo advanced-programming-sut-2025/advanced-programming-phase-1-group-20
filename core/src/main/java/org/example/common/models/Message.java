@@ -131,6 +131,13 @@ public class Message {
         // Online players
         PLAYER_STATUS_UPDATE,
         ONLINE_PLAYERS_LIST,
-        REQUEST_PLAYERS_LIST
+        REQUEST_PLAYERS_LIST,
+
+        // Radio system
+        RADIO_TRACK_UPDATE,
+        RADIO_TRACK_UPLOAD,
+        RADIO_CONNECT_REQUEST,
+        RADIO_CONNECT_RESPONSE,
+        RADIO_DISCONNECT
     }
 }

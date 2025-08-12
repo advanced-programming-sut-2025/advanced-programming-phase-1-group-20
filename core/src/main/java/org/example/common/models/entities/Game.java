@@ -774,9 +774,7 @@ public class Game implements Serializable {
         return this.date;
     }
 
-    /**
-     * Sync date from server data
-     */
+
     public void syncDateFromServer(Map<String, Object> serverDateState) {
         System.out.println("DEBUG: Game.syncDateFromServer called with: " + serverDateState);
         if (serverDateState != null) {

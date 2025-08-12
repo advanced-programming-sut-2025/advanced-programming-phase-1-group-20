@@ -12,6 +12,9 @@ public class Location {
     private boolean shokhm;
     private boolean isScarecrowThere;
 
+    public Location() {
+    }
+
     public Location(int xAxis, int yAxis, TileType tile) {
         this.xAxis = xAxis;
         this.yAxis = yAxis;

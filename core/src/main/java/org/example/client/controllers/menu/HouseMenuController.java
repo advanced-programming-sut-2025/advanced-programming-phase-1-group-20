@@ -1,5 +1,6 @@
-package org.example.client.controllers;
+package org.example.client.controllers.menu;
 
+import org.example.client.controllers.Controller;
 import org.example.common.models.Items.*;
 import org.example.common.models.MapDetails.Building;
 import org.example.common.models.Player.Player;
@@ -96,7 +97,7 @@ public class HouseMenuController implements Controller {
         }
 
         player.addCraftingItem(craftedItem);
-        player.decreaseEnergy(2);
+        player.decreaseEnergy(1);
         return Result.success("Item " + itemName + " has been crafted");
     }
 
@@ -170,7 +171,7 @@ public class HouseMenuController implements Controller {
             return Result.error("You don't have enough space in your backpack");
         }
 
-        player.decreaseEnergy(3);
+        player.decreaseEnergy(2);
         player.addCookingItem(cookingItem);
         return Result.success("Food " + food.getName() + " cooked");
     }
