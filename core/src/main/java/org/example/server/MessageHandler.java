@@ -131,6 +131,29 @@ public class MessageHandler {
                 handleReactionSend(connection, message);
                 break;
 
+            // Chat messages
+            case CHAT:
+                handleChat(connection, message);
+                break;
+            case CHAT_PRIVATE:
+                handlePrivateChat(connection, message);
+                break;
+            case CHAT_PUBLIC:
+                handlePublicChat(connection, message);
+                break;
+            case CHAT_ROOM_CREATE:
+                handleCreateChatRoom(connection, message);
+                break;
+            case CHAT_ROOM_JOIN:
+                handleJoinChatRoom(connection, message);
+                break;
+            case CHAT_ROOM_LEAVE:
+                handleLeaveChatRoom(connection, message);
+                break;
+            case CHAT_HISTORY_REQUEST:
+                handleChatHistoryRequest(connection, message);
+                break;
+
             default:
                 // Forward to game session if player is in one
                 Object gameSessionObj = connection.getGameSession();
@@ -1024,6 +1047,211 @@ public class MessageHandler {
             gameSession.broadcastToOthers(null, reactionMessage);
         } else {
             sendErrorMessage(connection, "Player not in a game session");
+        }
+    }
+
+    // Chat-related methods
+    public void sendChatMessage(PlayerConnection connection, ChatMessage chatMessage) {
+        Message message = new Message();
+        message.setType(Message.Type.CHAT);
+        message.putInBody("chatMessage", gson.toJson(chatMessage));
+        connection.sendMessage(message);
+    }
+
+    public void sendPrivateMessage(PlayerConnection connection, ChatMessage chatMessage) {
+        Message message = new Message();
+        message.setType(Message.Type.CHAT_PRIVATE);
+        message.putInBody("chatMessage", gson.toJson(chatMessage));
+        connection.sendMessage(message);
+    }
+
+    public void sendRoomMessage(PlayerConnection connection, ChatMessage chatMessage) {
+        Message message = new Message();
+        message.setType(Message.Type.CHAT);
+        message.putInBody("chatMessage", gson.toJson(chatMessage));
+        message.putInBody("roomId", chatMessage.getRoomId());
+        connection.sendMessage(message);
+    }
+
+    public void sendRoomHistory(PlayerConnection connection, ChatRoom room) {
+        Message message = new Message();
+        message.setType(Message.Type.CHAT_HISTORY_REQUEST);
+        message.putInBody("roomId", room.getRoomId());
+        message.putInBody("roomName", room.getRoomName());
+        message.putInBody("messages", gson.toJson(room.getMessageHistory()));
+        connection.sendMessage(message);
+    }
+
+    public void sendRoomCreatedNotification(PlayerConnection connection, ChatRoom room) {
+        Message message = new Message();
+        message.setType(Message.Type.CHAT_ROOM_CREATE);
+        message.putInBody("roomId", room.getRoomId());
+        message.putInBody("roomName", room.getRoomName());
+        message.putInBody("owner", room.getOwner());
+        connection.sendMessage(message);
+    }
+
+    public void sendNotification(PlayerConnection connection, Notification notification) {
+        Message message = new Message();
+        message.setType(Message.Type.SUCCESS);
+        message.putInBody("notification", gson.toJson(notification));
+        connection.sendMessage(message);
+    }
+
+    // Chat handling methods
+    private void handleChat(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String content = message.getFromBody("content");
+        String roomId = message.getFromBody("roomId");
+        
+        if (content == null || content.trim().isEmpty()) {
+            sendErrorMessage(connection, "Message content cannot be empty");
+            return;
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        if (roomId != null && !roomId.isEmpty()) {
+            chatManager.handleRoomChat(user.getUsername(), roomId, content);
+        } else {
+            chatManager.handlePublicChat(user.getUsername(), content);
+        }
+    }
+
+    private void handlePrivateChat(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String content = message.getFromBody("content");
+        String recipient = message.getFromBody("recipient");
+        
+        if (content == null || content.trim().isEmpty()) {
+            sendErrorMessage(connection, "Message content cannot be empty");
+            return;
+        }
+
+        if (recipient == null || recipient.trim().isEmpty()) {
+            sendErrorMessage(connection, "Recipient cannot be empty");
+            return;
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.handlePrivateChat(user.getUsername(), recipient, content);
+    }
+
+    private void handlePublicChat(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String content = message.getFromBody("content");
+        
+        if (content == null || content.trim().isEmpty()) {
+            sendErrorMessage(connection, "Message content cannot be empty");
+            return;
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.handlePublicChat(user.getUsername(), content);
+    }
+
+    private void handleCreateChatRoom(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String roomName = message.getFromBody("roomName");
+        String roomId = message.getFromBody("roomId");
+        
+        if (roomName == null || roomName.trim().isEmpty()) {
+            sendErrorMessage(connection, "Room name cannot be empty");
+            return;
+        }
+
+        if (roomId == null || roomId.trim().isEmpty()) {
+            roomId = "room_" + System.currentTimeMillis();
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.createChatRoom(roomId, roomName, user.getUsername());
+    }
+
+    private void handleJoinChatRoom(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String roomId = message.getFromBody("roomId");
+        
+        if (roomId == null || roomId.trim().isEmpty()) {
+            sendErrorMessage(connection, "Room ID cannot be empty");
+            return;
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.joinChatRoom(user.getUsername(), roomId);
+    }
+
+    private void handleLeaveChatRoom(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String roomId = message.getFromBody("roomId");
+        
+        if (roomId == null || roomId.trim().isEmpty()) {
+            sendErrorMessage(connection, "Room ID cannot be empty");
+            return;
+        }
+
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.leaveChatRoom(user.getUsername(), roomId);
+    }
+
+    private void handleChatHistoryRequest(PlayerConnection connection, Message message) {
+        User user = connection.getUser();
+        if (user == null) {
+            sendErrorMessage(connection, "User not authenticated");
+            return;
+        }
+
+        String chatType = message.getFromBody("chatType");
+        String target = message.getFromBody("target"); // roomId for room, username for private
+        
+        ChatManager chatManager = ChatManager.getInstance(this);
+        
+        if ("public".equals(chatType)) {
+            List<ChatMessage> history = chatManager.getPublicChatHistory();
+            Message response = new Message();
+            response.setType(Message.Type.CHAT_HISTORY_REQUEST);
+            response.putInBody("chatType", "public");
+            response.putInBody("messages", gson.toJson(history));
+            connection.sendMessage(response);
+        } else if ("private".equals(chatType) && target != null) {
+            List<ChatMessage> history = chatManager.getPrivateChatHistory(user.getUsername(), target);
+            Message response = new Message();
+            response.setType(Message.Type.CHAT_HISTORY_REQUEST);
+            response.putInBody("chatType", "private");
+            response.putInBody("target", target);
+            response.putInBody("messages", gson.toJson(history));
+            connection.sendMessage(response);
+        } else {
+            sendErrorMessage(connection, "Invalid chat history request");
         }
     }
 }
