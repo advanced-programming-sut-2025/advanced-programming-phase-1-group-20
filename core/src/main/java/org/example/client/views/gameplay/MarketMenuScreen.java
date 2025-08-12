@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.client.controllers.MarketController;
+import org.example.client.network.ClientMessageHandler;
+import org.example.client.network.NetworkClient;
 import org.example.client.views.BuildingPlacementScreen;
 import org.example.client.views.ToolUpgradeDialog;
 import org.example.common.models.Items.Item;
@@ -30,7 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MarketMenuScreen implements Screen, Disposable {
+public class MarketMenuScreen implements Screen, Disposable, ClientMessageHandler.MarketUpdateListener {
     private Stage stage;
     private Skin skin;
     private Market market;
@@ -75,6 +77,12 @@ public class MarketMenuScreen implements Screen, Disposable {
         // Initialize texture cache and fallback
         this.itemTextureCache = new HashMap<>();
         initializeFallbackTexture();
+        
+        // Set up market update listener for live stock updates
+        NetworkClient networkClient = NetworkClient.getInstance();
+        if (networkClient != null && networkClient.getMessageHandler() != null) {
+            networkClient.getMessageHandler().setMarketUpdateListener(this);
+        }
     }
 
     private void initializeFallbackTexture() {
@@ -440,6 +448,43 @@ public class MarketMenuScreen implements Screen, Disposable {
 
     private void updateMoneyLabel() {
         moneyLabel.setText("Money: $" + player.getMoney());
+    }
+
+    /**
+     * Refreshes the market display when stock updates are received from the server
+     */
+    public void refreshDisplay() {
+        // Update the current display stock to reflect the latest server state
+        currentDisplayStock = new ArrayList<>(market.getTotalStock());
+        
+        // Refresh the UI
+        updateMoneyLabel();
+        displayItems(currentDisplayStock);
+        
+        System.out.println("🔄 MarketMenuScreen refreshed - Updated stock display");
+    }
+
+    @Override
+    public void onMarketStockUpdate(String marketName, String itemName, double newStock) {
+        // Only refresh if this update is for the current market
+        if (market != null && market.getName().equals(marketName)) {
+            System.out.println("🛒 MarketMenuScreen received stock update: " + marketName + " - " + itemName + " = " + newStock);
+            refreshDisplay();
+        }
+    }
+
+    @Override
+    public void onPlayerDataUpdate() {
+        // Refresh money display when player data is updated
+        refreshMoneyDisplay();
+    }
+
+    /**
+     * Refreshes the money display when player data is updated
+     */
+    public void refreshMoneyDisplay() {
+        updateMoneyLabel();
+        System.out.println("💰 Updated money display: $" + player.getMoney());
     }
 
     private void showErrorDialog(String title, String message) {

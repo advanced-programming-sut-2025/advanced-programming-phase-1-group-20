@@ -184,7 +184,7 @@ public class NetworkClient {
 
                 @Override
                 public java.util.concurrent.CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
-                    System.out.println("🔌 NETWORK: WebSocket closed - Status: " + statusCode + ", Reason: " + reason);
+                    System.out.println("NETWORK: WebSocket closed - Status: " + statusCode + ", Reason: " + reason);
 
                     if (statusCode != 1000) { // Not a normal closure
                         System.out.println("NETWORK: Abnormal WebSocket closure, starting enhanced reconnection process...");
@@ -516,6 +516,100 @@ public class NetworkClient {
         chatMessage.setType(Message.Type.CHAT);
         chatMessage.putInBody("sender", authenticatedUser.getUsername());
         chatMessage.putInBody("message", messageText);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void sendPublicChatMessage(String messageText) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_PUBLIC);
+        chatMessage.putInBody("content", messageText);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void sendPrivateChatMessage(String recipient, String messageText) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_PRIVATE);
+        chatMessage.putInBody("recipient", recipient);
+        chatMessage.putInBody("content", messageText);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void sendRoomChatMessage(String roomId, String messageText) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT);
+        chatMessage.putInBody("roomId", roomId);
+        chatMessage.putInBody("content", messageText);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void createChatRoom(String roomName) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_ROOM_CREATE);
+        chatMessage.putInBody("roomName", roomName);
+        chatMessage.putInBody("roomId", "room_" + System.currentTimeMillis());
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void joinChatRoom(String roomId) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_ROOM_JOIN);
+        chatMessage.putInBody("roomId", roomId);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void leaveChatRoom(String roomId) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_ROOM_LEAVE);
+        chatMessage.putInBody("roomId", roomId);
+        chatMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(chatMessage);
+    }
+
+    public void requestChatHistory(String roomId) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            return;
+        }
+
+        Message chatMessage = new Message();
+        chatMessage.setType(Message.Type.CHAT_HISTORY_REQUEST);
+        chatMessage.putInBody("roomId", roomId);
         chatMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(chatMessage);

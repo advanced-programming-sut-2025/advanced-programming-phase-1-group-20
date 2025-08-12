@@ -38,6 +38,11 @@ public class MessageHandler {
     public void addPlayerConnection(String username, PlayerConnection connection) {
         playerConnections.put(username, connection);
         onlinePlayersManager.playerConnected(username, connection);
+        
+        // Register player with ChatManager
+        ChatManager chatManager = ChatManager.getInstance(this);
+        chatManager.registerPlayer(username, connection);
+        
         System.out.println("DEBUG: Added player connection: " + username);
         System.out.println("DEBUG: Current player connections: " + playerConnections.keySet());
     }
@@ -55,6 +60,11 @@ public class MessageHandler {
             for (GameSession session : gameSessions.values()) {
                 session.removePlayer(username);
             }
+            
+            // Unregister player from ChatManager
+            ChatManager chatManager = ChatManager.getInstance(this);
+            chatManager.unregisterPlayer(username);
+            
             System.out.println("Removed player connection: " + username);
         }
     }
@@ -799,6 +809,8 @@ public class MessageHandler {
             sendErrorMessage(connection, "Failed to get online players list");
         }
     }
+
+
 
     // =====================
     // HELPER METHODS
