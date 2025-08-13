@@ -400,7 +400,6 @@ public class QuestManager {
     public List<Quest> getActiveQuestsForPlayer(Player player) {
         if (!playerQuests.containsKey(player)) {
             playerQuests.put(player, new ArrayList<>());
-            activateInitialQuests(player);
         }
 
         List<Quest> activeQuests = new ArrayList<>();
@@ -413,35 +412,105 @@ public class QuestManager {
         return activeQuests;
     }
 
-
-    private void activateInitialQuests(Player player) {
-        for (Map.Entry<Npcs, List<Quest>> entry : npcQuests.entrySet()) {
-            for (Quest quest : entry.getValue()) {
-                if (quest.getRequiredFriendshipLevel() == 0 && quest.getRequiredDaysPassed() == 0) {
-                    quest.setActivationDate(App.getGame().getDate());
-                    quest.activate(player, App.getGame().getDate());
-                    playerQuests.get(player).add(quest);
-                }
+    /**
+     * Get all available quests that can be taken by any player
+     * @return List of quests that are not taken by anyone
+     */
+    public List<Quest> getAvailableQuests() {
+        List<Quest> availableQuests = new ArrayList<>();
+        for (Quest quest : allQuests.values()) {
+            if (quest.isAvailable()) {
+                availableQuests.add(quest);
             }
         }
+        return availableQuests;
     }
+
+    /**
+     * Get available quests for a specific NPC
+     * @param npc The NPC to get quests for
+     * @return List of available quests for this NPC
+     */
+    public List<Quest> getAvailableQuestsForNpc(Npcs npc) {
+        List<Quest> availableQuests = new ArrayList<>();
+        List<Quest> npcQuestsList = npcQuests.getOrDefault(npc, new ArrayList<>());
+        
+        for (Quest quest : npcQuestsList) {
+            if (quest.isAvailable()) {
+                availableQuests.add(quest);
+            }
+        }
+        return availableQuests;
+    }
+
+    /**
+     * Get quests taken by other players (for display purposes)
+     * @param currentPlayer The current player (to exclude their own quests)
+     * @return List of quests taken by other players
+     */
+    public List<Quest> getQuestsTakenByOthers(Player currentPlayer) {
+        List<Quest> takenQuests = new ArrayList<>();
+        for (Quest quest : allQuests.values()) {
+            if (quest.getTakenBy() != null && !quest.getTakenBy().equals(currentPlayer) && !quest.isCompleted()) {
+                takenQuests.add(quest);
+            }
+        }
+        return takenQuests;
+    }
+
+    /**
+     * Attempt to take a quest for a player
+     * @param player The player trying to take the quest
+     * @param questId The ID of the quest to take
+     * @param currentDate Current game date
+     * @return true if the quest was successfully taken, false otherwise
+     */
+    public boolean takeQuest(Player player, int questId, Date currentDate) {
+        Quest quest = allQuests.get(questId);
+        if (quest == null) {
+            return false;
+        }
+
+        // Try to take the quest
+        if (quest.takeQuest(player, currentDate)) {
+            // Add to player's quest list
+            if (!playerQuests.containsKey(player)) {
+                playerQuests.put(player, new ArrayList<>());
+            }
+            playerQuests.get(player).add(quest);
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
+     * Get all quests for a player (both active and completed)
+     * @param player The player
+     * @return List of all quests for this player
+     */
+    public List<Quest> getAllQuestsForPlayer(Player player) {
+        if (!playerQuests.containsKey(player)) {
+            playerQuests.put(player, new ArrayList<>());
+        }
+        return new ArrayList<>(playerQuests.get(player));
+    }
+
+
+
 
     public void updateQuestsForPlayer(Player player, Date currentDate) {
         if (!playerQuests.containsKey(player)) {
             playerQuests.put(player, new ArrayList<>());
-            activateInitialQuests(player);
         }
 
+        // Check for quests that can be activated based on friendship level and time
+        // but don't automatically assign them - they need to be taken manually
         for (Map.Entry<Npcs, List<Quest>> entry : npcQuests.entrySet()) {
             for (Quest quest : entry.getValue()) {
                 if (!playerQuests.get(player).contains(quest) && !quest.isCompleted()) {
                     if (quest.getActivationDate() == null) {
                         quest.setActivationDate(currentDate);
-                    }
-
-                    if (quest.canActivate(player, currentDate)) {
-                        quest.activate(player, currentDate);
-                        playerQuests.get(player).add(quest);
                     }
                 }
             }

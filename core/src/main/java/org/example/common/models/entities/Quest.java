@@ -25,6 +25,8 @@ public class Quest {
     private boolean isCompleted;
     private boolean isActive;
     private Date activationDate;
+    private Player takenBy; // Track which player has taken this quest
+    private Date takenDate; // When the quest was taken
 
 
     public Quest(int id, String title, String description, Npcs npc, Map<Item, Integer> requirements,
@@ -40,7 +42,9 @@ public class Quest {
         this.requiredFriendshipLevel = requiredFriendshipLevel;
         this.requiredDaysPassed = requiredDaysPassed;
         this.isCompleted = false;
-        this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
+        this.isActive = false; // Quests start as inactive until taken
+        this.takenBy = null;
+        this.takenDate = null;
     }
 
 
@@ -57,7 +61,9 @@ public class Quest {
         this.requiredFriendshipLevel = requiredFriendshipLevel;
         this.requiredDaysPassed = requiredDaysPassed;
         this.isCompleted = false;
-        this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
+        this.isActive = false; // Quests start as inactive until taken
+        this.takenBy = null;
+        this.takenDate = null;
     }
 
     public Quest(int id, String title, String description, Npcs npc, Map<Item, Integer> requirements,
@@ -74,13 +80,74 @@ public class Quest {
         this.requiredFriendshipLevel = requiredFriendshipLevel;
         this.requiredDaysPassed = requiredDaysPassed;
         this.isCompleted = false;
-        this.isActive = requiredFriendshipLevel == 0 && requiredDaysPassed == 0; // Active from start if no requirements
+        this.isActive = false; // Quests start as inactive until taken
+        this.takenBy = null;
+        this.takenDate = null;
     }
 
     public static Map<Item, Integer> createRequirement(Item item, int quantity) {
         Map<Item, Integer> requirements = new HashMap<>();
         requirements.put(item, quantity);
         return requirements;
+    }
+
+    /**
+     * Attempt to take this quest for a player
+     * @param player The player trying to take the quest
+     * @param currentDate Current game date
+     * @return true if the quest was successfully taken, false otherwise
+     */
+    public boolean takeQuest(Player player, Date currentDate) {
+        // Check if quest is already taken
+        if (takenBy != null) {
+            return false;
+        }
+        
+        // Check if player meets requirements
+        if (!canActivate(player, currentDate)) {
+            return false;
+        }
+        
+        // Take the quest
+        takenBy = player;
+        takenDate = currentDate;
+        isActive = true;
+        activationDate = currentDate;
+        
+        return true;
+    }
+
+    /**
+     * Check if this quest is available to be taken
+     * @return true if no player has taken this quest yet
+     */
+    public boolean isAvailable() {
+        return takenBy == null && !isCompleted;
+    }
+
+    /**
+     * Check if this quest is taken by a specific player
+     * @param player The player to check
+     * @return true if the quest is taken by this player
+     */
+    public boolean isTakenBy(Player player) {
+        return takenBy != null && takenBy.equals(player);
+    }
+
+    /**
+     * Get the player who has taken this quest
+     * @return The player who took the quest, or null if not taken
+     */
+    public Player getTakenBy() {
+        return takenBy;
+    }
+
+    /**
+     * Get when the quest was taken
+     * @return The date when the quest was taken, or null if not taken
+     */
+    public Date getTakenDate() {
+        return takenDate;
     }
 
 

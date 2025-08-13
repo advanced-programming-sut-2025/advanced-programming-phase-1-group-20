@@ -13,6 +13,7 @@ import org.example.utils.auth.JWTUtils;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -187,7 +188,7 @@ public class MessageHandler {
         }
 
         // Create new game session
-        GameSession gameSession = new GameSession(user);
+        GameSession gameSession = new GameSession(user, this);
         gameSessions.put(gameSession.getSessionId(), gameSession);
 
         // Add creator to the session
@@ -802,8 +803,54 @@ public class MessageHandler {
         }
 
         try {
-            onlinePlayersManager.sendPlayerListTo(user.getUsername());
-// System.out.println("Sent online players list to " + user.getUsername());
+            // Get online players from both OnlinePlayersManager and ChatManager
+            ChatManager chatManager = ChatManager.getInstance(this);
+            List<String> chatManagerPlayers = chatManager.getOnlinePlayers();
+            
+            // Create a combined list of online players
+            List<Object> allPlayers = new ArrayList<>();
+            
+            // Add players from ChatManager (includes game session players)
+            for (String username : chatManagerPlayers) {
+                Map<String, Object> playerInfo = new HashMap<>();
+                playerInfo.put("username", username);
+                playerInfo.put("status", "ONLINE");
+                allPlayers.add(playerInfo);
+            }
+            
+            // Also add players from OnlinePlayersManager for completeness
+            List<OnlinePlayersManager.OnlinePlayerInfo> onlinePlayers = onlinePlayersManager.getOnlinePlayers();
+            for (OnlinePlayersManager.OnlinePlayerInfo playerInfo : onlinePlayers) {
+                // Check if player is already in the list
+                boolean alreadyInList = false;
+                for (Object existingPlayer : allPlayers) {
+                    if (existingPlayer instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> existingPlayerMap = (Map<String, Object>) existingPlayer;
+                        if (playerInfo.getUsername().equals(existingPlayerMap.get("username"))) {
+                            alreadyInList = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!alreadyInList) {
+                    Map<String, Object> playerInfoMap = new HashMap<>();
+                    playerInfoMap.put("username", playerInfo.getUsername());
+                    playerInfoMap.put("status", playerInfo.getStatus().toString());
+                    allPlayers.add(playerInfoMap);
+                }
+            }
+            
+            // Send the combined list to the requesting user
+            Message response = new Message();
+            response.setType(Message.Type.ONLINE_PLAYERS_LIST);
+            response.putInBody("players", allPlayers);
+            response.putInBody("timestamp", System.currentTimeMillis());
+            
+            connection.sendMessage(response);
+            
+            System.out.println("Sent online players list to " + user.getUsername() + " with " + allPlayers.size() + " players");
         } catch (Exception e) {
             System.err.println("Failed to send online players list: " + e.getMessage());
             sendErrorMessage(connection, "Failed to get online players list");
@@ -924,7 +971,7 @@ public class MessageHandler {
 
             // Create game session
 // System.out.println("DEBUG: Creating GameSession...");
-            GameSession gameSession = new GameSession(adminUser);
+            GameSession gameSession = new GameSession(adminUser, this);
             gameSessions.put(gameSession.getSessionId(), gameSession);
 // System.out.println("DEBUG: GameSession created with ID: " + gameSession.getSessionId());
 
