@@ -185,14 +185,25 @@ public class ChatManager {
     }
     
     public List<String> getOnlinePlayers() {
-        // Use OnlinePlayersManager to get the actual online players
+        // Get players from both ChatManager and OnlinePlayersManager
         List<String> usernames = new ArrayList<>();
+        
+        // Add players from ChatManager's own connections
         for (String username : playerConnections.keySet()) {
-            // Only return players who are actually online
             if (playerConnections.get(username) != null) {
                 usernames.add(username);
             }
         }
+        
+        // Also add players from OnlinePlayersManager to ensure we get all online players
+        OnlinePlayersManager onlinePlayersManager = OnlinePlayersManager.getInstance();
+        List<OnlinePlayersManager.OnlinePlayerInfo> onlinePlayers = onlinePlayersManager.getOnlinePlayers();
+        for (OnlinePlayersManager.OnlinePlayerInfo playerInfo : onlinePlayers) {
+            if (!usernames.contains(playerInfo.getUsername())) {
+                usernames.add(playerInfo.getUsername());
+            }
+        }
+        
         return usernames;
     }
     
@@ -200,7 +211,7 @@ public class ChatManager {
         Message networkMessage = new Message();
         networkMessage.setType(Message.Type.CHAT);
         networkMessage.putInBody("sender", message.getSender());
-        networkMessage.putInBody("message", message.getContent());
+        networkMessage.putInBody("content", message.getContent());
         networkMessage.putInBody("timestamp", System.currentTimeMillis());
         networkMessage.putInBody("type", message.getType().toString());
         

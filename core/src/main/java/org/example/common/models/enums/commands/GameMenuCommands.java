@@ -101,6 +101,7 @@ public enum GameMenuCommands implements Command {
     // Quest-related commands
     QuestsList(Pattern.compile("^quests\\s+list$")),
     QuestsFinish(Pattern.compile("^quests\\s+finish\\s+-i\\s+(?<index>\\d+)$")),
+    TakeQuest(Pattern.compile("^take\\s+quest\\s+(?<questId>\\d+)$")),
 
     // Trade-related commands
     StartTrade(Pattern.compile("^start\\s+trade$")),

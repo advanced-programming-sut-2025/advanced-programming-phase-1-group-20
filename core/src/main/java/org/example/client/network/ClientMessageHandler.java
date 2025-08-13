@@ -503,6 +503,9 @@ public class ClientMessageHandler {
     private void handleChatMessage(Message message) {
         String sender = message.getFromBody("sender");
         String messageText = message.getFromBody("message");
+        if (messageText == null) {
+            messageText = message.getFromBody("content"); // Try content field if message is null
+        }
         Long timestamp = message.getFromBody("timestamp");
 
         System.out.println("[CHAT] " + sender + ": " + messageText);
@@ -524,6 +527,9 @@ public class ClientMessageHandler {
     private void handlePrivateChatMessage(Message message) {
         String sender = message.getFromBody("sender");
         String messageText = message.getFromBody("message");
+        if (messageText == null) {
+            messageText = message.getFromBody("content"); // Try content field if message is null
+        }
         String recipient = message.getFromBody("recipient");
         Long timestamp = message.getFromBody("timestamp");
 
@@ -537,6 +543,9 @@ public class ClientMessageHandler {
     private void handlePublicChatMessage(Message message) {
         String sender = message.getFromBody("sender");
         String messageText = message.getFromBody("message");
+        if (messageText == null) {
+            messageText = message.getFromBody("content"); // Try content field if message is null
+        }
         Long timestamp = message.getFromBody("timestamp");
 
         System.out.println("[PUBLIC CHAT] " + sender + ": " + messageText);

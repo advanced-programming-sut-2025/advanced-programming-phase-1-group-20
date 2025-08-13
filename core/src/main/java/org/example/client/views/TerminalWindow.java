@@ -328,6 +328,14 @@ public class TerminalWindow {
                 App.getGame().getCurrentPlayer().getCurrentFarm().getGreenHouse().setIsConstructed();
                 return Result.success("Build Green House is displayed.");
 
+            // Quest-related commands
+            case QuestsList:
+                return gameMenuController.questsList();
+            case QuestsFinish:
+                return gameMenuController.questsFinish(args);
+            case TakeQuest:
+                return gameMenuController.takeQuest(args);
+
             // Default case for unhandled commands
             default:
                 return Result.error("Command not implemented yet.");
@@ -398,6 +406,11 @@ public class TerminalWindow {
         addOutput("Tool Commands:", Color.YELLOW);
         addOutput("tools equip <tool> - Equip a tool from your backpack", TEXT_COLOR);
         addOutput("tools use -d <direction> - Use the equipped tool in a direction", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("Quest Commands:", Color.YELLOW);
+        addOutput("quests list - Show all quests (your active, available, and taken by others)", TEXT_COLOR);
+        addOutput("take quest <quest_id> - Take an available quest", TEXT_COLOR);
+        addOutput("quests finish <index> - Complete one of your active quests", TEXT_COLOR);
         addOutput("show current tool - Show the currently equipped tool", TEXT_COLOR);
         addOutput("show available tools - Show all tools in your backpack", TEXT_COLOR);
         addOutput("upgrade tool <tool> - Upgrade a tool (requires blacksmith)", TEXT_COLOR);

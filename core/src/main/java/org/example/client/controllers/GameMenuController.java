@@ -1698,18 +1698,19 @@ public class GameMenuController implements Controller {
         return Result.success(result.toString());
     }
 
-    private Result questsList() {
+    public Result questsList() {
         Player player = App.getGame().getCurrentPlayer();
 
         QuestManager questManager = QuestManager.getInstance();
         List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
+        List<Quest> availableQuests = questManager.getAvailableQuests();
+        List<Quest> takenByOthers = questManager.getQuestsTakenByOthers(player);
 
-        StringBuilder result = new StringBuilder("Available Quests:\n");
+        StringBuilder result = new StringBuilder("=== YOUR ACTIVE QUESTS ===\n");
         int questIndex = 1;
 
         if (activeQuests.isEmpty()) {
             result.append("You don't have any active quests at the moment.\n");
-            result.append("Talk to NPCs to discover new quests!\n");
         } else {
             for (Quest quest : activeQuests) {
                 result.append(questIndex).append(". [").append(quest.getNpc().getName()).append("] ");
@@ -1740,12 +1741,161 @@ public class GameMenuController implements Controller {
             }
         }
 
+        result.append("\n=== AVAILABLE QUESTS TO TAKE ===\n");
+        if (availableQuests.isEmpty()) {
+            result.append("No quests are currently available to take.\n");
+        } else {
+            for (Quest quest : availableQuests) {
+                result.append("• [ID: ").append(quest.getId()).append("] [").append(quest.getNpc().getName()).append("] ");
+                result.append(quest.getTitle()).append(": ").append(quest.getDescription()).append("\n");
+
+                result.append("  Requirements: ");
+                for (Map.Entry<Item, Integer> requirement : quest.getRequirements().entrySet()) {
+                    result.append(requirement.getValue()).append(" ").append(requirement.getKey().getName()).append(", ");
+                }
+                result.delete(result.length() - 2, result.length()); // Remove last comma and space
+                result.append("\n");
+
+                // Add requirements for taking the quest
+                if (quest.getRequiredFriendshipLevel() > 0) {
+                    result.append("  Requires friendship level: ").append(quest.getRequiredFriendshipLevel()).append("\n");
+                }
+                if (quest.getRequiredDaysPassed() > 0) {
+                    result.append("  Requires days passed: ").append(quest.getRequiredDaysPassed()).append("\n");
+                }
+
+                // Add rewards
+                result.append("  Rewards: ");
+                if (quest.getGoldReward() > 0) {
+                    result.append(quest.getGoldReward()).append(" gold");
+                    if (quest.getItemReward() != null) {
+                        result.append(", ");
+                    }
+                }
+
+                if (quest.getItemReward() != null) {
+                    result.append(quest.getItemRewardQuantity()).append(" ").append(quest.getItemReward().getName());
+                }
+                result.append("\n\n");
+            }
+        }
+
+        result.append("\n=== QUESTS TAKEN BY OTHERS ===\n");
+        if (takenByOthers.isEmpty()) {
+            result.append("No quests are currently taken by other players.\n");
+        } else {
+            for (Quest quest : takenByOthers) {
+                result.append("• [").append(quest.getNpc().getName()).append("] ");
+                result.append(quest.getTitle()).append(" (Taken by: ").append(quest.getTakenBy().getUser().getUsername()).append(")\n");
+            }
+        }
+
+        result.append("\n=== COMMANDS ===\n");
+        result.append("• Use 'take quest <quest_id>' to take an available quest\n");
+        result.append("• Use 'quests finish <index>' to complete one of your active quests\n");
+
         questManager.updateQuestsForPlayer(player, App.getGame().getDate());
 
         return Result.success(result.toString());
     }
 
-    private Result questsFinish(String[] args) {
+    public Result takeQuest(String[] args) {
+        Player player = App.getGame().getCurrentPlayer();
+
+        if (args == null || args.length < 1) {
+            return Result.error("Quest ID not specified");
+        }
+
+        try {
+            int questId = Integer.parseInt(args[0]);
+            QuestManager questManager = QuestManager.getInstance();
+            
+            // Check if quest exists
+            Quest quest = questManager.getQuest(questId);
+            if (quest == null) {
+                return Result.error("Quest with ID " + questId + " not found.");
+            }
+
+            // Check if quest is available
+            if (!quest.isAvailable()) {
+                if (quest.getTakenBy() != null) {
+                    return Result.error("This quest is already taken by " + quest.getTakenBy().getUser().getUsername() + ".");
+                } else if (quest.isCompleted()) {
+                    return Result.error("This quest has already been completed.");
+                } else {
+                    return Result.error("This quest is not available.");
+                }
+            }
+
+            // Check if player meets requirements
+            if (!quest.canActivate(player, App.getGame().getDate())) {
+                StringBuilder requirements = new StringBuilder("You don't meet the requirements for this quest:\n");
+                
+                // Check friendship level
+                Map<String, String> friendships = player.getNPCFriendships();
+                String friendshipInfo = friendships.get(quest.getNpc().getName());
+                int friendshipLevel = 0;
+                if (friendshipInfo != null && friendshipInfo.startsWith("Level: ")) {
+                    try {
+                        friendshipLevel = Integer.parseInt(friendshipInfo.substring(7, 8));
+                    } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+                        // Default to level 0 if parsing fails
+                    }
+                }
+                
+                if (friendshipLevel < quest.getRequiredFriendshipLevel()) {
+                    requirements.append("- Requires friendship level ").append(quest.getRequiredFriendshipLevel())
+                        .append(" with ").append(quest.getNpc().getName())
+                        .append(" (you have level ").append(friendshipLevel).append(")\n");
+                }
+                
+                // Check days passed requirement
+                if (quest.getRequiredDaysPassed() > 0 && quest.getActivationDate() != null) {
+                    int daysPassed = (int) App.getGame().getDate().getDaysPassed(quest.getActivationDate());
+                    if (daysPassed < quest.getRequiredDaysPassed()) {
+                        requirements.append("- Requires ").append(quest.getRequiredDaysPassed())
+                            .append(" days to pass (only ").append(daysPassed).append(" days have passed)\n");
+                    }
+                }
+                
+                return Result.error(requirements.toString());
+            }
+
+            // Try to take the quest
+            if (questManager.takeQuest(player, questId, App.getGame().getDate())) {
+                StringBuilder result = new StringBuilder();
+                result.append("Successfully took quest: ").append(quest.getTitle()).append("\n");
+                result.append("From: ").append(quest.getNpc().getName()).append("\n");
+                result.append("Description: ").append(quest.getDescription()).append("\n");
+                result.append("Requirements: ");
+                for (Map.Entry<Item, Integer> requirement : quest.getRequirements().entrySet()) {
+                    result.append(requirement.getValue()).append(" ").append(requirement.getKey().getName()).append(", ");
+                }
+                result.delete(result.length() - 2, result.length()); // Remove last comma and space
+                result.append("\n");
+                result.append("Rewards: ");
+                if (quest.getGoldReward() > 0) {
+                    result.append(quest.getGoldReward()).append(" gold");
+                    if (quest.getItemReward() != null) {
+                        result.append(", ");
+                    }
+                }
+                if (quest.getItemReward() != null) {
+                    result.append(quest.getItemRewardQuantity()).append(" ").append(quest.getItemReward().getName());
+                }
+                result.append("\n\nYou can now complete this quest when you have the required items!");
+                
+                return Result.success(result.toString());
+            } else {
+                return Result.error("Failed to take quest. It may have been taken by someone else.");
+            }
+
+        } catch (NumberFormatException e) {
+            return Result.error("Invalid quest ID. Please provide a valid number.");
+        }
+    }
+
+    public Result questsFinish(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
 
         if (args == null || args.length < 1) {

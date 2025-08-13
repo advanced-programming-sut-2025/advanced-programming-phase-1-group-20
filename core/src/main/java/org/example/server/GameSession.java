@@ -36,8 +36,9 @@ public class GameSession {
     private int gameTickCounter; // Track game ticks for time synchronization
     private Weather lastBroadcastedWeather; // Track last broadcasted weather to avoid duplicate broadcasts
     private Random animalAiRandom = new Random();
+    private final ChatManager chatManager; // Add ChatManager reference
 
-    public GameSession(User creator) {
+    public GameSession(User creator, MessageHandler messageHandler) {
         try {
             this.sessionId = UUID.randomUUID().toString();
             this.playerConnections = new ConcurrentHashMap<>();
@@ -50,7 +51,7 @@ public class GameSession {
             this.lastBroadcastedWeather = null; // Initialize lastBroadcastedWeather
             this.liveStockController = new LiveStockController(this);
             this.npcController = new NpcController();
-
+            this.chatManager = ChatManager.getInstance(messageHandler); // Get ChatManager instance
 
             // Create game instance with the creator as the first player
             List<Player> players = new ArrayList<>();
@@ -130,6 +131,9 @@ public class GameSession {
         playerConnections.put(user.getUsername(), connection);
         connection.setGameSession(this);
 
+        // Register player with ChatManager for chat functionality
+        chatManager.registerPlayer(user.getUsername(), connection);
+
         // Notify all players about new player
         broadcastPlayerJoined(user.getUsername());
 
@@ -151,6 +155,9 @@ public class GameSession {
 
             // Clean up movement tracking
             lastMovementTime.remove(username);
+
+            // Unregister player from ChatManager
+            chatManager.unregisterPlayer(username);
 
             // Notify remaining players
             broadcastPlayerLeft(username);
@@ -601,12 +608,8 @@ public class GameSession {
     private void handleChat(String username, Message message) {
         String chatMessage = message.getFromBody("message");
 
-        // Add sender info
-        message.putInBody("sender", username);
-        message.putInBody("timestamp", System.currentTimeMillis());
-
-        // Broadcast chat to all players
-        broadcastToAll(message);
+        // Use ChatManager to handle the chat message
+        chatManager.handlePublicChat(username, chatMessage);
     }
 
     private void handleTradeRequest(String username, Message message) {
