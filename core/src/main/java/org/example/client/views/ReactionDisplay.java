@@ -3,9 +3,11 @@ package org.example.client.views;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -28,12 +30,17 @@ public class ReactionDisplay implements Disposable {
     private final Skin skin;
     private final float DISPLAY_DURATION = 5.0f; // 5 seconds
     private final float FADE_DURATION = 1.0f; // 1 second fade
-    private final float REACTION_HEIGHT = 50f; // Height above player head
+    private final float SPRITE_RENDER_HEIGHT = 72f; // Matches GameView RENDER_H
+    private final float HEAD_MARGIN = 6f; // Small gap above head
+    private final float OFFSET_X = 18f; // Nudge more to the right
+    private final float OFFSET_Y = 16f;  // Nudge more upward
+    private final OrthographicCamera worldCamera;
     
-    public ReactionDisplay(Stage stage, ReactionPopup reactionPopup, Skin skin) {
+    public ReactionDisplay(Stage stage, ReactionPopup reactionPopup, Skin skin, OrthographicCamera worldCamera) {
         this.stage = stage;
         this.reactionPopup = reactionPopup;
         this.skin = skin;
+        this.worldCamera = worldCamera;
         this.playerReactions = new HashMap<>();
         this.font = new BitmapFont();
         this.font.getData().setScale(1.2f);
@@ -71,9 +78,10 @@ public class ReactionDisplay implements Disposable {
             private ReactionActor createReactionActor(String reaction, Vector2 playerPosition) {
             ReactionActor actor = new ReactionActor(reaction, playerPosition, skin);
             
-            // Position above player head
-            actor.setPosition(playerPosition.x - actor.getWidth() / 2, 
-                             playerPosition.y + REACTION_HEIGHT);
+            // Convert world position (pixels, centered on sprite) to screen/stage coordinates and position immediately above head
+            Vector2 stagePos = worldToStage(playerPosition);
+            actor.setPosition(stagePos.x - actor.getWidth() / 2 + OFFSET_X,
+                              stagePos.y + (SPRITE_RENDER_HEIGHT / 2f) + HEAD_MARGIN + OFFSET_Y);
             
             return actor;
         }
@@ -92,8 +100,9 @@ public class ReactionDisplay implements Disposable {
         if (playerReactions.containsKey(playerUsername)) {
             Array<ReactionActor> reactions = playerReactions.get(playerUsername);
             for (ReactionActor reaction : reactions) {
-                reaction.setPosition(newPosition.x - reaction.getWidth() / 2,
-                                   newPosition.y + REACTION_HEIGHT);
+                Vector2 stagePos = worldToStage(newPosition);
+                reaction.setPosition(stagePos.x - reaction.getWidth() / 2 + OFFSET_X,
+                                     stagePos.y + (SPRITE_RENDER_HEIGHT / 2f) + HEAD_MARGIN + OFFSET_Y);
             }
         }
     }
@@ -157,5 +166,14 @@ public class ReactionDisplay implements Disposable {
         public Vector2 getOriginalPosition() {
             return originalPosition.cpy();
         }
+    }
+
+    private Vector2 worldToStage(Vector2 worldPos) {
+        if (worldCamera == null) {
+            return worldPos.cpy();
+        }
+        Vector3 projected = new Vector3(worldPos.x, worldPos.y, 0f);
+        worldCamera.project(projected);
+        return new Vector2(projected.x, projected.y);
     }
 }

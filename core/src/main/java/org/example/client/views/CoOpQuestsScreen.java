@@ -296,35 +296,37 @@ public class CoOpQuestsScreen implements Screen {
     private void joinQuest(CoopQuest quest) {
         Player player = App.getGame().getCurrentPlayer();
         CoopQuestManager coopQuestManager = CoopQuestManager.getInstance();
-        
+
+        // Pre-check: show dialog if player already has 3 active co-op quests
+        if (coopQuestManager.getActiveQuestsForPlayer(player).size() >= 3) {
+            showJoinQuestDialog(quest, false, "You already have 3 active co-op quests. Complete one before joining another.");
+            return;
+        }
+
         boolean success = coopQuestManager.joinCoopQuest(player, quest.getId(), App.getGame().getDate());
-        
+
         if (success) {
-            showJoinQuestDialog(quest, true);
+            showJoinQuestDialog(quest, true, "Successfully joined the co-op quest!\nYou can now contribute items to help complete it.");
             loadQuests(); // Refresh the quest list
         } else {
-            showJoinQuestDialog(quest, false);
+            showJoinQuestDialog(quest, false, "Cannot join quest. The quest may be full or no longer available.");
         }
     }
 
-    private void showJoinQuestDialog(CoopQuest quest, boolean success) {
+    private void showJoinQuestDialog(CoopQuest quest, boolean success, String message) {
         Dialog dialog = new Dialog("Join Co-op Quest", skin);
-        
+
         Label.LabelStyle dialogStyle = new Label.LabelStyle();
         dialogStyle.font = customFont;
         dialogStyle.fontColor = success ? Color.GREEN : Color.RED;
         dialogStyle.font.getData().setScale(0.8f);
-        
-        String message = success ? 
-            "Successfully joined the co-op quest!\nYou can now contribute items to help complete it." :
-            "Cannot join quest.\nYou may have too many active quests or the quest is full.";
-        
+
         Label messageLabel = new Label(message, dialogStyle);
         dialog.text(messageLabel);
-        
+
         TextButton okButton = new TextButton("OK", skin);
         dialog.button(okButton);
-        
+
         dialog.show(stage);
     }
 

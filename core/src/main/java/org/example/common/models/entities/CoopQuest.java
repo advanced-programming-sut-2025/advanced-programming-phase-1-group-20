@@ -4,7 +4,6 @@ import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
-import org.example.common.models.enums.Types.ItemBuilder;
 
 import java.util.*;
 
@@ -64,6 +63,22 @@ public class CoopQuest {
         // Check if player can join (less than 3 active quests)
         if (getActiveQuestsCount(player) >= 3) {
             return false;
+        }
+
+        // If this join would make the quest ready to start, ensure ALL participants (including the joiner)
+        // would still satisfy the "max 3 active coop quests" rule at activation time
+        if (participants.size() + 1 >= maxPlayers) {
+            CoopQuestManager manager = CoopQuestManager.getInstance();
+            // Check existing participants
+            for (Player participant : participants) {
+                if (manager.getActiveQuestsForPlayer(participant).size() >= 3) {
+                    return false;
+                }
+            }
+            // Check the joining player again against current manager state
+            if (manager.getActiveQuestsForPlayer(player).size() >= 3) {
+                return false;
+            }
         }
 
         // Check if quest is full

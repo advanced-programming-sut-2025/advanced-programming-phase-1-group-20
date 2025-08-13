@@ -613,7 +613,7 @@ public class NetworkClient {
     }
 
     public void sendTradeRequest(String targetPlayer, String item, int quantity) {
-        if (connectionState != ConnectionState.AUTHENTICATED) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
             return;
         }
 
@@ -621,6 +621,7 @@ public class NetworkClient {
         tradeMessage.setType(Message.Type.TRADE_REQUEST);
         tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
         tradeMessage.putInBody("toPlayer", targetPlayer);
+        tradeMessage.putInBody("targetPlayer", targetPlayer); // For server routing compatibility
         tradeMessage.putInBody("item", item);
         tradeMessage.putInBody("quantity", quantity);
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
@@ -629,7 +630,7 @@ public class NetworkClient {
     }
 
     public void sendTradeRequest(String targetPlayer, String item, int quantity, int price) {
-        if (connectionState != ConnectionState.AUTHENTICATED) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
             return;
         }
 
@@ -637,6 +638,7 @@ public class NetworkClient {
         tradeMessage.setType(Message.Type.TRADE_REQUEST);
         tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
         tradeMessage.putInBody("toPlayer", targetPlayer);
+        tradeMessage.putInBody("targetPlayer", targetPlayer); // For server routing compatibility
         tradeMessage.putInBody("item", item);
         tradeMessage.putInBody("quantity", quantity);
         tradeMessage.putInBody("price", price);

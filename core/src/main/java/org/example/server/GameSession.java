@@ -361,11 +361,6 @@ public class GameSession {
                 }
             }
 
-            // Broadcast NPC updates periodically
-            if (gameTickCounter % 30 == 0) { // Every 30 ticks (about every 30 seconds)
-//                broadcastNPCUpdates();
-            }
-
             // Broadcast player data updates periodically (including animation state)
             if (gameTickCounter % 10 == 0) { // Every 10 ticks (about every 10 seconds)
                 broadcastPlayerDataUpdate();

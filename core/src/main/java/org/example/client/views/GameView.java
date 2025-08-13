@@ -592,7 +592,7 @@ public class GameView implements Screen, InputProcessor {
         tradingButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-//                openTradingMenu();
+                openTradingMenu();
             }
         });
     }
@@ -645,7 +645,7 @@ public class GameView implements Screen, InputProcessor {
                         // Find the player and show their reaction
                         Player reactingPlayer = game.getPlayerByUsername(fromPlayer);
                         if (reactingPlayer != null) {
-                            Vector2 playerPos = new Vector2(reactingPlayer.getLocation().getX(), reactingPlayer.getLocation().getY());
+                            Vector2 playerPos = new Vector2(reactingPlayer.getPosX(), reactingPlayer.getPosY());
                             if (reactionDisplay != null) {
                                 reactionDisplay.showReaction(fromPlayer, reaction, playerPos);
                             }
@@ -726,7 +726,7 @@ public class GameView implements Screen, InputProcessor {
                         System.out.println("🎭 Single player mode - reaction would be: " + reaction);
                         // For single player, just show the reaction locally
                         if (reactionDisplay != null) {
-                            Vector2 playerPos = new Vector2(player.getLocation().getX(), player.getLocation().getY());
+                            Vector2 playerPos = new Vector2(player.getPosX(), player.getPosY());
                             reactionDisplay.showReaction(player.getUser().getUsername(), reaction, playerPos);
                         }
                     }
@@ -737,11 +737,24 @@ public class GameView implements Screen, InputProcessor {
         }
     }
 
-//    private void openTradingMenu() {
-//        // Use the new network-based trading screen
-//        NetworkTradingScreen tradingView = new NetworkTradingScreen(skin, this);
-//        Main.getGame().setScreen(tradingView);
-//    }
+    private void openTradingMenu() {
+        try {
+            // Prefer the network-enabled trading screen if networking is available
+            NetworkClient nc = NetworkClient.getInstance();
+            if (nc != null && nc.getMessageHandler() != null) {
+                NetworkTradingScreen tradingView = new NetworkTradingScreen(skin, this);
+                Main.getGame().setScreen(tradingView);
+            } else {
+                // Fallback to local trading menu
+                TradingMenuController controller = new TradingMenuController(player);
+                TradingMenuView tradingView = new TradingMenuView(controller, skin, this);
+                Main.getGame().setScreen(tradingView);
+            }
+        } catch (Exception e) {
+            System.err.println("Error opening trading menu: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     // Getters
     public Player getPlayer() {
@@ -871,7 +884,7 @@ public class GameView implements Screen, InputProcessor {
             return true;
         }
         if (keycode == Input.Keys.T) {
-//            openTradingMenu();
+            openTradingMenu();
             return true;
         }
         if (keycode == Input.Keys.N) {
@@ -1453,9 +1466,32 @@ public class GameView implements Screen, InputProcessor {
             stage.addActor(chatTable);
         }
 
+        // Register trade request listener to show in-game notifications
+        try {
+            NetworkClient networkClient = NetworkClient.getInstance();
+            if (networkClient != null && networkClient.getMessageHandler() != null && game != null && game.isMultiplayer) {
+                networkClient.getMessageHandler().setTradeListener(new ClientMessageHandler.TradeRequestListener() {
+                    @Override
+                    public void onTradeRequest(String fromPlayer, String toPlayer, String item, int quantity) {
+                        String currentUsername = player != null && player.getUser() != null ? player.getUser().getUsername() : null;
+                        if (currentUsername != null && currentUsername.equals(toPlayer)) {
+                            Gdx.app.postRunnable(() -> showTradeRequestNotification(fromPlayer, item, quantity));
+                        }
+                    }
+
+                    @Override
+                    public void onTradeResponse(String fromPlayer, String toPlayer, boolean accepted) {
+                        // optional: could notify accept/reject
+                    }
+                });
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to register trade listener in GameView: " + e.getMessage());
+        }
+
         // Initialize reaction popup and display after stage is created
         reactionPopup = new ReactionPopup(stage, skin);
-        reactionDisplay = new ReactionDisplay(stage, reactionPopup, skin);
+        reactionDisplay = new ReactionDisplay(stage, reactionPopup, skin, camera);
 
         // Add friends button to the stage (positioned in bottom-left corner)
         if (friendsButton != null) {
@@ -2136,6 +2172,24 @@ public class GameView implements Screen, InputProcessor {
                 });
             }
         }, delaySeconds);
+    }
+
+    // Show a brief on-screen notification for incoming trade requests
+    private void showTradeRequestNotification(String fromPlayer, String itemName, int quantity) {
+        if (stage == null || skin == null) return;
+
+        String message = "New trade request from " + fromPlayer + ": " + itemName + " x" + quantity;
+        Label notificationLabel = new Label(message, skin);
+        notificationLabel.setColor(Color.CYAN);
+        notificationLabel.setFontScale(1.2f);
+
+        float labelWidth = Math.max(300f, notificationLabel.getPrefWidth() + 20f);
+        float x = Math.round((Gdx.graphics.getWidth() - labelWidth) / 2f);
+        float y = Math.round(Gdx.graphics.getHeight() - 80f);
+        notificationLabel.setPosition(x, y);
+
+        stage.addActor(notificationLabel);
+        scheduleNotificationRemoval(notificationLabel, 3.5f);
     }
 
     private void createLightingOverlayTexture() {

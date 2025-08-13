@@ -527,9 +527,9 @@ public class FishingMiniGame implements Screen, InputProcessor {
                 player.getSkills().get(3).updateUnit(); // Fishing skill is at index 3
             }
 
-            System.out.println("🎣 Fish added to inventory: " + caughtFishType.getName() + " x" + caughtFishQuantity);
-            System.out.println("⭐ Quality: " + caughtFishQuality);
-            System.out.println("🎯 XP gained: " + xpGained);
+            System.out.println("Fish added to inventory: " + caughtFishType.getName() + " x" + caughtFishQuantity);
+            System.out.println("Quality: " + caughtFishQuality);
+            System.out.println("XP gained: " + xpGained);
 
         } catch (Exception e) {
             System.err.println("Error adding fish to inventory: " + e.getMessage());

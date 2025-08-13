@@ -450,6 +450,11 @@ public class TradingMenuView implements Screen {
 
     @Override
     public void render(float delta) {
+        // Process incoming network messages so trade requests arrive even while this screen is open
+        try {
+            org.example.client.network.NetworkClient.getInstance().update();
+        } catch (Exception ignored) {}
+
         Gdx.gl.glClearColor(0.2f, 0.2f, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

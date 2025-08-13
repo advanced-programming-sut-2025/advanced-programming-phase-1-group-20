@@ -5,7 +5,6 @@ import org.example.common.models.App;
 import org.example.common.models.Items.Item;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
-import org.example.common.models.enums.Types.ItemBuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,6 +209,11 @@ public class CoopQuestManager {
     public boolean joinCoopQuest(Player player, int questId, Date currentDate) {
         CoopQuest quest = getCoopQuestById(questId);
         if (quest == null) {
+            return false;
+        }
+
+        // Enforce per-player cap: at most 3 active coop quests
+        if (getActiveQuestsForPlayer(player).size() >= 3) {
             return false;
         }
 
