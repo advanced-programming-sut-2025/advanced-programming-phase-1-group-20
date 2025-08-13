@@ -1702,6 +1702,10 @@ public class GameMenuController implements Controller {
         Player player = App.getGame().getCurrentPlayer();
 
         QuestManager questManager = QuestManager.getInstance();
+
+        // Initialize all quests with the current game date to ensure they're available
+        questManager.initializeQuestsWithDate(App.getGame().getDate());
+
         List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
         List<Quest> availableQuests = questManager.getAvailableQuests();
         List<Quest> takenByOthers = questManager.getQuestsTakenByOthers(player);
@@ -1809,7 +1813,9 @@ public class GameMenuController implements Controller {
         try {
             int questId = Integer.parseInt(args[0]);
             QuestManager questManager = QuestManager.getInstance();
-            
+
+            questManager.initializeQuestsWithDate(App.getGame().getDate());
+
             // Check if quest exists
             Quest quest = questManager.getQuest(questId);
             if (quest == null) {
@@ -1830,7 +1836,7 @@ public class GameMenuController implements Controller {
             // Check if player meets requirements
             if (!quest.canActivate(player, App.getGame().getDate())) {
                 StringBuilder requirements = new StringBuilder("You don't meet the requirements for this quest:\n");
-                
+
                 // Check friendship level
                 Map<String, String> friendships = player.getNPCFriendships();
                 String friendshipInfo = friendships.get(quest.getNpc().getName());
@@ -1842,13 +1848,13 @@ public class GameMenuController implements Controller {
                         // Default to level 0 if parsing fails
                     }
                 }
-                
+
                 if (friendshipLevel < quest.getRequiredFriendshipLevel()) {
                     requirements.append("- Requires friendship level ").append(quest.getRequiredFriendshipLevel())
                         .append(" with ").append(quest.getNpc().getName())
                         .append(" (you have level ").append(friendshipLevel).append(")\n");
                 }
-                
+
                 // Check days passed requirement
                 if (quest.getRequiredDaysPassed() > 0 && quest.getActivationDate() != null) {
                     int daysPassed = (int) App.getGame().getDate().getDaysPassed(quest.getActivationDate());
@@ -1857,7 +1863,7 @@ public class GameMenuController implements Controller {
                             .append(" days to pass (only ").append(daysPassed).append(" days have passed)\n");
                     }
                 }
-                
+
                 return Result.error(requirements.toString());
             }
 
@@ -1884,7 +1890,7 @@ public class GameMenuController implements Controller {
                     result.append(quest.getItemRewardQuantity()).append(" ").append(quest.getItemReward().getName());
                 }
                 result.append("\n\nYou can now complete this quest when you have the required items!");
-                
+
                 return Result.success(result.toString());
             } else {
                 return Result.error("Failed to take quest. It may have been taken by someone else.");

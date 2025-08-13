@@ -87,41 +87,108 @@ public class NPCQuestsScreen implements Screen {
         
         Player player = App.getGame().getCurrentPlayer();
         QuestManager questManager = QuestManager.getInstance();
-        questManager.updateQuestsForPlayer(player, App.getGame().getDate());
         
-        // Group quests by NPC
-        Map<String, List<Quest>> questsByNPC = new HashMap<>();
-        List<Quest> allQuests = questManager.getActiveQuestsForPlayer(player);
+        // Initialize all quests with the current game date to ensure they're available
+        questManager.initializeQuestsWithDate(App.getGame().getDate());
         
-        for (Quest quest : allQuests) {
-            String npcName = quest.getNpc().getName();
-            questsByNPC.computeIfAbsent(npcName, k -> new ArrayList<>()).add(quest);
+        // Get different types of quests
+        List<Quest> activeQuests = questManager.getActiveQuestsForPlayer(player);
+        List<Quest> availableQuests = questManager.getAvailableQuests();
+        List<Quest> takenByOthers = questManager.getQuestsTakenByOthers(player);
+        
+        // Show active quests section
+        if (!activeQuests.isEmpty()) {
+            addSectionHeader("YOUR ACTIVE QUESTS", Color.GREEN);
+            
+            Map<String, List<Quest>> activeQuestsByNPC = new HashMap<>();
+            for (Quest quest : activeQuests) {
+                String npcName = quest.getNpc().getName();
+                activeQuestsByNPC.computeIfAbsent(npcName, k -> new ArrayList<>()).add(quest);
+            }
+            
+            int questIndex = 1;
+            for (Map.Entry<String, List<Quest>> entry : activeQuestsByNPC.entrySet()) {
+                String npcName = entry.getKey();
+                List<Quest> npcQuests = entry.getValue();
+                
+                addNPCSectionHeader(npcName);
+                
+                for (Quest quest : npcQuests) {
+                    addActiveQuestToTable(quest, questIndex++);
+                }
+            }
         }
-
-        if (questsByNPC.isEmpty()) {
+        
+        // Show available quests section
+        if (!availableQuests.isEmpty()) {
+            addSectionHeader("AVAILABLE QUESTS TO TAKE", Color.YELLOW);
+            
+            Map<String, List<Quest>> availableQuestsByNPC = new HashMap<>();
+            for (Quest quest : availableQuests) {
+                String npcName = quest.getNpc().getName();
+                availableQuestsByNPC.computeIfAbsent(npcName, k -> new ArrayList<>()).add(quest);
+            }
+            
+            for (Map.Entry<String, List<Quest>> entry : availableQuestsByNPC.entrySet()) {
+                String npcName = entry.getKey();
+                List<Quest> npcQuests = entry.getValue();
+                
+                addNPCSectionHeader(npcName);
+                
+                for (Quest quest : npcQuests) {
+                    addAvailableQuestToTable(quest);
+                }
+            }
+        }
+        
+        // Show quests taken by others section
+        if (!takenByOthers.isEmpty()) {
+            addSectionHeader("QUESTS TAKEN BY OTHERS", Color.RED);
+            
+            Map<String, List<Quest>> takenQuestsByNPC = new HashMap<>();
+            for (Quest quest : takenByOthers) {
+                String npcName = quest.getNpc().getName();
+                takenQuestsByNPC.computeIfAbsent(npcName, k -> new ArrayList<>()).add(quest);
+            }
+            
+            for (Map.Entry<String, List<Quest>> entry : takenQuestsByNPC.entrySet()) {
+                String npcName = entry.getKey();
+                List<Quest> npcQuests = entry.getValue();
+                
+                addNPCSectionHeader(npcName);
+                
+                for (Quest quest : npcQuests) {
+                    addTakenQuestToTable(quest);
+                }
+            }
+        }
+        
+        // Show message if no quests at all
+        if (activeQuests.isEmpty() && availableQuests.isEmpty() && takenByOthers.isEmpty()) {
             Label.LabelStyle noQuestsStyle = new Label.LabelStyle();
             noQuestsStyle.font = customFont;
             noQuestsStyle.fontColor = Color.LIGHT_GRAY;
             noQuestsStyle.font.getData().setScale(0.8f);
             
-            Label noQuestsLabel = new Label("You don't have any active quests at the moment.\nTalk to NPCs to discover new quests!", noQuestsStyle);
+            Label noQuestsLabel = new Label("No quests available at the moment.\nTalk to NPCs to discover new quests!", noQuestsStyle);
             noQuestsLabel.setAlignment(1);
             questsTable.add(noQuestsLabel).width(750).height(100).pad(20).row();
-        } else {
-            int questIndex = 1;
-            for (Map.Entry<String, List<Quest>> entry : questsByNPC.entrySet()) {
-                String npcName = entry.getKey();
-                List<Quest> npcQuests = entry.getValue();
-                
-                // Add NPC section header
-                addNPCSectionHeader(npcName);
-                
-                // Add quests for this NPC
-                for (Quest quest : npcQuests) {
-                    addQuestToTable(quest, questIndex++);
-                }
-            }
         }
+    }
+
+    private void addSectionHeader(String title, Color color) {
+        Table sectionHeaderTable = new Table();
+        sectionHeaderTable.setBackground(skin.newDrawable("white", color));
+        
+        Label.LabelStyle sectionHeaderStyle = new Label.LabelStyle();
+        sectionHeaderStyle.font = customFont;
+        sectionHeaderStyle.fontColor = Color.WHITE;
+        sectionHeaderStyle.font.getData().setScale(1.1f);
+        
+        Label sectionHeaderLabel = new Label(title, sectionHeaderStyle);
+        sectionHeaderTable.add(sectionHeaderLabel).pad(15).center();
+        
+        questsTable.add(sectionHeaderTable).width(750).pad(5).row();
     }
 
     private void addNPCSectionHeader(String npcName) {
@@ -172,7 +239,7 @@ public class NPCQuestsScreen implements Screen {
         }
     }
 
-    private void addQuestToTable(Quest quest, int questNumber) {
+    private void addActiveQuestToTable(Quest quest, int questNumber) {
         Table questContainer = new Table();
         questContainer.setBackground(skin.newDrawable("white", new Color(0.3f, 0.3f, 0.3f, 0.9f)));
         
@@ -340,6 +407,231 @@ public class NPCQuestsScreen implements Screen {
         questsTable.add(questContainer).width(750).pad(10).row();
     }
 
+    private void addAvailableQuestToTable(Quest quest) {
+        Table questContainer = new Table();
+        questContainer.setBackground(skin.newDrawable("white", new Color(0.3f, 0.3f, 0.1f, 0.9f)));
+        
+        // Quest header with ID
+        Table headerTable = new Table();
+        headerTable.setBackground(skin.newDrawable("white", new Color(0.4f, 0.4f, 0.1f, 0.8f)));
+
+        Label.LabelStyle headerStyle = new Label.LabelStyle();
+        headerStyle.font = customFont;
+        headerStyle.fontColor = Color.YELLOW;
+        headerStyle.font.getData().setScale(0.9f);
+
+        Label questHeader = new Label("ID: " + quest.getId() + " - " + quest.getTitle(), headerStyle);
+        headerTable.add(questHeader).left().expandX().fillX().pad(10, 15, 10, 15);
+
+        // Available status
+        Label.LabelStyle statusStyle = new Label.LabelStyle();
+        statusStyle.font = customFont;
+        statusStyle.fontColor = Color.GREEN;
+        statusStyle.font.getData().setScale(0.7f);
+        
+        Label statusLabel = new Label("📋 AVAILABLE", statusStyle);
+        headerTable.add(statusLabel).right().pad(10, 15, 10, 15);
+
+        questContainer.add(headerTable).pad(10, 15, 5, 15).row();
+        
+        // Quest description
+        Table descTable = new Table();
+        descTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.1f, 0.2f, 0.5f)));
+        
+        Label.LabelStyle descStyle = new Label.LabelStyle();
+        descStyle.font = customFont;
+        descStyle.fontColor = Color.WHITE;
+        descStyle.font.getData().setScale(0.7f);
+        
+        Label questDesc = new Label(quest.getDescription(), descStyle);
+        questDesc.setWrap(true);
+        descTable.add(questDesc).left().pad(10, 15, 10, 15).width(700);
+        questContainer.add(descTable).left().pad(5, 15, 10, 15).row();
+        
+        // Requirements for taking the quest
+        Table reqTable = new Table();
+        reqTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.5f)));
+        
+        Label.LabelStyle reqHeaderStyle = new Label.LabelStyle();
+        reqHeaderStyle.font = customFont;
+        reqHeaderStyle.fontColor = Color.ORANGE;
+        reqHeaderStyle.font.getData().setScale(0.7f);
+        
+        Label reqHeaderLabel = new Label("Requirements to Take:", reqHeaderStyle);
+        reqTable.add(reqHeaderLabel).left().pad(5, 10, 5, 10).row();
+        
+        Player currentPlayer = App.getGame().getCurrentPlayer();
+        
+        // Check friendship level requirement
+        if (quest.getRequiredFriendshipLevel() > 0) {
+            Map<String, String> friendships = currentPlayer.getNPCFriendships();
+            String friendshipInfo = friendships.get(quest.getNpc().getName());
+            int friendshipLevel = 0;
+            if (friendshipInfo != null && friendshipInfo.startsWith("Level: ")) {
+                try {
+                    friendshipLevel = Integer.parseInt(friendshipInfo.substring(7, 8));
+                } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
+                    // Default to level 0 if parsing fails
+                }
+            }
+            
+            Label.LabelStyle reqItemStyle = new Label.LabelStyle();
+            reqItemStyle.font = customFont;
+            reqItemStyle.font.getData().setScale(0.6f);
+            
+            if (friendshipLevel >= quest.getRequiredFriendshipLevel()) {
+                reqItemStyle.fontColor = Color.GREEN;
+                String reqText = "✓ Friendship Level " + quest.getRequiredFriendshipLevel() + " with " + quest.getNpc().getName() + " (You have: " + friendshipLevel + ")";
+                Label reqItemLabel = new Label(reqText, reqItemStyle);
+                reqTable.add(reqItemLabel).left().pad(2, 20, 2, 10).row();
+            } else {
+                reqItemStyle.fontColor = Color.RED;
+                String reqText = "✗ Friendship Level " + quest.getRequiredFriendshipLevel() + " with " + quest.getNpc().getName() + " (You have: " + friendshipLevel + ")";
+                Label reqItemLabel = new Label(reqText, reqItemStyle);
+                reqTable.add(reqItemLabel).left().pad(2, 20, 2, 10).row();
+            }
+        }
+        
+        // Check days passed requirement
+        if (quest.getRequiredDaysPassed() > 0 && quest.getActivationDate() != null) {
+            int daysPassed = (int) App.getGame().getDate().getDaysPassed(quest.getActivationDate());
+            
+            Label.LabelStyle reqItemStyle = new Label.LabelStyle();
+            reqItemStyle.font = customFont;
+            reqItemStyle.font.getData().setScale(0.6f);
+            
+            if (daysPassed >= quest.getRequiredDaysPassed()) {
+                reqItemStyle.fontColor = Color.GREEN;
+                String reqText = "✓ " + quest.getRequiredDaysPassed() + " days passed (Actual: " + daysPassed + " days)";
+                Label reqItemLabel = new Label(reqText, reqItemStyle);
+                reqTable.add(reqItemLabel).left().pad(2, 20, 2, 10).row();
+            } else {
+                reqItemStyle.fontColor = Color.RED;
+                String reqText = "✗ " + quest.getRequiredDaysPassed() + " days passed (Actual: " + daysPassed + " days)";
+                Label reqItemLabel = new Label(reqText, reqItemStyle);
+                reqTable.add(reqItemLabel).left().pad(2, 20, 2, 10).row();
+            }
+        }
+        
+        questContainer.add(reqTable).left().pad(5, 15, 5, 15).row();
+        
+        // Rewards
+        Table rewardTable = new Table();
+        rewardTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.3f, 0.1f, 0.5f)));
+        
+        Label.LabelStyle rewardHeaderStyle = new Label.LabelStyle();
+        rewardHeaderStyle.font = customFont;
+        rewardHeaderStyle.fontColor = Color.GREEN;
+        rewardHeaderStyle.font.getData().setScale(0.7f);
+        
+        Label rewardHeaderLabel = new Label("Rewards:", rewardHeaderStyle);
+        rewardTable.add(rewardHeaderLabel).left().pad(5, 10, 5, 10).row();
+        
+        Table rewardItemsTable = new Table();
+        
+        if (quest.getGoldReward() > 0) {
+            Label.LabelStyle goldStyle = new Label.LabelStyle();
+            goldStyle.font = customFont;
+            goldStyle.fontColor = Color.YELLOW;
+            goldStyle.font.getData().setScale(0.6f);
+            
+            String goldText = "💰 " + quest.getGoldReward() + " gold";
+            Label goldLabel = new Label(goldText, goldStyle);
+            rewardItemsTable.add(goldLabel).left().pad(2, 10, 2, 10);
+        }
+        
+        if (quest.getItemReward() != null) {
+            Label.LabelStyle itemStyle = new Label.LabelStyle();
+            itemStyle.font = customFont;
+            itemStyle.fontColor = Color.CYAN;
+            itemStyle.font.getData().setScale(0.6f);
+            
+            String itemText = "📦 " + quest.getItemRewardQuantity() + " " + quest.getItemReward().getName();
+            Label itemLabel = new Label(itemText, itemStyle);
+            rewardItemsTable.add(itemLabel).left().pad(2, 10, 2, 10);
+        }
+        
+        rewardTable.add(rewardItemsTable).left().pad(2, 20, 2, 10).row();
+        questContainer.add(rewardTable).left().pad(5, 15, 10, 15).row();
+        
+        // Take Quest button
+        TextButton takeButton = new TextButton("Take Quest", skin);
+        takeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                takeQuest(quest);
+            }
+        });
+        
+        // Check if player can take the quest
+        if (!quest.canActivate(currentPlayer, App.getGame().getDate())) {
+            takeButton.setDisabled(true);
+            takeButton.getLabel().setColor(Color.GRAY);
+        }
+        
+        questContainer.add(takeButton).width(150).height(40).pad(10, 15, 15, 15).row();
+        questsTable.add(questContainer).width(750).pad(10).row();
+    }
+
+    private void addTakenQuestToTable(Quest quest) {
+        Table questContainer = new Table();
+        questContainer.setBackground(skin.newDrawable("white", new Color(0.3f, 0.1f, 0.1f, 0.9f)));
+        
+        // Quest header
+        Table headerTable = new Table();
+        headerTable.setBackground(skin.newDrawable("white", new Color(0.4f, 0.1f, 0.1f, 0.8f)));
+
+        Label.LabelStyle headerStyle = new Label.LabelStyle();
+        headerStyle.font = customFont;
+        headerStyle.fontColor = Color.RED;
+        headerStyle.font.getData().setScale(0.9f);
+
+        Label questHeader = new Label(quest.getTitle(), headerStyle);
+        headerTable.add(questHeader).left().expandX().fillX().pad(10, 15, 10, 15);
+
+        // Taken status
+        Label.LabelStyle statusStyle = new Label.LabelStyle();
+        statusStyle.font = customFont;
+        statusStyle.fontColor = Color.RED;
+        statusStyle.font.getData().setScale(0.7f);
+        
+        String takenByText = "Taken by: " + quest.getTakenBy().getUser().getUsername();
+        Label statusLabel = new Label("🔒 " + takenByText, statusStyle);
+        headerTable.add(statusLabel).right().pad(10, 15, 10, 15);
+
+        questContainer.add(headerTable).pad(10, 15, 5, 15).row();
+        
+        // Quest description
+        Table descTable = new Table();
+        descTable.setBackground(skin.newDrawable("white", new Color(0.1f, 0.1f, 0.2f, 0.5f)));
+        
+        Label.LabelStyle descStyle = new Label.LabelStyle();
+        descStyle.font = customFont;
+        descStyle.fontColor = Color.WHITE;
+        descStyle.font.getData().setScale(0.7f);
+        
+        Label questDesc = new Label(quest.getDescription(), descStyle);
+        questDesc.setWrap(true);
+        descTable.add(questDesc).left().pad(10, 15, 10, 15).width(700);
+        questContainer.add(descTable).left().pad(5, 15, 10, 15).row();
+        
+        questsTable.add(questContainer).width(750).pad(10).row();
+    }
+
+    private void takeQuest(Quest quest) {
+        Player player = App.getGame().getCurrentPlayer();
+        QuestManager questManager = QuestManager.getInstance();
+        
+        boolean success = questManager.takeQuest(player, quest.getId(), App.getGame().getDate());
+        
+        if (success) {
+            showQuestTakenDialog(quest, true);
+            loadQuests();
+        } else {
+            showQuestTakenDialog(quest, false);
+        }
+    }
+
     private void completeQuest(Quest quest) {
         Player player = App.getGame().getCurrentPlayer();
         QuestManager questManager = QuestManager.getInstance();
@@ -352,6 +644,27 @@ public class NPCQuestsScreen implements Screen {
         } else {
             showQuestCompletionDialog(quest, false);
         }
+    }
+
+    private void showQuestTakenDialog(Quest quest, boolean success) {
+        Dialog dialog = new Dialog("Quest Taken", skin);
+        
+        Label.LabelStyle dialogStyle = new Label.LabelStyle();
+        dialogStyle.font = customFont;
+        dialogStyle.fontColor = success ? Color.GREEN : Color.RED;
+        dialogStyle.font.getData().setScale(0.8f);
+        
+        String message = success ? 
+            "Quest taken successfully!\nYou can now work on completing it." :
+            "Cannot take quest.\nIt may have been taken by someone else or you don't meet the requirements.";
+        
+        Label messageLabel = new Label(message, dialogStyle);
+        dialog.text(messageLabel);
+        
+        TextButton okButton = new TextButton("OK", skin);
+        dialog.button(okButton);
+        
+        dialog.show(stage);
     }
 
     private void showQuestCompletionDialog(Quest quest, boolean success) {
