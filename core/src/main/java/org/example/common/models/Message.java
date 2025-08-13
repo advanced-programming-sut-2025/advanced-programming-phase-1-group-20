@@ -54,6 +54,7 @@ public class Message {
         body.put(key, value);
     }
 
+
     public enum Type {
         // Authentication
         AUTH_LOGIN,
@@ -151,6 +152,12 @@ public class Message {
         REACTION_RECEIVE,
 
         // Sleep transition
-        SLEEP_TRANSITION
+        SLEEP_TRANSITION,
+
+        // Quest Related
+        QUEST_TAKEN,
+        TAKE_QUEST,
+
+        CO_OP_QUEST
     }
 }

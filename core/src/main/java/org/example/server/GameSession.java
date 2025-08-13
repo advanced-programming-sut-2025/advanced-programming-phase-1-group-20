@@ -15,6 +15,8 @@ import org.example.common.models.MapDetails.GameMap;
 import com.google.gson.Gson;
 import org.example.server.controllers.LiveStockController;
 import org.example.server.controllers.NpcController;
+import org.example.common.models.entities.QuestManager;
+import org.example.common.models.common.Date;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -206,8 +208,12 @@ public class GameSession {
     }
 
     public void processMessage(String username, Message message) {
+        System.out.println("🔍 GameSession: Processing message type: " + message.getType() + " from " + username);
+        System.out.println("🔍 GameSession: isActive = " + isActive);
+        
         // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
         if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
+            System.out.println("🔍 GameSession: Message rejected - game not active and not allowed message type");
             return; // Only allow start game and farm selection messages before game is active
         }
 
@@ -247,6 +253,10 @@ public class GameSession {
                 break;
             case REACTION_SEND:
                 handleReactionSend(username, message);
+                break;
+            case TAKE_QUEST:
+                System.out.println("🔍 GameSession: Handling TAKE_QUEST message");
+                handleTakeQuest(username, message);
                 break;
             default:
 // System.out.println("Unhandled message type: " + message.getType());
@@ -964,5 +974,48 @@ public class GameSession {
 
         // Broadcast to all players in the game session
         broadcastToAll(reactionMessage);
+    }
+
+    private void handleTakeQuest(String username, Message message) {
+        System.out.println("🔍 GameSession: handleTakeQuest called with username: " + username);
+        System.out.println("🔍 GameSession: Message body: " + message.getBody());
+        
+        String playerUsername = message.getFromBody("playerUsername");
+        Integer questId = message.getIntFromBody("questId");
+        String currentDateStr = message.getFromBody("currentDate");
+        
+        System.out.println("🔍 GameSession: playerUsername = " + playerUsername);
+        System.out.println("🔍 GameSession: questId = " + questId);
+        System.out.println("🔍 GameSession: currentDateStr = " + currentDateStr);
+
+        if (questId == null) {
+            System.err.println("Quest ID is null in TAKE_QUEST message");
+            return;
+        }
+
+        // Parse the current date
+        Date currentDate = null;
+        try {
+            if (currentDateStr != null) {
+                // For now, just use the current game date since Date parsing is complex
+                currentDate = App.getGame().getDate();
+            } else {
+                currentDate = App.getGame().getDate();
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to parse current date: " + e.getMessage());
+            currentDate = App.getGame().getDate();
+        }
+
+        // Broadcast the quest taken event to all players
+        Message questTakenMessage = new Message();
+        questTakenMessage.setType(Message.Type.TAKE_QUEST);
+        questTakenMessage.putInBody("playerUsername", playerUsername);
+        questTakenMessage.putInBody("questId", questId);
+        questTakenMessage.putInBody("success", true);
+        questTakenMessage.putInBody("message", "Quest taken successfully");
+
+        broadcastToAll(questTakenMessage);
+        System.out.println("Quest " + questId + " taken by " + playerUsername + " - broadcasted to all players");
     }
 }

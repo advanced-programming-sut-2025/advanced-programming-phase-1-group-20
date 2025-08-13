@@ -39,11 +39,11 @@ public class MessageHandler {
     public void addPlayerConnection(String username, PlayerConnection connection) {
         playerConnections.put(username, connection);
         onlinePlayersManager.playerConnected(username, connection);
-        
+
         // Register player with ChatManager
         ChatManager chatManager = ChatManager.getInstance(this);
         chatManager.registerPlayer(username, connection);
-        
+
 // System.out.println("DEBUG: Added player connection: " + username);
 // System.out.println("DEBUG: Current player connections: " + playerConnections.keySet());
     }
@@ -61,11 +61,11 @@ public class MessageHandler {
             for (GameSession session : gameSessions.values()) {
                 session.removePlayer(username);
             }
-            
+
             // Unregister player from ChatManager
             ChatManager chatManager = ChatManager.getInstance(this);
             chatManager.unregisterPlayer(username);
-            
+
 // System.out.println("Removed player connection: " + username);
         }
     }
@@ -164,7 +164,8 @@ public class MessageHandler {
             case CHAT_HISTORY_REQUEST:
                 handleChatHistoryRequest(connection, message);
                 break;
-
+            case TAKE_QUEST:
+                handleTakeQuest(connection, message);
             default:
                 // Forward to game session if player is in one
                 Object gameSessionObj = connection.getGameSession();
@@ -177,6 +178,22 @@ public class MessageHandler {
                     sendErrorMessage(connection, "Player not in a game session");
                 }
                 break;
+        }
+    }
+
+    private void handleTakeQuest(PlayerConnection connection, Message message) {
+        System.out.println("🔍 MessageHandler: Received TAKE_QUEST message from " + connection.getUsername());
+        System.out.println("🔍 MessageHandler: Message content: " + message.toString());
+        
+        // Forward to game session for processing
+        Object gameSessionObj = connection.getGameSession();
+        if (gameSessionObj instanceof GameSession) {
+            GameSession gameSession = (GameSession) gameSessionObj;
+            System.out.println("🔍 MessageHandler: Forwarding to GameSession");
+            gameSession.processMessage(connection.getUser().getUsername(), message);
+        } else {
+            System.out.println("🔍 MessageHandler: Player not in game session!");
+            sendErrorMessage(connection, "Player not in a game session");
         }
     }
 
@@ -806,10 +823,10 @@ public class MessageHandler {
             // Get online players from both OnlinePlayersManager and ChatManager
             ChatManager chatManager = ChatManager.getInstance(this);
             List<String> chatManagerPlayers = chatManager.getOnlinePlayers();
-            
+
             // Create a combined list of online players
             List<Object> allPlayers = new ArrayList<>();
-            
+
             // Add players from ChatManager (includes game session players)
             for (String username : chatManagerPlayers) {
                 Map<String, Object> playerInfo = new HashMap<>();
@@ -817,7 +834,7 @@ public class MessageHandler {
                 playerInfo.put("status", "ONLINE");
                 allPlayers.add(playerInfo);
             }
-            
+
             // Also add players from OnlinePlayersManager for completeness
             List<OnlinePlayersManager.OnlinePlayerInfo> onlinePlayers = onlinePlayersManager.getOnlinePlayers();
             for (OnlinePlayersManager.OnlinePlayerInfo playerInfo : onlinePlayers) {
@@ -833,7 +850,7 @@ public class MessageHandler {
                         }
                     }
                 }
-                
+
                 if (!alreadyInList) {
                     Map<String, Object> playerInfoMap = new HashMap<>();
                     playerInfoMap.put("username", playerInfo.getUsername());
@@ -841,15 +858,15 @@ public class MessageHandler {
                     allPlayers.add(playerInfoMap);
                 }
             }
-            
+
             // Send the combined list to the requesting user
             Message response = new Message();
             response.setType(Message.Type.ONLINE_PLAYERS_LIST);
             response.putInBody("players", allPlayers);
             response.putInBody("timestamp", System.currentTimeMillis());
-            
+
             connection.sendMessage(response);
-            
+
             System.out.println("Sent online players list to " + user.getUsername() + " with " + allPlayers.size() + " players");
         } catch (Exception e) {
             System.err.println("Failed to send online players list: " + e.getMessage());

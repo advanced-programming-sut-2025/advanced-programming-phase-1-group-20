@@ -276,12 +276,7 @@ public class AnimalController {
 
         // Check if the animal has produce to collect
         if (barnAnimal != null) {
-            Item product = barnAnimal.getProduct();
-            if (product == null) {
-                return Result.error(animalName + " doesn't have any produce ready to collect.");
-            }
-
-            // For milk and wool, check if player has required tools
+            // For milk and wool, check if player has required tools first
             String animalType = barnAnimal.getType().getName().toLowerCase();
             if ((animalType.contains("cow") || animalType.contains("goat")) &&
                 player.getCurrentTool() == null || !player.getCurrentTool().getName().equals("Milk Pail")) {
@@ -293,12 +288,19 @@ public class AnimalController {
                 return Result.error("You need to equip Shears to collect wool.");
             }
 
+            // Get the product (this will reset the production counter)
+            Item product = barnAnimal.getProduct();
+            if (product == null) {
+                return Result.error(animalName + " doesn't have any produce ready to collect.");
+            }
+
             // Add product to player's inventory
             player.getBackpack().add(product, 1);
             barnAnimal.increaseHappiness(5);
 
             return Result.success("You collected " + product.getName() + " from " + animalName + ".");
         } else {
+            // Get the product (this will reset the production counter)
             Item product = coopAnimal.getProduct();
             if (product == null) {
                 return Result.error(animalName + " doesn't have any produce ready to collect.");

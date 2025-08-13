@@ -1,7 +1,9 @@
 package org.example.common.models.entities;
 
+import org.example.client.network.NetworkClient;
 import org.example.common.models.App;
 import org.example.common.models.Items.Item;
+import org.example.common.models.Message;
 import org.example.common.models.Player.Player;
 import org.example.common.models.common.Date;
 import org.example.common.models.enums.Npcs;
@@ -434,7 +436,7 @@ public class QuestManager {
     public List<Quest> getAvailableQuestsForNpc(Npcs npc) {
         List<Quest> availableQuests = new ArrayList<>();
         List<Quest> npcQuestsList = npcQuests.getOrDefault(npc, new ArrayList<>());
-        
+
         for (Quest quest : npcQuestsList) {
             if (quest.isAvailable()) {
                 availableQuests.add(quest);
@@ -458,13 +460,6 @@ public class QuestManager {
         return takenQuests;
     }
 
-    /**
-     * Attempt to take a quest for a player
-     * @param player The player trying to take the quest
-     * @param questId The ID of the quest to take
-     * @param currentDate Current game date
-     * @return true if the quest was successfully taken, false otherwise
-     */
     public boolean takeQuest(Player player, int questId, Date currentDate) {
         Quest quest = allQuests.get(questId);
         if (quest == null) {
@@ -478,22 +473,55 @@ public class QuestManager {
                 playerQuests.put(player, new ArrayList<>());
             }
             playerQuests.get(player).add(quest);
+
+            // Send message to server for multiplayer synchronization
+            System.out.println("🔍 QuestManager: App.getGame() = " + (App.getGame() != null));
+            System.out.println("🔍 QuestManager: isMultiplayer() = " + (App.getGame() != null && App.getGame().isMultiplayer()));
+            
+            if (App.getGame() != null && App.getGame().isMultiplayer()) {
+                Message message = new Message();
+                message.setType(Message.Type.TAKE_QUEST);
+                message.putInBody("playerUsername", player.getUser().getUsername());
+                message.putInBody("questId", questId);
+                message.putInBody("currentDate", currentDate.toString());
+
+                try {
+                    NetworkClient networkClient = NetworkClient.getInstance();
+                    System.out.println("🔍 QuestManager: NetworkClient instance: " + (networkClient != null));
+                    System.out.println("🔍 QuestManager: NetworkClient authenticated: " + (networkClient != null && networkClient.isAuthenticated()));
+                    
+                    if (networkClient != null && networkClient.isAuthenticated()) {
+                        System.out.println("+++++++++++++++++++++============++++++++++");
+                        System.out.println("sent take quest message to server: " + message.toString());
+                        networkClient.sendMessage(message);
+                        System.out.println("🔍 QuestManager: Message sent successfully");
+                    } else {
+                        System.out.println("🔍 QuestManager: Cannot send message - NetworkClient not available or not authenticated");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send TAKE_QUEST message: " + e.getMessage());
+                }
+            }
             return true;
         }
-        
+
         return false;
     }
 
-    /**
-     * Get all quests for a player (both active and completed)
-     * @param player The player
-     * @return List of all quests for this player
-     */
     public List<Quest> getAllQuestsForPlayer(Player player) {
         if (!playerQuests.containsKey(player)) {
             playerQuests.put(player, new ArrayList<>());
         }
         return new ArrayList<>(playerQuests.get(player));
+    }
+
+
+    public void initializeQuestsWithDate(Date currentDate) {
+        for (Quest quest : allQuests.values()) {
+            if (quest.getActivationDate() == null) {
+                quest.setActivationDate(currentDate);
+            }
+        }
     }
 
 
@@ -504,14 +532,11 @@ public class QuestManager {
             playerQuests.put(player, new ArrayList<>());
         }
 
-        // Check for quests that can be activated based on friendship level and time
-        // but don't automatically assign them - they need to be taken manually
+        // Initialize activation dates for all quests if they haven't been set yet
         for (Map.Entry<Npcs, List<Quest>> entry : npcQuests.entrySet()) {
             for (Quest quest : entry.getValue()) {
-                if (!playerQuests.get(player).contains(quest) && !quest.isCompleted()) {
-                    if (quest.getActivationDate() == null) {
-                        quest.setActivationDate(currentDate);
-                    }
+                if (quest.getActivationDate() == null) {
+                    quest.setActivationDate(currentDate);
                 }
             }
         }
@@ -540,5 +565,26 @@ public class QuestManager {
 
     public List<Quest> getQuestsForNpc(Npcs npc) {
         return npcQuests.getOrDefault(npc, new ArrayList<>());
+    }
+
+    /**
+     * Take a quest for a player by username (used for server synchronization)
+     * @param username The username of the player taking the quest
+     * @param questId The ID of the quest to take
+     * @param currentDate Current game date
+     * @return true if the quest was successfully taken, false otherwise
+     */
+    public boolean takeQuestByUsername(String username, int questId, Date currentDate) {
+        if (App.getGame() == null) {
+            return false;
+        }
+
+        Player player = App.getGame().getPlayerByUsername(username);
+        if (player == null) {
+            System.err.println("Player not found for username: " + username);
+            return false;
+        }
+
+        return takeQuest(player, questId, currentDate);
     }
 }

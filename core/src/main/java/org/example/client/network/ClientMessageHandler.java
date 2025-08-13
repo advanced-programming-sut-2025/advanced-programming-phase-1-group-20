@@ -11,6 +11,7 @@ import org.example.common.models.MapDetails.Farm;
 import org.example.common.Lobby.Lobby;
 import org.example.common.models.Market;
 import org.example.common.models.Product;
+import org.example.common.models.entities.QuestManager;
 
 import java.util.List;
 import java.util.Map;
@@ -210,6 +211,9 @@ public class ClientMessageHandler {
                     break;
                 case REACTION_RECEIVE:
                     handleReactionReceive(message);
+                    break;
+                case TAKE_QUEST:
+                    handleTakeQuest(message);
                     break;
                 case SLEEP_TRANSITION:
                     handleSleepTransition(message);
@@ -1262,6 +1266,28 @@ public class ClientMessageHandler {
 
         if (reactionListener != null) {
             reactionListener.onReactionReceived(fromPlayer, reaction);
+        }
+    }
+
+    private void handleTakeQuest(Message message) {
+        String playerUsername = message.getFromBody("playerUsername");
+        int questId = message.getIntFromBody("questId");
+        Boolean success = message.getFromBody("success");
+        String messageText = message.getFromBody("message");
+        System.out.println("======================");
+        System.out.println("Quest take message received: " + playerUsername + " - Quest ID: " + questId + " - Success: " + success + " - Message: " + messageText);
+        if (success != null && success) {
+            // The player successfully took quest
+            System.out.println("Quest " + questId + " taken by " + playerUsername + " - " + messageText);
+
+            // Update the quest state locally
+            QuestManager questManager = QuestManager.getInstance();
+            if (App.getGame() != null && App.getGame().getDate() != null) {
+                questManager.takeQuest(App.getGame().getPlayerByUsername(playerUsername), questId, App.getGame().getDate());
+            }
+        } else {
+            // Quest taking failed
+            System.err.println("Failed to take quest " + questId + " for " + playerUsername + " - " + messageText);
         }
     }
 

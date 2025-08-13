@@ -91,45 +91,30 @@ public class Quest {
         return requirements;
     }
 
-    /**
-     * Attempt to take this quest for a player
-     * @param player The player trying to take the quest
-     * @param currentDate Current game date
-     * @return true if the quest was successfully taken, false otherwise
-     */
     public boolean takeQuest(Player player, Date currentDate) {
-        // Check if quest is already taken
         if (takenBy != null) {
             return false;
         }
-        
+
         // Check if player meets requirements
         if (!canActivate(player, currentDate)) {
             return false;
         }
-        
+
         // Take the quest
         takenBy = player;
         takenDate = currentDate;
         isActive = true;
         activationDate = currentDate;
-        
+
         return true;
     }
 
-    /**
-     * Check if this quest is available to be taken
-     * @return true if no player has taken this quest yet
-     */
     public boolean isAvailable() {
         return takenBy == null && !isCompleted;
     }
 
-    /**
-     * Check if this quest is taken by a specific player
-     * @param player The player to check
-     * @return true if the quest is taken by this player
-     */
+
     public boolean isTakenBy(Player player) {
         return takenBy != null && takenBy.equals(player);
     }
@@ -215,7 +200,7 @@ public class Quest {
                 if (game != null && game.getGameMap() != null && game.getGameMap().getVillage() != null) {
                     Village village = game.getGameMap().getVillage();
                     NPC villageNPC = null;
-                    
+
                     // Find the NPC in the village residents
                     for (NPC resident : village.getResidents()) {
                         if (resident.getName().equals(npc.getName())) {
@@ -223,7 +208,7 @@ public class Quest {
                             break;
                         }
                     }
-                    
+
                     if (villageNPC != null) {
                         NPCFriendship friendship = villageNPC.getFriendship(player);
                         // Increase points to reach the next level (200 points per level)
@@ -241,7 +226,7 @@ public class Quest {
 
 
     public boolean canActivate(Player player, Date currentDate) {
-        if (isActive || isCompleted) {
+        if (isCompleted) {
             return false;
         }
 
