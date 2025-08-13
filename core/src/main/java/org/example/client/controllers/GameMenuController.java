@@ -1942,11 +1942,16 @@ public class GameMenuController implements Controller {
                 return Result.error("Co-op quest is not available to join");
             }
 
+			// Enforce clear error when player already has 3 active co-op quests
+			if (coopQuestManager.getActiveQuestsForPlayer(player).size() >= 3) {
+				return Result.error("You already have 3 active co-op quests.");
+			}
+
             boolean success = coopQuestManager.joinCoopQuest(player, questId, App.getGame().getDate());
             if (success) {
                 return Result.success("Successfully joined co-op quest: " + quest.getTitle());
             } else {
-                return Result.error("Failed to join co-op quest. You may have reached the maximum number of active quests (3) or the quest is full.");
+				return Result.error("Failed to join co-op quest. The quest may be full or no longer available.");
             }
         } catch (NumberFormatException e) {
             return Result.error("Invalid quest ID format");

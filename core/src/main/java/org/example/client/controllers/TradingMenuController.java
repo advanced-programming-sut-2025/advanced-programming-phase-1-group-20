@@ -90,12 +90,22 @@ public class TradingMenuController {
             return Result.error("You don't have enough " + itemName);
         }
 
-        // Create the trade request
+        // Create the trade request locally (for history/UI)
         TradeRequest request = TradeManager.getInstance().createTradeRequest(
             currentPlayer, target, item, amount, price, false);
 
         if (request == null) {
             return Result.error("Failed to create trade request");
+        }
+
+        // Also send over network so the other player receives it
+        try {
+            org.example.client.network.NetworkClient networkClient = org.example.client.network.NetworkClient.getInstance();
+            if (networkClient != null) {
+                networkClient.sendTradeRequest(targetUsername, itemName, amount, price);
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send trade request over network: " + e.getMessage());
         }
 
         return Result.success("Trade request sent to " + targetUsername);

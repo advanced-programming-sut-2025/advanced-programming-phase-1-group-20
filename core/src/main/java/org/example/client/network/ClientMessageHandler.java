@@ -992,11 +992,35 @@ public class ClientMessageHandler {
     private void handleTradeRequest(Message message) {
         String fromPlayer = message.getFromBody("fromPlayer");
         String toPlayer = message.getFromBody("toPlayer");
+        if (toPlayer == null) {
+            // Fallback if server used targetPlayer for routing
+            toPlayer = message.getFromBody("targetPlayer");
+        }
         String item = message.getFromBody("item");
         Integer quantity = message.getFromBody("quantity");
+        Integer price = message.getFromBody("price");
 
-        if (fromPlayer != null && toPlayer != null && item != null && quantity != null && tradeListener != null) {
-            tradeListener.onTradeRequest(fromPlayer, toPlayer, item, quantity);
+        if (fromPlayer != null && toPlayer != null && item != null && quantity != null) {
+            // Update local pending list so UI shows it even if a view isn't listening
+            try {
+                Game g = getCurrentGame();
+                if (g != null) {
+                    org.example.common.models.Player.Player sender = g.getPlayerByUsername(fromPlayer);
+                    org.example.common.models.Player.Player receiver = g.getPlayerByUsername(toPlayer);
+                    org.example.common.models.Items.Item itemObj = org.example.common.models.App.getItem(item);
+                    if (sender != null && receiver != null && itemObj != null) {
+                        org.example.client.controllers.TradeManager.getInstance().createTradeRequest(
+                            sender, receiver, itemObj, quantity, price != null ? price : 0, false
+                        );
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Failed to update local trade requests: " + e.getMessage());
+            }
+
+            if (tradeListener != null) {
+                tradeListener.onTradeRequest(fromPlayer, toPlayer, item, quantity);
+            }
         }
     }
 
