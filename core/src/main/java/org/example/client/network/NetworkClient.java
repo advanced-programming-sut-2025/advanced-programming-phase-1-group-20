@@ -10,6 +10,7 @@ import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 import java.util.Map;
@@ -857,6 +858,22 @@ public class NetworkClient {
         readyMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(readyMessage);
+    }
+
+    public void loadGame(String saveName, List<String> playerUsernames) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.err.println("Cannot load game: not authenticated.");
+            return;
+        }
+
+        Message loadGameMessage = new Message();
+        loadGameMessage.setType(Message.Type.LOAD_GAME);
+        loadGameMessage.putInBody("saveName", saveName);
+        loadGameMessage.putInBody("playerUsernames", playerUsernames);
+        loadGameMessage.putInBody("requester", authenticatedUser.getUsername());
+        loadGameMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(loadGameMessage);
     }
 
     public void update() {

@@ -88,8 +88,15 @@ public class LoginRegisterMenuController implements Controller {
         if (!checkPasswordStrength(password).success()) {
             return Result.error(checkPasswordStrength(password).message());
         }
-
-        Gender gender = Gender.getGenderByName(genderString);
+        System.out.println(genderString);
+        Gender gender;
+        genderString = genderString.trim();
+        if(genderString == "Male"){
+            gender = Gender.Male;
+        }else{
+            gender = Gender.Female;
+        }
+        System.out.println(gender);
         User newUser = new User(username, password, email, nickname, gender);
         App.addUser(newUser);
 

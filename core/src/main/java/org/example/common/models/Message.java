@@ -76,6 +76,7 @@ public class Message {
         START_GAME,
         REJOIN_GAME,
 
+
         // Farm selection
         SELECT_FARM,
         FARM_SELECTION_UPDATE,
@@ -89,6 +90,8 @@ public class Message {
         SEARCH_LOBBY,
         START_LOBBY_GAME,
         PLAYER_READY,
+        LOAD_GAME,
+        LOAD_GAME_STATUS,
 
         // Game state synchronization
         GAME_STATE_FULL,

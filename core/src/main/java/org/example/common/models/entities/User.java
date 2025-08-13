@@ -29,6 +29,7 @@ public class User implements Serializable {
     private long tokenExpirationTime;
     private String refreshToken;
     private long refreshTokenExpirationTime;
+    private List<String> games;
 
     public User(String username, String password, String email, String nickname, Gender gender) {
         this.username = username;
@@ -40,10 +41,23 @@ public class User implements Serializable {
         this.inventory = new ArrayList<>();
         this.mostEarnedMoney = 0;
         this.gamesPlayed = 0;
+        this.games = new ArrayList<>();
     }
 
     public User() {
 
+    }
+
+    public void addGame(String game) {
+        this.games.add(game);
+    }
+
+    public List<String> getGames() {
+        return games;
+    }
+
+    public void setGames(List<String> games) {
+        this.games = games;
     }
 
     public String getUsername() {
@@ -134,7 +148,7 @@ public class User implements Serializable {
 
     // for implementing the player's character (for graphic)
     public Gender getGender() {
-        return this.gender;
+        return gender;
     }
 
     public void setGender(Gender gender) {
