@@ -253,11 +253,9 @@ public class PlayerController {
         stateTime += delta;
         updateCurrentAnimation();
 
-        // Continuously update mouse position in world coordinates for tool direction
         if (camera != null) {
-            // Get screen coordinates - Gdx.input.getY() returns Y from top-left, but we need bottom-left
             float screenX = Gdx.input.getX();
-            float screenY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y coordinate
+            float screenY = Gdx.graphics.getHeight() - Gdx.input.getY();
             Vector3 mouseScreenPos = new Vector3(screenX, screenY, 0);
             Vector3 mouseWorldPos = camera.unproject(mouseScreenPos);
             lastMouseX = mouseWorldPos.x;
@@ -265,62 +263,90 @@ public class PlayerController {
         }
 
         stateTime += delta;
-
-        // Use collapsed animation if player has collapsed
-        TextureRegion frame;
-        if (player.hasCollapsed()) {
-            // For collapsed animation, play once and stay on last frame
-            frame = collapsedAnim.getKeyFrame(stateTime, false);
-
-            // Check if we're on the final frame (collapse_2) and swap width/height
-            // Since we have 2 frames and 10 second duration, after 10 seconds we're on frame 1 (index 1)
-            float animationTime = stateTime;
-            if (animationTime >= 3.0f) { // After 5 seconds (half of 10), we're on the second frame
-
-                Main.getBatch().draw(
-                    frame,
-                    player.getPosX(),
-                    player.getPosY(),
-                    RENDER_H,  // Use height as width
-                    RENDER_W   // Use width as height
-                );
-            } else {
-                // Normal dimensions for the first frame
-                Main.getBatch().draw(
-                    frame,
-                    player.getPosX(),
-                    player.getPosY(),
-                    RENDER_W,
-                    RENDER_H
-                );
-            }
-        } else {
-            // Check if we're using item animations (static sprites)
-            if (player.getCurrentItem() != null && !this.isMoving) {
-                // For static item sprites, use the first frame without animation
-                frame = currentAnim.getKeyFrame(0, false);
-            } else {
-                // For walking animations, use normal animation
-                frame = currentAnim.getKeyFrame(stateTime, true);
-            }
-            Main.getBatch().draw(
-                frame,
-                player.getPosX(),
-                player.getPosY(),
-                RENDER_W,
-                RENDER_H
-            );
-        }
-
-        // Draw tool if equipped (but not when holding an item)
-        if (player.getCurrentTool() != null && !player.hasCollapsed() && player.getCurrentItem() == null) {
-            // When standing still, show tool sprite based on direction
-            if (!this.isMoving) {
-                renderToolSprite();
-            }
-            // When moving, don't show any tool (just the walking animation)
-        }
     }
+
+//    public void update() {
+//        float delta = Gdx.graphics.getDeltaTime();
+//        handlePlayerInput(delta);
+//
+//        if (isShowingToolUse) {
+//            toolUseDisplayTimer -= delta;
+//            if (toolUseDisplayTimer <= 0) {
+//                isShowingToolUse = false;
+//            }
+//        }
+//
+//        stateTime += delta;
+//        updateCurrentAnimation();
+//
+//        // Continuously update mouse position in world coordinates for tool direction
+//        if (camera != null) {
+//            // Get screen coordinates - Gdx.input.getY() returns Y from top-left, but we need bottom-left
+//            float screenX = Gdx.input.getX();
+//            float screenY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Invert Y coordinate
+//            Vector3 mouseScreenPos = new Vector3(screenX, screenY, 0);
+//            Vector3 mouseWorldPos = camera.unproject(mouseScreenPos);
+//            lastMouseX = mouseWorldPos.x;
+//            lastMouseY = mouseWorldPos.y;
+//        }
+//
+//        stateTime += delta;
+//
+//        // Use collapsed animation if player has collapsed
+//        TextureRegion frame;
+//        if (player.hasCollapsed()) {
+//            // For collapsed animation, play once and stay on last frame
+//            frame = collapsedAnim.getKeyFrame(stateTime, false);
+//
+//            // Check if we're on the final frame (collapse_2) and swap width/height
+//            // Since we have 2 frames and 10 second duration, after 10 seconds we're on frame 1 (index 1)
+//            float animationTime = stateTime;
+//            if (animationTime >= 3.0f) { // After 5 seconds (half of 10), we're on the second frame
+//
+//                Main.getBatch().draw(
+//                    frame,
+//                    player.getPosX(),
+//                    player.getPosY(),
+//                    RENDER_H,  // Use height as width
+//                    RENDER_W   // Use width as height
+//                );
+//            } else {
+//                // Normal dimensions for the first frame
+//                Main.getBatch().draw(
+//                    frame,
+//                    player.getPosX(),
+//                    player.getPosY(),
+//                    RENDER_W,
+//                    RENDER_H
+//                );
+//            }
+//        } else {
+//            // Check if we're using item animations (static sprites)
+//            if (player.getCurrentItem() != null && !this.isMoving) {
+//                // For static item sprites, use the first frame without animation
+//                frame = currentAnim.getKeyFrame(0, false);
+//            } else {
+//                // For walking animations, use normal animation
+//                frame = currentAnim.getKeyFrame(stateTime, true);
+//            }
+//            Main.getBatch().draw(
+//                frame,
+//                player.getPosX(),
+//                player.getPosY(),
+//                RENDER_W,
+//                RENDER_H
+//            );
+//        }
+//
+//        // Draw tool if equipped (but not when holding an item)
+//        if (player.getCurrentTool() != null && !player.hasCollapsed() && player.getCurrentItem() == null) {
+//            // When standing still, show tool sprite based on direction
+//            if (!this.isMoving) {
+//                renderToolSprite();
+//            }
+//            // When moving, don't show any tool (just the walking animation)
+//        }
+//    }
 
     private void renderToolSprite() {
         if (player == null || player.getCurrentTool() == null || player.hasCollapsed() || isMoving || isShowingToolUse) {
@@ -812,6 +838,11 @@ public class PlayerController {
             isShowingToolUse = true;
             toolUseDisplayTimer = TOOL_USE_DISPLAY_TIME;
 
+//            int energyCost = player.getCurrentTool().getEnergyCost();
+//            if (!player.isEnergyUnlimited()) {
+//                player.decreaseEnergy(energyCost);
+//            }
+//
 //            if (App.getGame() != null && App.getGame().isMultiplayer) {
 //                NetworkClient.getInstance().sendToolUse(facing.toString());
 //            }
@@ -973,6 +1004,25 @@ public class PlayerController {
         }
 
         if (isShowingToolUse) {
+            switch (facing) {
+                case UP:
+                    currentAnim = itemUp;
+                    player.setCurrentAnimation("item_up");
+                    break;
+                case DOWN:
+                    currentAnim = itemDown;
+                    player.setCurrentAnimation("item_down");
+                    break;
+                case LEFT:
+                    currentAnim = itemLeft;
+                    player.setCurrentAnimation("item_left");
+                    break;
+                case RIGHT:
+                    currentAnim = itemRight;
+                    player.setCurrentAnimation("item_right");
+                    break;
+            }
+            player.setMoving(false);
             return;
         }
 
@@ -1021,15 +1071,33 @@ public class PlayerController {
     }
 
     public void render(SpriteBatch batch) {
-        TextureRegion playerFrame = currentAnim.getKeyFrame(stateTime, true);
-        batch.draw(playerFrame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
-
-        if (player.getCurrentTool() != null && !player.hasCollapsed()) {
-            if (isShowingToolUse) {
-                renderToolUseSprite(batch);
+        if (player.hasCollapsed()) {
+            TextureRegion frame = collapsedAnim.getKeyFrame(stateTime, false);
+            float animationTime = stateTime;
+            if (animationTime >= 3.0f) {
+                batch.draw(frame, player.getPosX(), player.getPosY(), RENDER_H, RENDER_W);
             }
-            else if (!isMoving) {
-                renderHoldingTool(batch);
+            else {
+                batch.draw(frame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+            }
+        }
+        else {
+            TextureRegion frame;
+            if (player.getCurrentTool() != null && !isMoving && !isShowingToolUse) {
+                frame = currentAnim.getKeyFrame(0, false); // Static item animation for holding
+            }
+            else {
+                frame = currentAnim.getKeyFrame(stateTime, true); // Walking or other animations
+            }
+            batch.draw(frame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
+
+            if (player.getCurrentTool() != null && !player.hasCollapsed() && !isMoving) {
+                if (isShowingToolUse) {
+                    renderToolUseSprite(batch);
+                }
+                else {
+                    renderHeldTool(batch);
+                }
             }
         }
     }
@@ -1046,43 +1114,55 @@ public class PlayerController {
         Tool tool = player.getCurrentTool();
         if (tool == null) return;
 
-        String toolType = tool.getType().toString().toLowerCase();
-        String material = tool.getMaterial().toString().toLowerCase();
         String direction = facing.toString().toLowerCase();
+        String material = tool.getMaterial().toString().toLowerCase();
+        String toolType = tool.getType().toString().toLowerCase();
 
         try {
-            String path = String.format("content/Tools/%s/%s/%s.png",
-                toolType, material, direction);
-            Texture toolTexture = new Texture(Gdx.files.internal(path));
+            String spritePath;
+            if (tool.getMaterial() == BASIC) {
+                spritePath = String.format("sprites/player/item_%s_%s.png", toolType, direction);
+            }
+            else {
+                spritePath = String.format("sprites/player/item_%s_%s_%s.png", material, toolType, direction);
+            }
+
+            Texture toolTexture = new Texture(Gdx.files.internal(spritePath));
             TextureRegion toolFrame = new TextureRegion(toolTexture);
 
             float x = player.getPosX();
             float y = player.getPosY();
             float offsetX = 0, offsetY = 0;
+            float toolWidth = toolTexture.getWidth();
+            float toolHeight = toolTexture.getHeight();
 
             switch (facing) {
                 case UP:
-                    offsetX = 15;
-                    offsetY = 50;
+                    offsetX = (RENDER_W - toolWidth) / 2 + 5;
+                    offsetY = RENDER_H - 20;
                     break;
                 case DOWN:
-                    offsetX = 20;
+                    offsetX = (RENDER_W - toolWidth) / 2 - 5;
                     offsetY = 10;
                     break;
                 case LEFT:
                     offsetX = 5;
-                    offsetY = 30;
+                    offsetY = (RENDER_H - toolHeight) / 2;
                     toolFrame.flip(true, false);
                     break;
                 case RIGHT:
-                    offsetX = 35;
-                    offsetY = 30;
+                    offsetX = RENDER_W - toolWidth - 5;
+                    offsetY = (RENDER_H - toolHeight) / 2;
                     break;
             }
 
-            batch.draw(toolFrame, x + offsetX, y + offsetY, 32, 32);
-        } catch (Exception e) {
-            Gdx.app.error("ToolError", "Failed to load held tool sprite: " + e.getMessage());
+            Color originalColor = batch.getColor().cpy();
+            batch.setColor(1f, 1f, 1f, 1f); // Reset color to avoid tinting
+            batch.draw(toolFrame, x + offsetX, y + offsetY, toolWidth, toolHeight);
+            batch.setColor(originalColor);
+        }
+        catch (GdxRuntimeException e) {
+            System.err.println("Error loading held tool sprite: " + e.getMessage());
         }
     }
 
@@ -1377,13 +1457,15 @@ public class PlayerController {
 
     private void renderToolUseSprite(SpriteBatch batch) {
         Tool tool = player.getCurrentTool();
+        if (tool == null) return;
+
         String direction = facing.toString().toLowerCase();
         String material = tool.getMaterial().toString().toLowerCase();
         String toolType = tool.getType().toString().toLowerCase();
 
         try {
             String spritePath;
-            if (tool.getMaterial() == Tool.ToolMaterial.BASIC) {
+            if (tool.getMaterial() == BASIC) {
                 spritePath = String.format("sprites/player/%s_%s.png", toolType, direction);
             }
             else {
@@ -1391,34 +1473,43 @@ public class PlayerController {
             }
 
             Texture toolTexture = new Texture(Gdx.files.internal(spritePath));
+            TextureRegion toolFrame = new TextureRegion(toolTexture);
+
+            if (facing == Dir.LEFT && tool.getMaterial() != BASIC) {
+                toolFrame.flip(true, false);
+            }
 
             float x = player.getPosX();
             float y = player.getPosY();
             float offsetX = 0, offsetY = 0;
+            float toolWidth = toolTexture.getWidth();
+            float toolHeight = toolTexture.getHeight();
 
             switch (facing) {
                 case UP:
-                    offsetX = 15;
-                    offsetY = 55;
+                    offsetX = (RENDER_W - toolWidth) / 2 + 5;
+                    offsetY = RENDER_H - 20;
                     break;
                 case DOWN:
-                    offsetX = 20;
-                    offsetY = 5;
+                    offsetX = (RENDER_W - toolWidth) / 2 - 5;
+                    offsetY = 10;
                     break;
                 case LEFT:
-                    offsetX = 0;
-                    offsetY = 30;
+                    offsetX = 5;
+                    offsetY = (RENDER_H - toolHeight) / 2;
                     break;
                 case RIGHT:
-                    offsetX = 40;
-                    offsetY = 30;
+                    offsetX = RENDER_W - toolWidth - 5;
+                    offsetY = (RENDER_H - toolHeight) / 2;
                     break;
             }
 
-            batch.draw(toolTexture, x + offsetX, y + offsetY);
-            toolTexture.dispose();
+            Color originalColor = batch.getColor().cpy();
+            batch.setColor(1f, 1f, 1f, 1f); // Reset color to avoid tinting
+            batch.draw(toolFrame, x + offsetX, y + offsetY, toolWidth, toolHeight);
+            batch.setColor(originalColor);
         }
-        catch (Exception e) {
+        catch (GdxRuntimeException e) {
             System.err.println("Error loading tool use sprite: " + e.getMessage());
         }
     }
