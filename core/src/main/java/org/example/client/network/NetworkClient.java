@@ -659,6 +659,26 @@ public class NetworkClient {
         sendMessage(tradeMessage);
     }
 
+    public void sendNotification(org.example.common.network.events.Notification notification) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message notificationMessage = new Message();
+        notificationMessage.setType(Message.Type.CHAT);
+        notificationMessage.putInBody("notificationType", notification.getNotificationType().toString());
+        notificationMessage.putInBody("message", getNotificationMessage(notification));
+        notificationMessage.putInBody("timestamp", System.currentTimeMillis());
+        notificationMessage.putInBody("sourceId", notification.getSourceId());
+        notificationMessage.putInBody("targetId", notification.getTargetId());
+
+        sendMessage(notificationMessage);
+    }
+
+    private String getNotificationMessage(org.example.common.network.events.Notification notification) {
+        return "System notification";
+    }
+
     public void sendTradeDecline(String targetPlayer) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
             return;

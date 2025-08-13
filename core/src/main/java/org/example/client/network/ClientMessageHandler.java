@@ -3,6 +3,7 @@ package org.example.client.network;
 import com.badlogic.gdx.Gdx;
 import org.example.common.models.Message;
 import org.example.common.models.App;
+import org.example.common.models.entities.CoopQuestManager;
 import org.example.common.models.entities.Game;
 import org.example.common.models.Player.Player;
 import org.example.common.models.Player.Skill;
@@ -214,6 +215,21 @@ public class ClientMessageHandler {
                     break;
                 case TAKE_QUEST:
                     handleTakeQuest(message);
+                    break;
+                case COOP_QUEST_JOIN:
+                    handleCoopQuestJoin(message);
+                    break;
+                case COOP_QUEST_CONTRIBUTE:
+                    handleCoopQuestContribute(message);
+                    break;
+                case COOP_QUEST_COMPLETE:
+                    handleCoopQuestComplete(message);
+                    break;
+                case COOP_QUEST_EXPIRE:
+                    handleCoopQuestExpire(message);
+                    break;
+                case COOP_QUEST_START:
+                    handleCoopQuestStart(message);
                     break;
                 case SLEEP_TRANSITION:
                     handleSleepTransition(message);
@@ -1273,13 +1289,8 @@ public class ClientMessageHandler {
         String playerUsername = message.getFromBody("playerUsername");
         int questId = message.getIntFromBody("questId");
         Boolean success = message.getFromBody("success");
-        String messageText = message.getFromBody("message");
-        System.out.println("======================");
-        System.out.println("Quest take message received: " + playerUsername + " - Quest ID: " + questId + " - Success: " + success + " - Message: " + messageText);
-        if (success != null && success) {
-            // The player successfully took quest
-            System.out.println("Quest " + questId + " taken by " + playerUsername + " - " + messageText);
-
+        String messageText = message.getFromBody("message");        System.out.println("Quest take message received: " + playerUsername + " - Quest ID: " + questId + " - Success: " + success + " - Message: " + messageText);
+        if (success != null && success) {            // The player successfully took quest
             // Update the quest state locally
             QuestManager questManager = QuestManager.getInstance();
             if (App.getGame() != null && App.getGame().getDate() != null) {
@@ -1289,6 +1300,66 @@ public class ClientMessageHandler {
             // Quest taking failed
             System.err.println("Failed to take quest " + questId + " for " + playerUsername + " - " + messageText);
         }
+    }
+
+    private void handleCoopQuestJoin(Message message) {
+        String questTitle = message.getFromBody("questTitle");
+        int questId = message.getIntFromBody("questId");
+        String playerName = message.getFromBody("playerName");
+        Object timestampObj = message.getFromBody("timestamp");
+
+        System.out.println("🎯 Co-op Quest Join: " + playerName + " joined quest: " + questTitle + " (ID: " + questId + ")");
+        CoopQuestManager coopQuestManager = CoopQuestManager.getInstance();
+        Player player = App.getGame().getPlayerByUsername(playerName);
+        coopQuestManager.getCoopQuestById(questId).joinQuest(player, App.getGame().getCurrentDate());
+        if (coopQuestManager.getCoopQuestById(questId).isReadyToStart()) {
+
+        }
+    }
+
+    private void handleCoopQuestContribute(Message message) {
+        String questTitle = message.getFromBody("questTitle");
+        Integer questId = message.getIntFromBody("questId");
+        String playerName = message.getFromBody("playerName");
+        Object timestampObj = message.getFromBody("timestamp");
+
+        System.out.println("📦 Co-op Quest Contribute: " + playerName + " contributed to quest: " + questTitle + " (ID: " + questId + ")");
+
+        // might want to update the UI to show the quest details or progress
+    }
+
+    private void handleCoopQuestComplete(Message message) {
+        String questTitle = message.getFromBody("questTitle");
+        int questId = message.getIntFromBody("questId");
+        Object timestampObj = message.getFromBody("timestamp");
+
+        CoopQuestManager coopQuestManager = CoopQuestManager.getInstance();
+        System.out.println("🎉 Co-op Quest Complete: " + questTitle + " (ID: " + questId + ") has been completed!");
+
+        // You might want to update the UI to show the quest completion or reward
+    }
+
+    private void handleCoopQuestExpire(Message message) {
+        String questTitle = message.getFromBody("questTitle");
+        Integer questId = message.getIntFromBody("questId");
+        Object timestampObj = message.getFromBody("timestamp");
+
+        System.out.println("⏰ Co-op Quest Expire: " + questTitle + " (ID: " + questId + ") has expired!");
+        CoopQuestManager.getInstance().cleanupExpiredQuests();
+        // You might want to update the UI to show the quest expiration
+    }
+
+    private void handleCoopQuestStart(Message message) {
+        String questTitle = message.getFromBody("questTitle");
+        Integer questId = message.getIntFromBody("questId");
+        Integer participantCount = message.getIntFromBody("participantCount");
+        Integer maxPlayers = message.getIntFromBody("maxPlayers");
+        Object timestampObj = message.getFromBody("timestamp");
+
+        System.out.println("🚀 Co-op Quest Start: " + questTitle + " (ID: " + questId + ") has started!");
+        System.out.println("   Participants: " + participantCount + "/" + maxPlayers);
+
+        // You might want to update the UI to show the quest start
     }
 
     private void handleSleepTransition(Message message) {

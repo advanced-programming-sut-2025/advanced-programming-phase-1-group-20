@@ -54,14 +54,27 @@ public class QuestMenuScreen implements Screen {
         Table questOptionsTable = new Table();
         questOptionsTable.setBackground(skin.newDrawable("white", new Color(0.2f, 0.2f, 0.2f, 0.8f)));
 
-        // Co-op Quests button (disabled - coming soon)
-        TextButton coOpQuestsButton = new TextButton("Co-op Quests (Coming Soon)", skin);
-        coOpQuestsButton.setDisabled(true);
-        coOpQuestsButton.getLabel().setColor(Color.GRAY);
+        // Co-op Quests button
+        TextButton coOpQuestsButton = new TextButton("Co-op Quests", skin);
+        
+        // Check if this is a multiplayer game
+        boolean isMultiplayer = org.example.common.models.App.getGame() != null && org.example.common.models.App.getGame().isMultiplayer();
+        
+        if (!isMultiplayer) {
+            coOpQuestsButton.setDisabled(true);
+            coOpQuestsButton.getLabel().setColor(Color.GRAY);
+        } else {
+            coOpQuestsButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    openCoOpQuests();
+                }
+            });
+        }
         
         // Add a tooltip or description for co-op quests
         Label coOpDescription = new Label("Team up with other players for challenging quests!", skin);
-        coOpDescription.setColor(Color.LIGHT_GRAY);
+        coOpDescription.setColor(isMultiplayer ? Color.LIGHT_GRAY : Color.GRAY);
         
         questOptionsTable.add(coOpQuestsButton).width(300).height(60).pad(10).row();
         questOptionsTable.add(coOpDescription).padBottom(20).row();
@@ -104,6 +117,12 @@ public class QuestMenuScreen implements Screen {
         // Create and show the NPC quests screen
         NPCQuestsScreen npcQuestsScreen = new NPCQuestsScreen(skin, gameView);
         Main.getGame().setScreen(npcQuestsScreen);
+    }
+
+    private void openCoOpQuests() {
+        // Create and show the co-op quests screen
+        CoOpQuestsScreen coOpQuestsScreen = new CoOpQuestsScreen(skin, gameView);
+        Main.getGame().setScreen(coOpQuestsScreen);
     }
 
     private void goBackToGame() {

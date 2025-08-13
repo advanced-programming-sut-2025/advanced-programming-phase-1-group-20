@@ -98,6 +98,7 @@ public class npcAI {
         } else {
             // Handle different response structure or error
             if (jsonResponse.has("error")) {
+                System.out.println(ServerConfig.getInstance().getApiKey() + " ======== " + jsonResponse.getJSONObject("error").getString("message") );
                 throw new Exception("API Error: " + jsonResponse.getJSONObject("error").getString("message"));
             } else {
                 throw new Exception("Unexpected response format: " + response.body());

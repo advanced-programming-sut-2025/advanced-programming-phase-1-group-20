@@ -123,6 +123,13 @@ public class Message {
         GIFT_RECEIVED,
         GIFT_NOTIFICATION,
 
+        // Co-op Quest notifications
+        COOP_QUEST_JOIN,
+        COOP_QUEST_CONTRIBUTE,
+        COOP_QUEST_COMPLETE,
+        COOP_QUEST_EXPIRE,
+        COOP_QUEST_START,
+
         // Inventory and items
         INVENTORY_UPDATE,
         ITEM_DROP,
