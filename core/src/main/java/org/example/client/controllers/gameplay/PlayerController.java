@@ -407,13 +407,10 @@ public class PlayerController {
 //    }
 
     private void renderPlayerWithTool() {
-        // 1. ابتدا اسپرایت مناسب را انتخاب کنید
         String animationPath = getPlayerToolAnimationPath();
 
-        // 2. اسپرایت بازیکن را با حالت جدید بارگذاری کنید
         TextureRegion playerFrame = loadPlayerToolFrame(animationPath);
 
-        // 3. اسپرایت بازیکن را رسم کنید
         Main.getBatch().draw(
             playerFrame,
             player.getPosX(),
@@ -1027,11 +1024,11 @@ public class PlayerController {
         TextureRegion playerFrame = currentAnim.getKeyFrame(stateTime, true);
         batch.draw(playerFrame, player.getPosX(), player.getPosY(), RENDER_W, RENDER_H);
 
-        if (player.getCurrentTool() != null && !isMoving && !player.hasCollapsed()) {
+        if (player.getCurrentTool() != null && !player.hasCollapsed()) {
             if (isShowingToolUse) {
                 renderToolUseSprite(batch);
             }
-            else {
+            else if (!isMoving) {
                 renderHoldingTool(batch);
             }
         }
