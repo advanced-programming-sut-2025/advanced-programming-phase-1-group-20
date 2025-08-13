@@ -103,6 +103,11 @@ public enum GameMenuCommands implements Command {
     QuestsFinish(Pattern.compile("^quests\\s+finish\\s+-i\\s+(?<index>\\d+)$")),
     TakeQuest(Pattern.compile("^take\\s+quest\\s+(?<questId>\\d+)$")),
 
+    // Co-op Quest-related commands
+    CoopQuestsList(Pattern.compile("^coop\\s+quests\\s+list$")),
+    JoinCoopQuest(Pattern.compile("^join\\s+coop\\s+quest\\s+(?<questId>\\d+)$")),
+    ContributeToCoopQuest(Pattern.compile("^contribute\\s+to\\s+coop\\s+quest\\s+(?<questId>\\d+)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)$")),
+
     // Trade-related commands
     StartTrade(Pattern.compile("^start\\s+trade$")),
     TradeRequest(Pattern.compile("^trade\\s+-u\\s+(?<username>\\S+)\\s+-t\\s+(?<type>request|offer)\\s+-i\\s+(?<item>.+)\\s+-a\\s+(?<amount>\\d+)(\\s+-p\\s+(?<price>\\d+))?(\\s+-ti\\s+(?<targetItem>.+)\\s+-ta\\s+(?<targetAmount>\\d+))?$")),

@@ -336,6 +336,14 @@ public class TerminalWindow {
             case TakeQuest:
                 return gameMenuController.takeQuest(args);
 
+            // Co-op Quest-related commands
+            case CoopQuestsList:
+                return gameMenuController.coopQuestsList();
+            case JoinCoopQuest:
+                return gameMenuController.joinCoopQuest(args);
+            case ContributeToCoopQuest:
+                return gameMenuController.contributeToCoopQuest(args);
+
             // Default case for unhandled commands
             default:
                 return Result.error("Command not implemented yet.");
@@ -411,6 +419,9 @@ public class TerminalWindow {
         addOutput("quests list - Show all quests (your active, available, and taken by others)", TEXT_COLOR);
         addOutput("take quest <quest_id> - Take an available quest", TEXT_COLOR);
         addOutput("quests finish <index> - Complete one of your active quests", TEXT_COLOR);
+        addOutput("coop quests list - Show all co-op quests (multiplayer only)", TEXT_COLOR);
+        addOutput("join coop quest <quest_id> - Join an available co-op quest", TEXT_COLOR);
+        addOutput("contribute to coop quest <quest_id> -i <item> -a <amount> - Contribute items to a co-op quest", TEXT_COLOR);
         addOutput("show current tool - Show the currently equipped tool", TEXT_COLOR);
         addOutput("show available tools - Show all tools in your backpack", TEXT_COLOR);
         addOutput("upgrade tool <tool> - Upgrade a tool (requires blacksmith)", TEXT_COLOR);

@@ -129,10 +129,30 @@ public class AnimalsController implements Disposable {
 
         TextureRegion currentFrame = spriteController.getCurrentFrame(animal, stateTime);
 
-        float renderWidth = 48;
-        float renderHeight = 48;
+        // Determine render size based on animal type
+        float renderWidth, renderHeight;
+        
+        // Check if it's a barn animal (larger animals)
+        if (isBarnAnimal(animal.getName())) {
+            renderWidth = 72;  // 50% bigger than original 48
+            renderHeight = 72;
+        } else {
+            // Coop animals (smaller animals) keep original size
+            renderWidth = 48;
+            renderHeight = 48;
+        }
 
         batch.draw(currentFrame, animal.getPosX(), animal.getPosY(), renderWidth, renderHeight);
+    }
+    
+    /**
+     * Determines if an animal is a barn animal (larger animals that should be rendered bigger)
+     * @param animalName The name of the animal
+     * @return true if it's a barn animal, false if it's a coop animal
+     */
+    private boolean isBarnAnimal(String animalName) {
+        String name = animalName.toLowerCase();
+        return name.equals("cow") || name.equals("goat") || name.equals("sheep") || name.equals("pig");
     }
 
     /**

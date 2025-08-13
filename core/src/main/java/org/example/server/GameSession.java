@@ -208,9 +208,6 @@ public class GameSession {
     }
 
     public void processMessage(String username, Message message) {
-        System.out.println("🔍 GameSession: Processing message type: " + message.getType() + " from " + username);
-        System.out.println("🔍 GameSession: isActive = " + isActive);
-        
         // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
         if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
             System.out.println("🔍 GameSession: Message rejected - game not active and not allowed message type");
@@ -258,8 +255,10 @@ public class GameSession {
                 System.out.println("🔍 GameSession: Handling TAKE_QUEST message");
                 handleTakeQuest(username, message);
                 break;
+            case COOP_QUEST_JOIN:
+                handleCoOpTakeQuest(username, message);
             default:
-// System.out.println("Unhandled message type: " + message.getType());
+                System.out.println("Unhandled message type: " + message.getType());
         }
     }
 
@@ -977,16 +976,10 @@ public class GameSession {
     }
 
     private void handleTakeQuest(String username, Message message) {
-        System.out.println("🔍 GameSession: handleTakeQuest called with username: " + username);
-        System.out.println("🔍 GameSession: Message body: " + message.getBody());
-        
         String playerUsername = message.getFromBody("playerUsername");
         Integer questId = message.getIntFromBody("questId");
         String currentDateStr = message.getFromBody("currentDate");
-        
-        System.out.println("🔍 GameSession: playerUsername = " + playerUsername);
-        System.out.println("🔍 GameSession: questId = " + questId);
-        System.out.println("🔍 GameSession: currentDateStr = " + currentDateStr);
+
 
         if (questId == null) {
             System.err.println("Quest ID is null in TAKE_QUEST message");
@@ -1017,5 +1010,9 @@ public class GameSession {
 
         broadcastToAll(questTakenMessage);
         System.out.println("Quest " + questId + " taken by " + playerUsername + " - broadcasted to all players");
+    }
+
+    private void handleCoOpTakeQuest(String username, Message message) {
+        broadcastToAll(message);
     }
 }

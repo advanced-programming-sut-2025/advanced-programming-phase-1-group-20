@@ -218,7 +218,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(500); // every 10 seconds
+                Thread.sleep(100); // every 10 seconds
 
                 // Check if we're in a server environment
                 boolean isServerEnvironment = false;

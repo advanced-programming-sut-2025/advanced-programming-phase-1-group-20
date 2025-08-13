@@ -123,8 +123,15 @@ public class SignUpMenuController {
             screen.showError("Username already exists!");
             return;
         }
-
-        Gender genderEnum = Gender.valueOf(gender);
+        System.out.println(gender);
+        Gender genderEnum;
+        gender = gender.trim();
+        if(gender == "Male"){
+            genderEnum = Gender.Male;
+        }else{
+            genderEnum = Gender.Female;
+        }
+        System.out.println(genderEnum);
         User newUser = new User(username, password, email, nickname, genderEnum);
         newUser.setSecurityQuestionIndex(getQuestionIndex(securityQuestion));
         newUser.setSecurityAnswer(securityAnswer);

@@ -162,7 +162,8 @@ public class FileStorage {
                             .append("imageFilePath", item.getImageFilepath())
                             .append("description", item.getDescription()))
                         .collect(Collectors.toList())
-                    );
+                    )
+                    .append("games" , user.getGames());
                 usersCollection.replaceOne(
                     Filters.eq("username", user.getUsername()),
                     doc,
@@ -209,6 +210,8 @@ public class FileStorage {
                     }
                 }
                 user.setInventory(inventoryItems);
+
+                user.setGames(doc.getList("games", String.class , new ArrayList<>()));
 
                 users.put(user.getUsername(), user);
             }

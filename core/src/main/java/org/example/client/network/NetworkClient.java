@@ -10,6 +10,7 @@ import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
 import java.util.Map;
@@ -659,6 +660,26 @@ public class NetworkClient {
         sendMessage(tradeMessage);
     }
 
+    public void sendNotification(org.example.common.network.events.Notification notification) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message notificationMessage = new Message();
+        notificationMessage.setType(Message.Type.CHAT);
+        notificationMessage.putInBody("notificationType", notification.getNotificationType().toString());
+        notificationMessage.putInBody("message", getNotificationMessage(notification));
+        notificationMessage.putInBody("timestamp", System.currentTimeMillis());
+        notificationMessage.putInBody("sourceId", notification.getSourceId());
+        notificationMessage.putInBody("targetId", notification.getTargetId());
+
+        sendMessage(notificationMessage);
+    }
+
+    private String getNotificationMessage(org.example.common.network.events.Notification notification) {
+        return "System notification";
+    }
+
     public void sendTradeDecline(String targetPlayer) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
             return;
@@ -837,6 +858,22 @@ public class NetworkClient {
         readyMessage.putInBody("timestamp", System.currentTimeMillis());
 
         sendMessage(readyMessage);
+    }
+
+    public void loadGame(String saveName, List<String> playerUsernames) {
+        if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.err.println("Cannot load game: not authenticated.");
+            return;
+        }
+
+        Message loadGameMessage = new Message();
+        loadGameMessage.setType(Message.Type.LOAD_GAME);
+        loadGameMessage.putInBody("saveName", saveName);
+        loadGameMessage.putInBody("playerUsernames", playerUsernames);
+        loadGameMessage.putInBody("requester", authenticatedUser.getUsername());
+        loadGameMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(loadGameMessage);
     }
 
     public void update() {

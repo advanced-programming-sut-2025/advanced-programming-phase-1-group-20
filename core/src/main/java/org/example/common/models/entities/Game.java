@@ -68,6 +68,15 @@ public class Game implements Serializable {
     // Getters and Setters for all fields (بسیار مهم برای Gson)
 
 
+    public List<String> getPlayersUsernames() {
+        List<String> usernames = new ArrayList<>();
+        for (Player player : players) {
+            usernames.add(player.getUser().getUsername());
+        }
+        return usernames;
+    }
+
+
     public boolean isMultiplayer() {
         return isMultiplayer;
     }
