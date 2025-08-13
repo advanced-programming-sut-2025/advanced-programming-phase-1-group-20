@@ -1,10 +1,13 @@
 package org.example.client.controllers.menu;
 
 import com.badlogic.gdx.graphics.Texture;
+import org.example.client.Main;
+import org.example.client.controllers.LoadGameController;
 import org.example.client.controllers.MultiplayerMenuController;
 import org.example.client.network.ClientMessageHandler;
 import org.example.client.network.NetworkClient;
 import org.example.client.views.MultiplayerMenuScreen;
+import org.example.client.views.menu.LoadGameScreen;
 import org.example.client.views.menu.ProfileMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
 import org.example.common.models.App;
@@ -81,9 +84,14 @@ public class MainMenuController implements ClientMessageHandler.OnlinePlayersLis
     }
 
     public void handleLoadGame() {
-        getGame().getScreen().dispose();
-//        getGame().setScreen(new LoadGameScreen(new LoadGameController(),
-//            AssetManager.getAssetManager().getSkin()));
+        if (App.getLoggedInUser() != null) {
+            Main.getGame().getScreen().dispose();
+            LoadGameController loadGameController = new LoadGameController();
+            LoadGameScreen loadGameScreen = new LoadGameScreen(loadGameController, AssetManager.getAssetManager().getSkin());
+            Main.getGame().setScreen(loadGameScreen);
+        } else {
+            view.showError("You must be logged in to load a game.");
+        }
     }
 
     public void handleProfile() {

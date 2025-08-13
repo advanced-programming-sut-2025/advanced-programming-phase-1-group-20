@@ -210,7 +210,7 @@ public class GameSession {
     public void processMessage(String username, Message message) {
         System.out.println("🔍 GameSession: Processing message type: " + message.getType() + " from " + username);
         System.out.println("🔍 GameSession: isActive = " + isActive);
-        
+
         // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
         if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
             System.out.println("🔍 GameSession: Message rejected - game not active and not allowed message type");
@@ -979,11 +979,11 @@ public class GameSession {
     private void handleTakeQuest(String username, Message message) {
         System.out.println("🔍 GameSession: handleTakeQuest called with username: " + username);
         System.out.println("🔍 GameSession: Message body: " + message.getBody());
-        
+
         String playerUsername = message.getFromBody("playerUsername");
         Integer questId = message.getIntFromBody("questId");
         String currentDateStr = message.getFromBody("currentDate");
-        
+
         System.out.println("🔍 GameSession: playerUsername = " + playerUsername);
         System.out.println("🔍 GameSession: questId = " + questId);
         System.out.println("🔍 GameSession: currentDateStr = " + currentDateStr);

@@ -11,7 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import org.example.client.Main;
 import org.example.client.controllers.menu.MainMenuController;
+import org.example.common.models.App;
 import org.example.utils.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import java.util.List;
@@ -99,7 +101,9 @@ public class MainMenuScreen implements Screen {
         loadGameBtn.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                controller.handleLoadGame();
+                if(App.getLoggedInUser() != null) {
+
+                }
             }
         });
 
