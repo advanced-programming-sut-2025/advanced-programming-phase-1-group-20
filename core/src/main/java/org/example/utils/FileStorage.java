@@ -4,11 +4,18 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
+import org.bson.types.Binary;
 import org.example.common.models.Items.*;
+import org.example.common.models.entities.Game;
 import org.example.common.models.enums.Types.*;
 import org.example.common.models.entities.User;
 import org.example.common.models.enums.PlayerEnums.Gender;
+// این import را برای استفاده از CustomSaveManager اضافه کنید
+import org.example.utils.CustomSaveManager; // فرض می‌شود این مسیر صحیح است
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,12 +24,121 @@ import java.util.stream.Collectors;
 
 public class FileStorage {
     private static MongoCollection<Document> usersCollection;
+    private static MongoCollection<Document> gamesCollection;
 
     private static void initializeCollection() {
         if (usersCollection == null) {
-            usersCollection = MongoDBConnection.getDatabase().getCollection("users");
+            usersCollection = MongoDBConnection.getUsersCollection();
+            gamesCollection = MongoDBConnection.getGamesCollection();
         }
     }
+
+    /**
+     * داده‌های باینری بازی را در MongoDB ذخیره می‌کند.
+     */
+    public static boolean saveGame(Game game) {
+        initializeCollection();
+        if (game == null || game.getSaveName() == null || game.getSaveName().isEmpty()) {
+            System.err.println("Game or save name is null or empty. Cannot save to MongoDB.");
+            return false;
+        }
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            // داده‌های بازی را به صورت باینری در حافظه می‌نویسیم
+            CustomSaveManager.saveGame(game, baos);
+            byte[] gameData = baos.toByteArray();
+
+            // داکیومنت را برای ذخیره در مونگو آماده می‌کنیم
+            Document doc = new Document("savename", game.getSaveName())
+                .append("gameData", new Binary(gameData));
+
+            // داکیومنت را در دیتابیس ذخیره/جایگزین می‌کنیم
+            gamesCollection.replaceOne(
+                Filters.eq("savename", game.getSaveName()),
+                doc,
+                new ReplaceOptions().upsert(true)
+            );
+            System.out.println("Game '" + game.getSaveName() + "' saved to MongoDB successfully.");
+            return true;
+        } catch (IOException e) {
+            System.err.println("Failed to serialize and save game '" + game.getSaveName() + "' to MongoDB: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * داده‌های باینری بازی را از MongoDB بارگذاری می‌کند.
+     */
+    public static Game loadGame(String savename) {
+        initializeCollection();
+        try {
+            Document doc = gamesCollection.find(Filters.eq("savename", savename)).first();
+            if (doc != null) {
+                Binary gameData = doc.get("gameData", Binary.class);
+                byte[] bytes = gameData.getData();
+
+                try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+                    // داده‌های باینری را از حافظه می‌خوانیم و به آبجکت Game تبدیل می‌کنیم
+                    Game game = CustomSaveManager.loadGame(bais);
+                    System.out.println("Game '" + savename + "' loaded from MongoDB successfully.");
+                    return game;
+                }
+            } else {
+                System.out.println("No save data found in MongoDB for '" + savename + "'.");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to load and deserialize game '" + savename + "' from MongoDB: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * تمام بازی‌های ذخیره شده در MongoDB را بارگذاری می‌کند.
+     */
+    public static List<Game> loadAllGames() {
+        initializeCollection();
+        List<Game> games = new ArrayList<>();
+        List<String> saveNames = listSavedGames(); // گرفتن لیست نام‌ها
+        for (String saveName : saveNames) {
+            Game game = loadGame(saveName); // بارگذاری هر بازی با نام آن
+            if (game != null) {
+                games.add(game);
+            }
+        }
+        System.out.println("Loaded " + games.size() + " games from MongoDB.");
+        return games;
+    }
+
+    /**
+     * لیست نام تمام بازی‌های ذخیره شده در MongoDB را برمی‌گرداند.
+     */
+    public static List<String> listSavedGames() {
+        initializeCollection();
+        List<String> saveNames = new ArrayList<>();
+        gamesCollection.find().projection(new Document("savename", 1).append("_id", 0))
+            .forEach(doc -> saveNames.add(doc.getString("savename")));
+        return saveNames;
+    }
+
+    /**
+     * یک بازی ذخیره شده را از MongoDB حذف می‌کند.
+     */
+    public static boolean deleteGame(String savename) {
+        initializeCollection();
+        try {
+            gamesCollection.deleteOne(Filters.eq("savename", savename));
+            System.out.println("Game '" + savename + "' deleted from MongoDB successfully.");
+            return true;
+        } catch (Exception e) {
+            System.err.println("Failed to delete game '" + savename + "' from MongoDB: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 
     public static boolean saveUsers(Map<String, User> users) {
         initializeCollection();
@@ -57,11 +173,6 @@ public class FileStorage {
             return true;
         } catch (Exception e) {
             System.err.println("Failed to save users to MongoDB: " + e.getMessage());
-            System.err.println("MongoDB is not running. User data will not be persisted.");
-            System.err.println("To fix this, please install and start MongoDB:");
-            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
-            System.err.println("2. Start MongoDB: brew services start mongodb-community");
-            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
             return false;
         }
@@ -84,7 +195,6 @@ public class FileStorage {
                 user.setMostEarnedMoney(doc.getInteger("mostEarnedMoney", 0));
                 user.setGamesPlayed(doc.getInteger("gamesPlayed", 0));
 
-                // **** تغییر در اینجا: بارگذاری Inventory به عنوان List<Item> ****
                 List<Item> inventoryItems = new ArrayList<>();
                 List<Document> loadedInventoryList = doc.getList("inventory", Document.class);
                 if (loadedInventoryList != null) {
@@ -94,14 +204,11 @@ public class FileStorage {
                         String imageFilePath = itemDoc.getString("imageFilePath");
                         String itemDescription = itemDoc.getString("description");
 
-                        // اینجا فرض شده که Item دارای سازنده‌ای مانند new Item(name, price, description) است.
-                        // شما باید این قسمت را با روش ساخت اشیاء Item در پروژه‌تان تطبیق دهید.
-                        // ممکن است نیاز به استفاده از ItemBuilder.buildItem(name) یا سازنده دیگری داشته باشید.
                         Item loadedItem = new Item(itemName, itemPrice != null ? itemPrice : 0, imageFilePath , itemDescription);
                         inventoryItems.add(loadedItem);
                     }
                 }
-                user.setInventory(inventoryItems); // مطمئن شوید متد setInventory در User، یک List<Item> را قبول می‌کند
+                user.setInventory(inventoryItems);
 
                 users.put(user.getUsername(), user);
             }
@@ -109,67 +216,38 @@ public class FileStorage {
             return users;
         } catch (Exception e) {
             System.err.println("Failed to load users from MongoDB: " + e.getMessage());
-            System.err.println("MongoDB is not running. Starting with empty user database.");
-            System.err.println("To fix this, please install and start MongoDB:");
-            System.err.println("1. Install MongoDB: brew tap mongodb/brew && brew install mongodb-community");
-            System.err.println("2. Start MongoDB: brew services start mongodb-community");
-            System.err.println("3. Or use Docker: docker run -d -p 27017:27017 --name mongodb mongo:latest");
             e.printStackTrace();
             return new HashMap<>();
         }
     }
 
+    // متد loadItems بدون تغییر باقی می‌ماند
     public static List<Item> loadItems() {
         List<Item> items = new ArrayList<>();
-
-        //adding plants
         for (PlantType type : PlantType.values()) {
-            Item item = new Plant(type);
-            items.add(item);
+            items.add(new Plant(type));
         }
-
-        //adding crops
         for (CropType type : CropType.values()) {
-            Item item = new Crop(type);
-            items.add(item);
+            items.add(new Crop(type));
         }
-
-        //adding minerals
         for (MineralType type : MineralType.values()) {
-            Item item = new Mineral(type);
-            items.add(item);
+            items.add(new Mineral(type));
         }
-
-        //adding seeds
         for (SeedType type : SeedType.values()) {
-            Item item = new Seed(type);
-            items.add(item);
+            items.add(new Seed(type));
         }
-
-        //adding trees
         for (TreeType type : TreeType.values()) {
-            Item item = new Tree(type);
-            items.add(item);
+            items.add(new Tree(type));
         }
-
-        //adding cookings
         for (CookingType type : CookingType.values()) {
-            Item item = new CookingItem(type);
-            items.add(item);
+            items.add(new CookingItem(type));
         }
-
-        //adding crafting
         for (CraftingType type : CraftingType.values()) {
-            Item item = new CraftingItem(type);
-            items.add(item);
+            items.add(new CraftingItem(type));
         }
-
-        //adding special items
         for (SpecialItemType type : SpecialItemType.values()) {
-            Item item = new SpecialItem(type);
-            items.add(item);
+            items.add(new SpecialItem(type));
         }
-
         return items;
     }
 }

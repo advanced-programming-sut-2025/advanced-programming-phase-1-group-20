@@ -36,9 +36,8 @@ public class CustomSaveManager {
 
     private static final int SAVE_FORMAT_VERSION = 1;
 
-    public static void saveGame(Game game, String filePath) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(filePath);
-             DataOutputStream dos = new DataOutputStream(fos)) {
+    public static void saveGame(Game game, OutputStream outputStream) throws IOException {
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(outputStream))) {
 
             // 1.writing header
             dos.writeInt(SAVE_FORMAT_VERSION);
@@ -73,9 +72,8 @@ public class CustomSaveManager {
     }
 
 
-    public static Game loadGame(String filePath) throws IOException {
-        try (FileInputStream fis = new FileInputStream(filePath);
-             DataInputStream dis = new DataInputStream(fis)) {
+    public static Game loadGame(InputStream inputStream) throws IOException {
+        try (DataInputStream dis = new DataInputStream(new BufferedInputStream(inputStream))) {
 
             // 1.reading header
             int version = dis.readInt();
