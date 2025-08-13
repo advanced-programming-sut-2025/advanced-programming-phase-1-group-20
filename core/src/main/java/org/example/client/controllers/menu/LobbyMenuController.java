@@ -499,7 +499,6 @@ public class LobbyMenuController implements ClientMessageHandler.LobbyMessageLis
 
     private void handleStartGameResponse(Message message) {
         System.out.println("Handling START_GAME response");
-
         // Handle both START_LOBBY_GAME and START_GAME message formats
         String gameSessionId = message.getFromBody("gameSessionId");
         String messageText = message.getFromBody("message");

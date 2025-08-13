@@ -42,7 +42,7 @@ public class LoadGameScreen implements Screen {
         mainTable.setFillParent(true);
         stage.addActor(mainTable);
 
-        Label title = new Label("Load Game", skin, "title");
+        Label title = new Label("Load Game", skin);
         statusLabel = new Label("Connect to the server to see online players and load games.", skin);
         statusLabel.setWrap(true);
 

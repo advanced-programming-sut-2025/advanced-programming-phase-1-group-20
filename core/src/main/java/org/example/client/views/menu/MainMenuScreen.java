@@ -102,7 +102,7 @@ public class MainMenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if(App.getLoggedInUser() != null) {
-
+                    controller.handleLoadGame();
                 }
             }
         });

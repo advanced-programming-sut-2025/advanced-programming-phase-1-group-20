@@ -85,16 +85,11 @@ public class ClientMessageHandler {
         this.currentGame = null;
     }
 
-    /**
-     * Set the current game instance for multiplayer mode
-     */
     public void setCurrentGame(Game game) {
         this.currentGame = game;
     }
 
-    /**
-     * Get the current game instance, preferring the set game over App.getGame()
-     */
+
     private Game getCurrentGame() {
         if (currentGame != null) {
             return currentGame;
@@ -104,13 +99,11 @@ public class ClientMessageHandler {
     }
 
     public void handleMessage(Message message) {
-        // Run message processing on main thread
         Gdx.app.postRunnable(() -> processMessage(message));
     }
 
     private void processMessage(Message message) {
         try {
-
             switch (message.getType()) {
                 case SUCCESS:
                     handleSuccessMessage(message);
@@ -1308,7 +1301,7 @@ public class ClientMessageHandler {
         String playerName = message.getFromBody("playerName");
         Object timestampObj = message.getFromBody("timestamp");
 
-        System.out.println("🎯 Co-op Quest Join: " + playerName + " joined quest: " + questTitle + " (ID: " + questId + ")");
+        System.out.println("Co-op Quest Join: " + playerName + " joined quest: " + questTitle + " (ID: " + questId + ")");
         CoopQuestManager coopQuestManager = CoopQuestManager.getInstance();
         Player player = App.getGame().getPlayerByUsername(playerName);
         coopQuestManager.getCoopQuestById(questId).joinQuest(player, App.getGame().getCurrentDate());
@@ -1323,7 +1316,7 @@ public class ClientMessageHandler {
         String playerName = message.getFromBody("playerName");
         Object timestampObj = message.getFromBody("timestamp");
 
-        System.out.println("📦 Co-op Quest Contribute: " + playerName + " contributed to quest: " + questTitle + " (ID: " + questId + ")");
+        System.out.println("Co-op Quest Contribute: " + playerName + " contributed to quest: " + questTitle + " (ID: " + questId + ")");
 
         // might want to update the UI to show the quest details or progress
     }
@@ -1334,7 +1327,7 @@ public class ClientMessageHandler {
         Object timestampObj = message.getFromBody("timestamp");
 
         CoopQuestManager coopQuestManager = CoopQuestManager.getInstance();
-        System.out.println("🎉 Co-op Quest Complete: " + questTitle + " (ID: " + questId + ") has been completed!");
+        System.out.println("Co-op Quest Complete: " + questTitle + " (ID: " + questId + ") has been completed!");
 
         // You might want to update the UI to show the quest completion or reward
     }
@@ -1344,7 +1337,7 @@ public class ClientMessageHandler {
         Integer questId = message.getIntFromBody("questId");
         Object timestampObj = message.getFromBody("timestamp");
 
-        System.out.println("⏰ Co-op Quest Expire: " + questTitle + " (ID: " + questId + ") has expired!");
+        System.out.println("Co-op Quest Expire: " + questTitle + " (ID: " + questId + ") has expired!");
         CoopQuestManager.getInstance().cleanupExpiredQuests();
         // You might want to update the UI to show the quest expiration
     }
@@ -1356,7 +1349,7 @@ public class ClientMessageHandler {
         Integer maxPlayers = message.getIntFromBody("maxPlayers");
         Object timestampObj = message.getFromBody("timestamp");
 
-        System.out.println("🚀 Co-op Quest Start: " + questTitle + " (ID: " + questId + ") has started!");
+        System.out.println("Co-op Quest Start: " + questTitle + " (ID: " + questId + ") has started!");
         System.out.println("   Participants: " + participantCount + "/" + maxPlayers);
 
         // You might want to update the UI to show the quest start
