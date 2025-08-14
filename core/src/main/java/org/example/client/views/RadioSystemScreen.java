@@ -889,6 +889,7 @@ public class RadioSystemScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        NetworkClient.getInstance().update();
         // Update progress bar and time labels
         if (currentMusic != null && isPlaying) {
             // Note: libGDX Music doesn't provide duration, so we'll show current position only

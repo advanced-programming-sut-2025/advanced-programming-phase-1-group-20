@@ -191,6 +191,15 @@ public class Date implements Runnable {
 
         this.day += days;
 
+        // Reset players' energy at the start of each new day (client-side only)
+        if (!isServerEnvironment && App.getGame() != null && App.getGame().getPlayers() != null) {
+            for (org.example.common.models.Player.Player p : App.getGame().getPlayers()) {
+                if (p != null) {
+                    p.resetEnergyToMax();
+                }
+            }
+        }
+
         // Only update daily game on client side
         if (!isServerEnvironment && App.getGame() != null) {
             for (int i = 0; i < days; i++) {
@@ -218,7 +227,7 @@ public class Date implements Runnable {
     public void run() {
         while (running) {
             try {
-                Thread.sleep(100); // every 10 seconds
+                Thread.sleep(10_000); // every 10 seconds
 
                 // Check if we're in a server environment
                 boolean isServerEnvironment = false;
@@ -403,9 +412,7 @@ public class Date implements Runnable {
         return state;
     }
 
-    /**
-     * Sync date state from server data
-     */
+
     public void syncFromServer(Map<String, Object> serverDateState) {
         if (serverDateState == null) {
             return;
