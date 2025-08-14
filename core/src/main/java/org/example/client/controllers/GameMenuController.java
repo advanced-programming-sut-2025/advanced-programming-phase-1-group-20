@@ -2766,9 +2766,11 @@ public class GameMenuController implements Controller {
                 return Result.error("Failed to complete the quest. Please try again.");
             }
 
-            // Build success message
-            StringBuilder successMessage = new StringBuilder("Quest completed! ");
-            successMessage.append(npc.getName()).append(" gave you ");
+            // Build celebratory success message
+            StringBuilder successMessage = new StringBuilder();
+            successMessage.append("🎉 CONGRATULATIONS! 🎉\n\n");
+            successMessage.append("You have finished the quest: \"").append(quest.getTitle()).append("\"\n\n");
+            successMessage.append("You earned:\n");
 
             // Add rewards to message
             if (quest.getGoldReward() > 0) {
@@ -2787,13 +2789,9 @@ public class GameMenuController implements Controller {
 
                 if (friendshipLevel >= 2) {
                     goldReward *= 2;
-                    successMessage.append(goldReward).append(" gold (doubled due to friendship level) ");
+                    successMessage.append("💰 ").append(goldReward).append(" Gold (doubled due to friendship level)\n");
                 } else {
-                    successMessage.append(goldReward).append(" gold ");
-                }
-
-                if (quest.getItemReward() != null) {
-                    successMessage.append("and ");
+                    successMessage.append("💰 ").append(goldReward).append(" Gold\n");
                 }
             }
 
@@ -2813,14 +2811,25 @@ public class GameMenuController implements Controller {
 
                 if (friendshipLevel >= 2) {
                     itemQuantity *= 2;
-                    successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName())
-                        .append(" (doubled due to friendship level)");
+                }
+
+                // Special handling for friendship level rewards
+                if (quest.getItemReward().getName().equals("Friendship Level")) {
+                    successMessage.append("❤️ ").append(itemQuantity).append(" Friendship Level(s) with ").append(quest.getNpc().getName());
+                    if (friendshipLevel >= 2) {
+                        successMessage.append(" (doubled due to friendship level)");
+                    }
+                    successMessage.append("\n");
                 } else {
-                    successMessage.append(itemQuantity).append(" ").append(quest.getItemReward().getName());
+                    successMessage.append("📦 ").append(itemQuantity).append("x ").append(quest.getItemReward().getName());
+                    if (friendshipLevel >= 2) {
+                        successMessage.append(" (doubled due to friendship level)");
+                    }
+                    successMessage.append("\n");
                 }
             }
 
-            successMessage.append(" as a reward.");
+            successMessage.append("\nWell done, farmer! 🌾");
             return Result.success(successMessage.toString());
 
         } catch (NumberFormatException e) {
