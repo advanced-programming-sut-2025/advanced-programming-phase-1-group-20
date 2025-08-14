@@ -1,6 +1,10 @@
 package org.example.client.network;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import org.example.common.models.Message;
 import org.example.common.models.App;
 import org.example.common.models.entities.CoopQuestManager;

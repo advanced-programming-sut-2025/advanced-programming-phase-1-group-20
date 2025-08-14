@@ -791,6 +791,25 @@ public class NetworkClient {
         sendMessage(pendingMessage);
     }
 
+    public void sendQuestCompletion(int questId, String questTitle, String npcName, int goldReward, String itemReward, int itemQuantity) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message questCompletionMessage = new Message();
+        questCompletionMessage.setType(Message.Type.QUEST_COMPLETED);
+        questCompletionMessage.putInBody("questId", questId);
+        questCompletionMessage.putInBody("questTitle", questTitle);
+        questCompletionMessage.putInBody("npcName", npcName);
+        questCompletionMessage.putInBody("goldReward", goldReward);
+        questCompletionMessage.putInBody("itemReward", itemReward);
+        questCompletionMessage.putInBody("itemQuantity", itemQuantity);
+        questCompletionMessage.putInBody("playerUsername", authenticatedUser.getUsername());
+        questCompletionMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        sendMessage(questCompletionMessage);
+    }
+
     public void createGame() {
         if (connectionState != ConnectionState.AUTHENTICATED) {
             return;

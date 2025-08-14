@@ -127,10 +127,7 @@ public class Quest {
         return takenBy;
     }
 
-    /**
-     * Get when the quest was taken
-     * @return The date when the quest was taken, or null if not taken
-     */
+
     public Date getTakenDate() {
         return takenDate;
     }

@@ -177,6 +177,7 @@ public class Message {
         // Quest Related
         QUEST_TAKEN,
         TAKE_QUEST,
+        QUEST_COMPLETED,
 
         CO_OP_QUEST
     }
