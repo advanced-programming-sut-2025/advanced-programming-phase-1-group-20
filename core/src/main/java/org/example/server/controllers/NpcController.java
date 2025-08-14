@@ -196,7 +196,6 @@ public class NpcController {
             // Set initial location if none exists
             npc.setLocation(targetLocation);
             updateNPCPosition(npc, targetLocation);
-            // System.out.println("DEBUG: NPC " + npc.getName() + " - Setting initial location");
             return;
         }
 

@@ -96,9 +96,7 @@ public class PlayerConnection {
         }
 
         try {
-//            System.out.println("DEBUG: Sending WebSocket message to " + username + ": " + messageJson);
             wsContext.send(messageJson);
-//            System.out.println("DEBUG: WebSocket message sent successfully");
         } catch (Exception e) {
 // System.err.println("DEBUG: Failed to send WebSocket message to " + username + ": " + e.getMessage());
             e.printStackTrace();
@@ -112,7 +110,6 @@ public class PlayerConnection {
             String messageJson = gson.toJson(message);
             if (message != null && message.getType() != null &&
                 (message.getType().name().startsWith("TRADE_") || message.getType() == Message.Type.CHAT_PUBLIC)) {
-                System.out.println("**SERVER SEND** to=" + username + " type=" + message.getType() + " body=" + messageJson + "");
             }
             sendMessage(messageJson);
         } catch (Exception e) {
@@ -244,7 +241,6 @@ public class PlayerConnection {
 
         // we don't immediately remove from game session - let the delayed removal handle it
         // This allows for reconnection without losing game state
-        // System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
 
         // Close WebSocket connection
         if (wsContext != null && wsContext.session.isOpen()) {
