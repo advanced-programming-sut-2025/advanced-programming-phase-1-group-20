@@ -173,7 +173,7 @@ public enum ToolFunctionality {
                     if (tool.getCurrentWater() > 0) {
                         // Water the crop and consume water
                         gameMap.getFarmByPlayer(player).sprinkle(targetX, targetY, 1);
-                        tool.consumeWater(1);
+                        tool.consumeWater(2);
                         return true;
                     }
                     return false; // No water in the can
@@ -370,7 +370,6 @@ public enum ToolFunctionality {
 
                 // Check if the target tile is valid and not in another player's farm
                 if (!gameMap.getFarmByPlayer(player).contains(targetX, targetY)) {
-                    //TODO : removed this condition check it kasra gameMap.isInOtherPlayersFarm(player, targetX, targetY)
                     return false;
                 }
 

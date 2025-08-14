@@ -321,7 +321,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
                     }
                     xpGained = (int) (xpGained * 2.4);
                 }
-                notifyServerOfVictory(xpGained, caughtFishType, caughtFishQuality, caughtFishQuantity);
+                victoryRoyal(xpGained, caughtFishType, caughtFishQuality, caughtFishQuantity);
             }
             constructEndStage();
         }
@@ -495,8 +495,7 @@ public class FishingMiniGame implements Screen, InputProcessor {
         }
     }
 
-    private void notifyServerOfVictory(int xpGained, FishType caughtFishType, Quality caughtFishQuality, int caughtFishQuantity) {
-        // Add fish to player's inventory
+    private void victoryRoyal(int xpGained, FishType caughtFishType, Quality caughtFishQuality, int caughtFishQuantity) {
         try {
             org.example.common.models.Player.Player player = org.example.common.models.App.getGame().getCurrentPlayer();
 

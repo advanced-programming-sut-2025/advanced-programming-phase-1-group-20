@@ -358,6 +358,17 @@ public class Player {
         this.energy -= amount;
     }
 
+    public int getMaxEnergy() {
+        // TODO: Make this dynamic based on skills/perks
+        return 2000;
+    }
+
+    public void resetEnergyToMax() {
+        this.energy = getMaxEnergy();
+        this.hasCollapsed = false;
+        resetEnergyUsedInTurn();
+    }
+
     public int getEnergyUsedInTurn() {
         return energyUsedInTurn;
     }

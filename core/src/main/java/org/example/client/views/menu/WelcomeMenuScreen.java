@@ -24,7 +24,7 @@ public class WelcomeMenuScreen implements Screen {
     private static final float BUTTON_WIDTH = 300f;
     private static final float BUTTON_HEIGHT = 80f;
     private static final float BUTTON_PADDING = 15f;
-    private static final float TOP_PADDING = 100f;
+    private static final float TOP_PADDING = 200f;
     private static final float TITLE_BOTTOM_PADDING = 80f;
     private static final float LOADING_BOTTOM_PADDING = 20f;
     private static final float ANIMATION_DURATION = 0.1f;
