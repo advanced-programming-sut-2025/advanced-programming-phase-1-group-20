@@ -32,10 +32,7 @@ public class GameSaveLoadManager {
         return true;
     }
 
-    /**
-     * بازی را با نام "autosave" ذخیره می‌کند.
-     * @return true در صورت موفقیت.
-     */
+
     public static boolean autosave() {
         if (App.getGame() != null) {
             // از متد saveGameWithName در App برای ذخیره با نام مشخص استفاده می‌کنیم
@@ -44,12 +41,7 @@ public class GameSaveLoadManager {
         return false;
     }
 
-    /**
-     * درخواست ذخیره یک بازی با نام مشخص را به App ارسال می‌کند.
-     * @param game بازی مورد نظر برای ذخیره.
-     * @param customSaveName نام سفارشی برای ذخیره.
-     * @return true در صورت موفقیت.
-     */
+
     public static boolean saveGameWithName(Game game, String customSaveName) {
         // اطمینان حاصل می‌کنیم که بازی فعلی همان بازی مورد نظر است
         App.setGame(game);

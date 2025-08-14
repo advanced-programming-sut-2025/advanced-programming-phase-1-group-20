@@ -9,6 +9,7 @@ import org.example.client.controllers.WelcomeMenuController;
 import org.example.common.models.App;
 import org.example.utils.AssetManager;
 import org.example.client.views.menu.WelcomeMenuScreen;
+import org.example.utils.GameSaveLoadManager;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends Game {
@@ -54,6 +55,7 @@ public class Main extends Game {
 
     @Override
     public void dispose() {
+        GameSaveLoadManager.autosave();
         super.dispose(); // Let current screen handle its own cleanup
     }
 

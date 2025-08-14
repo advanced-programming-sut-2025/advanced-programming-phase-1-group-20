@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.example.common.models.Message;
 import org.example.common.models.entities.User;
+import org.example.common.models.App;
 
 import java.io.*;
 import java.net.*;
@@ -253,7 +254,7 @@ public class NetworkClient {
         // Check if player was in game before disconnection
         if (connectionState == ConnectionState.IN_GAME) {
             wasInGame = true;
-            System.out.println("🎮 NETWORK: Player was in game, will attempt to restore game session");
+            System.out.println("NETWORK: Player was in game, will attempt to restore game session");
         }
 
         connectionState = ConnectionState.RECONNECTING;
@@ -360,6 +361,28 @@ public class NetworkClient {
     private void handleReconnectionTimeout() {
         isReconnecting = false;
         connectionState = ConnectionState.ERROR;
+
+        System.out.println("NETWORK: Reconnection timeout - saving game as incomplete");
+
+        // Save the game as incomplete before clearing state
+        if (wasInGame && App.getGame() != null) {
+            try {
+                // Generate a unique save name for the incomplete game
+                String incompleteSaveName = "incomplete_" + App.getGame().getGameCreator();
+                App.getGame().setSaveName(incompleteSaveName);
+
+                // Save the game
+                boolean saveSuccess = App.saveGameWithName(incompleteSaveName);
+                if (saveSuccess) {
+                    System.out.println("NETWORK: Game saved as incomplete: " + incompleteSaveName);
+                } else {
+                    System.err.println("NETWORK: Failed to save incomplete game");
+                }
+            } catch (Exception e) {
+                System.err.println("NETWORK: Error saving incomplete game: " + e.getMessage());
+            }
+        }
+
         wasInGame = false;
         lastGameSessionId = null;
 
@@ -374,7 +397,7 @@ public class NetworkClient {
 
     public void setGameSessionId(String gameSessionId) {
         this.lastGameSessionId = gameSessionId;
-        System.out.println("🎮 NETWORK: Stored game session ID for reconnection: " + gameSessionId);
+        System.out.println("NETWORK: Stored game session ID for reconnection: " + gameSessionId);
     }
 
     public boolean isReconnecting() {
@@ -393,6 +416,28 @@ public class NetworkClient {
 
     public void cancelReconnection() {
         isReconnecting = false;
+
+        System.out.println("NETWORK: Reconnection cancelled by user - saving game as incomplete");
+
+        // Save the game as incomplete when user cancels reconnection
+        if (wasInGame && App.getGame() != null) {
+            try {
+                // Generate a unique save name for the incomplete game
+                String incompleteSaveName = "incomplete_" + System.currentTimeMillis();
+                App.getGame().setSaveName(incompleteSaveName);
+
+                // Save the game
+                boolean saveSuccess = App.saveGameWithName(incompleteSaveName);
+                if (saveSuccess) {
+                    System.out.println("NETWORK: Game saved as incomplete: " + incompleteSaveName);
+                } else {
+                    System.err.println("NETWORK: Failed to save incomplete game");
+                }
+            } catch (Exception e) {
+                System.err.println("NETWORK: Error saving incomplete game: " + e.getMessage());
+            }
+        }
+
         wasInGame = false;
         lastGameSessionId = null;
 

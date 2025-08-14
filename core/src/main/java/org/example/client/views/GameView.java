@@ -198,6 +198,10 @@ public class GameView implements Screen, InputProcessor {
 
     // Reconnection dialog
     private ReconnectionDialog reconnectionDialog;
+    
+    // Simple disconnection overlay message
+    private Label disconnectionOverlay;
+    private boolean showDisconnectionMessage = false;
 
     public GameView(GameMenuController controller, Player player, Game game, Skin skin, User user) {
         this.controller = controller;
@@ -312,6 +316,17 @@ public class GameView implements Screen, InputProcessor {
         lightingStyle.font.getData().markupEnabled = true;
 
         lightingDescriptionLabel = new Label("", lightingStyle);
+        
+        // Initialize disconnection overlay
+        Label.LabelStyle disconnectionStyle = new Label.LabelStyle();
+        disconnectionStyle.font = customFont;
+        disconnectionStyle.fontColor = Color.RED;
+        disconnectionStyle.font.getData().setScale(1.0f);
+        disconnectionStyle.font.getData().markupEnabled = true;
+        
+        disconnectionOverlay = new Label("Disconnected... trying to reconnect...", disconnectionStyle);
+        disconnectionOverlay.setAlignment(com.badlogic.gdx.utils.Align.center);
+        disconnectionOverlay.setVisible(false);
     }
 
     private void initializeClock() {
@@ -1644,6 +1659,16 @@ public class GameView implements Screen, InputProcessor {
         pauseTable.add(resumeButton).width(200).height(20).pad(10);
         pauseTable.setVisible(false);
         stage.addActor(pauseTable);
+        
+        // Add disconnection overlay to the stage (centered, on top of everything)
+        if (disconnectionOverlay != null) {
+            Table disconnectionTable = new Table();
+            disconnectionTable.setFillParent(true);
+            disconnectionTable.center();
+            disconnectionTable.add(disconnectionOverlay);
+            disconnectionTable.setVisible(false);
+            stage.addActor(disconnectionTable);
+        }
 
         if (game != null && game.isMultiplayer) {
             NetworkClient networkClient = NetworkClient.getInstance();
@@ -1696,13 +1721,40 @@ public class GameView implements Screen, InputProcessor {
         // Update network client to process incoming messages
         NetworkClient.getInstance().update();
 
-        if (game != null && game.isMultiplayer && reconnectionDialog != null) {
+        // Handle disconnection overlay and reconnection dialog
+        if (game != null && game.isMultiplayer) {
             NetworkClient networkClient = NetworkClient.getInstance();
             if (networkClient != null) {
-                if (networkClient.isReconnecting() && !reconnectionDialog.isVisible()) {
-                    reconnectionDialog.show();
-                } else if (!networkClient.isReconnecting() && reconnectionDialog.isVisible()) {
-                    reconnectionDialog.hide();
+                // Show simple overlay message when disconnected or reconnecting
+                boolean isDisconnected = networkClient.isReconnecting() || 
+                                       networkClient.getConnectionState() == NetworkClient.ConnectionState.DISCONNECTED ||
+                                       networkClient.getConnectionState() == NetworkClient.ConnectionState.ERROR;
+                
+                if (isDisconnected && game.isMultiplayer) {
+                    if (disconnectionOverlay != null && !disconnectionOverlay.isVisible()) {
+                        disconnectionOverlay.setVisible(true);
+                        // Find the parent table and make it visible
+                        if (disconnectionOverlay.getParent() instanceof Table) {
+                            disconnectionOverlay.getParent().setVisible(true);
+                        }
+                    }
+                } else {
+                    if (disconnectionOverlay != null && disconnectionOverlay.isVisible()) {
+                        disconnectionOverlay.setVisible(false);
+                        // Find the parent table and make it invisible
+                        if (disconnectionOverlay.getParent() instanceof Table) {
+                            disconnectionOverlay.getParent().setVisible(false);
+                        }
+                    }
+                }
+                
+                // Handle reconnection dialog (existing logic)
+                if (reconnectionDialog != null) {
+                    if (networkClient.isReconnecting() && !reconnectionDialog.isVisible()) {
+                        reconnectionDialog.show();
+                    } else if (!networkClient.isReconnecting() && reconnectionDialog.isVisible()) {
+                        reconnectionDialog.hide();
+                    }
                 }
             }
         }
