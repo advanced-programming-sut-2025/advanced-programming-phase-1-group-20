@@ -69,7 +69,6 @@ public class LiveStockController {
         }
 
         // Trigger a broadcast of the stock update to all players in the session
-        // System.out.println("🛒 BROADCASTING MARKET UPDATE: " + marketName + " - " + itemName + " stock now: " + product.getAmount());
         gameSession.broadcastMarketUpdate(marketName, itemName, product.getAmount());
 
         return Result.success("Purchase successful.");
