@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import org.example.client.Main;
 import org.example.common.models.App;
@@ -24,13 +25,14 @@ import java.util.Map;
 
 public class NPCGiftInventoryScreen implements Screen {
     private Stage stage;
+    private ScrollPane scrollPane;
+    private DragAndDrop dragAndDrop;
     private Table mainTable;
     private Table inventoryTable;
     private Player currentPlayer;
     private NPC npcToGift;
     private Skin skin;
     private Screen previousScreen;
-    private ScrollPane scrollPane;
 
     // Gift selection state
     private Item selectedItem;
@@ -52,6 +54,7 @@ public class NPCGiftInventoryScreen implements Screen {
         // Main container
         mainTable = new Table();
         mainTable.setFillParent(true);
+        dragAndDrop = new DragAndDrop();
 
         // Background
         try {
@@ -157,11 +160,25 @@ public class NPCGiftInventoryScreen implements Screen {
             slot.add(favoriteLabel).padTop(5);
         }
 
-        // Click listener
-        slot.addListener(new ChangeListener() {
+        dragAndDrop.addSource(new DragAndDrop.Source(slot) {
+            public DragAndDrop.Payload dragStart(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer) {
+                DragAndDrop.Payload payload = new DragAndDrop.Payload();
+                payload.setObject(item);
+
+                Table dragActor = new Table();
+                dragActor.setBackground(skin.newDrawable("white", new Color(0.4f, 0.4f, 0.4f, 0.7f)));
+                Label dragLabel = new Label(item.getName(), skin);
+                dragActor.add(dragLabel);
+                payload.setDragActor(dragActor);
+
+                slot.setVisible(false);
+
+                return payload;
+            }
+
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                selectItem(item, availableQuantity);
+            public void dragStop(com.badlogic.gdx.scenes.scene2d.InputEvent event, float x, float y, int pointer, DragAndDrop.Payload payload, DragAndDrop.Target target) {
+                slot.setVisible(true);
             }
         });
 
@@ -286,7 +303,7 @@ public class NPCGiftInventoryScreen implements Screen {
 
         // Use the Player's giftNPC method directly
         boolean success = currentPlayer.giftNPC(npcToGift, selectedItem);
-        
+
         if (success) {
             String message = "You gave " + selectedItem.getName() + " to " + npcToGift.getName() + ".";
             if (npcToGift.isFavoriteItem(selectedItem)) {
@@ -305,10 +322,10 @@ public class NPCGiftInventoryScreen implements Screen {
     private void refreshInventoryDisplay() {
         // Remove the old inventory table
         mainTable.removeActor(scrollPane);
-        
+
         // Recreate the inventory display
         createInventoryDisplay();
-        
+
         // Reset selection
         selectedItem = null;
         selectedQuantity = 1;

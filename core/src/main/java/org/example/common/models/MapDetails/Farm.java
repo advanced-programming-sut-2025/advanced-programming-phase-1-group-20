@@ -325,7 +325,8 @@ public class Farm {
             }
         }
 
-        Location houseLoc = owner.getLocation();
+        Location houseLoc = new Location(building.getX() , building.getY() , TileType.BUILDING);
+
         if (houseLoc == null) {
             houseLoc = new Location(building.getX() + building.getWidth() / 2, building.getY() + building.getHeight() / 2, TileType.BUILDING);
         }
