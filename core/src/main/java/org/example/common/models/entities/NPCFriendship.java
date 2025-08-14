@@ -127,10 +127,10 @@ public class NPCFriendship {
     public void addToChatHistory(String chat) {
         addToChatHistory(chat, null);
     }
-    
+
     public void addToChatHistory(String chat, Date currentDate) {
         if (currentDate != null) {
-            String timestamp = "Day " + currentDate.getDay() + " of " + currentDate.getSeason() + 
+            String timestamp = "Day " + currentDate.getDay() + " of " + currentDate.getSeason() +
                              " at " + currentDate.getHour() + ":00";
             chatHistory.add("[" + timestamp + "] " + chat);
         } else {

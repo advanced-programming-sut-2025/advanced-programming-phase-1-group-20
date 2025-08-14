@@ -431,6 +431,14 @@ public class NetworkClient {
                     String messageJson = gson.toJson(message);
 
                     // Send via WebSocket
+                    if (message.getType() != null) {
+                        String t = message.getType().name();
+                        if (t.startsWith("TRADE_")) {
+                            System.out.println("**CLIENT WS SEND** type=" + message.getType() + " json=" + messageJson);
+                        } else if (t.startsWith("RADIO_")) {
+                            System.out.println("**CLIENT WS SEND** type=" + message.getType() + " json=" + messageJson);
+                        }
+                    }
                     webSocket.sendText(messageJson, true);
 
                 } catch (Exception e) {
@@ -452,6 +460,14 @@ public class NetworkClient {
                 String messageJson = gson.toJson(message);
 //                System.out.println("DEBUG: Sending message JSON: " + messageJson);
                 outgoingMessages.offer(message);
+                if (message.getType() != null) {
+                    String t = message.getType().name();
+                    if (t.startsWith("TRADE_")) {
+                        System.out.println("**CLIENT QUEUE** type=" + message.getType() + " json=" + messageJson);
+                    } else if (t.startsWith("RADIO_")) {
+                        System.out.println("**CLIENT QUEUE** type=" + message.getType() + " json=" + messageJson);
+                    }
+                }
 //                System.out.println("DEBUG: Message added to outgoing queue");
             } catch (Exception e) {
                 System.err.println("NETWORK: Failed to serialize message: " + e.getMessage());
@@ -519,7 +535,7 @@ public class NetworkClient {
     }
 
     public void sendPublicChatMessage(String messageText) {
-        if (connectionState != ConnectionState.AUTHENTICATED) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
             return;
         }
 
@@ -528,11 +544,12 @@ public class NetworkClient {
         chatMessage.putInBody("content", messageText);
         chatMessage.putInBody("timestamp", System.currentTimeMillis());
 
+        System.out.println("**[CHAT][PUBLIC][CLIENT][SEND] user=" + (authenticatedUser != null ? authenticatedUser.getUsername() : "null") + " content=\"" + messageText + "\"**");
         sendMessage(chatMessage);
     }
 
     public void sendPrivateChatMessage(String recipient, String messageText) {
-        if (connectionState != ConnectionState.AUTHENTICATED) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
             return;
         }
 
@@ -542,7 +559,45 @@ public class NetworkClient {
         chatMessage.putInBody("content", messageText);
         chatMessage.putInBody("timestamp", System.currentTimeMillis());
 
+        System.out.println("**[CHAT][PRIVATE][CLIENT][SEND] user=" + (authenticatedUser != null ? authenticatedUser.getUsername() : "null") + " to=" + recipient + " content=\"" + messageText + "\"**");
         sendMessage(chatMessage);
+    }
+
+    public void startVoteKick(String targetUsername) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message msg = new Message();
+        msg.setType(Message.Type.VOTE_START);
+        msg.putInBody("voteType", "KICK");
+        msg.putInBody("target", targetUsername);
+        msg.putInBody("timestamp", System.currentTimeMillis());
+        sendMessage(msg);
+    }
+
+    public void startVoteTerminate() {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message msg = new Message();
+        msg.setType(Message.Type.VOTE_START);
+        msg.putInBody("voteType", "TERMINATE");
+        msg.putInBody("timestamp", System.currentTimeMillis());
+        sendMessage(msg);
+    }
+
+    public void castVote(boolean yes) {
+        if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            return;
+        }
+
+        Message msg = new Message();
+        msg.setType(Message.Type.VOTE_CAST);
+        msg.putInBody("vote", yes);
+        msg.putInBody("timestamp", System.currentTimeMillis());
+        sendMessage(msg);
     }
 
     public void sendRoomChatMessage(String roomId, String messageText) {
@@ -614,6 +669,7 @@ public class NetworkClient {
 
     public void sendTradeRequest(String targetPlayer, String item, int quantity) {
         if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            System.out.println("**CLIENT WARN** sendTradeRequest blocked: state=" + connectionState + ", toPlayer=" + targetPlayer);
             return;
         }
 
@@ -626,11 +682,14 @@ public class NetworkClient {
         tradeMessage.putInBody("quantity", quantity);
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
 
+        System.out.println("**CLIENT SEND** TRADE_REQUEST -> toPlayer=" + targetPlayer + ", item=" + item + ", qty=" + quantity + ", from=" + authenticatedUser.getUsername());
+
         sendMessage(tradeMessage);
     }
 
     public void sendTradeRequest(String targetPlayer, String item, int quantity, int price) {
         if (connectionState != ConnectionState.AUTHENTICATED && connectionState != ConnectionState.IN_GAME) {
+            System.out.println("**CLIENT WARN** sendTradeRequest(price) blocked: state=" + connectionState + ", toPlayer=" + targetPlayer);
             return;
         }
 
@@ -644,11 +703,14 @@ public class NetworkClient {
         tradeMessage.putInBody("price", price);
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
 
+        System.out.println("**CLIENT SEND** TRADE_REQUEST -> toPlayer=" + targetPlayer + ", item=" + item + ", qty=" + quantity + ", price=" + price + ", from=" + authenticatedUser.getUsername());
+
         sendMessage(tradeMessage);
     }
 
     public void sendTradeAccept(String targetPlayer, Map<String, Object> tradeItems) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.out.println("**CLIENT WARN** sendTradeAccept blocked: state=" + connectionState + ", toPlayer=" + targetPlayer);
             return;
         }
 
@@ -658,6 +720,8 @@ public class NetworkClient {
         tradeMessage.putInBody("toPlayer", targetPlayer);
         tradeMessage.putInBody("tradeItems", tradeItems);
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        System.out.println("**CLIENT SEND** TRADE_ACCEPT -> toPlayer=" + targetPlayer + ", from=" + authenticatedUser.getUsername() + ", items=" + (tradeItems != null ? tradeItems.keySet() : "{}"));
 
         sendMessage(tradeMessage);
     }
@@ -684,6 +748,7 @@ public class NetworkClient {
 
     public void sendTradeDecline(String targetPlayer) {
         if (connectionState != ConnectionState.AUTHENTICATED) {
+            System.out.println("**CLIENT WARN** sendTradeDecline blocked: state=" + connectionState + ", toPlayer=" + targetPlayer);
             return;
         }
 
@@ -692,6 +757,8 @@ public class NetworkClient {
         tradeMessage.putInBody("fromPlayer", authenticatedUser.getUsername());
         tradeMessage.putInBody("toPlayer", targetPlayer);
         tradeMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        System.out.println("**CLIENT SEND** TRADE_DECLINE -> toPlayer=" + targetPlayer + ", from=" + authenticatedUser.getUsername());
 
         sendMessage(tradeMessage);
     }

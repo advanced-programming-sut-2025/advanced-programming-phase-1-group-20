@@ -123,6 +123,16 @@ public class TradeRequest {
         }
     }
 
+    public void markAcceptedStatusOnly() {
+        this.isAccepted = true;
+        this.isRejected = false;
+    }
+
+    public void markRejectedStatusOnly() {
+        this.isAccepted = false;
+        this.isRejected = true;
+    }
+
 
     public void markAsViewed() {
         this.isViewed = true;
@@ -184,31 +194,31 @@ public class TradeRequest {
 
         if (isRequest) {
             sb.append(sender.getUser().getUsername())
-                    .append(" requests ")
-                    .append(amount).append(" ")
-                    .append(item.getName());
+                .append(" requests ")
+                .append(amount).append(" ")
+                .append(item.getName());
 
             if (targetItem != null) {
                 sb.append(" in exchange for ")
-                        .append(targetAmount).append(" ")
-                        .append(targetItem.getName());
+                    .append(targetAmount).append(" ")
+                    .append(targetItem.getName());
             } else {
                 sb.append(" for ")
-                        .append(price).append(" gold");
+                    .append(price).append(" gold");
             }
         } else {
             sb.append(sender.getUser().getUsername())
-                    .append(" offers ")
-                    .append(amount).append(" ")
-                    .append(item.getName());
+                .append(" offers ")
+                .append(amount).append(" ")
+                .append(item.getName());
 
             if (targetItem != null) {
                 sb.append(" in exchange for ")
-                        .append(targetAmount).append(" ")
-                        .append(targetItem.getName());
+                    .append(targetAmount).append(" ")
+                    .append(targetItem.getName());
             } else {
                 sb.append(" for ")
-                        .append(price).append(" gold");
+                    .append(price).append(" gold");
             }
         }
 

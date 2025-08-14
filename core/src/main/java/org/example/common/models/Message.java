@@ -69,6 +69,9 @@ public class Message {
         FEED_ANIMAL,
         MILK_ANIMAL,
 
+        // Dev/testing utilities
+        PLAYER_DEBUG_UPDATE,
+
         // Game management
         CREATE_GAME,
         JOIN_GAME,
@@ -107,6 +110,7 @@ public class Message {
         TRADE_RESPONSE,
         TRADE_ACCEPT,
         TRADE_DECLINE,
+        TRADE_HISTORY,
         MARKET_BUY,
         MARKET_SELL,
 
@@ -163,6 +167,12 @@ public class Message {
 
         // Sleep transition
         SLEEP_TRANSITION,
+
+        // Voting system
+        VOTE_START,
+        VOTE_CAST,
+        VOTE_STATUS,
+        VOTE_RESULT,
 
         // Quest Related
         QUEST_TAKEN,

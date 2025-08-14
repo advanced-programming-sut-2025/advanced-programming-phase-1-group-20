@@ -13,6 +13,7 @@ import org.example.common.Lobby.Lobby;
 import org.example.common.models.Market;
 import org.example.common.models.Product;
 import org.example.common.models.entities.QuestManager;
+import org.example.client.radio.RadioSharedStore;
 
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,10 @@ public class ClientMessageHandler {
     private RadioMessageListener radioListener;
     private ReactionMessageListener reactionListener;
     private MarketUpdateListener marketUpdateListener;
+    private PlayerDataUpdateListener playerDataUpdateListener;
     private Game currentGame; // Add reference to current game instance
+    // Buffer radio messages if UI hasn't registered the listener yet
+    private final java.util.List<Message> bufferedRadioMessages = new java.util.ArrayList<>();
 
     public interface GameStateUpdateListener {
         void onGameStateUpdate(Object gameState);
@@ -38,7 +42,7 @@ public class ClientMessageHandler {
     }
 
     public interface ChatMessageListener {
-        void onChatMessage(String sender, String message, long timestamp);
+        void onChatMessage(String sender, String message, long timestamp, String type, String recipient);
     }
 
     public interface TradeRequestListener {
@@ -78,6 +82,11 @@ public class ClientMessageHandler {
     public interface MarketUpdateListener {
         void onMarketStockUpdate(String marketName, String itemName, double newStock);
         void onPlayerDataUpdate(); // For money and inventory updates
+    }
+
+    // Live player data updates (for scoreboard and similar UIs)
+    public interface PlayerDataUpdateListener {
+        void onPlayerDataUpdate(Map<String, Object> playersMap, Long timestamp);
     }
 
     public ClientMessageHandler(NetworkClient networkClient) {
@@ -150,6 +159,12 @@ public class ClientMessageHandler {
                 case NPC_UPDATE:
                     handleNPCUpdate(message);
                     break;
+                case VOTE_STATUS:
+                    handleVoteStatus(message);
+                    break;
+                case VOTE_RESULT:
+                    handleVoteResult(message);
+                    break;
                 case TRADE_REQUEST:
                     handleTradeRequest(message);
                     break;
@@ -161,6 +176,9 @@ public class ClientMessageHandler {
                     break;
                 case TRADE_DECLINE:
                     handleTradeDecline(message);
+                    break;
+                case TRADE_HISTORY:
+                    handleTradeHistory(message);
                     break;
                 case PING:
                     handlePing(message);
@@ -243,6 +261,38 @@ public class ClientMessageHandler {
         } catch (Exception e) {
             System.err.println("Error processing message: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void handleVoteStatus(Message message) {
+        String voteType = message.getFromBody("voteType");
+        String startedBy = message.getFromBody("startedBy");
+        String target = message.getFromBody("target");
+        Integer yes = message.getFromBody("yes");
+        Integer no = message.getFromBody("no");
+        Integer pending = message.getFromBody("pending");
+        Integer total = message.getFromBody("total");
+
+        String summary = "Vote " + voteType + (target != null ? (" on " + target) : "") + " started by " + startedBy +
+            ": yes=" + yes + ", no=" + no + ", pending=" + pending + "/" + total;
+        if (chatListener != null) {
+            chatListener.onChatMessage("SYSTEM", summary, System.currentTimeMillis(), "PUBLIC", null);
+        }
+    }
+
+    private void handleVoteResult(Message message) {
+        String voteType = message.getFromBody("voteType");
+        String target = message.getFromBody("target");
+        Boolean passed = message.getFromBody("passed");
+        Integer yes = message.getFromBody("yes");
+        Integer no = message.getFromBody("no");
+        Integer total = message.getFromBody("total");
+
+        String summary = "Vote result: " + voteType + (target != null ? (" on " + target) : "") +
+            " -> " + (passed != null && passed ? "PASSED" : "FAILED") +
+            " (yes=" + yes + ", no=" + no + ", total=" + total + ")";
+        if (chatListener != null) {
+            chatListener.onChatMessage("SYSTEM", summary, System.currentTimeMillis(), "PUBLIC", null);
         }
     }
 
@@ -517,17 +567,18 @@ public class ClientMessageHandler {
         String sender = message.getFromBody("sender");
         String messageText = message.getFromBody("message");
         if (messageText == null) {
-            messageText = message.getFromBody("content"); // Try content field if message is null
+            messageText = message.getFromBody("content");
         }
         Long timestamp = message.getFromBody("timestamp");
+        String type = message.getFromBody("type");
 
-        System.out.println("[CHAT] " + sender + ": " + messageText);
+        System.out.println("**[CHAT][GENERIC][CLIENT][RECV] from=" + sender + " message=\"" + messageText + "\" type=" + type + "**");
 
         if (chatListener != null && sender != null && messageText != null) {
-            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis(),
+                type != null ? type : "PUBLIC", null);
         }
 
-        // Show notification for chat messages
         showChatNotification(sender, messageText);
     }
 
@@ -544,12 +595,22 @@ public class ClientMessageHandler {
             messageText = message.getFromBody("content"); // Try content field if message is null
         }
         String recipient = message.getFromBody("recipient");
-        Long timestamp = message.getFromBody("timestamp");
+        Object tsObj = message.getFromBody("timestamp");
+        long ts;
+        if (tsObj instanceof Double) {
+            ts = ((Double) tsObj).longValue();
+        } else if (tsObj instanceof Long) {
+            ts = (Long) tsObj;
+        } else if (tsObj instanceof Integer) {
+            ts = ((Integer) tsObj).longValue();
+        } else {
+            ts = System.currentTimeMillis();
+        }
 
-        System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + messageText);
+        System.out.println("**[CHAT][PRIVATE][CLIENT][RECV] from=" + sender + " to=" + recipient + " message=\"" + messageText + "\" listenerSet=" + (chatListener != null) + "**");
 
         if (chatListener != null && sender != null && messageText != null) {
-            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+            chatListener.onChatMessage(sender, messageText, ts, "PRIVATE", recipient);
         }
     }
 
@@ -559,12 +620,22 @@ public class ClientMessageHandler {
         if (messageText == null) {
             messageText = message.getFromBody("content"); // Try content field if message is null
         }
-        Long timestamp = message.getFromBody("timestamp");
+        Object tsObj = message.getFromBody("timestamp");
+        long ts;
+        if (tsObj instanceof Double) {
+            ts = ((Double) tsObj).longValue();
+        } else if (tsObj instanceof Long) {
+            ts = (Long) tsObj;
+        } else if (tsObj instanceof Integer) {
+            ts = ((Integer) tsObj).longValue();
+        } else {
+            ts = System.currentTimeMillis();
+        }
 
-        System.out.println("[PUBLIC CHAT] " + sender + ": " + messageText);
+        System.out.println("**[CHAT][PUBLIC][CLIENT][RECV] from=" + sender + " message=\"" + messageText + "\" listenerSet=" + (chatListener != null) + "**");
 
         if (chatListener != null && sender != null && messageText != null) {
-            chatListener.onChatMessage(sender, messageText, timestamp != null ? timestamp : System.currentTimeMillis());
+            chatListener.onChatMessage(sender, messageText, ts, "PUBLIC", null);
         }
     }
 
@@ -646,7 +717,7 @@ public class ClientMessageHandler {
         }
 
         if (playersData != null) {
-            System.out.println("🔄 CLIENT: Received comprehensive player data update with timestamp: " + timestamp);
+            System.out.println("##[SB][CLIENT][RECV_BROADCAST] type=PLAYER_DATA_UPDATE ts=" + timestamp);
             System.out.println("🔍 DEBUG: Players data object type: " + playersData.getClass().getSimpleName());
 
             Game currentGame = getCurrentGame();
@@ -685,11 +756,7 @@ public class ClientMessageHandler {
                             System.out.println("🔍 DEBUG: isInVillage field NOT found for " + username);
                         }
 
-                        // Skip updating the current player to avoid conflicts with local state
-                        if (username.equals(currentPlayerUsername)) {
-                            System.out.println("🔍 DEBUG: Skipping current player: " + username);
-                            continue;
-                        }
+                        // Always update from server, including current player, to keep UI in sync
 
                         // Find the player in the current game
                         Player targetPlayer = currentGame.getPlayerByUsername(username);
@@ -697,9 +764,23 @@ public class ClientMessageHandler {
                             System.out.println("🔍 DEBUG: Found target player: " + username + ", updating with server data");
                             // Force update player with exact server data
                             forceUpdatePlayerFromServerData(targetPlayer, playerData);
+                            // Apply scoreboard-specific fields directly when present
+                            if (playerData.containsKey("money")) {
+                                Object moneyObj = playerData.get("money");
+                                Integer money = moneyObj instanceof Double ? ((Double) moneyObj).intValue() : (moneyObj instanceof Integer ? (Integer) moneyObj : null);
+                                if (money != null) {
+                                    int diff = money - targetPlayer.getMoney();
+                                    if (diff > 0) targetPlayer.increaseMoney(diff); else if (diff < 0) targetPlayer.decreaseMoney(-diff);
+                                }
+                            }
                         } else {
                             System.out.println("🔍 DEBUG: Target player not found in current game: " + username);
                         }
+                    }
+
+                    // Notify listeners about fresh player data to support real-time UIs (e.g., scoreboard)
+                    if (playerDataUpdateListener != null) {
+                        playerDataUpdateListener.onPlayerDataUpdate(playersMap, timestamp);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -931,7 +1012,7 @@ public class ClientMessageHandler {
             // Send a chat message to notify all players about the stock update
             String chatMessage = marketName + " " + itemName + " " + (int) newStock.doubleValue();
             if (chatListener != null) {
-                chatListener.onChatMessage("SYSTEM", chatMessage, System.currentTimeMillis());
+                chatListener.onChatMessage("SYSTEM", chatMessage, System.currentTimeMillis(), "PUBLIC", null);
             }
         }
     }
@@ -997,10 +1078,14 @@ public class ClientMessageHandler {
             toPlayer = message.getFromBody("targetPlayer");
         }
         String item = message.getFromBody("item");
-        Integer quantity = message.getFromBody("quantity");
-        Integer price = message.getFromBody("price");
+        // Numbers often arrive as Double in JSON – coerce safely
+        Number qNum = message.getFromBody("quantity");
+        Integer quantity = qNum == null ? null : Integer.valueOf((int) Math.round(qNum.doubleValue()));
+        Number pNum = message.getFromBody("price");
+        Integer price = pNum == null ? null : Integer.valueOf((int) Math.round(pNum.doubleValue()));
 
         if (fromPlayer != null && toPlayer != null && item != null && quantity != null) {
+            System.out.println("**CLIENT RECV** TRADE_REQUEST from=" + fromPlayer + " -> to=" + toPlayer + ", item=" + item + ", qty=" + quantity + (price != null ? ", price=" + price : ""));
             // Update local pending list so UI shows it even if a view isn't listening
             try {
                 Game g = getCurrentGame();
@@ -1021,6 +1106,8 @@ public class ClientMessageHandler {
             if (tradeListener != null) {
                 tradeListener.onTradeRequest(fromPlayer, toPlayer, item, quantity);
             }
+        } else {
+            System.out.println("**CLIENT WARN** TRADE_REQUEST missing fields body=" + message.getBody());
         }
     }
 
@@ -1029,8 +1116,14 @@ public class ClientMessageHandler {
         String toPlayer = message.getFromBody("toPlayer");
         Boolean accepted = message.getFromBody("accepted");
 
-        if (fromPlayer != null && toPlayer != null && accepted != null && tradeListener != null) {
-            tradeListener.onTradeResponse(fromPlayer, toPlayer, accepted);
+        if (fromPlayer != null && toPlayer != null && accepted != null) {
+            System.out.println("**CLIENT RECV** TRADE_RESPONSE from=" + fromPlayer + " -> to=" + toPlayer + " accepted=" + accepted);
+            // History status will be set by incoming TRADE_HISTORY broadcast; avoid double inventory changes here
+            if (tradeListener != null) {
+                tradeListener.onTradeResponse(fromPlayer, toPlayer, accepted);
+            }
+        } else {
+            System.out.println("**CLIENT WARN** TRADE_RESPONSE missing fields body=" + message.getBody());
         }
     }
 
@@ -1039,8 +1132,11 @@ public class ClientMessageHandler {
         String toPlayer = message.getFromBody("toPlayer");
         Object tradeItems = message.getFromBody("tradeItems");
 
-        if (fromPlayer != null && toPlayer != null && tradeListener != null) {
+        if (fromPlayer != null && toPlayer != null) {
+            System.out.println("**CLIENT RECV** TRADE_ACCEPT from=" + fromPlayer + " -> to=" + toPlayer + " items=" + (tradeItems != null ? tradeItems : "{}"));
             // Handle trade acceptance with items
+        } else {
+            System.out.println("**CLIENT WARN** TRADE_ACCEPT missing fields body=" + message.getBody());
         }
     }
 
@@ -1048,8 +1144,58 @@ public class ClientMessageHandler {
         String fromPlayer = message.getFromBody("fromPlayer");
         String toPlayer = message.getFromBody("toPlayer");
 
-        if (fromPlayer != null && toPlayer != null && tradeListener != null) {
+        if (fromPlayer != null && toPlayer != null) {
+            System.out.println("**CLIENT RECV** TRADE_DECLINE from=" + fromPlayer + " -> to=" + toPlayer);
             // Handle trade decline
+        } else {
+            System.out.println("**CLIENT WARN** TRADE_DECLINE missing fields body=" + message.getBody());
+        }
+    }
+
+    private void handleTradeHistory(Message message) {
+        String status = message.getFromBody("status");
+        String from = message.getFromBody("from");
+        String to = message.getFromBody("to");
+        String itemName = message.getFromBody("item");
+        Number qNum = message.getFromBody("quantity");
+        Integer qty = qNum == null ? null : Integer.valueOf((int)Math.round(qNum.doubleValue()));
+        Number pNum = message.getFromBody("price");
+        Integer price = pNum == null ? 0 : Integer.valueOf((int)Math.round(pNum.doubleValue()));
+
+        System.out.println("**CLIENT RECV** TRADE_HISTORY status=" + status + " from=" + from + " to=" + to +
+            (itemName != null ? (" item=" + itemName + " x" + qty + " price=" + price) : ""));
+        try {
+            Game g = getCurrentGame();
+            if (g == null) return;
+            org.example.common.models.Player.Player sender = g.getPlayerByUsername(from);
+            org.example.common.models.Player.Player receiver = g.getPlayerByUsername(to);
+            if (sender == null || receiver == null) return;
+            org.example.common.models.Items.Item item = itemName != null ? org.example.common.models.App.getItem(itemName) : null;
+
+            org.example.client.controllers.TradeManager tm = org.example.client.controllers.TradeManager.getInstance();
+            if (item != null && qty != null) {
+                org.example.common.models.entities.TradeRequest tr = tm.createTradeRequest(sender, receiver, item, qty, price, false);
+                if (tr != null) {
+                    if ("ACCEPTED".equalsIgnoreCase(status)) tr.markAcceptedStatusOnly();
+                    else if ("REJECTED".equalsIgnoreCase(status)) tr.markRejectedStatusOnly();
+                }
+            } else if (status != null) {
+                // Update status for last matching pending trade even if item details were omitted
+                java.util.List<org.example.common.models.entities.TradeRequest> list = tm.getTradeRequestsForPlayer(receiver);
+                for (org.example.common.models.entities.TradeRequest tr : list) {
+                    if ((tr.getSender().equals(sender) && tr.getReceiver().equals(receiver)) && !tr.isAccepted() && !tr.isRejected()) {
+                        if ("ACCEPTED".equalsIgnoreCase(status)) tr.markAcceptedStatusOnly();
+                        else if ("REJECTED".equalsIgnoreCase(status)) tr.markRejectedStatusOnly();
+                        break;
+                    }
+                }
+            }
+            // Optionally notify UI listeners
+            if (tradeListener != null && status != null) {
+                tradeListener.onTradeResponse(from, to, "ACCEPTED".equalsIgnoreCase(status));
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to handle TRADE_HISTORY: " + e.getMessage());
         }
     }
 
@@ -1181,6 +1327,27 @@ public class ClientMessageHandler {
 
     public void setRadioListener(RadioMessageListener listener) {
         this.radioListener = listener;
+        if (listener != null && !bufferedRadioMessages.isEmpty()) {
+            System.out.println("**CLIENT RADIO BUF** draining buffered events count=" + bufferedRadioMessages.size());
+            for (Message m : new java.util.ArrayList<>(bufferedRadioMessages)) {
+                try {
+                    if (m.getType() == Message.Type.RADIO_TRACK_UPLOAD) {
+                        String tn = m.getFromBody("trackName");
+                        String tp = m.getFromBody("trackPath");
+                        String pn = m.getFromBody("playerName");
+                        listener.onRadioTrackUpload(tn, tp, pn);
+                    } else if (m.getType() == Message.Type.RADIO_TRACK_UPDATE) {
+                        String tn = m.getFromBody("trackName");
+                        String tp = m.getFromBody("trackPath");
+                        String pn = m.getFromBody("playerName");
+                        listener.onRadioTrackUpdate(tn, tp, pn);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("**CLIENT RADIO BUF ERR** while draining: " + ex.getMessage());
+                }
+            }
+            bufferedRadioMessages.clear();
+        }
     }
 
     // Convenience methods for sending responses
@@ -1228,10 +1395,18 @@ public class ClientMessageHandler {
         String trackPath = message.getFromBody("trackPath");
         String playerName = message.getFromBody("playerName");
 
-        System.out.println("Radio: Received track update from " + playerName + ": " + trackName);
+        System.out.println("**CLIENT RADIO RECV** TRACK_UPDATE from=" + playerName + " name=" + trackName + " path=" + trackPath);
+
+        // Persist in shared store so any Radio UI can load it later
+        try {
+            RadioSharedStore.addTrackIfAbsent(trackName + " (from " + playerName + ")", trackPath, playerName);
+        } catch (Exception ignore) {}
 
         if (radioListener != null) {
             radioListener.onRadioTrackUpdate(trackName, trackPath, playerName);
+        } else {
+            bufferedRadioMessages.add(message);
+            System.out.println("**CLIENT RADIO BUF** TRACK_UPDATE buffered (no listener) size=" + bufferedRadioMessages.size());
         }
     }
 
@@ -1240,10 +1415,18 @@ public class ClientMessageHandler {
         String trackPath = message.getFromBody("trackPath");
         String playerName = message.getFromBody("playerName");
 
-        System.out.println("Radio: Received track upload from " + playerName + ": " + trackName);
+        System.out.println("**CLIENT RADIO RECV** TRACK_UPLOAD from=" + playerName + " name=" + trackName + " path=" + trackPath);
+
+        // Persist in shared store for future Radio UI openings
+        try {
+            RadioSharedStore.addTrackIfAbsent(trackName + " (from " + playerName + ")", trackPath, playerName);
+        } catch (Exception ignore) {}
 
         if (radioListener != null) {
             radioListener.onRadioTrackUpload(trackName, trackPath, playerName);
+        } else {
+            bufferedRadioMessages.add(message);
+            System.out.println("**CLIENT RADIO BUF** TRACK_UPLOAD buffered (no listener) size=" + bufferedRadioMessages.size());
         }
     }
 
@@ -1251,7 +1434,7 @@ public class ClientMessageHandler {
         String targetPlayer = message.getFromBody("targetPlayer");
         String requestingPlayer = message.getFromBody("requestingPlayer");
 
-        System.out.println("Radio: Connection request from " + requestingPlayer + " to " + targetPlayer);
+        System.out.println("**CLIENT RADIO RECV** CONNECT_REQUEST from=" + requestingPlayer + " to=" + targetPlayer);
 
         if (radioListener != null) {
             radioListener.onRadioConnectRequest(requestingPlayer, targetPlayer);
@@ -1263,7 +1446,7 @@ public class ClientMessageHandler {
         String respondingPlayer = message.getFromBody("respondingPlayer");
         Boolean accepted = message.getFromBody("accepted");
 
-        System.out.println("Radio: Connection response from " + respondingPlayer + " to " + targetPlayer + ": " + accepted);
+        System.out.println("**CLIENT RADIO RECV** CONNECT_RESPONSE from=" + respondingPlayer + " to=" + targetPlayer + " accepted=" + accepted);
 
         if (radioListener != null) {
             radioListener.onRadioConnectResponse(respondingPlayer, targetPlayer, accepted);
@@ -1274,7 +1457,7 @@ public class ClientMessageHandler {
         String targetPlayer = message.getFromBody("targetPlayer");
         String disconnectingPlayer = message.getFromBody("disconnectingPlayer");
 
-        System.out.println("Radio: Disconnect from " + disconnectingPlayer + " to " + targetPlayer);
+        System.out.println("**CLIENT RADIO RECV** DISCONNECT from=" + disconnectingPlayer + " to=" + targetPlayer);
 
         if (radioListener != null) {
             radioListener.onRadioDisconnect(disconnectingPlayer, targetPlayer);
@@ -1397,12 +1580,12 @@ public class ClientMessageHandler {
             String currentPlayerName = currentPlayer.getUser().getUsername();
 
             if (playersNeedingToReturn != null && playersNeedingToReturn.contains(currentPlayerName)) {
-                System.out.println("🌙 WARNING: You need to return home before the day can end!");
+                System.out.println("WARNING: You need to return home before the day can end!");
                 // You could show a UI notification here
             }
 
             if (playersToCollapse != null && playersToCollapse.contains(currentPlayerName)) {
-                System.out.println("🌙 WARNING: You don't have enough energy to return home - you will collapse!");
+                System.out.println("WARNING: You don't have enough energy to return home - you will collapse!");
                 // You could show a UI notification here
             }
         }
@@ -1415,5 +1598,9 @@ public class ClientMessageHandler {
 
     public void setMarketUpdateListener(MarketUpdateListener listener) {
         this.marketUpdateListener = listener;
+    }
+
+    public void setPlayerDataUpdateListener(PlayerDataUpdateListener listener) {
+        this.playerDataUpdateListener = listener;
     }
 }

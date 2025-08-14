@@ -10,6 +10,9 @@ public enum GameMenuCommands implements Command {
     ExitGame(Pattern.compile("^exit\\s+game$")),
     NextTurn(Pattern.compile("^next\\s+turn$")),
     VoteTerminate(Pattern.compile("^vote\\s+terminate\\s+(yes|no)$")),
+    VoteKick(Pattern.compile("^vote\\s+kick\\s+(?<username>\\S+)$")),
+    VoteYes(Pattern.compile("^vote\\s+yes$")),
+    VoteNo(Pattern.compile("^vote\\s+no$")),
 
     // time-related commands
     ShowTime(Pattern.compile("^time$")),
@@ -44,7 +47,7 @@ public enum GameMenuCommands implements Command {
     GiveWater(Pattern.compile("^give\\s+-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     Harvest(Pattern.compile("^harvest\\s+(?<x>\\d+)\\s+(?<y>\\d+)$")),
     PlaceItem(Pattern.compile("^place\\s+item\\s+-n\\s+(?<itemName>.+)\\s+" +
-            "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
+        "-d\\s+(?<direction>north|south|east|west|north-east|north-west|south-east|south-west)$")),
     AddItem(Pattern.compile("^cheat\\s+add\\s+item\\s+-n\\s+(?<itemName>.+)\\s+-c\\s+(?<count>\\d+)$")),
 
     //crafting related commands
@@ -76,7 +79,7 @@ public enum GameMenuCommands implements Command {
     WalkToVillage(Pattern.compile("^walk\\s+to\\s+village$")),
     WalkToFarm(Pattern.compile("^walk\\s+to\\s+farm\\s+(?<farmIndex>\\d+)$")),
     TeleportToMarket(Pattern.compile("^teleport\\s+to\\s+market\\s+" +
-            "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
+        "(?<marketName> (Blacks Smith|Joja Mart|Pierre General Store|Carpenter's Shop|Fish Shop|Marnie Shop|Stardrop Saloon))$")),
     TeleportToHome(Pattern.compile("^teleport\\s+to\\s+home$")),
     HelpReadingMap(Pattern.compile("^help\\s+reading\\s+map$")),
 

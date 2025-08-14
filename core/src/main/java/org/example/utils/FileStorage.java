@@ -33,9 +33,7 @@ public class FileStorage {
         }
     }
 
-    /**
-     * داده‌های باینری بازی را در MongoDB ذخیره می‌کند.
-     */
+
     public static boolean saveGame(Game game) {
         initializeCollection();
         if (game == null || game.getSaveName() == null || game.getSaveName().isEmpty()) {

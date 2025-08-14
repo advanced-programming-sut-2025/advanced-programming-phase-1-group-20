@@ -24,6 +24,7 @@ import java.util.Map;
 
 public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersListener {
     private final Main game;
+    private final Screen previousScreen;
     private final Stage stage;
     private final Skin skin;
     private final NetworkClient networkClient;
@@ -42,7 +43,7 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
     private TextButton refreshPlayersButton;
 
     // Chat state
-    private String currentChatType = "public"; // "public", "private", "room"
+    private String currentChatType = "public"; // "public", "private"
     private String currentRecipient = null;
     private String currentRoomId = null;
     private List<String> onlinePlayers = new ArrayList<>();
@@ -53,13 +54,13 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
     private List<ChatMessage> privateChatHistory = new ArrayList<>();
     private List<ChatMessage> roomChatHistory = new ArrayList<>();
 
-    public ChatScreen(Main game, NetworkClient networkClient) {
+    public ChatScreen(Main game, NetworkClient networkClient, Screen previousScreen) {
         this.game = game;
         this.networkClient = networkClient;
         this.messageHandler = networkClient.getMessageHandler();
         this.stage = new Stage(new ScreenViewport());
         this.skin = org.example.utils.AssetManager.getAssetManager().getSkin();
-
+        this.previousScreen = previousScreen;
         setupUI();
         setupMessageHandling();
         setupOnlinePlayersListener();
@@ -82,13 +83,16 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
 
         publicChatButton = new TextButton("Public Chat", skin);
         privateChatButton = new TextButton("Private Chat", skin);
-        roomsButton = new TextButton("Chat Rooms", skin);
+        // Prevent recursive ChangeListener triggers when changing checked state programmatically
+        publicChatButton.setProgrammaticChangeEvents(false);
+        privateChatButton.setProgrammaticChangeEvents(false);
+        // rooms removed
         backButton = new TextButton("Back to Game", skin);
         refreshPlayersButton = new TextButton("Refresh Players", skin);
 
         buttonTable.add(publicChatButton).pad(5);
         buttonTable.add(privateChatButton).pad(5);
-        buttonTable.add(roomsButton).pad(5);
+        // rooms removed
         buttonTable.add(backButton).pad(5);
         buttonTable.add(refreshPlayersButton).pad(5);
 
@@ -139,32 +143,30 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 switchToPublicChat();
+                // Ensure public mode doesn't open selection dialog accidentally
             }
         });
 
         privateChatButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                // Always open selection dialog explicitly when switching to private
+                currentChatType = "private";
+                privateChatButton.setChecked(true);
+                publicChatButton.setChecked(false);
                 showPlayerSelectionDialog();
             }
         });
 
-        roomsButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                showRoomSelectionDialog();
-            }
-        });
+        // rooms removed
 
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // Go back to the previous screen or main menu
-                Screen currentScreen = game.getScreen();
-                if (currentScreen instanceof GameView) {
-                    game.setScreen(currentScreen);
+                // Return to the screen that opened the chat (typically GameView)
+                if (previousScreen != null) {
+                    game.setScreen(previousScreen);
                 } else {
-                    // Fallback to main menu
                     game.setScreen(new org.example.client.views.menu.MainMenuScreen(
                         new org.example.client.controllers.menu.MainMenuController(),
                         org.example.utils.AssetManager.getAssetManager().getSkin()
@@ -177,6 +179,9 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 requestOnlinePlayersList();
+                if ("private".equals(currentChatType)) {
+                    showPlayerSelectionDialog();
+                }
             }
         });
 
@@ -201,14 +206,64 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
     private void setupMessageHandling() {
         messageHandler.setChatListener(new ClientMessageHandler.ChatMessageListener() {
             @Override
-            public void onChatMessage(String sender, String message, long timestamp) {
+            public void onChatMessage(String sender, String message, long timestamp, String type, String recipient) {
                 Gdx.app.postRunnable(() -> {
-                    ChatMessage chatMessage = new ChatMessage(sender, message, ChatMessage.ChatType.PUBLIC);
+                    ChatMessage.ChatType chatType;
+                    if ("PRIVATE".equalsIgnoreCase(type)) {
+                        chatType = ChatMessage.ChatType.PRIVATE;
+                    } else if ("ROOM".equalsIgnoreCase(type)) {
+                        chatType = ChatMessage.ChatType.ROOM;
+                    } else {
+                        chatType = ChatMessage.ChatType.PUBLIC;
+                    }
+
+                    ChatMessage chatMessage = new ChatMessage(sender, message, chatType);
                     chatMessage.setTimestamp(String.valueOf(timestamp));
-                    addMessageToUI(chatMessage);
+                    if (recipient != null) {
+                        chatMessage.setRecipient(recipient);
+                    }
+
+                    // Lightweight @mention detection for public chat
+                    if (chatType == ChatMessage.ChatType.PUBLIC) {
+                        if (isMentionedForMe(chatMessage) && !isFromMe(chatMessage)) {
+                            showMentionNotification(sender, message);
+                        }
+                    }
+
+                    // Persist to appropriate history
+                    if (chatType == ChatMessage.ChatType.PRIVATE) {
+                        privateChatHistory.add(chatMessage);
+                    } else {
+                        publicChatHistory.add(chatMessage);
+                    }
+
+                    // Only update visible chat stream when it matches the current tab and, for private, the selected peer
+                    if (chatType == ChatMessage.ChatType.PUBLIC && "public".equals(currentChatType)) {
+                        addMessageToUI(chatMessage);
+                    } else if (chatType == ChatMessage.ChatType.PRIVATE && "private".equals(currentChatType)) {
+                        if (matchesCurrentPrivateConversation(chatMessage)) {
+                            addMessageToUI(chatMessage);
+                        }
+                    }
                 });
             }
         });
+    }
+
+    private boolean matchesCurrentPrivateConversation(ChatMessage message) {
+        if (currentRecipient == null) return false;
+        String me = getMyUsername();
+        if (me == null) return false;
+        // Conversation between me and currentRecipient
+        boolean iSentToPeer = me.equals(message.getSender()) && currentRecipient.equals(message.getRecipient());
+        boolean peerSentToMe = currentRecipient.equals(message.getSender()) && me.equals(message.getRecipient());
+        return iSentToPeer || peerSentToMe;
+    }
+
+    private String getMyUsername() {
+        return networkClient != null && networkClient.getAuthenticatedUser() != null
+            ? networkClient.getAuthenticatedUser().getUsername()
+            : null;
     }
 
     private void setupOnlinePlayersListener() {
@@ -231,7 +286,7 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
         updateChatDisplay();
         publicChatButton.setChecked(true);
         privateChatButton.setChecked(false);
-        roomsButton.setChecked(false);
+
     }
 
     private void showPlayerSelectionDialog() {
@@ -380,18 +435,11 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
         updateChatDisplay();
         publicChatButton.setChecked(false);
         privateChatButton.setChecked(true);
-        roomsButton.setChecked(false);
+
     }
 
     private void joinChatRoom(String roomId) {
-        currentChatType = "room";
-        currentRecipient = null;
-        currentRoomId = roomId;
-        networkClient.joinChatRoom(roomId);
-        updateChatDisplay();
-        publicChatButton.setChecked(false);
-        privateChatButton.setChecked(false);
-        roomsButton.setChecked(true);
+        // rooms removed
     }
 
     private void sendMessage() {
@@ -400,20 +448,10 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
             return;
         }
 
-        switch (currentChatType) {
-            case "public":
-                networkClient.sendPublicChatMessage(message);
-                break;
-            case "private":
-                if (currentRecipient != null) {
-                    networkClient.sendPrivateChatMessage(currentRecipient, message);
-                }
-                break;
-            case "room":
-                if (currentRoomId != null) {
-                    networkClient.sendRoomChatMessage(currentRoomId, message);
-                }
-                break;
+        if ("public".equals(currentChatType)) {
+            networkClient.sendPublicChatMessage(message);
+        } else if ("private".equals(currentChatType) && currentRecipient != null) {
+            networkClient.sendPrivateChatMessage(currentRecipient, message);
         }
 
         messageInput.setText("");
@@ -425,18 +463,16 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
         messagesTable.clear();
 
         List<ChatMessage> messagesToShow;
-        switch (currentChatType) {
-            case "public":
-                messagesToShow = publicChatHistory;
-                break;
-            case "private":
-                messagesToShow = privateChatHistory;
-                break;
-            case "room":
-                messagesToShow = roomChatHistory;
-                break;
-            default:
-                messagesToShow = publicChatHistory;
+        if ("private".equals(currentChatType)) {
+            // Filter only messages of the active conversation
+            messagesToShow = new ArrayList<>();
+            for (ChatMessage msg : privateChatHistory) {
+                if (matchesCurrentPrivateConversation(msg)) {
+                    messagesToShow.add(msg);
+                }
+            }
+        } else {
+            messagesToShow = publicChatHistory;
         }
 
         // Add messages to UI
@@ -461,16 +497,22 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
         messageLabel.setWrap(true);
         messageLabel.setAlignment(Align.left);
 
+        // Debug
+        System.out.println("**[CHAT][UI][ADD] type=" + message.getType() + " text=\"" + displayText + "\" currentTab=" + currentChatType + "**");
+
         // Color code based on message type
-        switch (message.getType()) {
-            case PRIVATE:
-                messageLabel.setColor(Color.PURPLE);
-                break;
-            case ROOM:
-                messageLabel.setColor(Color.BLUE);
-                break;
-            default:
-                messageLabel.setColor(Color.BLACK);
+        if (message.getType() == ChatMessage.ChatType.PRIVATE) {
+            messageLabel.setColor(Color.PURPLE);
+        } else {
+            messageLabel.setColor(Color.BLACK);
+        }
+
+        // Highlight if this message mentions me in public chat
+        if (message.getType() == ChatMessage.ChatType.PUBLIC && isMentionedForMe(message)) {
+            messageLabel.setColor(Color.SCARLET);
+            try {
+                messageContainer.setBackground(skin.newDrawable("white", new Color(1f, 1f, 0.7f, 0.6f)));
+            } catch (Exception ignored) {}
         }
 
         messageContainer.add(messageLabel).expandX().fillX();
@@ -478,6 +520,47 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
 
         // Scroll to bottom
         chatScrollPane.scrollTo(0, 0, 0, 0);
+    }
+
+    private boolean isFromMe(ChatMessage message) {
+        String me = getMyUsername();
+        return me != null && me.equals(message.getSender());
+    }
+
+    private boolean isMentionedForMe(ChatMessage message) {
+        String me = getMyUsername();
+        if (me == null) return false;
+        String content = message.getContent();
+        if (content == null) return false;
+        String needle = "@" + me;
+        return content.contains(needle);
+    }
+
+    private void showMentionNotification(String sender, String content) {
+        String me = getMyUsername();
+        if (me == null) return;
+
+        String shortContent = content.length() > 60 ? content.substring(0, 57) + "..." : content;
+        Label notificationLabel = new Label("@" + me + " mentioned by " + sender + ": " + shortContent, skin);
+        notificationLabel.setColor(Color.ORANGE);
+        notificationLabel.setFontScale(1.1f);
+
+        float x = Gdx.graphics.getWidth() / 2f - 220f;
+        float y = Gdx.graphics.getHeight() - 80f;
+        notificationLabel.setPosition(x, y);
+
+        stage.addActor(notificationLabel);
+
+        com.badlogic.gdx.utils.Timer.schedule(new com.badlogic.gdx.utils.Timer.Task() {
+            @Override
+            public void run() {
+                Gdx.app.postRunnable(() -> {
+                    if (notificationLabel.getStage() != null) {
+                        notificationLabel.remove();
+                    }
+                });
+            }
+        }, 2.0f);
     }
 
     public void setOnlinePlayers(List<String> players) {
@@ -502,7 +585,7 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
                     Map<String, Object> playerMap = (Map<String, Object>) player;
                     String username = (String) playerMap.get("username");
                     String status = (String) playerMap.get("status");
-                    
+
                     // Only add players who are online (not in game, unless they're in the same game)
                     if (username != null && !"IN_GAME".equals(status)) {
                         playerNames.add(username);
@@ -517,6 +600,7 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        setupMessageHandling();
         switchToPublicChat();
         // Request online players list when screen is shown
         requestOnlinePlayersList();
@@ -524,6 +608,11 @@ public class ChatScreen implements Screen, ClientMessageHandler.OnlinePlayersLis
 
     @Override
     public void render(float delta) {
+        // Ensure incoming network messages are processed while this screen is active
+        if (networkClient != null) {
+            networkClient.update();
+        }
+
         Gdx.gl.glClearColor(0.9f, 0.9f, 0.9f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

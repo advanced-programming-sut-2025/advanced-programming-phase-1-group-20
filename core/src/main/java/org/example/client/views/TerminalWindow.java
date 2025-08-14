@@ -207,6 +207,12 @@ public class TerminalWindow {
                 return gameMenuController.nextTurn();
             case VoteTerminate:
                 return gameMenuController.voteTerminate(args);
+            case VoteKick:
+                return gameMenuController.voteKick(args);
+            case VoteYes:
+                return gameMenuController.voteYes();
+            case VoteNo:
+                return gameMenuController.voteNo();
 
             // Time-related commands
             case ShowTime:
@@ -344,6 +350,14 @@ public class TerminalWindow {
             case ContributeToCoopQuest:
                 return gameMenuController.contributeToCoopQuest(args);
 
+            // NPC-related commands
+            case MeetNPC:
+                return gameMenuController.meetNPC(args);
+            case GiftNPC:
+                return gameMenuController.giftNPC(args);
+            case FriendshipNPCList:
+                return gameMenuController.friendshipNPCList();
+
             // Default case for unhandled commands
             default:
                 return Result.error("Command not implemented yet.");
@@ -425,6 +439,11 @@ public class TerminalWindow {
         addOutput("show current tool - Show the currently equipped tool", TEXT_COLOR);
         addOutput("show available tools - Show all tools in your backpack", TEXT_COLOR);
         addOutput("upgrade tool <tool> - Upgrade a tool (requires blacksmith)", TEXT_COLOR);
+        addOutput("", TEXT_COLOR);
+        addOutput("NPC Commands:", Color.YELLOW);
+        addOutput("meet NPC <name> - Talk to an NPC", TEXT_COLOR);
+        addOutput("gift NPC <name> -i <item> - Give an item to an NPC", TEXT_COLOR);
+        addOutput("friendship NPC list - Show friendship levels with all NPCs", TEXT_COLOR);
     }
 
 

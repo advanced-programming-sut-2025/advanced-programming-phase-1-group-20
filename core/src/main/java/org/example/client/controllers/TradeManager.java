@@ -36,6 +36,8 @@ public class TradeManager {
 
         TradeRequest request = new TradeRequest(sender, receiver, item, amount, price, isRequest);
         tradeRequests.add(request);
+        System.out.println("**TRADE_MGR** createTradeRequest id=" + request.getId() + " from=" + sender.getUser().getUsername() + " to=" + receiver.getUser().getUsername() +
+            " item=" + item.getName() + " x" + amount + " price=" + price + " total=" + tradeRequests.size());
         return request;
     }
 
@@ -44,7 +46,7 @@ public class TradeManager {
                                            Item targetItem, int targetAmount, boolean isRequest) {
         // Validate parameters
         if (sender == null || receiver == null || item == null || targetItem == null ||
-                amount <= 0 || targetAmount <= 0) {
+            amount <= 0 || targetAmount <= 0) {
             return null;
         }
 
@@ -55,6 +57,8 @@ public class TradeManager {
 
         TradeRequest request = new TradeRequest(sender, receiver, item, amount, targetItem, targetAmount, isRequest);
         tradeRequests.add(request);
+        System.out.println("**TRADE_MGR** createTradeRequest(idEx) id=" + request.getId() + " from=" + sender.getUser().getUsername() + " to=" + receiver.getUser().getUsername() +
+            " item=" + item.getName() + " x" + amount + " for " + targetAmount + "x " + targetItem.getName() + " total=" + tradeRequests.size());
         return request;
     }
 
@@ -68,29 +72,35 @@ public class TradeManager {
     }
 
     public List<TradeRequest> getTradeRequestsForPlayer(Player player) {
-        return tradeRequests.stream()
-                .filter(request -> request.getSender().equals(player) || request.getReceiver().equals(player))
-                .collect(Collectors.toList());
+        List<TradeRequest> res = tradeRequests.stream()
+            .filter(request -> request.getSender().equals(player) || request.getReceiver().equals(player))
+            .collect(Collectors.toList());
+        System.out.println("**TRADE_MGR** getTradeRequestsForPlayer user=" + player.getUser().getUsername() + " count=" + (res != null ? res.size() : 0));
+        return res;
     }
 
     public List<TradeRequest> getPendingTradeRequestsForPlayer(Player player) {
-        return tradeRequests.stream()
-                .filter(request -> request.getReceiver().equals(player) &&
-                        !request.isAccepted() && !request.isRejected())
-                .collect(Collectors.toList());
+        List<TradeRequest> res = tradeRequests.stream()
+            .filter(request -> request.getReceiver().equals(player) &&
+                !request.isAccepted() && !request.isRejected())
+            .collect(Collectors.toList());
+        System.out.println("**TRADE_MGR** getPending for=" + player.getUser().getUsername() + " count=" + (res != null ? res.size() : 0));
+        return res;
     }
 
     public List<TradeRequest> getUnviewedTradeRequestsForPlayer(Player player) {
         return tradeRequests.stream()
-                .filter(request -> request.getReceiver().equals(player) && !request.isViewed())
-                .collect(Collectors.toList());
+            .filter(request -> request.getReceiver().equals(player) && !request.isViewed())
+            .collect(Collectors.toList());
     }
 
 
     public List<TradeRequest> getTradeHistoryForPlayer(Player player) {
-        return tradeRequests.stream()
-                .filter(request -> request.getSender().equals(player) || request.getReceiver().equals(player))
-                .collect(Collectors.toList());
+        List<TradeRequest> res = tradeRequests.stream()
+            .filter(request -> request.getSender().equals(player) || request.getReceiver().equals(player))
+            .collect(Collectors.toList());
+        System.out.println("**TRADE_MGR** getHistory for=" + player.getUser().getUsername() + " count=" + (res != null ? res.size() : 0));
+        return res;
     }
 
 
@@ -99,8 +109,9 @@ public class TradeManager {
         if (request == null || !request.getReceiver().equals(player)) {
             return false;
         }
-
-        return request.accept();
+        boolean ok = request.accept();
+        System.out.println("**TRADE_MGR** accept id=" + id + " by=" + player.getUser().getUsername() + " ok=" + ok);
+        return ok;
     }
 
 
@@ -109,8 +120,8 @@ public class TradeManager {
         if (request == null || !request.getReceiver().equals(player)) {
             return false;
         }
-
         request.reject();
+        System.out.println("**TRADE_MGR** reject id=" + id + " by=" + player.getUser().getUsername());
         return true;
     }
 

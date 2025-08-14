@@ -98,6 +98,15 @@ public class MessageHandler {
 // System.out.println("DEBUG: Handling CREATE_GAME message");
                 handleCreateGame(connection, message);
                 break;
+            case PLAYER_DEBUG_UPDATE:
+                // forward to game session if present
+                Object gameSessionObjDbg = connection.getGameSession();
+                if (gameSessionObjDbg instanceof GameSession) {
+                    ((GameSession) gameSessionObjDbg).processMessage(username, message);
+                } else {
+                    sendErrorMessage(connection, "Player not in a game session");
+                }
+                break;
             case JOIN_GAME:
                 handleJoinGame(connection, message);
                 break;
@@ -106,6 +115,15 @@ public class MessageHandler {
                 break;
             case REJOIN_GAME:
                 handleRejoinGame(connection, message);
+                break;
+
+            // Trade messages (log and forward to game session)
+            case TRADE_REQUEST:
+            case TRADE_RESPONSE:
+            case TRADE_ACCEPT:
+            case TRADE_DECLINE:
+                System.out.println("**SERVER RECV** " + message.getType() + " from=" + username + " body=" + gson.toJson(message.getBody()));
+                forwardToGameSession(connection, message);
                 break;
 
             // Lobby messages
@@ -142,6 +160,12 @@ public class MessageHandler {
                 handleReactionSend(connection, message);
                 break;
 
+            // Voting messages (forward to game session)
+            case VOTE_START:
+            case VOTE_CAST:
+                forwardToGameSession(connection, message);
+                break;
+
             // Chat messages
             case CHAT:
                 handleChat(connection, message);
@@ -168,23 +192,25 @@ public class MessageHandler {
                 handleTakeQuest(connection, message);
             default:
                 // Forward to game session if player is in one
-                Object gameSessionObj = connection.getGameSession();
-                if (gameSessionObj instanceof GameSession) {
-                    GameSession gameSession = (GameSession) gameSessionObj;
-// System.out.println("DEBUG: Forwarding message to game session: " + message.getType());
-                    gameSession.processMessage(username, message);
-                } else {
-// System.err.println("DEBUG: Player not in a game session, cannot process: " + message.getType());
-                    sendErrorMessage(connection, "Player not in a game session");
-                }
+                forwardToGameSession(connection, message);
                 break;
+        }
+    }
+
+    private void forwardToGameSession(PlayerConnection connection, Message message) {
+        Object gameSessionObj = connection.getGameSession();
+        if (gameSessionObj instanceof GameSession) {
+            GameSession gameSession = (GameSession) gameSessionObj;
+            gameSession.processMessage(connection.getUser().getUsername(), message);
+        } else {
+            sendErrorMessage(connection, "Player not in a game session");
         }
     }
 
     private void handleTakeQuest(PlayerConnection connection, Message message) {
         System.out.println("🔍 MessageHandler: Received TAKE_QUEST message from " + connection.getUsername());
         System.out.println("🔍 MessageHandler: Message content: " + message.toString());
-        
+
         // Forward to game session for processing
         Object gameSessionObj = connection.getGameSession();
         if (gameSessionObj instanceof GameSession) {
@@ -952,9 +978,9 @@ public class MessageHandler {
             }
 
             LobbyPlayer admin = lobby.getPlayers().stream()
-                    .filter(LobbyPlayer::isAdmin)
-                    .findFirst()
-                    .orElse(lobby.getPlayers().get(0));
+                .filter(LobbyPlayer::isAdmin)
+                .findFirst()
+                .orElse(lobby.getPlayers().get(0));
 
 // System.out.println("DEBUG: Admin player: " + admin.getId() + " (isAdmin: " + admin.isAdmin() + ")");
 
@@ -1218,6 +1244,7 @@ public class MessageHandler {
             return;
         }
 
+        System.out.println("**[CHAT][PRIVATE][SERVER][DISPATCH] from=" + user.getUsername() + " to=" + recipient + " content=\"" + content + "\"**");
         ChatManager chatManager = ChatManager.getInstance(this);
         chatManager.handlePrivateChat(user.getUsername(), recipient, content);
     }
@@ -1236,6 +1263,7 @@ public class MessageHandler {
             return;
         }
 
+        System.out.println("**[CHAT][PUBLIC][SERVER][DISPATCH] from=" + user.getUsername() + " content=\"" + content + "\"**");
         ChatManager chatManager = ChatManager.getInstance(this);
         chatManager.handlePublicChat(user.getUsername(), content);
     }

@@ -33,10 +33,10 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private Screen previousScreen;
     private NetworkClient networkClient;
     private ClientMessageHandler messageHandler;
-    
+
     // UI Components
     private Table mainTable;
-    
+
     // Current state
     private enum ViewState {
         MAIN_MENU,
@@ -44,15 +44,15 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         TRADE_HISTORY,
         PENDING_REQUESTS
     }
-    
+
     private ViewState currentState = ViewState.MAIN_MENU;
-    
+
     // Trade data
     private Map<String, TradeRequest> pendingTradeRequests = new ConcurrentHashMap<>();
     private List<TradeRequest> tradeHistory = new ArrayList<>();
     private Player currentPlayer;
     private Map<Item, Integer> currentPlayerItems = new HashMap<>();
-    
+
     // Background
     private Texture backgroundTexture;
 
@@ -63,16 +63,17 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         this.networkClient = NetworkClient.getInstance();
         this.messageHandler = networkClient.getMessageHandler();
         this.currentPlayer = App.getGame().getCurrentPlayer();
-        
+
         // Set up trade listener
         messageHandler.setTradeListener(this);
-        
+        System.out.println("**CLIENT UI** NetworkTradingScreen initialized; listener registered; user=" + (currentPlayer != null && currentPlayer.getUser()!=null ? currentPlayer.getUser().getUsername() : "null"));
+
         // Create background
         createBackgroundTexture();
-        
+
         // Initialize UI
         initializeUI();
-        
+
         // Load initial data
         loadTradeData();
     }
@@ -93,7 +94,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         mainTable = new Table();
         mainTable.setFillParent(true);
         mainTable.pad(20);
-        
+        System.out.println("**CLIENT UI** Trading UI initializeUI()");
         showMainMenu();
     }
 
@@ -101,7 +102,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         if (currentPlayer != null) {
             currentPlayerItems = currentPlayer.getBackpack().getInventory();
         }
-        
+
         // Load trade history from server
         loadTradeHistory();
     }
@@ -109,7 +110,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private void loadTradeHistory() {
         // Request trade history from server
         networkClient.requestTradeHistory();
-        
+
         // For now, add some sample data for testing
         // In a real implementation, this would come from the server
         if (tradeHistory.isEmpty() && currentPlayer != null) {
@@ -127,7 +128,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
                 .filter(p -> !p.equals(currentPlayer))
                 .findFirst()
                 .orElse(null);
-            
+
             if (samplePlayer != null) {
                 // Sample accepted trade
                 Item sampleItem = App.getItem("Wheat");
@@ -137,7 +138,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
                     acceptedTrade.accept(); // Mark as accepted
                     tradeHistory.add(acceptedTrade);
                 }
-                
+
                 // Sample rejected trade
                 Item sampleItem2 = App.getItem("Corn");
                 if (sampleItem2 != null) {
@@ -155,6 +156,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private void showMainMenu() {
         mainTable.clear();
         currentState = ViewState.MAIN_MENU;
+        System.out.println("**CLIENT UI** showMainMenu()");
 
         // Title
         Label titleLabel = new Label("Network Trading System", skin);
@@ -167,19 +169,27 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         startTradeButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Start Trading");
                 showPlayerSelection();
             }
         });
         mainTable.add(startTradeButton).width(250).height(60).pad(10).row();
 
         // View Pending Requests Button
-        String pendingText = pendingTradeRequests.isEmpty() ?
+        int pendingCount = 0;
+        try {
+            java.util.List<TradeRequest> pending = org.example.client.controllers.TradeManager.getInstance()
+                .getPendingTradeRequestsForPlayer(currentPlayer);
+            pendingCount = pending != null ? pending.size() : 0;
+        } catch (Exception ignored) {}
+        String pendingText = pendingCount == 0 ?
             "View Pending Requests" :
-            "View Pending Requests (" + pendingTradeRequests.size() + ")";
+            "View Pending Requests (" + pendingCount + ")";
         TextButton pendingButton = new TextButton(pendingText, skin);
         pendingButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: View Pending Requests");
                 showPendingRequests();
             }
         });
@@ -190,6 +200,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         historyButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: View Trade History");
                 showTradeHistory();
             }
         });
@@ -211,6 +222,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private void showPlayerSelection() {
         mainTable.clear();
         currentState = ViewState.PLAYER_SELECTION;
+        System.out.println("**CLIENT UI** showPlayerSelection()");
 
         // Title
         Label titleLabel = new Label("Select Player to Trade With", skin);
@@ -227,20 +239,21 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         } else {
             for (Player player : availablePlayers) {
                 Table playerRow = new Table();
-                
+
                 Label playerLabel = new Label(player.getUser().getUsername(), skin);
                 playerLabel.setFontScale(1.2f);
                 playerRow.add(playerLabel).width(200).pad(5);
-                
+
                 TextButton tradeButton = new TextButton("Trade", skin);
                 tradeButton.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
+                        System.out.println("**CLIENT UI** Click: Select Player to trade -> " + player.getUser().getUsername());
                         showTradeRequestDialog(player.getUser().getUsername());
                     }
                 });
                 playerRow.add(tradeButton).width(100).height(40).pad(5);
-                
+
                 mainTable.add(playerRow).colspan(2).pad(5).row();
             }
         }
@@ -250,6 +263,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Back from Player Selection");
                 showMainMenu();
             }
         });
@@ -261,18 +275,21 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private void showPendingRequests() {
         mainTable.clear();
         currentState = ViewState.PENDING_REQUESTS;
+        System.out.println("**CLIENT UI** showPendingRequests()");
 
         Label titleLabel = new Label("Pending Trade Requests", skin);
         titleLabel.setFontScale(1.8f);
         titleLabel.setColor(Color.BLACK);
         mainTable.add(titleLabel).colspan(3).padBottom(20).row();
 
-        if (pendingTradeRequests.isEmpty()) {
+        java.util.List<TradeRequest> pendingRequests = org.example.client.controllers.TradeManager.getInstance()
+            .getPendingTradeRequestsForPlayer(currentPlayer);
+        if (pendingRequests == null || pendingRequests.isEmpty()) {
             Label noRequestsLabel = new Label("No pending trade requests", skin);
             noRequestsLabel.setColor(Color.GRAY);
             mainTable.add(noRequestsLabel).colspan(3).pad(10).row();
         } else {
-            for (TradeRequest request : pendingTradeRequests.values()) {
+            for (TradeRequest request : pendingRequests) {
                 Table requestTable = new Table();
                 requestTable.pad(10);
 
@@ -281,7 +298,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
                     request.getItem().getName(),
                     request.getAmount(),
                     request.getPrice());
-                
+
                 Label requestLabel = new Label(requestText, skin);
                 requestLabel.setWrap(true);
                 requestTable.add(requestLabel).width(400).pad(5);
@@ -290,6 +307,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
                 acceptButton.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
+                        System.out.println("**CLIENT UI** Click: Accept Trade id=" + request.getId());
                         acceptTradeRequest(request);
                     }
                 });
@@ -299,6 +317,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
                 rejectButton.addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
+                        System.out.println("**CLIENT UI** Click: Reject Trade id=" + request.getId());
                         rejectTradeRequest(request);
                     }
                 });
@@ -312,6 +331,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Back from Pending Requests");
                 showMainMenu();
             }
         });
@@ -323,13 +343,22 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     private void showTradeHistory() {
         mainTable.clear();
         currentState = ViewState.TRADE_HISTORY;
+        System.out.println("**CLIENT UI** showTradeHistory()");
 
         Label titleLabel = new Label("Trade History", skin);
         titleLabel.setFontScale(1.8f);
         titleLabel.setColor(Color.BLACK);
         mainTable.add(titleLabel).colspan(2).padBottom(20).row();
 
-        if (tradeHistory.isEmpty()) {
+        // Pull fresh history from TradeManager to include network-created requests
+        this.tradeHistory.clear();
+        try {
+            java.util.List<TradeRequest> hist = org.example.client.controllers.TradeManager.getInstance()
+                .getTradeHistoryForPlayer(currentPlayer);
+            if (hist != null) this.tradeHistory.addAll(hist);
+        } catch (Exception ignored) {}
+
+        if (this.tradeHistory.isEmpty()) {
             Label noHistoryLabel = new Label("No trade history available", skin);
             noHistoryLabel.setColor(Color.GRAY);
             mainTable.add(noHistoryLabel).colspan(2).pad(10).row();
@@ -341,11 +370,12 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
 
         // Add buttons row
         Table buttonsTable = new Table();
-        
+
         TextButton refreshButton = new TextButton("Refresh", skin);
         refreshButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Refresh Trade History");
                 loadTradeHistory();
                 showTradeHistory(); // Refresh the display
             }
@@ -356,11 +386,12 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Back from Trade History");
                 showMainMenu();
             }
         });
         buttonsTable.add(backButton).width(100).height(50).pad(10);
-        
+
         mainTable.add(buttonsTable).colspan(2).pad(10).row();
 
         stage.addActor(mainTable);
@@ -383,34 +414,34 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         table.add().height(2).fillX().pad(5).row();
 
         for (TradeRequest request : tradeHistory) {
-            String status = request.isAccepted() ? "ACCEPTED" : 
-                           request.isRejected() ? "REJECTED" : "PENDING";
-            
+            String status = request.isAccepted() ? "ACCEPTED" :
+                request.isRejected() ? "REJECTED" : "PENDING";
+
             Table rowTable = new Table();
-            
+
             // Status with color
             Label statusLabel = new Label(status, skin);
-            statusLabel.setColor(request.isAccepted() ? Color.GREEN : 
-                               request.isRejected() ? Color.RED : Color.ORANGE);
+            statusLabel.setColor(request.isAccepted() ? Color.GREEN :
+                request.isRejected() ? Color.RED : Color.ORANGE);
             rowTable.add(statusLabel).width(100).pad(5);
-            
+
             // From player
             rowTable.add(new Label(request.getSender().getUser().getUsername(), skin)).width(120).pad(5);
-            
+
             // To player
             rowTable.add(new Label(request.getReceiver().getUser().getUsername(), skin)).width(120).pad(5);
-            
+
             // Item name
             rowTable.add(new Label(request.getItem().getName(), skin)).width(150).pad(5);
-            
+
             // Amount
             rowTable.add(new Label(String.valueOf(request.getAmount()), skin)).width(80).pad(5);
-            
+
             // Price
             rowTable.add(new Label(request.getPrice() + " gold", skin)).width(100).pad(5);
-            
+
             table.add(rowTable).row();
-            
+
             // Add separator between rows
             table.add().height(1).fillX().pad(2).row();
         }
@@ -419,9 +450,9 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
     }
 
     private void showTradeRequestDialog(String targetUsername) {
-        Dialog dialog = new Dialog("Send Trade Request", skin);
-        dialog.setModal(true);
+        System.out.println("**CLIENT UI** showTradeRequestDialog(target=" + targetUsername + ")");
 
+        // Build controls first so the dialog's result() can reference them
         Table content = new Table();
         content.pad(20);
 
@@ -429,59 +460,63 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         content.add(itemLabel).pad(5);
 
         String[] itemNames = currentPlayerItems.keySet().stream()
-                .map(Item::getName)
-                .toArray(String[]::new);
+            .map(Item::getName)
+            .toArray(String[]::new);
 
-        SelectBox<String> itemSelectBox = new SelectBox<>(skin);
+        final SelectBox<String> itemSelectBox = new SelectBox<>(skin);
         itemSelectBox.setItems(itemNames);
         content.add(itemSelectBox).width(200).pad(5).row();
 
         Label amountLabel = new Label("Amount:", skin);
         content.add(amountLabel).pad(5);
 
-        TextField amountField = new TextField("1", skin);
+        final TextField amountField = new TextField("1", skin);
         content.add(amountField).width(100).pad(5).row();
 
         Label priceLabel = new Label("Price (gold):", skin);
         content.add(priceLabel).pad(5);
 
-        TextField priceField = new TextField("0", skin);
+        final TextField priceField = new TextField("0", skin);
         content.add(priceField).width(100).pad(5).row();
 
-        dialog.getContentTable().add(content);
-
-        dialog.button("Send", new Runnable() {
+        Dialog dialog = new Dialog("Send Trade Request", skin) {
             @Override
-            public void run() {
-                try {
-                    String itemName = itemSelectBox.getSelected();
-                    int amount = Integer.parseInt(amountField.getText());
-                    int price = Integer.parseInt(priceField.getText());
+            protected void result(Object obj) {
+                if (Boolean.TRUE.equals(obj)) {
+                    try {
+                        String itemName = itemSelectBox.getSelected();
+                        int amount = Integer.parseInt(amountField.getText());
+                        int price = Integer.parseInt(priceField.getText());
 
-                    if (itemName == null || itemName.isEmpty()) {
-                        showError("Please select an item");
-                        return;
+                        System.out.println("**CLIENT UI** Click: Send Trade -> to=" + targetUsername + ", item=" + itemName + ", amount=" + amount + ", price=" + price);
+                        if (itemName == null || itemName.isEmpty()) {
+                            showError("Please select an item");
+                            return;
+                        }
+
+                        if (amount <= 0) {
+                            showError("Amount must be greater than 0");
+                            return;
+                        }
+
+                        if (price < 0) {
+                            showError("Price must be non-negative");
+                            return;
+                        }
+
+                        sendTradeRequest(targetUsername, itemName, amount, price);
+                    } catch (NumberFormatException e) {
+                        System.out.println("**CLIENT UI** ERROR: Invalid numbers in trade dialog");
+                        showError("Please enter valid numbers for amount and price");
                     }
-
-                    if (amount <= 0) {
-                        showError("Amount must be greater than 0");
-                        return;
-                    }
-
-                    if (price < 0) {
-                        showError("Price must be non-negative");
-                        return;
-                    }
-
-                    sendTradeRequest(targetUsername, itemName, amount, price);
-                    dialog.hide();
-                } catch (NumberFormatException e) {
-                    showError("Please enter valid numbers for amount and price");
                 }
             }
-        });
+        };
 
-        dialog.button("Cancel");
+        dialog.setModal(true);
+        dialog.getContentTable().add(content);
+        dialog.button("Send", true);
+        dialog.button("Cancel", false);
         dialog.show(stage);
     }
 
@@ -501,38 +536,58 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
 
     // Network methods
     private void sendTradeRequest(String targetUsername, String itemName, int amount, int price) {
+        // Send over network
         networkClient.sendTradeRequest(targetUsername, itemName, amount, price);
+
+        // Add locally to sender's history immediately
+        try {
+            Player target = App.getGame().getPlayerByUsername(targetUsername);
+            Item itemObj = App.getItem(itemName);
+            if (target != null && itemObj != null) {
+                TradeRequest request = org.example.client.controllers.TradeManager.getInstance()
+                    .createTradeRequest(currentPlayer, target, itemObj, amount, price, false);
+                if (request != null) {
+                    tradeHistory.add(request);
+                    if (currentState == ViewState.TRADE_HISTORY) {
+                        showTradeHistory();
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
         showNotification("Trade request sent to " + targetUsername);
     }
 
     private void acceptTradeRequest(TradeRequest request) {
-        String fromPlayer = request.getSender().getUser().getUsername();
-        String toPlayer = request.getReceiver().getUser().getUsername();
-        messageHandler.sendTradeResponse(fromPlayer, toPlayer, true);
-        
-        // Add to trade history
+        // Responder is current player (receiver); notify the original sender
+        String responder = currentPlayer.getUser().getUsername();
+        String originalSender = request.getSender().getUser().getUsername();
+        messageHandler.sendTradeResponse(responder, originalSender, true);
+
+        // Apply trade locally for responder
         request.accept();
         tradeHistory.add(request);
-        
+
         // Remove from pending requests
         pendingTradeRequests.remove(String.valueOf(request.getId()));
-        
+
         showNotification("Trade accepted! Starting trade session.");
     }
 
     private void rejectTradeRequest(TradeRequest request) {
-        String fromPlayer = request.getSender().getUser().getUsername();
-        String toPlayer = request.getReceiver().getUser().getUsername();
-        messageHandler.sendTradeResponse(fromPlayer, toPlayer, false);
-        
+        // Responder is current player (receiver); notify the original sender
+        String responder = currentPlayer.getUser().getUsername();
+        String originalSender = request.getSender().getUser().getUsername();
+        messageHandler.sendTradeResponse(responder, originalSender, false);
+
         // Add to trade history
         request.reject();
         tradeHistory.add(request);
-        
+
         // Remove from pending requests
         pendingTradeRequests.remove(String.valueOf(request.getId()));
         showPendingRequests();
-        
+
         showNotification("Trade request rejected.");
     }
 
@@ -554,15 +609,15 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         Gdx.app.postRunnable(() -> {
             Player sender = App.getGame().getPlayerByUsername(fromPlayer);
             Player receiver = App.getGame().getPlayerByUsername(toPlayer);
-            
+
             if (sender != null && receiver != null) {
                 Item itemObj = App.getItem(item);
                 if (itemObj != null) {
                     TradeRequest request = new TradeRequest(sender, receiver, itemObj, quantity, 0, false);
                     pendingTradeRequests.put(String.valueOf(request.getId()), request);
-                    
+
                     showNotification("New trade request from " + fromPlayer + " for " + quantity + "x " + item);
-                    
+
                     if (currentState == ViewState.PENDING_REQUESTS) {
                         showPendingRequests();
                     }
@@ -587,7 +642,7 @@ public class NetworkTradingScreen implements Screen, Disposable, ClientMessageHa
         Gdx.app.postRunnable(() -> {
             tradeHistory.clear();
             tradeHistory.addAll(newHistory);
-            
+
             // Refresh the UI if currently viewing trade history
             if (currentState == ViewState.TRADE_HISTORY) {
                 showTradeHistory();

@@ -4,8 +4,9 @@ import io.javalin.websocket.WsContext;
 import org.example.common.models.Message;
 import org.example.common.models.Player.Player;
 import org.example.common.models.entities.User;
+import org.example.common.models.App;
+import org.example.utils.auth.JWTUtils;
 import com.google.gson.Gson;
-import java.lang.reflect.Method;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.Queue;
@@ -109,7 +110,10 @@ public class PlayerConnection {
     public void sendMessage(Message message) {
         try {
             String messageJson = gson.toJson(message);
-//            System.out.println("DEBUG: Sending message JSON: " + messageJson);
+            if (message != null && message.getType() != null &&
+                (message.getType().name().startsWith("TRADE_") || message.getType() == Message.Type.CHAT_PUBLIC)) {
+                System.out.println("**SERVER SEND** to=" + username + " type=" + message.getType() + " body=" + messageJson + "");
+            }
             sendMessage(messageJson);
         } catch (Exception e) {
 // System.err.println("DEBUG: Failed to serialize message to JSON: " + e.getMessage());
@@ -154,24 +158,60 @@ public class PlayerConnection {
         String token = message.getFromBody("token");
         String requestedUsername = message.getFromBody("username");
 
-        if (token != null && requestedUsername != null) {
-            // This would normally validate the JWT token
-            // For now, we'll create a basic user object
-            this.user = new User(requestedUsername, "", "", "", null);
+        // Require both token and username
+        if (token == null || requestedUsername == null) {
+            sendErrorMessage("Token and username required");
+            return;
+        }
+
+        // Allow temporary tokens for testing flows
+        if (token.startsWith("temp_token_")) {
+            User tempUser = new User();
+            tempUser.setUsername(requestedUsername);
+            this.user = tempUser;
             this.username = requestedUsername;
             this.state = ConnectionState.AUTHENTICATED;
 
-            // Send success response
             Message response = new Message();
             response.setType(Message.Type.SUCCESS);
             response.putInBody("message", "Authentication successful");
             response.putInBody("username", username);
             sendMessage(response);
-
-            // System.out.println("Player " + username + " authenticated successfully");
-        } else {
-            sendErrorMessage("Authentication failed: Invalid token or username");
+            return;
         }
+
+        // Validate JWT token
+        String tokenStatus = JWTUtils.getTokenStatus(token);
+        if (!JWTUtils.TOKEN_VALID.equals(tokenStatus)) {
+            sendErrorMessage("Invalid or expired token: " + JWTUtils.getTokenStatusMessage(tokenStatus));
+            return;
+        }
+
+        // Ensure the token subject matches the requested username
+        String tokenUsername = JWTUtils.extractUsername(token);
+        if (tokenUsername == null || !tokenUsername.equals(requestedUsername)) {
+            sendErrorMessage("Token username mismatch");
+            return;
+        }
+
+        // Load or create the user
+        User existingUser = App.getUser(requestedUsername);
+        if (existingUser == null) {
+            existingUser = new User();
+            existingUser.setUsername(requestedUsername);
+            App.addUser(existingUser);
+        }
+
+        this.user = existingUser;
+        this.username = requestedUsername;
+        this.state = ConnectionState.AUTHENTICATED;
+
+        // Send success response
+        Message response = new Message();
+        response.setType(Message.Type.SUCCESS);
+        response.putInBody("message", "Authentication successful");
+        response.putInBody("username", username);
+        sendMessage(response);
     }
 
     private void handlePing(Message message) {
@@ -202,7 +242,7 @@ public class PlayerConnection {
     public void disconnect() {
         this.state = ConnectionState.DISCONNECTED;
 
-        // Don't immediately remove from game session - let the delayed removal handle it
+        // we don't immediately remove from game session - let the delayed removal handle it
         // This allows for reconnection without losing game state
         // System.out.println("Player " + username + " marked as disconnected (allowing reconnection)");
 

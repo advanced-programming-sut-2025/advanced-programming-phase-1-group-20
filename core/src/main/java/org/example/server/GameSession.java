@@ -39,6 +39,26 @@ public class GameSession {
     private Weather lastBroadcastedWeather; // Track last broadcasted weather to avoid duplicate broadcasts
     private Random animalAiRandom = new Random();
     private final ChatManager chatManager; // Add ChatManager reference
+    // Debug/testing: per-player additional completed quest offset for scoreboard
+    private final Map<String, Integer> debugCompletedOffset = new ConcurrentHashMap<>();
+    // Voting system
+    private ActiveVote activeVote;
+
+    private static class ActiveVote {
+        enum VoteType { KICK, TERMINATE }
+
+        final VoteType voteType;
+        final String startedBy;
+        final String targetPlayer; // only for KICK
+        final Map<String, Boolean> votes = new ConcurrentHashMap<>();
+        final long startedAtMs = System.currentTimeMillis();
+
+        ActiveVote(VoteType voteType, String startedBy, String targetPlayer) {
+            this.voteType = voteType;
+            this.startedBy = startedBy;
+            this.targetPlayer = targetPlayer;
+        }
+    }
 
     public GameSession(User creator, MessageHandler messageHandler) {
         try {
@@ -208,15 +228,25 @@ public class GameSession {
     }
 
     public void processMessage(String username, Message message) {
-        // Allow SELECT_FARM messages even if game is not fully active (during farm selection phase)
-        if (!isActive && message.getType() != Message.Type.START_GAME && message.getType() != Message.Type.SELECT_FARM) {
-            System.out.println("🔍 GameSession: Message rejected - game not active and not allowed message type");
-            return; // Only allow start game and farm selection messages before game is active
+        // Allow SELECT_FARM and RADIO messages even if game is not fully active (during farm selection phase)
+        if (!isActive &&
+            message.getType() != Message.Type.START_GAME &&
+            message.getType() != Message.Type.SELECT_FARM &&
+            message.getType() != Message.Type.RADIO_TRACK_UPDATE &&
+            message.getType() != Message.Type.RADIO_TRACK_UPLOAD &&
+            message.getType() != Message.Type.RADIO_CONNECT_REQUEST &&
+            message.getType() != Message.Type.RADIO_CONNECT_RESPONSE &&
+            message.getType() != Message.Type.RADIO_DISCONNECT) {
+            System.out.println("**SERVER REJECT** type=" + message.getType() + " from=" + username + " (game not active)");
+            return; // Only allow start game, farm selection, and radio messages before game is active
         }
 
         switch (message.getType()) {
             case PLAYER_MOVE:
                 handlePlayerMove(username, message);
+                break;
+            case PLAYER_DEBUG_UPDATE:
+                handlePlayerDebugUpdate(username, message);
                 break;
             case MARKET_BUY:
                 handleMarketBuy(username, message);
@@ -234,12 +264,19 @@ public class GameSession {
                 handleChat(username, message);
                 break;
             case TRADE_REQUEST:
+                System.out.println("**SERVER RECV** TRADE_REQUEST from=" + username + " body=" + gson.toJson(message.getBody()));
                 handleTradeRequest(username, message);
                 break;
+            case TRADE_RESPONSE:
+                System.out.println("**SERVER RECV** TRADE_RESPONSE from=" + username + " body=" + gson.toJson(message.getBody()));
+                handleTradeResponse(username, message);
+                break;
             case TRADE_ACCEPT:
+                System.out.println("**SERVER RECV** TRADE_ACCEPT from=" + username + " body=" + gson.toJson(message.getBody()));
                 handleTradeAccept(username, message);
                 break;
             case TRADE_DECLINE:
+                System.out.println("**SERVER RECV** TRADE_DECLINE from=" + username + " body=" + gson.toJson(message.getBody()));
                 handleTradeDecline(username, message);
                 break;
             case SELECT_FARM:
@@ -251,14 +288,132 @@ public class GameSession {
             case REACTION_SEND:
                 handleReactionSend(username, message);
                 break;
+            case VOTE_START:
+                handleVoteStart(username, message);
+                break;
+            case VOTE_CAST:
+                handleVoteCast(username, message);
+                break;
             case TAKE_QUEST:
                 System.out.println("🔍 GameSession: Handling TAKE_QUEST message");
                 handleTakeQuest(username, message);
                 break;
             case COOP_QUEST_JOIN:
                 handleCoOpTakeQuest(username, message);
+                break;
+            // =====================
+            // Radio system messages
+            // =====================
+            case RADIO_TRACK_UPDATE:
+                handleRadioTrackUpdate(username, message);
+                break;
+            case RADIO_TRACK_UPLOAD:
+                handleRadioTrackUpload(username, message);
+                break;
+            case RADIO_CONNECT_REQUEST:
+                handleRadioConnectRequest(username, message);
+                break;
+            case RADIO_CONNECT_RESPONSE:
+                handleRadioConnectResponse(username, message);
+                break;
+            case RADIO_DISCONNECT:
+                handleRadioDisconnect(username, message);
+                break;
             default:
                 System.out.println("Unhandled message type: " + message.getType());
+        }
+    }
+
+    // =====================
+    // Radio system handlers
+    // =====================
+    private void handleRadioTrackUpdate(String username, Message message) {
+        try {
+            // Ensure the sender username is present for clients to filter on
+            message.putInBody("playerName", username);
+            System.out.println("**SERVER RADIO RECV** RADIO_TRACK_UPDATE from=" + username +
+                " trackName=" + message.getFromBody("trackName") +
+                " path=" + message.getFromBody("trackPath"));
+            // Broadcast to all players; clients will only play if connected to this user
+            broadcastToAll(message);
+        } catch (Exception e) {
+            System.err.println("**SERVER RADIO ERR** handleRadioTrackUpdate: " + e.getMessage());
+        }
+    }
+
+    private void handleRadioTrackUpload(String username, Message message) {
+        try {
+            message.putInBody("playerName", username);
+            System.out.println("**SERVER RADIO RECV** RADIO_TRACK_UPLOAD from=" + username +
+                " trackName=" + message.getFromBody("trackName") +
+                " path=" + message.getFromBody("trackPath"));
+            // Broadcast so others can add to their playlists if desired
+            broadcastToAll(message);
+        } catch (Exception e) {
+            System.err.println("**SERVER RADIO ERR** handleRadioTrackUpload: " + e.getMessage());
+        }
+    }
+
+    private void handleRadioConnectRequest(String username, Message message) {
+        try {
+            String targetPlayer = message.getFromBody("targetPlayer");
+            if (targetPlayer == null) {
+                System.out.println("**SERVER RADIO WARN** CONNECT_REQUEST missing target from=" + username);
+                return;
+            }
+            PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+            if (targetConnection == null) {
+                System.out.println("**SERVER RADIO WARN** CONNECT_REQUEST target not in session target=" + targetPlayer + " from=" + username);
+                return;
+            }
+            // Normalize body
+            message.putInBody("requestingPlayer", username);
+            System.out.println("**SERVER RADIO FWD** CONNECT_REQUEST from=" + username + " -> to=" + targetPlayer);
+            targetConnection.sendMessage(message);
+        } catch (Exception e) {
+            System.err.println("**SERVER RADIO ERR** handleRadioConnectRequest: " + e.getMessage());
+        }
+    }
+
+    private void handleRadioConnectResponse(String username, Message message) {
+        try {
+            String targetPlayer = message.getFromBody("targetPlayer"); // this is the original requester
+            if (targetPlayer == null) {
+                System.out.println("**SERVER RADIO WARN** CONNECT_RESPONSE missing target from=" + username);
+                return;
+            }
+            PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+            if (targetConnection == null) {
+                System.out.println("**SERVER RADIO WARN** CONNECT_RESPONSE target not in session target=" + targetPlayer + " from=" + username);
+                return;
+            }
+            // Normalize body
+            message.putInBody("respondingPlayer", username);
+            System.out.println("**SERVER RADIO FWD** CONNECT_RESPONSE from=" + username + " -> to=" + targetPlayer +
+                " accepted=" + message.getFromBody("accepted"));
+            targetConnection.sendMessage(message);
+        } catch (Exception e) {
+            System.err.println("**SERVER RADIO ERR** handleRadioConnectResponse: " + e.getMessage());
+        }
+    }
+
+    private void handleRadioDisconnect(String username, Message message) {
+        try {
+            String targetPlayer = message.getFromBody("targetPlayer");
+            if (targetPlayer == null) {
+                System.out.println("**SERVER RADIO WARN** DISCONNECT missing target from=" + username);
+                return;
+            }
+            PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+            if (targetConnection == null) {
+                System.out.println("**SERVER RADIO WARN** DISCONNECT target not in session target=" + targetPlayer + " from=" + username);
+                return;
+            }
+            message.putInBody("disconnectingPlayer", username);
+            System.out.println("**SERVER RADIO FWD** DISCONNECT from=" + username + " -> to=" + targetPlayer);
+            targetConnection.sendMessage(message);
+        } catch (Exception e) {
+            System.err.println("**SERVER RADIO ERR** handleRadioDisconnect: " + e.getMessage());
         }
     }
 
@@ -559,6 +714,30 @@ public class GameSession {
                 playerInfo.put("currentTool", toolInfo);
             }
 
+            // Enriched scoreboard fields
+            int totalSkillLevel = 0;
+            if (p.getSkills() != null) {
+                for (Skill s : p.getSkills()) {
+                    if (s != null) totalSkillLevel += Math.max(0, s.getLevel());
+                }
+            }
+            playerInfo.put("totalSkillLevel", totalSkillLevel);
+
+            int completedCount = 0;
+            try {
+                QuestManager qm = QuestManager.getInstance();
+                java.util.List<org.example.common.models.entities.Quest> all = qm.getAllQuestsForPlayer(p);
+                for (org.example.common.models.entities.Quest q : all) {
+                    if (q != null && q.isCompleted()) completedCount++;
+                }
+            } catch (Exception ignored) {}
+            int offset = debugCompletedOffset.getOrDefault(p.getUser().getUsername(), 0);
+            playerInfo.put("completedQuests", Math.max(0, completedCount + offset));
+            if (offset != 0) {
+                System.out.println("##[SB][SERVER][COMPLETED] user=" + p.getUser().getUsername() +
+                    " base=" + completedCount + " offset=" + offset + " total=" + (completedCount + offset));
+            }
+
             allPlayersData.put(p.getUser().getUsername(), playerInfo);
         }
 
@@ -617,13 +796,47 @@ public class GameSession {
     }
 
     private void handleTradeRequest(String username, Message message) {
-        String targetPlayer = message.getFromBody("targetPlayer");
+        // Accept both keys: "toPlayer" (preferred) and legacy "targetPlayer"
+        String toPlayer = message.getFromBody("toPlayer");
+        if (toPlayer == null) {
+            toPlayer = message.getFromBody("targetPlayer");
+        }
 
-        // Send trade request to specific player
-        PlayerConnection targetConnection = playerConnections.get(targetPlayer);
+        if (toPlayer == null) {
+            System.out.println("**SERVER WARN** TRADE_REQUEST missing toPlayer/targetPlayer from=" + username + " body=" + gson.toJson(message.getBody()));
+            return;
+        }
+
+        // Route only to the intended recipient within this game session
+        if (!playerConnections.containsKey(toPlayer)) {
+            System.out.println("**SERVER WARN** TRADE_REQUEST target not in this session toPlayer=" + toPlayer + " from=" + username);
+            return;
+        }
+
+        message.putInBody("fromPlayer", username);
+        message.putInBody("toPlayer", toPlayer);
+        PlayerConnection targetConnection = playerConnections.get(toPlayer);
         if (targetConnection != null) {
-            message.putInBody("fromPlayer", username);
             targetConnection.sendMessage(message);
+            System.out.println("**SERVER FWD** TRADE_REQUEST from=" + username + " -> to=" + toPlayer);
+            // Also broadcast a trade history entry to all players
+            try {
+                Message hist = new Message();
+                hist.setType(Message.Type.TRADE_HISTORY);
+                hist.putInBody("status", "PENDING");
+                hist.putInBody("from", username);
+                hist.putInBody("to", toPlayer);
+                hist.putInBody("item", message.getFromBody("item"));
+                Object qObj = message.getFromBody("quantity");
+                Object pObj = message.getFromBody("price");
+                if (qObj instanceof Double) hist.putInBody("quantity", ((Double) qObj).intValue()); else hist.putInBody("quantity", qObj);
+                if (pObj instanceof Double) hist.putInBody("price", ((Double) pObj).intValue()); else hist.putInBody("price", pObj);
+                hist.putInBody("timestamp", System.currentTimeMillis());
+                System.out.println("**SERVER BROADCAST** TRADE_HISTORY PENDING from=" + username + " to=" + toPlayer +
+                    " item=" + message.getFromBody("item") + " qty=" + message.getFromBody("quantity") +
+                    " price=" + message.getFromBody("price"));
+                broadcastToAll(hist);
+            } catch (Exception ignored) {}
         }
     }
 
@@ -636,6 +849,9 @@ public class GameSession {
         if (targetConnection != null) {
             message.putInBody("fromPlayer", username);
             targetConnection.sendMessage(message);
+            System.out.println("**SERVER FWD** TRADE_ACCEPT from=" + username + " -> to=" + targetPlayer);
+        } else {
+            System.out.println("**SERVER WARN** TRADE_ACCEPT target not connected toPlayer=" + targetPlayer + " from=" + username);
         }
     }
 
@@ -647,6 +863,216 @@ public class GameSession {
         if (targetConnection != null) {
             message.putInBody("fromPlayer", username);
             targetConnection.sendMessage(message);
+            System.out.println("**SERVER FWD** TRADE_DECLINE from=" + username + " -> to=" + targetPlayer);
+        } else {
+            System.out.println("**SERVER WARN** TRADE_DECLINE target not connected toPlayer=" + targetPlayer + " from=" + username);
+        }
+    }
+
+    private void handleTradeResponse(String username, Message message) {
+        // Forward accept/reject notification to the other party and optionally notify initiator
+        String toPlayer = message.getFromBody("toPlayer");
+        Boolean accepted = message.getFromBody("accepted");
+
+        if (toPlayer == null || accepted == null) {
+            System.out.println("**SERVER WARN** TRADE_RESPONSE missing fields from=" + username + " body=" + gson.toJson(message.getBody()));
+            return;
+        }
+
+        // Ensure consistent body
+        message.putInBody("fromPlayer", username);
+        message.putInBody("toPlayer", toPlayer);
+
+        PlayerConnection targetConnection = playerConnections.get(toPlayer);
+        if (targetConnection != null) {
+            targetConnection.sendMessage(message);
+            System.out.println("**SERVER FWD** TRADE_RESPONSE from=" + username + " -> to=" + toPlayer + " accepted=" + accepted);
+            // If accepted, apply an inventory update broadcast so both clients have consistent state
+            if (Boolean.TRUE.equals(accepted)) {
+                try {
+                    // Broadcast authoritative players data so inventories get reflected
+                    broadcastPlayerDataUpdate();
+                } catch (Exception ignored) {}
+            }
+            // Broadcast a trade history update to all players
+            try {
+                Message hist = new Message();
+                hist.setType(Message.Type.TRADE_HISTORY);
+                hist.putInBody("status", accepted ? "ACCEPTED" : "REJECTED");
+                hist.putInBody("from", username);
+                hist.putInBody("to", toPlayer);
+                hist.putInBody("timestamp", System.currentTimeMillis());
+                System.out.println("**SERVER BROADCAST** TRADE_HISTORY status=" + (accepted ? "ACCEPTED" : "REJECTED") +
+                    " from=" + username + " to=" + toPlayer);
+                broadcastToAll(hist);
+            } catch (Exception ignored) {}
+        } else {
+            System.out.println("**SERVER WARN** TRADE_RESPONSE target not connected toPlayer=" + toPlayer + " from=" + username);
+        }
+    }
+
+    private synchronized void handleVoteStart(String username, Message message) {
+        if (!isActive) return;
+        if (activeVote != null) {
+            sendErrorMessage(username, "Another vote is already in progress");
+            return;
+        }
+
+        String voteKind = message.getFromBody("voteType");
+        String target = message.getFromBody("target");
+
+        ActiveVote.VoteType type;
+        if ("KICK".equalsIgnoreCase(voteKind)) {
+            if (target == null || !playerConnections.containsKey(target)) {
+                sendErrorMessage(username, "Invalid target for kick vote");
+                return;
+            }
+            type = ActiveVote.VoteType.KICK;
+        } else if ("TERMINATE".equalsIgnoreCase(voteKind)) {
+            type = ActiveVote.VoteType.TERMINATE;
+        } else {
+            sendErrorMessage(username, "Unknown vote type");
+            return;
+        }
+
+        activeVote = new ActiveVote(type, username, type == ActiveVote.VoteType.KICK ? target : null);
+        // Initialize votes to null (not voted)
+        for (String user : playerConnections.keySet()) {
+            activeVote.votes.put(user, null);
+        }
+        // Starter auto-votes yes
+        activeVote.votes.put(username, true);
+
+        broadcastVoteStatus();
+    }
+
+    private synchronized void handleVoteCast(String username, Message message) {
+        if (!isActive || activeVote == null) return;
+        Boolean vote = message.getFromBody("vote");
+        if (vote == null) return;
+        if (!activeVote.votes.containsKey(username)) return;
+
+        activeVote.votes.put(username, vote);
+        broadcastVoteStatus();
+
+        // Check if vote concluded (all voted) or majority achieved
+        evaluateActiveVoteOutcome();
+    }
+
+    private void broadcastVoteStatus() {
+        if (activeVote == null) return;
+        int total = activeVote.votes.size();
+        int yes = (int) activeVote.votes.values().stream().filter(Boolean.TRUE::equals).count();
+        int no = (int) activeVote.votes.values().stream().filter(Boolean.FALSE::equals).count();
+        int pending = total - yes - no;
+
+        Message status = new Message();
+        status.setType(Message.Type.VOTE_STATUS);
+        status.putInBody("voteType", activeVote.voteType.toString());
+        status.putInBody("startedBy", activeVote.startedBy);
+        status.putInBody("target", activeVote.targetPlayer);
+        status.putInBody("yes", yes);
+        status.putInBody("no", no);
+        status.putInBody("pending", pending);
+        status.putInBody("total", total);
+        status.putInBody("startedAt", activeVote.startedAtMs);
+        broadcastToAll(status);
+    }
+
+    private synchronized void evaluateActiveVoteOutcome() {
+        if (activeVote == null) return;
+
+        int total = activeVote.votes.size();
+        int yes = (int) activeVote.votes.values().stream().filter(Boolean.TRUE::equals).count();
+        int no = (int) activeVote.votes.values().stream().filter(Boolean.FALSE::equals).count();
+        int pending = total - yes - no;
+
+        boolean concluded = pending == 0;
+
+        // Rule: simple majority of current players to pass (yes > total/2)
+        boolean passed = yes > total / 2;
+
+        if (concluded || passed) {
+            // Broadcast result
+            Message result = new Message();
+            result.setType(Message.Type.VOTE_RESULT);
+            result.putInBody("voteType", activeVote.voteType.toString());
+            result.putInBody("target", activeVote.targetPlayer);
+            result.putInBody("passed", passed);
+            result.putInBody("yes", yes);
+            result.putInBody("no", no);
+            result.putInBody("total", total);
+            broadcastToAll(result);
+
+            if (passed) {
+                if (activeVote.voteType == ActiveVote.VoteType.KICK && activeVote.targetPlayer != null) {
+                    // Kick target player from session
+                    removePlayer(activeVote.targetPlayer);
+                } else if (activeVote.voteType == ActiveVote.VoteType.TERMINATE) {
+                    // Terminate game for all
+                    stopSession();
+                }
+            }
+
+            // Clear active vote
+            activeVote = null;
+        }
+    }
+
+    private void handlePlayerDebugUpdate(String username, Message message) {
+        try {
+            System.out.println("##[SB][SERVER][RECV_DEBUG] user=" + username +
+                " moneyDelta=" + message.getFromBody("moneyDelta") +
+                " skillKeys=" + (message.getFromBody("skillUnitsDelta") != null ? ((java.util.Map<?,?>)message.getFromBody("skillUnitsDelta")).keySet() : "[]"));
+            Player p = App.getGame().getPlayerByUsername(username);
+            if (p == null) return;
+
+            Object moneyObj = message.getFromBody("moneyDelta");
+            if (moneyObj instanceof Double) {
+                int delta = ((Double) moneyObj).intValue();
+                if (delta > 0) p.increaseMoney(delta); else p.decreaseMoney(-delta);
+            }
+
+            // Optional: skillUnitsDelta map: { skillName: unitsToAdd }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> skillDelta = message.getFromBody("skillUnitsDelta");
+            if (skillDelta != null && p.getSkills() != null) {
+                for (org.example.common.models.Player.Skill s : p.getSkills()) {
+                    if (s == null || s.getName() == null) continue;
+                    Object v = skillDelta.get(s.getName());
+                    if (v instanceof Double) {
+                        s.addUnits(((Double) v).intValue());
+                    } else if (v instanceof Integer) {
+                        s.addUnits((Integer) v);
+                    }
+                }
+                StringBuilder levels = new StringBuilder();
+                for (org.example.common.models.Player.Skill s : p.getSkills()) {
+                    if (s != null && s.getName() != null) {
+                        if (levels.length() > 0) levels.append(", ");
+                        levels.append(s.getName()).append("=").append(s.getLevel());
+                    }
+                }
+                System.out.println("##[SB][SERVER][SKILL_LEVELS] user=" + username + " " + levels);
+            }
+
+            // Completed quests debug offset
+            Object compObj = message.getFromBody("completedDelta");
+            if (compObj instanceof Double) {
+                int addCompleted = ((Double) compObj).intValue();
+                debugCompletedOffset.merge(username, addCompleted, Integer::sum);
+            } else if (compObj instanceof Integer) {
+                debugCompletedOffset.merge(username, (Integer) compObj, Integer::sum);
+            }
+
+            System.out.println("##[SB][SERVER][APPLY_DEBUG] user=" + username +
+                " newMoney=" + p.getMoney());
+
+            // Broadcast authoritative player data to all clients
+            broadcastPlayerDataUpdate();
+            System.out.println("##[SB][SERVER][BROADCAST] type=PLAYER_DATA_UPDATE players=" + App.getGame().getPlayers().size());
+        } catch (Exception e) {
+            System.err.println("handlePlayerDebugUpdate error: " + e.getMessage());
         }
     }
 

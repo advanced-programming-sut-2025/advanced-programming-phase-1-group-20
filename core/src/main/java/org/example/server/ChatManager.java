@@ -62,6 +62,8 @@ public class ChatManager {
     }
     
     public void handlePublicChat(String sender, String content) {
+        long now = System.currentTimeMillis();
+        System.out.println("**[CHAT][PUBLIC][SERVER][RECV] sender=" + sender + " content=\"" + content + "\" time=" + now + "**");
         ChatMessage message = new ChatMessage(sender, content, ChatMessage.ChatType.PUBLIC);
         publicChatHistory.add(message);
         
@@ -72,11 +74,14 @@ public class ChatManager {
         
         // Send to all online players
         broadcastMessage(message);
+        System.out.println("**[CHAT][PUBLIC][SERVER][BROADCAST] recipients=" + playerConnections.size() + "**");
         
         // System.out.println("[PUBLIC CHAT] " + sender + ": " + content);
     }
     
     public void handlePrivateChat(String sender, String recipient, String content) {
+        long now = System.currentTimeMillis();
+        System.out.println("**[CHAT][PRIVATE][SERVER][RECV] sender=" + sender + " recipient=" + recipient + " content=\"" + content + "\" time=" + now + "**");
         ChatMessage message = new ChatMessage(sender, content, ChatMessage.ChatType.PRIVATE, recipient);
         
         // Store in private chat history
@@ -89,17 +94,28 @@ public class ChatManager {
             history.remove(0);
         }
         
-        // Send to recipient
+        // Build lightweight network payload
+        Message networkMessage = new Message();
+        networkMessage.setType(Message.Type.CHAT_PRIVATE);
+        networkMessage.putInBody("sender", sender);
+        networkMessage.putInBody("recipient", recipient);
+        networkMessage.putInBody("content", content);
+        networkMessage.putInBody("timestamp", System.currentTimeMillis());
+
+        // Send to recipient only
         PlayerConnection recipientConnection = playerConnections.get(recipient);
         if (recipientConnection != null) {
-            messageHandler.sendPrivateMessage(recipientConnection, message);
+            recipientConnection.sendMessage(networkMessage);
+        } else {
+            System.out.println("**[CHAT][PRIVATE][SERVER][WARN] recipient_not_connected recipient=" + recipient + "**");
         }
-        
-        // Send back to sender for confirmation
+
+        // Also echo to sender so they see their own DM
         PlayerConnection senderConnection = playerConnections.get(sender);
         if (senderConnection != null) {
-            messageHandler.sendPrivateMessage(senderConnection, message);
+            senderConnection.sendMessage(networkMessage);
         }
+        System.out.println("**[CHAT][PRIVATE][SERVER][SEND] to=" + recipient + " delivered=" + (recipientConnection != null) + " echoToSender=" + (senderConnection != null) + "**");
         
         // System.out.println("[PRIVATE CHAT] " + sender + " -> " + recipient + ": " + content);
     }
@@ -209,12 +225,11 @@ public class ChatManager {
     
     private void broadcastMessage(ChatMessage message) {
         Message networkMessage = new Message();
-        networkMessage.setType(Message.Type.CHAT);
+        networkMessage.setType(Message.Type.CHAT_PUBLIC);
         networkMessage.putInBody("sender", message.getSender());
         networkMessage.putInBody("content", message.getContent());
         networkMessage.putInBody("timestamp", System.currentTimeMillis());
-        networkMessage.putInBody("type", message.getType().toString());
-        
+
         for (PlayerConnection connection : playerConnections.values()) {
             connection.sendMessage(networkMessage);
         }

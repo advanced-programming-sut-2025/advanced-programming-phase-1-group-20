@@ -227,8 +227,8 @@ public class NPCInteractionScreen implements Screen {
     }
 
     private void openGiftMenu() {
-        // TODO: Implement gift menu
-        System.out.println("Gift menu not implemented yet");
+        NPCGiftInventoryScreen giftInventoryScreen = new NPCGiftInventoryScreen(player, skin, this, npc);
+        Main.getGame().setScreen(giftInventoryScreen);
     }
 
     private void openQuestsMenu() {

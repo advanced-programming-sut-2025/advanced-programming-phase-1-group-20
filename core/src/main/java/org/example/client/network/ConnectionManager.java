@@ -247,9 +247,10 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
     // ChatMessageListener implementation
     @Override
-    public void onChatMessage(String sender, String message, long timestamp) {
-        System.out.println("[CHAT] " + sender + ": " + message);
-        // Here you would typically update the UI to show the chat message
+    public void onChatMessage(String sender, String message, long timestamp, String type, String recipient) {
+        System.out.println("[CHAT]" + (type != null ? ("[" + type + "] ") : " ") + sender +
+            (recipient != null ? (" -> " + recipient) : "") + ": " + message);
+        // Hook for UI update
     }
 
     // TradeRequestListener implementation
@@ -294,13 +295,13 @@ public class ConnectionManager implements ConnectionStatusListener, ChatMessageL
 
     public boolean isConnected() {
         return currentState == ConnectionState.CONNECTED ||
-               currentState == ConnectionState.AUTHENTICATED ||
-               currentState == ConnectionState.IN_GAME;
+            currentState == ConnectionState.AUTHENTICATED ||
+            currentState == ConnectionState.IN_GAME;
     }
 
     public boolean isAuthenticated() {
         return currentState == ConnectionState.AUTHENTICATED ||
-               currentState == ConnectionState.IN_GAME;
+            currentState == ConnectionState.IN_GAME;
     }
 
     public boolean isInGame() {

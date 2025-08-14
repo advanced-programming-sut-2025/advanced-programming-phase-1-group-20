@@ -180,6 +180,8 @@ public class GameView implements Screen, InputProcessor {
     private TextButton chatButton;
     private ReactionPopup reactionPopup;
     private ReactionDisplay reactionDisplay;
+    // Voting system
+    private TextButton voteButton;
 
     // Vertical energy bars for all players
     private static final int VERTICAL_ENERGY_BAR_WIDTH = 25;
@@ -592,6 +594,7 @@ public class GameView implements Screen, InputProcessor {
         tradingButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                System.out.println("**CLIENT UI** Click: Trading button in GameView");
                 openTradingMenu();
             }
         });
@@ -632,6 +635,16 @@ public class GameView implements Screen, InputProcessor {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 openChatSystem();
+            }
+        });
+
+        // Scoreboard button will be added to stage in show()
+        // Initialize vote button
+        voteButton = new TextButton("Vote", skin);
+        voteButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                openVoteMenu();
             }
         });
 
@@ -682,13 +695,35 @@ public class GameView implements Screen, InputProcessor {
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
             if (networkClient != null) {
-                ChatScreen chatScreen = new ChatScreen(Main.getGame(), networkClient);
+                ChatScreen chatScreen = new ChatScreen(Main.getGame(), networkClient, this);
                 Main.getGame().setScreen(chatScreen);
             } else {
                 System.err.println("Network client not available for chat");
             }
         } catch (Exception e) {
             System.err.println("Error opening chat system: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openScoreboard() {
+        try {
+            Skin s = this.skin != null ? this.skin : org.example.utils.AssetManager.getAssetManager().getSkin();
+            ScoreboardScreen screen = new ScoreboardScreen(this, s);
+            Main.getGame().setScreen(screen);
+        } catch (Exception e) {
+            System.err.println("Error opening scoreboard: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void openVoteMenu() {
+        try {
+            Skin s = this.skin != null ? this.skin : org.example.utils.AssetManager.getAssetManager().getSkin();
+            VoteMenuScreen screen = new VoteMenuScreen(this, s);
+            Main.getGame().setScreen(screen);
+        } catch (Exception e) {
+            System.err.println("Error opening vote menu: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -742,10 +777,12 @@ public class GameView implements Screen, InputProcessor {
             // Prefer the network-enabled trading screen if networking is available
             NetworkClient nc = NetworkClient.getInstance();
             if (nc != null && nc.getMessageHandler() != null) {
+                System.out.println("**CLIENT UI** openTradingMenu() -> NetworkTradingScreen");
                 NetworkTradingScreen tradingView = new NetworkTradingScreen(skin, this);
                 Main.getGame().setScreen(tradingView);
             } else {
                 // Fallback to local trading menu
+                System.out.println("**CLIENT UI** openTradingMenu() -> TradingMenuView (local)");
                 TradingMenuController controller = new TradingMenuController(player);
                 TradingMenuView tradingView = new TradingMenuView(controller, skin, this);
                 Main.getGame().setScreen(tradingView);
@@ -881,6 +918,66 @@ public class GameView implements Screen, InputProcessor {
         }
         if (keycode == Input.Keys.R) {
             showPlayerApproximationDialog();
+            return true;
+        }
+        if (keycode == Input.Keys.Y) {
+            // Developer/testing shortcut: request server to randomize this player's stats
+            try {
+                Player me = App.getGame() != null ? App.getGame().getCurrentPlayer() : null;
+                if (me != null) {
+                    java.util.Random rnd = new java.util.Random();
+                    int add = 100 + rnd.nextInt(4901); // 100..5000
+                    System.out.println("##[SB][CLIENT][SEND_DEBUG] key=Y user=" + (me.getUser() != null ? me.getUser().getUsername() : "?") +
+                        " moneyDelta=" + add);
+                    org.example.common.models.Message m = new org.example.common.models.Message();
+                    m.setType(org.example.common.models.Message.Type.PLAYER_DEBUG_UPDATE);
+                    m.putInBody("moneyDelta", add);
+                    // Prepare random skill units delta and completed quests delta
+                    java.util.Map<String, Object> deltas = new java.util.HashMap<>();
+                    if (me.getSkills() != null) {
+                        for (org.example.common.models.Player.Skill s : me.getSkills()) {
+                            if (s != null && s.getName() != null) {
+                                deltas.put(s.getName(), 50 + rnd.nextInt(151)); // +50..200 units
+                            }
+                        }
+                    }
+                    m.putInBody("skillUnitsDelta", deltas);
+                    m.putInBody("completedDelta", 1 + rnd.nextInt(3)); // +1..2 completed quests
+                    NetworkClient.getInstance().sendMessage(m);
+                    NetworkClient.getInstance().sendPublicChatMessage("[DEV] Requested server stat bump: +" + add + " coins");
+                }
+            } catch (Exception ignored) { }
+            return true;
+        }
+        if (keycode == Input.Keys.U) {
+            // Developer/testing: request server to randomize only me with smaller deltas multiple times
+            try {
+                Player me = App.getGame() != null ? App.getGame().getCurrentPlayer() : null;
+                if (me != null) {
+                    java.util.Random rnd = new java.util.Random();
+                    int bursts = 3;
+                    for (int i = 0; i < bursts; i++) {
+                        int add = 50 + rnd.nextInt(951); // 50..1000
+                        System.out.println("##[SB][CLIENT][SEND_DEBUG] key=U burst=" + (i+1) + " user=" + (me.getUser() != null ? me.getUser().getUsername() : "?") +
+                            " moneyDelta=" + add);
+                        org.example.common.models.Message m = new org.example.common.models.Message();
+                        m.setType(org.example.common.models.Message.Type.PLAYER_DEBUG_UPDATE);
+                        m.putInBody("moneyDelta", add);
+                        java.util.Map<String, Object> deltas = new java.util.HashMap<>();
+                        if (me.getSkills() != null) {
+                            for (org.example.common.models.Player.Skill s : me.getSkills()) {
+                                if (s != null && s.getName() != null) {
+                                    deltas.put(s.getName(), 20 + rnd.nextInt(81)); // +20..100 units
+                                }
+                            }
+                        }
+                        m.putInBody("skillUnitsDelta", deltas);
+                        m.putInBody("completedDelta", rnd.nextInt(2)); // +0..1
+                        NetworkClient.getInstance().sendMessage(m);
+                    }
+                    NetworkClient.getInstance().sendPublicChatMessage("[DEV] Requested server multi stat bumps");
+                }
+            } catch (Exception ignored) { }
             return true;
         }
         if (keycode == Input.Keys.T) {
@@ -1308,9 +1405,9 @@ public class GameView implements Screen, InputProcessor {
         for (Player otherPlayer : game.getPlayers()) {
             // Render other players if they are in the same area as the current player
             boolean shouldRender = otherPlayer != null &&
-                                 otherPlayer != player &&
-                                 otherPlayer.getUser() != null &&
-                                 arePlayersAdjacent(player, otherPlayer);
+                otherPlayer != player &&
+                otherPlayer.getUser() != null &&
+                arePlayersAdjacent(player, otherPlayer);
 
             if (shouldRender) {
                 renderPlayerSprite(otherPlayer);
@@ -1358,7 +1455,7 @@ public class GameView implements Screen, InputProcessor {
                 // Collapsed animation
                 spritePath = "sprites/player/collapse_2.png"; // Use final collapsed frame
             } else if (animationType != null && (animationType.equals("up") || animationType.equals("down") ||
-                       animationType.equals("left") || animationType.equals("right"))) {
+                animationType.equals("left") || animationType.equals("right"))) {
                 // Walking animation - use frame 1 for static display
                 spritePath = String.format("sprites/player/%s_1.png", animationType);
             } else {
@@ -1466,6 +1563,34 @@ public class GameView implements Screen, InputProcessor {
             stage.addActor(chatTable);
         }
 
+        // Add scoreboard button under the chat button
+        try {
+            TextButton scoreboardButton = new TextButton("Scoreboard", skin);
+            scoreboardButton.addListener(new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    openScoreboard();
+                }
+            });
+            Table scoreboardTable = new Table();
+            scoreboardTable.setFillParent(true);
+            scoreboardTable.top().left();
+            scoreboardTable.add(scoreboardButton).width(120).height(40).padTop(220).padLeft(20); // Positioned under chat button
+            stage.addActor(scoreboardTable);
+        } catch (Exception e) {
+            System.err.println("Error creating scoreboard button: " + e.getMessage());
+        }
+
+        // Add vote button under the scoreboard button
+        try {
+            Table voteTable = new Table();
+            voteTable.setFillParent(true);
+            voteTable.top().left();
+            voteTable.add(voteButton).width(120).height(40).padTop(270).padLeft(20); // Positioned under scoreboard
+            stage.addActor(voteTable);
+        } catch (Exception e) {
+            System.err.println("Error creating vote button: " + e.getMessage());
+        }
         // Register trade request listener to show in-game notifications
         try {
             NetworkClient networkClient = NetworkClient.getInstance();
@@ -1475,13 +1600,14 @@ public class GameView implements Screen, InputProcessor {
                     public void onTradeRequest(String fromPlayer, String toPlayer, String item, int quantity) {
                         String currentUsername = player != null && player.getUser() != null ? player.getUser().getUsername() : null;
                         if (currentUsername != null && currentUsername.equals(toPlayer)) {
+                            System.out.println("**CLIENT UI** onTradeRequest notify current=" + currentUsername + " from=" + fromPlayer + " item=" + item + " qty=" + quantity);
                             Gdx.app.postRunnable(() -> showTradeRequestNotification(fromPlayer, item, quantity));
                         }
                     }
 
                     @Override
                     public void onTradeResponse(String fromPlayer, String toPlayer, boolean accepted) {
-                        // optional: could notify accept/reject
+                        System.out.println("**CLIENT UI** onTradeResponse from=" + fromPlayer + " to=" + toPlayer + " accepted=" + accepted);
                     }
                 });
             }
@@ -1507,7 +1633,9 @@ public class GameView implements Screen, InputProcessor {
             Table tradingTable = new Table();
             tradingTable.setFillParent(true);
             tradingTable.bottom().right();
-            tradingTable.add(tradingButton).width(100).height(40).pad(20);
+            TextButton wrappedTradingButton = tradingButton;
+            System.out.println("**CLIENT UI** Adding Trading button to stage");
+            tradingTable.add(wrappedTradingButton).width(100).height(40).pad(20);
             stage.addActor(tradingTable);
         }
 
@@ -1687,8 +1815,8 @@ public class GameView implements Screen, InputProcessor {
 //
                 // Render nicknames for other players if they are in the same area as the current player
                 boolean shouldRenderNickname = otherPlayer != player &&
-                                             otherPlayer.getUser() != null &&
-                                             arePlayersAdjacent(player, otherPlayer);
+                    otherPlayer.getUser() != null &&
+                    arePlayersAdjacent(player, otherPlayer);
 
                 if (shouldRenderNickname) {
                     controller.getPlayerController().renderNickname(Main.getBatch(), otherPlayer, currentLightColor);
@@ -2174,22 +2302,52 @@ public class GameView implements Screen, InputProcessor {
         }, delaySeconds);
     }
 
-    // Show a brief on-screen notification for incoming trade requests
+    // Show an actionable popup for incoming trade requests
     private void showTradeRequestNotification(String fromPlayer, String itemName, int quantity) {
         if (stage == null || skin == null) return;
 
-        String message = "New trade request from " + fromPlayer + ": " + itemName + " x" + quantity;
-        Label notificationLabel = new Label(message, skin);
-        notificationLabel.setColor(Color.CYAN);
-        notificationLabel.setFontScale(1.2f);
+        Dialog dialog = new Dialog("Trade Request", skin);
+        String message = fromPlayer + " offers: " + itemName + " x" + quantity + ". Accept?";
+        Label body = new Label(message, skin);
+        dialog.text(body);
 
-        float labelWidth = Math.max(300f, notificationLabel.getPrefWidth() + 20f);
-        float x = Math.round((Gdx.graphics.getWidth() - labelWidth) / 2f);
-        float y = Math.round(Gdx.graphics.getHeight() - 80f);
-        notificationLabel.setPosition(x, y);
+        TextButton acceptBtn = new TextButton("Accept", skin);
+        TextButton rejectBtn = new TextButton("Reject", skin);
+        dialog.getButtonTable().add(acceptBtn).pad(10);
+        dialog.getButtonTable().add(rejectBtn).pad(10);
 
-        stage.addActor(notificationLabel);
-        scheduleNotificationRemoval(notificationLabel, 3.5f);
+        acceptBtn.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                try {
+                    org.example.client.network.NetworkClient nc = org.example.client.network.NetworkClient.getInstance();
+                    org.example.client.network.ClientMessageHandler mh = nc != null ? nc.getMessageHandler() : null;
+                    String me = player != null && player.getUser() != null ? player.getUser().getUsername() : null;
+                    if (mh != null && me != null) {
+                        // Send accept response to the requester
+                        mh.sendTradeResponse(me, fromPlayer, true);
+                    }
+                } catch (Exception ignored) {}
+                dialog.hide();
+            }
+        });
+
+        rejectBtn.addListener(new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                try {
+                    org.example.client.network.NetworkClient nc = org.example.client.network.NetworkClient.getInstance();
+                    org.example.client.network.ClientMessageHandler mh = nc != null ? nc.getMessageHandler() : null;
+                    String me = player != null && player.getUser() != null ? player.getUser().getUsername() : null;
+                    if (mh != null && me != null) {
+                        mh.sendTradeResponse(me, fromPlayer, false);
+                    }
+                } catch (Exception ignored) {}
+                dialog.hide();
+            }
+        });
+
+        dialog.show(stage);
     }
 
     private void createLightingOverlayTexture() {

@@ -1022,44 +1022,40 @@ public class GameMenuController implements Controller {
     }
 
     public Result voteTerminate(String[] args) {
-        Player player = App.getGame().getCurrentPlayer();
-        GameMap gMap = App.getGame().getGameMap();
+        // Initiate a terminate vote and/or cast vote via network
+        org.example.client.network.NetworkClient net = org.example.client.network.NetworkClient.getInstance();
+        if (args != null && args.length > 0) {
+            String vote = args[0].toLowerCase();
+            if ("yes".equals(vote)) {
+                net.startVoteTerminate();
+                net.castVote(true);
+                return Result.success("Started terminate vote and cast YES.");
+            } else if ("no".equals(vote)) {
+                net.startVoteTerminate();
+                net.castVote(false);
+                return Result.success("Started terminate vote and cast NO.");
+            }
+        }
+        return Result.error("Usage: vote terminate <yes|no>");
+    }
 
+    public Result voteKick(String[] args) {
         if (args == null || args.length < 1) {
-            return Result.error("Vote (yes/no) not specified");
+            return Result.error("Usage: vote kick <username>");
         }
+        String target = args[0];
+        org.example.client.network.NetworkClient.getInstance().startVoteKick(target);
+        return Result.success("Started kick vote for " + target);
+    }
 
-        Game game = App.getGame();
-        if (game == null) {
-            return Result.error("No active game");
-        }
+    public Result voteYes() {
+        org.example.client.network.NetworkClient.getInstance().castVote(true);
+        return Result.success("Voted YES.");
+    }
 
-        if (game.isInFarmSelectionPhase()) {
-            return Result.error("Cannot vote during map selection phase");
-        }
-
-        String vote = args[0].toLowerCase();
-        boolean voteValue;
-
-        if (vote.equals("yes")) {
-            voteValue = true;
-        } else if (vote.equals("no")) {
-            voteValue = false;
-        } else {
-            return Result.error("Invalid vote. Please specify 'yes' or 'no'.");
-        }
-
-        game.voteToTerminate(player, voteValue);
-
-        // If all players voted to terminate, remove the game
-        if (game.allPlayersVotedToTerminate()) {
-            App.removeGame(game);
-            //TODO : change this
-//            appView.navigateMenu(new MainMenu(appView, player.getUser()));
-            return Result.success("All players voted to terminate the game. Game terminated.");
-        }
-
-        return Result.success("Vote recorded. Waiting for other players to vote.");
+    public Result voteNo() {
+        org.example.client.network.NetworkClient.getInstance().castVote(false);
+        return Result.success("Voted NO.");
     }
 
     public Result greenhouseBuild(Player player) {
@@ -1531,7 +1527,7 @@ public class GameMenuController implements Controller {
         }
     }
 
-    private Result meetNPC(String[] args) {
+    public Result meetNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
         GameMap gMap = App.getGame().getGameMap();
 
@@ -1594,7 +1590,7 @@ public class GameMenuController implements Controller {
         return npc;
     }
 
-    private Result giftNPC(String[] args) {
+    public Result giftNPC(String[] args) {
         Player player = App.getGame().getCurrentPlayer();
 
         if (args == null || args.length < 2) {
@@ -1670,7 +1666,7 @@ public class GameMenuController implements Controller {
             name.contains("scythe");
     }
 
-    private Result friendshipNPCList() {
+    public Result friendshipNPCList() {
         Player player = App.getGame().getCurrentPlayer();
 
         // Get the actual NPC friendships from the player
@@ -1722,7 +1718,7 @@ public class GameMenuController implements Controller {
 
                 result.append("   Requirements: ");
                 for (Map.Entry<Item, Integer> requirement :
-                        quest.getRequirements().entrySet()) {
+                    quest.getRequirements().entrySet()) {
                     result.append(requirement.getValue()).append(" ").append(requirement.getKey().getName()).append(", ");
                 }
                 result.delete(result.length() - 2, result.length()); // Remove last comma and space
@@ -1942,16 +1938,16 @@ public class GameMenuController implements Controller {
                 return Result.error("Co-op quest is not available to join");
             }
 
-			// Enforce clear error when player already has 3 active co-op quests
-			if (coopQuestManager.getActiveQuestsForPlayer(player).size() >= 3) {
-				return Result.error("You already have 3 active co-op quests.");
-			}
+            // Enforce clear error when player already has 3 active co-op quests
+            if (coopQuestManager.getActiveQuestsForPlayer(player).size() >= 3) {
+                return Result.error("You already have 3 active co-op quests.");
+            }
 
             boolean success = coopQuestManager.joinCoopQuest(player, questId, App.getGame().getDate());
             if (success) {
                 return Result.success("Successfully joined co-op quest: " + quest.getTitle());
             } else {
-				return Result.error("Failed to join co-op quest. The quest may be full or no longer available.");
+                return Result.error("Failed to join co-op quest. The quest may be full or no longer available.");
             }
         } catch (NumberFormatException e) {
             return Result.error("Invalid quest ID format");

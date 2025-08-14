@@ -10,6 +10,7 @@ import org.example.client.views.MultiplayerMenuScreen;
 import org.example.client.views.menu.LoadGameScreen;
 import org.example.client.views.menu.ProfileMenuScreen;
 import org.example.client.views.menu.LoginMenuScreen;
+
 import org.example.common.models.App;
 import org.example.common.models.Message;
 import org.example.client.controllers.auth.LoginMenuController;
@@ -112,4 +113,6 @@ public class MainMenuController implements ClientMessageHandler.OnlinePlayersLis
         getGame().setScreen(new LoginMenuScreen(new LoginMenuController(),
             AssetManager.getAssetManager().getSkin()));
     }
+
+
 }
