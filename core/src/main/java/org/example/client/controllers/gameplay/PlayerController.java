@@ -712,7 +712,7 @@ public class PlayerController {
         }
 
         String direction = facing.toString().toLowerCase();
-        String material = tool.getMaterial().toString().toLowerCase();
+        String material = tool.getMaterial().toString();
         String toolType = tool.getType().toString().toLowerCase();
 
         String spritePath;
@@ -780,7 +780,7 @@ public class PlayerController {
 
             int villageX, villageY;
 
-            // Transport player to middle of village to avoid coordinate issues
+            // Transport player to middle of village to avoid próximos issues
             villageX = Village.width / 2; // Middle of village
             villageY = Village.height / 2; // Middle of village
 
@@ -914,6 +914,179 @@ public class PlayerController {
         System.out.println("SUCCESS: Player walked to farm " + farmIndex + " at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
         System.out.println("Player is now in village: " + player.getIsInVillage());
         System.out.println("Player current farm: " + (player.getCurrentFarm() != null ? player.getCurrentFarm().getFarmIndex() : "null"));
+    }
+
+    public void setToHome() {
+        if (player.hasCollapsed()) {
+            System.out.println("Player has collapsed, cannot set to home.");
+            return;
+        }
+
+        int tileX = Math.round(player.getPosX() / 60);
+        int tileY = Math.round(player.getPosY() / 60);
+
+        if (player.getIsInVillage()) {
+            int localVillageX = tileX - GameMap.VILLAGE_X;
+            if (localVillageX <= VILLAGE_TRANSITION_THRESHOLD || localVillageX >= Village.width - VILLAGE_TRANSITION_THRESHOLD) {
+                System.out.println("Player near village edge, transitioning to own farm");
+                Farm targetFarm = player.getCurrentFarm();
+                if (targetFarm == null) {
+                    System.out.println("ERROR: Player's farm is null, defaulting to farm index 1");
+                    targetFarm = gameMap.getFarmByIndex(1);
+                    player.setCurrentFarm(targetFarm);
+                }
+
+                int farmIndex = targetFarm.getFarmIndex();
+                int farmX, farmY;
+
+                switch (farmIndex) {
+                    case 0:
+                        farmX = Farm.width - 5;
+                        farmY = 5;
+                        break;
+                    case 1:
+                        farmX = Farm.width - 5;
+                        farmY = Farm.height - 5;
+                        break;
+                    case 2:
+                        farmX = 5;
+                        farmY = 5;
+                        break;
+                    case 3:
+                        farmX = 5;
+                        farmY = Farm.height - 5;
+                        break;
+                    default:
+                        System.out.println("ERROR: Invalid farm index: " + farmIndex);
+                        farmX = 10;
+                        farmY = 10;
+                        farmIndex = 1;
+                        targetFarm = gameMap.getFarmByIndex(farmIndex);
+                        player.setCurrentFarm(targetFarm);
+                        break;
+                }
+
+                int globalFarmX, globalFarmY;
+                switch (farmIndex) {
+                    case 0:
+                        globalFarmX = farmX;
+                        globalFarmY = farmY;
+                        break;
+                    case 1:
+                        globalFarmX = farmX;
+                        globalFarmY = 78 + farmY;
+                        break;
+                    case 2:
+                        globalFarmX = 156 + farmX;
+                        globalFarmY = farmY;
+                        break;
+                    case 3:
+                        globalFarmX = 156 + farmX;
+                        globalFarmY = 78 + farmY;
+                        break;
+                    default:
+                        globalFarmX = farmX;
+                        globalFarmY = farmY;
+                        break;
+                }
+
+                player.setIsInVillage(false);
+                player.setCurrentFarm(targetFarm);
+                player.setLocation(new Location(globalFarmX, globalFarmY, TileType.Dirt));
+                player.setPosX(globalFarmX * 60);
+                player.setPosY(globalFarmY * 60);
+
+                System.out.println("Player transported to home farm " + farmIndex + " at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
+                sendMovementToServer();
+            } else {
+                int villageX = Village.width / 2;
+                int villageY = Village.height / 2;
+                int globalVillageX = GameMap.VILLAGE_X + villageX;
+                int globalVillageY = GameMap.VILLAGE_Y + villageY;
+
+                player.setIsInVillage(true);
+                player.setLocation(new Location(globalVillageX, globalVillageY, TileType.VILLAGE));
+                player.setPosX(globalVillageX * 60);
+                player.setPosY(globalVillageY * 60);
+                justTransitionedToVillage = true;
+
+                System.out.println("Player transported to village center at global coordinates: (" + globalVillageX + ", " + globalVillageY + ")");
+                sendMovementToServer();
+            }
+        } else {
+            Farm currentFarm = player.getCurrentFarm();
+            if (currentFarm == null) {
+                System.out.println("ERROR: Current farm is null, defaulting to farm index 1");
+                currentFarm = gameMap.getFarmByIndex(1);
+                player.setCurrentFarm(currentFarm);
+            }
+
+            int farmIndex = currentFarm.getFarmIndex();
+            boolean shouldTransition = false;
+            switch (farmIndex) {
+                case 0: case 1:
+                    shouldTransition = tileX >= Farm.width - VILLAGE_TRANSITION_THRESHOLD;
+                    break;
+                case 2: case 3:
+                    shouldTransition = tileX <= VILLAGE_TRANSITION_THRESHOLD;
+                    break;
+            }
+
+            if (shouldTransition) {
+                int villageX = Village.width / 2;
+                int villageY = Village.height / 2;
+                int globalVillageX = GameMap.VILLAGE_X + villageX;
+                int globalVillageY = GameMap.VILLAGE_Y + villageY;
+
+                player.setIsInVillage(true);
+                player.setLocation(new Location(globalVillageX, globalVillageY, TileType.VILLAGE));
+                player.setPosX(globalVillageX * 60);
+                player.setPosY(globalVillageY * 60);
+                justTransitionedToVillage = true;
+
+                System.out.println("Player near farm wall, transported to village center at global coordinates: (" + globalVillageX + ", " + globalVillageY + ")");
+                sendMovementToServer();
+            } else {
+                int farmX = Farm.width / 2;
+                int farmY = Farm.height / 2;
+                int globalFarmX, globalFarmY;
+
+                switch (farmIndex) {
+                    case 0:
+                        globalFarmX = farmX;
+                        globalFarmY = farmY;
+                        break;
+                    case 1:
+                        globalFarmX = farmX;
+                        globalFarmY = 78 + farmY;
+                        break;
+                    case 2:
+                        globalFarmX = 156 + farmX;
+                        globalFarmY = farmY;
+                        break;
+                    case 3:
+                        globalFarmX = 156 + farmX;
+                        globalFarmY = 78 + farmY;
+                        break;
+                    default:
+                        globalFarmX = farmX;
+                        globalFarmY = farmY;
+                        farmIndex = 1;
+                        currentFarm = gameMap.getFarmByIndex(farmIndex);
+                        player.setCurrentFarm(currentFarm);
+                        break;
+                }
+
+                player.setIsInVillage(false);
+                player.setCurrentFarm(currentFarm);
+                player.setLocation(new Location(globalFarmX, globalFarmY, TileType.Dirt));
+                player.setPosX(globalFarmX * 60);
+                player.setPosY(globalFarmY * 60);
+
+                System.out.println("Player transported to home farm " + farmIndex + " center at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
+                sendMovementToServer();
+            }
+        }
     }
 
     public Player getPlayer() {
