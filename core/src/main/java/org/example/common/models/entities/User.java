@@ -37,7 +37,7 @@ public class User implements Serializable {
         this.password = PasswordUtils.hashPassword(password);
         this.email = email;
         this.nickname = nickname;
-        this.gender = gender;
+        this.gender = Gender.Male;
         this.inventory = new ArrayList<>();
         this.mostEarnedMoney = 0;
         this.gamesPlayed = 0;

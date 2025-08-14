@@ -95,7 +95,8 @@ public class GreenhouseController {
             Plant plant = plants.get(i);
             float plantX = (i % GreenHouse.getWidth()) * TILE_SIZE;
             float plantY = (i / GreenHouse.getWidth()) * TILE_SIZE;
-            String key = plant.getImageFilepath() + "_Stage_" + plant.getStage();
+            int stage = plant.getStage() + 1;
+            String key = plant.getType().getImageFilePath() + "_" + stage + ".png";
             Texture plantTexture = textureCache.get(key);
             if (plantTexture != null) {
                 Main.getBatch().draw(plantTexture, plantX, plantY, TILE_SIZE, TILE_SIZE);
@@ -103,6 +104,8 @@ public class GreenhouseController {
         }
         // The call to renderPlayer() has been removed.
     }
+
+
 
     public void handleInput() {
         // Input logic here...

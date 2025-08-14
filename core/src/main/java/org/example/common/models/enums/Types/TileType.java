@@ -32,9 +32,9 @@ public enum TileType {
     IRIDIUM_STONE(false),
     JEWEL_STONE(false),
     GOLD_STONE(false),
-    CONSTRUCTED_GREENHOUSE(false),
+    CONSTRUCTED_GREENHOUSE(true),
     BRANCH(true),
-    GREENHOUSE(false),
+    GREENHOUSE(true),
     FENCE(false);
 
     private final boolean isWalkable;
