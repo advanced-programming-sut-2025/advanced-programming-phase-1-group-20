@@ -10,39 +10,51 @@ import com.badlogic.gdx.utils.Disposable;
 import org.example.common.models.entities.animal.Animal;
 import org.example.common.models.enums.Types.CoopAnimalTypes;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AnimalSpriteController implements Disposable {
-    private final Texture textureSheet;
-    private final int FRAME_W;
-    private final int FRAME_H;
     private static final float FRAME_DURATION = 0.2f;
 
-    // Animations
-    private final Animation<TextureRegion> moveUp;
-    private final Animation<TextureRegion> moveDown;
-    private final Animation<TextureRegion> moveLeft;
-    private final Animation<TextureRegion> moveRight;
-    private final Animation<TextureRegion> doSomething; // Can be used for idle state
+    private static class AnimSet {
+        Texture texture;
+        Animation<TextureRegion> moveUp;
+        Animation<TextureRegion> moveDown;
+        Animation<TextureRegion> moveLeft;
+        Animation<TextureRegion> moveRight;
+        Animation<TextureRegion> doSomething;
+    }
+
+    private final String baseAnimalName;
+    private final Map<String, AnimSet> spriteNameToAnims;
 
     public AnimalSpriteController(String animalName) {
-        textureSheet = new Texture(Gdx.files.internal("content/Animals/" + animalName + ".png"));
-        CoopAnimalTypes coopAnimalType = CoopAnimalTypes.fromName(animalName);
-        int numOfHeight;
-        if (coopAnimalType != null) {
-            numOfHeight = 7;
-        } else {
-            numOfHeight = 5;
-        }
+        this.baseAnimalName = animalName;
+        this.spriteNameToAnims = new HashMap<>();
+        // Preload base sprite
+        loadAnimSetIfAbsent(animalName);
+    }
 
-        FRAME_H = textureSheet.getHeight() / numOfHeight;
-        FRAME_W = textureSheet.getWidth() / 4;
+    private void loadAnimSetIfAbsent(String spriteName) {
+        if (spriteNameToAnims.containsKey(spriteName)) return;
 
-        TextureRegion[][] grid = TextureRegion.split(textureSheet, FRAME_W, FRAME_H);
-        moveDown = buildAnim(grid[0]);
-        moveRight = buildAnim(grid[1]);
-        moveUp = buildAnim(grid[2]);
-        moveLeft = buildAnim(grid[3]);
-        doSomething = buildAnim(grid.length > 5 ? grid[5] : grid[0]); // Fallback to moveDown if doSomething doesn't exist
+        Texture textureSheet = new Texture(Gdx.files.internal("content/Animals/" + spriteName + ".png"));
+        CoopAnimalTypes coopAnimalType = CoopAnimalTypes.fromName(spriteName);
+        int numOfHeight = (coopAnimalType != null) ? 7 : 5;
+        int frameH = textureSheet.getHeight() / numOfHeight;
+        int frameW = textureSheet.getWidth() / 4;
 
+        TextureRegion[][] grid = TextureRegion.split(textureSheet, frameW, frameH);
+
+        AnimSet set = new AnimSet();
+        set.texture = textureSheet;
+        set.moveDown = buildAnim(grid[0]);
+        set.moveRight = buildAnim(grid[1]);
+        set.moveUp = buildAnim(grid[2]);
+        set.moveLeft = buildAnim(grid[3]);
+        set.doSomething = buildAnim(grid.length > 5 ? grid[5] : grid[0]);
+
+        spriteNameToAnims.put(spriteName, set);
     }
 
     private static Animation<TextureRegion> buildAnim(TextureRegion[] row) {
@@ -54,39 +66,40 @@ public class AnimalSpriteController implements Disposable {
     }
 
     public TextureRegion getCurrentFrame(Animal animal, float stateTime) {
-        Animation<TextureRegion> currentAnimation;
+        String spriteName = animal.getSpriteName();
+        if (spriteName == null || spriteName.isEmpty()) spriteName = baseAnimalName;
+        loadAnimSetIfAbsent(spriteName);
+        AnimSet set = spriteNameToAnims.get(spriteName);
 
-        // Select animation based on facing direction
+        Animation<TextureRegion> currentAnimation;
         switch (animal.getFacing()) {
             case UP:
-                currentAnimation = moveUp;
+                currentAnimation = set.moveUp;
                 break;
             case DOWN:
-                currentAnimation = moveDown;
+                currentAnimation = set.moveDown;
                 break;
             case LEFT:
-                currentAnimation = moveLeft;
+                currentAnimation = set.moveLeft;
                 break;
             case RIGHT:
-                currentAnimation = moveRight;
+                currentAnimation = set.moveRight;
                 break;
             default:
-                currentAnimation = doSomething;
+                currentAnimation = set.doSomething;
                 break;
         }
 
-        // If the animal is not moving, show a standing frame (e.g., the second frame)
-        if (!animal.isMoving()) {
-            return currentAnimation.getKeyFrame(stateTime, true);
-        }
-
-        // If moving, return the animated frame
         return currentAnimation.getKeyFrame(stateTime, true);
     }
 
-    public TextureRegion getRightFrame(int frameIndex) {
+    public TextureRegion getRightFrameForAnimal(Animal animal, int frameIndex) {
+        String spriteName = animal.getSpriteName();
+        if (spriteName == null || spriteName.isEmpty()) spriteName = baseAnimalName;
+        loadAnimSetIfAbsent(spriteName);
+        AnimSet set = spriteNameToAnims.get(spriteName);
         if (frameIndex >= 0 && frameIndex < 3) {
-            Object[] frames = moveRight.getKeyFrames();
+            Object[] frames = set.moveRight.getKeyFrames();
             if (frames != null && frameIndex < frames.length) {
                 return (TextureRegion) frames[frameIndex];
             }
@@ -96,8 +109,9 @@ public class AnimalSpriteController implements Disposable {
 
     @Override
     public void dispose() {
-        if (textureSheet != null) {
-            textureSheet.dispose();
+        for (AnimSet set : spriteNameToAnims.values()) {
+            if (set.texture != null) set.texture.dispose();
         }
+        spriteNameToAnims.clear();
     }
 }

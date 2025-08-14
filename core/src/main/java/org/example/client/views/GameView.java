@@ -1163,6 +1163,16 @@ public class GameView implements Screen, InputProcessor {
                 } else {
                     direction = dy > 0 ? "north" : "south";
                 }
+                // If using shears and clicked on an animal, attempt shearing instead of generic tool use
+                Tool currentTool2 = currentPlayer.getCurrentTool();
+                Animal targetAnimal = findAnimalAt(worldCoords.x, worldCoords.y);
+                if (currentTool2.getType() == Tool.ToolType.SHEARS && targetAnimal instanceof BarnAnimal) {
+                    AnimalController animalController = new AnimalController();
+                    Result result = animalController.collectProduce(new String[]{targetAnimal.getName()});
+                    showResultNotification(result);
+                    return true;
+                }
+
                 currentPlayer.useTool(direction, game.getGameMap());
                 if (controller != null && controller.getPlayerController() != null) {
                     controller.getPlayerController().triggerToolSwing(direction, worldCoords.x, worldCoords.y);
@@ -1507,6 +1517,25 @@ public class GameView implements Screen, InputProcessor {
 
         // Draw the player sprite
         Main.getBatch().draw(playerTexture, player.getPosX() - RENDER_W/2, player.getPosY() - RENDER_H/2, RENDER_W, RENDER_H);
+
+        // Draw equipped tool overlay for certain tools at player's location
+        try {
+            Tool equippedTool = player.getCurrentTool();
+            if (equippedTool != null) {
+                Tool.ToolType type = equippedTool.getType();
+                if (type == Tool.ToolType.SHEARS || type == Tool.ToolType.MILK_PAIL || type == Tool.ToolType.FISHING_ROD) {
+                    String toolPath = equippedTool.getImageFilepath();
+                    if (toolPath != null && !toolPath.isEmpty()) {
+                        Texture toolTexture = new Texture(Gdx.files.internal(toolPath));
+                        float toolSize = 32f;
+                        float toolX = player.getPosX() - toolSize / 2f;
+                        float toolY = player.getPosY() - toolSize / 2f;
+                        Main.getBatch().draw(toolTexture, toolX, toolY, toolSize, toolSize);
+                        // Not disposing every frame to match existing pattern; relies on GC/asset reuse
+                    }
+                }
+            }
+        } catch (Exception ignored) { }
 
         // Don't dispose the texture immediately - let it be garbage collected
         // playerTexture.dispose();

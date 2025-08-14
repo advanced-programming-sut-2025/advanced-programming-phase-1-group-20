@@ -103,8 +103,8 @@ public class Player {
 //            Tool.ToolType.FISHING_ROD, Tool.ToolMaterial.BASIC, 8, Skills.FISHING, ToolFunctionality.FISHING_ROD), 1);
 //        backpack.add(new Tool("Milk Pail", 0, "content/Tools/Milk_Pail.png", "A pail for milking cows.",
 //            Tool.ToolType.MILK_PAIL, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.MILK_PAIL), 1);
-//        backpack.add(new Tool("Shears", 0, "content/Tools/shears/Shears.png", "Shears for collecting wool from sheep.",
-//            Tool.ToolType.SHEARS, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.SHEARS), 1);
+        backpack.add(new Tool("Shears", 0, "content/Tools/shears/Shears.png", "Shears for collecting wool from sheep.",
+            Tool.ToolType.SHEARS, Tool.ToolMaterial.BASIC, 4, Skills.FARMING, ToolFunctionality.SHEARS), 1);
         this.spouse = null;
 
         this.isMarried = false;

@@ -21,6 +21,9 @@ public class Animal extends Item {
     public enum Direction { DOWN, LEFT, RIGHT, UP }
     private Direction facing = Direction.DOWN;
 
+    // Current sprite sheet name in assets/content/Animals (e.g., "Sheep" or "Sheep_sheared")
+    private String spriteName;
+
     public Animal(String name, int price) {
         super(name, price, "");
         this.name = name;
@@ -28,6 +31,7 @@ public class Animal extends Item {
         this.stateTimer = (float) (Math.random() * 5);
         this.targetX = posX;
         this.targetY = posY;
+        this.spriteName = name;
     }
 
     public float getPosX() {
@@ -100,6 +104,14 @@ public class Animal extends Item {
 
     public void setFacing(Direction facing) {
         this.facing = facing;
+    }
+
+    public String getSpriteName() {
+        return spriteName != null ? spriteName : name;
+    }
+
+    public void setSpriteName(String spriteName) {
+        this.spriteName = spriteName;
     }
 
 

@@ -1,7 +1,6 @@
 package org.example.client.controllers;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Disposable;
@@ -126,12 +125,11 @@ public class AnimalsController implements Disposable {
         if (spriteController == null) {
             return;
         }
-
         TextureRegion currentFrame = spriteController.getCurrentFrame(animal, stateTime);
 
         // Determine render size based on animal type
         float renderWidth, renderHeight;
-        
+
         // Check if it's a barn animal (larger animals)
         if (isBarnAnimal(animal.getName())) {
             renderWidth = 72;  // 50% bigger than original 48
@@ -144,7 +142,7 @@ public class AnimalsController implements Disposable {
 
         batch.draw(currentFrame, animal.getPosX(), animal.getPosY(), renderWidth, renderHeight);
     }
-    
+
     /**
      * Determines if an animal is a barn animal (larger animals that should be rendered bigger)
      * @param animalName The name of the animal

@@ -1145,10 +1145,7 @@ public class PlayerController {
         return player;
     }
 
-    /**
-     * Update the player reference to follow the current player
-     * This should be called when the turn advances
-     */
+
     public void updatePlayer(Player newPlayer) {
         // Update the player reference
         // Note: We can't change the final player field, so we need to create a new PlayerController
@@ -1338,7 +1335,7 @@ public class PlayerController {
             } else {
             }
         } catch (Exception e) {
-            System.err.println("❌ CLIENT: Error sending movement to server: " + e.getMessage());
+            System.err.println("CLIENT: Error sending movement to server: " + e.getMessage());
             e.printStackTrace();
         }
     }

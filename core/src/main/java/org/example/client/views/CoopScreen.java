@@ -95,7 +95,7 @@ public class CoopScreen implements Screen {
                 // Animal image (moveRight(0) frame)
                 AnimalSpriteController spriteController = getSpriteController(animal.getName());
                 if (spriteController != null) {
-                    var animalFrame = spriteController.getRightFrame(0);
+                    var animalFrame = spriteController.getRightFrameForAnimal(animal, 0);
                     if (animalFrame != null) {
                         Image animalImage = new Image(animalFrame);
                         animalImage.setSize(48, 48);
@@ -110,7 +110,7 @@ public class CoopScreen implements Screen {
                 // Animal info
                 Table animalInfo = new Table(skin);
                 animalInfo.add(new Label(animal.getName() + " (" + animal.getType() + ")", skin)).row();
-                
+
                 // Check if animal has product ready
                 Item product = animal.getProduct();
                 if (product != null) {
@@ -121,7 +121,7 @@ public class CoopScreen implements Screen {
                         productImage.setSize(32, 32);
                         animalInfo.add(productImage).pad(5);
                     }
-                    
+
                     // Add collect button
                     TextButton collectButton = new TextButton("Collect", skin);
                     collectButton.addListener(new ChangeListener() {
@@ -134,7 +134,7 @@ public class CoopScreen implements Screen {
                     });
                     animalInfo.add(collectButton).pad(5);
                 }
-                
+
                 mainTable.add(animalInfo).pad(10);
 
                 // Action buttons
@@ -218,13 +218,13 @@ public class CoopScreen implements Screen {
             }
         }
         spriteControllers.clear();
-        
+
         // Dispose product textures
         for (Texture texture : productTextures.values()) {
             texture.dispose();
         }
         productTextures.clear();
-        
+
         stage.dispose();
     }
 }

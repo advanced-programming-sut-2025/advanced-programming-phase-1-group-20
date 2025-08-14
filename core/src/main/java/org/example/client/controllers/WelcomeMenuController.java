@@ -101,19 +101,24 @@ public class WelcomeMenuController {
         map.addFarm(farm1);
         //TODO : these are for testing and it works!!!!!
         // Add a barn and a coop to the farm
-        Coop coop = new Coop(Cages.NORMAL_COOP, new Location(10, 10, TileType.COOP), "My Coop");
+        Coop coop = new Coop(Cages.DELUXE_CAGE, new Location(10, 10, TileType.COOP), "My Coop");
         farm1.addCoop(coop);
 
 
-        Barn barn = new Barn(BarnTypes.NORMAL_BARN, new Location(39, 39, TileType.BARN), "My Barn");
+        Barn barn = new Barn(BarnTypes.BIG_BARN, new Location(39, 39, TileType.BARN), "My Barn");
         farm1.addBarn(barn);
 
 
         // Create and add animals
-        BarnAnimal cow = new BarnAnimal(BarnAnimalTypes.COW, "Bessie");
-        cow.setPosX(barn.getX() * 60);
-        cow.setPosY(barn.getY() * 60);
-        barn.addAnimal(cow);
+//        BarnAnimal cow = new BarnAnimal(BarnAnimalTypes.COW, "Bessie");
+//        cow.setPosX(barn.getX() * 60);
+//        cow.setPosY(barn.getY() * 60);
+//        barn.addAnimal(cow);
+
+        BarnAnimal sheep =  new BarnAnimal(BarnAnimalTypes.SHEEP, "Sheep");
+        sheep.setPosX(barn.getX() * 60);
+        sheep.setPosY(barn.getY() * 60);
+        barn.addAnimal(sheep);
 
         CoopAnimal chicken = new CoopAnimal(CoopAnimalTypes.CHICKEN, "Clucky");
         chicken.setPosX(coop.getX() * 60);

@@ -16,6 +16,7 @@ public class BarnAnimal extends Animal implements Serializable {
     private boolean hasBeenPetToday;
     private boolean isOutside;
     private Random random = new Random();
+    private boolean hasWoolAvailable = true; // for sheep shearing state
 
     public BarnAnimal(BarnAnimalTypes type, String name) {
         super(name, type.getPrice());
@@ -25,6 +26,8 @@ public class BarnAnimal extends Animal implements Serializable {
         this.hasBeenFed = false;
         this.hasBeenPetToday = false;
         this.isOutside = false;
+        // default sprite based on type name
+        this.setSpriteName(type.getName());
     }
 
 
@@ -83,6 +86,11 @@ public class BarnAnimal extends Animal implements Serializable {
 
         // Reset production counter
         daysSinceLastProduction = 0;
+        // If sheep, mark wool harvested and set sheared sprite
+        if (type.getName().equalsIgnoreCase("Sheep")) {
+            hasWoolAvailable = false;
+            this.setSpriteName("Sheep_sheared");
+        }
 
         return product;
     }
@@ -133,6 +141,14 @@ public class BarnAnimal extends Animal implements Serializable {
         // Reset daily flags
         hasBeenFed = false;
         hasBeenPetToday = false;
+
+        // Sheep wool regrowth handling: when production interval reached again, restore sprite
+        if (type.getName().equalsIgnoreCase("Sheep")) {
+            if (daysSinceLastProduction >= type.getProductionInterval()) {
+                hasWoolAvailable = true;
+                this.setSpriteName("Sheep");
+            }
+        }
     }
 
 
@@ -193,6 +209,10 @@ public class BarnAnimal extends Animal implements Serializable {
 
     public String getName(){
         return type.getName();
+    }
+
+    public boolean isHasWoolAvailable() {
+        return hasWoolAvailable;
     }
 
     public boolean isPetToday() {

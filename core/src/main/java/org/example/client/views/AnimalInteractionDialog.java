@@ -59,7 +59,7 @@ public class AnimalInteractionDialog extends Dialog {
         });
         getContentTable().add(feedButton).width(200).pad(5).row();
 
-        // Collect Product Button
+        // Collect Product Button (requires proper tool for certain animals)
         TextButton collectButton = new TextButton("Collect Product", skin);
         boolean canProduce = (animal instanceof BarnAnimal && ((BarnAnimal) animal).canProduce()) ||
             (animal instanceof CoopAnimal && ((CoopAnimal) animal).getProduct() != null);
