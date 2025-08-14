@@ -416,11 +416,9 @@ public class GameMenuController implements Controller {
         }
 
         gMap.getFarmByPlayer(player).placeItem(x, y, item);
-        if (wasCurrentItem) {
-            player.setCurrentItem(null);
-        } else {
-            player.getBackpack().remove(item, 1);
-        }
+        player.setCurrentItem(null);
+        player.getBackpack().remove(item, 1);
+
 
 
         if (item instanceof CraftingItem craftingItem) {
@@ -532,11 +530,8 @@ public class GameMenuController implements Controller {
 
         // Consume the item
         player.increaseEnergy(energyGained);
-        if (wasCurrentItem) {
-            player.setCurrentItem(null); // The held item disappears
-        } else {
-            player.getBackpack().remove(itemToEat, 1); // Remove one from the backpack
-        }
+        player.setCurrentItem(null); // The held item disappears
+        player.getBackpack().remove(itemToEat, 1); // Remove one from the backpack
 
         return Result.success("Food " + foodName + " eaten.");
     }

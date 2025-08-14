@@ -56,7 +56,7 @@ public class Player {
     private float posY = 69 * 60;
     private float speed;
     private CollisionRect rect;
-    
+
     // Animation state for multiplayer rendering
     private String currentAnimation = "down";
     private boolean isMoving = false;
@@ -486,7 +486,6 @@ public class Player {
             return;
         }
 
-        backpack.remove(item , 1);
         setCurrentItem(item);
     }
 
@@ -1088,28 +1087,28 @@ public class Player {
     public int hashCode() {
         return Objects.hash(user);
     }
-    
+
     // Animation state getters and setters for multiplayer rendering
     public String getCurrentAnimation() {
         return currentAnimation;
     }
-    
+
     public void setCurrentAnimation(String currentAnimation) {
         this.currentAnimation = currentAnimation;
     }
-    
+
     public boolean isMoving() {
         return isMoving;
     }
-    
+
     public void setMoving(boolean moving) {
         isMoving = moving;
     }
-    
+
     public float getAnimationTimer() {
         return animationTimer;
     }
-    
+
     public void setAnimationTimer(float animationTimer) {
         this.animationTimer = animationTimer;
     }

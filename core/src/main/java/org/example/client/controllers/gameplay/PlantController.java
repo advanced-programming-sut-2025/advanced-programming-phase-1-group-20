@@ -223,11 +223,9 @@ public class PlantController {
 
         // Place the item and finalize the action
         gameMap.getFarmByPlayer(player).placeItem(x, y, itemToPlant);
-        if (wasCurrentItem) {
-            player.setCurrentItem(null);
-        } else {
-            player.getBackpack().remove(seed, 1);
-        }
+
+        player.setCurrentItem(null);
+        player.getBackpack().remove(seed, 1);
         player.getSkills().get(0).updateLevel(); // Assuming skill 0 is Farming
         return Result.success("Planted " + seedName + " successfully!");
     }

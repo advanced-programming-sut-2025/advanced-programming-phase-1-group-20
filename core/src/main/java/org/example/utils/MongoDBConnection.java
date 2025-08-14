@@ -12,7 +12,7 @@ public class MongoDBConnection {
     private static final String CONNECTION_STRING = "mongodb://localhost:27017";
     private static final String DATABASE_NAME = "stardew_valley_db";
     private static final String USERS_COLLECTION = "users";
-    private static final String GAMES_COLLECTION = "games"; // نام کالکشن بازی‌ها
+    private static final String GAMES_COLLECTION = "games";
 
     private MongoDBConnection() {
     }
@@ -35,12 +35,10 @@ public class MongoDBConnection {
         return database;
     }
 
-    // متد برای گرفتن کالکشن کاربران
     public static MongoCollection<Document> getUsersCollection() {
         return getDatabase().getCollection(USERS_COLLECTION);
     }
 
-    // متد برای گرفتن کالکشن بازی‌ها
     public static MongoCollection<Document> getGamesCollection() {
         return getDatabase().getCollection(GAMES_COLLECTION);
     }
