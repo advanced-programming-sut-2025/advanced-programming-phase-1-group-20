@@ -39,8 +39,8 @@ public class WelcomeMenuScreen implements Screen {
     private ImageButton signUpButton;
     private ImageButton loginButton;
     private ImageButton exitButton;
-    private TextButton tryGameButton; // TODO: Testing button for map and game "mostafa"
-    private TextButton loadGameButton;
+    private ImageButton tryGameButton;
+    private ImageButton loadGameButton;
     private Label titleLabel;
     private Label loadingLabel;
     private Image background;
@@ -73,7 +73,6 @@ public class WelcomeMenuScreen implements Screen {
         setupBackground();
         setupLoadingScreen();
         setupMainMenu();
-//        showLoadingScreen();
     }
 
     private void setupBackground() {
@@ -128,7 +127,7 @@ public class WelcomeMenuScreen implements Screen {
         setupButtonListeners();
 
         stage.addActor(mainTable);
-        showMainMenu(); // TODO: Uncomment this when auto-login is implemented
+        showMainMenu();
     }
 
     private void createButtons() {
@@ -136,18 +135,16 @@ public class WelcomeMenuScreen implements Screen {
         signUpButton = createImageButton("content/Titles/signUp.png");
         loginButton = createImageButton("content/Titles/login.png");
         exitButton = createImageButton("content/Titles/exit.png");
-
-        // Create text button for testing
-        tryGameButton = new TextButton("TRY GAME", skin);
-        loadGameButton = new TextButton("LOAD GAME", skin);
+        tryGameButton = createImageButton("content/Titles/tryGame.png");
+        loadGameButton = createImageButton("content/Titles/loadGame.png");
     }
 
     private void styleButtons() {
-        styleImageButton(signUpButton, Color.GREEN);
-        styleImageButton(loginButton, Color.BLUE);
-        styleImageButton(exitButton, Color.RED);
-        styleTextButton(tryGameButton, Color.CYAN);
-        styleTextButton(loadGameButton, Color.MAGENTA);
+        styleImageButton(signUpButton, Color.WHITE);
+        styleImageButton(loginButton, Color.WHITE);
+        styleImageButton(exitButton, Color.WHITE);
+        styleImageButton(tryGameButton, Color.WHITE);
+        styleImageButton(loadGameButton, Color.WHITE);
     }
 
     private void layoutButtons() {
@@ -156,22 +153,19 @@ public class WelcomeMenuScreen implements Screen {
 
         // Create button layout table
         Table buttonTable = new Table();
-        buttonTable.defaults().width(BUTTON_WIDTH).height(BUTTON_HEIGHT).pad(BUTTON_PADDING);
+        buttonTable.defaults().height(BUTTON_HEIGHT).pad(BUTTON_PADDING);
 
-        // Row 1: Authentication buttons (Sign Up & Login)
-        buttonTable.add(signUpButton).uniform();
-        buttonTable.add(loginButton).uniform();
+        // Row 1: Authentication buttons (Sign Up, Exit, Login)
+        buttonTable.add(signUpButton).width(BUTTON_WIDTH * 0.8f);
+        buttonTable.add(exitButton).width(BUTTON_WIDTH * 0.6f).padLeft(10).padRight(10);
+        buttonTable.add(loginButton).width(BUTTON_WIDTH * 0.8f);
         buttonTable.row();
 
-        // Row 2: Exit button (centered, spans both columns)
-        buttonTable.add(exitButton).colspan(2).uniform();
+        // Row 2: Game buttons (Try Game & Load Game)
+        buttonTable.add(tryGameButton).colspan(3).width(BUTTON_WIDTH).padTop(30);
         buttonTable.row();
 
-        // Row 3: Testing button (centered, spans both columns)
-        buttonTable.add(tryGameButton).colspan(2).uniform().padTop(30);
-        buttonTable.row();
-
-        buttonTable.add(loadGameButton).colspan(2).uniform().padTop(30);
+        buttonTable.add(loadGameButton).colspan(3).width(BUTTON_WIDTH).padTop(15);
         buttonTable.row();
 
         mainTable.add(buttonTable);
@@ -195,11 +189,6 @@ public class WelcomeMenuScreen implements Screen {
     }
 
     private void styleImageButton(ImageButton button, Color color) {
-        button.setColor(color);
-        addHoverAnimation(button);
-    }
-
-    private void styleTextButton(TextButton button, Color color) {
         button.setColor(color);
         addHoverAnimation(button);
     }
@@ -252,8 +241,6 @@ public class WelcomeMenuScreen implements Screen {
                 controller.handleLoadGameButton();
             }
         });
-
-
     }
 
     // =================
@@ -262,16 +249,6 @@ public class WelcomeMenuScreen implements Screen {
 
     private void checkAutoLogin() {
         isAutoLoginChecking = true;
-
-        // Perform auto-login check TODO: debug
-//        if (AutoLoginUtil.checkAndPerformAutoLogin()) {
-//            isAutoLoginChecking = false;
-////            Main.getGame().setScreen(new MainMenuScreen(new MainMenuController(), skin));
-//        } else {
-//            // No auto-login, show main menu
-//            isAutoLoginChecking = false;
-//            showMainMenu();
-//        }
         showMainMenu();
     }
 
