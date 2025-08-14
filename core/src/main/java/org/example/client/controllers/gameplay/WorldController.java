@@ -106,6 +106,9 @@ public class WorldController {
     private Texture invalidPlacementTexture;
     private Texture validPlacementTexture;
     private Texture hoverPlacementTexture;
+    private Texture progressBarBackgroundTexture;
+    private Texture progressBarForegroundTexture;
+
 
     // Crow Attack Animation Fields
     private boolean crowAttack = false;
@@ -147,6 +150,9 @@ public class WorldController {
 
         validPlacementTexture = createColorTexture(Color.GREEN);
         hoverPlacementTexture = createColorTexture(Color.RED);
+        progressBarBackgroundTexture = createColorTexture(Color.DARK_GRAY);
+        progressBarForegroundTexture = createColorTexture(Color.GREEN);
+
 
         // Initialize crow animation
         Array<TextureRegion> crowFrames = new Array<>();
@@ -1234,9 +1240,9 @@ public class WorldController {
         for (Building b : village.getBuildings()) {
             if (b.getType().equals("public") &&
                 (b.getName().equals("Mayor House") ||
-                 b.getName().equals("Fish Pond") ||
-                 b.getName().equals("Museum") ||
-                 b.getName().equals("Town Hall")) &&
+                    b.getName().equals("Fish Pond") ||
+                    b.getName().equals("Museum") ||
+                    b.getName().equals("Town Hall")) &&
                 b.contains(x, y)) {
                 building = b;
                 break;
@@ -1566,6 +1572,26 @@ public class WorldController {
         if (texture != null) {
             Main.getBatch().draw(texture, worldX, worldY, TILE_SIZE, TILE_SIZE);
         }
+
+
+        if (craftingItem.getProccessingItem() != null) {
+            double progress = craftingItem.getProgressBar();
+
+            final float barHeight = 8f;
+            final float barMarginY = 4f;
+            final float progressBarX = worldX;
+            final float progressBarY = worldY + TILE_SIZE + barMarginY;
+            final float progressBarWidth = TILE_SIZE;
+
+
+            if (progressBarBackgroundTexture != null) {
+                Main.getBatch().draw(progressBarBackgroundTexture, progressBarX, progressBarY, progressBarWidth, barHeight);
+            }
+
+            if (progressBarForegroundTexture != null) {
+                Main.getBatch().draw(progressBarForegroundTexture, progressBarX, progressBarY, (float) (progressBarWidth * progress), barHeight);
+            }
+        }
     }
 
     private void renderCropItem(float worldX, float worldY , Crop crop) {
@@ -1705,7 +1731,7 @@ public class WorldController {
         player.setPosY(originalY);
     }
 
-        private void renderPlayerSprite(Player player) {
+    private void renderPlayerSprite(Player player) {
         final int RENDER_W = 48;
         final int RENDER_H = 72;
 
@@ -2038,7 +2064,7 @@ public class WorldController {
                 camera.position.set(cameraX, cameraY, 0);
                 camera.update();
 
-               }
+            }
         }
     }
 
@@ -2204,9 +2230,9 @@ public class WorldController {
         buildingToPlace = null;
         potentialPlacementTiles.clear();
 
-         if (controller != null && controller.getView() != null) {
+        if (controller != null && controller.getView() != null) {
 //             controller.getView().returnToPreviousView();
-         }
+        }
     }
 
     private NPC checkNPCClick(Vector3 touchPoint) {

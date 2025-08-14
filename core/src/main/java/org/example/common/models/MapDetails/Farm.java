@@ -975,6 +975,10 @@ public class Farm {
                 craftingItem.updateArtisan();
             }
         }
+
+        for(CraftingItem craftingItem : owner.getCraftingItems()){
+            craftingItem.updateArtisan();
+        }
     }
 
     public boolean isPassable(Location location) {
