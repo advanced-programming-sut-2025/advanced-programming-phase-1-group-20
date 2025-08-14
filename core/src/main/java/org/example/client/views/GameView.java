@@ -198,7 +198,7 @@ public class GameView implements Screen, InputProcessor {
 
     // Reconnection dialog
     private ReconnectionDialog reconnectionDialog;
-    
+
     // Simple disconnection overlay message
     private Label disconnectionOverlay;
     private boolean showDisconnectionMessage = false;
@@ -316,14 +316,14 @@ public class GameView implements Screen, InputProcessor {
         lightingStyle.font.getData().markupEnabled = true;
 
         lightingDescriptionLabel = new Label("", lightingStyle);
-        
+
         // Initialize disconnection overlay
         Label.LabelStyle disconnectionStyle = new Label.LabelStyle();
         disconnectionStyle.font = customFont;
         disconnectionStyle.fontColor = Color.RED;
         disconnectionStyle.font.getData().setScale(1.0f);
         disconnectionStyle.font.getData().markupEnabled = true;
-        
+
         disconnectionOverlay = new Label("Disconnected... trying to reconnect...", disconnectionStyle);
         disconnectionOverlay.setAlignment(com.badlogic.gdx.utils.Align.center);
         disconnectionOverlay.setVisible(false);
@@ -903,6 +903,11 @@ public class GameView implements Screen, InputProcessor {
 
         if (keycode == Input.Keys.P) {
             handlePetClosestAnimal();
+            return true;
+        }
+
+        if(keycode == Input.Keys.Z) {
+            controller.getPlayerController().returnToFarm();
             return true;
         }
 
@@ -1659,7 +1664,7 @@ public class GameView implements Screen, InputProcessor {
         pauseTable.add(resumeButton).width(200).height(20).pad(10);
         pauseTable.setVisible(false);
         stage.addActor(pauseTable);
-        
+
         // Add disconnection overlay to the stage (centered, on top of everything)
         if (disconnectionOverlay != null) {
             Table disconnectionTable = new Table();
@@ -1726,10 +1731,10 @@ public class GameView implements Screen, InputProcessor {
             NetworkClient networkClient = NetworkClient.getInstance();
             if (networkClient != null) {
                 // Show simple overlay message when disconnected or reconnecting
-                boolean isDisconnected = networkClient.isReconnecting() || 
+                boolean isDisconnected = networkClient.isReconnecting() ||
                                        networkClient.getConnectionState() == NetworkClient.ConnectionState.DISCONNECTED ||
                                        networkClient.getConnectionState() == NetworkClient.ConnectionState.ERROR;
-                
+
                 if (isDisconnected && game.isMultiplayer) {
                     if (disconnectionOverlay != null && !disconnectionOverlay.isVisible()) {
                         disconnectionOverlay.setVisible(true);
@@ -1747,7 +1752,7 @@ public class GameView implements Screen, InputProcessor {
                         }
                     }
                 }
-                
+
                 // Handle reconnection dialog (existing logic)
                 if (reconnectionDialog != null) {
                     if (networkClient.isReconnecting() && !reconnectionDialog.isVisible()) {

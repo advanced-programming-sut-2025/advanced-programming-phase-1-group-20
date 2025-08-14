@@ -1089,6 +1089,58 @@ public class PlayerController {
         }
     }
 
+    /**
+     * Teleports the player to the center of their current farm, regardless of their current location.
+     */
+    public void returnToFarm() {
+        Farm homeFarm = player.getCurrentFarm();
+        if (homeFarm == null) {
+            System.out.println("ERROR: Player has no current farm to return to.");
+            return;
+        }
+
+        int farmIndex = homeFarm.getFarmIndex();
+        int farmX = Farm.width / 2 + 5; // Center of the farm
+        int farmY = Farm.height / 2 + 5; // Center of the farm
+        int globalFarmX, globalFarmY;
+
+        switch (farmIndex) {
+            case 0:
+                globalFarmX = farmX;
+                globalFarmY = farmY;
+                break;
+            case 1:
+                globalFarmX = farmX;
+                globalFarmY = 78 + farmY; // Offset for bottom-left farm
+                break;
+            case 2:
+                globalFarmX = 156 + farmX; // Offset for top-right farm
+                globalFarmY = farmY;
+                break;
+            case 3:
+                globalFarmX = 156 + farmX; // Offset for bottom-right farm
+                globalFarmY = 78 + farmY;
+                break;
+            default:
+                // Fallback to a default position in case of an invalid farm index
+                System.out.println("WARNING: Invalid farm index " + farmIndex + ". Defaulting to base coordinates.");
+                globalFarmX = farmX;
+                globalFarmY = farmY;
+                break;
+        }
+
+        // Update player's state to move them to the farm
+        player.setIsInVillage(false);
+        player.setCurrentFarm(homeFarm); // Ensure the current farm is set
+        player.setLocation(new Location(globalFarmX, globalFarmY, TileType.Dirt));
+        player.setPosX(globalFarmX * 60);
+        player.setPosY(globalFarmY * 60);
+
+        System.out.println("Player teleported to home farm " + farmIndex + " center at global coordinates: (" + globalFarmX + ", " + globalFarmY + ")");
+        sendMovementToServer(); // Notify the server about the new position
+    }
+
+
     public Player getPlayer() {
         return player;
     }
