@@ -205,7 +205,7 @@ public class NPCGiftInventoryScreen implements Screen {
         selectionPanel.add(titleLabel).padBottom(10).row();
 
         // Selected item info
-        selectedItemLabel = new Label("No item selected", skin);
+        selectedItemLabel = new Label("Drag an item here", skin);
         selectedItemLabel.setColor(Color.LIGHT_GRAY);
         selectionPanel.add(selectedItemLabel).padBottom(10).row();
 
@@ -240,6 +240,32 @@ public class NPCGiftInventoryScreen implements Screen {
         }
 
         mainTable.add(selectionPanel).width(300).fillY().pad(20);
+
+        // Define the selection panel as a drop target
+        dragAndDrop.addTarget(new DragAndDrop.Target(selectionPanel) {
+            final Color normalColor = new Color(0.3f, 0.3f, 0.3f, 0.9f);
+            final Color hoverColor = new Color(0.4f, 0.5f, 0.4f, 0.9f);
+
+            @Override
+            public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                getActor().setColor(hoverColor);
+                return true; // Accept the drop
+            }
+
+            @Override
+            public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
+                getActor().setColor(normalColor);
+            }
+
+            @Override
+            public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+                Item droppedItem = (Item) payload.getObject();
+                if (droppedItem != null) {
+                    int availableQuantity = currentPlayer.getBackpack().getNumberOfItem(droppedItem.getName());
+                    selectItem(droppedItem, availableQuantity);
+                }
+            }
+        });
     }
 
     private void createActionButtons() {
@@ -278,9 +304,10 @@ public class NPCGiftInventoryScreen implements Screen {
             selectedItemLabel.setText(displayText);
             selectedItemLabel.setColor(Color.WHITE);
         } else {
-            selectedItemLabel.setText("No item selected");
+            selectedItemLabel.setText("Drag an item here");
             selectedItemLabel.setColor(Color.LIGHT_GRAY);
         }
+        quantityField.setText(String.valueOf(selectedQuantity));
     }
 
     private void giveGift() {
@@ -320,17 +347,15 @@ public class NPCGiftInventoryScreen implements Screen {
     }
 
     private void refreshInventoryDisplay() {
-        // Remove the old inventory table
-        mainTable.removeActor(scrollPane);
-
-        // Recreate the inventory display
+        // This is a simplified refresh. For a more robust solution, you might update individual slots.
+        // For now, we recreate the inventory display part.
+        mainTable.getCells().get(1).setActor(null); // Clear the old scrollpane cell
         createInventoryDisplay();
 
         // Reset selection
         selectedItem = null;
         selectedQuantity = 1;
         updateSelectionDisplay();
-        quantityField.setText("1");
     }
 
     private void showErrorDialog(String message) {
