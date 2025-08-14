@@ -1850,9 +1850,9 @@ public class WorldController {
                 } else if (checkClicked(greenhouseAnchors, GREENHOUSE_TILES_W, GREENHOUSE_TILES_H, touchPointFarm)) {
                     boolean isConstructed = farm.getGreenHouse().getIsConstructed();
 
-                    if (isConstructed) {
+                    if (true) {
                         Gdx.app.log("WorldController", "Entering constructed greenhouse.");
-                        getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this));
+                        getGame().setScreen(new GreenhouseScreen(playerController, farm.getGreenHouse(), this , controller.getView()));
                     } else {
                         GreenhouseRepairDialog repairDialog = new GreenhouseRepairDialog(
                             playerController.getPlayer(), controller, skin);

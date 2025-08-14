@@ -2447,8 +2447,8 @@ public class GameView implements Screen, InputProcessor {
         Farm currentFarm = player.getCurrentFarm();
         if (currentFarm == null) return null;
 
-        float animalWidth = 48 * 60; // Approximate render width
-        float animalHeight = 96 * 60; // Approximate render height
+        float animalWidth = 48; // Approximate render width
+        float animalHeight = 96; // Approximate render height
 
         // Check Barn Animals
         for (Barn barn : currentFarm.getBarns()) {
