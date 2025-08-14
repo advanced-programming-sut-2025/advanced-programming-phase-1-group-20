@@ -63,7 +63,7 @@ public class PlantController {
         int targetY = playerLocation.getY() + dir[0];
 
         // --- 2. Target Tile Validations ---
-        if (!gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY)) {
+        if (!gameMap.getFarmByPlayer(player).isPlowed(targetX, targetY) && !gameMap.getFarmByPlayer(player).isGreenHouse(targetX, targetY)) {
             return Result.error("The land must be tilled before planting.");
         }
         if (gameMap.getFarmByPlayer(player).getItem(targetX, targetY).getItem() != null) {

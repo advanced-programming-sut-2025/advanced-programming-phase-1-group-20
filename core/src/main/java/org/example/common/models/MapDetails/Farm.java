@@ -396,14 +396,14 @@ public class Farm {
     private boolean isNearHouse(int x, int y) {
         int houseCenterX = building.getX() + building.getWidth() / 2;
         int houseCenterY = building.getY() + building.getHeight() / 2;
-        
+
         // Define a radius around the house where no trees/crops should be placed
         int houseRadius = 8; // Adjust this value to control the size of the clear area
-        
+
         // Calculate distance from house center
         int distanceX = Math.abs(x - houseCenterX);
         int distanceY = Math.abs(y - houseCenterY);
-        
+
         // Check if position is within the radius (using Manhattan distance for simplicity)
         return distanceX <= houseRadius && distanceY <= houseRadius;
     }
@@ -418,7 +418,7 @@ public class Farm {
             int x = rand.nextInt(width);
             int y = rand.nextInt(height);
             attempts++;
-            
+
             // Skip corner positions
             if ((x == 0 && y == 0) ||
                 (x == width - 1 && y == 0) ||
@@ -426,12 +426,12 @@ public class Farm {
                 (x == width - 1 && y == height - 1)) {
                 continue;
             }
-            
+
             // Skip positions near the house for trees and crops
             if ((type.equals("tree") || type.equals("crop")) && isNearHouse(x, y)) {
                 continue;
             }
-            
+
             TileType currentTile = tiles[x][y].getTile();
 
             if (currentTile == TileType.Dirt) {
@@ -469,7 +469,7 @@ public class Farm {
                 placed++;
             }
         }
-        
+
         // Log how many objects were actually placed
         if (placed < count) {
             System.out.println("Placed " + placed + " out of " + count + " " + type + " objects (some positions were near house)");
@@ -796,6 +796,12 @@ public class Farm {
     public boolean isPlowed(int x, int y) {
         if (!contains(x, y)) return false;
         return tiles[x][y].getTile() == TileType.PLOWED;
+    }
+
+    public boolean isGreenHouse(int x, int y) {
+        if (!contains(x, y)) return false;
+        System.out.println(tiles[x][y].getTile());
+        return tiles[x][y].getTile() == TileType.GREENHOUSE || tiles[x][y].getTile() == TileType.CONSTRUCTED_GREENHOUSE;
     }
 
     private boolean isValidTileType(String type) {
